@@ -185,5 +185,8 @@ Vagrant.configure("2") do |config|
     config.vagrant.host = data['vagrant']['host'].gsub(":", "").intern
   end
 
+#copio il virtualhost di progetto
+config.vm.provision :shell, :path => "puphpet/shell/copy_virtualhost.sh"
+
 end
 
