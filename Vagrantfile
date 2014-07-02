@@ -188,5 +188,9 @@ Vagrant.configure("2") do |config|
 #copio il virtualhost di progetto
 config.vm.provision :shell, :path => "puphpet/shell/copy_virtualhost.sh"
 
+#download della libreria Zend Framework 2
+config.vm.provision :shell, :path => "puphpet/shell/downloadzf2.sh"
+
+
 end
 
