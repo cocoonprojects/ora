@@ -8,10 +8,7 @@ vagrantfile-local:
         chosen_provider: virtualbox
         network:
            private_network: 192.168.56.111
-           forwarded_port: 
-               xB4wqC1bru8z:
-                   host: '8081'
-                   guest: '81'
+           forwarded_port: { }
         provider:
             virtualbox:
                 modifyvm:
@@ -84,13 +81,13 @@ apache:
        oraproject:
             servername: oraproject
             docroot: /var/www/vagrant/src/public
-            port: '81'
+            port: '80'
             setenv:
                 - 'APPLICATION_ENV development'
             override:
                 - All
             options: ''
-            custom_fragment: 'DirectoryIndex index.php'
+            custom_fragment: ''
             ssl_cert: ''
             ssl_key: ''
             ssl_chain: ''
