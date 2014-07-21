@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="bootstrap.php"
+         colors="true"
+         verbose="true">
+    <testsuites>
+        <testsuite name="All Modules">
+            <directory>../src/module/Application/test</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist addUncoveredFilesFromWhitelist="true">
+            <directory>../src/module/Application/src/</directory>
+        </whitelist>
+        <blacklist>
+            <directory suffix=".php">../vendor</directory>
+            <directory suffix=".php">../config</directory>
+            <file>../src/module/Application/Module.php</file>
+            <file>../src/module/Application/test/bootstrap.php</file>
+        </blacklist>
+    </filter>
+</phpunit>
