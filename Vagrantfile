@@ -191,6 +191,8 @@ config.vm.provision :shell, :path => "puphpet/shell/copy_virtualhost.sh"
 #aggiornamento delle librerie di progetto con composer
 config.vm.provision :shell, :path => "puphpet/shell/composer_update.sh"
 
+#creazione del link per phpunit
+config.vm.provision :shell, :path => "puphpet/shell/phpunit_link.sh"
 
 end
 
