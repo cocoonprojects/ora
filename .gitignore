@@ -3,3 +3,4 @@ vendor/
 .vagrant/
 composer.lock
 composer.phar
+.vagrant/
