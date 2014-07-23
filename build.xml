@@ -117,6 +117,10 @@
 
  <target name="phpunit" description="Run unit tests with PHPUnit">
   <exec executable="phpunit" failonerror="false">
+   <arg value="--coverage-crap4j" />
+   <arg value="${basedir}/build/logs/crap4j.xml" />
+   <arg value="--coverage-clover" />
+   <arg value="${basedir}/build/logs/clover.xml" />
    <arg value="-c" />
    <arg value="${basedir}/tests/phpunit.xml" />
    <arg value="${basedir}/tests" />
