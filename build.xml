@@ -88,16 +88,16 @@
          description="Find coding standard violations using PHP_CodeSniffer and print human readable output. Intended for usage on the command line before committing.">
   <exec executable="phpcs">
    <arg value="--standard=${basedir}/build/phpcs.xml" />
-   <arg path="${basedir}/src" />
+   <arg path="${basedir}/src/module" />
   </exec>
  </target>
 
  <target name="phpcs-ci" description="Find coding standard violations using PHP_CodeSniffer creating a log file for the continuous integration server">
-  <exec executable="phpcs" output="/dev/null">
+  <exec executable="phpcs">
    <arg value="--report=checkstyle" />
    <arg value="--report-file=${basedir}/build/logs/checkstyle.xml" />
    <arg value="--standard=${basedir}/build/phpcs.xml" />
-   <arg path="${basedir}/src" />
+   <arg path="${basedir}/src/module" />
   </exec>
  </target>
 
@@ -110,13 +110,13 @@
  </target>
 
  <target name="phpunit" description="Run unit tests with PHPUnit">
-  <exec executable="phpunit" failonerror="false">
+  <exec executable="phpunit" failonerror="true">
    <arg value="--coverage-crap4j" />
    <arg value="${basedir}/build/logs/crap4j.xml" />
    <arg value="--coverage-clover" />
    <arg value="${basedir}/build/logs/clover.xml" />
-   <arg value="--coverage-xml" />
-   <arg value="${basedir}/build/logs/phpunit.xml" />
+   <arg value="--log-junit" />
+   <arg value="${basedir}/build/logs/junit.xml" />
    <arg value="-c" />
    <arg value="${basedir}/tests/phpunit.xml" />
    <arg value="${basedir}/tests" />
