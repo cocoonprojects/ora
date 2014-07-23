@@ -1,5 +1,3 @@
-bin/
 vendor/
-.vagrant/
 composer.lock
 composer.phar
