@@ -1,8 +1,8 @@
 {
     "require": {
     	"phpunit/phpunit": "4.1",
-        "behat/behat": "3.0.12"
-    },
+	"behat/behat": "3.0.12"
+            },
 
     "config": {
         "bin-dir": "bin/"

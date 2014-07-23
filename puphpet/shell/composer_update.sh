@@ -1,10 +1,11 @@
 #!/bin/bash
 
-echo "Esecuzione di composer.phar update sul progetto..."
 cd /vagrant
-php composer.phar update
 
-cd /vagrant/src
-php composer.phar update
+echo "Esecuzione di composer.phar self-update..."
+php composer.phar self-update
+echo "...FATTO"
 
+echo "Esecuzione di composer.phar update sul progetto..."
+php composer.phar update
 echo "...FATTO"
