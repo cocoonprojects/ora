@@ -1,0 +1,7 @@
+default:
+    autoload:
+            - functional/features/bootstrap
+    suites:
+        all-tests:
+            paths:
+                features: functional/features
