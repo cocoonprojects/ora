@@ -116,6 +116,10 @@
  </target>
 
  <target name="phpunit" description="Run unit tests with PHPUnit">
-  <exec executable="phpunit" failonerror="false"/>
+  <exec executable="phpunit" failonerror="false">
+   <arg value="-c" />
+   <arg value="${basedir}/tests/phpunit.xml" />
+   <arg value="${basedir}/tests" />
+  </exec>
  </target>
 </project>
