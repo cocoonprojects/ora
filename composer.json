@@ -10,7 +10,7 @@
     "require": {
     	"php": ">=5.3.3",
         "zendframework/zendframework": "2.3.*",
-    	"phpunit/phpunit": "4.1",
-	"behat/behat": "3.0.12"
-            }
+        "phpunit/phpunit": "4.1",
+        "behat/behat": "2.4.*@stable"
+    }
 }

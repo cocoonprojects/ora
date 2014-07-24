@@ -1,27 +1,50 @@
 <?php
 
-use Behat\Behat\Context\SnippetAcceptingContext;
-use Behat\Gherkin\Node\PyStringNode;
-use Behat\Gherkin\Node\TableNode;
-use Behat\Behat\Tester\Exception\PendingException;
+use Behat\Behat\Context\BehatContext;
+use Behat\Behat\Exception\PendingException;
 
 /**
- * Behat context class.
+ * Features context.
  */
-class FeatureContext implements SnippetAcceptingContext
+class FeatureContext extends BehatContext
 {
-    /**
-     * Initializes context.
-     *
-     * Every scenario gets its own context object.
-     * You can also pass arbitrary arguments to the context constructor through behat.yml.
-     */
-    public function __construct()
+    /** @var \Zend\Mvc\Application */
+    private static $zendApp;
+
+    /** @BeforeSuite */
+    static public function initializeZendFramework()
     {
+        if(self::$zendApp === null)
+        {
+            $path_config = '/vagrant/tests/unit/test.config.php';
+
+            $path = '/vagrant/vendor/zendframework/zendframework/library';
+            putenv("ZF2_PATH=".$path);
+
+            include '/vagrant/src/init_autoloader.php';
+
+            self::$zendApp = Zend\Mvc\Application::init(require $path_config);
+        }
+    }
+
+    private function getServiceManager()
+    {
+        return self::$zendApp->getServiceManager();
     }
 
     /**
-     * @Given there is something
+     * Initializes context.
+     * Every scenario gets it's own context object.
+     *
+     * @param array $parameters context parameters (set them up through behat.yml)
+     */
+    public function __construct(array $parameters)
+    {
+        // Initialize your context here
+    }
+
+    /**
+     * @Given /^there is something$/
      */
     public function thereIsSomething()
     {
@@ -29,7 +52,7 @@ class FeatureContext implements SnippetAcceptingContext
     }
 
     /**
-     * @When I do something
+     * @When /^I do something$/
      */
     public function iDoSomething()
     {
@@ -37,7 +60,7 @@ class FeatureContext implements SnippetAcceptingContext
     }
 
     /**
-     * @Then I should see something
+     * @Then /^I should see something$/
      */
     public function iShouldSeeSomething()
     {
