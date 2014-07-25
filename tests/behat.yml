@@ -1,4 +1,8 @@
 default:
   paths:
     features: 'functional/features'
-    bootstrap: 'functional/features/bootstrap'    
+    bootstrap: 'functional/features/bootstrap'
+  extensions:
+    Behat\MinkExtension\Extension:
+      base_url:  'http://oraproject'
+      goutte:    ~
