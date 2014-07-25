@@ -110,6 +110,7 @@ php:
             - gd
             - mbstring
             - mysql
+            - curl
         pear:
             - Console_GetoptPlus
             - XML_Util2
