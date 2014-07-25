@@ -9,7 +9,10 @@
     "homepage": "http://framework.zend.com/",
     "require": {
     	"php": ">=5.3.3",
-        "zendframework/zendframework": "2.3.*",
+        "zendframework/zendframework": "2.3.*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.1",
 		"behat/mink-extension": "*",
 		"behat/mink-goutte-driver": "*"   
     }
