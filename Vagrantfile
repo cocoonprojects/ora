@@ -194,5 +194,9 @@ config.vm.provision :shell, :path => "puphpet/shell/composer_update.sh"
 #creazione del link per phpunit e behat
 config.vm.provision :shell, :path => "puphpet/shell/testsuite_link.sh"
 
+#installazione di vim
+config.vm.provision :shell, :path => "puphpet/shell/vim.sh"
+
+
 end
 
