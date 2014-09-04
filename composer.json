@@ -20,10 +20,10 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "bower install"
+            "bower install --allow-root"
         ],
         "post-update-cmd": [
-            "bower update"
+            "bower update --allow-root"
         ]
     }
 }
