@@ -198,7 +198,7 @@ config.vm.provision :shell, :path => "puphpet/shell/composer_update.sh"
 config.vm.provision :shell, :path => "puphpet/shell/testsuite_link.sh"
 
 #installazione di vim
-config.vm.provision :shell, :path => "puphpet/shell/vim.sh"
+#config.vm.provision :shell, :path => "puphpet/shell/vim.sh"
 
 
 end
