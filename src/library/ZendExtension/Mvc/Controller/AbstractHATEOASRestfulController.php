@@ -1,5 +1,4 @@
 <?php
-
 namespace ZendExtension\Mvc\Controller;
 
 use Zend\Mvc\Controller\AbstractRestfulController;
@@ -22,7 +21,7 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
 		$response->getHeaders()->addHeaderLine('Allow', implode(',', $options));
 		return $response;
 	}
-	
+
 	public function checkOptions($e)
 	{
 		if ($this->params('id', false)) {
@@ -30,9 +29,8 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
 		} else {
 			$options = $this->getCollectionOptions();
 		}
-		
+
 		$method = $e->getRequest()->getMethod();
-		
 		if (in_array($method, $options) || $method == 'OPTIONS') {
 			// HTTP method is allowed!
 			return;
@@ -45,10 +43,7 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
 		return $response;
 	}
 
-	public function preDispatch($e)
-	{
-	    // To be overridden...
-	}
+	public function preDispatch($e)	{}
 	
 	public function setEventManager(EventManagerInterface $events)
 	{
@@ -62,4 +57,5 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
 	protected abstract function getCollectionOptions();
 	
 	protected abstract function getResourceOptions();
+
 }
