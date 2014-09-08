@@ -41,10 +41,16 @@ class TasksController extends AbstractRestfulController
     
     public function create($data)
     {	    	    	
+    	
+    	//controlli: esistenza del progetto + esistenza di subject
+    	
+    	//se il progetto esiste lo passo direttamente al metodo addTask
+    	
     	$projectId = $this->params('projectId');
+    	$subject = $data['subject'];
     	
        	$ps = $this->getProjectService();       	
-       	$response = $ps->addTask($projectId);
+       	$response = $ps->addTask($projectId, $subject);
        	       	
        	$this->response->setStatusCode(202);       	
         return new JsonModel($response);

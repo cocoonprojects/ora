@@ -10,9 +10,10 @@ class ProjectServiceImpl implements ProjectService{
 		
 	}
 	
-	public function addTask($projectId){
+	public function addTask($projectId, $subject){
 		
-			return array($projectId => 'new task added');
+		//inserire evento di aggiunta task
+		return array($projectId => 'new task added: '.$subject);
 	}
 		
 	

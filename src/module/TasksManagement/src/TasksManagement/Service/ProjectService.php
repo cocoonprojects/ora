@@ -6,7 +6,7 @@ namespace TasksManagement\Service;
 interface ProjectService 
 {
 	
-	public function addTask($data);
+	public function addTask($projectId, $subject);
 	
 	
 	
