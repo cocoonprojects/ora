@@ -77,21 +77,7 @@ apache:
         - headers
         - vhost_alias
         - expires
-    vhosts:
-       xB4wqC1bru8z:
-         servername: oraproject
-         docroot: /var/www/vagrant/src/public
-         port: '80'
-         setenv:
-          - 'APPLICATION_ENV development'
-         override:
-          - All
-        options: ''
-        custom_fragment: 'DirectoryIndex index.php'
-        ssl_cert: ''
-        ssl_key: ''
-        ssl_chain: ''
-        ssl_certs_dir: ''
+    vhosts: { }
     mod_pagespeed: 0
     mod_spdy: 0
 nginx:
@@ -124,6 +110,7 @@ php:
             - gd
             - mbstring
             - mysql
+            - curl
         pear:
             - Console_GetoptPlus
             - XML_Util2
