@@ -4,7 +4,8 @@ return array(
 
 	'controllers' => array(
          'invokables' => array(
-             'TasksManagement\Controller\Tasks' => 'TasksManagement\Controller\TasksController',
+             	'TasksManagement\Controller\Tasks' => 'TasksManagement\Controller\TasksController',
+				'TasksManagement\Controller\Projects' => 'TasksManagement\Controller\ProjectsController',
          ),
      ),
 
@@ -13,10 +14,10 @@ return array(
             'tasks' => array(
                 'type' => 'Segment',
                 'options' => array(
-                     'route'    => '/tasks-management/projects/:idproject/tasks[/:idtask]',
+                     'route'    => '/tasks-management/projects/:projectId/tasks[/:id]',
                      'constraints' => array(                         
-                         'idtask'     => '[0-9]+',
-     					 'idproject'     => '[0-9]+',
+                         'id'     => '[0-9]+',
+     					 'projectId'     => '[0-9]+',
                      ),
                      'defaults' => array(
                          'controller' => 'TasksManagement\Controller\Tasks'
@@ -26,9 +27,9 @@ return array(
             'projects' => array(
                 'type' => 'Segment',
                 'options' => array(
-                     'route'    => '/tasks-management/projects[/:idproject]',
+                     'route'    => '/tasks-management/projects[/:id]',
                      'constraints' => array(                         
-                         'idproject'     => '[0-9]+',
+                         'id'     => '[0-9]+',
                      ),
                      'defaults' => array(
                          'controller' => 'TasksManagement\Controller\Projects'
@@ -40,16 +41,9 @@ return array(
     
     'service_manager' => array(),
     'translator' => array(),
-     'view_manager' => array(
+    'view_manager' => array(
         'strategies' => array(
             'ViewJsonStrategy',
         ),
-    ),
-    // Placeholder for console routes
-    'console' => array(
-        'router' => array(
-            'routes' => array(
-            ),
-        ),
-    ),
+    )
 );

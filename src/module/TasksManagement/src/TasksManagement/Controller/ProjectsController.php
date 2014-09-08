@@ -5,24 +5,9 @@ namespace TasksManagement\Controller;
 use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\View\Model\JsonModel;
 
-class TasksController extends AbstractRestfulController
-{   
-	private $projectService;
-		
-    public function getProjectService(){
-
-    	$projectServices = '';
-    	
-    	if($this->projectService == null){
-    		$projectServices = $this->getServiceLocator()->get('TasksManagement\Services\ProjectService');
-    	}else{
-    		$projectServices = $this->projectService;
-    	}
-    	    	
-    	return $projectServices;
-    }
+class ProjectsController extends AbstractRestfulController
+{    
     
-	
     public function get($id)
     {
         $response = array();
@@ -33,25 +18,22 @@ class TasksController extends AbstractRestfulController
     
     public function getList()
     {
-       	$response = array("1"=>"CIAO TASK");
-       	
+       	$response = array("1"=>"CIAO PROGETTO");
+		
        	$this->response->setStatusCode(200);
         return new JsonModel($response);
     }
     
     public function create($data)
-    {	    	    	
-    	$projectId = $this->params('projectId');
-    	
-       	$ps = $this->getProjectService();       	
-       	$response = $ps->addTask($projectId);
-       	       	
-       	$this->response->setStatusCode(202);       	
+    {	
+       	$response = array();
+
+       	$this->response->setStatusCode(202);
         return new JsonModel($response);
     }
     
     public function update($id, $data)
-    {   	
+    {
       	$response = array();
 
         return new JsonModel($response);

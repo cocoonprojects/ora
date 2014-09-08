@@ -1,7 +1,12 @@
 <?php
+
 namespace TasksManagement;
 
-class Module
+use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
+use Zend\ModuleManager\Feature\ConfigProviderInterface;
+use TasksManagement\Service\ProjectServiceImpl;
+
+class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {
     public function getConfig()
     {
@@ -17,5 +22,16 @@ class Module
                 ),
             ),
         );
+    }
+    
+    public function getServiceConfig(){
+    	
+    	return array(
+    		'factories' => array(
+    				'TasksManagement\Services\ProjectService' => function($sm){
+    					return new ProjectServiceImpl();
+    				}
+    			)
+    	);
     }
 }
