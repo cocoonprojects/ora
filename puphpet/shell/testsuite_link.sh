@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 if [ -f /usr/bin/phpunit ]; then
  echo "link phpunit gia' presente."
 else
@@ -16,4 +15,3 @@ else
  ln -s /vagrant/vendor/behat/behat/bin/behat /usr/bin/
  echo "...FATTO"
 fi
-
