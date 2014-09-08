@@ -21,6 +21,10 @@ if (file_exists('../vendor/autoload.php')) {
     $loader = include '../vendor/autoload.php';
 }
 
+if(isset($loader)) {
+	$loader->add('ZendExtension', __DIR__ . '/library');
+}
+
 if (class_exists('Zend\Loader\AutoloaderFactory')) {
     return;
 }
