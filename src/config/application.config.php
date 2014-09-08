@@ -17,7 +17,8 @@ return array(
 		'DoctrineModule',
         'DoctrineORMModule',
         'Application',
-        'TaskManagement',
+    	'Accounting',
+    	'TaskManagement',
         'ProjectManagement',
         'ZendOAuth2',
     	'User',
@@ -43,4 +44,3 @@ return array(
         ),
     ),
 );
-
