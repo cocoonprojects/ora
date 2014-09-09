@@ -43,16 +43,7 @@ class LoginController extends AbstractHATEOASRestfulController
     	return $this->redirect()->toRoute('home');
     }
     
-    public function getResponseWithHeader()
-    {
-        $response = $this->getResponse();
-        $response->getHeaders()
-                 ->addHeaderLine('Access-Control-Allow-Origin','*')
-                 ->addHeaderLine('Access-Control-Allow-Methods','GET');
-        
-        return $response;
-    }
-    
+
     public function getAuthService()
     {
     	if (!$this->authService) {
@@ -75,5 +66,4 @@ class LoginController extends AbstractHATEOASRestfulController
     	return self::$resourceOptions;
     }
         
-  
 }

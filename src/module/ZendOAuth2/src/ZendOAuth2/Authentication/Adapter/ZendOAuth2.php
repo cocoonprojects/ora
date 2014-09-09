@@ -19,7 +19,8 @@ class ZendOAuth2 implements AdapterInterface, EventManagerAwareInterface
     {
         if($oauth2 instanceof AbstractOAuth2Client) {
             $this->client = $oauth2;
-        }       
+        }
+        
     }
     
     public function authenticate()

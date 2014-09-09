@@ -72,4 +72,5 @@ class LogoutController extends AbstractHATEOASRestfulController
     protected function getResourceOptions() {
     	return self::$resourceOptions;
     }    
+
 }

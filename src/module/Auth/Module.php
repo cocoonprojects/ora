@@ -23,40 +23,25 @@ class Module
             )
         );
     }
+    
     public function onDispatch(\Zend\Mvc\MvcEvent $e)
     {
         $application = $e->getParam('application');
         $viewModel = $application->getMvcEvent()->getViewModel();
 
-        $auth = new \Zend\Authentication\AuthenticationService();
+        $viewVariables['logged'] = false;
+        $viewVariables['urlAuthList'] = array();
+        $viewVariables['user'] = "";
+        
+        $sm = $e->getApplication()->getServiceManager();
+        $authService = $sm->get('\Auth\Service\AuthService');
+        
+        $viewVariables = $authService->informationsOfAuthentication();
+        
+		$viewModel->logged = $viewVariables['logged'];
+        $viewModel->user = $viewVariables['user'];
+		$viewModel->urlAuthList = $viewVariables['urlAuthList'];
 
-        if($auth->hasIdentity())
-        {
-            $viewModel->logged = true;
-            $viewModel->user = $auth->getIdentity();
-        }
-        else
-        {
-            $sm = $e->getApplication()->getServiceManager();
-            $config = $sm->get('Config');
-
-            $avaiablesProvider = $config["zendoauth2"];
-
-            $urlList = array();
-
-            foreach($avaiablesProvider as $provider => $providerValue)
-            {
-                $provider = ucfirst($provider);
-                $serviceProvider = "ZendOAuth2\\".$provider;
-
-                $me = $sm->get($serviceProvider);
-
-                $urlList[$provider] =  $me->getUrl();
-            }
-
-            $viewModel->urlAuthList = $urlList;
-            $viewModel->logged = false;
-        }
     }
 
     public function getAutoloaderConfig()

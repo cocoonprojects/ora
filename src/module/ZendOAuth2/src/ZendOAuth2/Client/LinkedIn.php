@@ -63,6 +63,7 @@ class LinkedIn extends AbstractOAuth2Client
                 return false;
             }
         } else {
+        	
             $this->error = array(
                 'internal-error'=> 'State error, request variables do not match the session variables.',
                 'session-state' => $this->session->state, 
