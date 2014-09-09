@@ -3,21 +3,27 @@
 namespace Auth\Controller;
 
 use Zend\Mvc\Controller\AbstractRestfulController;
-use Zend\Authentication\AuthenticationService;
+
 use Zend\View\Model\JsonModel;
 
 class LogoutController extends AbstractRestfulController
 {        
     public function getList()
     {
-        $response = array();
-
-        $me = $this->getServiceLocator()->get('ZendOAuth2\Google');
-        $session = $me->getSessionContainer();
-        $session->getManager()->getStorage()->clear();
-
+        $auth = new \Zend\Authentication\AuthenticationService();
+        if($auth->hasIdentity())
+        {
+            $identity = $auth->getIdentity();
+            $provider = $identity["provider"];    
         
-        return new JsonModel(array('data' => $response));
+            $me = $this->getServiceLocator()->get("ZendOAuth2\\".$provider);
+         
+            $auth->clearIdentity();
+            $session = $me->getSessionContainer();
+            $session->getManager()->getStorage()->clear();   
+        }
+
+        return $this->redirect()->toRoute('home');
     }
 
     public function getResponseWithHeader()

@@ -4,6 +4,7 @@ namespace Auth\Controller;
 
 use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\View\Model\JsonModel;
+use Zend\Session\Container;
 
 class LoginController extends AbstractRestfulController
 {    
@@ -33,6 +34,25 @@ class LoginController extends AbstractRestfulController
                 if($me->getToken($this->request)) 
                 {
                     $token = $me->getSessionToken(); 
+
+                    $auth = new \Zend\Authentication\AuthenticationService();
+
+                    $adapter = $this->getServiceLocator()->get('ZendOAuth2\Auth\Adapter'); 
+                    $adapter->setOAuth2Client($me); 
+                    $rs = $auth->authenticate($adapter);
+
+                    if (!$rs->isValid()) {
+                        foreach ($rs->getMessages() as $message) {
+                            echo "$message\n";
+                        }
+                    } else {
+                        $container = new Container("Zend_Auth");
+                        $identityArray = $auth->getIdentity();
+                        $identityArray["provider"] = $provider;
+
+                        $auth->getStorage()->write($identityArray);
+                    }
+
                 } else {
                     $token = $me->getError();
                 }
@@ -46,13 +66,7 @@ class LoginController extends AbstractRestfulController
             }
         }
 
-        return new JsonModel(array(
-            'token' => $token,
-            'info' => $info, 
-            'url' => $url
-            )
-        );
-        
+        return $this->redirect()->toRoute('home');
     }
 
     public function getResponseWithHeader()

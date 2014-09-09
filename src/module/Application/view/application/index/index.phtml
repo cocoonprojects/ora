@@ -2,20 +2,7 @@
     
     <center><h1><?php echo sprintf($this->translate('%sHello O.R.A.!%s'), '<span class="zf-green">', '</span>') ?></h1></center>
     <center><p><a class="btn btn-success btn-lg" href="https://github.com/cocoonprojects/ora" target="_blank"><?php echo $this->translate('Fork O.R.A. Project on GitHub') ?> &raquo;</a></p></center>
-    <center>
-        <p>
-            <?php if(true !== $session){ 
-
-                foreach($urlAuthList as $provider => $url)
-                {
-                ?>
-                    <a class="btn btn-success btn-lg" href="<?php echo $url ?>"><?php echo $this->translate("Login con {$provider}") ?></a>
-                <?php } 
-            }else{ ?>
-                <a class="btn btn-warning btn-lg" href="<?php echo $this->url('logout') ?>"><?php echo $this->translate('Logout') ?></a>
-            <?php } ?>
-       </p>
-   </center>
+    
 </div>
 
 <div class="row">

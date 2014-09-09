@@ -74,24 +74,24 @@ return array(
         //     'redirect_uri'  => 'your callback url which links to your controller',
         // ),
 
-        'linkedin' => array(
-            'scope' => array(
-                /*
-                'user',
-                'public_repo',
-                'repo',
-                'repo:status',
-                'delete_repo',
-                'gist'
-                */
-            ),
-            'auth_uri'      => 'https://www.linkedin.com/uas/oauth2/authorization',
-            'token_uri'     => 'https://www.linkedin.com/uas/oauth2/accessToken',
-            'info_uri'      => 'https://api.linkedin.com/v1/people/~',
-            'client_id'     => 'your api key',
-            'client_secret' => 'your api secret',
-            'redirect_uri'  => 'your callback url which links to your controller',
-        ),
+        // 'linkedin' => array(
+        //     'scope' => array(
+        //         /*
+        //         'user',
+        //         'public_repo',
+        //         'repo',
+        //         'repo:status',
+        //         'delete_repo',
+        //         'gist'
+        //         */
+        //     ),
+        //     'auth_uri'      => 'https://www.linkedin.com/uas/oauth2/authorization',
+        //     'token_uri'     => 'https://www.linkedin.com/uas/oauth2/accessToken',
+        //     'info_uri'      => 'https://api.linkedin.com/v1/people/~',
+        //     'client_id'     => 'your api key',
+        //     'client_secret' => 'your api secret',
+        //     'redirect_uri'  => 'your callback url which links to your controller',
+        // ),
 
     )
     
