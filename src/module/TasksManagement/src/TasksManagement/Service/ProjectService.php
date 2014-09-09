@@ -2,7 +2,6 @@
 
 namespace TasksManagement\Service;
 
-
 interface ProjectService 
 {
 	

@@ -16,9 +16,6 @@ class ProjectServiceImpl implements ProjectService{
 		return array($projectId => 'new task added: '.$subject);
 	}
 		
-	
-	
-	
 }
 
 

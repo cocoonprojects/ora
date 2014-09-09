@@ -7,6 +7,8 @@
  */
 return array(
     'modules' => array(
+        'DoctrineModule',
+        'DoctrineORMModule',
         'Application',
         'TasksManagement'
     ),
