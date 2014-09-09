@@ -10,4 +10,5 @@ curl https://www.npmjs.org/install.sh | sh
 
 
 #installazione di bower
-npm install -g bower
+npm install -g bower --allow-root
+
