@@ -4,3 +4,6 @@ vendor/
 composer.phar
 /.project
 /.buildpath
+*.old
+.settings/
+.DS_Store
