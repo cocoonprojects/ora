@@ -13,15 +13,15 @@ return array(
         // namespace, the value of that key the specific path to that module's
         // Module class.
         'module_paths' => array(
-            './module',
-            '../vendor',
+            __DIR__.'/../module',
+            __DIR__.'/../../vendor',
         ),
 
         // An array of paths from which to glob configuration files after
         // modules are loaded. These effectively override configuration
         // provided by modules themselves. Paths may use GLOB_BRACE notation.
         'config_glob_paths' => array(
-            'config/autoload/{,*.}{global,local}.php',
+            __DIR__.'/../config/autoload/{,*.}{global,local}.php',
         ),
     ),
 );

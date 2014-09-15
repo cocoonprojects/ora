@@ -2,7 +2,7 @@
 git clone https://github.com/joyent/node.git
 cd node
 git checkout v0.10.31 #Try checking nodejs.org for what the stable version is
-./configure && make && sudo make install
+./configure && make && make install
 cd ..
 
 #installazione di npm
