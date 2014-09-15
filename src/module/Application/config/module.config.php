@@ -94,4 +94,26 @@ return array(
             ),
         ),
     ),
+    'doctrine' => array(
+    	
+    	'configuration' => array(
+        	'orm_default' => array(
+        		'generate_proxies'  => true,
+        		'proxy_dir'         => 'data/DoctrineORMModule/Proxies'        		
+        	)
+        ),
+    
+        'driver' => array(
+             __NAMESPACE__ . '_driver' => array(
+                'class' => 'Doctrine\ORM\Mapping\Driver\AnnotationDriver',
+                'cache' => 'array',
+                'paths' => array(__DIR__ . '/../../../library/Ora')
+            ),
+            'orm_default' => array(
+                'drivers' => array(
+                    'Ora' =>  __NAMESPACE__ . '_driver'
+                )
+      		)
+      	)
+    )
 );
