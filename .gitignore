@@ -7,4 +7,4 @@ composer.phar
 *.old
 .settings/
 .DS_Store
-config/
+./vagrant/config/
