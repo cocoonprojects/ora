@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo '#FIX FOR: stdin: is not a tty'
+sed -i 's/^mesg n$/tty -s \&\& mesg n/g' /root/.profile
+
 export DEBIAN_FRONTEND=noninteractive
 
 VAGRANT_CORE_FOLDER=$(echo "$1")
