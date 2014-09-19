@@ -7,6 +7,11 @@
 		<div class="col-md-10">
 			<ul>
 				<li ng-repeat="account in accounts | filter:query">{{account.id}}</li>
+				<?php foreach ($this->accounts as $a) {?>
+				<li ng-repeat="account in accounts | filter:query">
+					<?php echo $a->getId() ?>
+					<span class=""><?php echo $this->currencyFormat($a->getBalance()->getValue(), $a->getCurrency()); ?></span>
+				</li><?php } ?>
 			</ul>
 		</div>
 	</div>
