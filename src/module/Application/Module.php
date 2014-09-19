@@ -56,6 +56,7 @@ class Module
             'Zend\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
+     				'Ora' => __DIR__ . '/../../library/Ora',              
                 ),
             ),
         );
