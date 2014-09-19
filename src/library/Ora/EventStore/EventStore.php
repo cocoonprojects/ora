@@ -1,5 +1,4 @@
 <?php
-
 namespace Ora\EventStore;
 
 use Ora\DomainEvent;
