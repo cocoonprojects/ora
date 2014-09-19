@@ -7,7 +7,7 @@ class CreditsDepositedEvent extends CreditsAccountEvent {
 	
 	public function __construct(\DateTime $firedAt, CreditsAccount $account, $value) {
 		parent::__construct($firedAt, $account);
-		assertNotNull($account, 'Unable to deposit '.$value.' credits in null account');
+		assertGreaterThanOrEqual(0, $value, 'Invalid deposit lower than 0');
 		$this->value = $value;
 	}
 	
