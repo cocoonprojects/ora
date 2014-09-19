@@ -3,16 +3,21 @@ namespace Accounting\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
+use Ora\CreditsAccount\CreditsAccountsService;
 
 class IndexController extends AbstractActionController
 {
+	/**
+	 * 
+	 * @var CreditsAccountsService
+	 */
 	protected $accountsService;
 	
 	public function indexAction()
 	{
-		$a = $this->getCreditsAccountFactory()->create();
+		$a = $this->getCreditsAccountFactory()->listAccounts();
 		$viewModel = new ViewModel();
-		$viewModel->setVariable('accounts', array($a, $a));
+		$viewModel->setVariable('accounts', $a);
 		return $viewModel;
 	}
 

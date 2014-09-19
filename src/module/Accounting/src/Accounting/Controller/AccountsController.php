@@ -25,13 +25,13 @@ class AccountsController extends AbstractHATEOASRestfulController
 	{
 		// if JSON Content-Type, returns decoded data; for
 		// application/x-www-form-urlencoded, returns array
-		$resource = $this->getCreditsAccountsService()->create();
+		$this->getCreditsAccountsService()->create();
 		$response = $this->getResponse();
 		$response->setStatusCode(201); // Created
-		$response->getHeaders()->addHeaderLine(
-				'Location',
-				$this->url()->fromRoute('accounts', array('id' => $resource->getId()))
-		);
+// 		$response->getHeaders()->addHeaderLine(
+// 				'Location',
+// 				$this->url()->fromRoute('accounts', array('id' => $resource->getId()))
+// 		);
 		return $response;
 	}
 	
