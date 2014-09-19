@@ -154,8 +154,6 @@ Vagrant.configure("2") do |config|
     ]
   end
 
-# aggiungo l'installazione di Doctrine
-  config.vm.provision :shell, :path => "puphpet/shell/install_doctrine.sh"
 
   if !data['ssh']['host'].nil?
     config.ssh.host = "#{data['ssh']['host']}"
@@ -189,13 +187,20 @@ Vagrant.configure("2") do |config|
 config.vm.provision :shell, :path => "puphpet/shell/copy_virtualhost.sh"
 
 #aggiornamento delle librerie di progetto con composer
+config.vm.provision :shell, :path => "puphpet/shell/nodejs_npm_bower_install.sh"
+
+#aggiornamento delle librerie di progetto con composer
 config.vm.provision :shell, :path => "puphpet/shell/composer_update.sh"
 
 #creazione del link per phpunit e behat
 config.vm.provision :shell, :path => "puphpet/shell/testsuite_link.sh"
 
 #installazione di vim
-config.vm.provision :shell, :path => "puphpet/shell/vim.sh"
+#config.vm.provision :shell, :path => "puphpet/shell/vim.sh"
+
+#configurazione del modulo di doctrine
+config.vm.provision :shell, :path => "puphpet/shell/doctrine_module_configuration.sh"
+
 
 
 end
