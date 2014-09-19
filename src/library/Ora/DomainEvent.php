@@ -1,5 +1,4 @@
 <?php
-
 namespace Ora;
 
 use Doctrine\ORM\Mapping AS ORM;
@@ -54,10 +53,6 @@ class DomainEvent
 	public function getAggregateId() {
 		return $this->aggregateId;
 	}    
-	
-	public function setAggregateId($aggregateId) {
-	    $this->aggregateId = $aggregateId;
-	}
 	
 	public function getAttributes() {
 	    return $this->attributes;
