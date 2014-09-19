@@ -3,7 +3,7 @@ namespace Accounting\View;
 
 use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
-use Ora\CreditsAccount\CreditsAccount;
+use Ora\Accounting\CreditsAccount;
 
 class CreditsAccountJsonModel extends JsonModel
 {
