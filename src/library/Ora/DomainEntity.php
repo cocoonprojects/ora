@@ -92,5 +92,4 @@ class DomainEntity {
         $method = 'apply'.get_class($domainEvent);
         $this->$method($domainEvent);
     }
-
 }
