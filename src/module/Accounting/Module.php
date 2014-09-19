@@ -3,12 +3,18 @@ namespace Accounting;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
-use Accounting\Model\CreditsAccountFactoryImpl;
 use Zend\ModuleManager\ModuleManager;
-use Ora\CreditsAccount\EventSourcingCreditsAccountsService;
+use Ora\Accounting\EventSourcingCreditsAccountsService;
+use Ora\EventStore\DoctrineEventStore;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
-{      
+{
+	/**
+	 * 
+	 * @var CreditsAccountsService
+	 */
+	private $creditsAccountService;
+	
 	public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';
@@ -34,7 +40,11 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 		return array (
 			'factories' => array (
 				'Accounting\CreditsAccountsService' => function ($sm) {
-							return new EventSourcingCreditsAccountsService();
+							$em = $sm->get('doctrine.entitymanager.orm_default');
+							if(is_null($this->creditsAccountService)) {
+								$this->creditsAccountService = new EventSourcingCreditsAccountsService(DoctrineEventStore::instance($em));
+							} 
+							return $this->creditsAccountService;
 						},
      			),
      	);
