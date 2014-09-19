@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c04fd2dfae19c6015ec31b87897e3bda",
+    "hash": "56b45c44491655f65b969288154bf537",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -81,16 +81,16 @@
         },
         {
             "name": "doctrine/cache",
-            "version": "v1.3.0",
+            "version": "v1.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/cache.git",
-                "reference": "e16d7adf45664a50fa86f515b6d5e7f670130449"
+                "reference": "cf483685798a72c93bf4206e3dd6358ea07d64e7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/cache/zipball/e16d7adf45664a50fa86f515b6d5e7f670130449",
-                "reference": "e16d7adf45664a50fa86f515b6d5e7f670130449",
+                "url": "https://api.github.com/repos/doctrine/cache/zipball/cf483685798a72c93bf4206e3dd6358ea07d64e7",
+                "reference": "cf483685798a72c93bf4206e3dd6358ea07d64e7",
                 "shasum": ""
             },
             "require": {
@@ -106,7 +106,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.4.x-dev"
                 }
             },
             "autoload": {
@@ -120,17 +120,6 @@
             ],
             "authors": [
                 {
-                    "name": "Jonathan Wage",
-                    "email": "jonwage@gmail.com",
-                    "homepage": "http://www.jwage.com/",
-                    "role": "Creator"
-                },
-                {
-                    "name": "Guilherme Blanco",
-                    "email": "guilhermeblanco@gmail.com",
-                    "homepage": "http://www.instaclick.com"
-                },
-                {
                     "name": "Roman Borschel",
                     "email": "roman@code-factory.org"
                 },
@@ -139,10 +128,16 @@
                     "email": "kontakt@beberlei.de"
                 },
                 {
+                    "name": "Guilherme Blanco",
+                    "email": "guilhermeblanco@gmail.com"
+                },
+                {
+                    "name": "Jonathan Wage",
+                    "email": "jonwage@gmail.com"
+                },
+                {
                     "name": "Johannes Schmitt",
-                    "email": "schmittjoh@gmail.com",
-                    "homepage": "https://github.com/schmittjoh",
-                    "role": "Developer of wrapped JMSSerializerBundle"
+                    "email": "schmittjoh@gmail.com"
                 }
             ],
             "description": "Caching library offering an object-oriented API for many cache backends",
@@ -151,7 +146,7 @@
                 "cache",
                 "caching"
             ],
-            "time": "2013-10-25 19:04:14"
+            "time": "2014-09-17 14:24:04"
         },
         {
             "name": "doctrine/collections",
@@ -840,16 +835,16 @@
         },
         {
             "name": "zendframework/zendframework",
-            "version": "2.3.2",
+            "version": "2.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zendframework/zf2.git",
-                "reference": "0b74b66dc07ff88140287bdf67d230c1bd32ee0c"
+                "reference": "88c9b6f566fc1097f64ead155625db9bdfee531e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zf2/zipball/0b74b66dc07ff88140287bdf67d230c1bd32ee0c",
-                "reference": "0b74b66dc07ff88140287bdf67d230c1bd32ee0c",
+                "url": "https://api.github.com/repos/zendframework/zf2/zipball/88c9b6f566fc1097f64ead155625db9bdfee531e",
+                "reference": "88c9b6f566fc1097f64ead155625db9bdfee531e",
                 "shasum": ""
             },
             "require": {
@@ -911,7 +906,7 @@
             },
             "require-dev": {
                 "doctrine/annotations": ">=1.0",
-                "fabpot/php-cs-fixer": "dev-master",
+                "fabpot/php-cs-fixer": "dev-master#fcbb09b5204",
                 "ircmaxell/random-lib": "dev-master",
                 "ircmaxell/security-lib": "dev-master",
                 "mikey179/vfsstream": "1.2.*",
@@ -954,7 +949,7 @@
                 "framework",
                 "zf2"
             ],
-            "time": "2014-08-12 16:48:34"
+            "time": "2014-09-16 22:58:11"
         },
         {
             "name": "zendframework/zendxml",
@@ -1099,35 +1094,31 @@
         },
         {
             "name": "behat/behat",
-            "version": "v3.0.13",
+            "version": "v2.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Behat/Behat.git",
-                "reference": "349a6f8188a7d1ad01909d4cd4a73747cd74d09d"
+                "reference": "c3a105a3c0457df919879c72b63b910e63739e51"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Behat/Behat/zipball/349a6f8188a7d1ad01909d4cd4a73747cd74d09d",
-                "reference": "349a6f8188a7d1ad01909d4cd4a73747cd74d09d",
+                "url": "https://api.github.com/repos/Behat/Behat/zipball/c3a105a3c0457df919879c72b63b910e63739e51",
+                "reference": "c3a105a3c0457df919879c72b63b910e63739e51",
                 "shasum": ""
             },
             "require": {
-                "behat/gherkin": "~4.3",
-                "behat/transliterator": "~1.0",
-                "ext-mbstring": "*",
-                "php": ">=5.3.3",
-                "symfony/class-loader": "~2.1",
-                "symfony/config": "~2.3",
-                "symfony/console": "~2.1",
-                "symfony/dependency-injection": "~2.1",
-                "symfony/event-dispatcher": "~2.1",
-                "symfony/translation": "~2.1",
-                "symfony/yaml": "~2.1"
+                "behat/gherkin": "~2.3.0",
+                "php": ">=5.3.1",
+                "symfony/config": "~2.0",
+                "symfony/console": "~2.0",
+                "symfony/dependency-injection": "~2.0",
+                "symfony/event-dispatcher": "~2.0",
+                "symfony/finder": "~2.0",
+                "symfony/translation": "~2.0",
+                "symfony/yaml": "~2.0"
             },
             "require-dev": {
-                "phpspec/prophecy-phpunit": "~1.0",
-                "phpunit/phpunit": "~4.0.7",
-                "symfony/process": "~2.1"
+                "phpunit/phpunit": "~3.7.19"
             },
             "suggest": {
                 "behat/mink-extension": "for integration with Mink testing framework",
@@ -1138,15 +1129,9 @@
                 "bin/behat"
             ],
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.0.x-dev"
-                }
-            },
             "autoload": {
                 "psr-0": {
-                    "Behat\\Behat": "src/",
-                    "Behat\\Testwork": "src/"
+                    "Behat\\Behat": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1163,49 +1148,44 @@
             "description": "Scenario-oriented BDD framework for PHP 5.3",
             "homepage": "http://behat.org/",
             "keywords": [
-                "Agile",
                 "BDD",
-                "ScenarioBDD",
-                "Scrum",
-                "StoryBDD",
-                "User story",
-                "business",
-                "development",
-                "documentation",
-                "examples",
-                "symfony",
-                "testing"
+                "Behat",
+                "Symfony2"
             ],
-            "time": "2014-08-28 10:31:09"
+            "time": "2014-04-26 16:55:16"
         },
         {
             "name": "behat/gherkin",
-            "version": "v4.3.0",
+            "version": "v2.3.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Behat/Gherkin.git",
-                "reference": "43777c51058b77bcd84a8775b7a6ad05e986b5db"
+                "reference": "2b33963da5525400573560c173ab5c9c057e1852"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Behat/Gherkin/zipball/43777c51058b77bcd84a8775b7a6ad05e986b5db",
-                "reference": "43777c51058b77bcd84a8775b7a6ad05e986b5db",
+                "url": "https://api.github.com/repos/Behat/Gherkin/zipball/2b33963da5525400573560c173ab5c9c057e1852",
+                "reference": "2b33963da5525400573560c173ab5c9c057e1852",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.1"
+                "php": ">=5.3.1",
+                "symfony/finder": "~2.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.0",
-                "symfony/yaml": "~2.1"
+                "symfony/config": "~2.0",
+                "symfony/translation": "~2.0",
+                "symfony/yaml": "~2.0"
             },
             "suggest": {
+                "symfony/config": "If you want to use Config component to manage resources",
+                "symfony/translation": "If you want to use Symfony2 translations adapter",
                 "symfony/yaml": "If you want to parse features, represented in YAML files"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.2-dev"
+                    "dev-develop": "2.2-dev"
                 }
             },
             "autoload": {
@@ -1229,12 +1209,11 @@
             "keywords": [
                 "BDD",
                 "Behat",
-                "Cucumber",
                 "DSL",
-                "gherkin",
+                "Symfony2",
                 "parser"
             ],
-            "time": "2014-06-06 01:24:32"
+            "time": "2013-10-15 11:22:17"
         },
         {
             "name": "behat/mink",
@@ -1348,34 +1327,29 @@
         },
         {
             "name": "behat/mink-extension",
-            "version": "v2.0.0",
+            "version": "v1.3.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Behat/MinkExtension.git",
-                "reference": "5dcc001aac5f6711c09a5f8b4328af9c3182bc4c"
+                "reference": "b885b9407cba50a954f72c69ed1b2f8d3bc694f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Behat/MinkExtension/zipball/5dcc001aac5f6711c09a5f8b4328af9c3182bc4c",
-                "reference": "5dcc001aac5f6711c09a5f8b4328af9c3182bc4c",
+                "url": "https://api.github.com/repos/Behat/MinkExtension/zipball/b885b9407cba50a954f72c69ed1b2f8d3bc694f8",
+                "reference": "b885b9407cba50a954f72c69ed1b2f8d3bc694f8",
                 "shasum": ""
             },
             "require": {
-                "behat/behat": "~3.0,>=3.0.5",
+                "behat/behat": "~2.5.0",
                 "behat/mink": "~1.5",
                 "php": ">=5.3.2",
                 "symfony/config": "~2.2"
             },
             "require-dev": {
                 "behat/mink-goutte-driver": "~1.0",
-                "phpspec/phpspec": "~2.0"
+                "fabpot/goutte": "~1.0"
             },
             "type": "behat-extension",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0.x-dev"
-                }
-            },
             "autoload": {
                 "psr-0": {
                     "Behat\\MinkExtension": "src/"
@@ -1387,23 +1361,20 @@
             ],
             "authors": [
                 {
-                    "name": "Christophe Coevoet",
-                    "email": "stof@notk.org"
-                },
-                {
                     "name": "Konstantin Kudryashov",
-                    "email": "ever.zet@gmail.com"
+                    "email": "ever.zet@gmail.com",
+                    "homepage": "http://everzet.com"
                 }
             ],
             "description": "Mink extension for Behat",
-            "homepage": "http://extensions.behat.org/mink",
+            "homepage": "http://mink.behat.org",
             "keywords": [
                 "browser",
                 "gui",
                 "test",
                 "web"
             ],
-            "time": "2014-08-05 06:12:07"
+            "time": "2014-05-15 19:27:39"
         },
         {
             "name": "behat/mink-goutte-driver",
@@ -1566,46 +1537,6 @@
                 "webdriver"
             ],
             "time": "2013-06-02 19:09:45"
-        },
-        {
-            "name": "behat/transliterator",
-            "version": "v1.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Behat/Transliterator.git",
-                "reference": "c93521d3462a554332d1ef5bb0e9b5b8ca4106c4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Behat/Transliterator/zipball/c93521d3462a554332d1ef5bb0e9b5b8ca4106c4",
-                "reference": "c93521d3462a554332d1ef5bb0e9b5b8ca4106c4",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.3"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Behat\\Transliterator": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Artistic-1.0"
-            ],
-            "description": "String transliterator",
-            "keywords": [
-                "i18n",
-                "slug",
-                "transliterator"
-            ],
-            "time": "2014-05-15 22:08:22"
         },
         {
             "name": "fabpot/goutte",
@@ -2732,56 +2663,6 @@
             "description": "Symfony BrowserKit Component",
             "homepage": "http://symfony.com",
             "time": "2014-08-06 06:44:37"
-        },
-        {
-            "name": "symfony/class-loader",
-            "version": "v2.5.4",
-            "target-dir": "Symfony/Component/ClassLoader",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/ClassLoader.git",
-                "reference": "9acd88cd723cdd31d0c9ac3fafef0137e6a0e2ad"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/ClassLoader/zipball/9acd88cd723cdd31d0c9ac3fafef0137e6a0e2ad",
-                "reference": "9acd88cd723cdd31d0c9ac3fafef0137e6a0e2ad",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.3"
-            },
-            "require-dev": {
-                "symfony/finder": "~2.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.5-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Symfony\\Component\\ClassLoader\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Symfony Community",
-                    "homepage": "http://symfony.com/contributors"
-                },
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                }
-            ],
-            "description": "Symfony ClassLoader Component",
-            "homepage": "http://symfony.com",
-            "time": "2014-08-31 03:22:04"
         },
         {
             "name": "symfony/config",
