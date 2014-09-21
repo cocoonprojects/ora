@@ -13,11 +13,11 @@ use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 class LoginController extends AbstractHATEOASRestfulController
 {    
 
-	protected static $collectionOptions = array ('GET');
-	protected static $resourceOptions = array ('GET');
-	
-	protected $authService;
-	
+    protected static $collectionOptions = array ('GET');
+    protected static $resourceOptions = array ('GET');
+    
+    protected $authService;
+    
     public function get($id)
     {
         $authService = $this->getAuthService();
@@ -40,16 +40,25 @@ class LoginController extends AbstractHATEOASRestfulController
 
     public function getList()
     {
-    	return $this->redirect()->toRoute('home');
+        return $this->redirect()->toRoute('home');
     }
     
-
+    public function getResponseWithHeader()
+    {
+        $response = $this->getResponse();
+        $response->getHeaders()
+                 ->addHeaderLine('Access-Control-Allow-Origin','*')
+                 ->addHeaderLine('Access-Control-Allow-Methods','GET');
+        
+        return $response;
+    }
+    
     public function getAuthService()
     {
-    	if (!$this->authService) {
-    		$this->setAuthService($this->getServiceLocator()->get('\Auth\Service\AuthService'));
-    	}
-    	return $this->authService;
+        if (!$this->authService) {
+            $this->setAuthService($this->getServiceLocator()->get('\Auth\Service\AuthService'));
+        }
+        return $this->authService;
     }
     
     public function setAuthService(\Auth\Service\AuthService $authService)
@@ -63,7 +72,7 @@ class LoginController extends AbstractHATEOASRestfulController
     }
     
     protected function getResourceOptions() {
-    	return self::$resourceOptions;
-    }
-        
+    	return self::$resourceOptions;        
+    }       
+  
 }
