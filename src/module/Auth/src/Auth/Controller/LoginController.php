@@ -33,7 +33,7 @@ class LoginController extends AbstractRestfulController
 
                 if($me->getToken($this->request)) 
                 {
-                    $token = $me->getSessionToken(); 
+                    $token = $me->getSessionToken();
 
                     $auth = new \Zend\Authentication\AuthenticationService();
 
@@ -54,7 +54,9 @@ class LoginController extends AbstractRestfulController
                     }
 
                 } else {
+                	
                     $token = $me->getError();
+                    print_r($token); die();
                 }
 
                 $info = $me->getInfo();

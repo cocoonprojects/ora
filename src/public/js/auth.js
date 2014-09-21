@@ -3,7 +3,7 @@ $(document).on("click","#login-auth", function(){
 });
 
 $(document).on("click","a.link-auth", function(){
-	popup = window.open('http://www.google.co.in'); 
+	//popup = window.open('http://www.google.co.in'); 
 });
 
 if(opener != null)
