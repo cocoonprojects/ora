@@ -34,7 +34,7 @@ class LogoutController extends AbstractHATEOASRestfulController
     
     public function returnToHome()
     {
-    	return $this->redirect()->toRoute('home');
+        return $this->redirect()->toRoute('home');
     }
     
     public function getAuthService()
@@ -47,30 +47,30 @@ class LogoutController extends AbstractHATEOASRestfulController
     
     public function setAuthService(\Auth\Service\AuthService $authService)
     {
-    	$this->authService = $authService;
-    	return $this;
+        $this->authService = $authService;
+        return $this;
     }  
 
     public function getRedirectAfterLogout()
     {
-    	if (!$this->redirectAfterLogout) {
-    		$this->setRedirectAfterLogout($this->redirect()->toRoute('home'));
-    	}
-    	return $this->redirectAfterLogout;
+        if (!$this->redirectAfterLogout) {
+            $this->setRedirectAfterLogout($this->redirect()->toRoute('home'));
+        }
+        return $this->redirectAfterLogout;
     }
     
     public function setRedirectAfterLogout(\Zend\Http\Response $redirect)
     {
-    	$this->redirectAfterLogout = $redirect;
-    	return $this;
+
+        $this->redirectAfterLogout = $redirect;
+        return $this;
     } 
 
     protected function getCollectionOptions() {
-    	return self::$collectionOptions;
+        return self::$collectionOptions;
     }
     
     protected function getResourceOptions() {
-    	return self::$resourceOptions;
+        return self::$resourceOptions;
     }    
-
 }

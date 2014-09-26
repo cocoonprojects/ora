@@ -103,7 +103,7 @@ class AuthService implements ServiceManagerAwareInterface
     	{
     		$provider = ucfirst($provider);   	
     		$instanceProvider = $this->getInstanceOfProvider($provider);
-    	
+
     		if(null != $instanceProvider)
     			$urlList[$provider] =  $this->urlRedirectForGenerateAuthorizationCodeForProvider($instanceProvider);    	
     	}
@@ -205,7 +205,8 @@ class AuthService implements ServiceManagerAwareInterface
     					$loginResult['messages'] = $authenticate['messages'];
     				}
     		
-    			} else {
+    			} else {    				
+
     					$loginResult['messages'] = $this->getErrorOnProvider();
 
     			}
@@ -422,6 +423,30 @@ class AuthService implements ServiceManagerAwareInterface
 		return $this->errorOnProvider;
 	}
 
+	public function informationsOfAuthentication()
+	{
+		$viewVariables['logged'] = false;
+		$viewVariables['urlAuthList'] = array();
+		$viewVariables['user'] = "";
+						
+		$auth = $this->getAuthenticationService();
+		
+		if($auth->hasIdentity())
+		{
+			$viewVariables['logged'] = true;
+			$viewVariables['user'] = $auth->getIdentity();
+		}
+		else
+		{
+			$urlList = $this->listOfUrlRedirectForGenerateAuthorizationCodeForAvailablesProvider();
+			$session = $this->atLeastOneAvailablesProviderHaveToken();
+		
+			$viewVariables['urlAuthList'] = $urlList;
+			$viewVariables['logged'] = $session;
+		}	
+
+		return $viewVariables;
+	}
 	/**
 	 * Ger Request Object
 	 *

@@ -34,6 +34,7 @@ class LoginControllerTest extends \PHPUnit_Framework_TestCase
         $this->controller->setEventManager($bootstrap->getEventManager());
         $this->controller->setServiceLocator($bootstrap->getServiceManager());
        
+        $this->mockServiceForModule();
     }
     
     public function testLoginWithCorrectProvider()
@@ -93,6 +94,23 @@ class LoginControllerTest extends \PHPUnit_Framework_TestCase
     	
     	$this->assertFalse($responseJSON["login"]["valid"]);
     	$this->assertEquals($errorMessages, $responseJSON["login"]["messages"]);
+    }    
+    
+    public function mockServiceForModule()
+    {
+    	$authServiceMock = $this->getMock('\Auth\Service\AuthService');
+    	 
+    	$viewVariables['logged'] = false;
+    	$viewVariables['urlAuthList'] = array();
+    	$viewVariables['user'] = "";
+    
+    	$authServiceMock->expects($this->once())
+    	->method('informationsOfAuthentication')
+    	->will($this->returnValue($viewVariables));
+    
+    	$serviceLocator = $this->controller->getServiceLocator();
+    	$serviceLocator->setAllowOverride(true);
+    	$serviceLocator->setService('\Auth\Service\AuthService', $authServiceMock);
     }    
     
     
