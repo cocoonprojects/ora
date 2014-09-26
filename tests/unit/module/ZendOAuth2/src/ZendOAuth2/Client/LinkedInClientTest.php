@@ -13,6 +13,10 @@ class LinkedInClientTest extends PHPUnit_Framework_TestCase
     public function setup()
     {
          $this->client = $this->getClient();
+         
+         $this->httpClientMock = $this->getMockBuilder('\ZendOAuth2\Client\LinkedIn')
+         								->setMethods(array('getHttpclientResponse'))
+         								->getMock();         
     }
     
     public function tearDown()
@@ -21,6 +25,9 @@ class LinkedInClientTest extends PHPUnit_Framework_TestCase
         unset($this->client->getSessionContainer()->token);
         unset($this->client->getSessionContainer()->state);
         unset($this->client->getSessionContainer()->info);
+        
+        $session = $this->httpClientMock->getSessionContainer();
+        $session->getManager()->getStorage()->clear();
         
     }
     
@@ -88,20 +95,16 @@ class LinkedInClientTest extends PHPUnit_Framework_TestCase
     }
     
     public function testSessionState()
-    {
-        
+    {        
         $this->assertEmpty($this->client->getState());
         $this->client->getUrl();
-        $this->assertEquals(strlen($this->client->getState()), 32);
-        
+        $this->assertEquals(strlen($this->client->getState()), 32);        
     }
     
     public function testLoginUrlCreation()
-    {
-        
+    {        
         $uri = \Zend\Uri\UriFactory::factory($this->client->getUrl());
-        $this->assertTrue($uri->isValid());
-        
+        $this->assertTrue($uri->isValid());        
     }
     
     public function testGetScope()
@@ -227,76 +230,49 @@ class LinkedInClientTest extends PHPUnit_Framework_TestCase
     }
     
     public function testGetInfo()
-    {
-
-        $httpClientMock = $this->getMock(
-            '\ZendOAuth2\OAuth2HttpClient',
-            array('send'),
-            array(null, array('timeout' => 30, 'adapter' => '\Zend\Http\Client\Adapter\Curl'))
-        );
-        
-        $httpClientMock->expects($this->exactly(1))
-                        ->method('send')
-                        ->will($this->returnCallback(array($this, 'getMockedInfoResponse')));
-        
-        $this->client->setHttpClient($httpClientMock);
-        
+    {       
+    	$this->httpClientMock->method('getHttpclientResponse')
+    					->will($this->returnCallback(array($this, 'getMockedInfoResponse')));
+ 
         $token = new \stdClass; // fake the session token exists
         $token->access_token = 'some';
-        $this->client->getSessionContainer()->token = $token;
+        $this->httpClientMock->getSessionContainer()->token = $token;
         
-        $rs = $this->client->getInfo();
-        $this->assertSame('John', $rs->firstName);
+        $info = $this->httpClientMock->getInfo();
         
-        $rs = $this->client->getInfo(); // from session
-        $this->assertSame('John', $rs->firstName);
-        
+        $this->assertSame('John Doe', $info->name);
+        $this->assertSame('JohnDoe@email.it', $info->email);
+        $this->assertSame('pictureUrl', $info->picture);
+
     }
     
     public function testFailNoReturnGetInfo()
-    {
-    
-        $httpClientMock = $this->getMock(
-                '\ZendOAuth2\OAuth2HttpClient',
-                array('send'),
-                array(null, array('timeout' => 30, 'adapter' => '\Zend\Http\Client\Adapter\Curl'))
-        );
-    
-        $httpClientMock->expects($this->any())
-                        ->method('send')
-                        ->will($this->returnCallback(array($this, 'getMockedInfoResponseEmpty')));
-
-        $token = new \stdClass; // fake the session token exists
-        $token->access_token = 'some';
-        $this->client->getSessionContainer()->token = $token;
-    
-        $this->client->setHttpClient($httpClientMock);
-    
-        $this->assertFalse($this->client->getInfo());
-    
-        $error = $this->client->getError();
+    {    
+    	$this->httpClientMock->method('getHttpclientResponse')
+    							->will($this->returnCallback(array($this, 'getMockedInfoResponseEmpty')));
+    	
+    	$token = new \stdClass; // fake the session token exists
+    	$token->access_token = 'some';
+    	$this->httpClientMock->getSessionContainer()->token = $token;
+    	
+    	$info = $this->httpClientMock->getInfo();
+    	
+    	$this->assertFalse($info);
+    	
+    	$error = $this->httpClientMock->getError();
+    	
         $this->assertSame('Get info return value is empty.', $error['internal-error']);
     
     }
     
     public function testFailNoTokenGetInfo()
-    {
+    {        	
+    	$this->httpClientMock->method('getHttpclientResponse')
+    			->will($this->returnCallback(array($this, 'getMockedInfoResponse')));
+    	
+        $this->assertFalse($this->httpClientMock->getInfo());
     
-        $httpClientMock = $this->getMock(
-                '\ZendOAuth2\OAuth2HttpClient',
-                array('send'),
-                array(null, array('timeout' => 30, 'adapter' => '\Zend\Http\Client\Adapter\Curl'))
-        );
-    
-        $httpClientMock->expects($this->any())
-                        ->method('send')
-                        ->will($this->returnCallback(array($this, 'getMockedInfoResponse')));
-    
-        $this->client->setHttpClient($httpClientMock);
-    
-        $this->assertFalse($this->client->getInfo());
-    
-        $error = $this->client->getError();
+        $error = $this->httpClientMock->getError();
         $this->assertSame('Session access token not found.', $error['internal-error']);
     
     }
@@ -342,15 +318,17 @@ class LinkedInClientTest extends PHPUnit_Framework_TestCase
     public function getMockedInfoResponse()
     {
     
-        $content = '{
+        $response = '{
             "firstName": "John",
             "lastName": "Doe",
             "headline": "Inventor",
+        	"pictureUrl": "pictureUrl",
+        	"emailAddress": "JohnDoe@email.it"		
         }';
     
-        $response = new \Zend\Http\Response;
+        //$response = new \Zend\Http\Response;
     
-        $response->setContent($content);
+        //$response->setContent($content);
     
         return $response;
     
@@ -359,8 +337,9 @@ class LinkedInClientTest extends PHPUnit_Framework_TestCase
     public function getMockedInfoResponseEmpty()
     {
         
-        $response = new \Zend\Http\Response;    
-        return $response;
+        //$response = new \Zend\Http\Response;    
+        //return $response;
+        return false;
     
     }
     

@@ -2,7 +2,8 @@
 return array(
     'modules' => array(
         'Application',
-        'ZendOAuth2'
+        'ZendOAuth2',
+        'Auth'
     ),
 
     'module_listener_options' => array(
@@ -13,5 +14,5 @@ return array(
         'config_glob_paths' => array(
             'config/autoload/{,*.}{global,local}.php',
         )
-    )
+    ) 
 );

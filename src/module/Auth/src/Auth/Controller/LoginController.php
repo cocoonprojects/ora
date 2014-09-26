@@ -11,66 +11,34 @@ class LoginController extends AbstractRestfulController
     /***
      * Redirect Uri
      */
+	protected $authService;
+
     public function get($id)
     {
-        $token = "";
-        $info = "";
-        $url = "";
-        $provider = "";
+        $authService = $this->getAuthService();
+        $login = $authService->loginToProvider($id);
         
-        $config = $this->getServiceLocator()->get('Config');
-
-        $avaiablesProvider = $config["zendoauth2"];
-
-        if ("" != $id && array_key_exists($id, $avaiablesProvider))
+      
+        if($login['valid'])
         {
-            $provider = ucfirst($id);
-            $serviceProvider = "ZendOAuth2\\".$provider;
-
-            $me = $this->getServiceLocator()->get($serviceProvider);
-
-            if (strlen($this->params()->fromQuery('code')) > 10) {
-
-                if($me->getToken($this->request)) 
-                {
-                    $token = $me->getSessionToken();
-
-                    $auth = new \Zend\Authentication\AuthenticationService();
-
-                    $adapter = $this->getServiceLocator()->get('ZendOAuth2\Auth\Adapter'); 
-                    $adapter->setOAuth2Client($me); 
-                    $rs = $auth->authenticate($adapter);
-
-                    if (!$rs->isValid()) {
-                        foreach ($rs->getMessages() as $message) {
-                            echo "$message\n";
-                        }
-                    } else {
-                        $container = new Container("Zend_Auth");
-                        $identityArray = $auth->getIdentity();
-                        $identityArray["provider"] = $provider;
-
-                        $auth->getStorage()->write($identityArray);
-                    }
-
-                } else {
-                	
-                    $token = $me->getError();
-                    print_r($token); die();
-                }
-
-                $info = $me->getInfo();
-
-            } else {
-
-                $url = $me->getUrl();
-
-            }
+        	echo "ok";
         }
-
-        return $this->redirect()->toRoute('home');
+        else
+        {
+        	// Errore
+        	//var_dump($login);
+        
+        }
+        
+        //return $this->redirect()->toRoute('home');
     }
 
+    public function getList()
+    {
+    	echo "getList";
+    	//return $this->redirect()->toRoute('home');
+    }
+    
     public function getResponseWithHeader()
     {
         $response = $this->getResponse();
@@ -80,4 +48,19 @@ class LoginController extends AbstractRestfulController
         
         return $response;
     }
+    
+    public function getAuthService()
+    {
+    	if (!$this->authService) {
+    		$this->setAuthService($this->getServiceLocator()->get('\Auth\Service\AuthService'));
+    	}
+    	return $this->authService;
+    }
+    
+    public function setAuthService(\Auth\Service\AuthService $authService)
+    {
+    	$this->authService = $authService;
+    	return $this;
+    }      
+  
 }

@@ -15,6 +15,14 @@ class Module
         $em->attach(\Zend\Mvc\MvcEvent::EVENT_DISPATCH, array($this, 'onDispatch'));
     }
 
+    public function getServiceConfig() 
+    {
+        return array(
+                'invokables' => array(
+                    'Auth\Service\AuthService' => 'Auth\Service\AuthService'
+            )
+        );
+    }
     public function onDispatch(\Zend\Mvc\MvcEvent $e)
     {
         $application = $e->getParam('application');
@@ -72,14 +80,4 @@ class Module
         );
         
     } 
-
-    // Service Manager Configuration
-    public function getServiceConfig() 
-    {
-        return array(
-            'factories' => array(
-                'Auth\Service\AuthService' => 'Auth\Service\AuthServiceFactory'
-            )
-        );
-    }
 }

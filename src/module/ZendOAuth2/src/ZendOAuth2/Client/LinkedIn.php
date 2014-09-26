@@ -73,6 +73,31 @@ class LinkedIn extends AbstractOAuth2Client
         }
     }
 
+    public function getHttpclientResponse()
+    {
+    	$urlProfile = $this->options->getInfoUri();
+    	
+    	$headers = array(
+    			'Authorization: Bearer ' . $this->session->token->access_token,
+    			'x-li-format : json', // Comment out to use XML
+    	);
+    	
+    	$request = curl_init();
+    	curl_setopt($request, CURLOPT_URL, $urlProfile);
+    	curl_setopt($request, CURLOPT_HTTPHEADER, $headers);
+    	curl_setopt($request, CURLOPT_RETURNTRANSFER, 1);
+    	
+    	$retVal = curl_exec($request);
+    	
+    	if(curl_getinfo($request, CURLINFO_HTTP_CODE) != '200')
+    	{
+    		$retVal = null;
+    	}
+    	curl_close($request); 
+
+    	return $retVal;
+    }
+    
     public function getInfo()
     {
         if (is_object($this->session->info)) {
@@ -80,59 +105,42 @@ class LinkedIn extends AbstractOAuth2Client
         }
 
         if (isset($this->session->token->access_token)) {
-            $urlProfile = $this->options->getInfoUri();
-            
-            $headers = array(
-            		'Authorization: Bearer ' . $this->session->token->access_token,
-            		'x-li-format : json', // Comment out to use XML
-            );            
-            $request = curl_init();            
-            curl_setopt($request, CURLOPT_URL, $urlProfile);
-            curl_setopt($request, CURLOPT_HTTPHEADER, $headers);
-            curl_setopt($request, CURLOPT_RETURNTRANSFER, 1);
-            
-            $retVal = curl_exec($request);
-            
-            if(curl_getinfo($request, CURLINFO_HTTP_CODE) != '200')
-            {
-            	$retVal = null;
-            	echo "Errore: ".curl_error($request);
-            }
-            curl_close($request);    
-
-            /*
-            $client = $this->getHttpclient()
-                ->resetParameters(true)
-                ->setMethod(Request::METHOD_GET)
-                ->setParameterGet(array(
-                	':'=> '(id,first-name,last-name,email-address)',
-                    'format' => 'json',
-                    'oauth2_access_token' =>  $this->session->token->access_token	
-                ))
-                ->setUri($urlProfile);
-
-            $retVal = $client->send()->getBody();
-			*/
-            if (strlen(trim($retVal)) > 0) {
-                $this->session->info = \Zend\Json\Decoder::decode($retVal);
-                
-                /*
-                 * { "emailAddress": "...", 
-                 *   "firstName": "...", 
-                 *   "lastName": "...", 
-                 *   "pictureUrl": "https://media.licdn.com/..." 
-                 *   }
-                 * */
-                $this->session->info->name = $this->session->info->firstName." ".$this->session->info->lastName;
-                $this->session->info->picture = $this->session->info->pictureUrl;
-                $this->session->info->email = $this->session->info->emailAddress;
-                
-                return $this->session->info;
-            } else {
-                $this->error = array('internal-error' => 'Get info return value is empty.');
-                return false;
-            }
+		
+	        try {
+		        	$retVal = $this->getHttpclientResponse();
+		        
+		        	//var_dump($retVal);
+		            if (strlen(trim($retVal)) > 0) {
+		            	
+		            	$this->session->info = \Zend\Json\Decoder::decode($retVal);
+		            	
+		                /*
+		                 * { "emailAddress": "...", 
+		                 *   "firstName": "...", 
+		                 *   "lastName": "...", 
+		                 *   "pictureUrl": "https://media.licdn.com/..." 
+		                 *   }
+		                 * */
+		                $this->session->info->name = $this->session->info->firstName." ".$this->session->info->lastName;
+		                $this->session->info->picture = $this->session->info->pictureUrl;
+		                $this->session->info->email = $this->session->info->emailAddress;
+		                
+		                return $this->session->info;
+		            } else {
+		                $this->error = array('internal-error' => 'Get info return value is empty.');
+		               
+		                return false;
+	            	}
+	            } catch (\Zend\Json\Exception\RuntimeException $e) {
+	            
+	            	$this->error['internal-error'] = 'Unknown error. '.$e->getMessage();
+	            	$this->error['sessionInfo'] = $retVal;
+	            	
+	            	return false;
+	            
+	            }            
         } else {
+
             $this->error = array('internal-error' => 'Session access token not found.');
             return false;
         }

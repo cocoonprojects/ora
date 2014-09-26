@@ -14,13 +14,17 @@ class LogoutController extends AbstractRestfulController
         if($auth->hasIdentity())
         {
             $identity = $auth->getIdentity();
-            $provider = $identity["provider"];    
-        
-            $me = $this->getServiceLocator()->get("ZendOAuth2\\".$provider);
+           
+            $provider = $identity["provider"];
+
+            if("" !== $provider)
+            {
+            	$me = $this->getServiceLocator()->get("ZendOAuth2\\".$provider);
          
-            $auth->clearIdentity();
-            $session = $me->getSessionContainer();
-            $session->getManager()->getStorage()->clear();   
+        	    $auth->clearIdentity();
+            	$session = $me->getSessionContainer();
+            	$session->getManager()->getStorage()->clear();
+            }   
         }
 
         return $this->redirect()->toRoute('home');
