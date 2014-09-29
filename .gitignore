@@ -6,3 +6,4 @@ composer.phar
 /.buildpath
 .settings/
 *.old
+/config/

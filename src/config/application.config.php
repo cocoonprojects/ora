@@ -10,7 +10,7 @@ return array(
         'DoctrineModule',
         'DoctrineORMModule',
         'Application',
-        'TasksManagement'
+        'TaskManagement'
     ),
     'module_listener_options' => array(
         'module_paths' => array(
