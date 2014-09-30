@@ -2,20 +2,22 @@
 
 namespace Auth\Controller;
 
-use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\View\Model\JsonModel;
 use Zend\Session\Container;
 
 use Zend\View\Model\ViewModel;
 use Zend\Mvc\MvcEvent;
 
-class LoginController extends AbstractRestfulController
-{    
-    /***
-     * Redirect Uri
-     */
-	protected $authService;
+use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 
+class LoginController extends AbstractHATEOASRestfulController
+{    
+
+	protected static $collectionOptions = array ('GET');
+	protected static $resourceOptions = array ('GET');
+	
+	protected $authService;
+	
     public function get($id)
     {
         $authService = $this->getAuthService();
@@ -63,6 +65,15 @@ class LoginController extends AbstractRestfulController
     {
     	$this->authService = $authService;
     	return $this;
-    }      
+    } 
+
+    protected function getCollectionOptions() {
+    	return self::$collectionOptions;
+    }
+    
+    protected function getResourceOptions() {
+    	return self::$resourceOptions;
+    }
+        
   
 }

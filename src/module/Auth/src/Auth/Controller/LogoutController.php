@@ -2,12 +2,15 @@
 
 namespace Auth\Controller;
 
-use Zend\Mvc\Controller\AbstractRestfulController;
-
 use Zend\View\Model\JsonModel;
 
-class LogoutController extends AbstractRestfulController
+use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
+
+class LogoutController extends AbstractHATEOASRestfulController
 {     
+	protected static $collectionOptions = array ('GET');
+	protected static $resourceOptions = array ('GET');
+		
 	protected $authService;
 	protected $redirectAfterLogout;
 	
@@ -60,5 +63,13 @@ class LogoutController extends AbstractRestfulController
     {
     	$this->redirectAfterLogout = $redirect;
     	return $this;
+    } 
+
+    protected function getCollectionOptions() {
+    	return self::$collectionOptions;
+    }
+    
+    protected function getResourceOptions() {
+    	return self::$resourceOptions;
     }    
 }
