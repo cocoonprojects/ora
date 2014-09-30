@@ -103,7 +103,11 @@ class AuthService implements ServiceManagerAwareInterface
     	{
     		$provider = ucfirst($provider);   	
     		$instanceProvider = $this->getInstanceOfProvider($provider);
+<<<<<<< HEAD
 
+=======
+    	
+>>>>>>> refactoring and testing auth feature
     		if(null != $instanceProvider)
     			$urlList[$provider] =  $this->urlRedirectForGenerateAuthorizationCodeForProvider($instanceProvider);    	
     	}

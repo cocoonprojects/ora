@@ -76,3 +76,4 @@ class LogoutControllerTest extends \PHPUnit_Framework_TestCase
     	$serviceLocator->setService('\Auth\Service\AuthService', $authServiceMock);
     }    
 }
+
