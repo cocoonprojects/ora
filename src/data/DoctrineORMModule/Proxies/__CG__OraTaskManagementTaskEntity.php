@@ -235,12 +235,45 @@ class TaskEntity extends \Ora\TaskManagement\TaskEntity implements \Doctrine\ORM
     /**
      * {@inheritDoc}
      */
+    public function setId($id)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setId', array($id));
+
+        return parent::setId($id);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getCreatedAt()
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getCreatedAt', array());
 
         return parent::getCreatedAt();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setCreatedAt($createdAt)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setCreatedAt', array($createdAt));
+
+        return parent::setCreatedAt($createdAt);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setEventStore($eventStore)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setEventStore', array($eventStore));
+
+        return parent::setEventStore($eventStore);
     }
 
     /**

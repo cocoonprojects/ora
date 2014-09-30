@@ -64,10 +64,10 @@ class TaskEvent extends \Ora\TaskManagement\TaskEvent implements \Doctrine\ORM\P
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', 'aggregateId');
+            return array('__isInitialized__', 'aggregateId', 'attributes');
         }
 
-        return array('__isInitialized__', 'aggregateId');
+        return array('__isInitialized__', 'aggregateId', 'attributes');
     }
 
     /**
@@ -191,6 +191,28 @@ class TaskEvent extends \Ora\TaskManagement\TaskEvent implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
+    public function getFiredAt()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getFiredAt', array());
+
+        return parent::getFiredAt();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setFiredAt($firedAt)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setFiredAt', array($firedAt));
+
+        return parent::setFiredAt($firedAt);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getAggregateId()
     {
 
@@ -202,12 +224,34 @@ class TaskEvent extends \Ora\TaskManagement\TaskEvent implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function getFiredAt()
+    public function setAggregateId($aggregateId)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getFiredAt', array());
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setAggregateId', array($aggregateId));
 
-        return parent::getFiredAt();
+        return parent::setAggregateId($aggregateId);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getAttributes()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getAttributes', array());
+
+        return parent::getAttributes();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setAttributes($attributes)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setAttributes', array($attributes));
+
+        return parent::setAttributes($attributes);
     }
 
 }

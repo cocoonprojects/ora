@@ -14,19 +14,22 @@ class DoctrineEventStore implements EventStore
 	 */
 	private $entityManager;
 	
-	private function __construct(EntityManager $entityManager) {
+	private function __construct(EntityManager $entityManager) 
+	{
 		$this->entityManager = $entityManager;
 	}
-
-	public function appendToStream(DomainEvent $domainEvent) {
+	
+	public function appendToStream(DomainEvent $domainEvent) 
+	{
 		$this->entityManager->persist($domainEvent);
 		$this->entityManager->flush();
 	}
 	
-	public static function instance(EntityManager $entityManager) {
-		if(is_null(self::$instance)) {
+	public static function instance(EntityManager $entityManager) 
+	{
+		if(is_null(self::$instance))
 			self::$instance = new DoctrineEventStore($entityManager);
-		}
+        
 		return self::$instance;
 	}
 }

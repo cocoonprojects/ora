@@ -1,4 +1,5 @@
 <?php
+
 namespace Ora;
 
 use Doctrine\ORM\Mapping AS ORM;
@@ -10,50 +11,60 @@ use \DateTime;
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="event_type", type="string")
  */
-class DomainEvent {
-	
+class DomainEvent 
+{	
+    /**
+     * @ORM\Id @ORM\Column(type="integer")
+     * @ORM\GeneratedValue
+     */
+    private $id;
+    
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $firedAt;
+    
 	/**
 	 * @ORM\Column(type="string", nullable=TRUE)
-	 * @var string
 	 */
 	protected $aggregateId;
 	
 	/**
-	 * ORM\Column(type="json_array")
-	 * @var array
+	 * @ORM\Column(type="json_array")
 	 */
-//	protected $attributes;
+	protected $attributes;
 	
-	/**
-	 * @ORM\Id @ORM\Column(type="integer")
-	 * @ORM\GeneratedValue
-	 * @var string
-	 */
-	private $id;
-	
-	/**
-	 * @ORM\Column(type="datetime")
-	 * @var DateTime
-	 */
-	private $firedAt;
-	
-	protected function __construct(DateTime $firedAt) {
-		$this->firedAt = isset($firedAt) ? $firedAt: new DateTime();
+	protected function __construct(DateTime $firedAt) 
+	{
+	    $this->setFiredAt($firedAt);
 	}
 	
 	public function getId() {
 		return $this->id;
 	}
 	
-	/**
-	 * @return identifiedAggregate 
-	 */
+	public function getFiredAt() {
+	    return $this->firedAt;
+	}
+	
+	public function setFiredAt($firedAt) {
+	    $this->firedAt = $firedAt;
+	}
+	
 	public function getAggregateId() {
 		return $this->aggregateId;
 	}
 	
-	public function getFiredAt() {
-		return $this->firedAt;
+	public function setAggregateId($aggregateId) {
+	    $this->aggregateId = $aggregateId;
+	}
+		
+	public function getAttributes() {
+	    return $this->attributes;
+	}
+	
+	public function setAttributes($attributes) {
+	    $this->attributes = $attributes;
 	}
 	
 }

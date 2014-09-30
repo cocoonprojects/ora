@@ -27,9 +27,9 @@ class DomainEntity {
 		
 	protected function __construct($id, \DateTime $createdAt, EventStore $eventStore) 
 	{
-		$this->id = $id;
-		$this->createdAt = $createdAt;
-		$this->eventStore = $eventStore;
+		$this->setId($id);
+		$this->setCreatedAt($createdAt);
+		$this->setEventStore($eventStore);
 	}
 	
 	public function getId() 
@@ -37,9 +37,24 @@ class DomainEntity {
 		return $this->id;
 	}
 	
+	public function setId($id)
+	{
+	    $this->id = $id;
+	}
+	
 	public function getCreatedAt() 
 	{
 		return $this->createdAt;
+	}
+	
+	public function setCreatedAt($createdAt)
+	{
+	    $this->createdAt = $createdAt;
+	}
+	
+	public function setEventStore($eventStore)
+	{
+	    $this->eventStore = $eventStore;
 	}
 	
 	public function rebuild($events) 

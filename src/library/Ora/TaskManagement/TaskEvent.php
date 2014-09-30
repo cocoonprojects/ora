@@ -14,13 +14,14 @@ class TaskEvent extends DomainEvent
 {
     protected function __construct(DateTime $firedAt, TaskEntity $task) 
     {
-        parent::__construct($firedAt);
-        
         /*
         if ($task instanceof TaskEntity)
         {
-            
-        }
+        */
+            parent::__construct($firedAt);
+            //TODO: SERIALIZZARE ENTITA' TASK ED INSERIRLA IN ATTRIBUTES
+            //$this->setAttributes("{12}");
+        /*}
         else
             throw new Exception('Invalid Task Entity in '.get_class($this));
         */
