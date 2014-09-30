@@ -20,42 +20,35 @@ class Module
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
     }
-
+    
     public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';
     }
-
-    public function getControllerConfig() {
-        
+    
+    public function getControllerConfig() 
+    {
         return array(
             'invokables' => array(
                 'Application\Controller\Index' => 'Application\Controller\IndexController'
-            ),
-            'factories' => array(
-                'Application\Controller\Login' => 'Application\Controller\LoginControllerFactory'
             )
-        );
-        
+        );        
     } 
-
+    
     // Service Manager Configuration
     public function getServiceConfig() 
     {
-        return array(
-                'factories' => array(
-                    'Application\Service\LoginService' => 'Application\Service\LoginServiceFactory'
-            )
-        );
+        return array();
     }
 
 
     public function getAutoloaderConfig()
-    {
+    {    	
         return array(
             'Zend\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
+     				'Ora' => __DIR__ . '/../../library/Ora'            
                 ),
             ),
         );

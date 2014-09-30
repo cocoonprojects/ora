@@ -22,18 +22,6 @@ return array(
                     ),
                 ),
             ),
-            'projects' => array(
-                'type' => 'Segment',
-                'options' => array(
-                    'route'    => '/task-management/projects[/:id]',
-                    'constraints' => array(                         
-                        'id' => '[0-9]+',
-                    ),
-                    'defaults' => array(
-                        'controller' => 'TaskManagement\Controller\Projects'
-                    ),            
-                ),
-            ),
         ),
     ),
     

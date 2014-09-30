@@ -27,8 +27,8 @@ class EventSourcingTaskService implements TaskService
 	    $task->setProject($parentProject);
 	    
 	    // Creation of event after creation of Task Entity
-	    //$event = new TaskCreated($createdAt, $task);
-	    //$this->eventStore->appendToStream($event);
+	    $event = new TaskCreated($createdAt, $task);
+	    $this->eventStore->appendToStream($event);
 	    
 	    // TODO: Quando sarà presente l'entità PROJECT, riattivare questo rigo
 	    //$projectID = $parentProject->getId();

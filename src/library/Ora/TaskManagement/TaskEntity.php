@@ -20,7 +20,7 @@ class TaskEntity extends DomainEntity
 	
 	//TODO: Abilitare non appena sarà pronta l'entità project
 	///**
-	//* @ManyToOne(targetEntity="Core_Model_Entities_User")
+	//* @ManyToOne(targetEntity="ProjectEntity")
 	//*/
 	private $project;	
 	

@@ -13,7 +13,7 @@ use \DateTime;
 class DomainEvent {
 	
 	/**
-	 * @ORM\Column(type="string")
+	 * @ORM\Column(type="string", nullable=TRUE)
 	 * @var string
 	 */
 	protected $aggregateId;
