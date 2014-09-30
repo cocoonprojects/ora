@@ -2,8 +2,6 @@
 
 namespace Auth\Controller;
 
-//use Zend\Mvc\Controller\AbstractRestfulController;
-
 use Auth\Controller\LoginController;
 use Zend\Http\Request;
 use Zend\Http\Response;
@@ -38,34 +36,64 @@ class LoginControllerTest extends \PHPUnit_Framework_TestCase
        
     }
     
-    public function testGet()
+    public function testLoginWithCorrectProvider()
     {
     	$this->request->setMethod('GET');
     	$this->routeMatch->setParam('id', 'google');
     	
     	$authService = $this->getMock('\Auth\Service\AuthService');
     	    	
-    	$authService->method('availableProvider')
+    	$authService->method('loginToProvider')
     				->will($this->returnValue(array( 
-										    	'google' => array(), 
-										    	'linkedin' => array () 
-		    									))); 
-    				 
-    	$authService->method('verifyLengthOfCodeParameter')
-    				->will($this->returnValue(true));
-    	
-    	$authService->method('verifyLengthOfCodeParameter')
-    				->will($this->returnValue(true));
+										    	'valid' => true, 
+										    	'messages' => array () 
+		    									)));     				 
     	    	
     	$this->controller->setAuthService($authService);    
     	
     	$result = $this->controller->dispatch($this->request);
     	    	
     	$response = $this->controller->getResponse();
+
+    	$responseJSON = $result->getVariables();
+    	
+    	$this->assertEquals(200, $response->getStatusCode());
+    	$this->assertInstanceOf('Zend\View\Model\ViewModel', $result);  
+    	
+    	$this->assertTrue($responseJSON["login"]["valid"]);	  	
+    	$this->assertEquals(array(), $responseJSON["login"]["messages"]);
+    }
+    
+    public function testLoginWithErrorMessagesProvider()
+    {
+    	$this->request->setMethod('GET');
+    	$this->routeMatch->setParam('id', 'noprovider');
+    	 
+    	$errorMessages = array ('Provider is not enabled');
+    	
+    	$authService = $this->getMock('\Auth\Service\AuthService');
+    
+    	$authService->method('loginToProvider')
+			    	->will($this->returnValue(array(
+			    			'valid' => false,
+			    			'messages' => $errorMessages
+			    	)));
+    
+    	$this->controller->setAuthService($authService);
+    	 
+    	$result = $this->controller->dispatch($this->request);
+    
+    	$response = $this->controller->getResponse();
+    
+    	$responseJSON = $result->getVariables();
     	 
     	$this->assertEquals(200, $response->getStatusCode());
-    	//$this->assertInstanceOf('Zend\View\Model\ViewModel', $result);    	
-    }
+
+    	$this->assertInstanceOf('Zend\View\Model\ViewModel', $result);
+    	
+    	$this->assertFalse($responseJSON["login"]["valid"]);
+    	$this->assertEquals($errorMessages, $responseJSON["login"]["messages"]);
+    }    
     
     
 }

@@ -6,6 +6,9 @@ use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\View\Model\JsonModel;
 use Zend\Session\Container;
 
+use Zend\View\Model\ViewModel;
+use Zend\Mvc\MvcEvent;
+
 class LoginController extends AbstractRestfulController
 {    
     /***
@@ -18,25 +21,24 @@ class LoginController extends AbstractRestfulController
         $authService = $this->getAuthService();
         $login = $authService->loginToProvider($id);
         
-      
-        if($login['valid'])
-        {
-        	echo "ok";
-        }
-        else
-        {
-        	// Errore
-        	//var_dump($login);
+        /**
+         * $login['valid'] = boolean
+         * $login['messages'] = array()
+         */
         
-        }
+        $view = new ViewModel(array(
+        		'login' => $login
+        ));
         
-        //return $this->redirect()->toRoute('home');
+        $view->setTemplate("login/login");
+        
+        return $view;        
+        //return new JsonModel(array('login' => $login));
     }
 
     public function getList()
     {
-    	echo "getList";
-    	//return $this->redirect()->toRoute('home');
+    	return $this->redirect()->toRoute('home');
     }
     
     public function getResponseWithHeader()

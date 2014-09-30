@@ -324,15 +324,47 @@ class AuthServiceTest extends PHPUnit_Framework_TestCase
     
     	$this->assertEquals($authenticate, $expect);
     }    
+
+    public function testClearIdentity()
+    {
+    	$case = "clearIdentityLogged";
+        	 
+    	$mock = $this->getMockBuilder('Auth\Service\AuthService')
+			    	->setMethods(array('getAuthenticationService'))
+			    	->getMock();
+    
+    	$mock->method('getAuthenticationService')
+    		->willReturn($this->getMockedAuthenticationService($case));
+    
+    	$clear = $mock->clearIdentity();
+    	
+    	$this->assertTrue($clear);
+    }
         
     public function getMockedAuthenticationService($case)
     {    	
     	$mockAuthenticationService = $this->getMockBuilder('\Zend\Authentication\AuthenticationService')
-									      ->setMethods(array('authenticate'))
+									      ->setMethods(array('authenticate', 'hasIdentity', 'getIdentity'))
 										  ->getMock();
     	
-    	$mockAuthenticationService->method('authenticate')
+    	if('clearIdentityLogged' != $case)
+    	{
+    		$mockAuthenticationService->method('authenticate')
     					->willReturn($this->getMockAuthenticationResult($case));
+    	}
+    	else 
+    	{
+    		$identityLoggedUser['email'] = "user.logged@email.it";
+    		$identityLoggedUser['name'] = "username";
+    		$identityLoggedUser['picture'] = "http://...";
+    		$identityLoggedUser['provider'] = "google";
+    		
+    		$mockAuthenticationService->method('hasIdentity')
+    					              ->willReturn(true);
+    		
+    		$mockAuthenticationService->method('getIdentity')
+    									->willReturn($identityLoggedUser);    		
+    	}
     	    	
     	return $mockAuthenticationService;
     }

@@ -104,7 +104,8 @@ class AuthService implements ServiceManagerAwareInterface
     		$provider = ucfirst($provider);   	
     		$instanceProvider = $this->getInstanceOfProvider($provider);
     	
-    		$urlList[$provider] =  $this->urlRedirectForGenerateAuthorizationCodeForProvider($instanceProvider);    	
+    		if(null != $instanceProvider)
+    			$urlList[$provider] =  $this->urlRedirectForGenerateAuthorizationCodeForProvider($instanceProvider);    	
     	}
     	    	
     	return $urlList;
@@ -163,7 +164,7 @@ class AuthService implements ServiceManagerAwareInterface
     public function haveTokenInRequestForProvider($provider)
     {
     	$token = false;
-    	 
+    	     	
     	$instanceProvider = $this->getInstanceOfProvider($provider);
     	$request = $this->getRequest();
     	 
@@ -342,6 +343,42 @@ class AuthService implements ServiceManagerAwareInterface
     }    
 
     /**
+     *  Destroy Identity
+     *
+     * @return boolean
+     */    
+    public function clearIdentity()
+    {
+    	$destroy = false;
+    	
+    	$auth = $this->getAuthenticationService();
+    	
+    	if($auth->hasIdentity())
+    	{
+    		$identity = $auth->getIdentity();
+
+    		$provider = $identity["provider"];
+    	
+    		if("" !== $provider)
+    		{
+    			$auth->clearIdentity();
+    			
+    			$instanceProvider = $this->getInstanceOfProvider($provider); 
+
+    			if(null !== $instanceProvider)
+    			{
+	    			$session = $instanceProvider->getSessionContainer();
+	    			$session->getManager()->getStorage()->clear();
+    			}
+    				
+    			$destroy = true;
+    		}
+    	}
+
+    	return $destroy;
+    }
+        
+    /**
      *  Get instance of Provider selected
      *
      * @return \ZendOAuth2\AbstractOAuth2Client (instance of)
@@ -349,10 +386,16 @@ class AuthService implements ServiceManagerAwareInterface
     
     public function getInstanceOfProvider($provider)
     {
-    	$instanceProviderName = $this->instanceProviderNamePrefix.$provider;
-    
-    	$instanceProvider = (null !== $this->getServiceManager()) ? $this->getServiceManager()->get($instanceProviderName) : null;
-    
+    	$instanceProvider = null;
+    	
+    	if("" != $provider)
+    	{
+	    	$instanceProviderName = $this->instanceProviderNamePrefix.$provider;
+	    
+	    	$instanceProvider = (null !== $this->getServiceManager()) ? $this->getServiceManager()->get($instanceProviderName) : null;
+	    	    	
+    	}
+    	
     	return $instanceProvider;
     }
     
@@ -376,7 +419,7 @@ class AuthService implements ServiceManagerAwareInterface
 	
 	public function getErrorOnProvider()
 	{
-		return $errorOnProvider;
+		return $this->errorOnProvider;
 	}
 
 	/**

@@ -7,27 +7,16 @@ use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\View\Model\JsonModel;
 
 class LogoutController extends AbstractRestfulController
-{        
+{     
+	protected $authService;
+	protected $redirectAfterLogout;
+	
     public function getList()
     {
-        $auth = new \Zend\Authentication\AuthenticationService();
-        if($auth->hasIdentity())
-        {
-            $identity = $auth->getIdentity();
-           
-            $provider = $identity["provider"];
+    	$authService = $this->getAuthService();
+    	$logout = $authService->clearIdentity();
 
-            if("" !== $provider)
-            {
-            	$me = $this->getServiceLocator()->get("ZendOAuth2\\".$provider);
-         
-        	    $auth->clearIdentity();
-            	$session = $me->getSessionContainer();
-            	$session->getManager()->getStorage()->clear();
-            }   
-        }
-
-        return $this->redirect()->toRoute('home');
+        return $this->getRedirectAfterLogout();
     }
 
     public function getResponseWithHeader()
@@ -39,4 +28,37 @@ class LogoutController extends AbstractRestfulController
         
         return $response;
     }
+    
+    public function returnToHome()
+    {
+    	return $this->redirect()->toRoute('home');
+    }
+    
+    public function getAuthService()
+    {
+    	if (!$this->authService) {
+    		$this->setAuthService($this->getServiceLocator()->get('\Auth\Service\AuthService'));
+    	}
+    	return $this->authService;
+    }
+    
+    public function setAuthService(\Auth\Service\AuthService $authService)
+    {
+    	$this->authService = $authService;
+    	return $this;
+    }  
+
+    public function getRedirectAfterLogout()
+    {
+    	if (!$this->redirectAfterLogout) {
+    		$this->setRedirectAfterLogout($this->redirect()->toRoute('home'));
+    	}
+    	return $this->redirectAfterLogout;
+    }
+    
+    public function setRedirectAfterLogout(\Zend\Http\Response $redirect)
+    {
+    	$this->redirectAfterLogout = $redirect;
+    	return $this;
+    }    
 }

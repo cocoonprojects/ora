@@ -74,7 +74,7 @@
                 <?php foreach($urlAuthList as $provider => $url)
                 {
                 ?>
-                    <a onclick="javascript:void window.open('<?php echo $url ?>','1','width=700,height=500,toolbar=0,menubar=0,location=0,status=1,scrollbars=1,resizable=1,left=0,top=0');return false;" class="btn btn-success btn-lg" href="<?php echo $url ?>"><?php echo $this->translate("Login con {$provider}") ?></a>
+                    <a onclick="auth.openAuthWindow('<?php echo $url ?>'); return false;" class="btn btn-success btn-lg" href=""><?php echo $this->translate("Login con {$provider}") ?></a>
                 <?php } ?>
                 </center>
               </div>

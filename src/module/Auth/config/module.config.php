@@ -28,5 +28,8 @@ return array(
         'strategies' => array(
             'ViewJsonStrategy',
         ),
+    	'template_path_stack' => array(
+    			'auth' => __DIR__ . '/../view',
+    	),    		
     ),
 );
