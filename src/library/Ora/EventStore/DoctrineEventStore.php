@@ -4,8 +4,8 @@ namespace Ora\EventStore;
 use Ora\DomainEvent;
 use Doctrine\ORM\EntityManager;
 
-class DoctrineEventStore implements EventStore {
-	
+class DoctrineEventStore implements EventStore 
+{	
 	private static $instance;
 	
 	/**
@@ -14,18 +14,18 @@ class DoctrineEventStore implements EventStore {
 	 */
 	private $entityManager;
 	
-	private function __construct(EntityManager $em) {
-		$this->entityManager = $em;
+	private function __construct(EntityManager $entityManager) {
+		$this->entityManager = $entityManager;
 	}
 
-	public function appendToStream(DomainEvent $e) {
-		$this->entityManager->persist($e);
+	public function appendToStream(DomainEvent $domainEvent) {
+		$this->entityManager->persist($domainEvent);
 		$this->entityManager->flush();
 	}
 	
-	public static function instance(EntityManager $em) {
+	public static function instance(EntityManager $entityManager) {
 		if(is_null(self::$instance)) {
-			self::$instance = new DoctrineEventStore($em);
+			self::$instance = new DoctrineEventStore($entityManager);
 		}
 		return self::$instance;
 	}

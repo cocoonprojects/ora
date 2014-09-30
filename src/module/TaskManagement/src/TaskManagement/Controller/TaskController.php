@@ -65,8 +65,8 @@ class TaskController extends AbstractHATEOASRestfulController
         return new JsonModel($data);
     }
     
-    // PUT
     /*
+    // PUT
     public function update($id, $data)
     {   	
       	$response = array();
