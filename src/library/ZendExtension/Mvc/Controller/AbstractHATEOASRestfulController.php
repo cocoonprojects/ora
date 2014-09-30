@@ -1,5 +1,4 @@
 <?php
-
 namespace ZendExtension\Mvc\Controller;
 
 use Zend\Mvc\Controller\AbstractRestfulController;

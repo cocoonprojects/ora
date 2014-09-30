@@ -138,8 +138,8 @@ mysql:
     install: '1'
     root_password: rootDB!
     adminer: 0
-    databases:
-        RMywwSm4FZwc:
+    databases: 
+        BqaVRuTMRxu4:
             grant:
                 - ALL
             name: oraproject
