@@ -9,7 +9,7 @@ $dbParams = array(
 );
  
 return array(
-				
+
     'doctrine' => array(
         'connection' => array(
             'orm_default' => array(

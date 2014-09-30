@@ -199,9 +199,9 @@ config.vm.provision :shell, :path => "puphpet/shell/testsuite_link.sh"
 #installazione di vim
 #config.vm.provision :shell, :path => "puphpet/shell/vim.sh"
 
+
 #configurazione del modulo di doctrine
 config.vm.provision :shell, :path => "puphpet/shell/doctrine_module_configuration.sh"
-
 
 
 end
