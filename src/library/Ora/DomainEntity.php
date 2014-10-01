@@ -1,4 +1,5 @@
 <?php
+
 namespace Ora;
 
 use Doctrine\ORM\Mapping AS ORM;
