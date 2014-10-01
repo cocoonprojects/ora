@@ -99,7 +99,7 @@ return array(
     	'configuration' => array(
         	'orm_default' => array(
         		'generate_proxies'  => true,
-        		'proxy_dir'         => 'data/DoctrineORMModule/Proxies'        		
+        		'proxy_dir'         => 'src/data/DoctrineORMModule/Proxies'        		
         	)
         ),
     
