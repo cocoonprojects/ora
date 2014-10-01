@@ -24,9 +24,9 @@ class TaskEntity extends DomainEntity
 	//*/
 	private $project;	
 	
-	public function __construct($taskID, $createdAt, $eventStore) 
+	public function __construct($taskID, $createdAt) 
 	{
-		parent::__construct($taskID, $createdAt, $eventStore);
+		parent::__construct($taskID, $createdAt);
 	}
 	
 	public function getDescription() {

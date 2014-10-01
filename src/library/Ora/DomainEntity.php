@@ -3,7 +3,6 @@
 namespace Ora;
 
 use Doctrine\ORM\Mapping AS ORM;
-use Ora\EventStore\EventStore;
 
 /**
  * @ORM\MappedSuperclass
@@ -23,14 +22,11 @@ class DomainEntity {
 	 * @var DateTime
 	 */
 	private $createdAt;
-	
-	private $eventStore;
 		
-	protected function __construct($id, \DateTime $createdAt, EventStore $eventStore) 
+	protected function __construct($id, \DateTime $createdAt) 
 	{
 		$this->setId($id);
 		$this->setCreatedAt($createdAt);
-		$this->setEventStore($eventStore);
 	}
 	
 	public function getId() 
@@ -53,22 +49,12 @@ class DomainEntity {
 	    $this->createdAt = $createdAt;
 	}
 	
-	public function setEventStore($eventStore)
-	{
-	    $this->eventStore = $eventStore;
-	}
-	
 	public function rebuild($events) 
 	{
 		foreach ($events as $event)
 		{
 			$this->apply($event);
 		}
-	}
-	
-	protected function appendToStream(DomainEvent $domainEvent) 
-	{
-		return $this->eventStore->appendToStream($domainEvent);
 	}
 	
 	private function apply(DomainEvent $domainEvent) 
