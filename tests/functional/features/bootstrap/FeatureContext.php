@@ -16,18 +16,10 @@ class FeatureContext extends BehatContext
      */
     public function __construct(array $parameters)
     {       
-        // Initialize your context here       
+        // Initialize of custom SUBCONTEXT     
+        $this->useContext('SubContext_create_new_task', new SubContext_create_new_task(array(
+                /* custom params */
+        )));
     }
-
-    
-    /**
-     * @Then /^I wait for the suggestion box to appear$/
-     */
-    /*
-    public function iWaitForTheSuggestionBoxToAppear()
-    {
-        $this->getSession()->wait(5000, "$('.suggestions-results').children().length > 0");
-    }
-    */
     
 }

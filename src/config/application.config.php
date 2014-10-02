@@ -1,4 +1,11 @@
 <?php
+
+$env = getenv('APPLICATION_ENV') ?: 'missing_environment';
+
+var_dump($env);
+die();
+
+
 return array(
     // This should be an array of module namespaces used in the application.
     'modules' => array(
@@ -23,7 +30,7 @@ return array(
         // modules are loaded. These effectively override configuration
         // provided by modules themselves. Paths may use GLOB_BRACE notation.
         'config_glob_paths' => array(
-            __DIR__.'/../config/autoload/{,*.}{global,local}.php',
+            __DIR__.'/../config/autoload/{,*.}'.$env.'.php',
         ),
     ),
 );
