@@ -155,7 +155,7 @@ Vagrant.configure("2") do |config|
   end
 
 # aggiungo l'installazione di Doctrine
-  config.vm.provision :shell, :path => "puphpet/shell/install_doctrine.sh"
+#  config.vm.provision :shell, :path => "puphpet/shell/install_doctrine.sh"
 
   if !data['ssh']['host'].nil?
     config.ssh.host = "#{data['ssh']['host']}"
