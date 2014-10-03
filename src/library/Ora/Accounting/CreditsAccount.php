@@ -3,6 +3,7 @@ namespace Ora\Accounting;
 
 use Doctrine\ORM\Mapping AS ORM;
 use Ora\DomainEntity;
+use Ora\EventStore\EventStore;
 
 /**
  * @ORM\Entity @ORM\Table(name="creditsAccounts")
@@ -10,6 +11,12 @@ use Ora\DomainEntity;
  *
  */
 class CreditsAccount extends DomainEntity {
+	
+	/**
+	 * 
+	 * @var EventStore
+	 */
+	private $eventStore;
 	
 	/**
 	 * @ORM\Column(type="string")
@@ -23,8 +30,9 @@ class CreditsAccount extends DomainEntity {
 	 */
 	private $balance;
 	
-	public function __construct($id, $createdAt, $es, $currency) {
-		parent::__construct($id, $createdAt, $es);
+	public function __construct($id, $createdAt, $eventStore, $currency) {
+		parent::__construct($id, $createdAt);
+		$this->eventStore = $eventStore;
 		$this->currency = $currency;
 		// At creation time the balance is 0
 		$this->balance = new Balance(0, $createdAt);
