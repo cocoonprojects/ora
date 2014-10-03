@@ -8,9 +8,9 @@ class EventStoreFactory implements FactoryInterface {
 	private static $instance;
 	
     public function createService(ServiceLocatorInterface $serviceLocator) {
-		$em = $sm->get('doctrine.entitymanager.orm_default');
+		$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
     	if(is_null(self::$instance)) {
-			self::$instance = new DoctrineEventStore($em);
+			self::$instance = new DoctrineEventStore($entityManager);
 		}
 		return self::$instance;
 	}
