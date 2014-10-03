@@ -19,10 +19,10 @@ class DomainEvent {
 	protected $aggregateId;
 	
 	/**
-	 * ORM\Column(type="json_array")
+	 * @ORM\Column(type="json_array")
 	 * @var array
 	 */
-//	protected $attributes;
+	protected $attributes;
 	
 	/**
 	 * @ORM\Id @ORM\Column(type="integer")
