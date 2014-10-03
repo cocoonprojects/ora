@@ -16,7 +16,6 @@ class CreditsAccountEvent extends DomainEvent {
 
 	protected function __construct(DateTime $firedAt, CreditsAccount $account) {
 		parent::__construct($firedAt);
-		assertNotNull($account, 'Invalid null account in '.get_class($this));
 		$this->account = $account;
 		$this->aggregateId = $account->getId();
 	}

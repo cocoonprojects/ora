@@ -11,8 +11,6 @@ use \DateTime;
  */
 final class CreditsAccountCreatedEvent extends CreditsAccountEvent {
 	
-	private $account;
-	
 	public function __construct(DateTime $firedAt, CreditsAccount $account) {
 		parent::__construct($firedAt, $account);
 	}
