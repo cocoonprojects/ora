@@ -9,11 +9,6 @@ use Ora\EventStore\DoctrineEventStore;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {
-	/**
-	 * 
-	 * @var CreditsAccountsService
-	 */
-	private $creditsAccountService;
 	
 	public function getConfig()
     {
@@ -39,13 +34,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 	{
 		return array (
 			'factories' => array (
-				'Accounting\CreditsAccountsService' => function ($sm) {
-							$em = $sm->get('doctrine.entitymanager.orm_default');
-							if(is_null($this->creditsAccountService)) {
-								$this->creditsAccountService = new EventSourcingCreditsAccountsService(DoctrineEventStore::instance($em));
-							} 
-							return $this->creditsAccountService;
-						},
+				'Accounting\CreditsAccountsService' => 'Accounting\Service\CreditsAccountsServiceFactory',
      			),
      	);
 	}
