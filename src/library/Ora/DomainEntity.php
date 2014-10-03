@@ -23,12 +23,9 @@ class DomainEntity {
 	 */
 	private $createdAt;
 	
-	private $es;
-		
-	protected function __construct($id, \DateTime $createdAt, EventStore $es) {
+	protected function __construct($id, \DateTime $createdAt) {
 		$this->id = $id;
 		$this->createdAt = $createdAt;
-		$this->es = $es;
 	}
 	
 	public function getId() {
@@ -43,10 +40,6 @@ class DomainEntity {
 		foreach ($events as $e) {
 			$this->apply($e);
 		}
-	}
-	
-	protected function appendToStream(DomainEvent $e) {
-		return $this->es->appendToStream($e);
 	}
 	
 	private function apply(DomainEvent $e) {
