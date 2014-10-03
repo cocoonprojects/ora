@@ -16,10 +16,11 @@ class EventSourcingCreditsAccountsService implements CreditsAccountsService {
 	}
 	
 	public function create($currency = null) {
+		$createdAt = new \DateTime();
 		$accountId = uniqid();
 		$curr = isset($currency) ? $currency : 'CUN';
-		$account = new CreditsAccount($accountId, new \DateTime(), $this->es, $currency);
-		$e = new CreditsAccountCreated(new DateTime(), $account);
+		$account = new CreditsAccount($accountId, $createdAt, $this->es, $currency);
+		$e = new CreditsAccountCreatedEvent($createdAt, $account);
 		$this->es->appendToStream($e);
 	}
 	
