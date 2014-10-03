@@ -4,9 +4,7 @@ namespace Ora\EventStore;
 use Ora\DomainEvent;
 use Doctrine\ORM\EntityManager;
 
-class DoctrineEventStore implements EventStore 
-{	
-	private static $instance;
+class DoctrineEventStore implements EventStore {
 	
 	/**
 	 * 
@@ -25,11 +23,4 @@ class DoctrineEventStore implements EventStore
 		$this->entityManager->flush($domainEvent);
 	}
 	
-	public static function instance(EntityManager $entityManager) 
-	{
-		if(is_null(self::$instance))
-			self::$instance = new DoctrineEventStore($entityManager);
-        
-		return self::$instance;
-	}
 }
