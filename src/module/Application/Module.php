@@ -44,7 +44,8 @@ class Module
     {
         return array(
                 'factories' => array(
-                    'Application\Service\LoginService' => 'Application\Service\LoginServiceFactory'
+                    'Application\Service\LoginService' => 'Application\Service\LoginServiceFactory',
+                	'Application\Service\EventStore' => 'Application\Service\EventStoreFactory',
             )
         );
     }
