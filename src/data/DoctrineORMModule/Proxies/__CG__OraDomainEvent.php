@@ -202,17 +202,6 @@ class DomainEvent extends \Ora\DomainEvent implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function setFiredAt($firedAt)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setFiredAt', array($firedAt));
-
-        return parent::setFiredAt($firedAt);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getAggregateId()
     {
 

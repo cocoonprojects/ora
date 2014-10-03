@@ -17,34 +17,30 @@ class EventSourcingTaskService implements TaskService
 	    $this->entitySerializer = $entitySerializer;
     }
 	
-	public function createNewTask($parentProject, $taskDescription)
+	public function createNewTask($project, $taskSubject)
 	{
 	    $createdAt = new \DateTime();
-	    
+        
 	    // Generate unique ID for Task
 	    $taskID = uniqid();   
 	    
 	    // Creation of new task entity
-	    $task = new TaskEntity($taskID, $createdAt);
+	    $task = new Task($taskID, $createdAt);
 	    // TODO: Controllare se descrizione e projectid vanno nel costruttore in quanto obbligatori
-	    $task->setDescription($taskDescription);
-	    $task->setProject($parentProject);
-	       
+	    $task->setSubject($taskSubject);
+	    $task->setProject($project);
+	    
 	    // Creation of event after creation of Task Entity
-	    $event = new TaskCreated($createdAt, $task, $this->entitySerializer);
+	    $event = new TaskCreatedEvent($createdAt, $task, $this->entitySerializer);
+	    
+	    // Serialize TASK ENTITY to JSON
+	    $taskSerialized = $this->entitySerializer->toJson($task);
+	    
+	    
+	    // Save JSON serialized into event attributes
+	    // $this->setAttributes($taskSerialized);
+	    
 	    $this->eventStore->appendToStream($event);
-	    
-	    // TODO: Quando sarà presente l'entità PROJECT, riattivare questo rigo
-	    //$projectID = $parentProject->getId();
-	    $projectID = "PROJECT_ID_INVENTATO";
-	    
-	    $data = array(
-	        "projectID"=>$projectID,
-	        "taskDescription"=>$taskDescription,
-	        "taskIDjustCreated"=>$taskID
-	    );
-	    
-	    return $data;
 	}
 	
 

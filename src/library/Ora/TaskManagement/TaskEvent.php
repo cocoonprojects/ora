@@ -14,24 +14,13 @@ use Ora\EntitySerializer;
 class TaskEvent extends DomainEvent 
 {
     private $entitySerializer;
+    protected $task;
     
-    protected function __construct(DateTime $firedAt, TaskEntity $task, EntitySerializer $entitySerializer) 
+    protected function __construct(DateTime $firedAt, Task $task, EntitySerializer $entitySerializer) 
     {
         $this->entitySerializer = $entitySerializer;
+        $this->task = $task;
         
-        /*
-        if ($task instanceof TaskEntity)
-        {
-        */
-            parent::__construct($firedAt);
-            
-            // Serialize TASK ENTITY to JSON
-            $taskSerialized = $this->entitySerializer->toJson($task);
-            // Save JSON serialized into event attributes
-            $this->setAttributes($taskSerialized);
-        /*}
-        else
-            throw new Exception('Invalid Task Entity in '.get_class($this));
-        */
+        parent::__construct($firedAt);
     }
 }

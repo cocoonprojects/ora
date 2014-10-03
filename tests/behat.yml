@@ -4,5 +4,5 @@ default:
     bootstrap: 'functional/features/bootstrap'
   extensions:
     Behat\MinkExtension\Extension:
-      base_url:  'http://oraproject'
+      base_url:  'http://oraprojecttest'
       goutte:    ~

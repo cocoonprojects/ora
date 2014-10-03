@@ -5,12 +5,16 @@ namespace TaskManagement\Controller;
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Zend\View\Model\JsonModel;
 
-class TaskController extends AbstractHATEOASRestfulController
+class TasksController extends AbstractHATEOASRestfulController
 {
     protected static $collectionOptions = array ('GET','POST');
     protected static $resourceOptions = array ('DELETE','GET');
 	protected $taskService;
-
+	
+	// INIZIALIZZAZIONE
+	   // - Inizializzo/valorizzo $project con l'entità reale
+	   
+	
 	// GET - singolo perchè con un parametro di ID
     /* public function get($id)
     {
@@ -35,36 +39,53 @@ class TaskController extends AbstractHATEOASRestfulController
      * @method POST
      * @link http://oraproject/task-management/task
      * @param array $data['projectID'] Parent project ID of the new task
-     * @param array $data['taskDescription'] Task description
+     * @param array $data['subject'] Task subject
      * @return \Zend\View\Model\JsonModel
      * @author Giannotti Fabio
      */
     public function create($data)
     {
-        // Check requested parameters
-    	if (isset($data['projectID']) && isset($data['taskDescription']))
-    	{
-        	$projectID = $data['projectID'];
-    	    $taskDescription = $data['taskDescription'];
-        	
-    	    // TODO: recuperare il project entity in base al project ID e passarlo alla funzione di creazione nuovo task
-    	    $parentProject = "PARENT_PROJECT_INVENTATO_TODO";
-           	$data = $this->getTaskService()->createNewTask($parentProject, $taskDescription);
+        $projectID = $data['projectID'];
+        $subject = $data['subject'];
+        
+        if (!isset($data['projectID']))
+        {
+            // TODO: inserire validazione sui parametri usando zend_validator
+            // - projectID: diverso da null
             
-            // HTTP STATUS CODE 201: Created
-        	$this->response->setStatusCode(201);
-    	}
-    	else
-    	{
-    	    // HTTP STATUS CODE 400: Bad Request
-        	$this->response->setStatusCode(400);
+            // HTTP STATUS CODE 400: Bad Request
+            $this->response->setStatusCode(400);
             
-        	$data = array("error"=>"Bad Request: parameters needed (description, projectID)");
-    	}
+            //$results = array("error"=>"Bad Request: parameters needed projectID");
+        }
+        
+        if (!isset($data['subject']))
+        {
+            // TODO: inserire validazione sui parametri usando zend_validator
+            // - subject: trim()
+            // - subject: lunghezza (al momento non definita)
+            // - subject: diverso da vuoto
+            
+            // HTTP STATUS CODE 400: Bad Request
+            $this->response->setStatusCode(400);
+            
+            //$results = array("error"=>"Bad Request: parameters needed subject");
+        }
+
+        
+	    // TODO: recuperare il project entity dalla variabile definita nel 
+	    // controller e controllare che sia un'entità valida
+	    //$project = $this->projectService->findProject($projectID);
+	    $project = "PARENT_PROJECT_INVENTATO_TODO";
+       	$this->getTaskService()->createNewTask($projectID, $subject);
+        
+        // HTTP STATUS CODE 201: Created
+    	$this->response->setStatusCode(201);
     	
-        return new JsonModel($data);
+    	return $this->response;
     }
     
+
     /*
     // PUT
     public function update($id, $data)

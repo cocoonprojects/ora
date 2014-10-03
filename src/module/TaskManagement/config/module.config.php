@@ -4,7 +4,7 @@ return array(
 
 	'controllers' => array(
         'invokables' => array(
-            'TaskManagement\Controller\Task' => 'TaskManagement\Controller\TaskController',
+            'TaskManagement\Controller\Tasks' => 'TaskManagement\Controller\TasksController',
         ),
     ),
     
@@ -18,7 +18,7 @@ return array(
                         'id' => '[0-9]+',
                     ),
                     'defaults' => array(
-                        'controller' => 'TaskManagement\Controller\Task'
+                        'controller' => 'TaskManagement\Controller\Tasks'
                     ),
                 ),
             ),

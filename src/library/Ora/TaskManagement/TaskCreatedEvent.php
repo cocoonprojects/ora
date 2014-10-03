@@ -10,10 +10,12 @@ use Ora\EntitySerializer;
 * @ORM\Entity
 * @author Giannotti Fabio
 */
-final class TaskCreated extends TaskEvent 
+final class TaskCreatedEvent extends TaskEvent 
 {
-    public function __construct(DateTime $firedAt, TaskEntity $task, EntitySerializer $entitySerializer) 
+    public function __construct(DateTime $firedAt, Task $task, EntitySerializer $entitySerializer) 
     {
         parent::__construct($firedAt, $task, $entitySerializer);
+               
+        $this->attributes = $this->entitySerializer->toJson($task);
     }
 }

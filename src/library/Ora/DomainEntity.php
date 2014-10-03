@@ -3,6 +3,7 @@
 namespace Ora;
 
 use Doctrine\ORM\Mapping AS ORM;
+use \DateTime;
 
 /**
  * @ORM\MappedSuperclass
@@ -25,8 +26,8 @@ class DomainEntity {
 		
 	protected function __construct($id, \DateTime $createdAt) 
 	{
-		$this->setId($id);
-		$this->setCreatedAt($createdAt);
+		$this->id = $id;
+		$this->createdAt = $createdAt;
 	}
 	
 	public function getId() 
@@ -34,19 +35,9 @@ class DomainEntity {
 		return $this->id;
 	}
 	
-	public function setId($id)
-	{
-	    $this->id = $id;
-	}
-	
 	public function getCreatedAt() 
 	{
 		return $this->createdAt;
-	}
-	
-	public function setCreatedAt($createdAt)
-	{
-	    $this->createdAt = $createdAt;
 	}
 	
 	public function rebuild($events) 

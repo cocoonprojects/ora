@@ -4,13 +4,9 @@ namespace TaskManagement;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
-//use Ora\TaskManagement\EventSourcingTaskService;
-//use Ora\EventStore\DoctrineEventStore;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
-{
-    //private $taskService;
-    
+{    
     public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';
@@ -34,17 +30,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
     {
         return array (
             'factories' => array (
-                'TaskManagement\TaskService' => 'TaskManagement\ServiceFactory\TaskServiceFactory',
-                //TODO: RIMUOVERE COMMENTI IN TUTTO IL FILE - VECCHIO METODO DI ANDREA
-                /*'TaskManagement\TaskService' => function ($sm) {
-                    $em = $sm->get('doctrine.entitymanager.orm_default');
-                    
-                    if(is_null($this->taskService)) {
-                        $this->taskService = new EventSourcingTaskService(DoctrineEventStore::instance($em));
-                    }
-                    
-                    return $this->taskService;
-                },*/
+                'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',
             ),
         );
     }

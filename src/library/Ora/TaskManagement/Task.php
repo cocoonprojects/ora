@@ -10,31 +10,40 @@ use Ora\DomainEntity;
  * @author Giannotti Fabio
  *
  */
-class TaskEntity extends DomainEntity 
+class Task extends DomainEntity 
 {	
+    CONST STATUS_ONGOING = 1;
+    
 	/**
 	 * @ORM\Column(type="string")
 	 * @var string
 	 */
-	private $description;
+	private $subject;
+	
+	/**
+	 * @ORM\Column(type="integer")
+	 * @var int
+	 */
+	private $status;
 	
 	//TODO: Abilitare non appena sarà pronta l'entità project
 	///**
-	//* @ManyToOne(targetEntity="ProjectEntity")
+	//* @ManyToOne(targetEntity="Project")
 	//*/
 	private $project;	
 	
-	public function __construct($taskID, $createdAt) 
+	public function __construct($taskID, \DateTime $createdAt) 
 	{
 		parent::__construct($taskID, $createdAt);
+		$this->status = self::STATUS_ONGOING;
 	}
 	
-	public function getDescription() {
-		return $this->description;
+	public function getSubject() {
+		return $this->subject;
 	}
 	
-	public function setDescription($description) {
-		$this->description = $description;
+	public function setSubject($subject) {
+		$this->subject = $subject;
 	}
 	
 	public function getProject() {
@@ -43,5 +52,9 @@ class TaskEntity extends DomainEntity
 	
 	public function setProject($project) {
 	    $this->project = $project;
+	}
+	
+	public function getStatus() {
+	    return $this->status;
 	}
 }

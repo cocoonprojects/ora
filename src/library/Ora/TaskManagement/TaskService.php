@@ -4,5 +4,5 @@ namespace Ora\TaskManagement;
 
 interface TaskService
 {
-	public function createNewTask($projectID, $taskDescription);
+	public function createNewTask($projectID, $taskSubject);
 }
