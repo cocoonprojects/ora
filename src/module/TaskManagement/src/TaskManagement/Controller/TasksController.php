@@ -67,14 +67,14 @@ class TasksController extends AbstractHATEOASRestfulController
         // - projectID: diverso da vuoto
         // - projectID: diverso da null
 
-        $valid = new Zend\Validator\NotEmpty();
+        /*$valid = new Zend\Validator\NotEmpty();
         if (!$valid->isValid($projectID))
         {
             // HTTP STATUS CODE 406: Not Acceptable
             $this->response->setStatusCode(406);
             
             return $this->response;
-        }
+        }*/
 
         // TODO: inserire validazione sui parametri usando zend_validator
         // - projectID: diverso da vuoto
