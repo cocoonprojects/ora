@@ -9,3 +9,4 @@ composer.phar
 .DS_Store
 ./vagrant/config/
 /config/
+/src/data/cache/
