@@ -36,7 +36,11 @@ class DomainEvent
 	
 	protected function __construct(DateTime $firedAt) 
 	{
+<<<<<<< HEAD
+	    $this->firedAt = $firedAt;
+=======
 	    $this->setFiredAt($firedAt);
+>>>>>>> develop
 	}
 	
 	public function getId() {
@@ -47,6 +51,11 @@ class DomainEvent
 	    return $this->firedAt;
 	}
 	
+<<<<<<< HEAD
+	public function getAggregateId() {
+		return $this->aggregateId;
+	}
+=======
 	public function setFiredAt($firedAt) {
 	    $this->firedAt = $firedAt;
 	}
@@ -58,13 +67,17 @@ class DomainEvent
 	public function setAggregateId($aggregateId) {
 	    $this->aggregateId = $aggregateId;
 	}
+>>>>>>> develop
 		
 	public function getAttributes() {
 	    return $this->attributes;
 	}
+<<<<<<< HEAD
+=======
 	
 	public function setAttributes($attributes) {
 	    $this->attributes = $attributes;
 	}
 	
+>>>>>>> develop
 }

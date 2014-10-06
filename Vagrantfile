@@ -205,4 +205,3 @@ config.vm.provision :shell, :path => "puphpet/shell/doctrine_module_configuratio
 
 
 end
-
