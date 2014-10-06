@@ -64,10 +64,10 @@ class Task extends \Ora\TaskManagement\Task implements \Doctrine\ORM\Proxy\Proxy
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'subject', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'project');
+            return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'subject', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'status', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'project');
         }
 
-        return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'subject', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'project');
+        return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'subject', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'status', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'project');
     }
 
     /**
@@ -215,6 +215,17 @@ class Task extends \Ora\TaskManagement\Task implements \Doctrine\ORM\Proxy\Proxy
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'setProject', array($project));
 
         return parent::setProject($project);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getStatus()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getStatus', array());
+
+        return parent::getStatus();
     }
 
     /**

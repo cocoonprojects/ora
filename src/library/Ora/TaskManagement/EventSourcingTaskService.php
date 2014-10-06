@@ -34,15 +34,8 @@ class EventSourcingTaskService implements TaskService
 	    $event = new TaskCreatedEvent($createdAt, $task, $this->entitySerializer);
 	    
 	    // Serialize TASK ENTITY to JSON
-	    $taskSerialized = $this->entitySerializer->toJson($task);
-	    
-	    
-	    // Save JSON serialized into event attributes
-	    // $this->setAttributes($taskSerialized);
+	   // $taskSerialized = $this->entitySerializer->toJson($task);
 	    
 	    $this->eventStore->appendToStream($event);
 	}
-	
-
-	
 }

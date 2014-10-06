@@ -12,15 +12,9 @@ use Ora\EntitySerializer;
 * @author Giannotti Fabio
 */
 class TaskEvent extends DomainEvent 
-{
-    private $entitySerializer;
-    protected $task;
-    
+{   
     protected function __construct(DateTime $firedAt, Task $task, EntitySerializer $entitySerializer) 
     {
-        $this->entitySerializer = $entitySerializer;
-        $this->task = $task;
-        
         parent::__construct($firedAt);
     }
 }

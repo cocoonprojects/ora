@@ -30,10 +30,12 @@ class RestContext extends BehatContext
 
     public function getParameter($name)
     {
-        if (count($this->_parameters) === 0) {
-            
+        if (count($this->_parameters) === 0) 
+        {            
             throw new \Exception('Parameters not loaded!');
-        } else {
+        } 
+        else 
+        {
             
             $parameters = $this->_parameters;
             return (isset($parameters[$name])) ? $parameters[$name] : null;
@@ -83,26 +85,77 @@ class RestContext extends BehatContext
         $baseUrl = $this->getParameter('base_url');
         $this->_requestUrl = $baseUrl . $pageUrl;
         
-        switch (strtoupper($this->_restObjectMethod)) {
+
+        switch (strtoupper($this->_restObjectMethod)) 
+        {
             case 'GET':
-                $response = $this->_client->get(
-                    $this->_requestUrl . '?' . http_build_query((array) $this->_restObject)
-                )->send();
+                try
+                {
+                    $response = $this->_client->get(
+                        $this->_requestUrl . '?' . http_build_query((array) $this->_restObject)
+                    )->send();
+                }
+                catch (Guzzle\Http\Exception\ClientErrorResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch (Guzzle\Http\Exception\ServerErrorResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch (Guzzle\Http\Exception\BadResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch( Exception $e){
+                    throw new Exception("Exception not managed!!");
+                }
                 break;
                 
-            case 'POST':                
-                $postFields = (array) $this->_restObject;
-                $response = $this->_client->post(
-                    $this->_requestUrl, null, $postFields
-                )->send();
+            case 'POST': 
+                try
+                {             
+                    $postFields = (array) $this->_restObject;
+                    $response = $this->_client->post(
+                        $this->_requestUrl, null, $postFields
+                    )->send();
+                }
+                catch (Guzzle\Http\Exception\ClientErrorResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch (Guzzle\Http\Exception\ServerErrorResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch (Guzzle\Http\Exception\BadResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch( Exception $e){
+                    throw new Exception("Exception not managed!!");
+                }
                 break;
                 
             case 'DELETE':
-                $response = $this->_client->delete(
-                    $this->_requestUrl . '?' . http_build_query((array) $this->_restObject)
-                )->send();
+                try
+                {   
+                    $response = $this->_client->delete(
+                        $this->_requestUrl . '?' . http_build_query((array) $this->_restObject)
+                    )->send();
+                }
+                catch (Guzzle\Http\Exception\ClientErrorResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch (Guzzle\Http\Exception\ServerErrorResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch (Guzzle\Http\Exception\BadResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch( Exception $e){
+                    throw new Exception("Exception not managed!!");
+                }
                 break;
+             
+            default:
+                throw new Exception("_restObjectMethod NOT MANAGED!");
         }
+
         
         $this->_response = $response;
     }
@@ -167,23 +220,29 @@ class RestContext extends BehatContext
     {
         $data = json_decode($this->_response->getBody(true));
         
-        if (! empty($data)) {
-            if (! isset($data->$propertyName)) {
+        if (! empty($data)) 
+        {
+            if (! isset($data->$propertyName)) 
+            {
                 throw new Exception("Property '" . $propertyName .
                          "' is not set!\n");
             }
             // check our type
-            switch (strtolower($typeString)) {
+            switch (strtolower($typeString)) 
+            {
                 case 'numeric':
-                    if (! is_numeric($data->$propertyName)) {
+                    if (! is_numeric($data->$propertyName)) 
+                    {
                         throw new Exception(
                                 "Property '" . $propertyName .
                                          "' is not of the correct type: " .
                                          $theTypeOfThePropertyIsNumeric . "!\n");
                     }
-                    break;
+                break;
             }
-        } else {
+        } 
+        else 
+        {
             throw new Exception(
                     "Response was not JSON\n" . $this->_response->getBody(true));
         }
@@ -194,7 +253,8 @@ class RestContext extends BehatContext
      */
     public function theResponseStatusCodeShouldBe($httpStatus)
     {
-        if ((string) $this->_response->getStatusCode() !== $httpStatus) {
+        if ((string) $this->_response->getStatusCode() !== $httpStatus) 
+        {
             throw new \Exception(
                     'HTTP code does not match ' . $httpStatus . ' (actual: ' .
                              $this->_response->getStatusCode() . ')');

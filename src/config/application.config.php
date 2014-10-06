@@ -1,12 +1,16 @@
 <?php
 
-$env = getenv('APPLICATION_ENV');
+$env = getenv('APPLICATION_ENV') ? : "local";
 
-if ($env == "" || $env == null)
-    if (isset($argv[0]))
-        $env = $argv[0];
+//$env = "test_local";
+
+//TODO: Get APPLICATION_ENV from shell parameters when use ./doctrine-module command 
+/*if ($env == "" || $env == null)
+    if (isset($argv[3]))
+        $env = $argv[3];
     else
-        $env = "local";
+        $env = "local";*/
+
 
 return array(
     // This should be an array of module namespaces used in the application.

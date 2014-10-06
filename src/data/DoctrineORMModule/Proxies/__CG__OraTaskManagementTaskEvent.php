@@ -64,10 +64,10 @@ class TaskEvent extends \Ora\TaskManagement\TaskEvent implements \Doctrine\ORM\P
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\TaskEvent' . "\0" . 'entitySerializer', 'aggregateId', 'attributes');
+            return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\TaskEvent' . "\0" . 'entitySerializer', 'task', 'aggregateId', 'attributes');
         }
 
-        return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\TaskEvent' . "\0" . 'entitySerializer', 'aggregateId', 'attributes');
+        return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\TaskEvent' . "\0" . 'entitySerializer', 'task', 'aggregateId', 'attributes');
     }
 
     /**
@@ -213,34 +213,12 @@ class TaskEvent extends \Ora\TaskManagement\TaskEvent implements \Doctrine\ORM\P
     /**
      * {@inheritDoc}
      */
-    public function setAggregateId($aggregateId)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setAggregateId', array($aggregateId));
-
-        return parent::setAggregateId($aggregateId);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getAttributes()
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getAttributes', array());
 
         return parent::getAttributes();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setAttributes($attributes)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setAttributes', array($attributes));
-
-        return parent::setAttributes($attributes);
     }
 
 }

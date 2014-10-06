@@ -23,7 +23,7 @@ class DomainEntity {
 	 * @var DateTime
 	 */
 	private $createdAt;
-		
+	
 	protected function __construct($id, \DateTime $createdAt) 
 	{
 		$this->id = $id;

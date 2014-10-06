@@ -3,7 +3,8 @@
 namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Zend\View\Model\JsonModel;
+//use Zend\View\Model\JsonModel;
+use Zend\Validator\ValidatorInterface;
 
 class TasksController extends AbstractHATEOASRestfulController
 {
@@ -13,7 +14,6 @@ class TasksController extends AbstractHATEOASRestfulController
 	
 	// INIZIALIZZAZIONE
 	   // - Inizializzo/valorizzo $project con l'entità reale
-	   
 	
 	// GET - singolo perchè con un parametro di ID
     /* public function get($id)
@@ -44,34 +44,48 @@ class TasksController extends AbstractHATEOASRestfulController
      * @author Giannotti Fabio
      */
     public function create($data)
-    {
-        $projectID = $data['projectID'];
-        $subject = $data['subject'];
-        
+    {        
         if (!isset($data['projectID']))
-        {
-            // TODO: inserire validazione sui parametri usando zend_validator
-            // - projectID: diverso da null
-            
+        {            
             // HTTP STATUS CODE 400: Bad Request
             $this->response->setStatusCode(400);
             
-            //$results = array("error"=>"Bad Request: parameters needed projectID");
+            return $this->response;
         }
         
         if (!isset($data['subject']))
-        {
-            // TODO: inserire validazione sui parametri usando zend_validator
-            // - subject: trim()
-            // - subject: lunghezza (al momento non definita)
-            // - subject: diverso da vuoto
-            
+        {           
             // HTTP STATUS CODE 400: Bad Request
             $this->response->setStatusCode(400);
             
-            //$results = array("error"=>"Bad Request: parameters needed subject");
+            return $this->response;
+        }
+        
+        $projectID = $data['projectID'];
+        
+        // TODO: inserire validazione sui parametri usando zend_validator
+        // - projectID: diverso da vuoto
+        // - projectID: diverso da null
+
+        $valid = new Zend\Validator\NotEmpty();
+        if (!$valid->isValid($projectID))
+        {
+            // HTTP STATUS CODE 406: Not Acceptable
+            $this->response->setStatusCode(406);
+            
+            return $this->response;
         }
 
+        // TODO: inserire validazione sui parametri usando zend_validator
+        // - projectID: diverso da vuoto
+        // - projectID: diverso da null
+        
+        $subject = $data['subject'];
+        // TODO: inserire validazione sui parametri usando zend_validator
+        // - subject: trim()
+        // - subject: lunghezza (al momento non definita)
+        // - subject: diverso da vuoto
+        
         
 	    // TODO: recuperare il project entity dalla variabile definita nel 
 	    // controller e controllare che sia un'entità valida
@@ -85,7 +99,9 @@ class TasksController extends AbstractHATEOASRestfulController
     	return $this->response;
     }
     
-
+        
+    
+    
     /*
     // PUT
     public function update($id, $data)
