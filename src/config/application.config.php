@@ -1,7 +1,12 @@
 <?php
 
-$env = getenv('APPLICATION_ENV') ?: 'local';
+$env = getenv('APPLICATION_ENV');
 
+if ($env == "" || $env == null)
+    if (isset($argv[0]))
+        $env = $argv[0];
+    else
+        $env = "local";
 
 return array(
     // This should be an array of module namespaces used in the application.
