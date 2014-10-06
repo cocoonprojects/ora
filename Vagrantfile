@@ -6,6 +6,7 @@ configValues = YAML.load_file("#{dir}/puphpet/config.yaml")
 data = configValues['vagrantfile-local']
 
 Vagrant.configure("2") do |config|
+
   config.vm.box = "#{data['vm']['box']}"
   config.vm.box_url = "#{data['vm']['box_url']}"
 
@@ -154,9 +155,6 @@ Vagrant.configure("2") do |config|
     ]
   end
 
-# aggiungo l'installazione di Doctrine
-#  config.vm.provision :shell, :path => "puphpet/shell/install_doctrine.sh"
-
   if !data['ssh']['host'].nil?
     config.ssh.host = "#{data['ssh']['host']}"
   end
@@ -170,8 +168,9 @@ Vagrant.configure("2") do |config|
     config.ssh.guest_port = data['ssh']['guest_port']
   end
   if !data['ssh']['shell'].nil?
+    config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
     config.ssh.shell = "#{data['ssh']['shell']}"
-  end
+  end  
   if !data['ssh']['keep_alive'].nil?
     config.ssh.keep_alive = data['ssh']['keep_alive']
   end
@@ -200,6 +199,9 @@ config.vm.provision :shell, :path => "puphpet/shell/testsuite_link.sh"
 #installazione di vim
 #config.vm.provision :shell, :path => "puphpet/shell/vim.sh"
 
+#configurazione del modulo di doctrine
+config.vm.provision :shell, :path => "puphpet/shell/doctrine_module_configuration.sh"
+
+
 
 end
-
