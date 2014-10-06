@@ -11,10 +11,3 @@ Scenario: Creating a new Task without parameters
 	Given that I want to make a new "Task"
 	When I request "/task-management/task"
 	Then the response status code should be 400
-	
-Scenario: Creating a new Task with not validated parameters
-	Given that I want to make a new "Task"
-	And that its "subject" is "UNA ROTONDA SUL MARE"
-	And that its "projectID" is "NOT VALID PROJECT ID TYPE"
-	When I request "/task-management/task"
-	Then the response status code should be 400
