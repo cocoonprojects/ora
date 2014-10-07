@@ -23,9 +23,9 @@ class EventSourcingTaskService implements TaskService
         
 	    // Generate unique ID for Task
 	    $taskID = uniqid();   
-	    
+
 	    // Creation of new task entity
-	    $task = new Task($taskID, $createdAt);
+	    $task = new Task($taskID, $createdAt, $this->eventStore);
 	    // TODO: Controllare se descrizione e projectid vanno nel costruttore in quanto obbligatori
 	    $task->setSubject($taskSubject);
 	    $task->setProject($project);
