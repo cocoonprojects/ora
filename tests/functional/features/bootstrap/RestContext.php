@@ -156,7 +156,6 @@ class RestContext extends BehatContext
                 throw new Exception("_restObjectMethod NOT MANAGED!");
         }
 
-        
         $this->_response = $response;
     }
 

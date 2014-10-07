@@ -4,7 +4,7 @@ namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 //use Zend\View\Model\JsonModel;
-use Zend\Validator\ValidatorInterface;
+//use Zend\Validator\ValidatorInterface;
 
 class TasksController extends AbstractHATEOASRestfulController
 {
