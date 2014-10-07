@@ -71,7 +71,9 @@
               </div>
               <div class="modal-body">
                 <center>
-                <?php foreach($urlAuthList as $provider => $url)
+                <?php 
+                
+                foreach($urlAuthList as $provider => $url)
                 {
                 ?>
                     <a onclick="auth.openAuthWindow('<?php echo $url ?>'); return false;" class="btn btn-success btn-lg" href=""><?php echo $this->translate("Login con {$provider}") ?></a>

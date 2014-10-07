@@ -13,7 +13,6 @@ class Google extends AbstractOAuth2Client
 
     public function getUrl()
     {
-        
         $url = $this->options->getAuthUri().'?'
             . 'redirect_uri='  . urlencode($this->options->getRedirectUri())
             . '&response_type=code'
@@ -89,7 +88,7 @@ class Google extends AbstractOAuth2Client
                 'session-state' => $this->session->state, 
                 'request-state' => $request->getQuery('state'), 
                 'code'          => $request->getQuery('code')
-            );
+            );            
             
             return false;
             

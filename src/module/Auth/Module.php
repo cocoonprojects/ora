@@ -42,6 +42,7 @@ class Module
         $viewModel->user = $viewVariables['user'];
 		$viewModel->urlAuthList = $viewVariables['urlAuthList'];
 
+
     }
 
     public function getAutoloaderConfig()

@@ -39,13 +39,13 @@ return array(
         
         // 'facebook' => array(
         //     'scope' => array(
-        //         /*
-        //         'user_about_me',
-        //         'user_activities',
-        //         'user_birthday',
-        //         'read_friendlists',
-        //         //'...'
-        //         */
+                 /*
+                 'user_about_me',
+                 'user_activities',
+                 'user_birthday',
+                 'read_friendlists',
+                 //'...'
+                 */
         //      ),
         //     'auth_uri'      => 'https://www.facebook.com/dialog/oauth',
         //     'token_uri'     => 'https://graph.facebook.com/oauth/access_token',
@@ -77,17 +77,9 @@ return array(
         'linkedin' => array(
             'scope' => array(
                 'r_emailaddress',
-                'r_contactinfo',
-                'r_fullprofile',
-                'r_basicprofile'                    
-                /*
-                'user',
-                'public_repo',
-                'repo',
-                'repo:status',
-                'delete_repo',
-                'gist'
-                */
+            	'r_contactinfo',
+            	'r_fullprofile',
+            	'r_basicprofile'
             ),
             'auth_uri'      => 'https://www.linkedin.com/uas/oauth2/authorization',
             'token_uri'     => 'https://www.linkedin.com/uas/oauth2/accessToken',

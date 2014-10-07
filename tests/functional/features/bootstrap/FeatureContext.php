@@ -3,6 +3,7 @@
 use Behat\Behat\Context\ClosuredContextInterface;
 use Behat\Behat\Context\TranslatedContextInterface; 
 use Behat\Behat\Context\BehatContext;
+
 use Behat\Behat\Exception\PendingException;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
@@ -15,12 +16,12 @@ use Behat\Gherkin\Node\TableNode;
 //
 // require_once 'RestContext.php';
 
+
 /**
  * Features context.
  */
 class FeatureContext extends BehatContext
 {
-
     /**
      * Initializes context.
      * Every scenario gets it's own context object.
@@ -32,5 +33,6 @@ class FeatureContext extends BehatContext
     {
         // Initialize your context here
         $this->useContext('RestContext', new RestContext($parameters));
+        $this->useContext('SubContext_google_login', new SubContext_google_login($parameters));
     }
 }
