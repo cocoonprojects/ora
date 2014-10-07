@@ -3,8 +3,7 @@
 namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-//use Zend\View\Model\JsonModel;
-//use Zend\Validator\ValidatorInterface;
+use Zend\View\Model\JsonModel;
 
 class TasksController extends AbstractHATEOASRestfulController
 {
@@ -45,6 +44,10 @@ class TasksController extends AbstractHATEOASRestfulController
      */
     public function create($data)
     {        
+        // Definition of used Zend Validators
+        $validator_NotEmpty = new \Zend\Validator\NotEmpty();
+        $validator_StringLength = new \Zend\Validator\StringLength();
+        
         if (!isset($data['projectID']))
         {            
             // HTTP STATUS CODE 400: Bad Request
@@ -61,31 +64,38 @@ class TasksController extends AbstractHATEOASRestfulController
             return $this->response;
         }
         
-        $projectID = $data['projectID'];
-        
-        // TODO: inserire validazione sui parametri usando zend_validator
-        // - projectID: diverso da vuoto
-        // - projectID: diverso da null
-
-        /*$valid = new Zend\Validator\NotEmpty();
-        if (!$valid->isValid($projectID))
+        $projectID = trim($data['projectID']);        
+        // TODO: Verificare che esista realmente un progetto con ID specificato
+        // TODO: Verificare che l'utente abbia il permesso per accedere a tale progetto?
+        if (!$validator_NotEmpty->isValid($projectID))
         {
             // HTTP STATUS CODE 406: Not Acceptable
             $this->response->setStatusCode(406);
             
             return $this->response;
-        }*/
-
-        // TODO: inserire validazione sui parametri usando zend_validator
-        // - projectID: diverso da vuoto
-        // - projectID: diverso da null
+        }
         
-        $subject = $data['subject'];
+        $subject = trim($data['subject']);
         // TODO: inserire validazione sui parametri usando zend_validator
-        // - subject: trim()
         // - subject: lunghezza (al momento non definita)
-        // - subject: diverso da vuoto
+        if (!$validator_NotEmpty->isValid($subject))
+        {
+            // HTTP STATUS CODE 406: Not Acceptable
+            $this->response->setStatusCode(406);
         
+            return $this->response;
+        }
+
+        // Check the max length of task subject (specified into task entity)
+        $validator_StringLength->setMin(20);
+        $validator_StringLength->setMax(2000);
+        if (!$validator_StringLength($subject))
+        {
+            // HTTP STATUS CODE 406: Not Acceptable
+            $this->response->setStatusCode(406);
+            
+            return $this->response;
+        }
         
 	    // TODO: recuperare il project entity dalla variabile definita nel 
 	    // controller e controllare che sia un'entità valida
