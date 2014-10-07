@@ -20,7 +20,7 @@ class IndexControllerTest extends PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $bootstrap = Application::init(include 'src/tests/unit/test.config.php');
+        $bootstrap = Application::init(include 'tests/unit/test.config.php');
         $this->controller = new IndexController();
         $this->request = new Request();
         $this->routeMatch = new RouteMatch(array('controller' => 'index'));
