@@ -64,7 +64,7 @@
    <arg value="--jdepend-xml=${basedir}/build/logs/jdepend.xml" />
    <arg value="--jdepend-chart=${basedir}/build/pdepend/dependencies.svg" />
    <arg value="--overview-pyramid=${basedir}/build/pdepend/overview-pyramid.svg" />
-   <arg value="--ignore=${basedir}/src/vendor/" />
+   <arge value="--ignore=${basedir}/src/vendor/" />
    <arg path="${basedir}/src" />
   </exec>
  </target>
@@ -75,7 +75,7 @@
    <arg path="${basedir}/src" />
    <arg value="text" />
    <arg value="${basedir}/build/phpmd.xml" />
-   <arg value="--exclude" />
+   <arg value="--ignore" />
    <arg value="${basedir}/src/vendor" />
   </exec>
  </target>
@@ -87,7 +87,7 @@
    <arg value="${basedir}/build/phpmd.xml" />
    <arg value="--reportfile" />
    <arg value="${basedir}/build/logs/pmd.xml" />
-   <arg value="--exclude" />
+   <arg value="--ignore" />
    <arg value="${basedir}/src/vendor" />
   </exec>
  </target>
