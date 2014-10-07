@@ -55,7 +55,9 @@
    <arg value="--log-csv" />
    <arg value="${basedir}/build/logs/phploc.csv" />
    <arg value="--exclude" />
-   <arg value="${basedir}/src/vendor,${basedir}/src/tests" />
+   <arg value="${basedir}/src/vendor" />
+   <arg value="--exclude" />
+   <arg value="${basedir}/src/tests" />
    <arg path="${basedir}/src" />
   </exec>
  </target>
@@ -107,7 +109,7 @@
    <arg value="--report=checkstyle" />
    <arg value="--report-file=${basedir}/build/logs/checkstyle.xml" />
    <arg value="--standard=${basedir}/build/phpcs.xml" />
-   <arg value="--ignore=*vendor*,*tests*" />
+   <arg value="--ignore=vendor,tests" />
    <arg path="${basedir}/src" />
   </exec>
  </target>
@@ -117,9 +119,9 @@
    <arg value="--log-pmd" />
    <arg value="${basedir}/build/logs/pmd-cpd.xml" />
    <arg value="--exclude" />
-   <arg value="${basedir}/src/vendor" />
+   <arg value="vendor" />
    <arg value="--exclude" />
-   <arg value="${basedir}/src/tests" />
+   <arg value="tests" />
    <arg path="${basedir}/src" />
   </exec>
  </target>
