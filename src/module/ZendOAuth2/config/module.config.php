@@ -79,11 +79,17 @@ return array(
                 'r_emailaddress',
             	'r_contactinfo',
             	'r_fullprofile',
-            	'r_basicprofile'
+            	'r_basicprofile'			 		
             ),
             'auth_uri'      => 'https://www.linkedin.com/uas/oauth2/authorization',
             'token_uri'     => 'https://www.linkedin.com/uas/oauth2/accessToken',
-            'info_uri'      => 'https://api.linkedin.com/v1/people/~:(first-name,last-name,email-address,picture-url)'
+            'info_uri'      => 'https://api.linkedin.com/v1/people/~:(first-name,last-name,email-address,picture-url)',
+        		//'info_uri'      => 'https://api.linkedin.com/v1/people/~',
+        //    'client_id'     => 'your api key',
+        //     'client_secret' => 'your api secret',
+        //     'redirect_uri'  => 'your callback url which links to your controller',
+         ),
+
     )
     
 );
