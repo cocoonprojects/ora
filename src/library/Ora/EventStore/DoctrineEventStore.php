@@ -15,7 +15,7 @@ class DoctrineEventStore implements EventStore
 	 */
 	private $entityManager;
 	
-	private function __construct(EntityManager $entityManager) 
+	public function __construct(EntityManager $entityManager) 
 	{
 		$this->entityManager = $entityManager;
 	}
