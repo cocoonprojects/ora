@@ -55,9 +55,9 @@
    <arg value="--log-csv" />
    <arg value="${basedir}/build/logs/phploc.csv" />
    <arg value="--exclude" />
-   <arg value="${basedir}/src/vendor" />
+   <arg value="vendor" />
    <arg value="--exclude" />
-   <arg value="${basedir}/src/tests" />
+   <arg value="tests" />
    <arg path="${basedir}/src" />
   </exec>
  </target>
@@ -75,11 +75,11 @@
  <target name="phpmd"
          description="Perform project mess detection using PHPMD and print human readable output. Intended for usage on the command line before committing.">
   <exec executable="phpmd">
-   <arg path="${basedir}/src" />
+   <arg path="${basedir}/src/module" />
    <arg value="text" />
    <arg value="${basedir}/build/phpmd.xml" />
    <arg value="--exclude" />
-   <arg value="${basedir}/src/vendor,${basedir}/src/tests" />
+   <arg value="*/vendor/*,*/tests/*" />
   </exec>
  </target>
 
@@ -91,7 +91,7 @@
    <arg value="--reportfile" />
    <arg value="${basedir}/build/logs/pmd.xml" />
    <arg value="--exclude" />
-   <arg value="${basedir}/src/vendor,${basedir}/src/tests" />
+   <arg value="*/vendor/*,*/tests/*" />
   </exec>
  </target>
 
@@ -99,6 +99,7 @@
          description="Find coding standard violations using PHP_CodeSniffer and print human readable output. Intended for usage on the command line before committing.">
   <exec executable="phpcs">
    <arg value="--standard=${basedir}/build/phpcs.xml" />
+   <arg value="--extensions=php" />
    <arg value="--ignore=*vendor*,*tests*" />
    <arg path="${basedir}/src" />
   </exec>
@@ -109,7 +110,8 @@
    <arg value="--report=checkstyle" />
    <arg value="--report-file=${basedir}/build/logs/checkstyle.xml" />
    <arg value="--standard=${basedir}/build/phpcs.xml" />
-   <arg value="--ignore=vendor,tests" />
+   <arg value="--extensions=php" />
+   <arg value="--ignore=*vendor*,*tests*" />
    <arg path="${basedir}/src" />
   </exec>
  </target>
