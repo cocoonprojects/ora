@@ -17,11 +17,9 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
 		} else {
 			$options = $this->getCollectionOptions();
 		}
-		
 		$response = $this->getResponse();
 		$response->getHeaders()->addHeaderLine('Content-Type', 'application/hal+json');
 		$response->getHeaders()->addHeaderLine('Allow', implode(',', $options));
-		
 		return $response;
 	}
 
@@ -34,6 +32,7 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
 		}
 		
 		$method = $e->getRequest()->getMethod();
+		
 		if (in_array($method, $options) || $method == 'OPTIONS') {
 			// HTTP method is allowed!
 			return;
@@ -56,5 +55,4 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
 	protected abstract function getCollectionOptions();
 	
 	protected abstract function getResourceOptions();
-
 }

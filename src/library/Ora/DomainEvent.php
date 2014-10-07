@@ -46,7 +46,11 @@ class DomainEvent
 	public function getFiredAt() {
 	    return $this->firedAt;
 	}
-
+	
+	public function getAggregateId() {
+		return $this->aggregateId;
+	}
+	
 	public function getAggregateId() {
 		return $this->aggregateId;
 	}
