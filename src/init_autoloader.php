@@ -17,8 +17,8 @@
  */
 
 // Composer autoloading
-if (file_exists('../vendor/autoload.php')) {
-    $loader = include '../vendor/autoload.php';
+if (file_exists('vendor/autoload.php')) {
+    $loader = include 'vendor/autoload.php';
 }
 
 if(isset($loader)) {
@@ -32,8 +32,8 @@ if (class_exists('Zend\Loader\AutoloaderFactory')) {
 
 $zf2Path = false;
 
-if (is_dir('../vendor/ZF2/library')) {
-    $zf2Path = '../vendor/ZF2/library';
+if (is_dir('vendor/ZF2/library')) {
+    $zf2Path = 'vendor/ZF2/library';
 } elseif (getenv('ZF2_PATH')) {      // Support for ZF2_PATH environment variable or git submodule
     $zf2Path = getenv('ZF2_PATH');
 } elseif (get_cfg_var('zf2_path')) { // Support for zf2_path directive value
