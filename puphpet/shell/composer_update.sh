@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /vagrant
+cd /vagrant/src
 
 echo "Esecuzione di composer self-update..."
 composer self-update

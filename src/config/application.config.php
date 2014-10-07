@@ -29,7 +29,7 @@ return array(
         // Module class.
         'module_paths' => array(
             __DIR__.'/../module',
-            __DIR__.'/../../vendor',
+            __DIR__.'/../vendor',
         ),
 
         // An array of paths from which to glob configuration files after
