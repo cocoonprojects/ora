@@ -42,6 +42,7 @@
    <fileset dir="${basedir}/src">
     <include name="**/*.php" />
     <exclude name="**/vendor/**" />
+    <exclude name="**/tests/**" />
     <modified />
    </fileset>
 
@@ -55,6 +56,8 @@
    <arg value="${basedir}/build/logs/phploc.csv" />
    <arg value="--exclude" />
    <arg value="${basedir}/src/vendor" />
+   <arg value="--exclude" />
+   <arg value="${basedir}/src/tests" />
    <arg path="${basedir}/src" />
   </exec>
  </target>
@@ -64,7 +67,7 @@
    <arg value="--jdepend-xml=${basedir}/build/logs/jdepend.xml" />
    <arg value="--jdepend-chart=${basedir}/build/pdepend/dependencies.svg" />
    <arg value="--overview-pyramid=${basedir}/build/pdepend/overview-pyramid.svg" />
-   <arge value="--ignore=${basedir}/src/vendor/" />
+   <arg value="--ignore=${basedir}/src/vendor/,${basedir}/src/tests/" />
    <arg path="${basedir}/src" />
   </exec>
  </target>
@@ -75,8 +78,8 @@
    <arg path="${basedir}/src" />
    <arg value="text" />
    <arg value="${basedir}/build/phpmd.xml" />
-   <arg value="--ignore" />
-   <arg value="${basedir}/src/vendor" />
+   <arg value="--exclude" />
+   <arg value="${basedir}/src/vendor,${basedir}/src/tests" />
   </exec>
  </target>
 
@@ -87,8 +90,8 @@
    <arg value="${basedir}/build/phpmd.xml" />
    <arg value="--reportfile" />
    <arg value="${basedir}/build/logs/pmd.xml" />
-   <arg value="--ignore" />
-   <arg value="${basedir}/src/vendor" />
+   <arg value="--exclude" />
+   <arg value="${basedir}/src/vendor,${basedir}/src/tests" />
   </exec>
  </target>
 
@@ -96,7 +99,7 @@
          description="Find coding standard violations using PHP_CodeSniffer and print human readable output. Intended for usage on the command line before committing.">
   <exec executable="phpcs">
    <arg value="--standard=${basedir}/build/phpcs.xml" />
-   <arg value="--ignore=vendor" />
+   <arg value="--ignore=*vendor*,*tests*" />
    <arg path="${basedir}/src" />
   </exec>
  </target>
@@ -106,7 +109,7 @@
    <arg value="--report=checkstyle" />
    <arg value="--report-file=${basedir}/build/logs/checkstyle.xml" />
    <arg value="--standard=${basedir}/build/phpcs.xml" />
-   <arg value="--ignore=vendor" />
+   <arg value="--ignore=vendor,tests" />
    <arg path="${basedir}/src" />
   </exec>
  </target>
@@ -116,7 +119,9 @@
    <arg value="--log-pmd" />
    <arg value="${basedir}/build/logs/pmd-cpd.xml" />
    <arg value="--exclude" />
-   <arg value="${basedir}/src/vendor" />
+   <arg value="vendor" />
+   <arg value="--exclude" />
+   <arg value="tests" />
    <arg path="${basedir}/src" />
   </exec>
  </target>
@@ -130,8 +135,8 @@
    <arg value="--log-junit" />
    <arg value="${basedir}/build/logs/junit.xml" />
    <arg value="-c" />
-   <arg value="${basedir}/tests/phpunit.xml" />
-   <arg value="${basedir}/tests" />
+   <arg value="${basedir}/src/tests/phpunit.xml" />
+   <arg value="${basedir}/src/tests" />
   </exec>
  </target>
 </project>
