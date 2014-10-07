@@ -1,7 +1,6 @@
 bin/
 vendor/
 .vagrant/
-composer.phar
 /.project
 /.buildpath
 *.old
