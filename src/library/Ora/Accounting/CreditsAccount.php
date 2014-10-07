@@ -55,7 +55,7 @@ class CreditsAccount extends DomainEntity {
 			throw new UnsupportedChangeException($currency, $this->currency);
 		}
 		$e = new CreditsDepositedEvent($when, $this, $value);
-		$this->appendToStream($e);
+		$this->eventStore->appendToStream($e);
 	}
 	
 	public function withdraw($value, $currency, \DateTime $when) {
@@ -63,7 +63,7 @@ class CreditsAccount extends DomainEntity {
 			throw new UnsupportedChangeException($currency, $this->currency);
 		}
 		$e = new CreditsWithdrawnEvent($when, $this, $value);
-		$this->appendToStream($e);
+		$this->eventStore->appendToStream($e);
 	}
 	
 	private function applyCreditsDepositedEvent(CreditsDepositedEvent $e) {
