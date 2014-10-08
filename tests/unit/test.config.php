@@ -9,7 +9,7 @@ return array(
     'module_listener_options' => array(
         'module_paths' => array(
             __DIR__.'/../../src/module',
-            __DIR__.'/../../vendor',
+            __DIR__.'/../../src/vendor',
         ),
         'config_glob_paths' => array(
             'config/autoload/{,*.}{global,local}.php',
