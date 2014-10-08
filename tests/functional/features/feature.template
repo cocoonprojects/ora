@@ -1,6 +1,5 @@
 Feature: Testing the RESTfulness of the Task Controller
 
-@task @creation @post
 Scenario: Creating a new Task
 	Given that I want to make a new "Task"
 	And that its "subject" is "UNA ROTONDA SUL MARE"
@@ -11,21 +10,18 @@ Scenario: Creating a new Task
 	And the type of the "taskId" property is numeric
 	Then the response status code should be 200
 
-@task @creation @post
 Scenario: Finding a Task
 	Given that I want to find a "Task"
 	And that its "id" is "1"
 	When I request "/task-management/task"
 	Then the "description" property equals "UNA ROTONDA SUL MARE"
 
-@task @creation @post
 Scenario: Deleting a Task
 	Given that I want to delete a "Task"
 	And that its "id" is "1"
 	When I request "/task-management/task"
 	Then the "status" property equals "success"
 
-@task @creation @post
 Scenario: Creating a new Task with not validated parameters
 	Given that I want to make a new "Task"
 	And that its "subject" is "UNA ROTONDA SUL MARE"
