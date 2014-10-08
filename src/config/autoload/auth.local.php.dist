@@ -1,0 +1,16 @@
+<?php
+
+return array(
+		/*'zendoauth2' => array(
+				'google' => array(
+						'client_id'     => '',
+						'client_secret' => '',
+						'redirect_uri'  => 'http://localhost/auth/login/google',
+				),
+				'linkedin' => array(
+						'client_id'     => '',
+						'client_secret' => '',
+						'redirect_uri'  => 'http://localhost/auth/login/linkedin',
+				)
+		)*/
+);
