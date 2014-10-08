@@ -18,7 +18,9 @@ return array(
 		'DoctrineModule',
         'DoctrineORMModule',
         'Application',
-        'TaskManagement'
+        'TaskManagement',
+        'Auth',
+        'ZendOAuth2'
     ),
 
     // These are various options for the listeners attached to the ModuleManager
@@ -40,3 +42,4 @@ return array(
         ),
     ),
 );
+

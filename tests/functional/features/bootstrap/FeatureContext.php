@@ -32,5 +32,6 @@ class FeatureContext extends BehatContext
     {
         // Initialize your context here
         $this->useContext('RestContext', new RestContext($parameters));
+        $this->useContext('SubContext_google_login', new SubContext_google_login($parameters));
     }
 }

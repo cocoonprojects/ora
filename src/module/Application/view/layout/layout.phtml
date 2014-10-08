@@ -18,6 +18,7 @@
 
         <!-- Scripts -->
         <?php echo $this->headScript()
+            ->prependFile($this->basePath() . '/js/auth.js')
             ->prependFile($this->basePath() . '/js/bootstrap.min.js')
             ->prependFile($this->basePath() . '/js/jquery.min.js')
             ->prependFile($this->basePath() . '/js/respond.min.js', 'text/javascript', array('conditional' => 'lt IE 9',))
@@ -40,6 +41,15 @@
                     <ul class="nav navbar-nav">
                         <li class="active"><a href="<?php echo $this->url('home') ?>"><?php echo $this->translate('Home') ?></a></li>
                     </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <?php if(true !== $logged){ ?>
+                            <li><a id="login-auth"><?php echo $this->translate("Login") ?></a></li>         
+                        <?php }else{ ?>
+                            <li><img src=<?php echo $user['picture'] ?> alt="picture" class="img-circle" style="max-width: 40px"></li>
+                            <li><a><?php echo $user["name"] ?></a></li>
+                            <li><a href="<?php echo $this->url('logout') ?>"><?php echo $this->translate('Logout') ?></a></li>
+                        <?php } ?>
+                    </ul>
                 </div><!--/.nav-collapse -->
             </div>
         </nav>
@@ -50,6 +60,30 @@
                 <p>&copy; 2005 - <?php echo date('Y') ?> by Zend Technologies Ltd. <?php echo $this->translate('All rights reserved.') ?></p>
             </footer>
         </div> <!-- /container -->
+
+        <?php if(true !== $logged){ ?>
+        <div id="popupLogin" class="modal fade">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title">Effettua il login</h4>
+              </div>
+              <div class="modal-body">
+                <center>
+                <?php 
+                
+                foreach($urlAuthList as $provider => $url)
+                {
+                ?>
+                    <a onclick="auth.openAuthWindow('<?php echo $url ?>'); return false;" class="btn btn-success btn-lg" href=""><?php echo $this->translate("Login con {$provider}") ?></a>
+                <?php } ?>
+                </center>
+              </div>
+            </div><!-- /.modal-content -->
+          </div><!-- /.modal-dialog -->
+        </div><!-- /.modal --> 
+        <?php } ?>
         <?php echo $this->inlineScript() ?>
     </body>
 </html>
