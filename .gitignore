@@ -1,5 +1,5 @@
 bin/
-vendor/
+/src/vendor/
 .vagrant/
 /.project
 /.buildpath
