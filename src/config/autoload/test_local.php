@@ -9,6 +9,25 @@
     );
     
     return array(
+    		'zendoauth2' => array(
+    				'google' => array(
+    						'client_id'     => '',
+    						'client_secret' => '',
+    						'redirect_uri'  => 'http://localhost/auth/login/google',
+    				),
+    				'linkedin' => array(
+    						'client_id'     => '',
+    						'client_secret' => '',
+    						'redirect_uri'  => 'http://localhost/auth/login/linkedin',
+    				),
+    				'testProvider' => array(
+    						'client_id'     => '',
+    						'client_secret' => '',
+    						'redirect_uri'  => 'http://localhost/auth/login/testProvider',
+    						'auth_uri'      => 'http://oraprojecttest/auth/login/testprovider',
+    				),
+    		),
+    		    		
             'doctrine' => array(
                     'connection' => array(
                             'orm_default' => array(

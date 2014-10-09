@@ -1,6 +1,5 @@
 <?php
 
-
 return array(
 		'zendoauth2' => array(
 				'google' => array(

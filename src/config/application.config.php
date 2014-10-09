@@ -11,7 +11,6 @@ $env = getenv('APPLICATION_ENV') ? : "local";
     else
         $env = "local";*/
 
-
 return array(
     // This should be an array of module namespaces used in the application.
     'modules' => array(

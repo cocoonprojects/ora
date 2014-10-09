@@ -164,12 +164,14 @@ class AuthService implements ServiceManagerAwareInterface
     public function haveTokenInRequestForProvider($provider)
     {
     	$token = false;
-    	     	
+    	    	
     	$instanceProvider = $this->getInstanceOfProvider($provider);
     	$request = $this->getRequest();
     	 
     	if(null !== $instanceProvider && null !== $request)
+    	{
     		$token = $instanceProvider->getToken($request);
+    	}
     	 
     	if(!$token)
     	{
@@ -189,7 +191,7 @@ class AuthService implements ServiceManagerAwareInterface
     	if ("" != $provider && array_key_exists($provider, $avaiablesProvider))
     	{
     		$provider = ucfirst($provider);
-    		
+    	
     		if ($this->verifyLengthOfCodeParameter(10))
     		{
     			if($this->haveTokenInRequestForProvider($provider))

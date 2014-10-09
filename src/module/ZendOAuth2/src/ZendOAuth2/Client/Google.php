@@ -27,7 +27,7 @@ class Google extends AbstractOAuth2Client
     
     public function getToken(Request $request) 
     {
-        
+        echo "Token google";
         if(isset($this->session->token)) {
             
             return true;
