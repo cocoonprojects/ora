@@ -16,9 +16,30 @@ class LogoutController extends AbstractHATEOASRestfulController
 	
     public function getList()
     {
-    	$authService = $this->getAuthService();
-    	$logout = $authService->clearIdentity();
-
+    	$authenticationService = new \Zend\Authentication\AuthenticationService();
+    	
+    	if($authenticationService->hasIdentity())
+    	{
+    		$identity = $authenticationService->getIdentity();
+    	
+    		$provider = $identity["provider"];
+    		 
+    		if("" !== $provider)
+    		{
+    			$authenticationService->clearIdentity();
+    			 
+    			$provider = ucfirst($provider);
+	    		$instanceProviderName = "ZendOAuth2\\".$provider;
+	    		$instanceProvider = $this->getServiceLocator()->get($instanceProviderName);
+    	
+    			if(null !== $instanceProvider)
+    			{
+    				$session = $instanceProvider->getSessionContainer();
+    				$session->getManager()->getStorage()->clear();
+    			}    	
+    		}
+    	}
+    	    	
         return $this->getRedirectAfterLogout();
     }
 
@@ -37,20 +58,6 @@ class LogoutController extends AbstractHATEOASRestfulController
         return $this->redirect()->toRoute('home');
     }
     
-    public function getAuthService()
-    {
-    	if (!$this->authService) {
-    		$this->setAuthService($this->getServiceLocator()->get('\Auth\Service\AuthService'));
-    	}
-    	return $this->authService;
-    }
-    
-    public function setAuthService(\Auth\Service\AuthService $authService)
-    {
-        $this->authService = $authService;
-        return $this;
-    }  
-
     public function getRedirectAfterLogout()
     {
         if (!$this->redirectAfterLogout) {

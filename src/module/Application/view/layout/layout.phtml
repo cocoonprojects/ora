@@ -42,11 +42,15 @@
                         <li class="active"><a href="<?php echo $this->url('home') ?>"><?php echo $this->translate('Home') ?></a></li>
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
-                        <?php if(true !== $logged){ ?>
+                        <?php  
+                        
+                        $viewVariables = $this->informationsOfAuthentication();                        
+                        
+                        if(true !== $viewVariables['logged']){ ?>
                             <li><a id="login-auth"><?php echo $this->translate("Login") ?></a></li>         
                         <?php }else{ ?>
-                            <li><img src=<?php echo $user['picture'] ?> alt="picture" class="img-circle" style="max-width: 40px"></li>
-                            <li><a><?php echo $user["name"] ?></a></li>
+                            <li><img src=<?php echo $viewVariables['user']['picture'] ?> alt="picture" class="img-circle" style="max-width: 40px"></li>
+                            <li><a><?php echo $viewVariables['user']["name"] ?></a></li>
                             <li><a href="<?php echo $this->url('logout') ?>"><?php echo $this->translate('Logout') ?></a></li>
                         <?php } ?>
                     </ul>
@@ -54,14 +58,16 @@
             </div>
         </nav>
         <div class="container">
-            <?php echo $this->content; ?>
+            <?php 
+            
+            echo $this->content; ?>
             <hr>
             <footer>
                 <p>&copy; 2005 - <?php echo date('Y') ?> by Zend Technologies Ltd. <?php echo $this->translate('All rights reserved.') ?></p>
             </footer>
         </div> <!-- /container -->
 
-        <?php if(true !== $logged){ ?>
+        <?php if(true !== $viewVariables['logged']){ ?>
         <div id="popupLogin" class="modal fade">
           <div class="modal-dialog">
             <div class="modal-content">
@@ -72,8 +78,10 @@
               <div class="modal-body">
                 <center>
                 <?php 
+               
+               
                 
-                foreach($urlAuthList as $provider => $url)
+                foreach($viewVariables['urlAuthList'] as $provider => $url)
                 {
                 ?>
                     <a onclick="auth.openAuthWindow('<?php echo $url ?>'); return false;" class="btn btn-success btn-lg" href=""><?php echo $this->translate("Login con {$provider}") ?></a>

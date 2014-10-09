@@ -10,26 +10,78 @@ use Zend\Mvc\MvcEvent;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 
+
 class LoginController extends AbstractHATEOASRestfulController
 {    
 
     protected static $collectionOptions = array ('GET');
-    protected static $resourceOptions = array ('GET');
-    
-    protected $authService;
+    protected static $resourceOptions = array ('GET');    
     
     public function get($id)
     {
-        $authService = $this->getAuthService();
-        $login = $authService->loginToProvider($id);
-        
-        /**
-         * $login['valid'] = boolean
-         * $login['messages'] = array()
-         */
-        
+    	$allConfigurationOption = $this->getServiceLocator()->get('Config');
+    	$availableProviderList = array();
+    	$resultAuthentication = array();
+    	
+    	if(is_array($allConfigurationOption) && array_key_exists('zendoauth2', $allConfigurationOption))
+    	{
+    		$availableProviderList = $allConfigurationOption['zendoauth2'];
+    	}
+    	
+    	if("" != $id 
+    		&& array_key_exists($id, $availableProviderList) 
+    		&& strlen($this->getRequest()->getQuery('code')) > 10)
+    	{
+    		$provider = ucfirst($id);
+    		$instanceProviderName = "ZendOAuth2\\".$provider;
+    		$instanceProvider = $this->getServiceLocator()->get($instanceProviderName);
+    		
+    		
+    		if($instanceProvider->getToken($this->getRequest()))
+    		{    			
+    			$adapter = $this->getServiceLocator()->get('ZendOAuth2\Auth\Adapter');
+    			$adapter->setOAuth2Client($instanceProvider); 
+
+    			$authenticationService = new \Zend\Authentication\AuthenticationService();
+    			$authenticate = $authenticationService->authenticate($adapter); // return Zend\Authentication\Result
+    			
+    			if($authenticate->isValid())
+    			{
+    				$container = new Container("Zend_Auth");
+    				$identity = $authenticationService->getIdentity();
+    				$identity["provider"] = $provider;
+    				
+    				$authenticationService->getStorage()->write($identity);    				
+    				$resultAuthentication['valid'] = true;
+    			}
+    			else
+    			{
+    				switch ($authenticate->getCode()) {
+    					 
+    					case \Zend\Authentication\Result::FAILURE_IDENTITY_NOT_FOUND:
+    						$resultAuthentication['messages'][] = "Identity not found";
+    						break;
+    			
+    					case \Zend\Authentication\Result::FAILURE_CREDENTIAL_INVALID:
+    						$resultAuthentication['messages'][] = "Credential invalid";
+    						break;
+    			
+    					default:
+    						$resultAuthentication['messages'][] = "Internal error";
+    						break;
+    				}
+    			
+    				$resultAuthentication['messages'] = array_merge($login['messages'], $authenticate->getMessages());
+    			}    			
+    		}
+    	}
+    	else
+    	{
+    		$resultAuthentication['messages'][] = "Provider adapter is not valid";
+    	}    	
+    	
         $view = new ViewModel(array(
-        		'login' => $login
+        		'login' => $resultAuthentication
         ));
         
         $view->setTemplate("login/login");
@@ -52,20 +104,6 @@ class LoginController extends AbstractHATEOASRestfulController
         
         return $response;
     }
-    
-    public function getAuthService()
-    {
-        if (!$this->authService) {
-            $this->setAuthService($this->getServiceLocator()->get('\Auth\Service\AuthService'));
-        }
-        return $this->authService;
-    }
-    
-    public function setAuthService(\Auth\Service\AuthService $authService)
-    {
-    	$this->authService = $authService;
-    	return $this;
-    } 
 
     protected function getCollectionOptions() {
     	return self::$collectionOptions;
@@ -74,5 +112,5 @@ class LoginController extends AbstractHATEOASRestfulController
     protected function getResourceOptions() {
     	return self::$resourceOptions;        
     }       
-  
+
 }

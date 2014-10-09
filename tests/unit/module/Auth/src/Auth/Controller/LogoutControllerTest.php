@@ -32,9 +32,6 @@ class LogoutControllerTest extends \PHPUnit_Framework_TestCase
         $this->event->setRouteMatch($this->routeMatch);
         $this->controller->setEvent($this->event);
         $this->controller->setEventManager($bootstrap->getEventManager());
-        $this->controller->setServiceLocator($bootstrap->getServiceManager());
-        
-        $this->mockServiceForModule();
        
     }
     
@@ -42,13 +39,8 @@ class LogoutControllerTest extends \PHPUnit_Framework_TestCase
     {
     	$this->request->setMethod('GET');
     	    	
-    	$authService = $this->getMock('\Auth\Service\AuthService');
-    	$authService->method('clearIdentity')
-			    	->will($this->returnValue(true));    
-    	
     	$redirectAfterLogout = $this->getMock('\Zend\Http\Response');
-    	
-    	$this->controller->setAuthService($authService);
+
     	$this->controller->setRedirectAfterLogout($redirectAfterLogout);
     	
     	$result = $this->controller->dispatch($this->request);
@@ -58,22 +50,5 @@ class LogoutControllerTest extends \PHPUnit_Framework_TestCase
  
 
     }
-    
-    public function mockServiceForModule()
-    {
-    	$authServiceMock = $this->getMock('\Auth\Service\AuthService');
-    	 
-    	$viewVariables['logged'] = false;
-    	$viewVariables['urlAuthList'] = array();
-    	$viewVariables['user'] = "";
-    
-    	$authServiceMock->expects($this->once())
-    	->method('informationsOfAuthentication')
-    	->will($this->returnValue($viewVariables));
-    
-    	$serviceLocator = $this->controller->getServiceLocator();
-    	$serviceLocator->setAllowOverride(true);
-    	$serviceLocator->setService('\Auth\Service\AuthService', $authServiceMock);
-    }    
 }
 

@@ -14,35 +14,9 @@ class Module
         
         $em->attach(\Zend\Mvc\MvcEvent::EVENT_DISPATCH, array($this, 'onDispatch'));
     }
-
-    public function getServiceConfig() 
-    {
-        return array(
-                'invokables' => array(
-                    'Auth\Service\AuthService' => 'Auth\Service\AuthService'
-            )
-        );
-    }
     
     public function onDispatch(\Zend\Mvc\MvcEvent $e)
     {
-        $application = $e->getParam('application');
-        $viewModel = $application->getMvcEvent()->getViewModel();
-
-        $viewVariables['logged'] = false;
-        $viewVariables['urlAuthList'] = array();
-        $viewVariables['user'] = "";
-        
-        $sm = $e->getApplication()->getServiceManager();
-        $authService = $sm->get('\Auth\Service\AuthService');
-        
-        $viewVariables = $authService->informationsOfAuthentication();
-        
-		$viewModel->logged = $viewVariables['logged'];
-        $viewModel->user = $viewVariables['user'];
-		$viewModel->urlAuthList = $viewVariables['urlAuthList'];
-
-
     }
 
     public function getAutoloaderConfig()
@@ -66,4 +40,13 @@ class Module
         );
         
     } 
+    
+    public function getViewHelperConfig()
+    {
+    	return array(
+    			'invokables' => array(
+    					'informationsOfAuthentication' => 'Auth\View\Helper\InformationsOfAuthentication'
+    			),
+    	);
+    }    
 }
