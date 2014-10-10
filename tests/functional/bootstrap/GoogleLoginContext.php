@@ -1,24 +1,18 @@
-<?php
+<?php 
 
-//namespace Behat\MinkExtension\Context\MinkContext;
-use Behat\Behat\Context\BehatContext;
-//use Behat\MinkExtension\Context\MinkContext;
-//use Behat\MinkExtension\Context\RawMinkContext;
+use Behat\Behat\Context\Context;
+use Behat\MinkExtension\Context\MinkContext;
+use Behat\Behat\Context\CustomSnippetAcceptingContext;
+use Behat\Behat\Tester\Exception\PendingException;
+use Behat\Gherkin\Node\PyStringNode;
+use Behat\Gherkin\Node\TableNode;
 
-class SubContext_google_login extends BehatContext
+class GoogleLoginContext extends MinkContext implements Context
 {
-    public function __construct(array $parameters)
+    public function __construct()
     {
     }
     
-
-    /**
-     * Get Mink session from MinkContext
-     */
-    public function getSession($name = null)
-    {
-    	return $this->getMainContext()->getSession($name);
-    }    
     /**
      * @Given /^I am not authenticated in ORA Project$/
      */
@@ -58,10 +52,5 @@ class SubContext_google_login extends BehatContext
     {
     	$page = $this->getSession()->getPage();    	
     	$page->hasContent($arg1);
-    	
-    	//echo $page->getContent();
-    }
-    
-    
-
+    }    
 }

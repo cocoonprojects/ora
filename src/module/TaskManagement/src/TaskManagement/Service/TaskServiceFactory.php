@@ -24,7 +24,7 @@ class TaskServiceFactory implements FactoryInterface
             $entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
             $entitySerializer = new EntitySerializer($entityManager);
             
-            self::$instance = new EventSourcingTaskService($eventStore, $entitySerializer);            
+            self::$instance = new EventSourcingTaskService($entityManager, $eventStore, $entitySerializer);            
         }
 
 	    return self::$instance;

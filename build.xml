@@ -130,6 +130,8 @@
 
  <target name="phpunit" description="Run unit tests with PHPUnit">
   <exec executable="phpunit" failonerror="true">
+   <arg value="-d" />
+   <arg value="memory_limit=128M" />
    <arg value="--coverage-crap4j" />
    <arg value="${basedir}/build/logs/crap4j.xml" />
    <arg value="--coverage-clover" />

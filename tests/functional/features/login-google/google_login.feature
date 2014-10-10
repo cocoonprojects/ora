@@ -29,4 +29,4 @@ Scenario: Guest accept Auth Provider for authenticatin login
         Given I am not authenticated in ORA Project
         When I go to "/auth/login/testProvider?code=12345678901"
         Then I should see "Logout"  
-        And I should see "Utente Test"      	        
+        And I should see "Utente Test"      	     
