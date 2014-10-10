@@ -6,9 +6,7 @@ use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 class InformationsOfAuthentication extends AbstractHelper implements ServiceLocatorAwareInterface
-{
-	protected $count = 0;
-	
+{	
 	public function __invoke()
 	{		
 		$viewVariables['logged'] = false;

@@ -4,17 +4,13 @@ namespace Auth\Controller;
 
 use Zend\View\Model\JsonModel;
 
-use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
+use Zend\Mvc\Controller\AbstractActionController;
 
-class LogoutController extends AbstractHATEOASRestfulController
+class LogoutController extends AbstractActionController
 {     
-	protected static $collectionOptions = array ('GET');
-	protected static $resourceOptions = array ('GET');
-		
-	protected $authService;
 	protected $redirectAfterLogout;
 	
-    public function getList()
+    public function logoutAction()
     {
     	$authenticationService = new \Zend\Authentication\AuthenticationService();
     	
@@ -42,16 +38,6 @@ class LogoutController extends AbstractHATEOASRestfulController
     	    	
         return $this->getRedirectAfterLogout();
     }
-
-    public function getResponseWithHeader()
-    {
-        $response = $this->getResponse();
-        $response->getHeaders()
-                 ->addHeaderLine('Access-Control-Allow-Origin','*')
-                 ->addHeaderLine('Access-Control-Allow-Methods','GET');
-        
-        return $response;
-    }
     
     public function returnToHome()
     {
@@ -73,11 +59,4 @@ class LogoutController extends AbstractHATEOASRestfulController
         return $this;
     } 
 
-    protected function getCollectionOptions() {
-        return self::$collectionOptions;
-    }
-    
-    protected function getResourceOptions() {
-        return self::$resourceOptions;
-    }    
 }
