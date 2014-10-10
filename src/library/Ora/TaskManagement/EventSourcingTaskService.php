@@ -8,11 +8,13 @@ use Ora\EntitySerializer;
 
 class EventSourcingTaskService implements TaskService
 {
+    private $entityManager;
     private $eventStore;
     private $entitySerializer;
     
-    public function __construct(EventStore $eventStore, EntitySerializer $entitySerializer)
+    public function __construct($entityManager, EventStore $eventStore, EntitySerializer $entitySerializer)
     {
+        $this->entityManager = $entityManager;
         $this->eventStore = $eventStore;
 	    $this->entitySerializer = $entitySerializer;
     }
@@ -34,9 +36,42 @@ class EventSourcingTaskService implements TaskService
 	    // Creation of event after creation of Task Entity
 	    $event = new TaskCreatedEvent($createdAt, $task, $this->entitySerializer);
 	    
-	    // Serialize TASK ENTITY to JSON
-	   // $taskSerialized = $this->entitySerializer->toJson($task);
-	    
 	    $this->eventStore->appendToStream($event);
+	}
+	
+	
+	public function listAvailableTasks()
+	{
+	    $serializedTasks['tasks'] = array();
+	    
+	    $tasks = $this->entityManager->getRepository('Ora\TaskManagement\Task')->findAll();	    
+	    foreach ($tasks as $task)
+	    {
+	        $serializedTasks['tasks'][] = $this->entitySerializer->toJson($task);
+	    }
+	    
+	    // TODO: Eliminare task temporaneo creato solo per "popolare" il JSON
+	    // Si potrebbe evitare di generare qui i fake tasks lanciando uno script php
+	    // per popolare la tabella dei tasks in modo da poterne recuperare qualcuno
+	    $serializedTasks['tasks'][] = array(
+	        "ID"=>"d9f8s9fd8sdf",
+	        "subject"=>"Descrizione casuale di un task già esistente",
+	        "createdAt"=>new \Datetime(),
+	        "createdBy"=>"Fabio"
+	    );	    
+	    $serializedTasks['tasks'][] = array(
+	        "ID"=>"f7g6h6fgh7do",
+	        "subject"=>"Seconda descrizione casuale per task disponibili",
+	        "createdAt"=>new \Datetime(),
+	        "createdBy"=>"Paperino"
+	    );
+	    $serializedTasks['tasks'][] = array(
+	        "ID"=>"2j3h42ffgj34",
+	        "subject"=>"Ultima descrizione farlocca per popolare tabella",
+	        "createdAt"=>new \Datetime(),
+	        "createdBy"=>"Paperino"
+	    );
+	    
+	    return $serializedTasks;
 	}
 }

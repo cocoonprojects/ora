@@ -4,6 +4,7 @@ namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Zend\View\Model\JsonModel;
+use Zend\View\Model\ViewModel;
 
 class TasksController extends AbstractHATEOASRestfulController
 {
@@ -12,34 +13,42 @@ class TasksController extends AbstractHATEOASRestfulController
 	protected $taskService;
 	
 	// INIZIALIZZAZIONE
-	   // - Inizializzo/valorizzo $project con l'entità reale
-	
+	// - Inizializzo/valorizzo $project con l'entità reale
+    
 	// GET - singolo perchè con un parametro di ID
-    /* public function get($id)
-    {
+    public function get($id)
+    {        
         $response = array();
         
         $this->response->setStatusCode(200);
 
         return new JsonModel($response);
     }
-    
-    // GET - prende tutto perchè senza parametri
+	
+    /**
+     * Return a list of available tasks
+     * @method GET
+     * @link http://oraproject/task-management/task
+     * @return \Zend\View\Model\JsonModel
+     * @author Giannotti Fabio
+     */
     public function getList()
     {
-       	$response = array("1"=>"CIAO TASK");
+        // TODO: Verificare che l'utente abbia il permesso per accedere all'elenco dei task disponibili?
+        $availableTasks = $this->getTaskService()->listAvailableTasks();
        	
        	$this->response->setStatusCode(200);
        	
-        return new JsonModel($response);
-    }*/
+        return new JsonModel($availableTasks);
+    }
     
     /**
+     * Create a new task into specified project
      * @method POST
      * @link http://oraproject/task-management/task
      * @param array $data['projectID'] Parent project ID of the new task
      * @param array $data['subject'] Task subject
-     * @return \Zend\View\Model\JsonModel
+     * @return HTTPStatusCode
      * @author Giannotti Fabio
      */
     public function create($data)
@@ -47,6 +56,7 @@ class TasksController extends AbstractHATEOASRestfulController
         // Definition of used Zend Validators
         $validator_NotEmpty = new \Zend\Validator\NotEmpty();
         $validator_StringLength = new \Zend\Validator\StringLength();
+        $validator_Integer = new \Zend\I18n\Validator\Int();
         
         if (!isset($data['projectID']))
         {            
@@ -72,6 +82,14 @@ class TasksController extends AbstractHATEOASRestfulController
             // HTTP STATUS CODE 406: Not Acceptable
             $this->response->setStatusCode(406);
             
+            return $this->response;
+        }
+        
+        if (!$validator_Integer->isValid($projectID))
+        {
+            // HTTP STATUS CODE 406: Not Acceptable
+            $this->response->setStatusCode(406);
+        
             return $this->response;
         }
         
