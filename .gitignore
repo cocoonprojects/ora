@@ -10,3 +10,4 @@ bin/
 ./vagrant/config/
 /config/
 /src/data/cache/
+/src/composer.lock
