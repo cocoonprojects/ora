@@ -3,12 +3,21 @@
 namespace Ora\Kanbanize;
 
 use Ora\TaskManagement\Task;
+use Doctrine\ORM\Mapping AS ORM;
+
 
 /**
  * @author Andrea Lupia <alupia@dimes.unical.it>
+ * @ORM\Entity @ORM\Table(name="kanbanize_tasks")
+ *
  *
  */
-class KanbanizeTask extends Task {
+class KanbanizeTask  {
+	
+	
+	/** @ORM\Id @ORM\OneToOne(targetEntity="Ora\TaskManagement\Task") */
+	private $task;
+	
 
 	/**
 	 * @ORM\Column(type="integer")
@@ -17,7 +26,7 @@ class KanbanizeTask extends Task {
 	private $boardId;
 
 	/**
-	 * @ORM\Column(type="integer")
+	 *  @ORM\Column(type="integer")
 	 * @var int
 	 */
 	private $taskId;
@@ -28,6 +37,12 @@ class KanbanizeTask extends Task {
 	 * @var string
 	 */
 	private $kanbanizeTitle;
+	
+	/**
+	 * @ORM\Column(type="string")
+	 * @var string
+	 */
+	private $kanbanizeStatus;
 	
 	
 	public function getKanbanizeTitle() {
@@ -53,6 +68,22 @@ class KanbanizeTask extends Task {
 	
 	public function setTaskId($taskId) {
 		$this->taskId = $taskId;
+	}
+	
+	public function getTask(){
+		return $this->task;
+	}
+	
+	public function setTask($task){
+		$this->task=$task;
+	}
+	
+	public function getStatus(){
+		return $this->kanbanizeStatus;
+	}
+	
+	public function setStatus ($status){
+		$this->kanbanizeStatus=$status;
 	}
 	
 }

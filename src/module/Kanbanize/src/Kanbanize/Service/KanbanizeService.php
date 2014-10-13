@@ -34,6 +34,11 @@ class KanbanizeService implements EventManagerAwareInterface
    * @var \Ora\KanbanizeAPI\KanbanizeAPI
    */
   private $kanbanize;
+  /**
+   * 
+   *
+   */
+  private $entityManager; 
   
   /*
    * Constructs service 
@@ -139,6 +144,16 @@ class KanbanizeService implements EventManagerAwareInterface
            $this->setEventManager(new EventManager());
        }
        return $this->eventManager;
+   }
+   
+   public function setEntityManager($entityManager){
+   	
+   	$this->entityManager= $entityManager;
+   	
+   }
+   
+   public function getEntityManger(){
+   	return $this->entityManager;
    }
 
 }

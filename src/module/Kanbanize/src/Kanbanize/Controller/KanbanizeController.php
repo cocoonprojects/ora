@@ -87,8 +87,12 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 
 		$kanbanizeTask->setBoardId($data["boardid"]);
 		$kanbanizeTask->setTaskId($id);
-		
-		$result = $this->getKanbanizeService()->acceptTask($kanbanizeTask);
+		if($kanbanizeTask->getTask()->isAcceptable()){
+			$result = $this->getKanbanizeService()->acceptTask($kanbanizeTask);
+			}else{
+				$this->response->setStatusCode(400);
+				return $this->response;
+			}
 		if ($result==1){
 			$this->response->setStatusCode(200);
 			return $this->response;

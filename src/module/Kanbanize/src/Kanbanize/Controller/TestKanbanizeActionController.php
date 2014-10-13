@@ -5,6 +5,8 @@ namespace Kanbanize\Controller;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Zend\Http\Client;
+use Ora\Kanbanize\KanbanizeTask;
+use Ora\TaskManagement\Task;
 
 /**
  * TestKanbanizeActionController
@@ -18,6 +20,9 @@ class TestKanbanizeActionController extends AbstractActionController {
 	/**
 	 * The default action - show the home page
 	 */
+	
+	 private $kanbanizeService;
+	 
 	public function indexAction() {
 		
 		$client = new Client();
@@ -26,22 +31,17 @@ class TestKanbanizeActionController extends AbstractActionController {
 		switch($method) {
 			case 'update':
 		
-//                 $data = array('boardid'=>'3');
-//                 $adapter = $client->getAdapter();
-                 
-//                 $adapter->connect('localhost', 80);
-//                 $uri = "http://localhost/kanbanize/task".'?id=59';
-//                 // send with PUT Method, with $data parameter
-//                 $adapter->write('PUT', new \Zend\Uri\Uri($uri), 1.1, array(), http_build_query($data)); 
-                 
-//                 $responsecurl = $adapter->read();
-//                 list($headers, $content) = explode("\r\n\r\n", $responsecurl, 2);
-//                 $response = $this->getResponse();
-                  
-//                 $response->getHeaders()->addHeaderLine('content-type', 'text/html; charset=utf-8');
-//                 $response->setContent($content);
-                 
-//                 return $response;
+// create task and persist it only for test purposes
+   $temptask = new Task("prova ",new \DateTime());
+   $temptask->setSubject("soggetto di prova");
+   $entity_manager = $this->getKanbanizeService()->getEntityManger();
+   $entity_manager->persist($temptask);
+   $entity_manager->flush();
+  
+   
+				
+
+				
 
 				$data = array("boardid" => "3");
 				$ch = curl_init('http://192.168.56.111/kanbanize/task/'.'10');
@@ -65,4 +65,14 @@ class TestKanbanizeActionController extends AbstractActionController {
 		//$view ->setTemplate("kanbanize/kanbanize/");
 		return $view;
 	}
+	
+	protected function getKanbanizeService(){
+		//singleton
+		if (!isset($this->kanbanizeService))
+			$this->kanbanizeService = $this->getServiceLocator()->get('Kanbanize\Service\Kanbanize');
+		 
+		return $this->kanbanizeService;
+		 
+	}
+	
 }

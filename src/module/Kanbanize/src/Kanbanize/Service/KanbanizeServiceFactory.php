@@ -13,6 +13,8 @@ class KanbanizeServiceFactory implements FactoryInterface
 		$config = $serviceLocator->get('Config');
 		$service->setApiKey($config['kanbanize']['apikey']);
 		$service->setUrl($config['kanbanize']['url']);
+		$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
+		$service->setEntityManager($entityManager);
 		return $service;
 	}
 }

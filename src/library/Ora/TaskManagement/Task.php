@@ -4,6 +4,7 @@ namespace Ora\TaskManagement;
 
 use Doctrine\ORM\Mapping AS ORM;
 use Ora\DomainEntity;
+use Zend\XmlRpc\Value\String;
 
 /**
  * @ORM\Entity @ORM\Table(name="tasks")
@@ -13,7 +14,7 @@ use Ora\DomainEntity;
 class Task extends DomainEntity 
 {	
     CONST STATUS_ONGOING = 1;
-    
+        
 	/**
 	 * @ORM\Column(type="string", length=2000)
 	 * @var string
@@ -37,6 +38,7 @@ class Task extends DomainEntity
 	* @var datetime
 	*/
 	private $mostRecentEditAt;
+	
 	
 	/**
 	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
@@ -84,4 +86,10 @@ class Task extends DomainEntity
 	public function getMostRecentEditBy() {
 	    return $this->mostRecentEditBy;
 	}
+	
+	//TODO implement method when there will be members 
+	public function isAcceptable(){
+		return true;
+	}
+	
 }
