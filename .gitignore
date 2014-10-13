@@ -1,7 +1,6 @@
 bin/
 vendor/
 .vagrant/
-composer.phar
 /.project
 /.buildpath
 *.old
@@ -9,3 +8,4 @@ composer.phar
 .DS_Store
 ./vagrant/config/
 /config/
+/src/data/cache/

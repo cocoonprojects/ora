@@ -26,11 +26,22 @@ class Task extends DomainEntity
 	 */
 	private $status;
 	
-	//TODO: Abilitare non appena sarà pronta l'entità project
+	//TODO: Da abilitare appena ci sarà qualche project
 	///**
-	//* @ManyToOne(targetEntity="Project")
+	//* @ManyToOne(targetEntity="Ora\ProjectManagement\Project")
 	//*/
 	private $project;	
+	
+	/**
+	* @ORM\Column(type="datetime", nullable=TRUE)
+	* @var datetime
+	*/
+	private $mostRecentEditAt;
+	
+	/**
+	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+	 */
+	private $mostRecentEditBy;
 	
 	public function __construct($taskID, \DateTime $createdAt) 
 	{
@@ -56,5 +67,21 @@ class Task extends DomainEntity
 	
 	public function getStatus() {
 	    return $this->status;
+	}
+	
+	public function setMostRecentEditAt($datetime) {
+	    $this->mostRecentEditAt = $datetime;
+	}
+	
+	public function getMostRecentEditAt() {
+	    return $this->mostRecentEditAt;
+	}
+	
+	public function setMostRecentEditBy($user) {
+	    $this->mostRecentEditBy = $user;
+	}
+	
+	public function getMostRecentEditBy() {
+	    return $this->mostRecentEditBy;
 	}
 }

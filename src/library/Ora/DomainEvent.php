@@ -50,8 +50,16 @@ class DomainEvent
 	public function getAggregateId() {
 		return $this->aggregateId;
 	}
+	
+	public function setAggregateId($aggregateId) {
+	    $this->aggregateId = $aggregateId;
+	}
 		
 	public function getAttributes() {
 	    return $this->attributes;
+	}
+	
+	public function setAttributes($attributes) {
+	    $this->attributes = $attributes;
 	}
 }

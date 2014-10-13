@@ -1,4 +1,5 @@
 <?php
+
 namespace ZendExtension\Mvc\Controller;
 
 use Zend\Mvc\Controller\AbstractRestfulController;
@@ -29,14 +30,18 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
 		} else {
 			$options = $this->getCollectionOptions();
 		}
+		
 		$method = $e->getRequest()->getMethod();
+		
 		if (in_array($method, $options) || $method == 'OPTIONS') {
 			// HTTP method is allowed!
 			return;
 		}
+		
 		$response = $this->getResponse();
 		$response->getHeaders()->addHeaderLine('Content-Type', 'application/hal+json');
 		$response->setStatusCode(405); // Method Not Allowed
+		
 		return $response;
 	}
 
@@ -50,5 +55,4 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
 	protected abstract function getCollectionOptions();
 	
 	protected abstract function getResourceOptions();
-	
 }
