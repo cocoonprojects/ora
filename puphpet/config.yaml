@@ -147,6 +147,14 @@ mysql:
             user: ora
             password: ora_DB!
             sql_file: ''
+        bNF7ho1HejJN:
+            grant:
+                - ALL
+            host: localhost
+            name: oraproject_test
+            user: ora
+            password: ora_DB!
+            sql_file: ''
 postgresql:
     install: 0
     settings:
