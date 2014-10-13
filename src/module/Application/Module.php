@@ -36,11 +36,14 @@ class Module
     } 
     
     // Service Manager Configuration
-    public function getServiceConfig() 
+    public function getServiceConfig()
     {
-        return array();
+        return array(
+            'factories' => array(
+                'Application\Service\EventStore' => 'Application\Service\EventStoreFactory'
+            )
+        );
     }
-
 
     public function getAutoloaderConfig()
     {    	

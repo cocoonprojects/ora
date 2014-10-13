@@ -9,6 +9,7 @@ use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\RouteMatch;
 use PHPUnit_Framework_TestCase;
 use Zend\Mvc\Application;
+use \Auth\Service\AuthService as AuthService;
 
 class IndexControllerTest extends PHPUnit_Framework_TestCase
 {
@@ -28,17 +29,18 @@ class IndexControllerTest extends PHPUnit_Framework_TestCase
         $this->event->setRouteMatch($this->routeMatch);
         $this->controller->setEvent($this->event);
         $this->controller->setEventManager($bootstrap->getEventManager());
-        $this->controller->setServiceLocator($bootstrap->getServiceManager());
     }
     
-    public function testIndexActionCanBeAccessed()
+   public function testIndexActionCanBeAccessed()
     {
-     $this->routeMatch->setParam('action', 'index');
-    
-     $result = $this->controller->dispatch($this->request);
-     $response = $this->controller->getResponse();
-    
-     $this->assertEquals(200, $response->getStatusCode());
-     $this->assertInstanceOf('Zend\View\Model\ViewModel', $result);
-    }
+		
+    	 
+    	 $this->routeMatch->setParam('action', 'index');
+        
+         $result = $this->controller->dispatch($this->request);
+         $response = $this->controller->getResponse();
+                 
+         $this->assertEquals(200, $response->getStatusCode());
+         $this->assertInstanceOf('Zend\View\Model\ViewModel', $result);
+    }    
 }

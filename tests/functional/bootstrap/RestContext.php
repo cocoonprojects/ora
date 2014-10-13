@@ -1,0 +1,267 @@
+<?php
+
+use Behat\Behat\Context\Context;
+
+/**
+ * Rest context.
+ */
+class RestContext implements Context
+{
+    private $_restObject = null;
+    private $_restObjectType = null;
+    private $_restObjectMethod = 'get';
+    private $_client = null;
+    private $_response = null;
+    private $_requestUrl = null;
+    private $base_url = null;
+
+    /**
+     * Initializes context.
+     * Every scenario gets it's own context object.
+     */
+    public function __construct($base_url)
+    {
+        // Initialize your context here
+        $this->_restObject = new stdClass();
+        $this->_client = new Guzzle\Service\Client();
+        $this->base_url = $base_url;
+    }
+
+    public function getBaseUrl()
+    {
+        if ($this->base_url === "" || $this->base_url === null) 
+        {            
+            throw new \Exception('Base_url not loaded!');
+        } 
+        else 
+        {
+            return (isset($this->base_url)) ? $this->base_url : null;
+        }
+    }
+
+    /**
+     * @Given /^that I want to make a new "([^"]*)"$/
+     */
+    public function thatIWantToMakeANew($objectType)
+    {
+        $this->_restObjectType = ucwords(strtolower($objectType));
+        $this->_restObjectMethod = 'post';
+    }
+
+    /**
+     * @Given /^that I want to find a "([^"]*)"$/
+     */
+    public function thatIWantToFindA($objectType)
+    {
+        $this->_restObjectType = ucwords(strtolower($objectType));
+        $this->_restObjectMethod = 'get';
+    }
+
+    /**
+     * @Given /^that I want to delete a "([^"]*)"$/
+     */
+    public function thatIWantToDeleteA($objectType)
+    {
+        $this->_restObjectType = ucwords(strtolower($objectType));
+        $this->_restObjectMethod = 'delete';
+    }
+
+    /**
+     * @Given /^that its "([^"]*)" is "([^"]*)"$/
+     */
+    public function thatTheItsIs($propertyName, $propertyValue)
+    {
+        $this->_restObject->$propertyName = $propertyValue;
+    }
+
+    /**
+     * @When /^I request "([^"]*)"$/
+     */
+    public function iRequest($pageUrl)
+    {
+        $baseUrl = $this->getBaseUrl();
+        $this->_requestUrl = $baseUrl . $pageUrl;
+        
+
+        switch (strtoupper($this->_restObjectMethod)) 
+        {
+            case 'GET':
+                try
+                {
+                    $response = $this->_client->get(
+                        $this->_requestUrl . '?' . http_build_query((array) $this->_restObject)
+                    )->send();
+                }
+                catch (Guzzle\Http\Exception\ClientErrorResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch (Guzzle\Http\Exception\ServerErrorResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch (Guzzle\Http\Exception\BadResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch( Exception $e){
+                    throw new Exception($e->getMessage());
+                }
+                break;
+                
+            case 'POST': 
+                try
+                {             
+                    $postFields = (array) $this->_restObject;
+                    $response = $this->_client->post(
+                        $this->_requestUrl, null, $postFields
+                    )->send();
+                }
+                catch (Guzzle\Http\Exception\ClientErrorResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch (Guzzle\Http\Exception\ServerErrorResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch (Guzzle\Http\Exception\BadResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch( Exception $e){
+                    throw new Exception($e->getMessage());
+                }
+                break;
+                
+            case 'DELETE':
+                try
+                {   
+                    $response = $this->_client->delete(
+                        $this->_requestUrl . '?' . http_build_query((array) $this->_restObject)
+                    )->send();
+                }
+                catch (Guzzle\Http\Exception\ClientErrorResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch (Guzzle\Http\Exception\ServerErrorResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch (Guzzle\Http\Exception\BadResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch( Exception $e){
+                    throw new Exception($e->getMessage());
+                }
+                break;
+             
+            default:
+                throw new Exception("_restObjectMethod NOT MANAGED!");
+        }
+
+        $this->_response = $response;
+    }
+
+    /**
+     * @Then /^the response is JSON$/
+     */
+    public function theResponseIsJson()
+    {
+        $data = json_decode($this->_response->getBody(true));
+        
+        if (empty($data)) {
+            throw new Exception("Response was not JSON\n" . $this->_response);
+        }
+    }
+
+    /**
+     * @Given /^the response has a "([^"]*)" property$/
+     */
+    public function theResponseHasAProperty($propertyName)
+    {
+        $data = json_decode($this->_response->getBody(true));
+        
+        if (! empty($data)) {
+            if (! isset($data->$propertyName)) {
+                throw new Exception("Property '" . $propertyName .
+                         "' is not set!\n");
+            }
+        } else {
+            throw new Exception(
+                    "Response was not JSON\n" . $this->_response->getBody(true));
+        }
+    }
+
+    /**
+     * @Then /^the "([^"]*)" property equals "([^"]*)"$/
+     */
+    public function thePropertyEquals($propertyName, $propertyValue)
+    {
+        $data = json_decode($this->_response->getBody(true));
+        
+        if (! empty($data)) {
+            if (! isset($data->$propertyName)) {
+                throw new Exception("Property '" . $propertyName .
+                         "' is not set!\n");
+            }
+            if ($data->$propertyName !== $propertyValue) {
+                throw new \Exception(
+                        'Property value mismatch! (given: ' . $propertyValue .
+                                 ', match: ' . $data->$propertyName . ')');
+            }
+        } else {
+            throw new Exception(
+                    "Response was not JSON\n" . $this->_response->getBody(true));
+        }
+    }
+
+    /**
+     * @Given /^the type of the "([^"]*)" property is ([^"]*)$/
+     */
+    public function theTypeOfThePropertyIsNumeric($propertyName, $typeString)
+    {
+        $data = json_decode($this->_response->getBody(true));
+        
+        if (! empty($data)) 
+        {
+            if (! isset($data->$propertyName)) 
+            {
+                throw new Exception("Property '" . $propertyName .
+                         "' is not set!\n");
+            }
+            // check our type
+            switch (strtolower($typeString)) 
+            {
+                case 'numeric':
+                    if (! is_numeric($data->$propertyName)) 
+                    {
+                        throw new Exception(
+                                "Property '" . $propertyName .
+                                         "' is not of the correct type: " .
+                                         $theTypeOfThePropertyIsNumeric . "!\n");
+                    }
+                break;
+            }
+        } 
+        else 
+        {
+            throw new Exception(
+                    "Response was not JSON\n" . $this->_response->getBody(true));
+        }
+    }
+
+    /**
+     * @Then /^the response status code should be (\d+)$/
+     */
+    public function theResponseStatusCodeShouldBe($httpStatus)
+    {
+        if ((string) $this->_response->getStatusCode() !== $httpStatus) 
+        {
+            throw new \Exception(
+                    'HTTP code does not match ' . $httpStatus . ' (actual: ' .
+                             $this->_response->getStatusCode() . ')');
+        }
+    }
+
+    /**
+     * @Then /^echo last response$/
+     */
+    public function echoLastResponse()
+    {
+        $this->printDebug($this->_requestUrl . "\n\n" . $this->_response);
+    }
+}

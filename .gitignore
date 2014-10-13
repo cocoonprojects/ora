@@ -1,5 +1,6 @@
+
 bin/
-vendor/
+/src/vendor/
 .vagrant/
 /.project
 /.buildpath
@@ -9,3 +10,4 @@ vendor/
 ./vagrant/config/
 /config/
 /src/data/cache/
+/src/composer.lock

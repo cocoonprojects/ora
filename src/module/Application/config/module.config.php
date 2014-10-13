@@ -59,7 +59,7 @@ return array(
         ),
         'aliases' => array(
             'translator' => 'MvcTranslator',
-        ),
+        )      
     ),
     'translator' => array(
         'locale' => 'en_US',
@@ -87,6 +87,7 @@ return array(
             __DIR__ . '/../view',
         ),
     ),
+      
     // Placeholder for console routes
     'console' => array(
         'router' => array(

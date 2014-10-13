@@ -11,7 +11,6 @@ $env = getenv('APPLICATION_ENV') ? : "local";
     else
         $env = "local";*/
 
-
 return array(
     // This should be an array of module namespaces used in the application.
     'modules' => array(
@@ -19,9 +18,9 @@ return array(
         'DoctrineORMModule',
         'Application',
         'TaskManagement',
+        'Auth',
+        'ZendOAuth2',
         'Kanbanize'
-        
-        
     ),
 
     // These are various options for the listeners attached to the ModuleManager
@@ -32,7 +31,7 @@ return array(
         // Module class.
         'module_paths' => array(
             __DIR__.'/../module',
-            __DIR__.'/../../vendor',
+            __DIR__.'/../vendor',
         ),
 
         // An array of paths from which to glob configuration files after
@@ -43,3 +42,4 @@ return array(
         ),
     ),
 );
+

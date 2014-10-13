@@ -15,7 +15,7 @@ class Task extends DomainEntity
     CONST STATUS_ONGOING = 1;
     
 	/**
-	 * @ORM\Column(type="string")
+	 * @ORM\Column(type="string", length=2000)
 	 * @var string
 	 */
 	private $subject;
