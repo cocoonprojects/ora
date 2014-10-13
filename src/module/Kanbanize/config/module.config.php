@@ -1,0 +1,64 @@
+<?php
+return array(
+	'service_manager' => array(
+		'factories' => array(
+			'Kanbanize\Service\Kanbanize' => 'Kanbanize\Service\KanbanizeServiceFactory'
+		),
+	),
+    'controllers' => array(
+        'invokables' => array(
+            'Kanbanize\Controller\Kanbanize' => 'Kanbanize\Controller\KanbanizeController',
+            'Kanbanize\Controller\KanbanizeTest' => 'Kanbanize\Controller\TestKanbanizeActionController',
+        ),
+    ),
+    'router' => array(
+        'routes' => array(
+            'kanbanize' => array(
+                'type'    => 'Segment',
+                'options' => array(
+                    // Change this to something specific to your module
+                    'route'    => '/kanbanize/task[/:id]',
+                	'constraints' => array(
+                		'id' => '[0-9]+',
+                	),
+                    'defaults' => array(
+                        // Change this value to reflect the namespace in which
+                        // the controllers for your module are found
+                        '__NAMESPACE__' => 'Kanbanize\Controller',
+                        'controller'    => 'Kanbanize',
+                    ),
+                ),
+                'may_terminate' => true,
+                'child_routes' => array(
+                    // This route is a sane default when developing a module;
+                    // as you solidify the routes for your module, however,
+                    // you may want to remove it and replace it with more
+                    // specific routes.
+                    'client' => array(
+                        'type'    => 'Literal',
+                        'options' => array(
+                            'route'    => '/client',
+                            'defaults' => array(
+                                'controller' => 'KanbanizeTest',
+                                'action'     => 'index',
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    ),
+
+		'view_manager' => array(
+				'display_not_found_reason' => true,
+				'display_exceptions'       => true,
+				'doctype'                  => 'HTML5',
+				'template_map' => array(
+						'kanbanize/test-kanbanize-action/index' => __DIR__ . '/../view/kanbanize/test-kanbanize-action/index.phtml',
+				),
+				'template_path_stack' => array(
+						__DIR__ . '/../view',
+				),
+		),
+
+);

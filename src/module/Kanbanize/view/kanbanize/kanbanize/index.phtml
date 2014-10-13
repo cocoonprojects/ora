@@ -1,0 +1,43 @@
+
+
+<table class="table table-responsive table-bordered table-striped text-center">
+	<thead>
+	<tr>
+		<th class="text-center"> Task id</th>
+		<th class="text-center"> Title </th>
+		<th class="text-center"> Assignee </th>
+		<th class="text-center"> Description </th>
+		<th class="text-center"> Operations </th>
+	
+    </tr>
+	</thead>
+	<tbody>
+	<?php foreach ($tasks as $singletask){?>
+		<tr>
+			<td>
+				<?php echo($singletask["taskid"]); ?>
+			</td>
+			<td>
+				<?php echo($singletask["title"]); ?>
+			</td>
+			<td>
+				<?php echo($singletask["assignee"]); ?>
+			</td>
+			<td>
+				<?php echo($singletask["description"]); ?>
+			</td>
+			<td class="text-center">
+			     <button class="btn btn-info text-center"> Accept Task</button>
+			</td>
+		</tr>
+		<?php } ?>
+	</tbody>
+</table>
+
+
+
+
+
+
+
+

@@ -4,7 +4,8 @@ return array(
     'modules' => array(
 		'DoctrineModule',
         'DoctrineORMModule',
-        'Application'
+        'Application',
+    	'Kanbanize'
     ),
 
     // These are various options for the listeners attached to the ModuleManager
