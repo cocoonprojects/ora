@@ -24,6 +24,17 @@ class DomainEntity {
      */
     private $createdAt;
 
+    /**
+     * @ORM\Column(type="datetime", nullable=TRUE)
+     * @var datetime
+     */
+    private $mostRecentEditAt;
+    
+    /**
+     * @ORM\ManyToOne(targetEntity="Ora\User\User")
+     */
+    private $mostRecentEditBy;
+    
     protected function __construct($id, \DateTime $createdAt)
     {
         $this->id = $id;
@@ -48,6 +59,22 @@ class DomainEntity {
         }
     }
 
+    public function setMostRecentEditAt($datetime) {
+        $this->mostRecentEditAt = $datetime;
+    }
+    
+    public function getMostRecentEditAt() {
+        return $this->mostRecentEditAt;
+    }
+    
+    public function setMostRecentEditBy($user) {
+        $this->mostRecentEditBy = $user;
+    }
+    
+    public function getMostRecentEditBy() {
+        return $this->mostRecentEditBy;
+    }
+    
     private function apply(DomainEvent $domainEvent)
     {
         $method = 'apply'.get_class($domainEvent);

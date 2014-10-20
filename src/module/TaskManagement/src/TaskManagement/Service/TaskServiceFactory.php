@@ -11,14 +11,14 @@ use Ora\EntitySerializer;
 class TaskServiceFactory implements FactoryInterface 
 {
     /**
-     *
      * @var EventSourcingTaskService
      */
     private static $instance;
     
 	public function createService(ServiceLocatorInterface $serviceLocator) 
 	{
-	    if(is_null(self::$instance)) {
+	    if(is_null(self::$instance)) 
+	    {
             $eventStore = $serviceLocator->get('Application\Service\EventStore');
 
             $entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');

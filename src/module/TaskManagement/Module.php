@@ -30,7 +30,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
     {
         return array (
             'factories' => array (
-                'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',
+                'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory'
             ),
         );
     }

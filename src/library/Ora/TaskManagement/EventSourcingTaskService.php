@@ -6,6 +6,9 @@ use Ora\EventStore\EventStore;
 use Ora\EntitySerializer;
 
 
+/**
+ * @author Giannotti Fabio
+ */
 class EventSourcingTaskService implements TaskService
 {
     private $entityManager;

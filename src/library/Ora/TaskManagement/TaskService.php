@@ -2,9 +2,12 @@
 
 namespace Ora\TaskManagement;
 
+/**
+ * @author Giannotti Fabio
+ */
 interface TaskService
 {
-	public function createNewTask($projectID, $taskSubject);
+	public function createNewTask($project, $taskSubject);
 	
 	public function listAvailableTasks();
 }

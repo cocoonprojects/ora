@@ -7,15 +7,28 @@ use Ora\DomainEntity;
 
 /**
  * @ORM\Entity @ORM\Table(name="tasks")
+ * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\DiscriminatorColumn(name="type", type="string")
+ * @ORM\DiscriminatorMap({
+ *                    "task" = "Ora\TaskManagement\Task"
+ *                    })
  * @author Giannotti Fabio
  *
  */
+
+// TODO: Aggiungere questo rigo a DiscriminatorMap
+//"kanbanizeTask" = "Ora\Kanbanize\KanbanizeTask"
+
 class Task extends DomainEntity 
 {	
-    CONST STATUS_ONGOING = 1;
+    CONST STATUS_IDEA = 0;
+    CONST STATUS_OPEN = 10;
+    CONST STATUS_ONGOING = 20;
+    CONST STATUS_COMPLETED = 30;
+    CONST STATUS_ACCEPTED = 40;
     
 	/**
-	 * @ORM\Column(type="string", length=2000)
+	 * @ORM\Column(type="string")
 	 * @var string
 	 */
 	private $subject;
@@ -26,23 +39,12 @@ class Task extends DomainEntity
 	 */
 	private $status;
 	
-	//TODO: Da abilitare appena ci sarà qualche project
-	///**
-	//* @ManyToOne(targetEntity="Ora\ProjectManagement\Project")
-	//*/
-	private $project;	
-	
 	/**
-	* @ORM\Column(type="datetime", nullable=TRUE)
-	* @var datetime
-	*/
-	private $mostRecentEditAt;
-	
-	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+	 * @ORM\ManyToOne(targetEntity="Ora\ProjectManagement\Project")
 	 */
-	private $mostRecentEditBy;
+	private $project;
 	
+
 	public function __construct($taskID, \DateTime $createdAt) 
 	{
 		parent::__construct($taskID, $createdAt);
@@ -69,19 +71,8 @@ class Task extends DomainEntity
 	    return $this->status;
 	}
 	
-	public function setMostRecentEditAt($datetime) {
-	    $this->mostRecentEditAt = $datetime;
-	}
-	
-	public function getMostRecentEditAt() {
-	    return $this->mostRecentEditAt;
-	}
-	
-	public function setMostRecentEditBy($user) {
-	    $this->mostRecentEditBy = $user;
-	}
-	
-	public function getMostRecentEditBy() {
-	    return $this->mostRecentEditBy;
+	// TODO: Definire come gestire il cambio stato sull'entità
+	public function setStatus($status) {
+	    $this->status = $status;
 	}
 }
