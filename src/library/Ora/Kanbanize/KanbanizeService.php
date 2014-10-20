@@ -10,6 +10,9 @@ interface KanbanizeService {
 	CONST COLUMN_COMPLETED = 'Completed';
 	CONST COLUMN_ACCEPTED = 'Accepted';
 	
+	public function acceptTask($kanbanizeTask);
+	
+	public function createNewTask($projectId, $taskSubject, $boardId);
+	
+	public function getTasks($boardId, $status);
 }
-
-?>
