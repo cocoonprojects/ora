@@ -97,6 +97,7 @@ class TestKanbanizeActionController extends AbstractActionController {
 		
 		$view = new ViewModel(array('tasks' => $taskList));
 		
+		return $view;
 		
 	}
 	
