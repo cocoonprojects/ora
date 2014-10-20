@@ -31,6 +31,7 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 	 * @param unknown $data
 	 */
 	public function create($data){
+		//TODO inserire subject e project in $data
 		//kanbanize api take 
 		$validator_NotEmpty = new \Zend\Validator\NotEmpty();
 		$validator_Alnum =  new Zend\Validator\Alnum();
@@ -42,25 +43,25 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 			return $this->response;
 		}
 		
-		$boardid = $data["boardid"];
-		if(! $validator_NotEmpty->isValid($boardid) || !$validator_Alnum->isValid($boardid) ){
+		$boardId = $data["boardid"];
+		if(! $validator_NotEmpty->isValid($boardId) || !$validator_Alnum->isValid($boardId) ){
 			// request not correct
 			$this->response->setStatusCode(406);
 			return $this->response;
 			
 		}
 		
-		$kanbanizeTask = new KanbanizeTask(100, new \DateTime());
-		$kanbanizeTask->setKanbanizeTitle("titolo prova rest");
-		$result = $this->getKanbanizeService()->createTask($kanbanizeTask);
+		$taskId = uniqid();
+
+		$result = $this->getKanbanizeService()->createNewTask(1, "arharharharha", $boardId);
 		
-		if (is_null(result) ){
+		
+		if ($result == 1){
 			$this->response->setStatusCode(400);
-			return $this->response;
 		}else{
 			$this->response->setStatusCode(201);
-			return $this->response;
 		}
+		return $this->response;
 		//TODO $this->getKanbanizeService()->
 		
 		
@@ -83,11 +84,12 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 		//  TODO insert validators with 
 		
 		// mock task
-		$kanbanizeTask = new KanbanizeTask($id, new \DateTime());
+		$taskId = uniqid();
+		$boardId = $data["boardid"];
+		
+		$kanbanizeTask = new KanbanizeTask($taskId, $boardId, $id, new \DateTime());
 
-		$kanbanizeTask->setBoardId($data["boardid"]);
-		$kanbanizeTask->setTaskId($id);
-		if($kanbanizeTask->getTask()->isAcceptable()){
+		if($kanbanizeTask->isAcceptable()){
 			$result = $this->getKanbanizeService()->acceptTask($kanbanizeTask);
 			}else{
 				$this->response->setStatusCode(400);

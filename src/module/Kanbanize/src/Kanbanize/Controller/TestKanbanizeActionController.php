@@ -34,7 +34,7 @@ class TestKanbanizeActionController extends AbstractActionController {
 // create task and persist it only for test purposes
    $temptask = new Task("prova ",new \DateTime());
    $temptask->setSubject("soggetto di prova");
-   $entity_manager = $this->getKanbanizeService()->getEntityManger();
+   $entity_manager = $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');
    $entity_manager->persist($temptask);
    $entity_manager->flush();
   
