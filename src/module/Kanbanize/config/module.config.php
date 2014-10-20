@@ -45,7 +45,19 @@ return array(
                         ),
                     ),
                 ),
-            ),
+            ),'list' => array(
+                'type'    => 'Literal',
+                'options' => array(
+                    // Change this to something specific to your module
+                    'route'    => '/kanbanize/list',
+                    'defaults' => array(
+                    		'__NAMESPACE__' => 'Kanbanize\Controller',
+                    		'controller' => 'KanbanizeTest',
+                    		'action'     => 'list',
+                    ),
+                ),
+                'may_terminate' => true
+            )
         ),
     ),
 

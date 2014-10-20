@@ -75,4 +75,13 @@ class TestKanbanizeActionController extends AbstractActionController {
 		 
 	}
 	
+	public function listAction(){
+		$entity_manager = $this->getKanbanizeService()->getEntityManger();
+		// here retrieve the task to show in the page
+		// put in the view wit key tasks
+		$view = new ViewModel(array('tasks' => "task"));
+		
+		
+	}
+	
 }
