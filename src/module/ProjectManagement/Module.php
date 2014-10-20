@@ -1,6 +1,6 @@
 <?php
 
-namespace TaskManagement;
+namespace ProjectManagement;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
@@ -30,9 +30,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
     {
         return array (
             'factories' => array (
-                'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory'
+                'ProjectManagement\ProjectService' => 'ProjectManagement\Service\ProjectServiceFactory',
             ),
         );
     }
-
 }
