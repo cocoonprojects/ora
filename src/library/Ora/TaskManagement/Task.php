@@ -44,10 +44,10 @@ class Task extends DomainEntity
 	 */
 	private $project;
 	
-
-	public function __construct($taskID, \DateTime $createdAt) 
+	// TODO: Utilizzare Ora\User\User $createdBy se createdBy dev'essere una relazione con lo USER
+	public function __construct($taskID, \DateTime $createdAt, $createdBy) 
 	{
-		parent::__construct($taskID, $createdAt);
+		parent::__construct($taskID, $createdAt, $createdBy);
 		$this->status = self::STATUS_ONGOING;
 	}
 	

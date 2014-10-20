@@ -64,10 +64,10 @@ class Task extends \Ora\TaskManagement\Task implements \Doctrine\ORM\Proxy\Proxy
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'subject', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'status', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'project');
+            return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'subject', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'status', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'project', 'createdBy');
         }
 
-        return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'subject', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'status', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'project');
+        return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'subject', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'status', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'project', 'createdBy');
     }
 
     /**
@@ -263,6 +263,17 @@ class Task extends \Ora\TaskManagement\Task implements \Doctrine\ORM\Proxy\Proxy
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getCreatedAt', array());
 
         return parent::getCreatedAt();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getCreatedBy()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getCreatedBy', array());
+
+        return parent::getCreatedBy();
     }
 
     /**

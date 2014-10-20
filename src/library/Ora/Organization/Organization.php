@@ -17,9 +17,10 @@ class Organization extends DomainEntity
 	 */
 	private $subject;
 	
-	public function __construct(\DateTime $createdAt) 
+	// TODO: Utilizzare Ora\User\User $createdBy se createdBy dev'essere una relazione con lo USER
+	public function __construct($organizationID, \DateTime $createdAt, $createdBy) 
 	{
-		parent::__construct($createdAt);
+		parent::__construct($organizationID, $createdAt, $createdBy);
 	}
 	
 	public function getSubject() {

@@ -64,10 +64,10 @@ class User extends \Ora\User\User implements \Doctrine\ORM\Proxy\Proxy
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', '' . "\0" . 'Ora\\User\\User' . "\0" . 'name');
+            return array('__isInitialized__', '' . "\0" . 'Ora\\User\\User' . "\0" . 'name', 'createdBy');
         }
 
-        return array('__isInitialized__', '' . "\0" . 'Ora\\User\\User' . "\0" . 'name');
+        return array('__isInitialized__', '' . "\0" . 'Ora\\User\\User' . "\0" . 'name', 'createdBy');
     }
 
     /**
@@ -219,6 +219,17 @@ class User extends \Ora\User\User implements \Doctrine\ORM\Proxy\Proxy
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getCreatedAt', array());
 
         return parent::getCreatedAt();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getCreatedBy()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getCreatedBy', array());
+
+        return parent::getCreatedBy();
     }
 
     /**

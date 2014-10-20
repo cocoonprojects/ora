@@ -64,10 +64,10 @@ class Project extends \Ora\ProjectManagement\Project implements \Doctrine\ORM\Pr
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', '' . "\0" . 'Ora\\ProjectManagement\\Project' . "\0" . 'subject');
+            return array('__isInitialized__', '' . "\0" . 'Ora\\ProjectManagement\\Project' . "\0" . 'subject', 'createdBy');
         }
 
-        return array('__isInitialized__', '' . "\0" . 'Ora\\ProjectManagement\\Project' . "\0" . 'subject');
+        return array('__isInitialized__', '' . "\0" . 'Ora\\ProjectManagement\\Project' . "\0" . 'subject', 'createdBy');
     }
 
     /**
@@ -219,6 +219,17 @@ class Project extends \Ora\ProjectManagement\Project implements \Doctrine\ORM\Pr
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getCreatedAt', array());
 
         return parent::getCreatedAt();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getCreatedBy()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getCreatedBy', array());
+
+        return parent::getCreatedBy();
     }
 
     /**

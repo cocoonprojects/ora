@@ -25,12 +25,14 @@ class EventSourcingTaskService implements TaskService
 	public function createNewTask($project, $taskSubject)
 	{
 	    $createdAt = new \DateTime();
+	    // TODO: Modificare createdBy per inserire lo USERNAME esatto
+	    $createdBy = "NOME UTENTE INVENTATO";
         
 	    // Generate unique ID for Task
 	    $taskID = uniqid();   
 	    
 	    // Creation of new task entity
-	    $task = new Task($taskID, $createdAt);
+	    $task = new Task($taskID, $createdAt, $createdBy);
 
 	    // TODO: Controllare se descrizione e projectid vanno nel costruttore in quanto obbligatori
 	    $task->setSubject($taskSubject);
@@ -66,7 +68,7 @@ class EventSourcingTaskService implements TaskService
 	        "ID"=>"f7g6h6fgh7do",
 	        "subject"=>"Seconda descrizione casuale per task disponibili",
 	        "createdAt"=>new \Datetime(),
-	        "createdBy"=>"Paperino"
+	        "createdBy"=>"Pluto"
 	    );
 	    $serializedTasks['tasks'][] = array(
 	        "ID"=>"2j3h42ffgj34",
