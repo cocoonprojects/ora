@@ -54,7 +54,8 @@ class Module
     {
     	return array(
     			'invokables' => array(
-    					'informationsOfAuthentication' => 'Auth\View\Helper\InformationsOfAuthentication'
+    					'authenticationAction' => 'Auth\View\Helper\AuthenticationAction',
+    					'popupProviderList' => 'Auth\View\Helper\PopupProviderList'
     			),
     	);
     }    

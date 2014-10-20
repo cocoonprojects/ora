@@ -23,7 +23,7 @@ class LoginController extends AbstractActionController
     	
     	$provider = $this->params('id');
 
-    	if(strlen($this->params('code')) > 10)
+    	/*if(strlen($this->params('code')) > 10)
     	{
     		// errore 500 - scrivi in log code: $this->getRequest()->getQuery('code') 
     		return;
@@ -33,14 +33,14 @@ class LoginController extends AbstractActionController
     	{
     		// errore
     		return;
-    	}
+    	}*/
 
 
     		$availableProviderList = $allConfigurationOption['zendoauth2'];
     		
 	    	if("" != $provider 
 	    		&& array_key_exists($provider, $availableProviderList))
-	    	{				
+	    	{			
 	    		$provider = ucfirst($provider);
 	    		$instanceProviderName = "ZendOAuth2\\".$provider;
 	    		$instanceProvider = $this->getServiceLocator()->get($instanceProviderName);
