@@ -14,7 +14,7 @@ use Ora\EntitySerializer;
 final class KanbanizeTaskMovedEvent extends KanbanizeEvent {
 	
 	public function __construct(DateTime $firedAt, KanbanizeTask $task, EntitySerializer $entitySerializer) {
-		parent::_construct($firedAt, $task, $entitySerializer);
+		parent::__construct($firedAt, $task, $entitySerializer);
 		
 		$this->attributes = $entitySerializer->toJson($task);
 	}

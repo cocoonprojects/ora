@@ -77,6 +77,10 @@ class Task extends DomainEntity
 	    return $this->status;
 	}
 	
+	public function setStatus($status) {
+		$this->status = $status;
+	}
+	
 	public function setMostRecentEditAt($datetime) {
 	    $this->mostRecentEditAt = $datetime;
 	}

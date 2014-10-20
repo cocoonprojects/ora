@@ -32,7 +32,7 @@ class TestKanbanizeActionController extends AbstractActionController {
 			case 'update':
 		
 // create task and persist it only for test purposes
-   $temptask = new Task("prova ",new \DateTime());
+   $temptask = new Task(uniqid(),new \DateTime());
    $temptask->setSubject("soggetto di prova");
    $entity_manager = $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');
    $entity_manager->persist($temptask);
@@ -44,7 +44,7 @@ class TestKanbanizeActionController extends AbstractActionController {
 				
 
 				$data = array("boardid" => "3");
-				$ch = curl_init('http://192.168.56.111/kanbanize/task/'.'10');
+				$ch = curl_init('http://192.168.56.111/kanbanize/task/'.'8');
 				
 				curl_setopt($ch, CURLOPT_POST, true);
 				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");

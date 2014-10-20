@@ -75,7 +75,9 @@ class EventSourcingKanbanizeService implements KanbanizeService
   		//Task can be accepted
   		$this->kanbanize->moveTask($boardId, $taskId, self::COLUMN_ACCEPTED);
   		
-  		$event = new KanbanizeTaskMovedEvent($editedAt, $task, $entitySerializer);
+  		$kanbanizeTask->setStatus(Task::STATUS_ACCEPTED);
+  		
+  		$event = new KanbanizeTaskMovedEvent($editedAt, $kanbanizeTask, $this->entitySerializer);
   		
   		$this->eventStore->appendToStream($event);
   		

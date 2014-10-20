@@ -27,7 +27,7 @@ class KanbanizeTask extends Task {
 	private $taskId;	
 
 	public function __construct($taskId, $boardId, $kanbanizeTaskId, \DateTime $createdAt) {
-		parent::_construct($taskId, $createdAt);
+		parent::__construct($taskId, $createdAt);
 		$this->boardId = $boardId;
 		$this->taskId = $kanbanizeTaskId;
 	}
