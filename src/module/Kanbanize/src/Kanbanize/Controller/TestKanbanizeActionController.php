@@ -7,6 +7,7 @@ use Zend\View\Model\ViewModel;
 use Zend\Http\Client;
 use Ora\Kanbanize\KanbanizeTask;
 use Ora\TaskManagement\Task;
+use Application\Service\KanbanizeService;
 
 /**
  * TestKanbanizeActionController
@@ -17,11 +18,11 @@ use Ora\TaskManagement\Task;
  *
  */
 class TestKanbanizeActionController extends AbstractActionController {
-	/**
-	 * The default action - show the home page
-	 */
 	
-	 private $kanbanizeService;
+	/**
+	 * @var KanbanizeService
+	 */
+	private $kanbanizeService;
 	 
 	public function indexAction() {
 		
@@ -79,7 +80,21 @@ class TestKanbanizeActionController extends AbstractActionController {
 		$entity_manager = $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');
 		// here retrieve the task to show in the page
 		// put in the view wit key tasks
-		$view = new ViewModel(array('tasks' => "task"));
+		
+		$boardId = 3;
+		$status = 'Backlog';
+		
+		$tasks = $this->getKanbanizeService()->getTasks($boardId, $status);
+
+		foreach ($tasks as $singletask) {
+			$task = new KanbanizeTask(uniqid(), $boardId, $singletask['taskid'], new \DateTime());
+			$task->setSubject($singletask['description']);
+			$task->setStatus($singletask['position']);
+			$taskList[] = $task;
+			
+		}
+		
+		$view = new ViewModel(array('tasks' => $tasks));
 		
 		
 	}
