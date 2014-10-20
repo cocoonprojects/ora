@@ -85,16 +85,17 @@ class TestKanbanizeActionController extends AbstractActionController {
 		$status = 'Backlog';
 		
 		$tasks = $this->getKanbanizeService()->getTasks($boardId, $status);
+		
+		$taskList = array();
 
 		foreach ($tasks as $singletask) {
 			$task = new KanbanizeTask(uniqid(), $boardId, $singletask['taskid'], new \DateTime());
 			$task->setSubject($singletask['description']);
 			$task->setStatus($singletask['position']);
 			$taskList[] = $task;
-			
 		}
 		
-		$view = new ViewModel(array('tasks' => $tasks));
+		$view = new ViewModel(array('tasks' => $taskList));
 		
 		
 	}
