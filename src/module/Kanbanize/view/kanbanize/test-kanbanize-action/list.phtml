@@ -3,22 +3,41 @@
 ?>
 
 <div class="page-header">
-<h1>Lista Task</h1>
-<small> Example page for the function task acceptance </small>
+	<h1>Lista Task</h1>
+	<small> Example page for the function task acceptance </small>
 
 </div>
 <div class="container">
 	<table class="table table-responsive table-striped">
 		<thead>
 			<tr>
-				<th>Nome</th>
-				<th>Titolo</th>
+				<th>id</th>
+				<th>Subject</th>
 				<th>Status</th>
 				<th>Comando</th>
 			</tr>
 		</thead>
 		<tbody>
+		<?php
+		foreach ( $tasks as $singletask ) {
+			?>
+<tr>
+				
+ 	<td> <?php echo $singletask->getTaskId();?> </td>
+ 
+				
+ 	<td> <?php echo $singletask->getSubject();?> </td>
+ 
+				
+    <td> <?php echo $singletask->getStatus();?> </td>
+ 
+	<td> <button class="btn btn-primary">Accept</button> </td>
+				
+</tr>
 
+<?php
+}
+?>
 		</tbody>
 	</table>
 </div>
