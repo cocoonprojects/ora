@@ -8,12 +8,18 @@ use Zend\XmlRpc\Value\String;
 
 /**
  * @ORM\Entity @ORM\Table(name="tasks")
+ * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\DiscriminatorColumn(name="type", type="string")
  * @author Giannotti Fabio
  *
  */
 class Task extends DomainEntity 
 {	
-    CONST STATUS_ONGOING = 1;
+    CONST STATUS_IDEA = 0;
+    CONST STATUS_OPEN = 10;
+    CONST STATUS_ONGOING = 20;
+    CONST STATUS_COMPLETED = 30;
+    CONST STATUS_ACCEPTED = 40;
         
 	/**
 	 * @ORM\Column(type="string", length=2000)
