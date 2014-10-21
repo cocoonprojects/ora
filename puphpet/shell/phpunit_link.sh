@@ -7,4 +7,3 @@ else
 	ln -s  /vagrant/vendor/phpunit/phpunit/phpunit /usr/bin/
 	echo "...FATTO"
 fi
-
