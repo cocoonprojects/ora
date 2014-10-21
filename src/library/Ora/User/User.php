@@ -44,13 +44,10 @@ class User extends DomainEntity
 	 * @var Role
 	 */
 	private $systemRole;	
-	
 		
-	// TODO: Utilizzare Ora\User\User $createdBy se createdBy dev'essere una relazione con lo USER
 	public function __construct($userID, \DateTime $createdAt, $createdBy) 
 	{
-		parent::__construct($userID, $createdAt, $createdBy);
-		
+		parent::__construct($userID, $createdAt, $createdBy);		
 		$this->setStatus(self::STATUS_ACTIVE);
 	}
 	
@@ -117,4 +114,14 @@ class User extends DomainEntity
 	     
 	    return $serializedToArray;
 	}
+
+	public function setStatus($status)
+	{
+		$this->status = $status;
+	}
+	
+	public function getStatus()
+	{
+		return $this->status;
+	}	
 }
