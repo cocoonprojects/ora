@@ -31,4 +31,13 @@ class GoogleLoginContext extends MinkContext implements Context
     	$page->clickLink($arg1);
 
     }
+    
+    /**
+     * @Given /^I should see popup "([^"]*)"$/
+     */    
+    public function iShouldSeePopup($arg1)
+    {
+    	$page = $this->getSession()->getPage();
+    	$page->hasContent($arg1);    	
+    }    	
 }
