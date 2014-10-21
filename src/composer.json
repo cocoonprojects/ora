@@ -16,6 +16,11 @@
 		"doctrine/orm": "dev-master",
 		"doctrine/dbal": "dev-master",
 		"guzzle/guzzle": "2.4.*"
+		"doctrine/doctrine-orm-module": "0.8.0",
+		"prooph/service-bus": "~1.0",
+		"prooph/event-sourcing": "~1.0",
+		"prooph/event-store": "~1.0",
+		"prooph/prooph-event-store-module": "~1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "4.1",
