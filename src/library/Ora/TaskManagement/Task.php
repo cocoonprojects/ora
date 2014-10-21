@@ -72,9 +72,4 @@ class Task extends DomainEntity
 	    $this->status = $status;
 	}
 	
-	//TODO implement method when there will be members 
-	public function isAcceptable(){
-		return true;
-	}
-	
 }
