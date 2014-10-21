@@ -9,34 +9,29 @@ use Zend\Mvc\Controller\AbstractActionController;
 class LogoutController extends AbstractActionController
 {     
 	protected $redirectAfterLogout;
+	protected $instanceProvider;
 	
     public function logoutAction()
     {
     	$authenticationService = $this->getAuthenticationService();
     	
-    	if($authenticationService->hasIdentity())
+    	if(!$authenticationService->hasIdentity())
     	{
-    		$identity = $authenticationService->getIdentity();
-    	
-    		$provider = $identity["provider"];
-    		 
-    		if("" !== $provider)
-    		{
-    			$authenticationService->clearIdentity();
-    			 
-    			$provider = ucfirst($provider);
-	    		$instanceProviderName = "ZendOAuth2\\".$provider;
-	    		$instanceProvider = $this->getServiceLocator()->get($instanceProviderName);
-    	
-    			if(null !== $instanceProvider)
-    			{
-    				$session = $instanceProvider->getSessionContainer();
-    				$session->getManager()->getStorage()->clear();
-    			}    	
-    		}
+    		$this->returnToHome();
+    		return;
     	}
-    	    	
     	
+    	$identity = $authenticationService->getIdentity();
+
+    	$authenticationService->clearIdentity();
+    	
+    	if(array_key_exists('sessionOfProvider', $identity) &&
+			"" != $identity["sessionOfProvider"])
+    	{    		
+	    	$identity["sessionOfProvider"]->clear();
+	    		
+    	}
+    	    	    	    
         return $this->getRedirectAfterLogout();
     }
     
@@ -74,5 +69,5 @@ class LogoutController extends AbstractActionController
     public function setAuthenticationService($authenticationService)
     {
     	$this->authenticationService = $authenticationService;
-    }
+    }     
 }

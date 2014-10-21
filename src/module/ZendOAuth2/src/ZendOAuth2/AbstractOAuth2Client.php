@@ -39,11 +39,9 @@ abstract class AbstractOAuth2Client
     public function getInfo()
     {
         if(is_object($this->session->info)) {
-            
             return $this->session->info;
         
         } elseif(isset($this->session->token->access_token)) {
-            
             $urlProfile = $this->options->getInfoUri() . '?access_token='.$this->session->token->access_token;
             
             $client = $this->getHttpclient()
@@ -73,7 +71,7 @@ abstract class AbstractOAuth2Client
             
         }
     }
-    
+        
     public function getScope($glue = ' ')
     {
         if(is_array($this->options->getScope()) AND count($this->options->getScope()) > 0) {
