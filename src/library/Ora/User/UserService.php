@@ -1,4 +1,4 @@
-<?php
+<?php 
 
 namespace Ora\User;
 
@@ -14,7 +14,6 @@ interface UserService
 	/**
 	 * Create a User
 	 *
-	 * @param Datetime $createdAt
 	 * @param array [email, lastname, firstname]
 	 * @param Role $role
 	 */	

@@ -19,6 +19,7 @@ return array(
         'Application',
         'TaskManagement',
         'ProjectManagement',
+        'User',
         'ZendOAuth2',
     	'User'	
     ),

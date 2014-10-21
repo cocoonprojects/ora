@@ -36,6 +36,7 @@ class User extends DomainEntity
 	private $email;
 		
 	/**
+<<<<<<< HEAD
 	 * @ORM\Column(type="integer", options={"default" = "0"})
 	 * @var boolean
 	 */
@@ -128,5 +129,5 @@ class User extends DomainEntity
 	    $serializedToArray = $entitySerializer->toArray($this);
 	     
 	    return $serializedToArray;
-	}
+	}	
 }
