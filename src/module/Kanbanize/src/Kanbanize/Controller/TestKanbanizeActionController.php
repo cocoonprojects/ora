@@ -29,6 +29,10 @@ class TestKanbanizeActionController extends AbstractActionController {
 		$client = new Client();
 		$method = $this->params()->fromQuery('method', 'get');
 		$client = $client->setAdapter('Zend\Http\Client\Adapter\Curl')->setUri('http://localhost/kanbanize/task');
+		//prepare request
+		
+		$id = $this->getEvent()->getRouteMatch()->getParam('id');
+		$ch = curl_init('http://192.168.56.111/kanbanize/task/'.$id);
 		switch($method) {
 			case 'update':
 		
@@ -45,10 +49,8 @@ class TestKanbanizeActionController extends AbstractActionController {
 				
 				// only for test purposes the id of the board is hardcoded
 				// this is a test controller
-				$data = array("boardid" => "3");
-				$id = $this->getEvent()->getRouteMatch()->getParam('id');
-				$ch = curl_init('http://192.168.56.111/kanbanize/task/'.$id);
 				
+				$data = array("boardid" => "3","action"=>"accept");
 				curl_setopt($ch, CURLOPT_POST, true);
 				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
 				curl_setopt($ch, CURLOPT_HEADER, true);
@@ -60,7 +62,19 @@ class TestKanbanizeActionController extends AbstractActionController {
 // 				if(!$response) {
 // 					return false;
 // 				}
+				break;
 				
+			case 'ongoing':
+				$data = array("boardid" => "3","action"=>"ongoing");
+				curl_setopt($ch, CURLOPT_POST, true);
+				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+				curl_setopt($ch, CURLOPT_HEADER, true);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+				curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($data));
+				
+				$response = curl_exec($ch);
+				break;
 		}
 
 		$fm = $this->flashMessenger();
@@ -74,10 +88,6 @@ class TestKanbanizeActionController extends AbstractActionController {
 		
 		$this->redirect()->toRoute('list', array('response' => $response));
 		
-		//$view = new ViewModel(array('response' => $response,"curl"=>$ch));
-		
-		//$view ->setTemplate("kanbanize/kanbanize/");
-		//return $view;
 	}
 	
 	protected function getKanbanizeService(){
