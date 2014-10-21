@@ -203,5 +203,4 @@ config.vm.provision :shell, :path => "puphpet/shell/testsuite_link.sh"
 #configurazione del modulo di doctrine
 config.vm.provision :shell, :path => "puphpet/shell/doctrine_module_configuration.sh"
 
-
 end
