@@ -15,8 +15,9 @@ class CreditsAccountsServiceFactory implements FactoryInterface {
 	
 	public function createService(ServiceLocatorInterface $serviceLocator) {
 		if(is_null(self::$instance)) {
-			$eventStore = $serviceLocator->get('Application\Service\EventStore');
-			self::$instance = new EventSourcingCreditsAccountsService($eventStore);
+			$eventStore = $serviceLocator->get('prooph.event_store');
+			$eventStoreStrategy = $serviceLocator->get('prooph.event_store.default_stream_strategy');
+			self::$instance = new EventSourcingCreditsAccountsService($eventStore, $eventStoreStrategy);
 		}
 		return self::$instance;
 	}
