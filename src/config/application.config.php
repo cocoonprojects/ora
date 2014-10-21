@@ -18,6 +18,7 @@ return array(
         'DoctrineORMModule',
         'Application',
         'TaskManagement',
+        'ProjectManagement',
         'Auth',
         'ZendOAuth2',
         'Kanbanize'
