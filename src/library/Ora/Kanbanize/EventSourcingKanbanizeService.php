@@ -89,6 +89,34 @@ class EventSourcingKanbanizeService implements KanbanizeService
   	}
   }
   
+	public function moveTaskBackToOngoing($kanbanizeTask) {
+  		$boardId = $kanbanizeTask->getBoardId();
+  		$taskId = $kanbanizeTask->getTaskId();
+  		$task = $this->kanbanize->getTaskDetails($boardId, $taskId);
+  		if(isset($task['Error'])) {
+  			//return 0;
+  			return $task['Error'];
+  		}
+  		if($task['columnname'] != self::COLUMN_ONGOING &&
+  			($task['columnname'] == self::COLUMN_COMPLETED || $task['columnname'] == self::COLUMN_ACCEPTED)) {
+  		
+  			//Task can be moved back to ongoing
+  			$this->kanbanize->moveTask($boardId, $taskId, self::COLUMN_ONGOING);
+  		
+  			$kanbanizeTask->setStatus(Task::STATUS_ONGOING);
+  		
+  			$event = new KanbanizeTaskMovedEvent($editedAt, $kanbanizeTask, $this->entitySerializer);
+  		
+  			$this->eventStore->appendToStream($event);
+  		
+  			return 1;
+  		}
+  		else {
+  			//Task is already Accepted, nothing to do
+  			return 0;
+  		}
+  	}
+  
   /**
    * @param 
    */
@@ -112,21 +140,33 @@ class EventSourcingKanbanizeService implements KanbanizeService
   		return 1;
   	}
   }
-  
+
   /**
-   * @param 
+   * @param
    */
   
   public function getTasks($boardId, $status){
- 	$tasks_to_return = array();
+  	$tasks_to_return = array();
   	$tasks = $this->kanbanize->getAllTasks($boardId);
   	foreach ($tasks as $singletask ){
   		if ($singletask["columnname"]==$status)
   			$tasks_to_return[]=$singletask;
   	}
-  	
+  	 
   	return $tasks_to_return;
+  	 
+  }
+
+  /**
+   * @param
+   */
+  
+  public function getAllTasks($boardId){
+  	$tasks_to_return = array();
+  	$tasks = $this->kanbanize->getAllTasks($boardId);
   	
+  	return $tasks;
+  	 
   }
   
 }
