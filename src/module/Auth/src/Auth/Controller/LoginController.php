@@ -14,9 +14,10 @@ class LoginController extends AbstractActionController
 {    
     
 	private $authenticationService;
+	private $userService;
 			
     public function loginAction()
-    {
+    {    	
     	$resultAuthentication = array();
     	
     	$provider = $this->params('id');
@@ -47,12 +48,18 @@ class LoginController extends AbstractActionController
 	
 	    	$authenticationService = $this->getAuthenticationService();
 	    	$authenticate = $authenticationService->authenticate($adapter); // return Zend\Authentication\Result
+
+	    	if($authenticate->isValid())
+	    	{
+	    		$userService = $this->getUserService();	 
+				$user = $userService->createNewUser($authenticationService->getIdentity());
 	    		
-	    	$view = new ViewModel(array(
-	    			'authenticate' => $authenticate
-	    	));
+		    	$view = new ViewModel(array(
+		    			'authenticate' => $authenticate
+		    	));
 	    	
-	    	return $view;	    				
+	    		return $view;
+	    	}	    				
 	    }
     }  
 
@@ -65,5 +72,16 @@ class LoginController extends AbstractActionController
     	}
     
     	return $this->authenticationService;
-    }    
+    }  
+
+    protected function getUserService()
+    {
+    	if (!isset($this->userService))
+    	{
+    		$serviceLocator = $this->getServiceLocator();
+    		$this->userService = $serviceLocator->get('User\Service\UserService');
+    	}
+    	
+    	return $this->userService;    	
+    }
 }

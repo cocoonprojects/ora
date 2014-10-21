@@ -57,17 +57,20 @@ class ZendOAuth2 implements AdapterInterface, EventManagerAwareInterface
     	switch($this->client->getProvider())
     	{
     		case 'google':
-			    		$infoOfSession['name'] = $info['name'];
+			    		$infoOfSession['firstname'] = $info['given_name'];
+			    		$infoOfSession['lastname'] = $info['family_name'];
 			    		$infoOfSession['picture'] = $info['picture'];
 			    		$infoOfSession['email'] = $info['email'];    			
     					break;
     		case 'linkedin':
-    					$infoOfSession['name'] = $info['firstName']." ".$info['lastName'];
+    					$infoOfSession['firstname'] = $info['firstName'];
+    					$infoOfSession['lastname'] = $info['lastName'];
     					$infoOfSession['picture'] = $info['pictureUrl'];
     					$infoOfSession['email'] = $info['emailAddress'];    			
     					break; 
     		case 'TestProvider':
-			    		$infoOfSession['name'] = $info['name'];
+    					$infoOfSession['firstname'] = $info['name']; 
+			    		$infoOfSession['lastname'] = $info['name'];
 			    		$infoOfSession['picture'] = $info['picture'];
 			    		$infoOfSession['email'] = $info['email']; 
     					break;    					   						

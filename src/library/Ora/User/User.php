@@ -13,22 +13,73 @@ use Ora\DomainEntity;
 class User extends DomainEntity 
 {	    
 	/**
-	 * @ORM\Column(type="string")
+	 * @ORM\Column(type="string", length=100, nullable=TRUE)
 	 * @var string
 	 */
-	private $name;
-	
+	private $firstname;
+
+	/**
+	 * @ORM\Column(type="string", length=100, nullable=TRUE)
+	 * @var string
+	 */
+	private $lastname;
+
+	/**
+	 * @ORM\Column(type="string", length=200, unique=TRUE)
+	 * @var string
+	 */
+	private $email;
+		
+	/**
+	 * @ORM\Column(type="boolean", options={"default" = "1"})
+	 * @var boolean
+	 */
+	private $status;
+		
 	// TODO: Utilizzare Ora\User\User $createdBy se createdBy dev'essere una relazione con lo USER
 	public function __construct($userID, \DateTime $createdAt, $createdBy) 
 	{
 		parent::__construct($userID, $createdAt, $createdBy);
+		$this->setStatus(true);
 	}
 	
-	public function getName() {
-		return $this->name;
+	public function setFirstname($firstname)
+	{
+		$this->firstname = $firstname;
 	}
 	
-	public function setUser($name) {
-		$this->name = $name;
+	public function getFirstname()
+	{
+		return $this->firstname;
 	}
+
+	public function setLastname($lastname)
+	{
+		$this->lastname = $lastname;
+	}
+	
+	public function getLastname()
+	{
+		return $this->lastname;
+	}
+
+	public function setEmail($email)
+	{
+		$this->email = $email;
+	}
+	
+	public function getEmail()
+	{
+		return $this->email;
+	}
+
+	public function setStatus($status)
+	{
+		$this->status = $status;
+	}
+	
+	public function getStatus()
+	{
+		return $this->status;
+	}	
 }
