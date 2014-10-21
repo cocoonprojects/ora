@@ -2,31 +2,27 @@
 namespace Ora;
 
 use Doctrine\ORM\Mapping AS ORM;
-use Ora\EventStore\EventStore;
+use Prooph\EventSourcing\AggregateRoot;
+use Rhumsaa\Uuid\Uuid;
 
 /**
  * @ORM\MappedSuperclass
  * @author andreabandera
  *
  */
-class DomainEntity {
+class DomainEntity extends AggregateRoot {
 	
 	/**
 	 * @ORM\Id @ORM\Column(type="string") 
-	 * @var string
+	 * @var Uuid
 	 */
-	private $id;
+	protected $id;
 	
 	/**
 	 * @ORM\Column(type="datetime")
 	 * @var DateTime
 	 */
-	private $createdAt;
-	
-	protected function __construct($id, \DateTime $createdAt) {
-		$this->id = $id;
-		$this->createdAt = $createdAt;
-	}
+	protected $createdAt;
 	
 	public function getId() {
 		return $this->id;
@@ -36,14 +32,8 @@ class DomainEntity {
 		return $this->createdAt;
 	}
 	
-	public function rebuild($events) {
-		foreach ($events as $e) {
-			$this->apply($e);
-		}
+	protected function aggregateId() {
+		return $this->id;
 	}
 	
-	private function apply(DomainEvent $e) {
-		$method = 'apply'.get_class($event);
-		$this->$method($event);
-	}
 }
