@@ -3,6 +3,7 @@ namespace Accounting\Controller;
 
 use Accounting\View\CreditsAccountJsonModel;
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
+use Rhumsaa\Uuid\Uuid;
 
 class AccountsController extends AbstractHATEOASRestfulController
 {
