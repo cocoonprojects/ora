@@ -17,7 +17,7 @@ class AuthenticationAction extends AbstractHelper implements ServiceLocatorAware
 			$user = $authenticationService->getIdentity();
 			
 			$output = "<li><img src='{$user['picture']}' alt='picture' class='img-circle' style='max-width: 40px'></li>";
-			$output .= "<li><a>{$user['name']}</a></li>";
+			$output .= "<li><a>{$user['firstname']} {$user['lastname']}</a></li>";
 			$output .= "<li><a href='/auth/logout'>Logout</a></li>";
 			
 			return $output;		
