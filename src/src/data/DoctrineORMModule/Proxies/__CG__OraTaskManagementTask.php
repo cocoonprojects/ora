@@ -242,23 +242,23 @@ class Task extends \Ora\TaskManagement\Task implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function emptyMembers()
+    public function removeMember($m)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'emptyMembers', array());
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeMember', array($m));
 
-        return parent::emptyMembers();
+        return parent::removeMember($m);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function addMember($t)
+    public function addMember($m)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addMember', array($t));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addMember', array($m));
 
-        return parent::addMember($t);
+        return parent::addMember($m);
     }
 
     /**

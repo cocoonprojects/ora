@@ -49,6 +49,15 @@ class RestContext implements Context
     }
 
     /**
+     * @Given /^that I want to update a "([^"]*)"$/
+     */
+    public function thatIWantToUpdateA($objectType)
+    {
+        $this->_restObjectType = ucwords(strtolower($objectType));
+        $this->_restObjectMethod = 'put';
+    }
+    
+    /**
      * @Given /^that I want to find a "([^"]*)"$/
      */
     public function thatIWantToFindA($objectType)
@@ -86,6 +95,7 @@ class RestContext implements Context
         switch (strtoupper($this->_restObjectMethod)) 
         {
             case 'GET':
+                // Create a GET request: $client->get($uri, array $headers, $options)
                 try
                 {
                     $response = $this->_client->get(
@@ -105,8 +115,32 @@ class RestContext implements Context
                     throw new Exception($e->getMessage());
                 }
                 break;
+            
+            case 'PUT':
+                // Create a PUT request: $client->put($uri, array $headers, $body, $options)
+                try 
+                {
+                    $postFields = (array) $this->_restObject;
+                    $response = $this->_client->put(
+                        $this->_requestUrl, null, $postFields
+                    )->send();
+                }
+                catch (Guzzle\Http\Exception\ClientErrorResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch (Guzzle\Http\Exception\ServerErrorResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch (Guzzle\Http\Exception\BadResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch( Exception $e){
+                    throw new Exception($e->getMessage());
+                }
+                break;
                 
             case 'POST': 
+                // Create a POST request: $client->post($uri, array $headers, $postBody, $options)
                 try
                 {             
                     $postFields = (array) $this->_restObject;
@@ -129,6 +163,7 @@ class RestContext implements Context
                 break;
                 
             case 'DELETE':
+                // Create a DELETE request: $client->delete($uri, array $headers, $body, $options)
                 try
                 {   
                     $response = $this->_client->delete(
