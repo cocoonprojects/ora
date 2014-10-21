@@ -66,74 +66,67 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 		
 		
 	}
-	
-	public function update($id,$data){
-		
+	public function update($id, $data) {
 		$messagetoshow;
-
-		if(!isset($data['boardid'])){
-			//bad request
-			$this->response->setStatusCode(400);
+		
+		// actions -> accept | OnGoing
+		if (! isset ( $data ['action'] )) {
+			$this->response->setStatusCode ( 400 );
 			return $this->response;
 		}
 		
-		if(!isset($id)){
-			//bad request
-			$this->response->setStatusCode(400);
+		$action = $data ["action"];
+		
+		if (! isset ( $data ['boardid'] )) {
+			// bad request
+			$this->response->setStatusCode ( 400 );
 			return $this->response;
 		}
 		
-		//  TODO insert validators with 
+		if (! isset ( $id )) {
+			// bad request
+			$this->response->setStatusCode ( 400 );
+			return $this->response;
+		}
+		
+		// TODO insert validators with
 		
 		// mock task
-		$taskId = uniqid();
-		$boardId = $data["boardid"];
+		$taskId = uniqid ();
+		$boardId = $data ["boardid"];
 		
-		$kanbanizeTask = new KanbanizeTask($taskId, $boardId, $id, new \DateTime());
-
-		if($kanbanizeTask->isAcceptable()){
-			$result = $this->getKanbanizeService()->acceptTask($kanbanizeTask);
-			}else{
-				$this->response->setStatusCode(400);
-			}
-		if ($result==1){
-			$this->response->setStatusCode(200);
-		}else{
-			$this->response->setStatusCode(400);
+		$kanbanizeTask = new KanbanizeTask ( $taskId, $boardId, $id, new \DateTime () );
+		switch ($action) {
+			
+			case "accept" :
+				if ($kanbanizeTask->isAcceptable ()) {
+					$result = $this->getKanbanizeService ()->acceptTask( $kanbanizeTask );
+				} else {
+					$this->response->setStatusCode ( 400 );
+				}
+				if ($result == 1) {
+					$this->response->setStatusCode ( 200 );
+				} else {
+					$this->response->setStatusCode ( 400 );
+				}
+				break;
+			case "ongoing" :
+				$result = $this->getKanbanizeService ()->moveTaskBackToOngoing ( $kanbanizeTask );
+				if ($result == 1) {
+					$this->response->setStatusCode ( 200 );
+				} else {
+					$this->response->setStatusCode ( 400 );
+				}
+				
+				break;
+				
+			
 		}
+		
 		return $this->response;
-		//return $this->redirect()->toRoute('/kanbanize/list', array("message"=>$messagetoshow, "id"=>$id));
-		
-		
 	}
 	
-//     public function indexAction()
-//     {
-//     	$this->kanbanizeService = $this->getServiceLocator()->get('Kanbanize\Service\Kanbanize');
-//     	$tasks = $this->kanbanizeService->getTasksinBacklog(3);
-//         return new ViewModel(array(
-//     			'tasks' => $tasks
-//     		)
-//     	);
-//     }
 
-//     public function fooAction()
-//     {
-//         // This shows the :controller and :action parameters in default route
-//         // are working when you browse to /kanbanize/kanbanize/foo
-//         return array();
-//     }
-    
-//     public function testAction() {
-//         $this->kanbanizeService = $this->getServiceLocator()->get('Kanbanize\Service\Kanbanize');
-//     	$task = new KanbanizeTask(9, new \DateTime());
-//     	$task->setBoardId(3);
-//     	$task->setTaskId(9);
-//     	return new ViewModel(array(
-//     			'response' => $this->kanbanizeService->acceptTask($task)
-//     		)
-//     	);
-//     }
     
      protected function getKanbanizeService(){
      	//singleton

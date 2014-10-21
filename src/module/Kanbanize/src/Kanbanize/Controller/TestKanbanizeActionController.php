@@ -45,7 +45,7 @@ class TestKanbanizeActionController extends AbstractActionController {
 				
 				// only for test purposes the id of the board is hardcoded
 				// this is a test controller
-				$data = array("boardid" => "3");
+				$data = array("boardid" => "3","action"=>"accept");
 				$id = $this->getEvent()->getRouteMatch()->getParam('id');
 				$ch = curl_init('http://192.168.56.111/kanbanize/task/'.$id);
 				
