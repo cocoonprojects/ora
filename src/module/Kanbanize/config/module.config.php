@@ -35,9 +35,9 @@ return array(
                     // you may want to remove it and replace it with more
                     // specific routes.
                     'client' => array(
-                        'type'    => 'Literal',
+                        'type'    => 'Segment',
                         'options' => array(
-                            'route'    => '/client',
+                            'route'    => '/client/test[/:id]',
                             'defaults' => array(
                                 'controller' => 'KanbanizeTest',
                                 'action'     => 'index',

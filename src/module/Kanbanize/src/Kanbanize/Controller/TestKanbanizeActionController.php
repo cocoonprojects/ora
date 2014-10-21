@@ -33,19 +33,21 @@ class TestKanbanizeActionController extends AbstractActionController {
 			case 'update':
 		
 // create task and persist it only for test purposes
-   $temptask = new Task(uniqid(),new \DateTime());
-   $temptask->setSubject("soggetto di prova");
-   $entity_manager = $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');
-   $entity_manager->persist($temptask);
-   $entity_manager->flush();
+//    $temptask = new Task(uniqid(),new \DateTime());
+//    $temptask->setSubject("soggetto di prova");
+//    $entity_manager = $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');
+//    $entity_manager->persist($temptask);
+//    $entity_manager->flush();
   
    
 				
 
 				
-
+				// only for test purposes the id of the board is hardcoded
+				// this is a test controller
 				$data = array("boardid" => "3");
-				$ch = curl_init('http://192.168.56.111/kanbanize/task/'.'8');
+				$id = $this->getEvent()->getRouteMatch()->getParam('id');
+				$ch = curl_init('http://192.168.56.111/kanbanize/task/'.$id);
 				
 				curl_setopt($ch, CURLOPT_POST, true);
 				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
@@ -60,11 +62,22 @@ class TestKanbanizeActionController extends AbstractActionController {
 // 				}
 				
 		}
+
+		$fm = $this->flashMessenger();
 		
-		$view = new ViewModel(array('response' => $response,"curl"=>$ch));
+		if(!$response || curl_getinfo($ch,CURLINFO_HTTP_CODE) != 200) {
+			$fm->addErrorMessage("Cannot move task");
+		}
+		else {
+			$fm->addSuccessMessage("Task moved successfully");
+		}
+		
+		$this->redirect()->toRoute('list', array('response' => $response));
+		
+		//$view = new ViewModel(array('response' => $response,"curl"=>$ch));
 		
 		//$view ->setTemplate("kanbanize/kanbanize/");
-		return $view;
+		//return $view;
 	}
 	
 	protected function getKanbanizeService(){
@@ -92,10 +105,17 @@ class TestKanbanizeActionController extends AbstractActionController {
 			$task = new KanbanizeTask(uniqid(), $boardId, $singletask['taskid'], new \DateTime());
 			$task->setSubject($singletask['description']);
 			$task->setStatus($singletask['columnname']);
+			$task->setBoardId($boardId);
 			$taskList[] = $task;
 		}
 		
-		$view = new ViewModel(array('tasks' => $taskList));
+		/*$message = null;
+		
+		if($this->flashMessenger()->hasSuccessMessages())
+			$message = $this->flashMessenger()->getSuccessMessages()[0];
+		else if($this->flashMessenger()->hasErrorMessages())
+			$message = $this->flashMessenger()->getErrorMessages()[0];*/
+		$view = new ViewModel(array('tasks' => $taskList, /*'message' => $message*/));
 		
 		return $view;
 		

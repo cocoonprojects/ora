@@ -5,8 +5,18 @@
 <div class="page-header">
 	<h1>Lista Task</h1>
 	<small> Example page for the function task acceptance </small>
-
 </div>
+
+<?php echo $this->flashMessenger()
+			->setMessageOpenFormat('<div class="well panel-success"><p>')
+			->setMessageSeparatorString('</p><p>')
+			->setMessageCloseString('</p></div>')
+			->render('success'); 
+	echo $this->flashMessenger()
+			->setMessageOpenFormat('<div%s class="well panel-error"><p>')
+			->setMessageSeparatorString('</p><p>')
+			->setMessageCloseString('</p></div>')
+			->render('error');?>
 <div class="container">
 	<table class="table table-responsive table-striped">
 		<thead>
@@ -31,7 +41,7 @@
 				
     <td> <?php echo $singletask->getStatus();?> </td>
  
-	<td> <button class="btn btn-primary">Accept</button> </td>
+	<td> <a href="/kanbanize/task/client/test/<?php echo $singletask->getTaskId();?>?method=update"><button class="btn btn-primary" id ="<?php echo $singletask->getTaskId();?>">Accept</button></a> </td>
 				
 </tr>
 

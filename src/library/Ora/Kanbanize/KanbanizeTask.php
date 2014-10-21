@@ -36,6 +36,10 @@ class KanbanizeTask extends Task {
 		return $this->boardId;
 	}
 	
+	public function setBoardId($boardid){
+		$this->boardId=$boardid;
+	}
+	
 	public function getTaskId() {
 		return $this->taskId;
 	}

@@ -68,6 +68,8 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 	}
 	
 	public function update($id,$data){
+		
+		$messagetoshow;
 
 		if(!isset($data['boardid'])){
 			//bad request
@@ -93,15 +95,14 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 			$result = $this->getKanbanizeService()->acceptTask($kanbanizeTask);
 			}else{
 				$this->response->setStatusCode(400);
-				return $this->response;
 			}
 		if ($result==1){
 			$this->response->setStatusCode(200);
-			return $this->response;
 		}else{
 			$this->response->setStatusCode(400);
-			return $this->response;
 		}
+		return $this->response;
+		//return $this->redirect()->toRoute('/kanbanize/list', array("message"=>$messagetoshow, "id"=>$id));
 		
 		
 	}
