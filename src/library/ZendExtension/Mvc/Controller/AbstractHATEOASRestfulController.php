@@ -1,4 +1,5 @@
 <?php
+
 namespace ZendExtension\Mvc\Controller;
 
 use Zend\Mvc\Controller\AbstractRestfulController;
@@ -31,6 +32,7 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
 		}
 
 		$method = $e->getRequest()->getMethod();
+		
 		if (in_array($method, $options) || $method == 'OPTIONS') {
 			// HTTP method is allowed!
 			return;
@@ -57,5 +59,4 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
 	protected abstract function getCollectionOptions();
 	
 	protected abstract function getResourceOptions();
-
 }
