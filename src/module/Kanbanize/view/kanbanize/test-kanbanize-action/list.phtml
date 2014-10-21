@@ -1,5 +1,6 @@
 <?php
 
+use Zend\Validator\InArray;
 ?>
 
 <div class="page-header">
@@ -29,6 +30,7 @@
 		</thead>
 		<tbody>
 		<?php
+		
 		foreach ( $tasks as $singletask ) {
 			?>
 <tr>
@@ -41,7 +43,21 @@
 				
     <td> <?php echo $singletask->getStatus();?> </td>
  
-	<td> <a href="/kanbanize/task/client/test/<?php echo $singletask->getTaskId();?>?method=update"><button class="btn btn-primary" id ="<?php echo $singletask->getTaskId();?>">Accept</button></a> </td>
+	<td>
+	<?php if(in_array($singletask->getId(), $acceptable)){?> 
+	<a href="/kanbanize/task/client/test/<?php echo $singletask->getTaskId();?>?method=update">
+	<button class="btn btn-primary" id ="<?php echo $singletask->getTaskId();?>">Accept</button>
+	</a> 
+	<?php }?>
+	<?php if(in_array($singletask->getId(), $back2ongoing)){?> 
+	<a href="/kanbanize/task/client/test/<?php echo $singletask->getTaskId();?>?method=ongoing">
+	<button class="btn btn-primary" id ="<?php echo $singletask->getTaskId();?>">Back2Ongoing</button>
+	</a> 
+	<?php }?>
+	
+	
+	
+	</td>
 				
 </tr>
 

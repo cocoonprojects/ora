@@ -31,6 +31,8 @@ class TestKanbanizeActionController extends AbstractActionController {
 		$client = $client->setAdapter('Zend\Http\Client\Adapter\Curl')->setUri('http://localhost/kanbanize/task');
 		//prepare request
 		
+		//TODO use right board id 
+		$boardId = 3;
 		$id = $this->getEvent()->getRouteMatch()->getParam('id');
 		$ch = curl_init('http://192.168.56.111/kanbanize/task/'.$id);
 		switch($method) {
@@ -50,7 +52,7 @@ class TestKanbanizeActionController extends AbstractActionController {
 				// only for test purposes the id of the board is hardcoded
 				// this is a test controller
 				
-				$data = array("boardid" => "3","action"=>"accept");
+				$data = array("boardid" => $boardId,"action"=>"accept");
 				curl_setopt($ch, CURLOPT_POST, true);
 				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
 				curl_setopt($ch, CURLOPT_HEADER, true);
@@ -65,7 +67,7 @@ class TestKanbanizeActionController extends AbstractActionController {
 				break;
 				
 			case 'ongoing':
-				$data = array("boardid" => "3","action"=>"ongoing");
+				$data = array("boardid" => $boardId,"action"=>"ongoing");
 				curl_setopt($ch, CURLOPT_POST, true);
 				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
 				curl_setopt($ch, CURLOPT_HEADER, true);
@@ -129,7 +131,7 @@ class TestKanbanizeActionController extends AbstractActionController {
 					break;
 				case Task::STATUS_COMPLETED:
 					$acceptable[] = $task->getId();
-				case Task::STATUS_COMPLETED:
+				case Task::STATUS_ACCEPTED:
 					$back2ongoing[] = $task->getId();
 					break;
 			}
