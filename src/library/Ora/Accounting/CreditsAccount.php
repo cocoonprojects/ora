@@ -3,7 +3,7 @@ namespace Ora\Accounting;
 
 use Doctrine\ORM\Mapping AS ORM;
 use Ora\DomainEntity;
-use Ora\EventStore\EventStore;
+use Rhumsaa\Uuid\Uuid;
 
 /**
  * @ORM\Entity @ORM\Table(name="creditsAccounts")
@@ -13,33 +13,29 @@ use Ora\EventStore\EventStore;
 class CreditsAccount extends DomainEntity {
 	
 	/**
-	 * 
-	 * @var EventStore
-	 */
-	private $eventStore;
-	
-	/**
-	 * @ORM\Column(type="string")
-	 * @var string
-	 */
-	private $currency;
-	
-	/**
 	 * ORM\Embedded(class="Balance")
 	 * @var Balance
 	 */
 	private $balance;
 	
-	public function __construct($id, $createdAt, $eventStore, $currency) {
-		parent::__construct($id, $createdAt);
-		$this->eventStore = $eventStore;
-		$this->currency = $currency;
+	public static function create(\DateTime $createdAt = null) {
+		$d = $createdAt == null ? new \DateTime() : $createdAt;
+		$d = $d->format('Y-m-d H:i:s');
+		$id = Uuid::uuid4();
+		
+		$rv = new self();
 		// At creation time the balance is 0
-		$this->balance = new Balance(0, $createdAt);
-	}
-	
-	public function getCurrency() {
-		return $this->currency;
+		$rv->recordThat(
+				CreditsAccountCreatedEvent::occur(
+						$id->toString(),
+						array('createdAt' => $d,
+							  'balanceValue' => 0,
+							  'balanceDate' => $d
+						)
+				)
+		);
+		
+		return $rv;
 	}
 	
 	public function setBalance(Balance $balance) {
@@ -50,26 +46,15 @@ class CreditsAccount extends DomainEntity {
 		return $this->balance;
 	}
 	
-	public function deposit($value, $currency, \DateTime $when) {
-		if($currency != $this->currency) {
-			throw new UnsupportedChangeException($currency, $this->currency);
-		}
-		$e = new CreditsDepositedEvent($when, $this, $value);
-		$this->eventStore->appendToStream($e);
-	}
-	
-	public function withdraw($value, $currency, \DateTime $when) {
-		if($currency != $this->currency) {
-			throw new UnsupportedChangeException($currency, $this->currency);
-		}
-		$e = new CreditsWithdrawnEvent($when, $this, $value);
-		$this->eventStore->appendToStream($e);
-	}
-	
-	private function applyCreditsDepositedEvent(CreditsDepositedEvent $e) {
+	private function whenCreditsDepositedEvent(CreditsDepositedEvent $e) {
 		$current = $this->getBalance()->getValue();
 		$updated = new Balance($current + $e->getValue(), $e->getFiredAt());
 		$this->setBalance($updated);
 	}
 	
+	protected function whenCreditsAccountCreatedEvent(CreditsAccountCreatedEvent $event) {
+		$this->id = Uuid::fromString($event->aggregateId());
+		$this->createdAt = $event->getCreatedAt();
+		$this->setBalance($event->getBalance());
+	}
 }

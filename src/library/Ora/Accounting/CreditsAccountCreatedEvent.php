@@ -9,10 +9,11 @@ use \DateTime;
  * @author andreabandera
  *
  */
-final class CreditsAccountCreatedEvent extends CreditsAccountEvent {
+class CreditsAccountCreatedEvent extends CreditsAccountEvent {
 	
-	public function __construct(DateTime $firedAt, CreditsAccount $account) {
-		parent::__construct($firedAt, $account);
+	public function getCreatedAt() {
+		$d = $this->toPayloadReader()->stringValue('createdAt');
+		return date_create_from_format('Y-m-d H:i:s', $d);
 	}
-	
+
 }

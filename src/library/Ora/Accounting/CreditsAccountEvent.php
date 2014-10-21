@@ -1,28 +1,23 @@
 <?php
 namespace Ora\Accounting;
 
-use Doctrine\ORM\Mapping AS ORM;
-use Ora\DomainEvent;
-use \DateTime;
+use Prooph\EventSourcing\AggregateChanged;
 
 /**
- * @ORM\Entity
+ * 
  * @author andreabandera
  *
  */
-class CreditsAccountEvent extends DomainEvent {
+class CreditsAccountEvent extends AggregateChanged {
 
-	protected $account;
-
-	protected function __construct(DateTime $firedAt, CreditsAccount $account) {
-		parent::__construct($firedAt);
-		$this->account = $account;
-		$this->aggregateId = $account->getId();
-		$this->attributes['account']['id'] = $account->getId();
-		$this->attributes['account']['createdAt'] = $account->getCreatedAt();
-		$this->attributes['account']['currency'] = $account->getCurrency();
-		$this->attributes['account']['balance']['value'] = $account->getBalance()->getValue();
-		$this->attributes['account']['balance']['date'] = $account->getBalance()->getDate();
+	public function getCurrency() {
+		return $this->toPayloadReader()->stringValue('currency');
 	}
-
+	
+	public function getBalance() {
+		$value = $this->toPayloadReader()->floatValue('balanceValue');
+		$date = $this->toPayloadReader()->stringValue('balanceDate');
+		$d = date_create_from_format('Y-m-d H:i:s', $date);
+		return new Balance($value, $d);
+	}
 }
