@@ -16,6 +16,7 @@ return array(
     'modules' => array(
 		'DoctrineModule',
         'DoctrineORMModule',
+    	'ProophEventStoreModule',
         'Application',
     	'Accounting',
     	'TaskManagement',
