@@ -15,24 +15,7 @@ class PopupProviderList extends AbstractHelper implements ServiceLocatorAwareInt
 		if(!$authenticationService->hasIdentity())
 		{
 			$urlList = array();
-			$serviceLocator = $this->getServiceLocator();
-			
-			$allConfigurationOption = $serviceLocator->get('Config');
-				
-			if(is_array($allConfigurationOption) && array_key_exists('zendoauth2', $allConfigurationOption))
-			{
-				$availableProviderList = $allConfigurationOption['zendoauth2'];
-			
-				foreach($availableProviderList as $provider => $providerOptions)
-				{
-					$provider = ucfirst($provider);
-					$instanceProviderName = "ZendOAuth2\\".$provider;
-					$instanceProvider = $serviceLocator->get($instanceProviderName);
-			
-					if(null != $instanceProvider)
-						$urlList[$provider] =  $instanceProvider->getUrl();
-				}
-			}
+			$serviceManager = $this->getServiceLocator();
 			
 			$output = "<div id='popupLogin' class='modal fade'>
 					<div class='modal-dialog'>
@@ -46,11 +29,13 @@ class PopupProviderList extends AbstractHelper implements ServiceLocatorAwareInt
 							</div>
 							<div class='modal-body'>
 								<center>";
-							
-				foreach($urlList as $provider => $url)
-				{
-					$output .=  "<a onclick=\"auth.openAuthWindow('{$url}'); return false;\" class='btn btn-success btn-lg' href='#'>Login con {$provider}</a>";
-				}
+
+			$providerInstanceList = $serviceManager->get('providerInstanceList');
+			
+			foreach($providerInstanceList as $provider => $instance)
+			{
+				$output .=  "<a onclick=\"auth.openAuthWindow('{$instance->getUrl()}'); return false;\" class='btn btn-success btn-lg' href='#'>Login con {$provider}</a>&nbsp;";
+			}
 			
 			$output .=" </center>
 		              </div>

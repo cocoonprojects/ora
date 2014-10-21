@@ -1,33 +1,34 @@
 <?php 
 
-	if($this->login['valid'] === false)
+	if(!$this->authenticate->isValid())
 	{ 
 ?>
 
-<div class="row">
-
-        <div class="col-lg-12">
-          <h4>Error!</h4>
-          <p><a href="javascript:window.history.back(); ">Torna indietro</a></p>
-        </div>
-       
-</div>
-
-	<?php 
-		foreach($this->login['messages'] as $message)
-		{
-	?>
 		<div class="row">
-					
-		     <div class="col-lg-12">
-		         <p><?php echo $message; ?></p>
-		     </div>
-				        
+		
+		        <div class="col-lg-12">
+		          <h4>Error!</h4>
+		          <p><a href="javascript:window.history.back(); ">Torna indietro</a></p>
+		        </div>
+		       
 		</div>
+
 	<?php 
+		
+		switch ($this->authenticate->getCode()) {
+				
+			case \Zend\Authentication\Result::FAILURE_IDENTITY_NOT_FOUND:
+				echo "Identity not found";
+				break;
+		
+			case \Zend\Authentication\Result::FAILURE_CREDENTIAL_INVALID:
+				echo "Credential invalid";
+				break;
+		
+			default:
+				echo "Internal error";
+				break;
 		}
-	?>
-<?php
 	} 
 	else 
 	{

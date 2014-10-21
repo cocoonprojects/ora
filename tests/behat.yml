@@ -18,6 +18,6 @@ default:
                  
     extensions:
         Behat\MinkExtension:
-            base_url:  'http://oraprojecttest'
+            base_url:  http://oraprojecttest
             goutte:    ~
             selenium2: ~

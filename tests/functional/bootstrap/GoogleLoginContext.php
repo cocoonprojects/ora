@@ -21,20 +21,7 @@ class GoogleLoginContext extends MinkContext implements Context
     	return true;
     	//throw new PendingException();
     }
-    
-    /**
-     * @Given /^I don\'t see popup "([^"]*)"$/
-    
-    public function iDonTSeePopup($arg1)
-    {
-    	$page = $this->getSession()->getPage();
-    	$popup = $page->findById('popupLogin');
-    	
-    	 TODO è necessario installare selenium 
-    	return !$popup->isVisible();
-    	//throw new PendingException();
-    } */
-        
+            
     /**
      * @Given /^I click on "([^"]*)"$/
      */
@@ -44,13 +31,4 @@ class GoogleLoginContext extends MinkContext implements Context
     	$page->clickLink($arg1);
 
     }
-    
-    /**
-     * @Given /^I should see popup "([^"]*)"$/
-     */
-    public function iShouldSeePopup($arg1)
-    {
-    	$page = $this->getSession()->getPage();    	
-    	$page->hasContent($arg1);
-    }    
 }

@@ -240,9 +240,10 @@ class LinkedInClientTest extends PHPUnit_Framework_TestCase
         
         $info = $this->httpClientMock->getInfo();
         
-        $this->assertSame('John Doe', $info->name);
-        $this->assertSame('JohnDoe@email.it', $info->email);
-        $this->assertSame('pictureUrl', $info->picture);
+        $this->assertSame('John', $info->firstName);
+        $this->assertSame('Doe', $info->lastName);
+        $this->assertSame('JohnDoe@email.it', $info->emailAddress);
+        $this->assertSame('pictureUrl', $info->pictureUrl);
 
     }
     

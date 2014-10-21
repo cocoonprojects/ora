@@ -35,36 +35,35 @@ class LogoutControllerTest extends \PHPUnit_Framework_TestCase
     
     public function testLogout()
     {
-    	//$this->request->setMethod('GET');
     	$this->routeMatch->setParam('action', 'logout');
-    	
-    	$mockAuthenticationService = $this->getMock('Auth\Service\AuthenticationService');
-    	
-    	$mockAuthenticationService->method('hasIdentity')
-    							  ->will($this->returnValue(true));
-    	
+    	    	
     	$identityLoggedUser['email'] = "user.logged@email.it";
     	$identityLoggedUser['name'] = "username";
     	$identityLoggedUser['picture'] = "http://...";
     	$identityLoggedUser['provider'] = "google";
     	    	
+    	$mockAuthenticationService = $this->getMock('Zend\Authentication\AuthenticationService');   
+    	 	
+    	$mockAuthenticationService->method('hasIdentity')
+    							  ->will($this->returnValue(true));
+    	
     	$mockAuthenticationService->method('getIdentity')
-    							 ->willReturn($identityLoggedUser);
-
+    							   ->willReturn($identityLoggedUser);
+    	
     	$mockAuthenticationService->method('clearIdentity')
-    							 ->will($this->returnValue(true));
-    	
-    	$controllerMock = $this->getMock('Auth\Controller\LogoutController');	
-    	
-    	$controllerMock->method('getAuthenticationService')
-    				   ->willReturn($mockAuthenticationService);
-    	
+    							    ->will($this->returnValue(true));
+
+    	$this->controller->setAuthenticationService($mockAuthenticationService);
+    	    	
     	$redirectAfterLogout = $this->getMock('\Zend\Http\Response');
 	
-    	$controllerMock->setRedirectAfterLogout($redirectAfterLogout);
-    	    	
-    	$result = $controllerMock->dispatch($this->request);
+    	$this->controller->setRedirectAfterLogout($redirectAfterLogout);
 
+    	$result = $this->controller->dispatch($this->request);
+    	
+    	$response = $this->controller->getResponse();
+    	
+    	$this->assertEquals(200, $response->getStatusCode());
     }
 }
 
