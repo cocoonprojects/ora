@@ -12,7 +12,6 @@ use Ora\UserOrganization\UserOrganization;
 
 /**
  * @ORM\Entity @ORM\Table(name="users")
- * @author Giannotti Fabio
  *
  */
 class User extends DomainEntity 
@@ -130,4 +129,5 @@ class User extends DomainEntity
 	     
 	    return $serializedToArray;
 	}	
+
 }

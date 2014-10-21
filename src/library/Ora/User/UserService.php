@@ -25,5 +25,4 @@ interface UserService
 	 * @param mixed $id
 	 */	
 	public function findUser($id);
-
 }
