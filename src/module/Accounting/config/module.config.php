@@ -13,7 +13,7 @@ return array(
 				'options' => array (
 					'route'       => '/accounting/accounts[/:id]',
 					'constraints' => array (
-						'id'     => '[0-9]+',
+						'id'     => '[0-9a-z\-]+',
 					),
 					'defaults'    => array (
 						'controller' => 'Accounting\Controller\Accounts'
