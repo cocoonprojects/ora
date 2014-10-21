@@ -52,7 +52,7 @@ class EventSourcingTaskService implements TaskService
 	    $tasks = $this->entityManager->getRepository('Ora\TaskManagement\Task')->findAll();	    
 	    foreach ($tasks as $task)
 	    {
-	        $serializedTasks['tasks'][] = $this->entitySerializer->toJson($task);
+	        $serializedTasks['tasks'][] = $task->serializeToARRAY($this->entitySerializer);
 	    }
 	    
 	    // TODO: Eliminare task temporaneo creato solo per "popolare" il JSON
@@ -61,20 +61,26 @@ class EventSourcingTaskService implements TaskService
 	    $serializedTasks['tasks'][] = array(
 	        "ID"=>"d9f8s9fd8sdf",
 	        "subject"=>"Descrizione casuale di un task già esistente",
-	        "createdAt"=>new \Datetime(),
-	        "createdBy"=>"Fabio"
+	        "created_at"=>new \Datetime(),
+	        "created_by"=>"Fabio",
+	        "members"=>array(0=>"Fabio"),
+	        "status"=>20
 	    );	    
 	    $serializedTasks['tasks'][] = array(
 	        "ID"=>"f7g6h6fgh7do",
 	        "subject"=>"Seconda descrizione casuale per task disponibili",
-	        "createdAt"=>new \Datetime(),
-	        "createdBy"=>"Pluto"
+	        "created_at"=>new \Datetime(),
+	        "created_by"=>"Mario",
+	        "members"=>array(0=>"Mario"),
+	        "status"=>20
 	    );
 	    $serializedTasks['tasks'][] = array(
 	        "ID"=>"2j3h42ffgj34",
 	        "subject"=>"Ultima descrizione farlocca per popolare tabella",
-	        "createdAt"=>new \Datetime(),
-	        "createdBy"=>"Paperino"
+	        "created_at"=>new \Datetime(),
+	        "created_by"=>"Roberta",
+	        "members"=>array(0=>"Roberta", 1=>"Giovanni"),
+	        "status"=>40
 	    );
 	    
 	    return $serializedTasks;

@@ -64,10 +64,10 @@ class Task extends \Ora\TaskManagement\Task implements \Doctrine\ORM\Proxy\Proxy
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'subject', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'status', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'project', 'createdBy');
+            return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'subject', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'status', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'project', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'members', 'createdBy');
         }
 
-        return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'subject', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'status', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'project', 'createdBy');
+        return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'subject', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'status', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'project', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'members', 'createdBy');
     }
 
     /**
@@ -198,6 +198,28 @@ class Task extends \Ora\TaskManagement\Task implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
+    public function getStatus()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getStatus', array());
+
+        return parent::getStatus();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setStatus($status)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setStatus', array($status));
+
+        return parent::setStatus($status);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getProject()
     {
 
@@ -220,23 +242,56 @@ class Task extends \Ora\TaskManagement\Task implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function getStatus()
+    public function emptyMembers()
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getStatus', array());
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'emptyMembers', array());
 
-        return parent::getStatus();
+        return parent::emptyMembers();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function setStatus($status)
+    public function addMember($t)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setStatus', array($status));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addMember', array($t));
 
-        return parent::setStatus($status);
+        return parent::addMember($t);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getMembers()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getMembers', array());
+
+        return parent::getMembers();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function serializeToJSON($entitySerializer)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'serializeToJSON', array($entitySerializer));
+
+        return parent::serializeToJSON($entitySerializer);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function serializeToARRAY($entitySerializer)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'serializeToARRAY', array($entitySerializer));
+
+        return parent::serializeToARRAY($entitySerializer);
     }
 
     /**

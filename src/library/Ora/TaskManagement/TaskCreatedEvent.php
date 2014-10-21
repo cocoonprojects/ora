@@ -15,7 +15,10 @@ final class TaskCreatedEvent extends TaskEvent
     public function __construct(DateTime $firedAt, Task $task, EntitySerializer $entitySerializer) 
     {
         parent::__construct($firedAt, $task, $entitySerializer);
-               
-        $this->attributes = $entitySerializer->toJson($task);
+        
+        //$serializedTask = $entitySerializer->toJson($task);
+        $serializedTask = $task->serializeToJSON($entitySerializer);
+        
+        $this->attributes = $serializedTask;
     }
 }

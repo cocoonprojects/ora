@@ -43,10 +43,12 @@ TaskManagement.prototype = {
 					"<table id='listAvailableTasks' class='table table-striped table-bordered table-hover'>" +
 						"<thead>" +
 							"<tr class='success'>" +
-								"<th>ID</th>" +
 								"<th>Subject</th>" +
 								"<th>Created At</th>" +
 								"<th>Created By</th>" +
+								"<th>Members</th>" +
+								"<th class='text-center'>Status</th>" +
+								"<th class='text-center'>Actions</th>" +
 							"</tr>" +
 						"</thead>" +
 						"<tbody></tbody>" +
@@ -55,21 +57,47 @@ TaskManagement.prototype = {
 		container
 			.append("<h2>Create new task</h2>" +
 					"<form id='formCreateNewTask'>" +
-						"<div class='form-group'><label for='projectID' style='font-weight:normal'>Project ID (manual for now)</label><input type=text name='projectID' class='form-control' value='' required></div>" +
+						"<div class='form-group'><label for='projectID' style='font-weight:normal'>Project ID (Manual for now - Suggested: 1)</label><input type=text name='projectID' class='form-control' value='' required></div>" +
 						"<div class='form-group'><label for='subject' style='font-weight:normal'>Subject</label><input type=text name='subject' class='form-control' value='' required></div>" +
 						"<button id='btnCreateNewTask' type='button' class='btn btn-info btn-block'>Create a new task</button>" +
 					"</form>"
 			);
 		
-		$.each(json.tasks, function(key, task) {
-			$('#listAvailableTasks tbody')
-				.append("<tr>" +
-							"<td>" + task.ID + "</td>" +
+		if ($(json.tasks).length > 0)
+		{
+			$.each(json.tasks, function(key, task) {
+				
+				var actions = "";
+				if (task.status == 20)
+				{
+					task.status = "Ongoing";
+					actions = "<button class='btn btn-success btn-block'>Join & estimate</button>";
+				}
+				else if (task.status == 40)
+				{
+					task.status = "Accepted";
+					actions = "<button class='btn btn-info btn-block'>Assign share</button>";
+				}
+				
+				var taskMembers = "";
+				$.each(task.members, function(key, member) {
+					taskMembers = taskMembers + member + ", ";
+				});
+				
+				$('#listAvailableTasks tbody')
+					.append(
+						"<tr>" +
 							"<td>" + task.subject + "</td>" +
-							"<td>" + task.createdAt.date + "</td>" +
-							"<td>" + task.createdBy + "</td>" +
+							"<td>" + task.created_at.date + "</td>" +
+							"<td>" + task.created_by + "</td>" +
+							"<td>" + taskMembers + "</td>" +
+							"<td class='text-center'>" + task.status + "</td>" +
+							"<td class='text-center'>" + actions + "</td>" +
 						"</tr>");
-		});
+			});
+		}
+		else
+			$('#listAvailableTasks tbody').append("<tr><td colspan='6'>No available tasks found</td></tr>");
 	},
 	
 	createNewTask: function()
