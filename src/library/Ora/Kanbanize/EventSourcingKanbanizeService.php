@@ -96,6 +96,9 @@ class EventSourcingKanbanizeService implements KanbanizeService
   public function createNewTask($projectId, $taskSubject, $boardId){
   	
   	$createdAt = new \DateTime();
+
+  	// TODO: Modificare createdBy per inserire User
+  	$createdBy = "NOME UTENTE INVENTATO";
   	
   	$options = array('description' => $taskSubject);
   	$id = $this->kanbanize->createNewTask($boardId, $options);
@@ -103,7 +106,7 @@ class EventSourcingKanbanizeService implements KanbanizeService
   		return 0;
   	}
   	else {
-  		$kanbanizeTask = new KanbanizeTask(uniqid(), $boardId, $id, $createdAt);
+  		$kanbanizeTask = new KanbanizeTask(uniqid(), $boardId, $id, $createdAt, $createdBy);
   		//TODO $event = new KanbanizeTaskCreatedEvent($createdAt, $kanbanizeTask, $this->entitySerializer);
   		//TODO $this->eventStore->appendToStream($event);
   		return 1;
