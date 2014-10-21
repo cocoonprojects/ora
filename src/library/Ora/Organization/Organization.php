@@ -1,16 +1,15 @@
 <?php
 
-namespace Ora\ProjectManagement;
+namespace Ora\Organization;
 
 use Doctrine\ORM\Mapping AS ORM;
 use Ora\DomainEntity;
 
 /**
- * @ORM\Entity @ORM\Table(name="projects")
+ * @ORM\Entity @ORM\Table(name="organizations")
  * @author Giannotti Fabio
- *
  */
-class Project extends DomainEntity 
+class Organization extends DomainEntity 
 {	    
 	/**
 	 * @ORM\Column(type="string")
@@ -19,9 +18,9 @@ class Project extends DomainEntity
 	private $subject;
 	
 	// TODO: Utilizzare Ora\User\User $createdBy se createdBy dev'essere una relazione con lo USER
-	public function __construct($projectID, \DateTime $createdAt, Ora\User\User $createdBy) 
+	public function __construct($organizationID, \DateTime $createdAt, $createdBy) 
 	{
-		parent::__construct($projectID, $createdAt, $createdBy);
+		parent::__construct($organizationID, $createdAt, $createdBy);
 	}
 	
 	public function getSubject() {
@@ -31,4 +30,5 @@ class Project extends DomainEntity
 	public function setSubject($subject) {
 		$this->subject = $subject;
 	}
-}
+	
+} 

@@ -41,6 +41,15 @@ class Module
         
     } 
     
+    public function getServiceConfig()
+    {
+    	return array(
+    			'factories' => array(
+    					'Auth\Service\AuthenticationService' => 'Auth\Service\AuthenticationServiceFactory',
+    			)
+    	);
+    }    
+    
     public function getViewHelperConfig()
     {
     	return array(

@@ -11,6 +11,7 @@ class TasksController extends AbstractHATEOASRestfulController
     protected static $collectionOptions = array ('GET','POST');
     protected static $resourceOptions = array ('DELETE','GET');
 	protected $taskService;
+	protected $projectService;
 	
 	// INIZIALIZZAZIONE
 	// - Inizializzo/valorizzo $project con l'entità reale
@@ -55,8 +56,8 @@ class TasksController extends AbstractHATEOASRestfulController
     {        
         // Definition of used Zend Validators
         $validator_NotEmpty = new \Zend\Validator\NotEmpty();
-        $validator_StringLength = new \Zend\Validator\StringLength();
-        $validator_Integer = new \Zend\I18n\Validator\Int();
+        //$validator_StringLength = new \Zend\Validator\StringLength();
+        //$validator_Integer = new \Zend\I18n\Validator\Int();
         
         if (!isset($data['projectID']))
         {            
@@ -75,8 +76,20 @@ class TasksController extends AbstractHATEOASRestfulController
         }
         
         $projectID = trim($data['projectID']);        
-        // TODO: Verificare che esista realmente un progetto con ID specificato
+        $subject = trim($data['subject']);
+        
         // TODO: Verificare che l'utente abbia il permesso per accedere a tale progetto?
+        
+        // Check if subject is empty
+        if (!$validator_NotEmpty->isValid($subject))
+        {
+            // HTTP STATUS CODE 406: Not Acceptable
+            $this->response->setStatusCode(406);
+        
+            return $this->response;
+        }
+        
+        // Check if projectID value it's empty
         if (!$validator_NotEmpty->isValid($projectID))
         {
             // HTTP STATUS CODE 406: Not Acceptable
@@ -85,41 +98,18 @@ class TasksController extends AbstractHATEOASRestfulController
             return $this->response;
         }
         
-        if (!$validator_Integer->isValid($projectID))
+        // Check if exist project with specific Project ID 
+        $project = $this->getProjectService()->findProjectByID($projectID);
+        if (!($project instanceof \Ora\ProjectManagement\Project))
         {
-            // HTTP STATUS CODE 406: Not Acceptable
-            $this->response->setStatusCode(406);
-        
-            return $this->response;
-        }
-        
-        $subject = trim($data['subject']);
-        // TODO: inserire validazione sui parametri usando zend_validator
-        // - subject: lunghezza (al momento non definita)
-        if (!$validator_NotEmpty->isValid($subject))
-        {
-            // HTTP STATUS CODE 406: Not Acceptable
-            $this->response->setStatusCode(406);
-        
-            return $this->response;
-        }
-
-        // Check the max length of task subject (specified into task entity)
-        $validator_StringLength->setMin(20);
-        $validator_StringLength->setMax(2000);
-        if (!$validator_StringLength($subject))
-        {
-            // HTTP STATUS CODE 406: Not Acceptable
-            $this->response->setStatusCode(406);
+            // HTTP STATUS CODE 404: Not Acceptable
+            $this->response->setStatusCode(404);
             
             return $this->response;
         }
         
-	    // TODO: recuperare il project entity dalla variabile definita nel 
-	    // controller e controllare che sia un'entità valida
-	    //$project = $this->projectService->findProject($projectID);
-	    $project = "PARENT_PROJECT_INVENTATO_TODO";
-       	$this->getTaskService()->createNewTask($projectID, $subject);
+        // Creo il nuovo task
+       	$this->getTaskService()->createNewTask($project, $subject);
         
         // HTTP STATUS CODE 201: Created
     	$this->response->setStatusCode(201);
@@ -161,6 +151,17 @@ class TasksController extends AbstractHATEOASRestfulController
     protected function getJsonModelClass()
     {
         return $this->jsonModelClass;
+    }
+    
+    protected function getProjectService()
+    {
+        if (!isset($this->projectService))
+        {
+            $serviceLocator = $this->getServiceLocator();
+            $this->projectService = $serviceLocator->get('ProjectManagement\ProjectService');
+        }
+    
+        return $this->projectService;
     }
     
     protected function getTaskService() 

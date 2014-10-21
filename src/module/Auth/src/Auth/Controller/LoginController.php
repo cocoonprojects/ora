@@ -13,6 +13,8 @@ use Zend\Mvc\Controller\AbstractActionController;
 class LoginController extends AbstractActionController
 {    
     
+	private $authenticationService;
+			
     public function loginAction()
     {
     	$allConfigurationOption = $this->getServiceLocator()->get('Config');
@@ -23,7 +25,6 @@ class LoginController extends AbstractActionController
 
     	if(strlen($this->params('code')) > 10)
     	{
-
     		// errore 500 - scrivi in log code: $this->getRequest()->getQuery('code') 
     		return;
     	} 
@@ -49,7 +50,7 @@ class LoginController extends AbstractActionController
 	    			$adapter = $this->getServiceLocator()->get('ZendOAuth2\Auth\Adapter');
 	    			$adapter->setOAuth2Client($instanceProvider); 
 	
-	    			$authenticationService = new \Zend\Authentication\AuthenticationService();
+	    			$authenticationService = $this->getAuthenticationService();
 	    			$authenticate = $authenticationService->authenticate($adapter); // return Zend\Authentication\Result
 	    		
 	    			if($authenticate->isValid())
@@ -90,5 +91,16 @@ class LoginController extends AbstractActionController
                 
         return $view;        
 
+    }  
+
+    protected function getAuthenticationService()
+    {
+    	if (!isset($this->authenticationService))
+    	{
+    		$serviceLocator = $this->getServiceLocator();
+    		$this->authenticationService = $serviceLocator->get('Auth\Service\AuthenticationService');
+    	}
+    
+    	return $this->authenticationService;
     }    
 }

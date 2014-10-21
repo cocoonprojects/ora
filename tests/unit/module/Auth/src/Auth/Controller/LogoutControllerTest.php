@@ -10,8 +10,6 @@ use Zend\Mvc\Router\RouteMatch;
 use PHPUnit_Framework_TestCase;
 use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
 use Zend\Mvc\Application;
-use \Auth\Service\AuthService as AuthService;
-
 
 class LogoutControllerTest extends \PHPUnit_Framework_TestCase
 {
@@ -37,17 +35,35 @@ class LogoutControllerTest extends \PHPUnit_Framework_TestCase
     
     public function testLogout()
     {
-    	$this->request->setMethod('GET');
+    	//$this->request->setMethod('GET');
+    	$this->routeMatch->setParam('action', 'logout');
+    	
+    	$mockAuthenticationService = $this->getMock('Auth\Service\AuthenticationService');
+    	
+    	$mockAuthenticationService->method('hasIdentity')
+    							  ->will($this->returnValue(true));
+    	
+    	$identityLoggedUser['email'] = "user.logged@email.it";
+    	$identityLoggedUser['name'] = "username";
+    	$identityLoggedUser['picture'] = "http://...";
+    	$identityLoggedUser['provider'] = "google";
     	    	
-    	$redirectAfterLogout = $this->getMock('\Zend\Http\Response');
+    	$mockAuthenticationService->method('getIdentity')
+    							 ->willReturn($identityLoggedUser);
 
-    	$this->controller->setRedirectAfterLogout($redirectAfterLogout);
+    	$mockAuthenticationService->method('clearIdentity')
+    							 ->will($this->returnValue(true));
     	
-    	$result = $this->controller->dispatch($this->request);
-    	$response = $this->controller->getResponse();
+    	$controllerMock = $this->getMock('Auth\Controller\LogoutController');	
     	
-    	$this->assertEquals(200, $response->getStatusCode());
- 
+    	$controllerMock->method('getAuthenticationService')
+    				   ->willReturn($mockAuthenticationService);
+    	
+    	$redirectAfterLogout = $this->getMock('\Zend\Http\Response');
+	
+    	$controllerMock->setRedirectAfterLogout($redirectAfterLogout);
+    	    	
+    	$result = $controllerMock->dispatch($this->request);
 
     }
 }

@@ -24,10 +24,10 @@ class KanbanizeTask extends Task {
 	 *  @ORM\Column(type="integer")
 	 * @var int
 	 */
-	private $taskId;	
+	private $taskId;
 
-	public function __construct($taskId, $boardId, $kanbanizeTaskId, \DateTime $createdAt) {
-		parent::__construct($taskId, $createdAt);
+	public function __construct($taskId, $boardId, $kanbanizeTaskId, \DateTime $createdAt, $createdBy) {
+		parent::__construct($taskId, $createdAt, $createdBy);
 		$this->boardId = $boardId;
 		$this->taskId = $kanbanizeTaskId;
 	}

@@ -102,7 +102,8 @@ class TestKanbanizeActionController extends AbstractActionController {
 		$taskList = array();
 
 		foreach ($tasks as $singletask) {
-			$task = new KanbanizeTask(uniqid(), $boardId, $singletask['taskid'], new \DateTime());
+			//TODO inserire utente reale e prendere id reale
+			$task = new KanbanizeTask(uniqid(), $boardId, $singletask['taskid'], new \DateTime(), "Utente");
 			$task->setSubject($singletask['description']);
 			$task->setStatus($singletask['columnname']);
 			$task->setBoardId($boardId);

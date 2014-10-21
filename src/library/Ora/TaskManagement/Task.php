@@ -4,7 +4,6 @@ namespace Ora\TaskManagement;
 
 use Doctrine\ORM\Mapping AS ORM;
 use Ora\DomainEntity;
-use Zend\XmlRpc\Value\String;
 
 /**
  * @ORM\Entity @ORM\Table(name="tasks")
@@ -13,6 +12,9 @@ use Zend\XmlRpc\Value\String;
  * @author Giannotti Fabio
  *
  */
+
+// If no DiscriminatorMap annotation is specified, doctrine uses lower-case class name as default values
+
 class Task extends DomainEntity 
 {	
     CONST STATUS_IDEA = 0;
@@ -20,9 +22,9 @@ class Task extends DomainEntity
     CONST STATUS_ONGOING = 20;
     CONST STATUS_COMPLETED = 30;
     CONST STATUS_ACCEPTED = 40;
-        
+    
 	/**
-	 * @ORM\Column(type="string", length=2000)
+	 * @ORM\Column(type="string")
 	 * @var string
 	 */
 	private $subject;
@@ -33,27 +35,15 @@ class Task extends DomainEntity
 	 */
 	private $status;
 	
-	//TODO: Da abilitare appena ci sarà qualche project
-	///**
-	//* @ManyToOne(targetEntity="Ora\ProjectManagement\Project")
-	//*/
-	private $project;	
-	
 	/**
-	* @ORM\Column(type="datetime", nullable=TRUE)
-	* @var datetime
-	*/
-	private $mostRecentEditAt;
-	
-	
-	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+	 * @ORM\ManyToOne(targetEntity="Ora\ProjectManagement\Project")
 	 */
-	private $mostRecentEditBy;
+	private $project;
 	
-	public function __construct($taskID, \DateTime $createdAt) 
+	// TODO: Utilizzare Ora\User\User $createdBy se createdBy dev'essere una relazione con lo USER
+	public function __construct($taskID, \DateTime $createdAt, $createdBy) 
 	{
-		parent::__construct($taskID, $createdAt);
+		parent::__construct($taskID, $createdAt, $createdBy);
 		$this->status = self::STATUS_ONGOING;
 	}
 	
@@ -77,24 +67,9 @@ class Task extends DomainEntity
 	    return $this->status;
 	}
 	
+	// TODO: Definire come gestire il cambio stato sull'entità
 	public function setStatus($status) {
-		$this->status = $status;
-	}
-	
-	public function setMostRecentEditAt($datetime) {
-	    $this->mostRecentEditAt = $datetime;
-	}
-	
-	public function getMostRecentEditAt() {
-	    return $this->mostRecentEditAt;
-	}
-	
-	public function setMostRecentEditBy($user) {
-	    $this->mostRecentEditBy = $user;
-	}
-	
-	public function getMostRecentEditBy() {
-	    return $this->mostRecentEditBy;
+	    $this->status = $status;
 	}
 	
 	//TODO implement method when there will be members 

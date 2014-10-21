@@ -12,7 +12,7 @@ class LogoutController extends AbstractActionController
 	
     public function logoutAction()
     {
-    	$authenticationService = new \Zend\Authentication\AuthenticationService();
+    	$authenticationService = $this->getAuthenticationService();
     	
     	if($authenticationService->hasIdentity())
     	{
@@ -36,6 +36,7 @@ class LogoutController extends AbstractActionController
     		}
     	}
     	    	
+    	
         return $this->getRedirectAfterLogout();
     }
     
@@ -57,6 +58,21 @@ class LogoutController extends AbstractActionController
 
         $this->redirectAfterLogout = $redirect;
         return $this;
-    } 
+    }
 
+    public function getAuthenticationService()
+    {
+    	if (!isset($this->authenticationService))
+    	{
+    		$serviceLocator = $this->getServiceLocator();
+    		$this->setAuthenticationService($serviceLocator->get('Auth\Service\AuthenticationService'));
+    	}
+    
+    	return $this->authenticationService;
+    }    
+
+    public function setAuthenticationService($authenticationService)
+    {
+    	$this->authenticationService = $authenticationService;
+    }
 }
