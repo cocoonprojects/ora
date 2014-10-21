@@ -87,12 +87,12 @@ class Task extends DomainEntity
 	    $this->project = $project;
 	}	
 	
-	public function emptyMembers() {
-	    $this->members = new ArrayCollection();
+	public function removeMember($m) {
+	    $this->members->removeElement($m);
 	}
 	
-	public function addMember($t) {
-	    $this->members[] = $t;
+	public function addMember($m) {
+	    $this->members[] = $m;
 	}
 	
 	public function getMembers() {

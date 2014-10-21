@@ -26,7 +26,8 @@ class EventSourcingTaskService implements TaskService
 	{
 	    $createdAt = new \DateTime();
 	    // TODO: Modificare createdBy per inserire lo USERNAME esatto
-	    $createdBy = "NOME UTENTE INVENTATO";
+	    // prelevando il nome utente dalla sessione o da dove sia
+	    $createdBy = $this->entityManager->getRepository('Ora\User\User')->findOneBy(array("id"=>"1"));
         
 	    // Generate unique ID for Task
 	    $taskID = uniqid();   
@@ -44,6 +45,32 @@ class EventSourcingTaskService implements TaskService
 	    $this->eventStore->appendToStream($event);
 	}
 	
+	public function findTaskByID($id)
+	{
+	    $task = $this->entityManager->getRepository('Ora\TaskManagement\Task')->findOneBy(array("id"=>$id));
+	     
+	    return $task;
+	}
+	
+	public function editTask($task, $data)
+	{
+	    $editedAt = new \DateTime();
+	    // TODO: Modificare createdBy per inserire lo USERNAME esatto
+	    // prelevando il nome utente dalla sessione o da dove sia
+	    $editedBy = $this->entityManager->getRepository('Ora\User\User')->findOneBy(array("id"=>"1"));
+	    
+	    // Check updated fields
+	    if (isset($data['subject']))
+	        $task->setSubject($data['subject']);
+	    
+	    $task->setMostRecentEditAt($editedAt);
+	    $task->setMostRecentEditBy($editedBy);
+	     
+	    // Creation of event after creation of Task Entity
+	    $event = new TaskEditedEvent($editedAt, $task, $this->entitySerializer);
+	    
+	    $this->eventStore->appendToStream($event);
+	}
 	
 	public function listAvailableTasks()
 	{
@@ -58,22 +85,6 @@ class EventSourcingTaskService implements TaskService
 	    // TODO: Eliminare task temporaneo creato solo per "popolare" il JSON
 	    // Si potrebbe evitare di generare qui i fake tasks lanciando uno script php
 	    // per popolare la tabella dei tasks in modo da poterne recuperare qualcuno
-	    $serializedTasks['tasks'][] = array(
-	        "ID"=>"d9f8s9fd8sdf",
-	        "subject"=>"Descrizione casuale di un task già esistente",
-	        "created_at"=>new \Datetime(),
-	        "created_by"=>"Fabio",
-	        "members"=>array(0=>"Fabio"),
-	        "status"=>20
-	    );	    
-	    $serializedTasks['tasks'][] = array(
-	        "ID"=>"f7g6h6fgh7do",
-	        "subject"=>"Seconda descrizione casuale per task disponibili",
-	        "created_at"=>new \Datetime(),
-	        "created_by"=>"Mario",
-	        "members"=>array(0=>"Mario"),
-	        "status"=>20
-	    );
 	    $serializedTasks['tasks'][] = array(
 	        "ID"=>"2j3h42ffgj34",
 	        "subject"=>"Ultima descrizione farlocca per popolare tabella",

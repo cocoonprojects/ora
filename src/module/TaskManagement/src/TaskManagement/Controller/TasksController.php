@@ -8,22 +8,17 @@ use Zend\View\Model\ViewModel;
 
 class TasksController extends AbstractHATEOASRestfulController
 {
-    protected static $collectionOptions = array ('GET','POST');
-    protected static $resourceOptions = array ('DELETE','GET');
+    protected static $collectionOptions = array ('GET', 'POST');
+    protected static $resourceOptions = array ('DELETE','POST','GET','PUT');
 	protected $taskService;
 	protected $projectService;
-	
-	// INIZIALIZZAZIONE
-	// - Inizializzo/valorizzo $project con l'entità reale
     
 	// GET - singolo perchè con un parametro di ID
     public function get($id)
     {        
-        $response = array();
-        
         $this->response->setStatusCode(200);
 
-        return new JsonModel($response);
+        return $this->response;
     }
 	
     /**
@@ -75,13 +70,13 @@ class TasksController extends AbstractHATEOASRestfulController
             return $this->response;
         }
         
-        $projectID = trim($data['projectID']);        
-        $subject = trim($data['subject']);
+        $data['projectID'] = trim($data['projectID']);        
+        $data['subject'] = trim($data['subject']);
         
         // TODO: Verificare che l'utente abbia il permesso per accedere a tale progetto?
         
         // Check if subject is empty
-        if (!$validator_NotEmpty->isValid($subject))
+        if (!$validator_NotEmpty->isValid($data['subject']))
         {
             // HTTP STATUS CODE 406: Not Acceptable
             $this->response->setStatusCode(406);
@@ -90,7 +85,7 @@ class TasksController extends AbstractHATEOASRestfulController
         }
         
         // Check if projectID value it's empty
-        if (!$validator_NotEmpty->isValid($projectID))
+        if (!$validator_NotEmpty->isValid($data['projectID']))
         {
             // HTTP STATUS CODE 406: Not Acceptable
             $this->response->setStatusCode(406);
@@ -98,37 +93,98 @@ class TasksController extends AbstractHATEOASRestfulController
             return $this->response;
         }
         
-        // Check if exist project with specific Project ID 
-        $project = $this->getProjectService()->findProjectByID($projectID);
+        // Check if project with specific ProjectID exist 
+        $project = $this->getProjectService()->findProjectByID($data['projectID']);
         if (!($project instanceof \Ora\ProjectManagement\Project))
         {
-            // HTTP STATUS CODE 404: Not Acceptable
+            // HTTP STATUS CODE 404: Not Found
             $this->response->setStatusCode(404);
             
             return $this->response;
         }
         
-        // Creo il nuovo task
-       	$this->getTaskService()->createNewTask($project, $subject);
+        // Creation of new task
+       	$this->getTaskService()->createNewTask($project, $data['subject']);
         
         // HTTP STATUS CODE 201: Created
     	$this->response->setStatusCode(201);
     	
     	return $this->response;
     }
-    
-        
-    
-    
-    /*
-    // PUT
-    public function update($id, $data)
-    {   	
-      	$response = array();
 
-        return new JsonModel($response);
+    /**
+     * Update existing task with new data
+     * @method PUT
+     * @link http://oraproject/task-management/task
+     * @param array $id ID of the Task to update 
+     * @param array $data['subject'] Updated Subject for the selected Task
+     * @return HTTPStatusCode
+     * @author Giannotti Fabio
+     */
+    public function update($id, $data)
+    {
+        // Definition of used Zend Validators
+        $validator_NotEmpty = new \Zend\Validator\NotEmpty();
+        
+        // Check if any field must be updated
+      	if (sizeof($data) == 0)
+      	{
+      	    // HTTP STATUS CODE 204: No Content (Nothing to update)
+      	    $this->response->setStatusCode(204);
+      	
+      	    return $this->response;
+      	}
+      	
+      	// Check if subject exist...
+      	if (isset($data['subject']))
+      	{
+      	    $data['subject'] = trim($data['subject']);
+      	    
+      	    // ...if exist check if subject it's empty
+          	if (!$validator_NotEmpty->isValid($data['subject']))
+          	{
+          	    // HTTP STATUS CODE 406: Not Acceptable
+          	    $this->response->setStatusCode(406);
+          	
+          	    return $this->response;
+          	}
+      	}
+      	
+      	// Check if task with specified ID exist
+      	$task = $this->getTaskService()->findTaskByID($id);
+      	if (!($task instanceof \Ora\TaskManagement\Task))
+      	{
+      	    // HTTP STATUS CODE 404: Not Found
+      	    $this->response->setStatusCode(404);
+      	
+      	    return $this->response;
+      	}
+      	
+      	// Edit existing task
+      	$this->getTaskService()->editTask($task, $data);
+      	
+      	// HTTP STATUS CODE 202: Element Accepted
+      	$this->response->setStatusCode(202);
+      	
+        return $this->response;
     }
     
+    /**
+     * Update all existing task
+     * @method PUT
+     * @link http://oraproject/task-management/task
+     * @return HTTPStatusCode
+     * @author Giannotti Fabio
+     */
+    public function replaceList($data)
+    {
+        // HTTP STATUS CODE 405: Method not allowed
+        $this->response->setStatusCode(405);
+         
+        return $this->response;
+    }
+    
+    /*
     // DELETE - singolo perchè definiamo un ID
     public function delete($id)
     {

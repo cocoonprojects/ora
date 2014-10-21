@@ -15,7 +15,7 @@ return array(
                 'options' => array(
                     'route'    => '/task-management/task[/:id]',
                     'constraints' => array(
-                        'id' => '[0-9]+',
+                        'id' => '[a-zA-Z0-9]+',
                     ),
                     'defaults' => array(
                         'controller' => 'TaskManagement\Controller\Tasks'

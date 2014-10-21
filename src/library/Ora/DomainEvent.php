@@ -53,8 +53,7 @@ class DomainEvent
 	
 	public function getAggregateId() {
 		return $this->aggregateId;
-	}
-    
+	}    
 	
 	public function setAggregateId($aggregateId) {
 	    $this->aggregateId = $aggregateId;

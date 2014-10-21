@@ -10,17 +10,67 @@ TaskManagement.prototype = {
 	
 	bindEventsOn: function()
 	{
-		// Events must be here
-		listAvailableTask
-		$('body').on('click', '#listAvailableTask', function(e){
+		// LIST AVAILABLE TASKS
+		$("body").on("click", "#listAvailableTask", function(e){
 			e.preventDefault();
-			taskManagement.listAvailableTask()
+			taskManagement.listAvailableTask();
 		});
 		
-		$('body').on('click', '#btnCreateNewTask', function(e){
+		// CREATE NEW TASK
+		$("body").on("submit", "#formCreateNewTask", function(e){
 			e.preventDefault();
-			taskManagement.createNewTask()
+			taskManagement.createNewTask();
 		});
+		
+		// OPEN EDIT TASK BOX
+		$("body").on("click", "button[data-action='openEditTaskBox']", function(e){
+			e.preventDefault();
+			var taskID = $(e.target).data("taskid");
+			taskManagement.openEditTaskBox(taskID);
+		});
+		
+		// EDIT TASK
+		$("body").on("submit", "#formEditTask", function(e){
+			e.preventDefault();
+			var taskID = $("#inputEditTaskID").val();
+			taskManagement.editTask(taskID);
+		});
+		
+		// REMOVE TASK
+		$("body").on("click", "button[data-action='removeTask']", function(e){
+			e.preventDefault();
+			var taskID = $(e.target).data("taskid");
+			taskManagement.removeTask(taskID);
+		});
+
+	},
+	
+	openEditTaskBox: function(taskID)
+	{
+		$("#editTaskBox").show();
+		$("#inputEditTaskID").val(taskID);
+		
+	},
+	
+	editTask: function(taskID)
+	{
+		$.ajax({
+			url: 'http://oraproject/task-management/task/' + taskID,
+			method: 'PUT',
+			data: $('#formEditTask').serialize(),
+			dataType: 'json',
+			complete: function(xhr, textStatus) {
+				if (xhr.status === 202)
+					alert("Task edited succesfully");
+				else
+					alert("Error. Status Code: " + xhr.status);
+			}
+		});
+	},
+	
+	removeTask: function(taskID)
+	{
+		alert("REMOVE TASK - TO BE CONTINUED...");
 	},
 	
 	listAvailableTask: function()
@@ -59,9 +109,22 @@ TaskManagement.prototype = {
 					"<form id='formCreateNewTask'>" +
 						"<div class='form-group'><label for='projectID' style='font-weight:normal'>Project ID (Manual for now - Suggested: 1)</label><input type=text name='projectID' class='form-control' value='' required></div>" +
 						"<div class='form-group'><label for='subject' style='font-weight:normal'>Subject</label><input type=text name='subject' class='form-control' value='' required></div>" +
-						"<button id='btnCreateNewTask' type='button' class='btn btn-info btn-block'>Create a new task</button>" +
+						"<button type='submit' class='btn btn-info btn-block'>Create a new task</button>" +
 					"</form>"
 			);
+		
+		container
+			.append("<div id='editTaskBox' style='display:none'>" +
+						"<h2>Edit existing Task</h2>" +
+						"<form id='formEditTask'>" +
+							"<div class='form-group'><label for='taskID' style='font-weight:normal'>Task ID</label><input id='inputEditTaskID' type=text class='form-control' disabled></div>" +
+							"<div class='form-group'><label for='subject' style='font-weight:normal'>Subject</label><input type=text name='subject' class='form-control' required></div>" +
+							"<button id='btnEditTask' type='submit' class='btn btn-warning btn-block'>Edit this task</button>" +
+						"</form>"+
+					"</div>"
+		);
+		
+		$('#listAvailableTasks tbody').empty();
 		
 		if ($(json.tasks).length > 0)
 		{
@@ -71,7 +134,7 @@ TaskManagement.prototype = {
 				if (task.status == 20)
 				{
 					task.status = "Ongoing";
-					actions = "<button class='btn btn-success btn-block'>Join & estimate</button>";
+					actions = "<button class='btn btn-success'>Join & estimate</button><button data-action='openEditTaskBox' data-taskid='"+task.id+"' class='btn btn-warning' style='margin-left:5px;margin-right:5px;'>Edit</button><button data-action='removeTask' data-taskid='"+task.id+"' class='btn btn-danger'>Remove</button>";
 				}
 				else if (task.status == 40)
 				{
