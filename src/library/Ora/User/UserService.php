@@ -19,4 +19,5 @@ interface UserService
 	 * @param Role $role
 	 */	
 	public function create($infoOfUser, Role $role);
+
 }

@@ -8,7 +8,6 @@ use Ora\User\Role as Role;
 
 /**
  * @ORM\Entity @ORM\Table(name="users")
- * @author Giannotti Fabio
  *
  */
 class User extends DomainEntity 
@@ -44,13 +43,11 @@ class User extends DomainEntity
 	 * @var Role
 	 */
 	private $systemRole;	
-	
 		
 	// TODO: Utilizzare Ora\User\User $createdBy se createdBy dev'essere una relazione con lo USER
 	public function __construct($userID, \DateTime $createdAt, $createdBy) 
 	{
-		parent::__construct($userID, $createdAt, $createdBy);
-		
+		parent::__construct($userID, $createdAt, $createdBy);		
 		$this->setStatus(self::STATUS_ACTIVE);
 	}
 	
@@ -93,28 +90,4 @@ class User extends DomainEntity
 	{
 		return $this->status;
 	}	
-	
-	public function setSystemRole(Role $role)
-	{
-		$this->systemRole = $role;
-	}
-	
-	public function getSystemRole()
-	{
-		$this->systemRole->getName();
-	}
-	
-	public function serializeToJSON($entitySerializer) 
-	{
-	    $serializedToArray = $this->serializeToARRAY($entitySerializer);
-	    
-	    return json_encode($serializedToArray); 
-	}
-	
-	public function serializeToARRAY($entitySerializer)
-	{
-	    $serializedToArray = $entitySerializer->toArray($this);
-	     
-	    return $serializedToArray;
-	}
 }
