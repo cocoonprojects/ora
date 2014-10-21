@@ -3,19 +3,33 @@
 namespace Ora\TaskManagement;
 
 use Doctrine\ORM\Mapping AS ORM;
+use Doctrine\Common\Collections\ArrayCollection AS ARRAYCOLLECTION;
 use Ora\DomainEntity;
 
 /**
  * @ORM\Entity @ORM\Table(name="tasks")
+ * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\DiscriminatorColumn(name="type", type="string")
+ * @ORM\DiscriminatorMap({
+ *                    "task" = "Ora\TaskManagement\Task"
+ *                    })
  * @author Giannotti Fabio
  *
  */
+
+// TODO: Aggiungere questo rigo a DiscriminatorMap
+//"kanbanizeTask" = "Ora\Kanbanize\KanbanizeTask"
+
 class Task extends DomainEntity 
 {	
-    CONST STATUS_ONGOING = 1;
+    CONST STATUS_IDEA = 0;
+    CONST STATUS_OPEN = 10;
+    CONST STATUS_ONGOING = 20;
+    CONST STATUS_COMPLETED = 30;
+    CONST STATUS_ACCEPTED = 40;
     
 	/**
-	 * @ORM\Column(type="string", length=2000)
+	 * @ORM\Column(type="string")
 	 * @var string
 	 */
 	private $subject;
@@ -26,27 +40,26 @@ class Task extends DomainEntity
 	 */
 	private $status;
 	
-	//TODO: Da abilitare appena ci sarà qualche project
-	///**
-	//* @ManyToOne(targetEntity="Ora\ProjectManagement\Project")
-	//*/
-	private $project;	
-	
 	/**
-	* @ORM\Column(type="datetime", nullable=TRUE)
-	* @var datetime
-	*/
-	private $mostRecentEditAt;
-	
-	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+	 * @ORM\ManyToOne(targetEntity="Ora\ProjectManagement\Project")
 	 */
-	private $mostRecentEditBy;
+	private $project;
 	
-	public function __construct($taskID, \DateTime $createdAt) 
+	/**
+	 * @ORM\ManyToMany(targetEntity="Ora\User\User")
+	 * @ORM\JoinTable(name="teams",
+	 *      joinColumns={@ORM\JoinColumn(name="task_id", referencedColumnName="id")},
+	 *      inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")}
+	 *      )
+	 */
+	private $members;
+	
+	// TODO: Utilizzare Ora\User\User $createdBy se createdBy dev'essere una relazione con lo USER
+	public function __construct($taskID, \DateTime $createdAt, $createdBy) 
 	{
-		parent::__construct($taskID, $createdAt);
+		parent::__construct($taskID, $createdAt, $createdBy);
 		$this->status = self::STATUS_ONGOING;
+		$this->members = new ARRAYCOLLECTION();
 	}
 	
 	public function getSubject() {
@@ -57,31 +70,53 @@ class Task extends DomainEntity
 		$this->subject = $subject;
 	}
 	
+	public function getStatus() {
+	    return $this->status;
+	}
+	
+	// TODO: Definire come gestire il cambio stato sull'entità
+	public function setStatus($status) {
+	    $this->status = $status;
+	}
+	
 	public function getProject() {
 	    return $this->project;
 	}
 	
 	public function setProject($project) {
 	    $this->project = $project;
+	}	
+	
+	public function emptyMembers() {
+	    $this->members = new ArrayCollection();
 	}
 	
-	public function getStatus() {
-	    return $this->status;
+	public function addMember($t) {
+	    $this->members[] = $t;
 	}
 	
-	public function setMostRecentEditAt($datetime) {
-	    $this->mostRecentEditAt = $datetime;
+	public function getMembers() {
+	    return $this->members;
 	}
 	
-	public function getMostRecentEditAt() {
-	    return $this->mostRecentEditAt;
+	public function serializeToJSON($entitySerializer) 
+	{
+	    $serializedToArray = $this->serializeToARRAY($entitySerializer);
+	    
+	    return json_encode($serializedToArray); 
 	}
 	
-	public function setMostRecentEditBy($user) {
-	    $this->mostRecentEditBy = $user;
-	}
+	public function serializeToARRAY($entitySerializer)
+	{
+	    $serializedToArray = $entitySerializer->toArray($this);
 	
-	public function getMostRecentEditBy() {
-	    return $this->mostRecentEditBy;
+	    //TODO: Serializzare i members
+	    $members = $this->getMembers();
+	    
+	    $serializedToArray['members'] = array();
+	    foreach ($members as $t)
+	       $serializedToArray['members'][] = $t->getName();
+	     
+	    return $serializedToArray;
 	}
 }

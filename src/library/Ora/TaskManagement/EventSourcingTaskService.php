@@ -6,6 +6,9 @@ use Ora\EventStore\EventStore;
 use Ora\EntitySerializer;
 
 
+/**
+ * @author Giannotti Fabio
+ */
 class EventSourcingTaskService implements TaskService
 {
     private $entityManager;
@@ -22,12 +25,14 @@ class EventSourcingTaskService implements TaskService
 	public function createNewTask($project, $taskSubject)
 	{
 	    $createdAt = new \DateTime();
+	    // TODO: Modificare createdBy per inserire lo USERNAME esatto
+	    $createdBy = "NOME UTENTE INVENTATO";
         
 	    // Generate unique ID for Task
 	    $taskID = uniqid();   
 	    
 	    // Creation of new task entity
-	    $task = new Task($taskID, $createdAt);
+	    $task = new Task($taskID, $createdAt, $createdBy);
 
 	    // TODO: Controllare se descrizione e projectid vanno nel costruttore in quanto obbligatori
 	    $task->setSubject($taskSubject);
@@ -47,7 +52,7 @@ class EventSourcingTaskService implements TaskService
 	    $tasks = $this->entityManager->getRepository('Ora\TaskManagement\Task')->findAll();	    
 	    foreach ($tasks as $task)
 	    {
-	        $serializedTasks['tasks'][] = $this->entitySerializer->toJson($task);
+	        $serializedTasks['tasks'][] = $task->serializeToARRAY($this->entitySerializer);
 	    }
 	    
 	    // TODO: Eliminare task temporaneo creato solo per "popolare" il JSON
@@ -56,20 +61,26 @@ class EventSourcingTaskService implements TaskService
 	    $serializedTasks['tasks'][] = array(
 	        "ID"=>"d9f8s9fd8sdf",
 	        "subject"=>"Descrizione casuale di un task già esistente",
-	        "createdAt"=>new \Datetime(),
-	        "createdBy"=>"Fabio"
+	        "created_at"=>new \Datetime(),
+	        "created_by"=>"Fabio",
+	        "members"=>array(0=>"Fabio"),
+	        "status"=>20
 	    );	    
 	    $serializedTasks['tasks'][] = array(
 	        "ID"=>"f7g6h6fgh7do",
 	        "subject"=>"Seconda descrizione casuale per task disponibili",
-	        "createdAt"=>new \Datetime(),
-	        "createdBy"=>"Paperino"
+	        "created_at"=>new \Datetime(),
+	        "created_by"=>"Mario",
+	        "members"=>array(0=>"Mario"),
+	        "status"=>20
 	    );
 	    $serializedTasks['tasks'][] = array(
 	        "ID"=>"2j3h42ffgj34",
 	        "subject"=>"Ultima descrizione farlocca per popolare tabella",
-	        "createdAt"=>new \Datetime(),
-	        "createdBy"=>"Paperino"
+	        "created_at"=>new \Datetime(),
+	        "created_by"=>"Roberta",
+	        "members"=>array(0=>"Roberta", 1=>"Giovanni"),
+	        "status"=>40
 	    );
 	    
 	    return $serializedTasks;
