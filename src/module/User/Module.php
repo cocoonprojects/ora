@@ -25,7 +25,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
                 )
         );
     }
-    
+   
     public function getServiceConfig()
     {
         return array (

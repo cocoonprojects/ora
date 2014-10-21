@@ -91,5 +91,4 @@ class ZendOAuth2 implements AdapterInterface, EventManagerAwareInterface
         }
         return $this->events;
     }
-    
 }

@@ -1,7 +1,6 @@
 <?php
 
 return array(
-
 	'controllers' => array(
         'invokables' => array(
             'User\Controller\Users' => 'User\Controller\UsersController'
