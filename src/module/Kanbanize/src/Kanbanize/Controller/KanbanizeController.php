@@ -62,7 +62,6 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 			$this->response->setStatusCode(201);
 		}
 		return $this->response;
-		//TODO $this->getKanbanizeService()->
 		
 		
 	}
@@ -91,8 +90,8 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 		
 		$kanbanizeTask = new KanbanizeTask($taskId, $boardId, $id, new \DateTime());
 
-		if($kanbanizeTask->isAcceptable()){
-			$result = $this->getKanbanizeService()->acceptTask($kanbanizeTask);
+		if($this->getKanbanizeService()->isAcceptable($kanbanizeTask)){
+			$result = $this->getKanbanizeService()->moveTask($kanbanizeTask, KanbanizeTask::COLUMN_ACCEPTED);
 			}else{
 				$this->response->setStatusCode(400);
 			}

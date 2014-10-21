@@ -92,31 +92,40 @@ class TestKanbanizeActionController extends AbstractActionController {
 	public function listAction(){
 		$entity_manager = $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');
 		// here retrieve the task to show in the page
-		// put in the view wit key tasks
+		// put in the view with key tasks
 		
+		//TODO get dinamically board id
 		$boardId = 3;
-		$status = 'Backlog';
-		
-		$tasks = $this->getKanbanizeService()->getTasks($boardId, $status);
+		$tasks = $this->getKanbanizeService()->getTasks($boardId);
 		
 		$taskList = array();
+		
+		$acceptable = array();
+		
+		$back2ongoing = array();
 
 		foreach ($tasks as $singletask) {
 			//TODO inserire utente reale e prendere id reale
 			$task = new KanbanizeTask(uniqid(), $boardId, $singletask['taskid'], new \DateTime(), "Utente");
 			$task->setSubject($singletask['description']);
-			$task->setStatus($singletask['columnname']);
+			$task->setStatus(KanbanizeTask::getMappedStatus($singletask['columnname']));
 			$task->setBoardId($boardId);
 			$taskList[] = $task;
+			switch($task->getStatus()) {
+				case Task::STATUS_IDEA:
+				case Task::STATUS_OPEN:
+				case Task::STATUS_ONGOING:
+					$acceptable[] = $task->getId();
+					break;
+				case Task::STATUS_COMPLETED:
+					$acceptable[] = $task->getId();
+				case Task::STATUS_COMPLETED:
+					$back2ongoing[] = $task->getId();
+					break;
+			}
 		}
 		
-		/*$message = null;
-		
-		if($this->flashMessenger()->hasSuccessMessages())
-			$message = $this->flashMessenger()->getSuccessMessages()[0];
-		else if($this->flashMessenger()->hasErrorMessages())
-			$message = $this->flashMessenger()->getErrorMessages()[0];*/
-		$view = new ViewModel(array('tasks' => $taskList, /*'message' => $message*/));
+		$view = new ViewModel(array('tasks' => $taskList, 'acceptable' => $acceptable, 'back2ongoing' => $back2ongoing));
 		
 		return $view;
 		
