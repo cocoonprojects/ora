@@ -17,7 +17,7 @@ use Application\Service\KanbanizeService;
  * @version
  *
  */
-class TestKanbanizeActionController extends AbstractActionController {
+class KanbanizeActionController extends AbstractActionController {
 	
 	/**
 	 * @var KanbanizeService
@@ -29,26 +29,17 @@ class TestKanbanizeActionController extends AbstractActionController {
 		$client = new Client();
 		$method = $this->params()->fromQuery('method', 'get');
 		$client = $client->setAdapter('Zend\Http\Client\Adapter\Curl')->setUri('http://localhost/kanbanize/task');
+		//prepare request
+		
+		//TODO use right board id 
+		$boardId = 3;
+		$id = $this->getEvent()->getRouteMatch()->getParam('id');
+		$ch = curl_init('http://192.168.56.111/kanbanize/task/'.$id);
 		switch($method) {
 			case 'update':
-		
-// create task and persist it only for test purposes
-//    $temptask = new Task(uniqid(),new \DateTime());
-//    $temptask->setSubject("soggetto di prova");
-//    $entity_manager = $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');
-//    $entity_manager->persist($temptask);
-//    $entity_manager->flush();
-  
-   
-				
-
-				
 				// only for test purposes the id of the board is hardcoded
 				// this is a test controller
-				$data = array("boardid" => "3");
-				$id = $this->getEvent()->getRouteMatch()->getParam('id');
-				$ch = curl_init('http://192.168.56.111/kanbanize/task/'.$id);
-				
+				$data = array("boardid" => $boardId,"action"=>"accept");
 				curl_setopt($ch, CURLOPT_POST, true);
 				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
 				curl_setopt($ch, CURLOPT_HEADER, true);
@@ -57,8 +48,7 @@ class TestKanbanizeActionController extends AbstractActionController {
 				curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($data));
 				
 				$response = curl_exec($ch);
-// 				if(!$response) {
-// 					return false;
+				break;
 // 				}
 				
 		}
@@ -74,10 +64,6 @@ class TestKanbanizeActionController extends AbstractActionController {
 		
 		$this->redirect()->toRoute('list', array('response' => $response));
 		
-		//$view = new ViewModel(array('response' => $response,"curl"=>$ch));
-		
-		//$view ->setTemplate("kanbanize/kanbanize/");
-		//return $view;
 	}
 	
 	protected function getKanbanizeService(){
@@ -90,33 +76,37 @@ class TestKanbanizeActionController extends AbstractActionController {
 	}
 	
 	public function listAction(){
-		$entity_manager = $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');
 		// here retrieve the task to show in the page
-		// put in the view wit key tasks
+		// put in the view with key tasks
 		
+		//TODO get dinamically board id
 		$boardId = 3;
-		$status = 'Backlog';
-		
-		$tasks = $this->getKanbanizeService()->getTasks($boardId, $status);
+		$tasks = $this->getKanbanizeService()->getTasks($boardId);
 		
 		$taskList = array();
-
+		
+		$acceptable = array();
+		
 		foreach ($tasks as $singletask) {
 			//TODO inserire utente reale e prendere id reale
 			$task = new KanbanizeTask(uniqid(), $boardId, $singletask['taskid'], new \DateTime(), "Utente");
 			$task->setSubject($singletask['description']);
-			$task->setStatus($singletask['columnname']);
+			$task->setStatus(KanbanizeTask::getMappedStatus($singletask['columnname']));
 			$task->setBoardId($boardId);
 			$taskList[] = $task;
+			switch($task->getStatus()) {
+				case Task::STATUS_IDEA:
+				case Task::STATUS_OPEN:
+				case Task::STATUS_ONGOING:
+				case Task::STATUS_COMPLETED:
+					$acceptable[] = $task->getId();
+					break;
+				case Task::STATUS_ACCEPTED:
+					break;
+			}
 		}
 		
-		/*$message = null;
-		
-		if($this->flashMessenger()->hasSuccessMessages())
-			$message = $this->flashMessenger()->getSuccessMessages()[0];
-		else if($this->flashMessenger()->hasErrorMessages())
-			$message = $this->flashMessenger()->getErrorMessages()[0];*/
-		$view = new ViewModel(array('tasks' => $taskList, /*'message' => $message*/));
+		$view = new ViewModel(array('tasks' => $taskList, 'acceptable' => $acceptable));
 		
 		return $view;
 		

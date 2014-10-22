@@ -2,17 +2,11 @@
 
 namespace Ora\Kanbanize;
 
-//include 'KanbanizeAPICall.php';
 class KanbanizeAPI {
 	/**
 	 *
 	 * @var string YOUR API CALL
 	 */
-	// andrea
-	// protected $api_key="RTSP7nA25qzSOQLQK6LF3j0fOrJstCsxQEF9v4v7";
-	// abdon
-	// protected $api_key="PHhUvBTSY8KdiZZpUb25KNFrMaUxXvVauUkPPRSu";
-	
 	// protected $kanbanize_url = 'http://kanbanize.com/index.php/api/kanbanize';
 	
 	/**
