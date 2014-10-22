@@ -99,6 +99,13 @@ class EventSourcingKanbanizeService implements KanbanizeService
 		}
 	}
 	
+	public function deleteTask(KanbanizeTask $kanbanizeTask) {
+		$boardId = $kanbanizeTask->getBoardId();
+		$taskId = $kanbanizeTask->getTaskId();
+		$ans = $this->kanbanize->deleteTask($boardId, $taskId);
+		return isset($ans['Error']) ? $ans['Error'] : $ans;
+	}
+	
 	/**
 	 *
 	 * @param int		$boardId
