@@ -45,7 +45,7 @@ use Ora\Kanbanize\KanbanizeTask;
  
 	<td>
 	<?php if(in_array($singletask->getId(), $acceptable)){?>
-	<a href="/kanbanize/task/client/test/<?php echo $singletask->getTaskId();?>?method=update">
+	<a href="/kanbanize/task/<?php echo $singletask->getTaskId();?>/client/test?method=update">
 	<button class="btn btn-primary" id ="<?php echo $singletask->getTaskId();?>">Accept</button>
 	</a>
 	<?php }?>

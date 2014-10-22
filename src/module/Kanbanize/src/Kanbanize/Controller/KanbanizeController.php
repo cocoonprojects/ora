@@ -17,8 +17,10 @@ use Zend\Db\Sql\Predicate\IsNull;
 
 class KanbanizeController extends AbstractHATEOASRestfulController
 {
-	protected static $resourceOptions = array ('GET','POST','PUT');
-	protected static $collectionOptions = array ('DELETE','GET');
+	//protected static $resourceOptions = array ('GET','POST','PUT');
+	//protected static $collectionOptions = array ('DELETE','GET');
+	protected static $resourceOptions = array ('PUT');
+	protected static $collectionOptions = array ();
 	
 	/**
 	 * @var \Kanbanize\Service\KanbanizeService
