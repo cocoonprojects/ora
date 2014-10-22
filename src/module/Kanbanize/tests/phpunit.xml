@@ -1,7 +1,10 @@
-<phpunit bootstrap="./bootstrap.php" colors="true">
+<phpunit bootstrap="./bootstrap.php" 
+		 colors="true"
+		 
+>
     <testsuites>
-        <testsuite name="Kanbanize Test Suite">
-            <directory>./</directory>
+        <testsuite name="Kanbanize Test">
+            <directory>./KanbanizeTests/</directory>
         </testsuite>
     </testsuites>
 </phpunit>
