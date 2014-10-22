@@ -17,7 +17,7 @@ return array(
                 'type'    => 'Segment',
                 'options' => array(
                     // Change this to something specific to your module
-                    'route'    => '/kanbanize/task[/:id]',
+                    'route'    => '/kanbanize/task/:id',
                 	'constraints' => array(
                 		'id' => '[0-9]+',
                 	),
@@ -37,7 +37,7 @@ return array(
                     'client' => array(
                         'type'    => 'Segment',
                         'options' => array(
-                            'route'    => '/client/test[/:id]',
+                            'route'    => '/client/test',
                             'defaults' => array(
                                 'controller' => 'KanbanizeAction',
                                 'action'     => 'index',
