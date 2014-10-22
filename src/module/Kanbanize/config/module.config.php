@@ -8,7 +8,7 @@ return array(
     'controllers' => array(
         'invokables' => array(
             'Kanbanize\Controller\Kanbanize' => 'Kanbanize\Controller\KanbanizeController',
-            'Kanbanize\Controller\KanbanizeTest' => 'Kanbanize\Controller\TestKanbanizeActionController',
+            'Kanbanize\Controller\KanbanizeAction' => 'Kanbanize\Controller\KanbanizeActionController',
         ),
     ),
     'router' => array(
@@ -33,13 +33,13 @@ return array(
                     // This route is a sane default when developing a module;
                     // as you solidify the routes for your module, however,
                     // you may want to remove it and replace it with more
-                    // specific routes.
+                     // specific routes.
                     'client' => array(
                         'type'    => 'Segment',
                         'options' => array(
                             'route'    => '/client/test[/:id]',
                             'defaults' => array(
-                                'controller' => 'KanbanizeTest',
+                                'controller' => 'KanbanizeAction',
                                 'action'     => 'index',
                             ),
                         ),
@@ -52,7 +52,7 @@ return array(
                     'route'    => '/kanbanize/list',
                     'defaults' => array(
                     		'__NAMESPACE__' => 'Kanbanize\Controller',
-                    		'controller' => 'KanbanizeTest',
+                    		'controller' => 'KanbanizeAction',
                     		'action'     => 'list',
                     ),
                 ),
@@ -65,9 +65,9 @@ return array(
 				'display_not_found_reason' => true,
 				'display_exceptions'       => true,
 				'doctype'                  => 'HTML5',
-				'template_map' => array(
-						'kanbanize/test-kanbanize-action/index' => __DIR__ . '/../view/kanbanize/test-kanbanize-action/index.phtml',
-				),
+// 				'template_map' => array(
+// 						'kanbanize/kanbanize-action/index' => __DIR__ . '/../view/kanbanize/kanbanize-action/index.phtml',
+// 				),
 				'template_path_stack' => array(
 						__DIR__ . '/../view',
 				),

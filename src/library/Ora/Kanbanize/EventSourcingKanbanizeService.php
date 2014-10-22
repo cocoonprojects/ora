@@ -55,7 +55,6 @@ class EventSourcingKanbanizeService implements KanbanizeService
   		$taskId = $kanbanizeTask->getTaskId();
   		$task = $this->kanbanize->getTaskDetails($boardId, $taskId);
   		if(isset($task['Error'])) {
-  			//return 0;
   			return $task['Error'];
   		}
   		else if($task['columnname'] == $status) {
@@ -74,67 +73,7 @@ class EventSourcingKanbanizeService implements KanbanizeService
   			return 1;
   		}
 	}
-		
-		// /**
-		// * @param KanbanizeTask $kanbanizeTask
-		// */
-		// public function acceptTask($kanbanizeTask) {
-		// $editedAt = new \DateTime();
-		
-	// $boardId = $kanbanizeTask->getBoardId();
-		// $taskId = $kanbanizeTask->getTaskId();
-		// $task = $this->kanbanize->getTaskDetails($boardId, $taskId);
-		// if(isset($task['Error'])) {
-		// //return 0;
-		// return $task['Error'];
-		// }
-		// if($task['columnname'] != KanbanizeTask::COLUMN_ACCEPTED) {
-		
-	// //Task can be accepted
-		// $this->kanbanize->moveTask($boardId, $taskId, KanbanizeTask::COLUMN_ACCEPTED);
-		
-	// $kanbanizeTask->setStatus(KanbanizeTask::getMappedStatus(KanbanizeTask::COLUMN_ACCEPTED));
-		
-	// $event = new KanbanizeTaskMovedEvent($editedAt, $kanbanizeTask, $this->entitySerializer);
-		
-	// $this->eventStore->appendToStream($event);
-		
-	// return 1;
-		// }
-		// else {
-		// //Task is already Accepted, nothing to do
-		// return 0;
-		// }
-		// }
-		
-	// public function moveTaskBackToOngoing($kanbanizeTask) {
-		// $boardId = $kanbanizeTask->getBoardId();
-		// $taskId = $kanbanizeTask->getTaskId();
-		// $task = $this->kanbanize->getTaskDetails($boardId, $taskId);
-		// if(isset($task['Error'])) {
-		// //return 0;
-		// return $task['Error'];
-		// }
-		// if($task['columnname'] != KanbanizeTask::COLUMN_ONGOING &&
-		// ($task['columnname'] == KanbanizeTask::COLUMN_COMPLETED || $task['columnname'] == KanbanizeTask::COLUMN_ACCEPTED)) {
-		
-	// //Task can be moved back to ongoing
-		// $this->kanbanize->moveTask($boardId, $taskId, KanbanizeTask::COLUMN_ONGOING);
-		
-	// $kanbanizeTask->setStatus(KanbanizeTask::getMappedStatus(KanbanizeTask::COLUMN_ONGOING));
-		
-	// $event = new KanbanizeTaskMovedEvent($editedAt, $kanbanizeTask, $this->entitySerializer);
-		
-	// $this->eventStore->appendToStream($event);
-		
-	// return 1;
-		// }
-		// else {
-		// //Task is already Accepted, nothing to do
-		// return 0;
-		// }
-		// }
-	
+
 	/**
 	 *
 	 * @param        	
@@ -162,7 +101,9 @@ class EventSourcingKanbanizeService implements KanbanizeService
 	
 	/**
 	 *
-	 * @param        	
+	 * @param int		$boardId
+	 * @param string	$status
+	 * 
 	 *
 	 */
 	public function getTasks($boardId, $status = null) {
@@ -179,7 +120,7 @@ class EventSourcingKanbanizeService implements KanbanizeService
 			return $tasks_to_return;
 		}
 	}
-	
+
 	public function isAcceptable(KanbanizeTask $kanbanizeTask) {
 		//Check if the task is already accepted
 		$boardId = $kanbanizeTask->getBoardId();
@@ -188,5 +129,14 @@ class EventSourcingKanbanizeService implements KanbanizeService
 		return $task['columnname'] != KanbanizeTask::COLUMN_ACCEPTED;
 		//TODO check if all team as evaluated the task
 	}
-  
+
+	public function canBeMovedBackToOngoing(KanbanizeTask $kanbanizeTask) {
+		//Check if the task can be moved back to ongoing
+		$boardId = $kanbanizeTask->getBoardId();
+		$taskId = $kanbanizeTask->getTaskId();
+		$task = $this->kanbanize->getTaskDetails($boardId, $taskId);
+		return $task['columnname'] == KanbanizeTask::COLUMN_COMPLETED || $task['columnname'] == KanbanizeTask::COLUMN_ACCEPTED;
+		//TODO other controls to do?
+	}
+	
 }

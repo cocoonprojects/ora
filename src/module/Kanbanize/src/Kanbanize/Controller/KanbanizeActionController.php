@@ -17,7 +17,7 @@ use Application\Service\KanbanizeService;
  * @version
  *
  */
-class TestKanbanizeActionController extends AbstractActionController {
+class KanbanizeActionController extends AbstractActionController {
 	
 	/**
 	 * @var KanbanizeService
@@ -37,21 +37,8 @@ class TestKanbanizeActionController extends AbstractActionController {
 		$ch = curl_init('http://192.168.56.111/kanbanize/task/'.$id);
 		switch($method) {
 			case 'update':
-		
-// create task and persist it only for test purposes
-//    $temptask = new Task(uniqid(),new \DateTime());
-//    $temptask->setSubject("soggetto di prova");
-//    $entity_manager = $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');
-//    $entity_manager->persist($temptask);
-//    $entity_manager->flush();
-  
-   
-				
-
-				
 				// only for test purposes the id of the board is hardcoded
 				// this is a test controller
-				
 				$data = array("boardid" => $boardId,"action"=>"accept");
 				curl_setopt($ch, CURLOPT_POST, true);
 				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
@@ -61,11 +48,7 @@ class TestKanbanizeActionController extends AbstractActionController {
 				curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($data));
 				
 				$response = curl_exec($ch);
-// 				if(!$response) {
-// 					return false;
-// 				}
 				break;
-				
 			case 'ongoing':
 				$data = array("boardid" => $boardId,"action"=>"ongoing");
 				curl_setopt($ch, CURLOPT_POST, true);
@@ -102,7 +85,6 @@ class TestKanbanizeActionController extends AbstractActionController {
 	}
 	
 	public function listAction(){
-		$entity_manager = $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');
 		// here retrieve the task to show in the page
 		// put in the view with key tasks
 		

@@ -11,4 +11,6 @@ interface KanbanizeService {
 	public function getTasks($boardId, $status = null);
 	
 	public function isAcceptable(KanbanizeTask $kanbanizeTask);
+	
+	public function canBeMovedBackToOngoing(KanbanizeTask $kanbanizeTask);
 }

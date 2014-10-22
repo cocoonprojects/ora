@@ -21,22 +21,20 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 	protected static $collectionOptions = array ('DELETE','GET');
 	
 	/**
-	 * @var KanbanizeService
+	 * @var \Kanbanize\Service\KanbanizeService
 	 */
 	protected $kanbanizeService;
 	
-	
 	/**
 	 * 
-	 * @param unknown $data
+	 * @param $data
 	 */
 	public function create($data){
 		//TODO inserire subject e project in $data
 		//kanbanize api take 
 		$validator_NotEmpty = new \Zend\Validator\NotEmpty();
 		$validator_Alnum =  new Zend\Validator\Alnum();
-	
-		
+
 		if(!isset($data["boardid"])){
 			//bad request
 			$this->response->setStatusCode(400);
@@ -51,6 +49,7 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 			
 		}
 		
+		//TODO create task based on $data received
 		$taskId = uniqid();
 
 		$result = $this->getKanbanizeService()->createNewTask(1, "arharharharha", $boardId);
@@ -66,8 +65,6 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 		
 	}
 	public function update($id, $data) {
-		$messagetoshow;
-		
 		// actions -> accept | OnGoing
 		if (! isset ( $data ['action'] )) {
 			$this->response->setStatusCode ( 400 );
@@ -95,6 +92,7 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 		$boardId = $data ["boardid"];
 		
 		$kanbanizeTask = new KanbanizeTask ( $taskId, $boardId, $id, new \DateTime () );
+		$result = 0;
 		switch ($action) {
 			
 			case "accept" :
@@ -110,7 +108,11 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 				}
 				break;
 			case "ongoing" :
-				$result = $this->getKanbanizeService ()->moveTask($kanbanizeTask, KanbanizeTask::COLUMN_ONGOING);
+				if($this->getKanbanizeService()->canBeMovedBackToOngoing($kanbanizeTask)) {
+					$result = $this->getKanbanizeService ()->moveTask($kanbanizeTask, KanbanizeTask::COLUMN_ONGOING);
+				} else {
+					$this->response->setStatusCode ( 400 );
+				}
 				if ($result == 1) {
 					$this->response->setStatusCode ( 200 );
 				} else {
@@ -119,23 +121,20 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 				
 				break;
 				
-			
 		}
 		
 		return $this->response;
 	}
 	
-
-    
+     /**
+      * @return \Kanbanize\Service\KanbanizeService
+      */
      protected function getKanbanizeService(){
-     	//singleton
      	if (!isset($this->kanbanizeService))
-     	$this->kanbanizeService = $this->getServiceLocator()->get('Kanbanize\Service\Kanbanize');
-    	
-     	return $this->kanbanizeService;
-    	
-     }
-
+     		$this->kanbanizeService = $this->getServiceLocator ()->get ( 'Kanbanize\Service\Kanbanize' );
+		return $this->kanbanizeService;
+	}
+	
 	protected function getCollectionOptions()
 	{
 		return self::$collectionOptions;
@@ -145,6 +144,4 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 	{
 		return self::$resourceOptions;
 	}
-	
-	
 }
