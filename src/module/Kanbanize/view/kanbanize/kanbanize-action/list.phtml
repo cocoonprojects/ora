@@ -1,5 +1,6 @@
 <?php
 
+use Ora\Kanbanize\KanbanizeTask;
 ?>
 
 <div class="page-header">
@@ -40,7 +41,7 @@
  	<td> <?php echo $singletask->getSubject();?> </td>
  
 				
-    <td> <?php echo $singletask->getStatus();?> </td>
+    <td> <?php echo KanbanizeTask::getMappedStatus($singletask->getStatus());?> </td>
  
 	<td>
 	<?php if(in_array($singletask->getId(), $acceptable)){?>
