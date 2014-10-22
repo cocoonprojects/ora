@@ -24,7 +24,7 @@
 				<th>id</th>
 				<th>Subject</th>
 				<th>Status</th>
-				<th colspan="2">Action</th>
+				<th>Action</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -46,13 +46,6 @@
 	<?php if(in_array($singletask->getId(), $acceptable)){?>
 	<a href="/kanbanize/task/client/test/<?php echo $singletask->getTaskId();?>?method=update">
 	<button class="btn btn-primary" id ="<?php echo $singletask->getTaskId();?>">Accept</button>
-	</a>
-	<?php }?>
-	</td>
-	<td>
-	<?php if(in_array($singletask->getId(), $back2ongoing)){?>
-	<a href="/kanbanize/task/client/test/<?php echo $singletask->getTaskId();?>?method=ongoing">
-	<button class="btn btn-primary" id ="<?php echo $singletask->getTaskId();?>">Back to ongoing</button>
 	</a>
 	<?php }?>
 	</td>
