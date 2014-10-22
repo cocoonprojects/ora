@@ -93,7 +93,10 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 		$taskId = uniqid ();
 		$boardId = $data ["boardid"];
 		
-		$kanbanizeTask = new KanbanizeTask ( $taskId, $boardId, $id, new \DateTime () );
+		//TODO add real user
+		$createdBy = "Temp";
+		
+		$kanbanizeTask = new KanbanizeTask ( $taskId, $boardId, $id, new \DateTime (), $createdBy );
 		$result = 0;
 		switch ($action) {
 			
@@ -131,7 +134,7 @@ class KanbanizeController extends AbstractHATEOASRestfulController
      /**
       * @return \Kanbanize\Service\KanbanizeService
       */
-     protected function getKanbanizeService(){
+    protected function getKanbanizeService(){
      	if (!isset($this->kanbanizeService))
      		$this->kanbanizeService = $this->getServiceLocator ()->get ( 'Kanbanize\Service\Kanbanize' );
 		return $this->kanbanizeService;

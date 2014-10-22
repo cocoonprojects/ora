@@ -8,6 +8,8 @@ interface KanbanizeService {
 	
 	public function createNewTask($projectId, $taskSubject, $boardId);
 	
+	public function deleteTask(KanbanizeTask $kanbanizeTask);
+	
 	public function getTasks($boardId, $status = null);
 	
 	public function isAcceptable(KanbanizeTask $kanbanizeTask);
