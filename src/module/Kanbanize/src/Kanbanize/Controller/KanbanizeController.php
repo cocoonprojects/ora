@@ -35,7 +35,7 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 		//TODO inserire subject e project in $data
 		//kanbanize api take 
 		$validator_NotEmpty = new \Zend\Validator\NotEmpty();
-		$validator_Alnum =  new Zend\Validator\Alnum();
+		$validator_Digits =  new \Zend\Validator\Digits();
 
 		if(!isset($data["boardid"])){
 			//bad request
@@ -44,7 +44,7 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 		}
 		
 		$boardId = $data["boardid"];
-		if(! $validator_NotEmpty->isValid($boardId) || !$validator_Alnum->isValid($boardId) ){
+		if(! $validator_NotEmpty->isValid($boardId) || !$validator_Digits->isValid($boardId) ){
 			// request not correct
 			$this->response->setStatusCode(406);
 			return $this->response;
@@ -67,6 +67,8 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 		
 	}
 	public function update($id, $data) {
+		$validator_NotEmpty = new \Zend\Validator\NotEmpty();
+		$validator_Digits =  new \Zend\Validator\Digits();
 		// actions -> accept
 		if (! isset ( $data ['action'] )) {
 			$this->response->setStatusCode ( 400 );
@@ -80,10 +82,20 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 			$this->response->setStatusCode ( 400 );
 			return $this->response;
 		}
+		else if(! $validator_NotEmpty->isValid($data ['boardid']) || !$validator_Digits->isValid($data ['boardid']) ){
+			// request not correct
+			$this->response->setStatusCode(406);
+			return $this->response;
+		}
 		
 		if (! isset ( $id )) {
 			// bad request
 			$this->response->setStatusCode ( 400 );
+			return $this->response;
+		}
+		else if(! $validator_NotEmpty->isValid($id) || !$validator_Digits->isValid($id) ){
+			// request not correct
+			$this->response->setStatusCode(406);
 			return $this->response;
 		}
 		
@@ -111,6 +123,9 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 				} else {
 					$this->response->setStatusCode ( 400 );
 				}
+				break;
+			default:
+				$this->response->setStatusCode ( 406 );
 				break;
 		}
 		

@@ -133,6 +133,9 @@ class EventSourcingKanbanizeService implements KanbanizeService
 		$boardId = $kanbanizeTask->getBoardId();
 		$taskId = $kanbanizeTask->getTaskId();
 		$task = $this->kanbanize->getTaskDetails($boardId, $taskId);
+  		if(isset($task['Error'])) {
+  			return $task['Error'];
+  		}
 		return $task['columnname'] != KanbanizeTask::COLUMN_ACCEPTED;
 		//TODO check if all team as evaluated the task
 	}
@@ -142,6 +145,9 @@ class EventSourcingKanbanizeService implements KanbanizeService
 		$boardId = $kanbanizeTask->getBoardId();
 		$taskId = $kanbanizeTask->getTaskId();
 		$task = $this->kanbanize->getTaskDetails($boardId, $taskId);
+  		if(isset($task['Error'])) {
+  			return $task['Error'];
+  		}
 		return $task['columnname'] == KanbanizeTask::COLUMN_COMPLETED || $task['columnname'] == KanbanizeTask::COLUMN_ACCEPTED;
 		//TODO other controls to do?
 	}
