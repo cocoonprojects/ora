@@ -6,6 +6,7 @@ use Ora\EventStore\EventStore;
 use Ora\EntitySerializer;
 
 use Ora\User\Role;
+
 use Ora\Organization\Organization;
 use Ora\UserOrganization\UserOrganization;
 use Ora\User\User;

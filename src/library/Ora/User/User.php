@@ -4,10 +4,12 @@ namespace Ora\User;
 
 use Doctrine\ORM\Mapping AS ORM;
 use Ora\DomainEntity;
+
 use Ora\User\Role;
 use Doctrine\Common\Collections\ArrayCollection;
 use Ora\Organization\Organization;
 use Ora\UserOrganization\UserOrganization;
+
 /**
  * @ORM\Entity @ORM\Table(name="users")
  * @author Giannotti Fabio
@@ -36,7 +38,6 @@ class User extends DomainEntity
 	private $email;
 		
 	/**
-<<<<<<< HEAD
 	 * @ORM\Column(type="integer", options={"default" = "0"})
 	 * @var boolean
 	 */
@@ -53,7 +54,6 @@ class User extends DomainEntity
 	 **/
 	private $userOrganizations;	
 	
-			
 	public function __construct($userID, \DateTime $createdAt, $createdBy) 
 	{
 		parent::__construct($userID, $createdAt, $createdBy);
@@ -116,7 +116,7 @@ class User extends DomainEntity
 	{
 		return $this->userOrganizations;
 	}
-	
+
 	public function serializeToJSON($entitySerializer) 
 	{
 	    $serializedToArray = $this->serializeToARRAY($entitySerializer);
