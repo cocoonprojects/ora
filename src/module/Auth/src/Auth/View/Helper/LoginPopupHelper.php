@@ -5,7 +5,7 @@ use Zend\View\Helper\AbstractHelper;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class PopupProviderList extends AbstractHelper implements ServiceLocatorAwareInterface
+class LoginPopupHelper extends AbstractHelper implements ServiceLocatorAwareInterface
 {	
 	public function __invoke()
 	{				
