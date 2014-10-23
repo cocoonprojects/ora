@@ -57,7 +57,7 @@ class LoginController extends AbstractActionController
 	    
 	    $authenticationService = $this->getAuthenticationService();
 	    $authenticate = $authenticationService->authenticate($adapter); // return Zend\Authentication\Result
-	    	    
+
 	    $view->setVariable('authenticate', $authenticate);
 	    	    	    	
 	    return $view;	
