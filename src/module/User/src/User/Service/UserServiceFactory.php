@@ -23,8 +23,9 @@ class UserServiceFactory implements FactoryInterface
 
             $entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
             $entitySerializer = new EntitySerializer($entityManager);
+            $authenticationService = $serviceLocator->get('Auth\Service\AuthenticationService');
             
-            self::$instance = new EventSourcingUserService($entityManager, $eventStore, $entitySerializer);            
+            self::$instance = new EventSourcingUserService($entityManager, $eventStore, $entitySerializer, $authenticationService);            
         }
 
 	    return self::$instance;

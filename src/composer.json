@@ -11,8 +11,10 @@
     	"php": ">=5.3.3",
         "zendframework/zendframework": "2.3.*",
 		"zendframework/zftool": "dev-master",
-		"doctrine/doctrine-module": "0.8.0",
-		"doctrine/doctrine-orm-module": "0.8.0",
+		"doctrine/doctrine-module": "dev-master",
+		"doctrine/doctrine-orm-module": "dev-master",
+		"doctrine/orm": "dev-master",
+		"doctrine/dbal": "dev-master",
 		"guzzle/guzzle": "2.4.*"
     },
     "require-dev": {
