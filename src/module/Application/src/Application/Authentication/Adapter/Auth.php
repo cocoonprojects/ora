@@ -1,6 +1,6 @@
 <?php
 
-namespace Auth\Authentication\Adapter;
+namespace Application\Authentication\Adapter;
 
 use ZendOAuth2\Authentication\Adapter\ZendOAuth2;
 use Zend\EventManager\EventManager;

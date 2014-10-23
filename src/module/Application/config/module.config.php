@@ -20,6 +20,28 @@ return array(
                     ),
                 ),
             ),
+        		
+        	'login' => array(
+        		'type' => 'Zend\Mvc\Router\Http\Segment',
+        		'options' => array(
+        				'route'    => '/auth/login[/:id]',
+        				'defaults' => array(
+        						'controller'    => 'Application\Controller\Auth',
+        						'action'     => 'login',
+        				),
+        		),
+            ),
+            
+            'logout' => array(
+            	'type' => 'Zend\Mvc\Router\Http\Literal',
+            	'options' => array(
+            		'route'    => '/auth/logout',
+            		'defaults' => array(
+            				'controller'    => 'Application\Controller\Auth',
+            				'action'     => 'logout',
+            		),
+            	),
+            ),
             // The following is a route to simplify getting started creating
             // new controllers and actions without needing to create a new
             // module. Simply drop new controllers in, and you can access them
