@@ -15,8 +15,6 @@ putenv("ZF2_PATH=".$path);
 
 include __DIR__ . '/../src/init_autoloader.php';
 
-// fino a qua non toccare per evitare di sputtanare gli altri test
-
 /**
  * Test bootstrap, for setting up autoloading
  */
