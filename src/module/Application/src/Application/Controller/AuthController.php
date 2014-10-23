@@ -25,14 +25,14 @@ class AuthController extends AbstractActionController
 		 
 		if(strlen($this->params('code')) > 10)
 		{
-			//TODO: $this->getServiceLocator()->get('Zend\Log\Logger')->crit('Auth: Error code parameter: '.$this->getRequest()->getQuery('code'));
+			//$this->getServiceLocator()->get('Zend\Log\Logger')->crit('LOGIN: Error code parameter: '.$this->getRequest()->getQuery('code'));
 			$view->setVariable('error', 'Auth.InvalidCode');
 		}
 	
 		if("" === $provider
 				|| !array_key_exists($provider, $availableProviderList))
 		{
-			//TODO: $this->getServiceLocator()->get('Zend\Log\Logger')->crit('Auth: Error Provider parameter: '.$provider);
+			//$this->getServiceLocator()->get('Zend\Log\Logger')->crit('lOGIN: Error Provider parameter: '.$provider);
 			$view->setVariable('error', 'Auth.InvalidProvider');
 		}
 		 

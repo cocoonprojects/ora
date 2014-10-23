@@ -91,7 +91,6 @@ class Module
             'invokables' => array(
             	'Application\Auth\Adapter' => 'Application\Authentication\Adapter\Auth',
             ),            
-
         );
     }
 
