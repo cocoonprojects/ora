@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 <?php
 namespace Auth;
 
@@ -90,6 +91,8 @@ class Module
     }    
 }
 =======
+=======
+>>>>>>> Event sourcing for User Subscribe
 <?php
 namespace Auth;
 
@@ -190,5 +193,9 @@ class Module
     			),
     	);
     }    
+<<<<<<< HEAD
+}
+>>>>>>> Event sourcing for User Subscribe
+=======
 }
 >>>>>>> Event sourcing for User Subscribe

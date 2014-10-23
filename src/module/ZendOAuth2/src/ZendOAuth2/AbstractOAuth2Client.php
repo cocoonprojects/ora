@@ -142,6 +142,5 @@ abstract class AbstractOAuth2Client
         
         return $this->httpClient;
         
-    }
-    
+    }   
 }

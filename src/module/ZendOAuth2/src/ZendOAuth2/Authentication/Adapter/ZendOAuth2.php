@@ -42,8 +42,7 @@ class ZendOAuth2 implements AdapterInterface, EventManagerAwareInterface
             
             return new Result(Result::FAILURE, $this->client->getError());
             
-        }
-        
+        }        
     }
 
     public function getInfoOfProvider()

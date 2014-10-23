@@ -54,8 +54,6 @@ class EventSourcingUserService implements UserService
 	
 		return $user;
 	}	
-
-	
 }
 
 ?>
