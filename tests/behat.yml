@@ -1,13 +1,23 @@
 default:
-  paths:
-    features: 'functional/features'
-    bootstrap: 'functional/features/bootstrap'
-  extensions:
-    Behat\MinkExtension\Extension:
-      base_url:  'http://oraproject'
-      goutte:    ~
-      selenium2: ~
-  context:
-    parameters:
-      base_url:  'http://oraproject'
+    autoload:
+        - functional/bootstrap
 
+    suites:   
+        task_features:
+            paths: 
+                 - functional/features/task
+            contexts: 
+                 - RestContext:
+                     - http://oraproject
+                   
+        login_google_features:
+            paths: 
+                 - functional/features/login-google
+            contexts: 
+                 - GoogleLoginContext
+                 
+    extensions:
+        Behat\MinkExtension:
+            base_url:  http://oraprojecttest
+            goutte:    ~
+            selenium2: ~

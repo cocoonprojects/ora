@@ -30,7 +30,7 @@ class EntitySerializer
 
     protected $_em;
     protected $_recursionDepth = 0;
-    protected $_maxRecursionDepth = 0;
+    protected $_maxRecursionDepth = 1;
 
     public function __construct($entityManager)
     {

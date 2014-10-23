@@ -8,71 +8,62 @@ use Zend\Session\Container;
 use Zend\View\Model\ViewModel;
 use Zend\Mvc\MvcEvent;
 
-use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
+use Zend\Mvc\Controller\AbstractActionController;
 
-class LoginController extends AbstractHATEOASRestfulController
+class LoginController extends AbstractActionController
 {    
+    
+	private $authenticationService;
+			
+    public function loginAction()
+    {
+    	$resultAuthentication = array();
+    	
+    	$provider = $this->params('id');
+    	$provider = ucfirst($provider);
+    	
+    	$availableProviderList = $this->getServiceLocator()->get('providerInstanceList');
+    	
+    	if(strlen($this->params('code')) > 10)
+    	{
+    		// errore 500 - scrivi in log code: $this->getRequest()->getQuery('code') 
+    		$this->response->setStatusCode(500);
+    		return;
+    	} 
 
-    protected static $collectionOptions = array ('GET');
-    protected static $resourceOptions = array ('GET');
-    
-    protected $authService;
-    
-    public function get($id)
-    {
-        $authService = $this->getAuthService();
-        $login = $authService->loginToProvider($id);
-        
-        /**
-         * $login['valid'] = boolean
-         * $login['messages'] = array()
-         */
-        
-        $view = new ViewModel(array(
-        		'login' => $login
-        ));
-        
-        $view->setTemplate("login/login");
-        
-        return $view;        
-        //return new JsonModel(array('login' => $login));
-    }
+    	if("" === $provider 
+	    		|| !array_key_exists($provider, $availableProviderList))
+	    {
+	    	$this->response->setStatusCode(503);
+	    	return;		
+	    }	
+	    	   
+	    $instanceProvider = $availableProviderList[$provider];
+		
+	    if($instanceProvider->getToken($this->request))
+	    {	      
+	    	$adapter = $this->getServiceLocator()->get('ZendOAuth2\Auth\Adapter');
+	    	$adapter->setOAuth2Client($instanceProvider); 
+	
+	    	$authenticationService = $this->getAuthenticationService();
+	    	$authenticate = $authenticationService->authenticate($adapter); // return Zend\Authentication\Result
+	    		
+	    	$view = new ViewModel(array(
+	    			'authenticate' => $authenticate
+	    	));
+	    	
+	    	return $view;	    				
+	    }
+    }  
 
-    public function getList()
+    protected function getAuthenticationService()
     {
-        return $this->redirect()->toRoute('home');
-    }
+    	if (!isset($this->authenticationService))
+    	{
+    		$serviceLocator = $this->getServiceLocator();
+    		$this->authenticationService = $serviceLocator->get('Auth\Service\AuthenticationService');
+    	}
     
-    public function getResponseWithHeader()
-    {
-        $response = $this->getResponse();
-        $response->getHeaders()
-                 ->addHeaderLine('Access-Control-Allow-Origin','*')
-                 ->addHeaderLine('Access-Control-Allow-Methods','GET');
-        
-        return $response;
-    }
-    
-    public function getAuthService()
-    {
-        if (!$this->authService) {
-            $this->setAuthService($this->getServiceLocator()->get('\Auth\Service\AuthService'));
-        }
-        return $this->authService;
-    }
-    
-    public function setAuthService(\Auth\Service\AuthService $authService)
-    {
-    	$this->authService = $authService;
-    	return $this;
-    } 
-
-    protected function getCollectionOptions() {
-    	return self::$collectionOptions;
-    }
-    
-    protected function getResourceOptions() {
-    	return self::$resourceOptions;        
-    }       
-  
+    	return $this->authenticationService;
+    }    
 }

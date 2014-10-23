@@ -18,9 +18,10 @@ class Project extends DomainEntity
 	 */
 	private $subject;
 	
-	public function __construct($projectID, \DateTime $createdAt) 
+	// TODO: Utilizzare Ora\User\User $createdBy se createdBy dev'essere una relazione con lo USER
+	public function __construct($projectID, \DateTime $createdAt, Ora\User\User $createdBy) 
 	{
-		parent::__construct($projectID, $createdAt);
+		parent::__construct($projectID, $createdAt, $createdBy);
 	}
 	
 	public function getSubject() {

@@ -7,7 +7,8 @@ return array(
                 'options' => array(
                     'route'    => '/auth/login[/:id]',
                     'defaults' => array(
-                        'controller'    => 'Auth\Controller\Login'
+                        'controller'    => 'Auth\Controller\Login',
+                    	'action'     => 'login',
                     ),
                 ),
             ),
@@ -18,6 +19,7 @@ return array(
                     'route'    => '/auth/logout',
                     'defaults' => array(
                         'controller'    => 'Auth\Controller\Logout',
+                    	'action'     => 'logout',
                     ),
                 ),
             ),

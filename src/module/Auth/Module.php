@@ -10,39 +10,41 @@ class Module
 
      public function onBootstrap(\Zend\Mvc\MvcEvent $e)
      {
-        $em = $e->getApplication()->getEventManager();
-        
+        $application = $e->getApplication();
+        $em = $application->getEventManager();
         $em->attach(\Zend\Mvc\MvcEvent::EVENT_DISPATCH, array($this, 'onDispatch'));
-    }
+        
+        $serviceManager = $application->getServiceManager();
+        
+        $serviceManager->setFactory('providerInstanceList', function ($serviceManager) {
+        	
+        	$providerInstanceList = array();
+        	
+        	$allConfigurationOption = $serviceManager->get('Config');
+        	
+        	if(is_array($allConfigurationOption) && array_key_exists('zendoauth2', $allConfigurationOption))
+        	{
+        		$availableProviderList = $allConfigurationOption['zendoauth2'];
+        			
+        		foreach($availableProviderList as $provider => $providerOptions)
+        		{
+        			$provider = ucfirst($provider);
+        			$instanceProviderName = "ZendOAuth2\\".$provider;
+        			$instanceProvider = $serviceManager->get($instanceProviderName);
+        				
+        			if(null != $instanceProvider)
+        			{        				
+        				$providerInstanceList[$provider] =  $instanceProvider;
+        			}
+        		}
+        	}
 
-    public function getServiceConfig() 
-    {
-        return array(
-                'invokables' => array(
-                    'Auth\Service\AuthService' => 'Auth\Service\AuthService'
-            )
-        );
+        	return $providerInstanceList;
+        });        
     }
     
     public function onDispatch(\Zend\Mvc\MvcEvent $e)
     {
-        $application = $e->getParam('application');
-        $viewModel = $application->getMvcEvent()->getViewModel();
-
-        $viewVariables['logged'] = false;
-        $viewVariables['urlAuthList'] = array();
-        $viewVariables['user'] = "";
-        
-        $sm = $e->getApplication()->getServiceManager();
-        $authService = $sm->get('\Auth\Service\AuthService');
-        
-        $viewVariables = $authService->informationsOfAuthentication();
-        
-		$viewModel->logged = $viewVariables['logged'];
-        $viewModel->user = $viewVariables['user'];
-		$viewModel->urlAuthList = $viewVariables['urlAuthList'];
-
-
     }
 
     public function getAutoloaderConfig()
@@ -66,4 +68,23 @@ class Module
         );
         
     } 
+    
+    public function getServiceConfig()
+    {
+    	return array(
+    			'factories' => array(
+    					'Auth\Service\AuthenticationService' => 'Auth\Service\AuthenticationServiceFactory',
+    			)
+    	);
+    }    
+    
+    public function getViewHelperConfig()
+    {
+    	return array(
+    			'invokables' => array(
+    					'authenticationAction' => 'Auth\View\Helper\AuthenticationAction',
+    					'popupProviderList' => 'Auth\View\Helper\PopupProviderList'
+    			),
+    	);
+    }    
 }

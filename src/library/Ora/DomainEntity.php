@@ -23,11 +23,29 @@ class DomainEntity {
      * @var DateTime
      */
     private $createdAt;
-
-    protected function __construct($id, \DateTime $createdAt)
+    
+    /**
+     * @ORM\ManyToOne(targetEntity="Ora\User\User")
+     */
+    protected $createdBy;
+    
+    /**
+     * @ORM\Column(type="datetime", nullable=TRUE)
+     * @var datetime
+     */
+    private $mostRecentEditAt;
+    
+    /**
+     * @ORM\ManyToOne(targetEntity="Ora\User\User")
+     */
+    private $mostRecentEditBy;
+    
+    // TODO: Utilizzare Ora\User\User $createdBy se createdBy dev'essere una relazione con lo USER
+    protected function __construct($id, \DateTime $createdAt, $createdBy)
     {
         $this->id = $id;
         $this->createdAt = $createdAt;
+        $this->createdBy = $createdBy;
     }
 
     public function getId()
@@ -39,6 +57,11 @@ class DomainEntity {
     {
         return $this->createdAt;
     }
+    
+    public function getCreatedBy()
+    {
+        return $this->createdBy;
+    }
 
     public function rebuild($events)
     {
@@ -48,6 +71,22 @@ class DomainEntity {
         }
     }
 
+    public function setMostRecentEditAt($datetime) {
+        $this->mostRecentEditAt = $datetime;
+    }
+    
+    public function getMostRecentEditAt() {
+        return $this->mostRecentEditAt;
+    }
+    
+    public function setMostRecentEditBy($user) {
+        $this->mostRecentEditBy = $user;
+    }
+    
+    public function getMostRecentEditBy() {
+        return $this->mostRecentEditBy;
+    }
+    
     private function apply(DomainEvent $domainEvent)
     {
         $method = 'apply'.get_class($domainEvent);

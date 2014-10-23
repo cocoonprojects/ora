@@ -4,32 +4,35 @@ namespace Auth\Controller;
 
 use Zend\View\Model\JsonModel;
 
-use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
+use Zend\Mvc\Controller\AbstractActionController;
 
-class LogoutController extends AbstractHATEOASRestfulController
+class LogoutController extends AbstractActionController
 {     
-	protected static $collectionOptions = array ('GET');
-	protected static $resourceOptions = array ('GET');
-		
-	protected $authService;
 	protected $redirectAfterLogout;
+	protected $instanceProvider;
 	
-    public function getList()
+    public function logoutAction()
     {
-    	$authService = $this->getAuthService();
-    	$logout = $authService->clearIdentity();
+    	$authenticationService = $this->getAuthenticationService();
+    	
+    	if(!$authenticationService->hasIdentity())
+    	{
+    		$this->returnToHome();
+    		return;
+    	}
+    	
+    	$identity = $authenticationService->getIdentity();
 
+    	$authenticationService->clearIdentity();
+    	
+    	if(array_key_exists('sessionOfProvider', $identity) &&
+			"" != $identity["sessionOfProvider"])
+    	{    		
+	    	$identity["sessionOfProvider"]->clear();
+	    		
+    	}
+    	    	    	    
         return $this->getRedirectAfterLogout();
-    }
-
-    public function getResponseWithHeader()
-    {
-        $response = $this->getResponse();
-        $response->getHeaders()
-                 ->addHeaderLine('Access-Control-Allow-Origin','*')
-                 ->addHeaderLine('Access-Control-Allow-Methods','GET');
-        
-        return $response;
     }
     
     public function returnToHome()
@@ -37,20 +40,6 @@ class LogoutController extends AbstractHATEOASRestfulController
         return $this->redirect()->toRoute('home');
     }
     
-    public function getAuthService()
-    {
-    	if (!$this->authService) {
-    		$this->setAuthService($this->getServiceLocator()->get('\Auth\Service\AuthService'));
-    	}
-    	return $this->authService;
-    }
-    
-    public function setAuthService(\Auth\Service\AuthService $authService)
-    {
-        $this->authService = $authService;
-        return $this;
-    }  
-
     public function getRedirectAfterLogout()
     {
         if (!$this->redirectAfterLogout) {
@@ -64,13 +53,21 @@ class LogoutController extends AbstractHATEOASRestfulController
 
         $this->redirectAfterLogout = $redirect;
         return $this;
-    } 
-
-    protected function getCollectionOptions() {
-        return self::$collectionOptions;
     }
+
+    public function getAuthenticationService()
+    {
+    	if (!isset($this->authenticationService))
+    	{
+    		$serviceLocator = $this->getServiceLocator();
+    		$this->setAuthenticationService($serviceLocator->get('Auth\Service\AuthenticationService'));
+    	}
     
-    protected function getResourceOptions() {
-        return self::$resourceOptions;
+    	return $this->authenticationService;
     }    
+
+    public function setAuthenticationService($authenticationService)
+    {
+    	$this->authenticationService = $authenticationService;
+    }     
 }

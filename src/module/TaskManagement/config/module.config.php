@@ -4,18 +4,32 @@ return array(
 
 	'controllers' => array(
         'invokables' => array(
-            'TaskManagement\Controller\Tasks' => 'TaskManagement\Controller\TasksController',
+            'TaskManagement\Controller\Members' => 'TaskManagement\Controller\MembersController',
+            'TaskManagement\Controller\Tasks' => 'TaskManagement\Controller\TasksController'
         ),
     ),
     
     'router' => array(
         'routes' => array(
-            'task' => array(
+            'members' => array(
                 'type' => 'Segment',
                 'options' => array(
-                    'route'    => '/task-management/task[/:id]',
+                    'route'    => '/task-management/tasks/:taskid/members/[:id]',
                     'constraints' => array(
-                        'id' => '[0-9]+',
+                        'taskid' => '[a-zA-Z0-9]+',
+                        'id' => '[a-zA-Z0-9]+'
+                    ),
+                    'defaults' => array(
+                        'controller' => 'TaskManagement\Controller\Members'
+                    ),
+                ),
+            ),
+            'tasks' => array(
+                'type' => 'Segment',
+                'options' => array(
+                    'route'    => '/task-management/tasks[/:id]',
+                    'constraints' => array(
+                        'id' => '[a-zA-Z0-9]+'
                     ),
                     'defaults' => array(
                         'controller' => 'TaskManagement\Controller\Tasks'

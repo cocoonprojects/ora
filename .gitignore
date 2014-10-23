@@ -1,4 +1,3 @@
-
 bin/
 /src/vendor/
 .vagrant/
@@ -10,3 +9,4 @@ bin/
 ./vagrant/config/
 /config/
 /src/data/cache/
+/src/composer.lock

@@ -10,8 +10,6 @@ use Zend\Mvc\Router\RouteMatch;
 use PHPUnit_Framework_TestCase;
 use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
 use Zend\Mvc\Application;
-use \Auth\Service\AuthService as AuthService;
-
 
 class LogoutControllerTest extends \PHPUnit_Framework_TestCase
 {
@@ -32,48 +30,40 @@ class LogoutControllerTest extends \PHPUnit_Framework_TestCase
         $this->event->setRouteMatch($this->routeMatch);
         $this->controller->setEvent($this->event);
         $this->controller->setEventManager($bootstrap->getEventManager());
-        $this->controller->setServiceLocator($bootstrap->getServiceManager());
-        
-        $this->mockServiceForModule();
        
     }
     
     public function testLogout()
     {
-    	$this->request->setMethod('GET');
+    	$this->routeMatch->setParam('action', 'logout');
     	    	
-    	$authService = $this->getMock('\Auth\Service\AuthService');
-    	$authService->method('clearIdentity')
-			    	->will($this->returnValue(true));    
+    	$identityLoggedUser['email'] = "user.logged@email.it";
+    	$identityLoggedUser['name'] = "username";
+    	$identityLoggedUser['picture'] = "http://...";
+    	$identityLoggedUser['provider'] = "google";
+    	    	
+    	$mockAuthenticationService = $this->getMock('Zend\Authentication\AuthenticationService');   
+    	 	
+    	$mockAuthenticationService->method('hasIdentity')
+    							  ->will($this->returnValue(true));
     	
+    	$mockAuthenticationService->method('getIdentity')
+    							   ->willReturn($identityLoggedUser);
+    	
+    	$mockAuthenticationService->method('clearIdentity')
+    							    ->will($this->returnValue(true));
+
+    	$this->controller->setAuthenticationService($mockAuthenticationService);
+    	    	
     	$redirectAfterLogout = $this->getMock('\Zend\Http\Response');
-    	
-    	$this->controller->setAuthService($authService);
+	
     	$this->controller->setRedirectAfterLogout($redirectAfterLogout);
-    	
+
     	$result = $this->controller->dispatch($this->request);
+    	
     	$response = $this->controller->getResponse();
     	
     	$this->assertEquals(200, $response->getStatusCode());
- 
-
     }
-    
-    public function mockServiceForModule()
-    {
-    	$authServiceMock = $this->getMock('\Auth\Service\AuthService');
-    	 
-    	$viewVariables['logged'] = false;
-    	$viewVariables['urlAuthList'] = array();
-    	$viewVariables['user'] = "";
-    
-    	$authServiceMock->expects($this->once())
-    	->method('informationsOfAuthentication')
-    	->will($this->returnValue($viewVariables));
-    
-    	$serviceLocator = $this->controller->getServiceLocator();
-    	$serviceLocator->setAllowOverride(true);
-    	$serviceLocator->setService('\Auth\Service\AuthService', $authServiceMock);
-    }    
 }
 

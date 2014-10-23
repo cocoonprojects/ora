@@ -1,12 +1,11 @@
 <?php
 
-use Behat\Behat\Context\BehatContext;
-use Symfony\Component\Yaml\Yaml;
+use Behat\Behat\Context\Context;
 
 /**
  * Rest context.
  */
-class RestContext extends BehatContext
+class RestContext implements Context
 {
     private $_restObject = null;
     private $_restObjectType = null;
@@ -14,31 +13,29 @@ class RestContext extends BehatContext
     private $_client = null;
     private $_response = null;
     private $_requestUrl = null;
-    private $_parameters = array();
+    private $base_url = null;
 
     /**
      * Initializes context.
      * Every scenario gets it's own context object.
      */
-    public function __construct(array $parameters)
+    public function __construct($base_url)
     {
         // Initialize your context here
         $this->_restObject = new stdClass();
         $this->_client = new Guzzle\Service\Client();
-        $this->_parameters = $parameters;
+        $this->base_url = $base_url;
     }
 
-    public function getParameter($name)
+    public function getBaseUrl()
     {
-        if (count($this->_parameters) === 0) 
+        if ($this->base_url === "" || $this->base_url === null) 
         {            
-            throw new \Exception('Parameters not loaded!');
+            throw new \Exception('Base_url not loaded!');
         } 
         else 
         {
-            
-            $parameters = $this->_parameters;
-            return (isset($parameters[$name])) ? $parameters[$name] : null;
+            return (isset($this->base_url)) ? $this->base_url : null;
         }
     }
 
@@ -51,6 +48,15 @@ class RestContext extends BehatContext
         $this->_restObjectMethod = 'post';
     }
 
+    /**
+     * @Given /^that I want to update a "([^"]*)"$/
+     */
+    public function thatIWantToUpdateA($objectType)
+    {
+        $this->_restObjectType = ucwords(strtolower($objectType));
+        $this->_restObjectMethod = 'put';
+    }
+    
     /**
      * @Given /^that I want to find a "([^"]*)"$/
      */
@@ -82,13 +88,14 @@ class RestContext extends BehatContext
      */
     public function iRequest($pageUrl)
     {
-        $baseUrl = $this->getParameter('base_url');
+        $baseUrl = $this->getBaseUrl();
         $this->_requestUrl = $baseUrl . $pageUrl;
         
 
         switch (strtoupper($this->_restObjectMethod)) 
         {
             case 'GET':
+                // Create a GET request: $client->get($uri, array $headers, $options)
                 try
                 {
                     $response = $this->_client->get(
@@ -105,11 +112,35 @@ class RestContext extends BehatContext
                     $response = $e->getResponse();
                 }
                 catch( Exception $e){
-                    throw new Exception("Exception not managed!!");
+                    throw new Exception($e->getMessage());
+                }
+                break;
+            
+            case 'PUT':
+                // Create a PUT request: $client->put($uri, array $headers, $body, $options)
+                try 
+                {
+                    $postFields = (array) $this->_restObject;
+                    $response = $this->_client->put(
+                        $this->_requestUrl, null, $postFields
+                    )->send();
+                }
+                catch (Guzzle\Http\Exception\ClientErrorResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch (Guzzle\Http\Exception\ServerErrorResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch (Guzzle\Http\Exception\BadResponseException $e) {
+                    $response = $e->getResponse();
+                }
+                catch( Exception $e){
+                    throw new Exception($e->getMessage());
                 }
                 break;
                 
             case 'POST': 
+                // Create a POST request: $client->post($uri, array $headers, $postBody, $options)
                 try
                 {             
                     $postFields = (array) $this->_restObject;
@@ -127,11 +158,12 @@ class RestContext extends BehatContext
                     $response = $e->getResponse();
                 }
                 catch( Exception $e){
-                    throw new Exception("Exception not managed!!");
+                    throw new Exception($e->getMessage());
                 }
                 break;
                 
             case 'DELETE':
+                // Create a DELETE request: $client->delete($uri, array $headers, $body, $options)
                 try
                 {   
                     $response = $this->_client->delete(
@@ -148,7 +180,7 @@ class RestContext extends BehatContext
                     $response = $e->getResponse();
                 }
                 catch( Exception $e){
-                    throw new Exception("Exception not managed!!");
+                    throw new Exception($e->getMessage());
                 }
                 break;
              

@@ -27,7 +27,6 @@ class Google extends AbstractOAuth2Client
     
     public function getToken(Request $request) 
     {
-        
         if(isset($this->session->token)) {
             
             return true;
@@ -49,7 +48,7 @@ class Google extends AbstractOAuth2Client
             ));
             
             $retVal = $client->send()->getContent();
-            
+
             try {
                 
                 $token = \Zend\Json\Decoder::decode($retVal);

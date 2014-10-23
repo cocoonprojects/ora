@@ -18,9 +18,10 @@ class User extends DomainEntity
 	 */
 	private $name;
 	
-	public function __construct($userID, \DateTime $createdAt) 
+	// TODO: Utilizzare Ora\User\User $createdBy se createdBy dev'essere una relazione con lo USER
+	public function __construct($userID, \DateTime $createdAt, $createdBy) 
 	{
-		parent::__construct($userID, $createdAt);
+		parent::__construct($userID, $createdAt, $createdBy);
 	}
 	
 	public function getName() {
