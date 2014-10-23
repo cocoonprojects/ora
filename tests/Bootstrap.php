@@ -15,12 +15,15 @@ putenv("ZF2_PATH=".$path);
 
 include __DIR__ . '/../src/init_autoloader.php';
 
+// fino a qua non toccare per evitare di sputtanare gli altri test
+
 /**
  * Test bootstrap, for setting up autoloading
  */
 class Bootstrap
 {
     protected static $serviceManager;
+	protected static $config;
 
     public static function init($config)
     {
@@ -35,18 +38,23 @@ class Bootstrap
         //static::initAutoloader();
 
         // use ModuleManager to load this module and it's dependencies
-// 		if(is_null($config))
-//         	$config = include(__DIR__.'/../config/application.config.php');
+ 		$config = ArrayUtils::merge($config, include(__DIR__.'/../config/application.config.php'));
         
         $serviceManager = new ServiceManager(new ServiceManagerConfig());
         $serviceManager->setService('ApplicationConfig', $config);
         $serviceManager->get('ModuleManager')->loadModules();
         static::$serviceManager = $serviceManager;
+        static::$config = $config;
     }
 
     public static function getServiceManager()
     {
         return static::$serviceManager;
+    }
+
+    public static function getConfig()
+    {
+        return static::$config;
     }
 
     protected static function initAutoloader()

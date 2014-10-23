@@ -16,116 +16,206 @@ use Kanbanize\Service\KanbanizeServiceFactory;
 use DoctrineORMModule\Service\EntityManagerFactory;
 use Ora\Kanbanize\KanbanizeTask;
 
-
-class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase
-{
+class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
+	
 	protected $serviceManager;
-
+	
 	/**
+	 *
 	 * @var \Ora\Kanbanize\KanbanizeService
 	 */
 	protected $kanbanizeService;
+	protected $controller;
+	protected $request;
+	protected $response;
+	protected $routeMatch;
+	protected $event;
 	
-    protected $controller;
-    protected $request;
-    protected $response;
-    protected $routeMatch;
-    protected $event;
-    
-    protected function setUp()
-    {  		
-        $bootstrap = Application::init(include('tests/unit/test.config.php'));
-        //$this->controller = new KanbanizeController();
-        $this->request = new Request();
-        $this->routeMatch = new RouteMatch(array('controller' => 'kanbanize'));
-        $this->event = $bootstrap->getMvcEvent();
-        
-        $this->event->setRouteMatch($this->routeMatch);
-        //$this->controller->setEvent($this->event);
-        //$this->controller->setEventManager($bootstrap->getEventManager());
-        
-        $this->serviceManager = $bootstrap->getServiceManager();
-        //$this->serviceManager->setFactory('Kanbanize\Service\Kanbanize', new KanbanizeServiceFactory());
-        //$this->serviceManager->setFactory('Application\Service\EventStore', new \Application\Service\EventStoreFactory());
-        //$this->serviceManager->setFactory('doctrine.entitymanager.orm_default', new EntityManagerFactory());
-        
-        //$this->kanbanizeService = $this->serviceManager->get('Kanbanize\Service\Kanbanize');
-        
-        //$boardId = 3;
-        
-        //$taskId = $this->kanbanizeService->createNewTask(1, "Test Task", $boardId);
-        
-        //$this->kanbanizeTask = new KanbanizeTask(uniqid(), $boardId, $taskId, new \DateTime(), "Pippo");
-        
-        $this->controller = $this->getMock('Kanbanize\Controller\KanbanizeController', array('getKanbanizeService'));
-
-        $this->setApplicationConfig( array(
-        		'controllers' => array(
-        				'invokables' => array(
-        						'Kanbanize\Controller\Kanbanize' => $this->controller
-        				),
-        		),
-        ));
-        
-        $this->kanbanizeService = $this->getMockForAbstractClass(
-        		'\Ora\Kanbanize\KanbanizeService',
-        		array('moveTask', 'isAcceptable')
-        );
-
-        $this->controller->expects($this->any())
-        ->method('getKanbanizeService')
-        ->will($this->returnCallback(array($this, 'getMockedKanbanizeService')));
-
-        $this->kanbanizeService->expects($this->any())
-        ->method('moveTask')
-        ->will($this->returnCallback(array($this, 'getCorrectResult')));
-        $this->kanbanizeService->expects($this->any())
-        ->method('isAcceptable')
-        ->will($this->returnCallback(array($this, 'isReallyAcceptable')));
-        
-        
-    }
-    
-    public function testMoveWithCorrectParameters()
-    {
-    	$this->request->setUri('http://192.168.56.111/kanbanize/task/'.$this->getTaskId());
-    	//$this->routeMatch->setParam('id', 12);
-    	$this->request->setMethod(Request::METHOD_PUT);
-		$this->request->getHeaders()->addHeaderLine('Content-Type', 'application/json');
-    	$this->request->setContent(json_encode(array('boardid' => 3, 'action' => 'accept')));
-    	$client = new Client();
-    	$client->setAdapter('Zend\Http\Client\Adapter\Curl');
-    	$this->response = $client->dispatch($this->request);
-    	$this->assertEquals($this->response->getStatusCode(), 200);
+	protected function setUp() {
+		$bootstrap = Application::init ( include ('tests/unit/test.config.php') );
+		$this->serviceManager = $bootstrap->getServiceManager ();
+		$this->controller = $this->getMock ( 'Kanbanize\Controller\KanbanizeController', array (
+				'getKanbanizeService' 
+		) );
+		$this->request = new Request ();
+		$this->routeMatch = new RouteMatch ( array (
+				'controller' => 'kanbanize' 
+		) );
+		$this->event = new MvcEvent ();
+		$config = $this->serviceManager->get ( 'Config' );
+		$routerConfig = isset ( $config ['router'] ) ? $config ['router'] : array ();
+		$router = HttpRouter::factory ( $routerConfig );
+		$this->event->setRouter ( $router );
+		$this->event->setRouteMatch ( $this->routeMatch );
+		$this->controller->setEvent ( $this->event );
+		$this->controller->setServiceLocator ( $this->serviceManager );
+		
+		$this->kanbanizeService = $this->getMockForAbstractClass ( '\Ora\Kanbanize\KanbanizeService', array (
+				'moveTask',
+				'isAcceptable' 
+		) );
+		
+		$this->controller->expects ( $this->any () )->method ( 'getKanbanizeService' )->will ( $this->returnCallback ( array (
+				$this,
+				'getMockedKanbanizeService' 
+		) ) );
+	}
+	
+	public function testMoveSuccessfullyDone() {
+		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveTask' )->will ( $this->returnCallback ( array (
+				$this,
+				'getCorrectResult' 
+		) ) );
+		$this->kanbanizeService->expects ( $this->any () )->method ( 'isAcceptable' )->will ( $this->returnCallback ( array (
+				$this,
+				'isReallyAcceptable' 
+		) ) );
+		
+		$this->routeMatch->setParam ( 'id', $this->getTaskId () );
+		$this->request->setMethod ( Request::METHOD_PUT );
+		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
+		$this->request->setContent ( json_encode ( array (
+				'boardid' => 3,
+				'action' => 'accept' 
+		) ) );
+		
+		$result = $this->controller->dispatch ( $this->request );
+		$response = $this->controller->getResponse ();
+		
+		$this->assertEquals ( 200, $response->getStatusCode () );
+	}
+	
+	public function testMoveOfNotAcceptableTask() {
+		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveTask' )->will ( $this->returnCallback ( array (
+				$this,
+				'getCorrectResult' 
+		) ) );
+		$this->kanbanizeService->expects ( $this->any () )->method ( 'isAcceptable' )->will ( $this->returnCallback ( array (
+				$this,
+				'isNotAcceptable' 
+		) ) );
+		
+		$this->routeMatch->setParam ( 'id', $this->getTaskId () );
+		$this->request->setMethod ( Request::METHOD_PUT );
+		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
+		$this->request->setContent ( json_encode ( array (
+				'boardid' => 3,
+				'action' => 'accept' 
+		) ) );
+		
+		$result = $this->controller->dispatch ( $this->request );
+		$response = $this->controller->getResponse ();
+		
+		$this->assertEquals ( 400, $response->getStatusCode () );
+	}
+	
+	public function testMoveWithWrongAction() {
+		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveTask' )->will ( $this->returnCallback ( array (
+				$this,
+				'getCorrectResult'
+		) ) );
+		$this->kanbanizeService->expects ( $this->any () )->method ( 'isAcceptable' )->will ( $this->returnCallback ( array (
+				$this,
+				'isReallyAcceptable'
+		) ) );
+	
+		$this->routeMatch->setParam ( 'id', $this->getTaskId () );
+		$this->request->setMethod ( Request::METHOD_PUT );
+		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
+		$this->request->setContent ( json_encode ( array (
+				'boardid' => 3,
+				'action' => 'ok'
+		) ) );
+	
+		$result = $this->controller->dispatch ( $this->request );
+		$response = $this->controller->getResponse ();
+	
+		$this->assertEquals ( 406, $response->getStatusCode () );
+	}
+	
+	public function testMoveWithWrongBoardId() {
+		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveTask' )->will ( $this->returnCallback ( array (
+				$this,
+				'getCorrectResult'
+		) ) );
+		$this->kanbanizeService->expects ( $this->any () )->method ( 'isAcceptable' )->will ( $this->returnCallback ( array (
+				$this,
+				'isReallyAcceptable'
+		) ) );
+	
+		$this->routeMatch->setParam ( 'id', $this->getTaskId () );
+		$this->request->setMethod ( Request::METHOD_PUT );
+		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
+		$this->request->setContent ( json_encode ( array (
+				'boardid' => 'numero3',
+				'action' => 'accept'
+		) ) );
+	
+		$result = $this->controller->dispatch ( $this->request );
+		$response = $this->controller->getResponse ();
+	
+		$this->assertEquals ( 406, $response->getStatusCode () );
+	}
+	
+	public function testMoveWithNoParameters() {
+		$this->routeMatch->setParam ( 'id', $this->getTaskId () );
+		$this->request->setMethod ( Request::METHOD_PUT );
+		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
+		$result = $this->controller->dispatch ( $this->request );
+		$response = $this->controller->getResponse ();
+		
+		$this->assertEquals ( 400, $response->getStatusCode () );
+	}
+	
+	public function testMoveWithNoId() {
+		$this->request->setMethod ( Request::METHOD_PUT );
+		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
+		$result = $this->controller->dispatch ( $this->request );
+		$response = $this->controller->getResponse ();
+		$this->assertEquals ( 405, $response->getStatusCode () );
+	}
+	
+	public function testPostNotAllowed() {
+		$this->routeMatch->setParam ( 'id', $this->getTaskId () );
+		$this->request->setMethod ( Request::METHOD_POST );
+		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
+		$result = $this->controller->dispatch ( $this->request );
+		$response = $this->controller->getResponse ();
+		
+		$this->assertEquals ( 405, $response->getStatusCode () );
+	}
+	
+	public function testGetNotAllowed() {
+		$this->routeMatch->setParam ( 'id', $this->getTaskId () );
+		$this->request->setMethod ( Request::METHOD_GET );
+		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
+		$result = $this->controller->dispatch ( $this->request );
+		$response = $this->controller->getResponse ();
+		
+		$this->assertEquals ( 405, $response->getStatusCode () );
 	}
 	
 	public function tearDown() {
-		//$this->kanbanizeService->deleteTask($this->kanbanizeTask);
 	}
-    
+	
 	private function getTaskId() {
 		return 1;
 	}
 	
-	private function getMockedKanbanizeService() {
+	public function getMockedKanbanizeService() {
 		return $this->kanbanizeService;
 	}
 	
-	private function getCorrectResult() {
+	public function getCorrectResult() {
 		return 1;
 	}
 	
-	private function isReallyAcceptable() {
-		print_r("I'm acceptable!!!!!1!!11111!!ONE!!!");
+	public function isReallyAcceptable() {
 		return true;
 	}
 	
-	private function isNotAcceptable() {
+	public function isNotAcceptable() {
 		return false;
-	}
-	
-	private function justAnotherMockedMethod() {
-		
 	}
 	
 }
