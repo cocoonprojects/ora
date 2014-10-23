@@ -7,5 +7,5 @@ namespace Ora\User;
  */
 interface UserService
 {
-	public function findUserByID($id);
+	public function findUser($id);
 }

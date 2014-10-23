@@ -7,5 +7,5 @@ namespace Ora\Organization;
  */
 interface OrganizationService
 {
-	public function findOrganizationByID($id);
+	public function findOrganization($id);
 }

@@ -25,7 +25,7 @@ class EventSourcingUserService implements UserService
 	/**
 	 * Retrieve user entity with specified ID
 	 */
-	public function findUserByID($id)
+	public function findUser($id)
 	{
 	    $user = $this->entityManager->getRepository('Ora\User\User')->findOneBy(array("id"=>$id));
 	     

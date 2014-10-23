@@ -3,28 +3,34 @@
 namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
+use Zend\Stdlib\InitializableInterface;
 use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 
-class TasksController extends AbstractHATEOASRestfulController
+class TasksController extends AbstractHATEOASRestfulController implements InitializableInterface
 {
-    protected static $collectionOptions = array ('GET', 'POST');
-    protected static $resourceOptions = array ('DELETE','POST','GET','PUT');
+    protected static $collectionOptions = array('GET', 'POST');
+    protected static $resourceOptions = array('DELETE', 'POST', 'GET', 'PUT');
 	protected $taskService;
 	protected $projectService;
     
-	// GET - singolo perchè con un parametro di ID
+    public function init()
+    {
+        // Executed before any other method
+    }
+	
     public function get($id)
     {        
-        $this->response->setStatusCode(200);
-
+        // HTTP STATUS CODE 405: Method not allowed
+        $this->response->setStatusCode(405);
+         
         return $this->response;
     }
 	
     /**
      * Return a list of available tasks
      * @method GET
-     * @link http://oraproject/task-management/task
+     * @link http://oraproject/task-management/tasks
      * @return \Zend\View\Model\JsonModel
      * @author Giannotti Fabio
      */
@@ -41,7 +47,7 @@ class TasksController extends AbstractHATEOASRestfulController
     /**
      * Create a new task into specified project
      * @method POST
-     * @link http://oraproject/task-management/task
+     * @link http://oraproject/task-management/tasks
      * @param array $data['projectID'] Parent project ID of the new task
      * @param array $data['subject'] Task subject
      * @return HTTPStatusCode
@@ -51,8 +57,6 @@ class TasksController extends AbstractHATEOASRestfulController
     {        
         // Definition of used Zend Validators
         $validator_NotEmpty = new \Zend\Validator\NotEmpty();
-        //$validator_StringLength = new \Zend\Validator\StringLength();
-        //$validator_Integer = new \Zend\I18n\Validator\Int();
         
         if (!isset($data['projectID']))
         {            
@@ -94,7 +98,7 @@ class TasksController extends AbstractHATEOASRestfulController
         }
         
         // Check if project with specific ProjectID exist 
-        $project = $this->getProjectService()->findProjectByID($data['projectID']);
+        $project = $this->getProjectService()->findProject($data['projectID']);
         if (!($project instanceof \Ora\ProjectManagement\Project))
         {
             // HTTP STATUS CODE 404: Not Found
@@ -115,17 +119,14 @@ class TasksController extends AbstractHATEOASRestfulController
     /**
      * Update existing task with new data
      * @method PUT
-     * @link http://oraproject/task-management/task
+     * @link http://oraproject/task-management/tasks/[:ID]
      * @param array $id ID of the Task to update 
      * @param array $data['subject'] Updated Subject for the selected Task
      * @return HTTPStatusCode
      * @author Giannotti Fabio
      */
     public function update($id, $data)
-    {
-        // Definition of used Zend Validators
-        $validator_NotEmpty = new \Zend\Validator\NotEmpty();
-        
+    {        
         // Check if any field must be updated
       	if (sizeof($data) == 0)
       	{
@@ -135,10 +136,23 @@ class TasksController extends AbstractHATEOASRestfulController
       	    return $this->response;
       	}
       	
+      	// Check if task with specified ID exist
+      	$task = $this->getTaskService()->findTask($id);
+      	if (is_null($task))
+      	{
+      	    // HTTP STATUS CODE 404: Not Found
+      	    $this->response->setStatusCode(404);
+      	     
+      	    return $this->response;
+      	}
+      	 
       	// Check if subject exist...
       	if (isset($data['subject']))
       	{
       	    $data['subject'] = trim($data['subject']);
+      	    
+      	    // Definition of used Zend Validators
+      	    $validator_NotEmpty = new \Zend\Validator\NotEmpty();
       	    
       	    // ...if exist check if subject it's empty
           	if (!$validator_NotEmpty->isValid($data['subject']))
@@ -148,20 +162,12 @@ class TasksController extends AbstractHATEOASRestfulController
           	
           	    return $this->response;
           	}
+          	
+          	$task->setSubject($data['subject']);
       	}
-      	
-      	// Check if task with specified ID exist
-      	$task = $this->getTaskService()->findTaskByID($id);
-      	if (!($task instanceof \Ora\TaskManagement\Task))
-      	{
-      	    // HTTP STATUS CODE 404: Not Found
-      	    $this->response->setStatusCode(404);
-      	
-      	    return $this->response;
-      	}
-      	
+      	      	      	
       	// Edit existing task
-      	$this->getTaskService()->editTask($task, $data);
+      	$this->getTaskService()->editTask($task);
       	
       	// HTTP STATUS CODE 202: Element Accepted
       	$this->response->setStatusCode(202);
@@ -170,9 +176,9 @@ class TasksController extends AbstractHATEOASRestfulController
     }
     
     /**
-     * Update all existing task
+     * Update all existing tasks
      * @method PUT
-     * @link http://oraproject/task-management/task
+     * @link http://oraproject/task-management/tasks
      * @return HTTPStatusCode
      * @author Giannotti Fabio
      */
@@ -182,18 +188,36 @@ class TasksController extends AbstractHATEOASRestfulController
         $this->response->setStatusCode(405);
          
         return $this->response;
-    }
+    }    
     
-    /*
-    // DELETE - singolo perchè definiamo un ID
+    /**
+     * Delete single existing task with specified ID
+     * @method DELETE
+     * @link http://oraproject/task-management/tasks/[:ID]
+     * @return HTTPStatusCode
+     * @author Giannotti Fabio
+     */
     public function delete($id)
     {
-        $response = array();
-
-        return new JsonModel($response);
+      	// Check if task with specified ID exist
+      	$task = $this->getTaskService()->findTask($id);
+      	if (!($task instanceof \Ora\TaskManagement\Task))
+      	{
+      	    // HTTP STATUS CODE 404: Not Found
+      	    $this->response->setStatusCode(404);
+      	
+      	    return $this->response;
+      	}
+      	
+      	// Delete existing task
+      	$this->getTaskService()->deleteTask($task);
+      	
+      	// HTTP STATUS CODE 200: Completed
+      	$this->response->setStatusCode(200);
+      	
+        return $this->response;
     }
-    */
-    
+        
     protected function getCollectionOptions()
     {
         return self::$collectionOptions;

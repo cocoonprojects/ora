@@ -25,7 +25,7 @@ class EventSourcingOrganizationService implements OrganizationService
 	/**
 	 * Retrieve organization entity with specified ID
 	 */
-	public function findOrganizationByID($id)
+	public function findOrganization($id)
 	{
 	    $organization = $this->entityManager->getRepository('Ora\Organization\Organization')->findOneBy(array("id"=>$id));
 	     

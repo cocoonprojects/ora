@@ -109,14 +109,21 @@ class Task extends DomainEntity
 	public function serializeToARRAY($entitySerializer)
 	{
 	    $serializedToArray = $entitySerializer->toArray($this);
-	
+        
+	    // TODO: Controllare se il serializzatore di doctrine 
+	    //       può recuperare automaticamente tali dati
+	    $createdBy = $this->getCreatedBy();
+	    $serializedToArray['created_by']['name'] = $createdBy->getName();
+	    
 	    //TODO: Serializzare i members
 	    $members = $this->getMembers();
 	    
 	    $serializedToArray['members'] = array();
 	    foreach ($members as $t)
-	       $serializedToArray['members'][] = $t->getName();
-	     
+	    {	        
+            $serializedToArray['members'][] = $t->getName();
+	    }
+	    
 	    return $serializedToArray;
 	}
 }

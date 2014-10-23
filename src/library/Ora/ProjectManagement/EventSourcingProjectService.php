@@ -21,7 +21,7 @@ class EventSourcingProjectService implements ProjectService
 	    $this->entitySerializer = $entitySerializer;
     }
 	
-	public function findProjectByID($id)
+	public function findProject($id)
 	{
 	    $project = $this->entityManager->getRepository('Ora\ProjectManagement\Project')->findOneBy(array("id"=>$id));
 	    

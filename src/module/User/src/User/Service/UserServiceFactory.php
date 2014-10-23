@@ -5,7 +5,7 @@ namespace User\Service;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-use Ora\TaskManagement\EventSourcingUserService;
+use Ora\User\EventSourcingUserService;
 use Ora\EntitySerializer;
 
 class UserServiceFactory implements FactoryInterface 

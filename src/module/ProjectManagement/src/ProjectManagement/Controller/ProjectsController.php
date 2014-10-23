@@ -3,59 +3,68 @@
 namespace ProjectManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
+use Zend\Stdlib\InitializableInterface;
 use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 
-class ProjectsController extends AbstractHATEOASRestfulController
+class ProjectsController extends AbstractHATEOASRestfulController implements InitializableInterface
 {
     protected static $collectionOptions = array ('GET','POST');
     protected static $resourceOptions = array ('DELETE','GET');
 	protected $projectService;
 	
-    public function get($id)
-    {        
-        $response = array();
-        
-        $this->response->setStatusCode(200);
-        
-        return new JsonModel($response);
-    }
+	public function init()
+	{
+	    // Executed before any other method
+	}
 	
+    public function get($id)
+    {
+        // HTTP STATUS CODE 405: Method not allowed
+        $this->response->setStatusCode(405);
+         
+        return $this->response;
+    }
+    
     public function getList()
     {
-        $response = array();
-        
-        $this->response->setStatusCode(200);
-
-        return new JsonModel($response);
+        // HTTP STATUS CODE 405: Method not allowed
+        $this->response->setStatusCode(405);
+         
+        return $this->response;
     }
     
     public function create($data)
-    {        
-        $response = array();
-        
-        $this->response->setStatusCode(200);
-
-        return new JsonModel($response);
+    {
+        // HTTP STATUS CODE 405: Method not allowed
+        $this->response->setStatusCode(405);
+         
+        return $this->response;
     }
     
-    /*
-    // PUT
     public function update($id, $data)
-    {   	
-      	$response = array();
-
-        return new JsonModel($response);
+    {
+        // HTTP STATUS CODE 405: Method not allowed
+        $this->response->setStatusCode(405);
+         
+        return $this->response;
     }
     
-    // DELETE - singolo perchè definiamo un ID
+    public function replaceList($data)
+    {
+        // HTTP STATUS CODE 405: Method not allowed
+        $this->response->setStatusCode(405);
+         
+        return $this->response;
+    }
+    
     public function delete($id)
     {
-        $response = array();
-
-        return new JsonModel($response);
+        // HTTP STATUS CODE 405: Method not allowed
+        $this->response->setStatusCode(405);
+         
+        return $this->response;
     }
-    */
     
     protected function getCollectionOptions()
     {
