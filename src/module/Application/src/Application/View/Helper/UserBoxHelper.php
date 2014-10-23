@@ -1,5 +1,5 @@
 <?php
-namespace Auth\View\Helper;
+namespace Application\View\Helper;
 
 use Zend\View\Helper\AbstractHelper;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
@@ -10,7 +10,7 @@ class UserBoxHelper extends AbstractHelper implements ServiceLocatorAwareInterfa
 	public function __invoke()
 	{				
 		$serviceLocator = $this->getServiceLocator();		
-		$authenticationService = $serviceLocator->get('Auth\Service\AuthenticationService');
+		$authenticationService = $serviceLocator->get('Application\Service\AuthenticationService');
 		
 		if($authenticationService->hasIdentity())
 		{
