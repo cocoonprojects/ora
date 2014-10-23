@@ -4,6 +4,7 @@ namespace Ora\User;
 
 use Doctrine\ORM\Mapping AS ORM;
 use Ora\DomainEntity;
+use Ora\User\Role as Role;
 
 /**
  * @ORM\Entity @ORM\Table(name="users")
@@ -11,7 +12,9 @@ use Ora\DomainEntity;
  *
  */
 class User extends DomainEntity 
-{	    
+{	   
+	const STATUS_ACTIVE = 1;
+	 
 	/**
 	 * @ORM\Column(type="string", length=100, nullable=TRUE)
 	 * @var string
@@ -31,16 +34,24 @@ class User extends DomainEntity
 	private $email;
 		
 	/**
-	 * @ORM\Column(type="boolean", options={"default" = "1"})
+	 * @ORM\Column(type="integer", options={"default" = "0"})
 	 * @var boolean
 	 */
 	private $status;
+	
+	/**
+	 * @ORM\Embedded(class="Role")
+	 * @var Role
+	 */
+	private $systemRole;	
+	
 		
 	// TODO: Utilizzare Ora\User\User $createdBy se createdBy dev'essere una relazione con lo USER
 	public function __construct($userID, \DateTime $createdAt, $createdBy) 
 	{
 		parent::__construct($userID, $createdAt, $createdBy);
-		$this->setStatus(true);
+		
+		$this->setStatus(self::STATUS_ACTIVE);
 	}
 	
 	public function setFirstname($firstname)
@@ -82,4 +93,28 @@ class User extends DomainEntity
 	{
 		return $this->status;
 	}	
+	
+	public function setSystemRole(Role $role)
+	{
+		$this->systemRole = $role;
+	}
+	
+	public function getSystemRole()
+	{
+		$this->systemRole->getName();
+	}
+	
+	public function serializeToJSON($entitySerializer) 
+	{
+	    $serializedToArray = $this->serializeToARRAY($entitySerializer);
+	    
+	    return json_encode($serializedToArray); 
+	}
+	
+	public function serializeToARRAY($entitySerializer)
+	{
+	    $serializedToArray = $entitySerializer->toArray($this);
+	     
+	    return $serializedToArray;
+	}
 }
