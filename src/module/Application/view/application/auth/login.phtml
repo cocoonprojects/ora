@@ -52,7 +52,20 @@
 				break;
 		
 			default:
-				echo "Internal error";
+				echo "Internal error <br />";
+				
+				if(!isset($this->error))
+						break;
+
+				switch($this->error)
+				{
+					case 'Auth.InvalidCode': echo "InvalidCode";
+											 break;
+					case 'Auth.InvalidProvider': echo "Provider not valid";
+											 break;
+					case 'Auth.InvalidToken': echo "Token not valid";
+											break;															
+				}
 				break;
 		}
 	} 
