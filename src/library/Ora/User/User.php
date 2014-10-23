@@ -43,7 +43,7 @@ class User extends DomainEntity
 	 * @ORM\Embedded(class="Role")
 	 * @var Role
 	 */
-	private $systemRole;	
+	private $systemRole;		
 		
 	public function __construct($userID, \DateTime $createdAt, $createdBy) 
 	{
@@ -114,14 +114,4 @@ class User extends DomainEntity
 	     
 	    return $serializedToArray;
 	}
-
-	public function setStatus($status)
-	{
-		$this->status = $status;
-	}
-	
-	public function getStatus()
-	{
-		return $this->status;
-	}	
 }
