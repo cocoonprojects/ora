@@ -52,7 +52,7 @@ use Ora\Kanbanize\KanbanizeTask;
 	</td>
 	<td>
 	<?php if(in_array($singletask->getId(), $back2ongoing)){?>
-	<a href="/kanbanize/task/client/test/<?php echo $singletask->getTaskId();?>?method=ongoing">
+	<a href="/kanbanize/task/<?php echo $singletask->getTaskId();?>/client/test?method=ongoing">
 	<button class="btn btn-primary" id ="<?php echo $singletask->getTaskId();?>">Back to ongoing</button>
 	</a>
 	<?php }?>
