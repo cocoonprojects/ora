@@ -52,6 +52,31 @@ TaskManagement.prototype = {
 			var userID = $(e.target).data("userid");
 			that.joinTaskMembers(taskID, userID);
 		});
+		
+		// UNJOIN TASK MEMBERS
+		$("body").on("click", "button[data-action='unjoinTask']", function(e){
+			e.preventDefault();
+			var taskID = $(e.target).data("taskid");
+			var userID = $(e.target).data("userid");
+			that.unjoinTaskMembers(taskID, userID);
+		});
+	},
+	
+	unjoinTaskMembers: function(taskID, userID)
+	{
+		$.ajax({
+			url: 'http://oraproject/task-management/tasks/' + taskID + '/members/' + userID,
+			method: 'DELETE',
+			dataType: 'json',
+			complete: function(xhr, textStatus) {
+				if (xhr.status === 200)
+					alert("Succesfully unjoined from the Team of this task");
+				if (xhr.status === 403)
+					alert("Error. You are not part of that team or the creator of this task");
+				else
+					alert("Error. Status Code: " + xhr.status);
+			}
+		});
 	},
 	
 	joinTaskMembers: function(taskID, userID)
@@ -62,7 +87,9 @@ TaskManagement.prototype = {
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
 				if (xhr.status === 201)
-					alert("You joined into the Team of this task");
+					alert("Succesfully join into the Team of this task");
+				if (xhr.status === 403)
+					alert("Error. You are already part of that team or the creator of this task");
 				else
 					alert("Error. Status Code: " + xhr.status);
 			}
@@ -176,7 +203,10 @@ TaskManagement.prototype = {
 				if (task.status == 20)
 				{
 					task.status = "Ongoing";
-					actions = "<button data-action='joinTask' data-userid='"+json.loggeduser.id+"' data-taskid='"+task.id+"' class='btn btn-success'>Join</button><button data-action='openEditTaskBox' data-taskid='"+task.id+"' class='btn btn-warning' style='margin-left:5px;margin-right:5px;'>Edit</button><button data-action='deleteTask' data-taskid='"+task.id+"' class='btn btn-danger'>Delete</button>";
+					actions = "<button data-action='joinTask' data-userid='"+json.loggeduser.id+"' data-taskid='"+task.id+"' class='btn btn-success'>Join</button>" +
+							  "<button data-action='unjoinTask' data-userid='"+json.loggeduser.id+"' data-taskid='"+task.id+"' class='btn btn-danger' style='margin-left:5px;'>UnJoin</button>" + 
+							  "<button data-action='openEditTaskBox' data-taskid='"+task.id+"' class='btn btn-warning' style='margin-left:5px;margin-right:5px;'>Edit</button>" +
+							  "<button data-action='deleteTask' data-taskid='"+task.id+"' class='btn btn-danger'>Delete</button>";
 				}
 				else if (task.status == 40)
 				{

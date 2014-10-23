@@ -10,7 +10,7 @@ use Ora\EntitySerializer;
 * @ORM\Entity
 * @author Giannotti Fabio
 */
-final class TaskUserAddedEvent extends TaskEvent 
+final class TaskMemberRemovedEvent extends TaskEvent 
 {
     public function __construct(DateTime $firedAt, Task $task, EntitySerializer $entitySerializer) 
     {

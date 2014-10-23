@@ -190,6 +190,14 @@ class TasksController extends AbstractHATEOASRestfulController implements Initia
         return $this->response;
     }    
     
+    public function deleteList()
+    {
+        // HTTP STATUS CODE 405: Method not allowed
+        $this->response->setStatusCode(405);
+         
+        return $this->response;
+    }
+    
     /**
      * Delete single existing task with specified ID
      * @method DELETE

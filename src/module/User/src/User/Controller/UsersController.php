@@ -58,6 +58,14 @@ class UsersController extends AbstractHATEOASRestfulController implements Initia
         return $this->response;
     }
     
+    public function deleteList()
+    {
+        // HTTP STATUS CODE 405: Method not allowed
+        $this->response->setStatusCode(405);
+         
+        return $this->response;
+    }
+    
     public function delete($id)
     {
         // HTTP STATUS CODE 405: Method not allowed

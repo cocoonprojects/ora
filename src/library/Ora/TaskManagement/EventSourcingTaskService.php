@@ -111,27 +111,28 @@ class EventSourcingTaskService implements TaskService
 	/**
 	 * Add new USER (member) into TEAM of specified TASK
 	 */
-	public function addTaskUser(\Ora\TaskManagement\Task $task, \Ora\User\User $user)
+	public function addTaskMember(\Ora\TaskManagement\Task $task, \Ora\User\User $user)
 	{
 	    $joinedAt = new \DateTime();
 	    
-	    // TODO: Controllare che nel caso in cui un utente abbia già effettuato un join
-	    // all'interno del team, viene restituito errore di Integrity Constraint Violation
-	    // Verificare se l'utente già esiste prima di aggiungerlo oppure gestire l'errore       
-        //Check if user it's already part of team for specified task
-        $alreadyJoined = false;
+        $task->addMember($user);
         
-        foreach ($task->getMembers() as $m) {
-            if ($m === $user) {
-                $alreadyJoined = true;
-            }
-        }
-        
-        if (!$alreadyJoined)
-            $task->addMember($user);
-        
-	    $event = new TaskUserAddedEvent($joinedAt, $task, $this->entitySerializer);
+	    $event = new TaskMemberAddedEvent($joinedAt, $task, $this->entitySerializer);
 	     
 	    $this->eventStore->appendToStream($event);
+	}
+	
+	/**
+	 * Remove USER (member) from TEAM of specified TASK
+	 */
+	public function removeTaskMember(\Ora\TaskManagement\Task $task, \Ora\User\User $user)
+	{
+	    $joinedAt = new \DateTime();
+	     
+        $task->removeMember($user);
+	
+        $event = new TaskMemberRemovedEvent($joinedAt, $task, $this->entitySerializer);
+	
+        $this->eventStore->appendToStream($event);
 	}
 }

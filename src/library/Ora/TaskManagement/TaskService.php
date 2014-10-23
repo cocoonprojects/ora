@@ -17,5 +17,7 @@ interface TaskService
 	
 	public function listAvailableTasks();
 	
-	public function addTaskUser(\Ora\TaskManagement\Task $task, \Ora\User\User $user);
+	public function addTaskMember(\Ora\TaskManagement\Task $task, \Ora\User\User $user);
+	
+	public function removeTaskMember(\Ora\TaskManagement\Task $task, \Ora\User\User $user);
 }
