@@ -2,8 +2,7 @@
 return array(
     'modules' => array(
         'Application',
-        'ZendOAuth2',
-        'Auth'
+        'ZendOAuth2'
     ),
 
     'module_listener_options' => array(

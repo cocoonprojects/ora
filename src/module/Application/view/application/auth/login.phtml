@@ -65,7 +65,33 @@
 >>>>>>> login
 <?php 
 
-	if(!$this->authenticate->isValid())
+	if(isset($this->error))
+	{
+?>		
+		<div class="row">
+		
+			<div class="col-lg-12">
+				<h4>Error!</h4>
+				<p><a href="javascript:window.history.back(); ">Torna indietro</a></p>
+			</div>
+		 
+		</div>	
+
+<?php
+		switch($this->error)
+		{
+			case 'Auth.InvalidCode': 
+									echo "InvalidCode";
+									break;
+			case 'Auth.InvalidProvider': 
+									echo "Provider not valid";
+									break;
+			case 'Auth.InvalidToken': 
+									echo "Token not valid";
+									break;
+		}
+	}	
+	elseif(!$this->authenticate->isValid())
 	{ 
 ?>
 
@@ -91,20 +117,7 @@
 				break;
 		
 			default:
-				echo "Internal error <br />";
-				
-				if(!isset($this->error))
-						break;
-
-				switch($this->error)
-				{
-					case 'Auth.InvalidCode': echo "InvalidCode";
-											 break;
-					case 'Auth.InvalidProvider': echo "Provider not valid";
-											 break;
-					case 'Auth.InvalidToken': echo "Token not valid";
-											break;															
-				}
+				echo "Internal error";
 				break;
 		}
 	} 
