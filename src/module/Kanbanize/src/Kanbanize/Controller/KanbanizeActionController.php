@@ -95,6 +95,8 @@ class KanbanizeActionController extends AbstractActionController {
 			$task->setBoardId($boardId);
 			$taskList[] = $task;
 			switch($task->getStatus()) {
+				//FIXME backlog
+				case -1:
 				case Task::STATUS_IDEA:
 				case Task::STATUS_OPEN:
 				case Task::STATUS_ONGOING:
