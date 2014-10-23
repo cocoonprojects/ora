@@ -40,7 +40,17 @@ class Module
     {
         return array(
             'factories' => array(
-                'Application\Service\EventStore' => 'Application\Service\EventStoreFactory'
+                'Application\Service\EventStore' => 'Application\Service\EventStoreFactory',
+            	'Zend\Log\Logger' => function($sm){
+            		
+	                $logger = new Zend\Log\Logger;
+	                $writer = new Zend\Log\Writer\Stream('./data/log/'.date('Y-m-d').'-error.log');
+	                 
+	                $logger->addWriter($writer);  
+	                
+	                return $logger;
+	            },
+            	          		
             )
         );
     }

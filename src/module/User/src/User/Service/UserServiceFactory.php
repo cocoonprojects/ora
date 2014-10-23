@@ -5,15 +5,29 @@ namespace User\Service;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-use Ora\User\UserService;
+use Ora\User\EventSourcingUserService;
+use Ora\EntitySerializer;
 
 class UserServiceFactory implements FactoryInterface 
-{    
-	public function createService(ServiceLocatorInterface $serviceLocator)
+{
+    /**
+     * @var EventSourcingTaskService
+     */
+    private static $instance;
+    
+	public function createService(ServiceLocatorInterface $serviceLocator) 
 	{
-        $entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-        $userService = new UserService($entityManager);
-                  
-	    return $userService;
+	    if(is_null(self::$instance)) 
+	    {
+            $eventStore = $serviceLocator->get('Application\Service\EventStore');
+
+            $entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
+            $entitySerializer = new EntitySerializer($entityManager);
+            $authenticationService = $serviceLocator->get('Auth\Service\AuthenticationService');
+            
+            self::$instance = new EventSourcingUserService($entityManager, $eventStore, $entitySerializer, $authenticationService);            
+        }
+
+	    return self::$instance;
 	}
 }

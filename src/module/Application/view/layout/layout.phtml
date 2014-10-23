@@ -46,7 +46,7 @@
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                     
-                        <?php echo $this->authenticationAction(); ?>
+                        <?php echo $this->UserBoxHelper(); ?>
                     </ul>
                 </div><!--/.nav-collapse -->
             </div>
@@ -55,7 +55,7 @@
             <?php             
             echo $this->content; 
             
-            echo $this->popupProviderList(); 
+            echo $this->LoginPopupHelper(); 
             ?>
             <hr>
             <footer>

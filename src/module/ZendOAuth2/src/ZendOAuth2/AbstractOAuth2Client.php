@@ -37,11 +37,14 @@ abstract class AbstractOAuth2Client
     }
     
     public function getInfo()
-    {
+    {    	
         if(is_object($this->session->info)) {
+        	
             return $this->session->info;
         
         } elseif(isset($this->session->token->access_token)) {
+        	
+        	
             $urlProfile = $this->options->getInfoUri() . '?access_token='.$this->session->token->access_token;
             
             $client = $this->getHttpclient()
@@ -53,8 +56,7 @@ abstract class AbstractOAuth2Client
             $response = $client->send();
             $retVal = $response->getBody();
 
-            if(strlen(trim($retVal)) > 0) {
-                //\Zend\Debug\Debug::dump($response->getBody());
+            if(strlen(trim($retVal)) > 0) {                
                 $this->session->info = \Zend\Json\Decoder::decode($retVal);
                 return $this->session->info;
             } else {
@@ -65,7 +67,6 @@ abstract class AbstractOAuth2Client
             }
             
         } else {
-            
             $this->error = array('internal-error' => 'Session access token not found.');
             return false;
             
