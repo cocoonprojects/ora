@@ -127,7 +127,7 @@ class AuthController extends AbstractActionController
 		if (!isset($this->userService))
 		{
 			$serviceLocator = $this->getServiceLocator();
-			$this->userService = $serviceLocator->get('User\Service\UserService');
+			$this->userService = $serviceLocator->get('User\UserService');
 		}
 		 
 		return $this->userService;
