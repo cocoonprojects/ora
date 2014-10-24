@@ -97,10 +97,12 @@ return array(
     ),
     'doctrine' => array(
     	
+        // TODO: modificare il path per eliminare /vagrant/
+         
     	'configuration' => array(
         	'orm_default' => array(
         		'generate_proxies'  => true,
-        		'proxy_dir'         => 'src/data/DoctrineORMModule/Proxies'        		
+        		'proxy_dir'         => '/vagrant/src/data/DoctrineORMModule/Proxies'        		
         	)
         ),
     
