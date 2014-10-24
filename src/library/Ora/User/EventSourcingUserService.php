@@ -5,6 +5,9 @@ namespace Ora\User;
 use Ora\EventStore\EventStore;
 use Ora\EntitySerializer;
 use Ora\User\Role;
+use Ora\Organization\Organization;
+use Ora\UserOrganization\UserOrganization;
+use Ora\User\User;
 
 class EventSourcingUserService implements UserService
 {
@@ -31,17 +34,16 @@ class EventSourcingUserService implements UserService
 		return $user;			
 	}
 		
-	public function create($infoOfUser, Role $role)
+	public function create($infoOfUser, Role $role, Organization $organization)
 	{
 		$userID = uniqid();
 		$createdAt = new \DateTime();
-		$createdBy = $userID;
+		$createdBy = null;
 	   
 		if($this->authenticationService->hasIdentity())
 		{
-			$user = $this->authenticationService->getIdentity();
-	
-			$createdBy = $user->getId();
+			$user = $this->authenticationService->getIdentity();	
+			$createdBy = $user;
 		}
 	
 		$user = new User($userID, $createdAt, $createdBy);
@@ -50,9 +52,22 @@ class EventSourcingUserService implements UserService
 		$user->setLastname($infoOfUser['lastname']);
 		$user->setFirstname($infoOfUser['firstname']);
 		$user->setSystemRole($role);
-	
+			
+		/* TODO: sostituire la fake "Ora" Organization */
+				
+		$user->addUserOrganizations($organization, $user);	
+		
 		return $user;
-	}	
+	}
+
+	public function findUser($id)
+	{
+		$user = $this->entityManager
+				     ->getRepository('Ora\User\User')
+		             ->findOneBy(array("id" => $id));
+		 
+		return $user;		
+	}
 
 	
 }

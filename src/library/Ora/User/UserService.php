@@ -19,4 +19,12 @@ interface UserService
 	 * @param Role $role
 	 */	
 	public function create($infoOfUser, Role $role);
+	
+	/**
+	 * Find a User by id
+	 *
+	 * @param mixed $id
+	 */	
+	public function findUser($id);
+	
 }

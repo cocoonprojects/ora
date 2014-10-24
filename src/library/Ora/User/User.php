@@ -4,8 +4,10 @@ namespace Ora\User;
 
 use Doctrine\ORM\Mapping AS ORM;
 use Ora\DomainEntity;
-use Ora\User\Role as Role;
-
+use Ora\User\Role;
+use Doctrine\Common\Collections\ArrayCollection;
+use Ora\Organization\Organization;
+use Ora\UserOrganization\UserOrganization;
 /**
  * @ORM\Entity @ORM\Table(name="users")
  * @author Giannotti Fabio
@@ -45,12 +47,17 @@ class User extends DomainEntity
 	 */
 	private $systemRole;	
 	
-		
-	// TODO: Utilizzare Ora\User\User $createdBy se createdBy dev'essere una relazione con lo USER
+	/**
+	 * @ORM\OneToMany(targetEntity="Ora\UserOrganization\UserOrganization", mappedBy="user")
+	 **/
+	private $userOrganizations;	
+	
+			
 	public function __construct($userID, \DateTime $createdAt, $createdBy) 
 	{
 		parent::__construct($userID, $createdAt, $createdBy);
 		
+		$this->userOrganizations = new ArrayCollection();
 		$this->setStatus(self::STATUS_ACTIVE);
 	}
 	
@@ -102,6 +109,11 @@ class User extends DomainEntity
 	public function getSystemRole()
 	{
 		$this->systemRole->getName();
+	}
+	
+	public function getUserOrganizations()
+	{
+		return $this->userOrganizations;
 	}
 	
 	public function serializeToJSON($entitySerializer) 
