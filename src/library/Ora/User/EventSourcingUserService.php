@@ -6,7 +6,7 @@ use Ora\EventStore\EventStore;
 use Ora\EntitySerializer;
 
 use Ora\User\Role;
-use Ora\Organization\Organization;
+//use Ora\Organization\Organization;
 use Ora\UserOrganization\UserOrganization;
 use Ora\User\User;
 
@@ -39,7 +39,8 @@ class EventSourcingUserService implements UserService
 		return $user;			
 	}
 		
-	public function create($infoOfUser, Role $role, Organization $organization)
+	//public function create($infoOfUser, Role $role, Organization $organization)
+	public function create($infoOfUser, Role $role)
 	{
 		$userID = uniqid();
 		$createdAt = new \DateTime();
@@ -60,7 +61,7 @@ class EventSourcingUserService implements UserService
 			
 		/* TODO: sostituire la fake "Ora" Organization */
 				
-		$user->addUserOrganizations($organization, $user);	
+		//$user->addUserOrganizations($organization, $user);	
 		
 		return $user;
 	}
