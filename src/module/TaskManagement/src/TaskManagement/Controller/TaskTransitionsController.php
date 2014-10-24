@@ -19,7 +19,7 @@ class TaskTransitionsController extends AbstractHATEOASRestfulController
 {
 	//protected static $resourceOptions = array ('GET','POST','PUT');
 	//protected static $collectionOptions = array ('DELETE','GET');
-	protected static $resourceOptions = array ('PUT');
+	protected static $resourceOptions = array ('POST');
 	protected static $collectionOptions = array ();
 	
 	/**
@@ -66,7 +66,8 @@ class TaskTransitionsController extends AbstractHATEOASRestfulController
 		
 		
 	}
-	public function update($id, $data) {
+	
+	public function invoke($id, $data) {
 		$validator_NotEmpty = new \Zend\Validator\NotEmpty();
 		$validator_Digits =  new \Zend\Validator\Digits();
 		// actions -> accept | OnGoing

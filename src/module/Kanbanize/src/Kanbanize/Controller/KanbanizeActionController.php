@@ -37,7 +37,7 @@ class KanbanizeActionController extends AbstractActionController {
 				// this is a test controller
 				$data = array("boardid" => $boardId,"action"=>"accept");
 				curl_setopt($ch, CURLOPT_POST, true);
-				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+				//curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
 				curl_setopt($ch, CURLOPT_HEADER, true);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 				curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
@@ -48,7 +48,7 @@ class KanbanizeActionController extends AbstractActionController {
 			case 'ongoing':
 				$data = array("boardid" => $boardId,"action"=>"ongoing");
 				curl_setopt($ch, CURLOPT_POST, true);
-				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+				//curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
 				curl_setopt($ch, CURLOPT_HEADER, true);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 				curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
