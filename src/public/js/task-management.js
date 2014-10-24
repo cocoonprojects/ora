@@ -4,7 +4,7 @@ var TaskManagement = function()
 };
 
 TaskManagement.prototype = {
-	
+
 	constructor: TaskManagement,
 	classe: 'TaskManagement',
 	

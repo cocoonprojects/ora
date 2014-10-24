@@ -14,6 +14,7 @@ class TasksController extends AbstractHATEOASRestfulController
 	protected $taskService;
 	protected $projectService;
 	
+	    
     public function get($id)
     {        
         // HTTP STATUS CODE 405: Method not allowed
@@ -131,6 +132,16 @@ class TasksController extends AbstractHATEOASRestfulController
       	    return $this->response;
       	}
       	     	 
+      	// Check if task with specified ID exist
+      	$task = $this->getTaskService()->findTask($id);
+      	if (!($task instanceof \Ora\TaskManagement\Task))
+      	{
+      	    // HTTP STATUS CODE 404: Not Found
+      	    $this->response->setStatusCode(404);
+      	
+      	    return $this->response;
+      	}
+      	
       	// Check if subject exist...
       	if (isset($data['subject']))
       	{
@@ -148,11 +159,11 @@ class TasksController extends AbstractHATEOASRestfulController
           	    return $this->response;
           	}
           	
-          	$this->task->setSubject($data['subject']);
+          	$task->setSubject($data['subject']);
       	}
       	      	      	
       	// Edit existing task
-      	$this->getTaskService()->editTask($this->task);
+      	$this->getTaskService()->editTask($task);
       	
       	// HTTP STATUS CODE 202: Element Accepted
       	$this->response->setStatusCode(202);
