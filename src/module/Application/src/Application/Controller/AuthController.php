@@ -4,11 +4,13 @@ namespace Application\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
+use Ora\Organization\Organization;
 
 class AuthController extends AbstractActionController
 {        
 	private $authenticationService;
 	private $userService;
+	private $organizationService;
 	private $redirectAfterLogout;
 	private $instanceProvider;
 		
@@ -48,9 +50,13 @@ class AuthController extends AbstractActionController
 		$infoLoggedUser = $adapter->getInfoOfProvider($instanceProvider);
 		 
 		$userService = $this->getUserService();
-		
+		$organizationService = $this->getOrganizationService();
 		/* TODO: Evento per la subscribe */
 		$user = $userService->subscribeUser($infoLoggedUser);
+		$organization = $organizationService->findOrganization('ooo111');
+		
+		if($organization instanceof Organization)
+			$organizationService->addUser($organization, $user);
 		
 		$adapter->setUserIdentity($user);
 		 
@@ -131,5 +137,16 @@ class AuthController extends AbstractActionController
 		}
 		 
 		return $this->userService;
+	}	
+	
+	protected function getOrganizationService()
+	{
+		if (!isset($this->organizationService))
+		{
+			$serviceLocator = $this->getServiceLocator();
+			$this->organizationService = $serviceLocator->get('Organization\OrganizationService');
+		}
+
+		return $this->organizationService;
 	}	
 }

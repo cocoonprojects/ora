@@ -13,7 +13,7 @@ class UserOrganization
 {	
 	const ROLE_ADMIN = "Admin";
 	const ROLE_MEMBER = "Member";
-	
+		
 	/**
 	 * @ORM\Column(type="string")
 	 * @var string
@@ -43,6 +43,11 @@ class UserOrganization
 	 */
 	protected $organization;
 	
+
+	public static $organizationRoleMap = array(
+			ROLE_ADMIN           => self::ROLE_ADMIN,
+			ROLE_MEMBER          => self::ROLE_MEMBER,
+	);
 	
 	public function __construct(\DateTime $createdAt, $createdBy, $user, $organization, $organizationRole)
 	{
@@ -77,4 +82,18 @@ class UserOrganization
 	{
 		return $this->organization;
 	}
+	
+	public function serializeToJSON($entitySerializer)
+	{
+		$serializedToArray = $this->serializeToARRAY($entitySerializer);
+		 
+		return json_encode($serializedToArray);
+	}
+
+	public function serializeToARRAY($entitySerializer)
+	{
+		$serializedToArray = $entitySerializer->toArray($this);
+	
+		return $serializedToArray;
+	}	
 }
