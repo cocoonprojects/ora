@@ -1,13 +1,7 @@
 <?php
 return array(
-	'service_manager' => array(
-		'factories' => array(
-			'Kanbanize\Service\Kanbanize' => 'Kanbanize\Service\KanbanizeServiceFactory'
-		),
-	),
     'controllers' => array(
         'invokables' => array(
-            'Kanbanize\Controller\Kanbanize' => 'Kanbanize\Controller\KanbanizeController',
             'Kanbanize\Controller\KanbanizeAction' => 'Kanbanize\Controller\KanbanizeActionController',
         ),
     ),
@@ -28,7 +22,7 @@ return array(
                         'controller'    => 'Kanbanize',
                     ),
                 ),
-                'may_terminate' => true,
+                'may_terminate' => false,
                 'child_routes' => array(
                     // This route is a sane default when developing a module;
                     // as you solidify the routes for your module, however,

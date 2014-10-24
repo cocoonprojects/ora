@@ -16,7 +16,7 @@ use Ora\EntitySerializer;
  * @author Andrea Lupia <alupia@dimes.unical.it>
  *
  */
-class EventSourcingKanbanizeService implements KanbanizeService 
+class KanbanizeServiceImpl implements KanbanizeService 
 {
 	
 	/**
@@ -33,16 +33,12 @@ class EventSourcingKanbanizeService implements KanbanizeService
 	 */
 	private $kanbanize;
 	private $entityManager;
-	private $eventStore;
-	private $entitySerializer;
 	
 	/*
 	 * Constructs service
 	 */
-	public function __construct($entityManager, EventStore $eventStore, EntitySerializer $entitySerializer, $apiKey, $url) {
+	public function __construct($entityManager, $apiKey, $url) {
 		$this->entityManager = $entityManager;
-		$this->eventStore = $eventStore;
-		$this->entitySerializer = $entitySerializer;
 		$this->kanbanize = new KanbanizeAPI ();
 		$this->kanbanize->setApiKey ( $apiKey );
 		$this->kanbanize->setUrl ( $url );
@@ -65,10 +61,6 @@ class EventSourcingKanbanizeService implements KanbanizeService
   			$this->kanbanize->moveTask($boardId, $taskId, $status);
   			
   			$kanbanizeTask->setStatus(KanbanizeTask::getMappedStatus($status));
-  			
-  			$event = new KanbanizeTaskMovedEvent($movedAt, $kanbanizeTask, $this->entitySerializer);
-  			
-  			$this->eventStore->appendToStream($event);
   			
   			return 1;
   		}
@@ -93,8 +85,6 @@ class EventSourcingKanbanizeService implements KanbanizeService
 			return 0;
 		} else {
 			$kanbanizeTask = new KanbanizeTask ( uniqid (), $boardId, $id, $createdAt, $createdBy );
-			// TODO $event = new KanbanizeTaskCreatedEvent($createdAt, $kanbanizeTask, $this->entitySerializer);
-			// TODO $this->eventStore->appendToStream($event);
 			return 1;
 		}
 	}

@@ -7,7 +7,7 @@
  * @license   http://framework.zend.com/license/new-bsd New BSD License
  */
 
-namespace Kanbanize\Controller;
+namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Ora\Kanbanize\KanbanizeTask;
@@ -15,7 +15,7 @@ use Zend\View\Model\ViewModel;
 use Kanbanize\Service\KanbanizeService;
 use Zend\Db\Sql\Predicate\IsNull;
 
-class KanbanizeController extends AbstractHATEOASRestfulController
+class TaskTransitionsController extends AbstractHATEOASRestfulController
 {
 	//protected static $resourceOptions = array ('GET','POST','PUT');
 	//protected static $collectionOptions = array ('DELETE','GET');
@@ -23,7 +23,7 @@ class KanbanizeController extends AbstractHATEOASRestfulController
 	protected static $collectionOptions = array ();
 	
 	/**
-	 * @var \Kanbanize\Service\KanbanizeService
+	 * @var \TaskManagement\Service\KanbanizeService
 	 */
 	protected $kanbanizeService;
 	
@@ -150,7 +150,7 @@ class KanbanizeController extends AbstractHATEOASRestfulController
       */
     protected function getKanbanizeService(){
      	if (!isset($this->kanbanizeService))
-     		$this->kanbanizeService = $this->getServiceLocator ()->get ( 'Kanbanize\Service\Kanbanize' );
+     		$this->kanbanizeService = $this->getServiceLocator ()->get ( 'TaskManagement\Service\Kanbanize' );
 		return $this->kanbanizeService;
 	}
 	

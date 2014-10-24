@@ -23,20 +23,16 @@ class KanbanizeActionController extends AbstractActionController {
 	 * @var KanbanizeService
 	 */
 	private $kanbanizeService;
-	 
+	
 	public function indexAction() {
 		
-		$client = new Client();
-		$method = $this->params()->fromQuery('method', 'get');
-		$client = $client->setAdapter('Zend\Http\Client\Adapter\Curl')->setUri('http://localhost/kanbanize/task');
-		//prepare request
-		
+ 		$method = $this->params()->fromQuery('method', 'get');
 		//TODO use right board id 
 		$boardId = 3;
 		$id = $this->getEvent()->getRouteMatch()->getParam('id');
-		$ch = curl_init('http://192.168.56.111/kanbanize/task/'.$id);
+		$ch = curl_init('http://192.168.56.111/task-management/tasks/'.$id.'/transitions');
 		switch($method) {
-			case 'update':
+			case 'accept':
 				// only for test purposes the id of the board is hardcoded
 				// this is a test controller
 				$data = array("boardid" => $boardId,"action"=>"accept");
@@ -65,10 +61,10 @@ class KanbanizeActionController extends AbstractActionController {
 		$fm = $this->flashMessenger();
 		
 		if(!$response || curl_getinfo($ch,CURLINFO_HTTP_CODE) != 200) {
-			$fm->addErrorMessage("Cannot move task");
+			$fm->addErrorMessage("Cannot move task ".curl_getinfo($ch,CURLINFO_HTTP_CODE));
 		}
 		else {
-			$fm->addSuccessMessage("Task moved successfully");
+			$fm->addSuccessMessage("Task moved successfully ".curl_getinfo($ch,CURLINFO_HTTP_CODE));
 		}
 		
 		$this->redirect()->toRoute('list', array('response' => $response));
@@ -78,8 +74,7 @@ class KanbanizeActionController extends AbstractActionController {
 	protected function getKanbanizeService(){
 		//singleton
 		if (!isset($this->kanbanizeService))
-			$this->kanbanizeService = $this->getServiceLocator()->get('Kanbanize\Service\Kanbanize');
-		 
+			$this->kanbanizeService = $this->getServiceLocator()->get('TaskManagement\Service\Kanbanize');
 		return $this->kanbanizeService;
 		 
 	}
