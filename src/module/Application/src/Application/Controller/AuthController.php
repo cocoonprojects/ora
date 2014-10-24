@@ -25,14 +25,14 @@ class AuthController extends AbstractActionController
 		 
 		if(strlen($this->params('code')) > 10)
 		{
-			//$this->getServiceLocator()->get('Zend\Log\Logger')->crit('LOGIN: Error code parameter: '.$this->getRequest()->getQuery('code'));
+			//TODO: $this->getServiceLocator()->get('Zend\Log\Logger')->crit('Auth: Error code parameter: '.$this->getRequest()->getQuery('code'));
 			$view->setVariable('error', 'Auth.InvalidCode');
 		}
 	
 		if("" === $provider
 				|| !array_key_exists($provider, $availableProviderList))
 		{
-			//$this->getServiceLocator()->get('Zend\Log\Logger')->crit('lOGIN: Error Provider parameter: '.$provider);
+			//TODO: $this->getServiceLocator()->get('Zend\Log\Logger')->crit('Auth: Error Provider parameter: '.$provider);
 			$view->setVariable('error', 'Auth.InvalidProvider');
 		}
 		 
@@ -40,6 +40,7 @@ class AuthController extends AbstractActionController
 		 
 		if(!$instanceProvider->getToken($this->request))
 		{
+			//TODO: $this->getServiceLocator()->get('Zend\Log\Logger')->crit('Auth: InvalidToken');
 			$view->setVariable('error', 'Auth.InvalidToken');
 		}
 	
@@ -47,8 +48,10 @@ class AuthController extends AbstractActionController
 		$infoLoggedUser = $adapter->getInfoOfProvider($instanceProvider);
 		 
 		$userService = $this->getUserService();
+		
+		/* TODO: Evento per la subscribe */
 		$user = $userService->subscribeUser($infoLoggedUser);
-		 
+		
 		$adapter->setUserIdentity($user);
 		 
 		$authenticationService = $this->getAuthenticationService();

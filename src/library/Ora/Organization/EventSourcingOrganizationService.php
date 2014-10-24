@@ -5,10 +5,8 @@ namespace Ora\Organization;
 use Ora\EventStore\EventStore;
 use Ora\EntitySerializer;
 
+use Ora\UserOrganization\UserOrganization;
 
-/**
- * @author Giannotti Fabio
- */
 class EventSourcingOrganizationService implements OrganizationService
 {
     private $entityManager;
@@ -22,6 +20,11 @@ class EventSourcingOrganizationService implements OrganizationService
 	    $this->entitySerializer = $entitySerializer;
     }
 	
+    public function addUser(Organization $organization, User $user)
+    {
+    	//new UserOrganization(\DateTime $createdAt, $createdBy, $user, $organization, $organizationRole);
+    }
+
 	/**
 	 * Retrieve organization entity with specified ID
 	 */
