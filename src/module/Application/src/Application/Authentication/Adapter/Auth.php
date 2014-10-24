@@ -53,8 +53,8 @@ class Auth extends ZendOAuth2
 		switch($this->client->getProvider())
 		{
 			case 'google':
-				$infoOfSession['firstname'] = $info['given_name'];
-				$infoOfSession['lastname'] = $info['family_name'];
+				$infoOfSession['given_name'] = $info['given_name'];
+				$infoOfSession['family_name'] = $info['family_name'];
 				$infoOfSession['picture'] = $info['picture'];
 				$infoOfSession['email'] = $info['email'];
 				break;

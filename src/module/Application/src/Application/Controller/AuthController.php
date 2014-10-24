@@ -29,6 +29,7 @@ class AuthController extends AbstractActionController
 		{
 			//TODO: $this->getServiceLocator()->get('Zend\Log\Logger')->crit('Auth: Error code parameter: '.$this->getRequest()->getQuery('code'));
 			$view->setVariable('error', 'Auth.InvalidCode');
+			return $view;
 		}
 	
 		if("" === $provider
@@ -36,6 +37,7 @@ class AuthController extends AbstractActionController
 		{
 			//TODO: $this->getServiceLocator()->get('Zend\Log\Logger')->crit('Auth: Error Provider parameter: '.$provider);
 			$view->setVariable('error', 'Auth.InvalidProvider');
+			return $view;
 		}
 		 
 		$instanceProvider = $availableProviderList[$provider];
@@ -44,25 +46,15 @@ class AuthController extends AbstractActionController
 		{
 			//TODO: $this->getServiceLocator()->get('Zend\Log\Logger')->crit('Auth: InvalidToken');
 			$view->setVariable('error', 'Auth.InvalidToken');
+			return $view;
 		}
 	
-		$adapter = $this->getServiceLocator()->get('Application\Auth\Adapter');
-		$infoLoggedUser = $adapter->getInfoOfProvider($instanceProvider);
-		 
-		$userService = $this->getUserService();
-		$organizationService = $this->getOrganizationService();
-		/* TODO: Evento per la subscribe */
-		$user = $userService->subscribeUser($infoLoggedUser);
-		$organization = $organizationService->findOrganization('ooo111');
-		
-		if($organization instanceof Organization)
-			$organizationService->addUser($organization, $user);
-		
-		$adapter->setUserIdentity($user);
-		 
+		//$adapter = $this->getServiceLocator()->get('Application\Auth\Adapter');
+		$adapter = $this->getAuthenticationAdapter();
+		$adapter->setOAuth2Client($instanceProvider);
 		$authenticationService = $this->getAuthenticationService();
 		$authenticate = $authenticationService->authenticate($adapter); // return Zend\Authentication\Result
-	
+        
 		$view->setVariable('authenticate', $authenticate);
 	
 		return $view;
@@ -110,6 +102,12 @@ class AuthController extends AbstractActionController
 	
 		$this->redirectAfterLogout = $redirect;
 		return $this;
+	}
+	
+	protected function getAuthenticationAdapter()
+	{
+		$serviceLocator = $this->getServiceLocator();
+		return $serviceLocator->get('ZendOAuth2\Auth\Adapter');
 	}
 	
 	protected function getAuthenticationService()

@@ -55,14 +55,10 @@ class EventSourcingUserService implements UserService
 		$user = new User($userID, $createdAt, $createdBy);
 	
 		$user->setEmail($infoOfUser['email']);
-		$user->setLastname($infoOfUser['lastname']);
-		$user->setFirstname($infoOfUser['firstname']);
+		$user->setLastname($infoOfUser['family_name']);
+		$user->setFirstname($infoOfUser['given_name']);
 		$user->setSystemRole($role);
-			
-		/* TODO: sostituire la fake "Ora" Organization */
-				
-		//$user->addUserOrganizations($organization, $user);	
-		
+					
 		return $user;
 	}
 
@@ -72,6 +68,15 @@ class EventSourcingUserService implements UserService
 				     ->getRepository('Ora\User\User')
 		             ->findOneBy(array("id" => $id));
 		 
+		return $user;		
+	}
+	
+	public function findUserByEmail($mail)
+	{
+		$user = $this->entityManager
+					->getRepository('Ora\User\User')
+					->findOneBy(array("email" => $email));
+			
 		return $user;		
 	}
 }

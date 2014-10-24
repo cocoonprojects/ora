@@ -31,6 +31,37 @@ class Module
         
         	return $this->providerInstanceList;
         });
+                
+        $userService = $serviceManager->get('User\UserService');
+        $organizationService = $serviceManager->get('Organization\OrganizationService');
+        
+        $eventManagerAuth = $application->getServiceManager()->get('ZendOAuth2\Auth\Adapter')->getEventManager();
+        
+        $eventManagerAuth->attach( 'oauth2.success', function($e) use ($userService, $organizationService){
+
+        	$args = $e->getParams();
+        	$info = $args['info'];
+        	
+        	switch($args['provider'])
+        	{
+        		case 'linkedin':
+        			$info['email'] = $info['emailAddress'];
+        			$info['given_name'] = $info['firstName'];
+        			$info['family_name'] = $info['lastName'];
+        			$info['picture'] = $info['pictureUrl'];     			
+        			break;
+        	}        	
+        	
+        	$user = $userService->findUserByEmail($info['email']);
+        	
+        	if(is_null($user))
+        	{
+        		$user = $userService->subscribeUser($info);        		
+        	}
+        	
+        	$args['info']['user'] = $user;
+        	$args['info']['provider'] = $args['provider'];        	
+        });
     }
     
     private function initAuthProviders($serviceManager)

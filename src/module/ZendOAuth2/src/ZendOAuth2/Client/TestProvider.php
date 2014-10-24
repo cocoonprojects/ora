@@ -52,7 +52,8 @@ class TestProvider extends AbstractOAuth2Client
 				*   "pictureUrl": "https://media.licdn.com/..."
 				*   }
 				* */
-				$this->session->info->name = "Utente Test";
+				$this->session->info->family_name = "Test";
+				$this->session->info->given_name = "Utente";
 				$this->session->info->picture = "";
 				$this->session->info->email = "test@test.it";
 	
