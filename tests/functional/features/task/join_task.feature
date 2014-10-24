@@ -25,7 +25,7 @@ Scenario: Join not existing user into members of existing task
 	Then the response status code should be 404
 	
 @task @members @jointeam @POST
-Scenario: Join user into members of existing task withoud specify user id
+Scenario: Join user into members of existing task without specify user id
 	Given that I want to make a new "Member"
 	When I request "/task-management/tasks/1/members/"
-	Then the response status code should be 406
+	Then the response status code should be 404

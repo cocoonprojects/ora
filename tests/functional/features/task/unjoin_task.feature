@@ -25,7 +25,7 @@ Scenario: Unjoin not existing user into members of existing task
 	Then the response status code should be 404
 	
 @task @members @unjointeam @POST
-Scenario: Unjoin user into members of existing task withoud specify user id
+Scenario: Unjoin user into members of existing task without specify user id
 	Given that I want to delete a "Member"
 	When I request "/task-management/tasks/1/members/"
-	Then the response status code should be 405
+	Then the response status code should be 404
