@@ -23,7 +23,14 @@ class EventSourcingOrganizationService implements OrganizationService
 	
     public function addUser(Organization $organization, User $user)
     {
-    	//new UserOrganization(\DateTime $createdAt, $createdBy, $user, $organization, $organizationRole);
+    	$createdAt = new \DateTime();
+    	
+    	
+    	$userOrganization = new UserOrganization($createdAt, $user, $user, $organization, UserOrganization::$organizationRoleMap[ROLE_MEMBER]);
+    	
+    	$event = new AddUserToOrganizationEvent($createdAt, $userOrganization, $this->entitySerializer);
+    	 
+    	$this->eventStore->appendToStream($event);
     }
 
     /**
