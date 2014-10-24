@@ -14,7 +14,7 @@ return array(
             'members' => array(
                 'type' => 'Segment',
                 'options' => array(
-                    'route'    => '/task-management/tasks/:taskid/members/[:id]',
+                    'route'    => '/task-management/tasks/:taskid/members/:id',
                     'constraints' => array(
                         'taskid' => '[a-zA-Z0-9]+',
                         'id' => '[a-zA-Z0-9]+'

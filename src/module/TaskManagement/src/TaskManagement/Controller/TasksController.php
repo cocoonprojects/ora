@@ -14,7 +14,28 @@ class TasksController extends AbstractHATEOASRestfulController
 	protected $taskService;
 	protected $projectService;
 	
-	    
+	protected $task = null;
+	
+	public function preDispatch($e)
+	{
+        if (null !== $this->params()->fromRoute('id')) 
+        {
+            $taskid = $this->params()->fromRoute('id');
+            
+            // Check if task with specified ID exist
+            $this->task = $this->getTaskService()->findTask($taskid);  
+                      
+            if (is_null($this->task)) 
+            {
+                // HTTP STATUS CODE 404: Not Found
+                $this->response->setStatusCode(404);
+                
+                return $this->response;
+            }
+        }
+	}
+
+	    	    
     public function get($id)
     {        
         // HTTP STATUS CODE 405: Method not allowed
@@ -33,6 +54,7 @@ class TasksController extends AbstractHATEOASRestfulController
     public function getList()
     {
         // TODO: Verificare che l'utente abbia il permesso per accedere all'elenco dei task disponibili?
+        
         $availableTasks = $this->getTaskService()->listAvailableTasks();
        	
        	$this->response->setStatusCode(200);
@@ -51,9 +73,6 @@ class TasksController extends AbstractHATEOASRestfulController
      */
     public function create($data)
     {        
-        // Definition of used Zend Validators
-        $validator_NotEmpty = new \Zend\Validator\NotEmpty();
-        
         if (!isset($data['projectID']))
         {            
             // HTTP STATUS CODE 400: Bad Request
@@ -74,6 +93,9 @@ class TasksController extends AbstractHATEOASRestfulController
         $data['subject'] = trim($data['subject']);
         
         // TODO: Verificare che l'utente abbia il permesso per accedere a tale progetto?
+        
+        // Definition of used Zend Validators
+        $validator_NotEmpty = new \Zend\Validator\NotEmpty();
         
         // Check if subject is empty
         if (!$validator_NotEmpty->isValid($data['subject']))
@@ -131,16 +153,6 @@ class TasksController extends AbstractHATEOASRestfulController
       	
       	    return $this->response;
       	}
-      	     	 
-      	// Check if task with specified ID exist
-      	$task = $this->getTaskService()->findTask($id);
-      	if (!($task instanceof \Ora\TaskManagement\Task))
-      	{
-      	    // HTTP STATUS CODE 404: Not Found
-      	    $this->response->setStatusCode(404);
-      	
-      	    return $this->response;
-      	}
       	
       	// Check if subject exist...
       	if (isset($data['subject']))
@@ -159,11 +171,11 @@ class TasksController extends AbstractHATEOASRestfulController
           	    return $this->response;
           	}
           	
-          	$task->setSubject($data['subject']);
+          	$this->task->setSubject($data['subject']);
       	}
-      	      	      	
+      	
       	// Edit existing task
-      	$this->getTaskService()->editTask($task);
+      	$this->getTaskService()->editTask($this->task);
       	
       	// HTTP STATUS CODE 202: Element Accepted
       	$this->response->setStatusCode(202);
@@ -202,21 +214,11 @@ class TasksController extends AbstractHATEOASRestfulController
      * @author Giannotti Fabio
      */
     public function delete($id)
-    {
-      	// Check if task with specified ID exist
-      	$task = $this->getTaskService()->findTask($id);
-      	if (!($task instanceof \Ora\TaskManagement\Task))
-      	{
-      	    // HTTP STATUS CODE 404: Not Found
-      	    $this->response->setStatusCode(404);
-            
-      	    return $this->response;
-      	}
-      	
+    {     	
       	// TODO: Stiamo controllando se il task da cancellare si trova nello status di ONGOIN. Gli
       	// stati al momento sono salvati dentro l'entità. Fare in modo che qui non ci sia scritto
       	// direttamente 20, ma che venga utilizzata una costante globale o qualcosa di simile.
-        if ($task->getStatus() !== 20) // Ongoing...
+        if ($this->task->getStatus() !== 20) // Ongoing...
         {
             // HTTP STATUS CODE 406: Not Acceptable
             $this->response->setStatusCode(406);
@@ -225,7 +227,7 @@ class TasksController extends AbstractHATEOASRestfulController
         }
       	
       	// Delete existing task
-      	$this->getTaskService()->deleteTask($task);
+      	$this->getTaskService()->deleteTask($this->task);
       	
       	// HTTP STATUS CODE 200: Completed
       	$this->response->setStatusCode(200);
