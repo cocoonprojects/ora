@@ -22,7 +22,7 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
 		$response->getHeaders()->addHeaderLine('Allow', implode(',', $options));
 		return $response;
 	}
-
+	
 	public function checkOptions($e)
 	{
 		if ($this->params('id', false)) {
@@ -45,11 +45,18 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
 		return $response;
 	}
 
+	public function preDispatch($e)
+	{
+	    // To be overridden...
+	}
+	
 	public function setEventManager(EventManagerInterface $events)
 	{
 		parent::setEventManager($events);
+		
 		// Register a listener at high priority
 		$events->attach('dispatch', array($this, 'checkOptions'), 10);
+		$events->attach('dispatch', array($this, 'preDispatch'), 20);
 	}
 
 	protected abstract function getCollectionOptions();

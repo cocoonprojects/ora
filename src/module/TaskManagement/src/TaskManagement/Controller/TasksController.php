@@ -3,21 +3,16 @@
 namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Zend\Stdlib\InitializableInterface;
 use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 
-class TasksController extends AbstractHATEOASRestfulController implements InitializableInterface
+class TasksController extends AbstractHATEOASRestfulController
 {
     protected static $collectionOptions = array('GET', 'POST');
     protected static $resourceOptions = array('DELETE', 'POST', 'GET', 'PUT');
+    
 	protected $taskService;
 	protected $projectService;
-    
-    public function init()
-    {
-        // Executed before any other method
-    }
 	
     public function get($id)
     {        
@@ -135,17 +130,7 @@ class TasksController extends AbstractHATEOASRestfulController implements Initia
       	
       	    return $this->response;
       	}
-      	
-      	// Check if task with specified ID exist
-      	$task = $this->getTaskService()->findTask($id);
-      	if (is_null($task))
-      	{
-      	    // HTTP STATUS CODE 404: Not Found
-      	    $this->response->setStatusCode(404);
-      	     
-      	    return $this->response;
-      	}
-      	 
+      	     	 
       	// Check if subject exist...
       	if (isset($data['subject']))
       	{
@@ -163,11 +148,11 @@ class TasksController extends AbstractHATEOASRestfulController implements Initia
           	    return $this->response;
           	}
           	
-          	$task->setSubject($data['subject']);
+          	$this->task->setSubject($data['subject']);
       	}
       	      	      	
       	// Edit existing task
-      	$this->getTaskService()->editTask($task);
+      	$this->getTaskService()->editTask($this->task);
       	
       	// HTTP STATUS CODE 202: Element Accepted
       	$this->response->setStatusCode(202);

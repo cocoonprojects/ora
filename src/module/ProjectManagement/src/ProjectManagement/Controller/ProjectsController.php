@@ -3,20 +3,14 @@
 namespace ProjectManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Zend\Stdlib\InitializableInterface;
 use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 
-class ProjectsController extends AbstractHATEOASRestfulController implements InitializableInterface
+class ProjectsController extends AbstractHATEOASRestfulController
 {
     protected static $collectionOptions = array ('GET','POST');
     protected static $resourceOptions = array ('DELETE','GET');
 	protected $projectService;
-	
-	public function init()
-	{
-	    // Executed before any other method
-	}
 	
     public function get($id)
     {

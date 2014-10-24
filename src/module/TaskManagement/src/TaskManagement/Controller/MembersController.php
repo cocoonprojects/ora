@@ -3,21 +3,15 @@
 namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Zend\Stdlib\InitializableInterface;
 use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 
-class MembersController extends AbstractHATEOASRestfulController implements InitializableInterface
+class MembersController extends AbstractHATEOASRestfulController
 {
     protected static $collectionOptions = array('DELETE', 'POST');
     protected static $resourceOptions = array('DELETE', 'POST');
 	protected $taskService;
     protected $userService;
-    
-    public function init()
-    {
-        // Executed before any other method
-    }
     
     public function get($id)
     {        
