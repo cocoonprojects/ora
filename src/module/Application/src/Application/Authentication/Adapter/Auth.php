@@ -46,7 +46,7 @@ class Auth extends ZendOAuth2
 		
 		$infoOfSession = array();
 		$info = (array)$this->client->getInfo();
-		 
+
 		$infoOfSession['provider'] = $this->client->getProvider();
 		$infoOfSession['sessionOfProvider'] = $this->client->getSessionContainer()->getManager()->getStorage();
 		 
