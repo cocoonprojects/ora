@@ -3,7 +3,7 @@ Feature: Testing the RESTfulness of the Task Controller (JOIN USER INTO MEMBERS/
 @task @members @jointeam @POST
 Scenario: Join user into members of existing task
 	Given that I want to make a new "Member"
-	When I request "/task-management/tasks/2/members/1"
+	When I request "/task-management/tasks/4/members/1"
 	Then the response status code should be 201
 
 @task @members @jointeam @POST

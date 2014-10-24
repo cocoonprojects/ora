@@ -9,7 +9,7 @@ Scenario: Unjoin user into members of existing task
 @task @members @unjointeam @POST
 Scenario: Unjoin user into members of existing task when user is not member of team
 	Given that I want to delete a "Member"
-	When I request "/task-management/tasks/2/members/1"
+	When I request "/task-management/tasks/3/members/1"
 	Then the response status code should be 403
 	
 @task @members @unjointeam @POST

@@ -213,9 +213,20 @@ class TasksController extends AbstractHATEOASRestfulController implements Initia
       	{
       	    // HTTP STATUS CODE 404: Not Found
       	    $this->response->setStatusCode(404);
-      	
+            
       	    return $this->response;
       	}
+      	
+      	// TODO: Stiamo controllando se il task da cancellare si trova nello status di ONGOIN. Gli
+      	// stati al momento sono salvati dentro l'entità. Fare in modo che qui non ci sia scritto
+      	// direttamente 20, ma che venga utilizzata una costante globale o qualcosa di simile.
+        if ($task->getStatus() !== 20) // Ongoing...
+        {
+            // HTTP STATUS CODE 406: Not Acceptable
+            $this->response->setStatusCode(406);
+            
+            return $this->response;
+        }
       	
       	// Delete existing task
       	$this->getTaskService()->deleteTask($task);

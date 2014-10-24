@@ -95,16 +95,29 @@ class EventSourcingTaskService implements TaskService
 	    
 	    $tasks = $this->entityManager->getRepository('Ora\TaskManagement\Task')->findAll();	    
 	    
+	    // TODO: Tornare sul client le informazioni riguardanti l'utente loggato 
+	    // recuperandole dalla sessione. Al momento forzo sempre il ritorno di "1"
+	    $loggedUserID = "1";
+	    $json['loggeduser'] = array();
+	    $json['loggeduser']['id'] = $loggedUserID;
+	    
 	    foreach ($tasks as $task)
 	    {
-	        $json['tasks'][] = $task->serializeToARRAY($this->entitySerializer);
+	        $serializedTask = $task->serializeToARRAY($this->entitySerializer);
+	        $serializedTask['alreadyMember'] = false;
+	        
+	        // TODO: Verificare se è possibile stabilire più facilmente se l'utente attualmente
+	        // loggato fa parte oppure no dei membri del team relativo all'attuale task serializzato.
+	        // Questa cosa serve per stabilire cosa mostrare e cosa no nell'interfaccia utente sul client.
+	        foreach ($task->getMembers() as $member)
+	        {
+	            if ($member->getId() == $loggedUserID)
+	               $serializedTask['alreadyMember'] = true; 
+	        }
+	        
+	        $json['tasks'][] = $serializedTask;
 	    }
-	    
-	    // TODO: Tornare sul client le informazioni riguardanti 
-	    // l'utente loggato recuperandole dalla sessione
-	    $json['loggeduser'] = array();
-	    $json['loggeduser']['id'] = "1";
-	    
+	        
 	    return $json;
 	}
 	
