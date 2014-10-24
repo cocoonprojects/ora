@@ -59,7 +59,6 @@ class EventSourcingUserService implements UserService
 		$user->addUserOrganizations($organization, $user);	
 		
 		return $user;
-
 	}
 
 	public function findUser($id)

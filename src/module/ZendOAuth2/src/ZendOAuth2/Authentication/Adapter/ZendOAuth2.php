@@ -41,7 +41,6 @@ class ZendOAuth2 implements AdapterInterface, EventManagerAwareInterface
         } else {
             
             return new Result(Result::FAILURE, $this->client->getError());
-            
         }        
     }
 
@@ -77,7 +76,7 @@ class ZendOAuth2 implements AdapterInterface, EventManagerAwareInterface
     	    	
     	return $infoOfSession;
     }
-        
+ 
     public function setEventManager(EventManagerInterface $events)
     {
         $events->setIdentifiers(__CLASS__);

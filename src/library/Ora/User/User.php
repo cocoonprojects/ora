@@ -57,7 +57,7 @@ class User extends DomainEntity
 		parent::__construct($userID, $createdAt, $createdBy);
 		
 		$this->userOrganizations = new ArrayCollection();
-		
+
 		$this->setStatus(self::STATUS_ACTIVE);
 	}
 	

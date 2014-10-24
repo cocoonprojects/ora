@@ -5,6 +5,9 @@ namespace Ora\Organization;
 use Ora\EventStore\EventStore;
 use Ora\EntitySerializer;
 
+
+use Ora\UserOrganization\UserOrganization;
+
 use Ora\UserOrganization\UserOrganization;
 
 class EventSourcingOrganizationService implements OrganizationService
@@ -25,9 +28,9 @@ class EventSourcingOrganizationService implements OrganizationService
     	//new UserOrganization(\DateTime $createdAt, $createdBy, $user, $organization, $organizationRole);
     }
 
-    /**
-	 * Retrieve organization entity with specified ID
-	 */
+	/**
+	*  Retrieve organization entity with specified ID
+	*/
 	public function findOrganization($id)
 	{
 	    $organization = $this->entityManager->getRepository('Ora\Organization\Organization')->findOneBy(array("id"=>$id));
@@ -35,4 +38,3 @@ class EventSourcingOrganizationService implements OrganizationService
 	    return $organization;
 	}
 }
-
