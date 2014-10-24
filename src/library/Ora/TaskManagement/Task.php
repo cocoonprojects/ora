@@ -3,6 +3,7 @@
 namespace Ora\TaskManagement;
 
 use Doctrine\ORM\Mapping AS ORM;
+use Doctrine\Common\Collections\ArrayCollection AS ARRAYCOLLECTION;
 use Ora\DomainEntity;
 
 /**
@@ -40,11 +41,21 @@ class Task extends DomainEntity
 	 */
 	private $project;
 	
+	/**
+	 * @ORM\ManyToMany(targetEntity="Ora\User\User")
+	 * @ORM\JoinTable(name="teams",
+	 *      joinColumns={@ORM\JoinColumn(name="task_id", referencedColumnName="id")},
+	 *      inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")}
+	 *      )
+	 */
+	private $members;
+	
 	// TODO: Utilizzare Ora\User\User $createdBy se createdBy dev'essere una relazione con lo USER
 	public function __construct($taskID, \DateTime $createdAt, $createdBy) 
 	{
 		parent::__construct($taskID, $createdAt, $createdBy);
 		$this->status = self::STATUS_ONGOING;
+		$this->members = new ARRAYCOLLECTION();
 	}
 	
 	public function getSubject() {
@@ -53,14 +64,6 @@ class Task extends DomainEntity
 	
 	public function setSubject($subject) {
 		$this->subject = $subject;
-	}
-	
-	public function getProject() {
-	    return $this->project;
-	}
-	
-	public function setProject($project) {
-	    $this->project = $project;
 	}
 	
 	public function getStatus() {
@@ -72,4 +75,51 @@ class Task extends DomainEntity
 	    $this->status = $status;
 	}
 	
+	public function getProject() {
+	    return $this->project;
+	}
+	
+	public function setProject($project) {
+	    $this->project = $project;
+	}	
+	
+	public function removeMember($m) {
+	    $this->members->removeElement($m);
+	}
+	
+	public function addMember($m) {
+	    $this->members[] = $m;
+	}
+	
+	public function getMembers() {
+	    return $this->members;
+	}
+	
+	public function serializeToJSON($entitySerializer) 
+	{
+	    $serializedToArray = $this->serializeToARRAY($entitySerializer);
+	    
+	    return json_encode($serializedToArray); 
+	}
+	
+	public function serializeToARRAY($entitySerializer)
+	{
+	    $serializedToArray = $entitySerializer->toArray($this);
+        
+	    // TODO: Controllare se il serializzatore di doctrine 
+	    //       può recuperare automaticamente tali dati
+	    $createdBy = $this->getCreatedBy();
+	    $serializedToArray['created_by']['name'] = $createdBy->getName();
+	    
+	    //TODO: Serializzare i members
+	    $members = $this->getMembers();
+	    
+	    $serializedToArray['members'] = array();
+	    foreach ($members as $t)
+	    {	        
+            $serializedToArray['members'][] = $t->getName();
+	    }
+	    
+	    return $serializedToArray;
+	}
 }

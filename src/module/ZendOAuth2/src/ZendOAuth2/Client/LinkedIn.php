@@ -122,9 +122,9 @@ class LinkedIn extends AbstractOAuth2Client
 		                 *   "pictureUrl": "https://media.licdn.com/..." 
 		                 *   }
 		                 * */
-		                $this->session->info->name = $this->session->info->firstName." ".$this->session->info->lastName;
-		                $this->session->info->picture = $this->session->info->pictureUrl;
-		                $this->session->info->email = $this->session->info->emailAddress;
+		                //$this->session->info->name = $this->session->info->firstName." ".$this->session->info->lastName;
+		                //$this->session->info->picture = $this->session->info->pictureUrl;
+		                //$this->session->info->email = $this->session->info->emailAddress;
 		                
 		                return $this->session->info;
 		            } else {

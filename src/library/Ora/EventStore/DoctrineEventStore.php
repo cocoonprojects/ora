@@ -23,7 +23,7 @@ class DoctrineEventStore implements EventStore
 	public function appendToStream(DomainEvent $domainEvent) 
 	{
 		$this->entityManager->persist($domainEvent);
-		$this->entityManager->flush();
+		$this->entityManager->flush($domainEvent);
 	}
 	
 	public static function instance(EntityManager $entityManager) 

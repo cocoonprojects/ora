@@ -7,5 +7,5 @@ namespace Ora\ProjectManagement;
  */
 interface ProjectService
 {
-	public function findProjectByID($projectID);
+	public function findProject($id);
 } 

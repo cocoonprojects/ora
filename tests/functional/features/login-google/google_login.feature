@@ -25,7 +25,7 @@ Scenario: Guest select Provider for authenticatin login
         And I should see "Login con TestProvider"	 
 
 @login        
-Scenario: Guest accept Auth Provider for authenticatin login
+Scenario: Logged User
         Given I am not authenticated in ORA Project
         When I go to "/auth/login/testProvider?code=12345678901"
         Then I should see "Logout"  

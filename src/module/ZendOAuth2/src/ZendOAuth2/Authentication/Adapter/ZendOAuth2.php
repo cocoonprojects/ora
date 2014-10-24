@@ -25,14 +25,15 @@ class ZendOAuth2 implements AdapterInterface, EventManagerAwareInterface
     public function authenticate()
     {
         if(is_object($this->client) AND is_object($this->client->getInfo())) { 
-            
+        
             $args['code'] = Result::SUCCESS;
-            $args['info'] = (array)$this->client->getInfo();
+            //$args['info'] = (array)$this->client->getInfo();
+            $args['info'] = $this->getInfoOfProvider();
             $args['provider'] = $this->client->getProvider();
             $args['token'] = (array)$this->client->getSessionToken();
             
             $args = $this->getEventManager()->prepareArgs($args);
-
+            
             $this->getEventManager()->trigger('oauth2.success', $this, $args);
                         
             return new Result($args['code'], $args['info']);
@@ -43,7 +44,38 @@ class ZendOAuth2 implements AdapterInterface, EventManagerAwareInterface
             
         }
         
-    }    
+    }
+
+    public function getInfoOfProvider()
+    {    	
+    	$infoOfSession = array();
+    	$info = (array)$this->client->getInfo();
+    	
+    	$infoOfSession['provider'] = $this->client->getProvider();
+    	$infoOfSession['sessionOfProvider'] = $this->client->getSessionContainer()->getManager()->getStorage();
+    	
+    	switch($this->client->getProvider())
+    	{
+    		case 'google':
+			    		$infoOfSession['name'] = $info['name'];
+			    		$infoOfSession['picture'] = $info['picture'];
+			    		$infoOfSession['email'] = $info['email'];    			
+    					break;
+    		case 'linkedin':
+    					$infoOfSession['name'] = $info['firstName']." ".$info['lastName'];
+    					$infoOfSession['picture'] = $info['pictureUrl'];
+    					$infoOfSession['email'] = $info['emailAddress'];    			
+    					break; 
+    		case 'TestProvider':
+			    		$infoOfSession['name'] = $info['name'];
+			    		$infoOfSession['picture'] = $info['picture'];
+			    		$infoOfSession['email'] = $info['email']; 
+    					break;    					   						
+    	}
+    	    	
+    	return $infoOfSession;
+    }
+    
     
     public function setEventManager(EventManagerInterface $events)
     {

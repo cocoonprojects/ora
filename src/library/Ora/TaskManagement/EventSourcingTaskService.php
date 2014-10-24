@@ -5,7 +5,6 @@ namespace Ora\TaskManagement;
 use Ora\EventStore\EventStore;
 use Ora\EntitySerializer;
 
-
 /**
  * @author Giannotti Fabio
  */
@@ -22,11 +21,15 @@ class EventSourcingTaskService implements TaskService
 	    $this->entitySerializer = $entitySerializer;
     }
 	
-	public function createNewTask($project, $taskSubject)
+    /**
+     * Append new event for CREATE new task with specified parameters
+     */
+	public function createNewTask(\Ora\ProjectManagement\Project $project, $taskSubject)
 	{
 	    $createdAt = new \DateTime();
 	    // TODO: Modificare createdBy per inserire lo USERNAME esatto
-	    $createdBy = "NOME UTENTE INVENTATO";
+	    // prelevando il nome utente dalla sessione o da dove sia
+	    $createdBy = $this->entityManager->getRepository('Ora\User\User')->findOneBy(array("id"=>"1"));
         
 	    // Generate unique ID for Task
 	    $taskID = uniqid();   
@@ -38,45 +41,111 @@ class EventSourcingTaskService implements TaskService
 	    $task->setSubject($taskSubject);
 	    $task->setProject($project);
 	    
-	    // Creation of event after creation of Task Entity
 	    $event = new TaskCreatedEvent($createdAt, $task, $this->entitySerializer);
 	    
 	    $this->eventStore->appendToStream($event);
 	}
 	
+	/**
+	 * Retrieve task entity with specified ID
+	 */
+	public function findTask($id)
+	{
+	    $task = $this->entityManager->getRepository('Ora\TaskManagement\Task')->findOneBy(array("id"=>$id));
+	     
+	    return $task;
+	}
 	
+	/**
+	 * Append new event for UPDATE the specified task entity with $data parameters
+	 */
+	public function editTask(\Ora\TaskManagement\Task $task)
+	{
+	    $editedAt = new \DateTime();
+	    // TODO: Modificare editedBy per inserire lo USERNAME esatto
+	    // prelevando il nome utente dalla sessione o da dove sia
+	    $editedBy = $this->entityManager->getRepository('Ora\User\User')->findOneBy(array("id"=>"1"));
+	    	    
+	    $task->setMostRecentEditAt($editedAt);
+	    $task->setMostRecentEditBy($editedBy);
+	    
+	    $event = new TaskEditedEvent($editedAt, $task, $this->entitySerializer);
+	    
+	    $this->eventStore->appendToStream($event);
+	}
+	
+	/**
+	 * Append new event for DELETE the specified task entity
+	 */
+	public function deleteTask(\Ora\TaskManagement\Task $task)
+	{
+	    $deletedAt = new \DateTime();
+	    
+	    $event = new TaskDeletedEvent($deletedAt, $task, $this->entitySerializer);
+	    
+	    $this->eventStore->appendToStream($event);
+	}
+	
+	/**
+	 * Get the list of all available tasks 
+	 */
 	public function listAvailableTasks()
 	{
-	    $serializedTasks['tasks'] = array();
+	    $json['tasks'] = array();
 	    
 	    $tasks = $this->entityManager->getRepository('Ora\TaskManagement\Task')->findAll();	    
+	    
+	    // TODO: Tornare sul client le informazioni riguardanti l'utente loggato 
+	    // recuperandole dalla sessione. Al momento forzo sempre il ritorno di "1"
+	    $loggedUserID = "1";
+	    $json['loggeduser'] = array();
+	    $json['loggeduser']['id'] = $loggedUserID;
+	    
 	    foreach ($tasks as $task)
 	    {
-	        $serializedTasks['tasks'][] = $this->entitySerializer->toJson($task);
+	        $serializedTask = $task->serializeToARRAY($this->entitySerializer);
+	        $serializedTask['alreadyMember'] = false;
+	        
+	        // TODO: Verificare se è possibile stabilire più facilmente se l'utente attualmente
+	        // loggato fa parte oppure no dei membri del team relativo all'attuale task serializzato.
+	        // Questa cosa serve per stabilire cosa mostrare e cosa no nell'interfaccia utente sul client.
+	        foreach ($task->getMembers() as $member)
+	        {
+	            if ($member->getId() == $loggedUserID)
+	               $serializedTask['alreadyMember'] = true; 
+	        }
+	        
+	        $json['tasks'][] = $serializedTask;
 	    }
+	        
+	    return $json;
+	}
+	
+	/**
+	 * Add new USER (member) into TEAM of specified TASK
+	 */
+	public function addTaskMember(\Ora\TaskManagement\Task $task, \Ora\User\User $user)
+	{
+	    $joinedAt = new \DateTime();
 	    
-	    // TODO: Eliminare task temporaneo creato solo per "popolare" il JSON
-	    // Si potrebbe evitare di generare qui i fake tasks lanciando uno script php
-	    // per popolare la tabella dei tasks in modo da poterne recuperare qualcuno
-	    $serializedTasks['tasks'][] = array(
-	        "ID"=>"d9f8s9fd8sdf",
-	        "subject"=>"Descrizione casuale di un task già esistente",
-	        "createdAt"=>new \Datetime(),
-	        "createdBy"=>"Fabio"
-	    );	    
-	    $serializedTasks['tasks'][] = array(
-	        "ID"=>"f7g6h6fgh7do",
-	        "subject"=>"Seconda descrizione casuale per task disponibili",
-	        "createdAt"=>new \Datetime(),
-	        "createdBy"=>"Pluto"
-	    );
-	    $serializedTasks['tasks'][] = array(
-	        "ID"=>"2j3h42ffgj34",
-	        "subject"=>"Ultima descrizione farlocca per popolare tabella",
-	        "createdAt"=>new \Datetime(),
-	        "createdBy"=>"Paperino"
-	    );
-	    
-	    return $serializedTasks;
+        $task->addMember($user);
+        
+	    $event = new TaskMemberAddedEvent($joinedAt, $task, $this->entitySerializer);
+	     
+	    $this->eventStore->appendToStream($event);
+	}
+	
+	/**
+	 * Remove USER (member) from TEAM of specified TASK
+	 */
+	public function removeTaskMember(\Ora\TaskManagement\Task $task, \Ora\User\User $user)
+	{
+	    $joinedAt = new \DateTime();
+	     
+        $task->removeMember($user);
+	
+        $event = new TaskMemberRemovedEvent($joinedAt, $task, $this->entitySerializer);
+	
+        $this->eventStore->appendToStream($event);
 	}
 }

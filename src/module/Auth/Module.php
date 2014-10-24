@@ -10,9 +10,37 @@ class Module
 
      public function onBootstrap(\Zend\Mvc\MvcEvent $e)
      {
-        $em = $e->getApplication()->getEventManager();
-        
+        $application = $e->getApplication();
+        $em = $application->getEventManager();
         $em->attach(\Zend\Mvc\MvcEvent::EVENT_DISPATCH, array($this, 'onDispatch'));
+        
+        $serviceManager = $application->getServiceManager();
+        
+        $serviceManager->setFactory('providerInstanceList', function ($serviceManager) {
+        	
+        	$providerInstanceList = array();
+        	
+        	$allConfigurationOption = $serviceManager->get('Config');
+        	
+        	if(is_array($allConfigurationOption) && array_key_exists('zendoauth2', $allConfigurationOption))
+        	{
+        		$availableProviderList = $allConfigurationOption['zendoauth2'];
+        			
+        		foreach($availableProviderList as $provider => $providerOptions)
+        		{
+        			$provider = ucfirst($provider);
+        			$instanceProviderName = "ZendOAuth2\\".$provider;
+        			$instanceProvider = $serviceManager->get($instanceProviderName);
+        				
+        			if(null != $instanceProvider)
+        			{        				
+        				$providerInstanceList[$provider] =  $instanceProvider;
+        			}
+        		}
+        	}
+
+        	return $providerInstanceList;
+        });        
     }
     
     public function onDispatch(\Zend\Mvc\MvcEvent $e)
@@ -54,7 +82,8 @@ class Module
     {
     	return array(
     			'invokables' => array(
-    					'informationsOfAuthentication' => 'Auth\View\Helper\InformationsOfAuthentication'
+    					'authenticationAction' => 'Auth\View\Helper\AuthenticationAction',
+    					'popupProviderList' => 'Auth\View\Helper\PopupProviderList'
     			),
     	);
     }    

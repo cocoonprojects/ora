@@ -25,10 +25,9 @@ class DomainEntity {
     private $createdAt;
     
     /**
-     * @ORM\Column(type="string")
+     * @ORM\ManyToOne(targetEntity="Ora\User\User")
      */
     protected $createdBy;
-    // TODO: Controllare se createdBy dev'essere una relazione con lo USER o semplicemente una stringa
     
     /**
      * @ORM\Column(type="datetime", nullable=TRUE)
