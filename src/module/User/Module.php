@@ -14,15 +14,18 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 
     public function getAutoloaderConfig()
     {
-    	return array(
-    			'Zend\Loader\StandardAutoloader' => array(
-    					'namespaces' => array(
-    							__NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
-    					),
-    			),
-    	);
+        return array(
+                'Zend\Loader\ClassMapAutoloader' => array(
+                        __DIR__ . '/autoload_classmap.php',
+                ),
+                'Zend\Loader\StandardAutoloader' => array(
+                        'namespaces' => array(
+                                __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
+                        )
+                )
+        );
     }
-        
+    
     public function getServiceConfig()
     {
         return array (
@@ -43,5 +46,4 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             }
         }, false); // false tells the loader to run this initializer after all others
     }
-
 }
