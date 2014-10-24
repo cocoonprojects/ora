@@ -27,4 +27,11 @@ interface UserService
 	 */	
 	public function findUser($id);
 	
+	/**
+	 * Find a User by Email
+	 *
+	 * @param string $email
+	 */
+	public function findUserByEmail($email);	
+	
 }
