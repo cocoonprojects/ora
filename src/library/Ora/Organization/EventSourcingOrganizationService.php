@@ -25,7 +25,7 @@ class EventSourcingOrganizationService implements OrganizationService
     	//new UserOrganization(\DateTime $createdAt, $createdBy, $user, $organization, $organizationRole);
     }
 
-	/**
+    /**
 	 * Retrieve organization entity with specified ID
 	 */
 	public function findOrganization($id)
