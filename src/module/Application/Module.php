@@ -116,8 +116,7 @@ class Module
 	                $logger->addWriter($writer);  
 	                
 	                return $logger;
-	            },
-            	          		
+	            },            	          		
             ),
             'invokables' => array(
             	'Application\Auth\Adapter' => 'Application\Authentication\Adapter\Auth',

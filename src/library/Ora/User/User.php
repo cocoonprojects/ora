@@ -52,7 +52,7 @@ class User extends DomainEntity
 	 * @ORM\OneToMany(targetEntity="Ora\UserOrganization\UserOrganization", mappedBy="user")
 	 **/
 	private $userOrganizations;	
-
+	
 	public function __construct($userID, \DateTime $createdAt, $createdBy) 
 	{
 		parent::__construct($userID, $createdAt, $createdBy);
@@ -115,7 +115,6 @@ class User extends DomainEntity
 	{
 		return $this->userOrganizations;
 	}
-
 	public function serializeToJSON($entitySerializer) 
 	{
 	    $serializedToArray = $this->serializeToARRAY($entitySerializer);

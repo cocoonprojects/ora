@@ -4,7 +4,6 @@ namespace Ora\Organization;
 
 use Ora\EventStore\EventStore;
 use Ora\EntitySerializer;
-
 use Ora\UserOrganization\UserOrganization;
 use Ora\User\User;
 
@@ -33,9 +32,9 @@ class EventSourcingOrganizationService implements OrganizationService
     	$this->eventStore->appendToStream($event);
     }
 
-    /**
-	 * Retrieve organization entity with specified ID
-	 */
+	/**
+	*  Retrieve organization entity with specified ID
+	*/
 	public function findOrganization($id)
 	{
 	    $organization = $this->entityManager->getRepository('Ora\Organization\Organization')->findOneBy(array("id"=>$id));

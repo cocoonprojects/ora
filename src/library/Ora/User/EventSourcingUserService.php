@@ -6,10 +6,6 @@ use Ora\EventStore\EventStore;
 use Ora\EntitySerializer;
 
 use Ora\User\Role;
-//use Ora\Organization\Organization;
-use Ora\UserOrganization\UserOrganization;
-use Ora\User\User;
-
 use Ora\Organization\Organization;
 use Ora\UserOrganization\UserOrganization;
 use Ora\User\User;
@@ -39,7 +35,6 @@ class EventSourcingUserService implements UserService
 		return $user;			
 	}
 		
-	//public function create($infoOfUser, Role $role, Organization $organization)
 	public function create($infoOfUser, Role $role)
 	{
 		$userID = uniqid();
