@@ -31,13 +31,12 @@ class Module
         
         	return $this->providerInstanceList;
         });
-                
-        $userService = $serviceManager->get('User\UserService');
-        $organizationService = $serviceManager->get('Organization\OrganizationService');
         
+       /* $userService = $serviceManager->get('User\UserService');
+       
         $eventManagerAuth = $application->getServiceManager()->get('ZendOAuth2\Auth\Adapter')->getEventManager();
         
-        $eventManagerAuth->attach( 'oauth2.success', function($e) use ($userService, $organizationService){
+        $eventManagerAuth->attach( 'oauth2.success', function($e) use ($userService){
 
         	$args = $e->getParams();
         	$info = $args['info'];
@@ -61,7 +60,7 @@ class Module
         	
         	$args['info']['user'] = $user;
         	$args['info']['provider'] = $args['provider'];        	
-        });
+        });*/
     }
     
     private function initAuthProviders($serviceManager)
