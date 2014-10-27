@@ -1,5 +1,4 @@
 <?php
-
 namespace ZendExtension\Mvc\Controller;
 
 use Zend\Mvc\Controller\AbstractRestfulController;
@@ -22,7 +21,7 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
 		$response->getHeaders()->addHeaderLine('Allow', implode(',', $options));
 		return $response;
 	}
-
+	
 	public function checkOptions($e)
 	{
 		if ($this->params('id', false)) {
