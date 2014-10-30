@@ -15,7 +15,10 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 
     public function getAutoloaderConfig()
     {
-        return array(               
+        return array(      
+                'Zend\Loader\ClassMapAutoloader' => array(
+                        __DIR__ . '/autoload_classmap.php',
+                ),
                 'Zend\Loader\StandardAutoloader' => array(
                         'namespaces' => array(
                                 __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
@@ -31,19 +34,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
                 'Organization\OrganizationService' => 'Organization\Service\OrganizationServiceFactory'
             ),
         );
-    }
-    
-    public function onBootstrap($e)
-    {
-        $sm = $e->getApplication()->getServiceManager();
-        
-        $controllers = $sm->get('ControllerLoader');
-        
-        $controllers->addInitializer(function($controller, $cl) {
-            if ($controller instanceof InitializableInterface) {
-                $controller->init();
-            }
-        }, false); // false tells the loader to run this initializer after all others
     }
 
 }
