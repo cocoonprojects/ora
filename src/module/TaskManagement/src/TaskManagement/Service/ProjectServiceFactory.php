@@ -1,12 +1,11 @@
 <?php
 
-namespace ProjectManagement\Service;
+namespace TaskManagement\Service;
 
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-use Ora\ProjectManagement\EventSourcingProjectService;
-use Ora\EntitySerializer;
+use Ora\ProjectManagement\MockProjectService;
 
 class ProjectServiceFactory implements FactoryInterface 
 {
@@ -19,14 +18,11 @@ class ProjectServiceFactory implements FactoryInterface
 	{
 	    if(is_null(self::$instance)) 
 	    {
-            $eventStore = $serviceLocator->get('Application\Service\EventStore');
-            
-            $entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-            $entitySerializer = new EntitySerializer($entityManager);
-            
-            self::$instance = new EventSourcingProjectService($entityManager, $eventStore, $entitySerializer);            
+// 			$eventStore = $serviceLocator->get('prooph.event_store');
+// 			$eventStoreStrategy = $serviceLocator->get('prooph.event_store.single_stream_strategy');
+//             self::$instance = new EventSourcingProjectService($eventStore, $eventStoreStrategy);
+	    	self::$instance = new MockProjectService();
         }
-
 	    return self::$instance;
 	}
 }

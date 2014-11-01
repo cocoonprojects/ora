@@ -9,12 +9,17 @@ use Prooph\EventStore\Aggregate\AggregateType;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Rhumsaa\Uuid\Uuid;
 
-class EventSourcingCreditsAccountsService extends AggregateRepository implements CreditsAccountsService {
+class EventSourcingCreditsAccountsService extends AggregateRepository implements CreditsAccountsService
+{
 	
 	public function __construct(EventStore $eventStore, StreamStrategyInterface $eventStoreStrategy) {
 		parent::__construct($eventStore, new AggregateTranslator(), $eventStoreStrategy, new AggregateType('Ora\Accounting\CreditsAccount'));
 	}
 	
+	/**
+	 * TODO: rename in createAccount(createdBy $user)
+	 * @see \Ora\Accounting\CreditsAccountsService::create()
+	 */
 	public function create() {
 		$createdAt = new \DateTime();
 		$this->eventStore->beginTransaction();

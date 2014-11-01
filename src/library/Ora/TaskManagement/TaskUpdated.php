@@ -8,7 +8,7 @@ use Prooph\EventSourcing\AggregateChanged;
 * 
 * @author Giannotti Fabio
 */
-class TaskCreated extends AggregateChanged 
+class TaskUpdated extends AggregateChanged 
 {
 	
 }

@@ -2,13 +2,11 @@
 
 namespace Ora\TaskManagement;
 
-
 use Prooph\EventSourcing\AggregateChanged;
-
 /**
 * 
 * @author Giannotti Fabio
 */
-class TaskEditedEvent extends AggregateChanged
+class TaskCompleted extends AggregateChanged
 {
 }

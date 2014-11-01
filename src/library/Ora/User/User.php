@@ -9,12 +9,13 @@ use Ora\User\Role;
 use Doctrine\Common\Collections\ArrayCollection;
 use Ora\Organization\Organization;
 use Ora\UserOrganization\UserOrganization;
+use Rhumsaa\Uuid\Uuid;
 
 /**
  * @ORM\Entity @ORM\Table(name="users")
  *
  */
-class User extends DomainEntity 
+class User extends DomainEntity implements \Serializable, MasterData
 {	   
 	const STATUS_ACTIVE = 1;
 	 
@@ -53,9 +54,13 @@ class User extends DomainEntity
 	 **/
 	private $userOrganizations;	
 	
-	public function __construct($userID, \DateTime $createdAt, $createdBy) 
+	public function __construct(Uuid $userID, MasterData $createdBy = null, \DateTime $createdAt = null) 
 	{
-		parent::__construct($userID, $createdAt, $createdBy);
+		$this->id = $userID;
+		$this->createdAt = $createdAt == null ? new \DateTime() : $createdAt;
+		if(!is_null($createdBy)) {
+			$this->createdBy = $createdBy->toProfile();
+		}
 		
 		$this->userOrganizations = new ArrayCollection();
 		$this->setStatus(self::STATUS_ACTIVE);
@@ -115,17 +120,32 @@ class User extends DomainEntity
 	{
 		return $this->userOrganizations;
 	}
-	public function serializeToJSON($entitySerializer) 
-	{
-	    $serializedToArray = $this->serializeToARRAY($entitySerializer);
-	    
-	    return json_encode($serializedToArray); 
+	
+	public function toProfile() {
+		$rv = Profile::create($this->id, $this->createdAt, $this->createdBy);
+		$rv->setFirstname($this->firstname);
+		$rv->setLastname($this->lastname);
+		$rv->setEmail($this->email);
+		return $rv;
 	}
 	
-	public function serializeToARRAY($entitySerializer)
+	public function serialize()
 	{
-	    $serializedToArray = $entitySerializer->toArray($this);
-	     
-	    return $serializedToArray;
+		$data = array(
+			'id' => $this->id->toString(),
+			'email' => $this->email,
+			'firstname' => $this->firstname,
+			'lastname' => $this->lastname,
+		);
+	    return serialize($data); 
+	}
+	
+	public function unserialize($encodedData)
+	{
+	    $data = unserialize($encodedData);
+	    $this->id = Uuid::fromString($data['id']);
+	    $this->email = $data['email'];
+	    $this->firstname = $data['firstname'];
+	    $this->lastname = $data['lastname'];
 	}
 }

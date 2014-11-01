@@ -25,7 +25,7 @@ class DomainEntity extends AggregateRoot {
 	protected $createdAt;
 	
 	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+	 * @ORM\ManyToOne(targetEntity="Ora\User\Profile")
 	 */
 	protected $createdBy;
 	
@@ -36,7 +36,7 @@ class DomainEntity extends AggregateRoot {
     protected $mostRecentEditAt;
     
     /**
-     * @ORM\ManyToOne(targetEntity="Ora\User\User")
+     * @ORM\ManyToOne(targetEntity="Ora\User\Profile")
      */
     protected $mostRecentEditBy;
 	
@@ -69,7 +69,15 @@ class DomainEntity extends AggregateRoot {
         return $this->mostRecentEditBy;
     }
     
+	public function equals(DomainEntity $object = null) {
+		if(is_null($object)) {
+			return false;
+		}
+		return $this->id->compareTo($object->getId()) === 0;
+	}
+	
 	protected function aggregateId() {
 		return $this->id;
 	}
+	
 }

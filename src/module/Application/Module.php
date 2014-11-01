@@ -105,7 +105,6 @@ class Module
     {
         return array(
             'factories' => array(
-                'Application\Service\EventStore' => 'Application\Service\EventStoreFactory',
             	'Application\Service\AuthenticationService' => 'Application\Service\AuthenticationServiceFactory',
             	'Zend\Log\Logger' => function($sm){
             		

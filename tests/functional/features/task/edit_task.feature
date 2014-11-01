@@ -1,34 +1,31 @@
-Feature: Testing the RESTfulness of the Task Controller (EDIT OF EXISTING TASK)
+Feature: Edit task
+	As a task owner
+	I want to edit an ongoing task
+	in order to fix mistakes made during creation
 
 @task @edit @PUT
-Scenario: Update existing Task with valid ID and right parameters
+Scenario: Successfully updating an existing Task with a new subject
 	Given that I want to update a "Task"
-	And that its "subject" is "UNA ROTONDA SUL MARE"
-	When I request "/task-management/tasks/1"
+	And that its "subject" is "This update subject is a lot better than the previous one"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000003"
 	Then the response status code should be 202
 	
 @task @edit @PUT
-Scenario: Update existing Task with valid ID and empty subject parameter
+Scenario: Cannot update an existing Task with an empty subject
 	Given that I want to update a "Task"
 	And that its "subject" is ""
-	When I request "/task-management/tasks/1"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000003"
 	Then the response status code should be 406
 	
 @task @edit @PUT
-Scenario: Update existing Tasks with ID but without parameters (Nothing to update)
+Scenario: Cannot update an existing Tasks with nothing to update
 	Given that I want to update a "Task"
-	When I request "/task-management/tasks/1"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000003"
 	Then the response status code should be 204
 	
 @task @edit @PUT
-Scenario: Update existing Tasks without ID and without parameters
+Scenario: Cannot update the entire collection of existing Tasks
 	Given that I want to update a "Task"
-	When I request "/task-management/tasks"
-	Then the response status code should be 405
-	
-@task @edit @PUT
-Scenario: Update existing Tasks without ID but with parameters
-	Given that I want to update a "Task"
-	And that its "subject" is "UNA ROTONDA SUL MARE"
+	And that its "subject" is "This update subject is a lot better than the previous one"
 	When I request "/task-management/tasks"
 	Then the response status code should be 405

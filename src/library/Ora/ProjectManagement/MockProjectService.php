@@ -1,14 +1,23 @@
 <?php
 namespace Ora\ProjectManagement;
 
-use Ora\User\User;
+use Rhumsaa\Uuid\Uuid;
+use Ora\User\Profile;
 
 class MockProjectService implements ProjectService {
 	
 	public function getProject($id) {
-		if(!is_numeric($id)) {
-			throw new \RuntimeException('Project '.$id.' doesn\'t exist');
+		try {
+			$projectId = Uuid::fromString($id);
+			$user = Profile::create(Uuid::fromString('20000000-0000-0000-0000-000000000000'));
+			$user->setFirstname('Paul');
+			$user->setLastname('Smith');
+			$user->setEmail('paul.smith@ora.local');
+			$rv = new Project($projectId, $user);
+			$rv->setSubject('First project');
+			return $rv;
+		} catch(\InvalidArgumentException $e) {
+			return null;
 		}
-		return new Project($id, new \DateTime(), new User('1', new \DateTime(), null));
 	}
 }

@@ -2,22 +2,11 @@
 
 namespace Ora\Organization;
 
-use Doctrine\ORM\Mapping AS ORM;
-use \DateTime;
-use Ora\EntitySerializer;
-use Ora\UserOrganization\UserOrganization;
+use Prooph\EventSourcing\AggregateChanged;
 
 /**
-* @ORM\Entity
+* 
 */
-final class AddUserToOrganizationEvent extends UserOrganizationEvent 
+final class AddUserToOrganizationEvent extends AggregateChanged 
 {
-    public function __construct(DateTime $firedAt, UserOrganization $userOrganization, EntitySerializer $entitySerializer) 
-    {
-        parent::__construct($firedAt, $userOrganization, $entitySerializer);
-        
-        $serialized = $userOrganization->serializeToJSON($entitySerializer);
-        
-        $this->attributes = $serialized;
-    }
 }

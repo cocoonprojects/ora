@@ -88,7 +88,7 @@ class ProjectsController extends AbstractHATEOASRestfulController
         if (!isset($this->projectService)) 
         {
             $serviceLocator = $this->getServiceLocator();
-            $this->projectService = $serviceLocator->get('ProjectManagement\ProjectService');
+            $this->projectService = $serviceLocator->get('TaskManagement\ProjectService');
         }
         
         return $this->projectService;

@@ -20,7 +20,6 @@ return array(
         'Application',
     	'Accounting',
     	'TaskManagement',
-        'ProjectManagement',
         'ZendOAuth2',
     	'User',
     	'Organization'	

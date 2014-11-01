@@ -20,8 +20,11 @@ class EventSourcingProjectService extends AggregateRepository implements Project
     	
 	public function getProject($id)
 	{
-// 	    $project = $this->getAggregateRoot($this->aggregateType, $id);
-		$project = $this->getAggregateRoot(new AggregateType('Ora\ProjectManagement\Project'), $id);
-	    return $project;
+		try {
+		    $project = $this->getAggregateRoot($this->aggregateType, $id);
+		    return $project;
+		} catch (\RuntimeException $e) {
+			return null;
+		}
 	}
 } 

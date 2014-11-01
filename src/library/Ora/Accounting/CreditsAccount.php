@@ -25,12 +25,10 @@ class CreditsAccount extends DomainEntity {
 		
 		$rv = new self();
 		// At creation time the balance is 0
-		$rv->recordThat(
-				CreditsAccountCreatedEvent::occur(
-						$id->toString(),
-						array('createdAt' => $d,
-							  'balanceValue' => 0,
-							  'balanceDate' => $d
+		$rv->recordThat(CreditsAccountCreatedEvent::occur($id->toString(), array(
+							'createdAt' => $d,
+							'balanceValue' => 0,
+							'balanceDate' => $d
 						)
 				)
 		);

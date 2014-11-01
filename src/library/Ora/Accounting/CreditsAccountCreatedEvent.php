@@ -1,11 +1,8 @@
 <?php
 namespace Ora\Accounting;
 
-use Doctrine\ORM\Mapping AS ORM;
-use \DateTime;
-
 /**
- * @ORM\Entity
+ * 
  * @author andreabandera
  *
  */
