@@ -67,10 +67,10 @@ class TasksController extends AbstractHATEOASRestfulController
     public function getList()
     {
         // TODO: Verificare che l'utente abbia il permesso per accedere all'elenco dei task disponibili?
-        
-        $availableTasks = $this->getTaskService()->listAvailableTasks();
-       	$this->response->setStatusCode(200);       	
-        return new JsonModel($availableTasks);
+    	$availableTasks = $this->getTaskService()->listAvailableTasks();
+       	$this->response->setStatusCode(200);
+       	$view = new JsonModel();       	
+        return $view->setVariable('tasks', $availableTasks);
     }
     
     /**

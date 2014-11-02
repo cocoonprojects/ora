@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping AS ORM;
 use Ora\DomainEntity;
 
 /**
- * @ORM\Entity @ORM\Table(name="user_organizations")
+ * @ORM\Entity @ORM\Table(name="organization_users")
  *
  */
 class UserOrganization  

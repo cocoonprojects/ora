@@ -25,18 +25,18 @@ class DomainEntity extends AggregateRoot {
 	protected $createdAt;
 	
 	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\User\Profile")
+	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
 	 */
 	protected $createdBy;
 	
     /**
-     * @ORM\Column(type="datetime", nullable=TRUE)
+     * @ORM\Column(type="datetime")
      * @var datetime
      */
     protected $mostRecentEditAt;
     
     /**
-     * @ORM\ManyToOne(targetEntity="Ora\User\Profile")
+     * @ORM\ManyToOne(targetEntity="Ora\User\User")
      */
     protected $mostRecentEditBy;
 	
@@ -53,16 +53,8 @@ class DomainEntity extends AggregateRoot {
         return $this->createdBy;
     }
 
-    public function setMostRecentEditAt($datetime) {
-        $this->mostRecentEditAt = $datetime;
-    }
-    
     public function getMostRecentEditAt() {
         return $this->mostRecentEditAt;
-    }
-    
-    public function setMostRecentEditBy($user) {
-        $this->mostRecentEditBy = $user;
     }
     
     public function getMostRecentEditBy() {

@@ -3,19 +3,15 @@
 namespace Ora\User;
 
 use Doctrine\ORM\Mapping AS ORM;
-use Ora\DomainEntity;
-
-use Ora\User\Role;
 use Doctrine\Common\Collections\ArrayCollection;
-use Ora\Organization\Organization;
-use Ora\UserOrganization\UserOrganization;
 use Rhumsaa\Uuid\Uuid;
+use Ora\DomainEntity;
 
 /**
  * @ORM\Entity @ORM\Table(name="users")
  *
  */
-class User extends DomainEntity implements \Serializable, MasterData
+class User extends DomainEntity implements \Serializable
 {	   
 	const STATUS_ACTIVE = 1;
 	 
@@ -43,27 +39,14 @@ class User extends DomainEntity implements \Serializable, MasterData
 	 */
 	private $status;
 	
-	/**
-	 * @ORM\Embedded(class="Role")
-	 * @var Role
-	 */
-	private $systemRole;	
-	
-	/**
-	 * @ORM\OneToMany(targetEntity="Ora\UserOrganization\UserOrganization", mappedBy="user")
-	 **/
-	private $userOrganizations;	
-	
-	public function __construct(Uuid $userID, MasterData $createdBy = null, \DateTime $createdAt = null) 
-	{
-		$this->id = $userID;
-		$this->createdAt = $createdAt == null ? new \DateTime() : $createdAt;
-		if(!is_null($createdBy)) {
-			$this->createdBy = $createdBy->toProfile();
-		}
-		
-		$this->userOrganizations = new ArrayCollection();
-		$this->setStatus(self::STATUS_ACTIVE);
+	public static function create(Uuid $userID, User $createdBy = null) {
+		$rv = new self();
+		$rv->id = $userID;
+		$rv->status == self::STATUS_ACTIVE;
+		/**
+		 * TODO: implementare l'Event Sourcing
+		 */
+		return $rv;
 	}
 	
 	public function setFirstname($firstname)
@@ -106,29 +89,6 @@ class User extends DomainEntity implements \Serializable, MasterData
 		return $this->status;
 	}	
 	
-	public function setSystemRole(Role $role)
-	{
-		$this->systemRole = $role;
-	}
-	
-	public function getSystemRole()
-	{
-		$this->systemRole->getName();
-	}
-	
-	public function getUserOrganizations()
-	{
-		return $this->userOrganizations;
-	}
-	
-	public function toProfile() {
-		$rv = Profile::create($this->id, $this->createdAt, $this->createdBy);
-		$rv->setFirstname($this->firstname);
-		$rv->setLastname($this->lastname);
-		$rv->setEmail($this->email);
-		return $rv;
-	}
-	
 	public function serialize()
 	{
 		$data = array(
@@ -136,6 +96,7 @@ class User extends DomainEntity implements \Serializable, MasterData
 			'email' => $this->email,
 			'firstname' => $this->firstname,
 			'lastname' => $this->lastname,
+			'status' => $this->status,
 		);
 	    return serialize($data); 
 	}
@@ -147,5 +108,6 @@ class User extends DomainEntity implements \Serializable, MasterData
 	    $this->email = $data['email'];
 	    $this->firstname = $data['firstname'];
 	    $this->lastname = $data['lastname'];
+	    $this->status = $data['status'];
 	}
 }

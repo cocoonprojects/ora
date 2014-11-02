@@ -12,16 +12,19 @@ use Ora\User\User;
 use Ora\ProjectManagement\Project;
 use Zend\Captcha\Exception\DomainException;
 use Ora\IllegalStateException;
+use Doctrine\ORM\EntityManager;
 
 /**
  * @author Giannotti Fabio
  */
 class EventSourcingTaskService extends AggregateRepository implements TaskService
 {
+	private $entityManager;
     
-    public function __construct(EventStore $eventStore, StreamStrategyInterface $eventStoreStrategy)
+    public function __construct(EventStore $eventStore, StreamStrategyInterface $eventStoreStrategy, EntityManager $entityManager)
     {
 		parent::__construct($eventStore, new AggregateTranslator(), $eventStoreStrategy, new AggregateType('Ora\TaskManagement\Task'));
+		$this->entityManager = $entityManager;
 	}
 	
 	public function createTask(Project $project, $subject, User $createdBy)
@@ -70,33 +73,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 */
 	public function listAvailableTasks()
 	{
-	    $json['tasks'] = array();
-	    
-	    $tasks = $this->entityManager->getRepository('Ora\TaskManagement\Task')->findAll();	    
-	    
-	    // TODO: Tornare sul client le informazioni riguardanti l'utente loggato 
-	    // recuperandole dalla sessione. Al momento forzo sempre il ritorno di "1"
-	    $loggedUserID = "1";
-	    $json['loggeduser'] = array();
-	    $json['loggeduser']['id'] = $loggedUserID;
-	    
-	    foreach ($tasks as $task)
-	    {
-	        $serializedTask = $task->serializeToARRAY($this->entitySerializer);
-	        $serializedTask['alreadyMember'] = false;
-	        
-	        // TODO: Verificare se è possibile stabilire più facilmente se l'utente attualmente
-	        // loggato fa parte oppure no dei membri del team relativo all'attuale task serializzato.
-	        // Questa cosa serve per stabilire cosa mostrare e cosa no nell'interfaccia utente sul client.
-	        foreach ($task->getMembers() as $member)
-	        {
-	            if ($member->getId() == $loggedUserID)
-	               $serializedTask['alreadyMember'] = true; 
-	        }
-	        
-	        $json['tasks'][] = $serializedTask;
-	    }
-	        
-	    return $json;
+		$repository = $this->entityManager->getRepository('Ora\TaskManagement\Task');
+	    return $repository->findAll();	    
 	}
 }

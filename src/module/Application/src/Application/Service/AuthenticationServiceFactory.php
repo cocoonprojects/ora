@@ -15,7 +15,7 @@ class AuthenticationServiceFactory implements FactoryInterface
 	public function createService(ServiceLocatorInterface $serviceLocator) 
 	{
 //		$authenticationService = new AuthenticationService();
-		$user = new User(Uuid::fromString('60000000-0000-0000-0000-000000000000'));
+		$user = User::create(Uuid::fromString('60000000-0000-0000-0000-000000000000'));
 		$user->setFirstname('Mark');
 		$user->setLastname('Rogers');
 		$user->setEmail('mark.rogers@ora.local');

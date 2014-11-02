@@ -11,24 +11,30 @@ namespace Application;
 
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
+use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
+use Doctrine\ORM\EntityManager;
 
 class Module
 {
 	private $providerInstanceList = array();
 	
+	/**
+	 * 
+	 * @var EntityManager
+	 */
+	private $entityManager;
+	
     public function onBootstrap(MvcEvent $e)
     {
     	$application = $e->getApplication();
-        $eventManager        = $application->getEventManager();
+        $eventManager = $application->getEventManager();
+        $serviceManager = $application->getServiceManager();
+        
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
         
-        $serviceManager = $application->getServiceManager();
-        
         $this->initAuthProviders($serviceManager);
-        
         $serviceManager->setFactory('providerInstanceList', function ($serviceManager) {
-        
         	return $this->providerInstanceList;
         });
         
@@ -61,6 +67,17 @@ class Module
         	$args['info']['user'] = $user;
         	$args['info']['provider'] = $args['provider'];        	
         });*/
+
+        $eventStore = $serviceManager->get('prooph.event_store');
+        $this->entityManager = $serviceManager->get('doctrine.entitymanager.orm_default');
+		$eventStore->getPersistenceEvents()->attach('commit.post', array($this, 'postCommitEvent'));        
+    }
+    
+    public function postCommitEvent(PostCommitEvent $event) {
+// 		foreach ($event->getRecordedEvents() as $streamEvent) {
+// 			$this->entityManager->persist($streamEvent->getEntity());
+//         }
+//         $this->entityManager->flush();
     }
     
     private function initAuthProviders($serviceManager)

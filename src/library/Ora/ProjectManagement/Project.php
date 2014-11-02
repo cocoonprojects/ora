@@ -5,7 +5,7 @@ namespace Ora\ProjectManagement;
 use Doctrine\ORM\Mapping AS ORM;
 use Ora\DomainEntity;
 use Rhumsaa\Uuid\Uuid;
-use Ora\User\MasterData;
+use Ora\User\User;
 
 /**
  * @ORM\Entity @ORM\Table(name="projects")
@@ -20,11 +20,11 @@ class Project extends DomainEntity implements \Serializable
 	 */
 	private $subject;
 	
-	public function __construct(Uuid $id, MasterData $createdBy, \DateTime $createdAt = null) 
+	public function __construct(Uuid $id, User $createdBy, \DateTime $createdAt = null) 
 	{
 		$this->id = $id;
 		$this->createdAt = $createdAt == null ? new \DateTime() : $createdAt;
-		$this->createdBy = $createdBy->toProfile();
+		$this->createdBy = $createdBy;
 	}
 	
 	public function getSubject() {
