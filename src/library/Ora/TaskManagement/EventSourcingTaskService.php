@@ -2,7 +2,8 @@
 
 namespace Ora\TaskManagement;
 
-use Ora\EntitySerializer;
+use Zend\Captcha\Exception\DomainException;
+use Doctrine\ORM\EntityManager;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Aggregate\AggregateRepository;
 use Prooph\EventStore\Stream\StreamStrategyInterface;
@@ -10,9 +11,7 @@ use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Prooph\EventStore\Aggregate\AggregateType;
 use Ora\User\User;
 use Ora\ProjectManagement\Project;
-use Zend\Captcha\Exception\DomainException;
 use Ora\IllegalStateException;
-use Doctrine\ORM\EntityManager;
 
 /**
  * @author Giannotti Fabio

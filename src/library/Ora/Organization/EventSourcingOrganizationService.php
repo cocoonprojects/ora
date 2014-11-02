@@ -3,7 +3,6 @@
 namespace Ora\Organization;
 
 use Ora\EventStore\EventStore;
-use Ora\EntitySerializer;
 use Ora\UserOrganization\UserOrganization;
 use Ora\User\User;
 
@@ -11,9 +10,8 @@ class EventSourcingOrganizationService implements OrganizationService
 {
     private $entityManager;
     private $eventStore;
-    private $entitySerializer;
     
-    public function __construct($entityManager, EventStore $eventStore, EntitySerializer $entitySerializer)
+    public function __construct($entityManager, EventStore $eventStore, $entitySerializer)
     {
         $this->entityManager = $entityManager;
         $this->eventStore = $eventStore;

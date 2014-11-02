@@ -83,17 +83,4 @@ class UserOrganization
 		return $this->organization;
 	}
 	
-	public function serializeToJSON($entitySerializer)
-	{
-		$serializedToArray = $this->serializeToARRAY($entitySerializer);
-		 
-		return json_encode($serializedToArray);
-	}
-
-	public function serializeToARRAY($entitySerializer)
-	{
-		$serializedToArray = $entitySerializer->toArray($this);
-	
-		return $serializedToArray;
-	}	
 }
