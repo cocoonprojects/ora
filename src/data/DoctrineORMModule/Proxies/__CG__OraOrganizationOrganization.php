@@ -64,10 +64,10 @@ class Organization extends \Ora\Organization\Organization implements \Doctrine\O
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', '' . "\0" . 'Ora\\Organization\\Organization' . "\0" . 'subject', 'createdBy');
+            return array('__isInitialized__', '' . "\0" . 'Ora\\Organization\\Organization' . "\0" . 'subject', 'id', 'createdAt', 'createdBy', 'mostRecentEditAt', 'mostRecentEditBy', 'version', 'recordedEvents');
         }
 
-        return array('__isInitialized__', '' . "\0" . 'Ora\\Organization\\Organization' . "\0" . 'subject', 'createdBy');
+        return array('__isInitialized__', '' . "\0" . 'Ora\\Organization\\Organization' . "\0" . 'subject', 'id', 'createdAt', 'createdBy', 'mostRecentEditAt', 'mostRecentEditBy', 'version', 'recordedEvents');
     }
 
     /**
@@ -235,28 +235,6 @@ class Organization extends \Ora\Organization\Organization implements \Doctrine\O
     /**
      * {@inheritDoc}
      */
-    public function rebuild($events)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'rebuild', array($events));
-
-        return parent::rebuild($events);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setMostRecentEditAt($datetime)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setMostRecentEditAt', array($datetime));
-
-        return parent::setMostRecentEditAt($datetime);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getMostRecentEditAt()
     {
 
@@ -268,23 +246,23 @@ class Organization extends \Ora\Organization\Organization implements \Doctrine\O
     /**
      * {@inheritDoc}
      */
-    public function setMostRecentEditBy($user)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setMostRecentEditBy', array($user));
-
-        return parent::setMostRecentEditBy($user);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getMostRecentEditBy()
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getMostRecentEditBy', array());
 
         return parent::getMostRecentEditBy();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function equals(\Ora\DomainEntity $object = NULL)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'equals', array($object));
+
+        return parent::equals($object);
     }
 
 }

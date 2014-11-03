@@ -64,10 +64,10 @@ class Task extends \Ora\TaskManagement\Task implements \Doctrine\ORM\Proxy\Proxy
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'subject', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'status', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'project', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'members', 'createdBy');
+            return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'subject', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'status', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'project', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'members', 'id', 'createdAt', 'createdBy', 'mostRecentEditAt', 'mostRecentEditBy', 'version', 'recordedEvents');
         }
 
-        return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'subject', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'status', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'project', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'members', 'createdBy');
+        return array('__isInitialized__', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'subject', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'status', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'project', '' . "\0" . 'Ora\\TaskManagement\\Task' . "\0" . 'members', 'id', 'createdAt', 'createdBy', 'mostRecentEditAt', 'mostRecentEditBy', 'version', 'recordedEvents');
     }
 
     /**
@@ -176,23 +176,12 @@ class Task extends \Ora\TaskManagement\Task implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function getSubject()
+    public function delete(\Ora\User\User $deletedBy)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getSubject', array());
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'delete', array($deletedBy));
 
-        return parent::getSubject();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setSubject($subject)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setSubject', array($subject));
-
-        return parent::setSubject($subject);
+        return parent::delete($deletedBy);
     }
 
     /**
@@ -209,12 +198,56 @@ class Task extends \Ora\TaskManagement\Task implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function setStatus($status)
+    public function complete(\Ora\User\User $completedBy)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setStatus', array($status));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'complete', array($completedBy));
 
-        return parent::setStatus($status);
+        return parent::complete($completedBy);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function accept(\Ora\User\User $acceptedBy)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'accept', array($acceptedBy));
+
+        return parent::accept($acceptedBy);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getSubject()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getSubject', array());
+
+        return parent::getSubject();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function setSubject($subject, \Ora\User\User $updatedBy)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setSubject', array($subject, $updatedBy));
+
+        return parent::setSubject($subject, $updatedBy);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function changeProject(\Ora\ProjectManagement\Project $project, \Ora\User\User $updatedBy)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'changeProject', array($project, $updatedBy));
+
+        return parent::changeProject($project, $updatedBy);
     }
 
     /**
@@ -231,34 +264,23 @@ class Task extends \Ora\TaskManagement\Task implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function setProject($project)
+    public function addMember(\Ora\User\User $user, \Ora\User\User $addedBy, $role = 'member')
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setProject', array($project));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addMember', array($user, $addedBy, $role));
 
-        return parent::setProject($project);
+        return parent::addMember($user, $addedBy, $role);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function removeMember($m)
+    public function removeMember(\Ora\User\User $member, \Ora\User\User $removedBy)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeMember', array($m));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'removeMember', array($member, $removedBy));
 
-        return parent::removeMember($m);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function addMember($m)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'addMember', array($m));
-
-        return parent::addMember($m);
+        return parent::removeMember($member, $removedBy);
     }
 
     /**
@@ -275,23 +297,45 @@ class Task extends \Ora\TaskManagement\Task implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function serializeToJSON($entitySerializer)
+    public function serialize()
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'serializeToJSON', array($entitySerializer));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'serialize', array());
 
-        return parent::serializeToJSON($entitySerializer);
+        return parent::serialize();
     }
 
     /**
      * {@inheritDoc}
      */
-    public function serializeToARRAY($entitySerializer)
+    public function unserialize($encodedData)
     {
 
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'serializeToARRAY', array($entitySerializer));
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'unserialize', array($encodedData));
 
-        return parent::serializeToARRAY($entitySerializer);
+        return parent::unserialize($encodedData);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function whenMemberRemoved(\Ora\TaskManagement\MemberRemoved $event)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'whenMemberRemoved', array($event));
+
+        return parent::whenMemberRemoved($event);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function whenProjectChanged(\Ora\TaskManagement\ProjectChanged $event)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'whenProjectChanged', array($event));
+
+        return parent::whenProjectChanged($event);
     }
 
     /**
@@ -334,28 +378,6 @@ class Task extends \Ora\TaskManagement\Task implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function rebuild($events)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'rebuild', array($events));
-
-        return parent::rebuild($events);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setMostRecentEditAt($datetime)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setMostRecentEditAt', array($datetime));
-
-        return parent::setMostRecentEditAt($datetime);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getMostRecentEditAt()
     {
 
@@ -367,23 +389,23 @@ class Task extends \Ora\TaskManagement\Task implements \Doctrine\ORM\Proxy\Proxy
     /**
      * {@inheritDoc}
      */
-    public function setMostRecentEditBy($user)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setMostRecentEditBy', array($user));
-
-        return parent::setMostRecentEditBy($user);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getMostRecentEditBy()
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getMostRecentEditBy', array());
 
         return parent::getMostRecentEditBy();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function equals(\Ora\DomainEntity $object = NULL)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'equals', array($object));
+
+        return parent::equals($object);
     }
 
 }

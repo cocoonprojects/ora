@@ -64,10 +64,10 @@ class Project extends \Ora\ProjectManagement\Project implements \Doctrine\ORM\Pr
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', '' . "\0" . 'Ora\\ProjectManagement\\Project' . "\0" . 'subject', 'createdBy');
+            return array('__isInitialized__', '' . "\0" . 'Ora\\ProjectManagement\\Project' . "\0" . 'subject', 'id', 'createdAt', 'createdBy', 'mostRecentEditAt', 'mostRecentEditBy', 'version', 'recordedEvents');
         }
 
-        return array('__isInitialized__', '' . "\0" . 'Ora\\ProjectManagement\\Project' . "\0" . 'subject', 'createdBy');
+        return array('__isInitialized__', '' . "\0" . 'Ora\\ProjectManagement\\Project' . "\0" . 'subject', 'id', 'createdAt', 'createdBy', 'mostRecentEditAt', 'mostRecentEditBy', 'version', 'recordedEvents');
     }
 
     /**
@@ -198,6 +198,28 @@ class Project extends \Ora\ProjectManagement\Project implements \Doctrine\ORM\Pr
     /**
      * {@inheritDoc}
      */
+    public function serialize()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'serialize', array());
+
+        return parent::serialize();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function unserialize($encodedData)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'unserialize', array($encodedData));
+
+        return parent::unserialize($encodedData);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getId()
     {
         if ($this->__isInitialized__ === false) {
@@ -235,28 +257,6 @@ class Project extends \Ora\ProjectManagement\Project implements \Doctrine\ORM\Pr
     /**
      * {@inheritDoc}
      */
-    public function rebuild($events)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'rebuild', array($events));
-
-        return parent::rebuild($events);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setMostRecentEditAt($datetime)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setMostRecentEditAt', array($datetime));
-
-        return parent::setMostRecentEditAt($datetime);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getMostRecentEditAt()
     {
 
@@ -268,23 +268,23 @@ class Project extends \Ora\ProjectManagement\Project implements \Doctrine\ORM\Pr
     /**
      * {@inheritDoc}
      */
-    public function setMostRecentEditBy($user)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setMostRecentEditBy', array($user));
-
-        return parent::setMostRecentEditBy($user);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public function getMostRecentEditBy()
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getMostRecentEditBy', array());
 
         return parent::getMostRecentEditBy();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function equals(\Ora\DomainEntity $object = NULL)
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'equals', array($object));
+
+        return parent::equals($object);
     }
 
 }

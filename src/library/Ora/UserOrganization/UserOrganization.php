@@ -11,8 +11,8 @@ use Ora\DomainEntity;
  */
 class UserOrganization  
 {	
-	const ROLE_ADMIN = "Admin";
-	const ROLE_MEMBER = "Member";
+	//const ROLE_ADMIN = "Admin";
+	//const ROLE_MEMBER = "Member";
 		
 	/**
 	 * @ORM\Column(type="string")
@@ -44,10 +44,10 @@ class UserOrganization
 	protected $organization;
 	
 
-	public static $organizationRoleMap = array(
-			ROLE_ADMIN           => self::ROLE_ADMIN,
-			ROLE_MEMBER          => self::ROLE_MEMBER,
-	);
+	/*public static $organizationRoleMap = array(
+			self::ROLE_ADMIN           => self::ROLE_ADMIN,
+			self::ROLE_MEMBER          => self::ROLE_MEMBER,
+	);*/
 	
 	public function __construct(\DateTime $createdAt, $createdBy, $user, $organization, $organizationRole)
 	{
