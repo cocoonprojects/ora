@@ -2,7 +2,6 @@
 
 namespace Ora\TaskManagement;
 
-use Zend\Captcha\Exception\DomainException;
 use Doctrine\ORM\EntityManager;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Aggregate\AggregateRepository;
