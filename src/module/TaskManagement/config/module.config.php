@@ -27,9 +27,9 @@ return array(
             'members' => array(
                 'type' => 'Segment',
                 'options' => array(
-                    'route'    => '/task-management/tasks/:id/members',
+                    'route'    => '/task-management/tasks/:taskId/members',
                     'constraints' => array(
-                        'id' => '[0-9a-z\-]+'
+                        'taskId' => '[0-9a-z\-]+'
                     ),
                     'defaults' => array(
                         'controller' => 'TaskManagement\Controller\Members'
