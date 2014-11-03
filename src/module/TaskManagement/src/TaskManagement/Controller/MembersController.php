@@ -15,7 +15,7 @@ use Ora\DomainEntityUnavailableException;
 class MembersController extends AbstractHATEOASRestfulController implements InitializableInterface
 {
     protected static $collectionOptions = array('DELETE', 'POST');
-    protected static $resourceOptions = array('DELETE', 'POST');
+    protected static $resourceOptions = array();
 
     /**
      * 
@@ -43,9 +43,9 @@ class MembersController extends AbstractHATEOASRestfulController implements Init
     
     public function preDispatch($e)
     {
-        if (null !== $this->params()->fromRoute('id'))
+        if (null !== $this->params()->fromRoute('taskId'))
         {            
-            $id = $this->params()->fromRoute('id');
+            $id = $this->params()->fromRoute('taskId');
             $this->task = $this->taskService->getTask($id);
             if (is_null($this->task))
             {
@@ -73,8 +73,8 @@ class MembersController extends AbstractHATEOASRestfulController implements Init
     	return $this->response;
     }
 
-    public function delete($id)
-    {        
+    public function deleteList()
+    {
     	$user = $this->authService->getIdentity()['user'];
         try {
        		$this->task->removeMember($user, $user);
@@ -86,44 +86,6 @@ class MembersController extends AbstractHATEOASRestfulController implements Init
         	$this->response->setStatusCode(406);	// Not acceptable
         }
     	return $this->response;
-    }
-    
-    public function get($id)
-    {        
-        // HTTP STATUS CODE 405: Method not allowed
-        $this->response->setStatusCode(405);
-        return $this->response;
-    }
-	
-    public function getList()
-    {
-        // HTTP STATUS CODE 405: Method not allowed
-        $this->response->setStatusCode(405);
-        return $this->response;
-    }
-    
-    public function update($id, $data)
-    {
-        // HTTP STATUS CODE 405: Method not allowed
-        $this->response->setStatusCode(405);
-         
-        return $this->response;
-    }
-    
-    public function replaceList($data)
-    {
-        // HTTP STATUS CODE 405: Method not allowed
-        $this->response->setStatusCode(405);
-         
-        return $this->response;
-    }
-    
-    public function deleteList()
-    {
-        // HTTP STATUS CODE 405: Method not allowed
-        $this->response->setStatusCode(405);
-        
-        return $this->response;
     }
     
     protected function getCollectionOptions()
