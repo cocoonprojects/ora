@@ -1,5 +1,4 @@
 <?php
-
 namespace ZendExtension\Mvc\Controller;
 
 use Zend\Mvc\Controller\AbstractRestfulController;
@@ -30,7 +29,7 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
 		} else {
 			$options = $this->getCollectionOptions();
 		}
-		
+
 		$method = $e->getRequest()->getMethod();
 		
 		if (in_array($method, $options) || $method == 'OPTIONS') {
@@ -45,10 +44,7 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
 		return $response;
 	}
 
-	public function preDispatch($e)
-	{
-	    // To be overridden...
-	}
+	public function preDispatch($e)	{}
 	
 	public function setEventManager(EventManagerInterface $events)
 	{

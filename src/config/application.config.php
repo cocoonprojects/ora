@@ -16,9 +16,10 @@ return array(
     'modules' => array(
 		'DoctrineModule',
         'DoctrineORMModule',
+    	'ProophEventStoreModule',
         'Application',
-        'TaskManagement',
-        'ProjectManagement',
+    	'Accounting',
+    	'TaskManagement',
         'ZendOAuth2',
     	'User',
     	'Organization'	
@@ -43,4 +44,3 @@ return array(
         ),
     ),
 );
-

@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping AS ORM;
 use Ora\DomainEntity;
 
 /**
- * @ORM\Entity @ORM\Table(name="user_organizations")
+ * @ORM\Entity @ORM\Table(name="organization_users")
  *
  */
 class UserOrganization  
@@ -83,17 +83,4 @@ class UserOrganization
 		return $this->organization;
 	}
 	
-	public function serializeToJSON($entitySerializer)
-	{
-		$serializedToArray = $this->serializeToARRAY($entitySerializer);
-		 
-		return json_encode($serializedToArray);
-	}
-
-	public function serializeToARRAY($entitySerializer)
-	{
-		$serializedToArray = $entitySerializer->toArray($this);
-	
-		return $serializedToArray;
-	}	
 }

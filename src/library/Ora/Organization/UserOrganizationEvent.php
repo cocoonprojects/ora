@@ -2,19 +2,12 @@
 
 namespace Ora\Organization;
 
-use Doctrine\ORM\Mapping AS ORM;
-use Ora\DomainEvent;
 use \DateTime;
-use Ora\EntitySerializer;
-use Ora\UserOrganization\UserOrganization;
+use Prooph\EventSourcing\AggregateChanged;
 /**
-* @ORM\Entity
+* 
 */
 
-class UserOrganizationEvent extends DomainEvent 
+class UserOrganizationEvent extends AggregateChanged 
 {   
-    protected function __construct(DateTime $firedAt, UserOrganization $userOrganization, EntitySerializer $entitySerializer) 
-    {
-        parent::__construct($firedAt);
-    }
 }

@@ -5,19 +5,31 @@ return array(
 	'controllers' => array(
         'invokables' => array(
             'TaskManagement\Controller\Members' => 'TaskManagement\Controller\MembersController',
-            'TaskManagement\Controller\Tasks' => 'TaskManagement\Controller\TasksController'
+            'TaskManagement\Controller\Tasks' => 'TaskManagement\Controller\TasksController',
+            'TaskManagement\Controller\Projects' => 'TaskManagement\Controller\ProjectsController',
         ),
     ),
     
     'router' => array(
         'routes' => array(
+			'projects' => array(
+				'type' => 'Segment',
+				'options' => array(
+					'route'    => '/task-management/projects[/:id]',
+					'constraints' => array(
+						'id' => '[0-9a-z\-]+',
+					),
+					'defaults' => array(
+						'controller' => 'TaskManagement\Controller\Projects'
+					),
+				),
+			),
             'members' => array(
                 'type' => 'Segment',
                 'options' => array(
-                    'route'    => '/task-management/tasks/:taskid/members/:id',
+                    'route'    => '/task-management/tasks/:id/members',
                     'constraints' => array(
-                        'taskid' => '[a-zA-Z0-9]+',
-                        'id' => '[a-zA-Z0-9]+'
+                        'id' => '[0-9a-z\-]+'
                     ),
                     'defaults' => array(
                         'controller' => 'TaskManagement\Controller\Members'
@@ -29,7 +41,7 @@ return array(
                 'options' => array(
                     'route'    => '/task-management/tasks[/:id]',
                     'constraints' => array(
-                        'id' => '[a-zA-Z0-9]+'
+                        'id' => '[0-9a-z\-]+'
                     ),
                     'defaults' => array(
                         'controller' => 'TaskManagement\Controller\Tasks'

@@ -2,9 +2,7 @@
 
 namespace Ora\User;
 
-use Ora\EventStore\EventStore;
-use Ora\EntitySerializer;
-
+use Prooph\EventStore\EventStore;
 use Ora\User\Role;
 use Ora\Organization\Organization;
 use Ora\UserOrganization\UserOrganization;
@@ -16,7 +14,7 @@ class EventSourcingUserService implements UserService
 	private $eventStore;
 	private $entitySerializer;
 	
-	public function __construct($entityManager, EventStore $eventStore, EntitySerializer $entitySerializer, $authenticationService)
+	public function __construct($entityManager, EventStore $eventStore, $entitySerializer, $authenticationService)
 	{
 		$this->entityManager = $entityManager;
 		$this->eventStore = $eventStore;

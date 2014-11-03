@@ -2,88 +2,69 @@
 
 namespace Ora\TaskManagement;
 
-use Ora\EventStore\EventStore;
-use Ora\EntitySerializer;
+use Zend\Captcha\Exception\DomainException;
+use Doctrine\ORM\EntityManager;
+use Prooph\EventStore\EventStore;
+use Prooph\EventStore\Aggregate\AggregateRepository;
+use Prooph\EventStore\Stream\StreamStrategyInterface;
+use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
+use Prooph\EventStore\Aggregate\AggregateType;
+use Ora\User\User;
+use Ora\ProjectManagement\Project;
+use Ora\IllegalStateException;
 
 /**
  * @author Giannotti Fabio
  */
-class EventSourcingTaskService implements TaskService
+class EventSourcingTaskService extends AggregateRepository implements TaskService
 {
-    private $entityManager;
-    private $eventStore;
-    private $entitySerializer;
+	private $entityManager;
     
-    public function __construct($entityManager, EventStore $eventStore, EntitySerializer $entitySerializer)
+    public function __construct(EventStore $eventStore, StreamStrategyInterface $eventStoreStrategy, EntityManager $entityManager)
     {
-        $this->entityManager = $entityManager;
-        $this->eventStore = $eventStore;
-	    $this->entitySerializer = $entitySerializer;
-    }
+		parent::__construct($eventStore, new AggregateTranslator(), $eventStoreStrategy, new AggregateType('Ora\TaskManagement\Task'));
+		$this->entityManager = $entityManager;
+	}
 	
-    /**
-     * Append new event for CREATE new task with specified parameters
-     */
-	public function createNewTask(\Ora\ProjectManagement\Project $project, $taskSubject)
+	public function createTask(Project $project, $subject, User $createdBy)
 	{
-	    $createdAt = new \DateTime();
-	    // TODO: Modificare createdBy per inserire lo USERNAME esatto
-	    // prelevando il nome utente dalla sessione o da dove sia
-	    $createdBy = $this->entityManager->getRepository('Ora\User\User')->findOneBy(array("id"=>"1"));
-        
-	    // Generate unique ID for Task
-	    $taskID = uniqid();   
-	    
-	    // Creation of new task entity
-	    $task = new Task($taskID, $createdAt, $createdBy);
-
-	    // TODO: Controllare se descrizione e projectid vanno nel costruttore in quanto obbligatori
-	    $task->setSubject($taskSubject);
-	    $task->setProject($project);
-	    
-	    $event = new TaskCreatedEvent($createdAt, $task, $this->entitySerializer);
-	    
-	    $this->eventStore->appendToStream($event);
+		$this->eventStore->beginTransaction();
+	    $task = Task::create($project, $subject, $createdBy);
+	    $this->addAggregateRoot($task);
+		$this->eventStore->commit();
+		return $task;
 	}
 	
 	/**
 	 * Retrieve task entity with specified ID
 	 */
-	public function findTask($id)
+	public function getTask($id)
 	{
-	    $task = $this->entityManager->getRepository('Ora\TaskManagement\Task')->findOneBy(array("id"=>$id));
-	     
-	    return $task;
+		try {
+		    $task = $this->getAggregateRoot($this->aggregateType, $id);
+		    return $task;
+        } catch (\RuntimeException $e) {
+        	return null;
+        }
 	}
 	
 	/**
 	 * Append new event for UPDATE the specified task entity with $data parameters
 	 */
-	public function editTask(\Ora\TaskManagement\Task $task)
+	public function editTask(Task $task)
 	{
-	    $editedAt = new \DateTime();
-	    // TODO: Modificare editedBy per inserire lo USERNAME esatto
-	    // prelevando il nome utente dalla sessione o da dove sia
-	    $editedBy = $this->entityManager->getRepository('Ora\User\User')->findOneBy(array("id"=>"1"));
-	    	    
-	    $task->setMostRecentEditAt($editedAt);
-	    $task->setMostRecentEditBy($editedBy);
-	    
-	    $event = new TaskEditedEvent($editedAt, $task, $this->entitySerializer);
-	    
-	    $this->eventStore->appendToStream($event);
+		$this->eventStore->beginTransaction();
+		$this->eventStore->commit();
 	}
 	
 	/**
 	 * Append new event for DELETE the specified task entity
 	 */
-	public function deleteTask(\Ora\TaskManagement\Task $task)
+	public function deleteTask(Task $task, User $deletedBy)
 	{
-	    $deletedAt = new \DateTime();
-	    
-	    $event = new TaskDeletedEvent($deletedAt, $task, $this->entitySerializer);
-	    
-	    $this->eventStore->appendToStream($event);
+		$this->eventStore->beginTransaction();
+		$task->delete($deletedBy);    
+	    $this->eventStore->commit();
 	}
 	
 	/**
@@ -91,61 +72,7 @@ class EventSourcingTaskService implements TaskService
 	 */
 	public function listAvailableTasks()
 	{
-	    $json['tasks'] = array();
-	    
-	    $tasks = $this->entityManager->getRepository('Ora\TaskManagement\Task')->findAll();	    
-	    
-	    // TODO: Tornare sul client le informazioni riguardanti l'utente loggato 
-	    // recuperandole dalla sessione. Al momento forzo sempre il ritorno di "1"
-	    $loggedUserID = "1";
-	    $json['loggeduser'] = array();
-	    $json['loggeduser']['id'] = $loggedUserID;
-	    
-	    foreach ($tasks as $task)
-	    {
-	        $serializedTask = $task->serializeToARRAY($this->entitySerializer);
-	        $serializedTask['alreadyMember'] = false;
-	        
-	        // TODO: Verificare se è possibile stabilire più facilmente se l'utente attualmente
-	        // loggato fa parte oppure no dei membri del team relativo all'attuale task serializzato.
-	        // Questa cosa serve per stabilire cosa mostrare e cosa no nell'interfaccia utente sul client.
-	        foreach ($task->getMembers() as $member)
-	        {
-	            if ($member->getId() == $loggedUserID)
-	               $serializedTask['alreadyMember'] = true; 
-	        }
-	        
-	        $json['tasks'][] = $serializedTask;
-	    }
-	        
-	    return $json;
-	}
-	
-	/**
-	 * Add new USER (member) into TEAM of specified TASK
-	 */
-	public function addTaskMember(\Ora\TaskManagement\Task $task, \Ora\User\User $user)
-	{
-	    $joinedAt = new \DateTime();
-	    
-        $task->addMember($user);
-        
-	    $event = new TaskMemberAddedEvent($joinedAt, $task, $this->entitySerializer);
-	     
-	    $this->eventStore->appendToStream($event);
-	}
-	
-	/**
-	 * Remove USER (member) from TEAM of specified TASK
-	 */
-	public function removeTaskMember(\Ora\TaskManagement\Task $task, \Ora\User\User $user)
-	{
-	    $joinedAt = new \DateTime();
-	     
-        $task->removeMember($user);
-	
-        $event = new TaskMemberRemovedEvent($joinedAt, $task, $this->entitySerializer);
-	
-        $this->eventStore->appendToStream($event);
+		$repository = $this->entityManager->getRepository('Ora\TaskManagement\Task');
+	    return $repository->findAll();	    
 	}
 }

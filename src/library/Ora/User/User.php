@@ -3,18 +3,15 @@
 namespace Ora\User;
 
 use Doctrine\ORM\Mapping AS ORM;
-use Ora\DomainEntity;
-
-use Ora\User\Role;
 use Doctrine\Common\Collections\ArrayCollection;
-use Ora\Organization\Organization;
-use Ora\UserOrganization\UserOrganization;
+use Rhumsaa\Uuid\Uuid;
+use Ora\DomainEntity;
 
 /**
  * @ORM\Entity @ORM\Table(name="users")
  *
  */
-class User extends DomainEntity 
+class User extends DomainEntity implements \Serializable
 {	   
 	const STATUS_ACTIVE = 1;
 	 
@@ -42,23 +39,14 @@ class User extends DomainEntity
 	 */
 	private $status;
 	
-	/**
-	 * @ORM\Embedded(class="Role")
-	 * @var Role
-	 */
-	private $systemRole;	
-	
-	/**
-	 * @ORM\OneToMany(targetEntity="Ora\UserOrganization\UserOrganization", mappedBy="user")
-	 **/
-	private $userOrganizations;	
-	
-	public function __construct($userID, \DateTime $createdAt, $createdBy) 
-	{
-		parent::__construct($userID, $createdAt, $createdBy);
-		
-		$this->userOrganizations = new ArrayCollection();
-		$this->setStatus(self::STATUS_ACTIVE);
+	public static function create(Uuid $userID, User $createdBy = null) {
+		$rv = new self();
+		$rv->id = $userID;
+		$rv->status == self::STATUS_ACTIVE;
+		/**
+		 * TODO: implementare l'Event Sourcing
+		 */
+		return $rv;
 	}
 	
 	public function setFirstname($firstname)
@@ -101,31 +89,25 @@ class User extends DomainEntity
 		return $this->status;
 	}	
 	
-	public function setSystemRole(Role $role)
+	public function serialize()
 	{
-		$this->systemRole = $role;
+		$data = array(
+			'id' => $this->id->toString(),
+			'email' => $this->email,
+			'firstname' => $this->firstname,
+			'lastname' => $this->lastname,
+			'status' => $this->status,
+		);
+	    return serialize($data); 
 	}
 	
-	public function getSystemRole()
+	public function unserialize($encodedData)
 	{
-		$this->systemRole->getName();
-	}
-	
-	public function getUserOrganizations()
-	{
-		return $this->userOrganizations;
-	}
-	public function serializeToJSON($entitySerializer) 
-	{
-	    $serializedToArray = $this->serializeToARRAY($entitySerializer);
-	    
-	    return json_encode($serializedToArray); 
-	}
-	
-	public function serializeToARRAY($entitySerializer)
-	{
-	    $serializedToArray = $entitySerializer->toArray($this);
-	     
-	    return $serializedToArray;
+	    $data = unserialize($encodedData);
+	    $this->id = Uuid::fromString($data['id']);
+	    $this->email = $data['email'];
+	    $this->firstname = $data['firstname'];
+	    $this->lastname = $data['lastname'];
+	    $this->status = $data['status'];
 	}
 }
