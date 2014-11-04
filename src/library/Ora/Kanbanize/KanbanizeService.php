@@ -4,7 +4,7 @@ namespace Ora\Kanbanize;
 
 interface KanbanizeService {
 
-	public function moveTask(KanbanizeTask $kanbanizeTask, $status);
+	//public function moveTask(KanbanizeTask $kanbanizeTask, $status);
 	
 	public function createNewTask($projectId, $taskSubject, $boardId);
 	
@@ -12,7 +12,7 @@ interface KanbanizeService {
 	
 	public function getTasks($boardId, $status = null);
 	
-	public function isAcceptable(KanbanizeTask $kanbanizeTask);
+	public function acceptTask(KanbanizeTask $kanbanizeTask);
 	
-	public function canBeMovedBackToOngoing(KanbanizeTask $kanbanizeTask);
+	public function moveBackToOngoing(KanbanizeTask $kanbanizeTask);
 }

@@ -14,62 +14,66 @@ use Ora\Kanbanize\KanbanizeTask;
 use Zend\View\Model\ViewModel;
 use Kanbanize\Service\KanbanizeService;
 use Zend\Db\Sql\Predicate\IsNull;
+use Ora\Kanbanize\Exception\IllegalRemoteStateException;
+use Ora\Kanbanize\Exception\KanbanizeApiException;
 
 class TaskTransitionsController extends AbstractHATEOASRestfulController
 {
 	//protected static $resourceOptions = array ('GET','POST','PUT');
 	//protected static $collectionOptions = array ('DELETE','GET');
 	protected static $resourceOptions = array ('POST');
-	protected static $collectionOptions = array ();
+	protected static $collectionOptions= array ();
 	
 	/**
+	 *
 	 * @var \TaskManagement\Service\KanbanizeService
 	 */
 	protected $kanbanizeService;
 	
 	/**
-	 * 
-	 * @param $data
+	 *
+	 * @param
+	 *        	$data
 	 */
-	public function create($data){
-		//TODO inserire subject e project in $data
-		//kanbanize api take 
-		$validator_NotEmpty = new \Zend\Validator\NotEmpty();
-		$validator_Digits =  new \Zend\Validator\Digits();
-
-		if(!isset($data["boardid"])){
-			//bad request
-			$this->response->setStatusCode(400);
+	public function create($data) {
+		// TODO inserire subject e project in $data
+		// kanbanize api take
+		$validator_NotEmpty = new \Zend\Validator\NotEmpty ();
+		$validator_Digits = new \Zend\Validator\Digits ();
+		
+		if (! isset ( $data ["boardid"] )) {
+			// bad request
+			$this->response->setStatusCode ( 400 );
 			return $this->response;
 		}
 		
-		$boardId = $data["boardid"];
-		if(! $validator_NotEmpty->isValid($boardId) || !$validator_Digits->isValid($boardId) ){
+		$boardId = $data ["boardid"];
+		if (! $validator_NotEmpty->isValid ( $boardId ) || ! $validator_Digits->isValid ( $boardId )) {
 			// request not correct
-			$this->response->setStatusCode(406);
+			$this->response->setStatusCode ( 406 );
 			return $this->response;
-			
 		}
 		
-		//TODO create task based on $data received
-		$taskId = uniqid();
-
-		$result = $this->getKanbanizeService()->createNewTask(1, "arharharharha", $boardId);
-		
-		
-		if ($result == 1){
-			$this->response->setStatusCode(400);
-		}else{
-			$this->response->setStatusCode(201);
+		// TODO create task based on $data received
+		$taskId = uniqid ();
+		try {
+			$result = $this->getKanbanizeService ()->createNewTask ( 1, "arharharharha", $boardId );
+		} catch ( OperationFailedException $e ) {
+			$this->response->setStatusCode ( 400 );
+			return $this->response;
 		}
+		catch (KanbanizeApiException $e2){
+			$this->response->setStatusCode ( 504 );
+			return $this->response;
+		}
+		
+		$this->response->setStatusCode ( 201 );
 		return $this->response;
-		
-		
 	}
 	
 	public function invoke($id, $data) {
-		$validator_NotEmpty = new \Zend\Validator\NotEmpty();
-		$validator_Digits =  new \Zend\Validator\Digits();
+		$validator_NotEmpty = new \Zend\Validator\NotEmpty ();
+		$validator_Digits = new \Zend\Validator\Digits ();
 		// actions -> accept | OnGoing
 		if (! isset ( $data ['action'] )) {
 			$this->response->setStatusCode ( 400 );
@@ -82,10 +86,9 @@ class TaskTransitionsController extends AbstractHATEOASRestfulController
 			// bad request
 			$this->response->setStatusCode ( 400 );
 			return $this->response;
-		}
-		else if(! $validator_NotEmpty->isValid($data ['boardid']) || !$validator_Digits->isValid($data ['boardid']) ){
+		} else if (! $validator_NotEmpty->isValid ( $data ['boardid'] ) || ! $validator_Digits->isValid ( $data ['boardid'] )) {
 			// request not correct
-			$this->response->setStatusCode(406);
+			$this->response->setStatusCode ( 406 );
 			return $this->response;
 		}
 		
@@ -93,10 +96,9 @@ class TaskTransitionsController extends AbstractHATEOASRestfulController
 			// bad request
 			$this->response->setStatusCode ( 400 );
 			return $this->response;
-		}
-		else if(! $validator_NotEmpty->isValid($id) || !$validator_Digits->isValid($id) ){
+		} else if (! $validator_NotEmpty->isValid ( $id ) || ! $validator_Digits->isValid ( $id )) {
 			// request not correct
-			$this->response->setStatusCode(406);
+			$this->response->setStatusCode ( 406 );
 			return $this->response;
 		}
 		
@@ -106,39 +108,55 @@ class TaskTransitionsController extends AbstractHATEOASRestfulController
 		$taskId = uniqid ();
 		$boardId = $data ["boardid"];
 		
-		//TODO add real user
+		// TODO add real user
 		$createdBy = "Temp";
 		
 		$kanbanizeTask = new KanbanizeTask ( $taskId, $boardId, $id, new \DateTime (), $createdBy );
 		$result = 0;
 		switch ($action) {
 			
-			case "accept" :
-				if ($this->getKanbanizeService()->isAcceptable($kanbanizeTask)) {
-					$result = $this->getKanbanizeService ()->moveTask($kanbanizeTask, KanbanizeTask::COLUMN_ACCEPTED);
-				} else {
+			case "accept":
+				try {
+						
+						$result = $this->getKanbanizeService ()->acceptTask ( $kanbanizeTask );
+				
+				} catch ( OperationFailedException $e ) {
 					$this->response->setStatusCode ( 400 );
+					return $this->response;
+				} catch ( IllegalRemoteStateException $e1 ) {
+					$this->response->setStatusCode ( 400 );
+					return $this->response;
 				}
-				if ($result == 1) {
-					$this->response->setStatusCode ( 200 );
-				} else {
-					$this->response->setStatusCode ( 400 );
-				}
-				break;
-			case "ongoing" :
-				if($this->getKanbanizeService()->canBeMovedBackToOngoing($kanbanizeTask)) {
-					$result = $this->getKanbanizeService ()->moveTask($kanbanizeTask, KanbanizeTask::COLUMN_ONGOING);
-				} else {
-					$this->response->setStatusCode ( 400 );
-				}
-				if ($result == 1) {
-					$this->response->setStatusCode ( 200 );
-				} else {
-					$this->response->setStatusCode ( 400 );
+				catch (KanbanizeApiException $e2){
+					$this->response->setStatusCode ( 504 );
+					return $this->response;
 				}
 				
+				$this->response->setStatusCode ( 200 );
+				return $this->response;
+				
 				break;
-			default:
+			case "ongoing" :
+				try{
+				$this->getKanbanizeService ()->moveBackToOngoing ( $kanbanizeTask );
+					
+				
+				}catch(OperationFailedException $e){
+					$this->response->setStatusCode ( 400 );
+					return $this->response;
+				}catch(IllegalRemoteStateException $e2){
+					$this->response->setStatusCode ( 400 );
+					return $this->response;
+				}
+				catch (KanbanizeApiException $e2){
+					$this->response->setStatusCode ( 504 );
+					return $this->response;
+				}
+				
+					$this->response->setStatusCode ( 200 );
+					return $this->response;
+				break;
+			default :
 				$this->response->setStatusCode ( 406 );
 				break;
 		}

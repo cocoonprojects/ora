@@ -61,7 +61,7 @@ class KanbanizeActionController extends AbstractActionController {
 		$fm = $this->flashMessenger();
 		
 		if(!$response || curl_getinfo($ch,CURLINFO_HTTP_CODE) != 200) {
-			$fm->addErrorMessage("Cannot move task ".curl_getinfo($ch,CURLINFO_HTTP_CODE));
+			$fm->addErrorMessage("Cannot move task ".curl_getinfo($ch,CURLINFO_HTTP_CODE)." ");
 		}
 		else {
 			$fm->addSuccessMessage("Task moved successfully ".curl_getinfo($ch,CURLINFO_HTTP_CODE));

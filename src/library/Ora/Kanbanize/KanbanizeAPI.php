@@ -2,6 +2,7 @@
 
 namespace Ora\Kanbanize;
 
+use Ora\Kanbanize\Exception\KanbanizeApiException;
 class KanbanizeAPI {
 	/**
 	 *
@@ -76,7 +77,7 @@ class KanbanizeAPI {
 	protected function doCall(KanbanizeAPICall $call) {
 		$call = $this->executeCall ( $call );
 		if ($call->request_error) {
-			throw new Exception ( 'problem with call: ' . $call->request_error );
+			throw new KanbanizeApiException(  'problem with call: ' . $call->request_error );
 		}
 		
 		return $call->getResponseDecoded ();
