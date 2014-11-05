@@ -38,7 +38,7 @@ class Module
         	return $this->providerInstanceList;
         });
         
-       /* $userService = $serviceManager->get('User\UserService');
+        $userService = $serviceManager->get('User\UserService');
        
         $eventManagerAuth = $application->getServiceManager()->get('ZendOAuth2\Auth\Adapter')->getEventManager();
         
@@ -66,7 +66,7 @@ class Module
         	
         	$args['info']['user'] = $user;
         	$args['info']['provider'] = $args['provider'];        	
-        });*/
+        });
 
         $eventStore = $serviceManager->get('prooph.event_store');
         $this->entityManager = $serviceManager->get('doctrine.entitymanager.orm_default');

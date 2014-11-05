@@ -64,7 +64,7 @@ class EventSourcingUserService implements UserService
 		return $user;		
 	}
 	
-	public function findUserByEmail($mail)
+	public function findUserByEmail($email)
 	{
 		$user = $this->entityManager
 					->getRepository('Ora\User\User')
