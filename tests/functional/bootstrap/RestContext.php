@@ -1,9 +1,21 @@
 <?php
 
 use Behat\Behat\Context\Context;
+
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
+
+use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
+use Behat\Testwork\Hook\Scope\AfterSuiteScope;
+
+use Zend\EventManager\EventManager;
+use Zend\Http\PhpEnvironment;
+use Zend\ModuleManager\ModuleManager;
+use Zend\Mvc\Application;
+use Zend\ServiceManager\ServiceManager;
+use Zend\Db\Adapter\Adapter as ZendDbAdapter;
+
 
 /**
  * Rest context.
@@ -18,6 +30,78 @@ class RestContext extends RawMinkContext implements Context
     private $_requestUrl = null;
     private $base_url = null;
 
+    /** @var \Zend\Mvc\Application */
+    private static $zendApp;
+    /** @var Doctrine\ORM\Tools\SchemaTool  */
+	private static $schemaTool;
+    
+	private static $entityManager;
+	
+	/**
+     *  @BeforeSuite
+     */
+    public static function setupApplication(BeforeSuiteScope $scope){
+		    			
+		putenv('APPLICATION_ENV=acceptance');
+    	
+		$path_config = __DIR__.'/../../../src/config/application.config.php';	 	
+		$path = __DIR__.'/../../../src/vendor/zendframework/zendframework/library';		
+        putenv("ZF2_PATH=".$path);
+
+	 	include '/vagrant/src/init_autoloader.php';
+        self::$zendApp = Zend\Mvc\Application::init(require $path_config);	
+	
+        $sm = self::$zendApp->getServiceManager();
+		
+		self::$entityManager = $sm->get('doctrine.entitymanager.orm_default');
+
+		self::$schemaTool = new \Doctrine\ORM\Tools\SchemaTool(self::$entityManager);
+		
+		//posso recuperare eventualmente solo le entità che mi interessano
+//		$classes = array(
+//		  self::$entityManager->getClassMetadata('Entities\User'),
+//		  self::$entityManager->getClassMetadata('Entities\Profile')
+//		);
+		
+		$classes = self::$entityManager->getMetadataFactory()->getAllMetadata();
+
+		self::deleteDatabase(); //serve solo la prima volta che sono eseguiti i test, se il database non e' stato svuotato
+		
+		self::$schemaTool->createSchema($classes);
+		
+		//recupero la query sql per creare la tabella event_store
+		$sql = file_get_contents("/vagrant/src/vendor/prooph/event-store-zf2-adapter/scripts/mysql-single-stream-default-schema.sql");
+		//eseguo la query sul database
+		$statement = self::$entityManager->getConnection()->prepare($sql);		
+		$statement->execute();
+		$statement->closeCursor();
+		
+		//recupero la query sql per popolare il database con i dati di test	
+		$sql = file_get_contents("/vagrant/tests/sql/init.sql");
+		//eseguo la query sul database
+		$statement = self::$entityManager->getConnection()->executeUpdate($sql, array(), array());		
+		
+    }
+    
+    /** @AfterSuite */
+	public static function teardownApplication(AfterSuiteScope $scope){
+				
+		self::deleteDatabase();
+		
+	} 
+    
+	private static function deleteDatabase(){
+		
+		//cancello il database con doctrine
+		$classes = self::$entityManager->getMetadataFactory()->getAllMetadata();
+		self::$schemaTool->dropSchema($classes);	
+
+		//cancello la tabella event_stream
+		$sql_drop_event_store = "drop table event_stream";
+		$statement_del = self::$entityManager->getConnection()->executeUpdate($sql_drop_event_store, array(), array());
+		
+	}
+	
     /**
      * Initializes context.
      * Every scenario gets it's own context object.
@@ -40,7 +124,7 @@ class RestContext extends RawMinkContext implements Context
         if ($this->base_url === "" || $this->base_url === null) 
         {            
             throw new \Exception('Base_url not loaded!');
-        } 
+        }
         else 
         {
             return (isset($this->base_url)) ? $this->base_url : null;
