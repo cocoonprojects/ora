@@ -6,6 +6,9 @@ php:
   - hhvm
 
 before_script:
+  # Set the GitHub OAuth token to make use of the 5000 per hour rate limit
+  - "mkdir -p ~/.composer"
+  - cp .travis.composer.config.json ~/.composer/config.json
   - composer install -d src
 
 script:
