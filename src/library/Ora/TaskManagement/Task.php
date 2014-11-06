@@ -142,7 +142,8 @@ class Task extends DomainEntity implements \Serializable
 		if($this->status == self::STATUS_COMPLETED || $this->status == self::STATUS_ACCEPTED) {
 			throw new IllegalStateException('Cannot add a member to a task in '.$this->status.' state');
 		}
-        if ($this->members->containsKey($user->getId()->toString())) {
+		$key = $user->getId() instanceof Uuid ? $user->getId()->toString() : $user->getId();
+        if ($this->members->containsKey($key)) {
         	throw new DuplicatedDomainEntityException($this, $user); 
         }
         $this->recordThat(MemberAdded::occur($this->id->toString(), array(
@@ -159,7 +160,8 @@ class Task extends DomainEntity implements \Serializable
 		}
 		// TODO: Integrare controllo per cui è possibile effettuare l'UNJOIN
         // solo nel caso in cui non sia stata ancora effettuata nessuna stima
-		if (!$this->members->containsKey($member->getId()->toString())) {
+		$key = $member->getId() instanceof Uuid ? $member->getId()->toString() : $member->getId();
+		if (!$this->members->containsKey($key)) {
         	throw new DomainEntityUnavailableException($this, $member); 
         }
 		$this->recordThat(MemberRemoved::occur($this->id->toString(), array(
@@ -232,14 +234,16 @@ class Task extends DomainEntity implements \Serializable
 	
 	protected function whenMemberAdded(MemberAdded $event) {
 		$p = $event->payload();
-		$this->members->set($p['user']->getId()->toString(), $p['user']);
+		$id = $p['user']->getId() instanceof Uuid ? $p['user']->getId()->toString() : $p['user']->getId();
+		$this->members->set($id, $p['user']);
 		$this->mostRecentEditAt = $event->occurredOn();
 		$this->mostRecentEditBy = $p['addedBy'];
 	}
 
 	public function whenMemberRemoved(MemberRemoved $event) {
 		$p = $event->payload();
-		$this->members->remove($p['user']->getId()->toString());
+		$id = $p['user']->getId() instanceof Uuid ? $p['user']->getId()->toString() : $p['user']->getId();
+		$this->members->remove($id);
 		$this->mostRecentEditAt = $event->occurredOn();
 		$this->mostRecentEditBy = $p['removedBy'];
 	}

@@ -17,13 +17,13 @@ return array(
 		'DoctrineModule',
         'DoctrineORMModule',
     	'ProophEventStoreModule',
-        'Application',
+        'ZendOAuth2',
     	'Accounting',
     	'TaskManagement',
-        'ZendOAuth2',
     	'User',
     	'Organization',
-    	'Kanbanize'
+        'Application',
+        'Kanbanize'
     ),
 
     // These are various options for the listeners attached to the ModuleManager

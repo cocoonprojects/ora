@@ -13,16 +13,15 @@ use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
 use Doctrine\ORM\EntityManager;
+use Application\Controller\AuthController;
 
 class Module
 {
-	private $providerInstanceList = array();
-	
 	/**
 	 * 
 	 * @var EntityManager
 	 */
-	private $entityManager;
+// 	private $entityManager;
 	
     public function onBootstrap(MvcEvent $e)
     {
@@ -31,78 +30,20 @@ class Module
         $serviceManager = $application->getServiceManager();
         
         $moduleRouteListener = new ModuleRouteListener();
-        $moduleRouteListener->attach($eventManager);
+        $moduleRouteListener->attach($eventManager);        
         
-        $this->initAuthProviders($serviceManager);
-        $serviceManager->setFactory('providerInstanceList', function ($serviceManager) {
-        	return $this->providerInstanceList;
-        });
-        
-       /* $userService = $serviceManager->get('User\UserService');
-       
-        $eventManagerAuth = $application->getServiceManager()->get('ZendOAuth2\Auth\Adapter')->getEventManager();
-        
-        $eventManagerAuth->attach( 'oauth2.success', function($e) use ($userService){
-
-        	$args = $e->getParams();
-        	$info = $args['info'];
-        	
-        	switch($args['provider'])
-        	{
-        		case 'linkedin':
-        			$info['email'] = $info['emailAddress'];
-        			$info['given_name'] = $info['firstName'];
-        			$info['family_name'] = $info['lastName'];
-        			$info['picture'] = $info['pictureUrl'];     			
-        			break;
-        	}        	
-        	
-        	$user = $userService->findUserByEmail($info['email']);
-        	
-        	if(is_null($user))
-        	{
-        		$user = $userService->subscribeUser($info);        		
-        	}
-        	
-        	$args['info']['user'] = $user;
-        	$args['info']['provider'] = $args['provider'];        	
-        });*/
-
-        $eventStore = $serviceManager->get('prooph.event_store');
-        $this->entityManager = $serviceManager->get('doctrine.entitymanager.orm_default');
-		$eventStore->getPersistenceEvents()->attach('commit.post', array($this, 'postCommitEvent'));        
+//         $eventStore = $serviceManager->get('prooph.event_store');
+//         $this->entityManager = $serviceManager->get('doctrine.entitymanager.orm_default');
+// 		$eventStore->getPersistenceEvents()->attach('commit.post', array($this, 'postCommitEvent'));        
     }
     
-    public function postCommitEvent(PostCommitEvent $event) {
+//     public function postCommitEvent(PostCommitEvent $event) {
 // 		foreach ($event->getRecordedEvents() as $streamEvent) {
 // 			$this->entityManager->persist($streamEvent->getEntity());
 //         }
 //         $this->entityManager->flush();
-    }
+//     }
     
-    private function initAuthProviders($serviceManager)
-    {
-    	$allConfigurationOption = $serviceManager->get('Config');
-    	 
-    	if(is_array($allConfigurationOption) &&
-    			array_key_exists('zendoauth2', $allConfigurationOption))
-    	{
-    		$availableProviderList = $allConfigurationOption['zendoauth2'];
-    		 
-    		foreach($availableProviderList as $provider => $providerOptions)
-    		{
-    			$provider = ucfirst($provider);
-    			$instanceProviderName = "ZendOAuth2\\".$provider;
-    			$instanceProvider = $serviceManager->get($instanceProviderName);
-    			 
-    			if(null != $instanceProvider)
-    			{
-    				$this->providerInstanceList[$provider] =  $instanceProvider;
-    			}
-    		}
-    	}
-    }
-        
     public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';
@@ -113,7 +54,15 @@ class Module
         return array(
             'invokables' => array(
                 'Application\Controller\Index' => 'Application\Controller\IndexController',
-            	'Application\Controller\Auth'  => 'Application\Controller\AuthController'
+            ),
+            'factories' => array(
+            	'Application\Controller\Auth'  => function ($sm) {
+            		$locator = $sm->getServiceLocator();
+            		$providers = $locator->get('OAuth2\Providers');
+            		$authService = $locator->get('Application\Service\AuthenticationService');
+            		$controller = new AuthController($authService, $providers);
+            		return $controller;
+            	},
             )
         );        
     } 
@@ -131,11 +80,9 @@ class Module
 	                $logger->addWriter($writer);  
 	                
 	                return $logger;
-	            },            	          		
+	            },
+	            'OAuth2\Providers' => 'Application\Service\OAuth2ProvidersFactory',
             ),
-            'invokables' => array(
-            	'Application\Auth\Adapter' => 'Application\Authentication\Adapter\Auth',
-            ),            
         );
     }
 
@@ -143,8 +90,8 @@ class Module
     {
     	return array(
     			'invokables' => array(
-    					'UserBoxHelper' => 'Application\View\Helper\UserBoxHelper',
-    					'LoginPopupHelper' => 'Application\View\Helper\LoginPopupHelper'
+    				'UserBoxHelper' => 'Application\View\Helper\UserBoxHelper',
+    				'LoginPopupHelper' => 'Application\View\Helper\LoginPopupHelper',
     			),
     	);
     }

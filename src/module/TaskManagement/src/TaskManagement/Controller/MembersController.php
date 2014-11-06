@@ -4,15 +4,15 @@ namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Zend\View\Model\JsonModel;
-use Zend\Stdlib\InitializableInterface;
 use Zend\Authentication\AuthenticationService;
 use Ora\DuplicatedDomainEntityException;
 use Ora\TaskManagement\TaskService;
 use Ora\TaskManagement\Task;
 use Ora\IllegalStateException;
 use Ora\DomainEntityUnavailableException;
+use Zend\Authentication\AuthenticationServiceInterface;
 
-class MembersController extends AbstractHATEOASRestfulController implements InitializableInterface
+class MembersController extends AbstractHATEOASRestfulController
 {
     protected static $collectionOptions = array('DELETE', 'POST');
     protected static $resourceOptions = array();
@@ -35,10 +35,9 @@ class MembersController extends AbstractHATEOASRestfulController implements Init
      */
     protected $task = null;
     
-    public function init() {
-    	$serviceLocator = $this->getServiceLocator();
-    	$this->authService = $serviceLocator->get('Application\Service\AuthenticationService');
-		$this->taskService = $serviceLocator->get('TaskManagement\TaskService');
+    public function __construct(TaskService $taskService, AuthenticationServiceInterface $authService) {
+    	$this->authService = $authService;
+		$this->taskService = $taskService;
     }
     
     public function preDispatch($e)

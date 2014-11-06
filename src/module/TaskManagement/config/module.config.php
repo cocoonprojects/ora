@@ -8,9 +8,6 @@ return array(
 	),
 	'controllers' => array(
         'invokables' => array(
-            'TaskManagement\Controller\Members' => 'TaskManagement\Controller\MembersController',
-            'TaskManagement\Controller\Tasks' => 'TaskManagement\Controller\TasksController',
-            'TaskManagement\Controller\Projects' => 'TaskManagement\Controller\ProjectsController',
             'TaskManagement\Controller\TaskTransitions' => 'TaskManagement\Controller\TaskTransitionsController',
         ),
     ),

@@ -1,11 +1,14 @@
 <?php
 
 use Behat\Behat\Context\Context;
+use Behat\MinkExtension\Context\RawMinkContext;
+use Behat\Mink\Driver\BrowserKitDriver;
+use Behat\Mink\Exception\UnsupportedDriverActionException;
 
 /**
  * Rest context.
  */
-class RestContext implements Context
+class RestContext extends RawMinkContext implements Context
 {
     private $_restObject = null;
     private $_restObjectType = null;
@@ -83,6 +86,19 @@ class RestContext implements Context
         $this->_restObject->$propertyName = $propertyValue;
     }
 
+    /**
+     * @Given /^that I am authenticated as "([^"]*)"$/
+     */
+    public function thatIAmAuthenticatedAs($email)
+    {
+    	$this->thatTheItsIs('email', $email);
+    	$this->_restObjectMethod = 'post';
+    	$this->iRequest('/auth/acceptanceLogin');
+    	if($this->_response->getStatusCode() != 200) {
+    		throw new \Exception('Cannot authenticate '.$email.' user');
+    	}
+    }
+    
     /**
      * @When /^I request "([^"]*)"$/
      */
@@ -299,4 +315,5 @@ class RestContext implements Context
     {
         $this->printDebug($this->_requestUrl . "\n\n" . $this->_response);
     }
+
 }

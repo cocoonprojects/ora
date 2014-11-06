@@ -8,7 +8,7 @@ default:
                  - functional/features/task
             contexts: 
                  - RestContext:
-                     - http://oraproject
+                     - http://oraproject.org
                    
         login_google_features:
             paths: 
