@@ -17,4 +17,6 @@ interface KanbanizeService {
 	public function moveBackToOngoing(KanbanizeTask $kanbanizeTask);
 	
 	public function listAvailableKanbanizeTasks();
+	
+	public function moveToCompleted(KanbanizeTask $kanbanizeTask);
 }

@@ -134,10 +134,13 @@ class KanbanizeServiceImpl implements KanbanizeService
   		if(isset($task['Error'])) {
   			throw new OperationFailedException($task["Error"]);
   		}
-		if ( $task['columnname'] != KanbanizeTask::COLUMN_ACCEPTED){
+		if ( $task['columnname'] == KanbanizeTask::COLUMN_ACCEPTED){
+			throw new AlreadyInDestinationException("Task is already in accepted column");
+		}
+		if($task['columnname'] == KanbanizeTask::COLUMN_COMPLETED){
 			$this::moveTask($kanbanizeTask, KanbanizeTask::COLUMN_ACCEPTED);
 		}else{
-			throw new AlreadyInDestinationException("Task is already in accepted column");
+			throw new IllegalRemoteStateException("Cannot move task in ongoing from "+$task["columnname"]);
 		}
 		
 		//TODO check if all team as evaluated the task
@@ -155,13 +158,34 @@ class KanbanizeServiceImpl implements KanbanizeService
   			throw new AlreadyInDestinationException("Task is already in ongoing column");
   		}
   		
-		if($task['columnname'] == KanbanizeTask::COLUMN_COMPLETED || $task['columnname'] == KanbanizeTask::COLUMN_ACCEPTED){
+		if($task['columnname'] == KanbanizeTask::COLUMN_COMPLETED || $task['columnname'] == KanbanizeTask::COLUMN_OPEN){
 			$this::moveTask($kanbanizeTask, KanbanizeTask::COLUMN_ONGOING);
 		}else{
 			throw new IllegalRemoteStateException("Cannot move task in ongoing from "+$task["columnname"]);
 		}
 		//TODO other controls to do?
 	}
+	
+	public function moveToCompleted(KanbanizeTask $kanbanizeTask) {
+		//Check if the task can be moved back to ongoing
+		$boardId = $kanbanizeTask->getBoardId();
+		$taskId = $kanbanizeTask->getTaskId();
+		$task = $this->kanbanize->getTaskDetails($boardId, $taskId);
+		if(isset($task['Error'])) {
+			throw new OperationFailedException($task["Error"]);
+		}
+		if($task["columnname"]== KanbanizeTask::COLUMN_COMPLETED){
+			throw new AlreadyInDestinationException("Task is already in completed column");
+		}
+	
+		if($task['columnname'] == KanbanizeTask::COLUMN_ONGOING || $task['columnname'] == KanbanizeTask::COLUMN_ACCEPTED){
+			$this::moveTask($kanbanizeTask, KanbanizeTask::COLUMN_COMPLETED);
+		}else{
+			throw new IllegalRemoteStateException("Cannot move task in completed from "+$task["columnname"]);
+		}
+		//TODO other controls to do?
+	}
+	
 	
 
 	/**

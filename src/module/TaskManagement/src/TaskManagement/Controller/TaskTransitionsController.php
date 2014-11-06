@@ -116,6 +116,32 @@ class TaskTransitionsController extends AbstractHATEOASRestfulController
 		$result = 0;
 		switch ($action) {
 			
+			case "completed":
+				try {
+			
+					$result = $this->getKanbanizeService ()->moveToCompleted ( $task );
+			
+				} catch ( OperationFailedException $e ) {
+					$this->response->setStatusCode ( 400 );
+					return $this->response;
+				}catch ( AlreadyInDestinationException $e3 ) {
+					$this->response->setStatusCode ( 204 );
+					return $this->response;
+				}
+				catch ( IllegalRemoteStateException $e1 ) {
+					$this->response->setStatusCode ( 400 );
+					return $this->response;
+				}
+				catch (KanbanizeApiException $e2){
+					$this->response->setStatusCode ( 504 );
+					return $this->response;
+				}
+			
+				$this->response->setStatusCode ( 200 );
+				return $this->response;
+			
+				break;
+			
 			case "accept":
 				try {
 						
