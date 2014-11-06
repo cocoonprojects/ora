@@ -8,6 +8,7 @@ use Zend\Http\Client;
 use Ora\Kanbanize\KanbanizeTask;
 use Ora\TaskManagement\Task;
 use Application\Service\KanbanizeService;
+use Rhumsaa\Uuid\Uuid;
 
 /**
  * TestKanbanizeActionController
@@ -23,19 +24,19 @@ class KanbanizeActionController extends AbstractActionController {
 	 * @var KanbanizeService
 	 */
 	private $kanbanizeService;
+
 	
 	public function indexAction() {
 		
  		$method = $this->params()->fromQuery('method', 'get');
-		//TODO use right board id 
-		$boardId = 3;
+		//TODO use right board id
 		$id = $this->getEvent()->getRouteMatch()->getParam('id');
 		$ch = curl_init('http://192.168.56.111/task-management/tasks/'.$id.'/transitions');
 		switch($method) {
 			case 'accept':
 				// only for test purposes the id of the board is hardcoded
 				// this is a test controller
-				$data = array("boardid" => $boardId,"action"=>"accept");
+				$data = array("action"=>"accept");
 				curl_setopt($ch, CURLOPT_POST, true);
 				//curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
 				curl_setopt($ch, CURLOPT_HEADER, true);
@@ -46,7 +47,7 @@ class KanbanizeActionController extends AbstractActionController {
 				$response = curl_exec($ch);
 				break;
 			case 'ongoing':
-				$data = array("boardid" => $boardId,"action"=>"ongoing");
+				$data = array("action"=>"ongoing");
 				curl_setopt($ch, CURLOPT_POST, true);
 				//curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
 				curl_setopt($ch, CURLOPT_HEADER, true);
@@ -83,9 +84,7 @@ class KanbanizeActionController extends AbstractActionController {
 		// here retrieve the task to show in the page
 		// put in the view with key tasks
 		
-		//TODO get dinamically board id
-		$boardId = 3;
-		$tasks = $this->getKanbanizeService()->getTasks($boardId);
+		$tasks = $this->getKanbanizeService()->listAvailableKanbanizeTasks();
 		
 		$taskList = array();
 		
@@ -93,13 +92,7 @@ class KanbanizeActionController extends AbstractActionController {
 		
 		$back2ongoing = array();
 
-		foreach ($tasks as $singletask) {
-			//TODO inserire utente reale e prendere id reale
-			$task = new KanbanizeTask(uniqid(), $boardId, $singletask['taskid'], new \DateTime(), "Utente");
-			$task->setSubject($singletask['description']);
-			$task->setStatus(KanbanizeTask::getMappedStatus($singletask['columnname']));
-			$task->setBoardId($boardId);
-			$taskList[] = $task;
+		foreach ($tasks as $task) {
 			switch($task->getStatus()) {
 				//FIXME backlog
 				case -1:
@@ -116,10 +109,20 @@ class KanbanizeActionController extends AbstractActionController {
 			}
 		}
 		
-		$view = new ViewModel(array('tasks' => $taskList, 'acceptable' => $acceptable, 'back2ongoing' => $back2ongoing));
+		$view = new ViewModel(array('tasks' => $tasks, 'acceptable' => $acceptable, 'back2ongoing' => $back2ongoing));
 		
 		return $view;
 		
+	}
+
+	protected function getAuthenticationService() {
+		if (!isset($this->authService))
+		{
+			$serviceLocator = $this->getServiceLocator();
+			$this->authService = $serviceLocator->get('Application\Service\AuthenticationService');
+		}
+	
+		return $this->authService;
 	}
 	
 }

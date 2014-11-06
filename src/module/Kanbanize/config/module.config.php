@@ -12,9 +12,7 @@ return array(
                 'options' => array(
                     // Change this to something specific to your module
                     'route'    => '/kanbanize/task/:id',
-                	'constraints' => array(
-                		'id' => '[0-9]+',
-                	),
+                	//'constraints' => array(),
                     'defaults' => array(
                         // Change this value to reflect the namespace in which
                         // the controllers for your module are found

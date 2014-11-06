@@ -35,7 +35,7 @@ use Ora\Kanbanize\KanbanizeTask;
 			?>
 <tr>
 				
- 	<td> <?php echo $singletask->getTaskId();?> </td>
+ 	<td> <?php echo $singletask->getId();?> </td>
  
 				
  	<td> <?php echo $singletask->getSubject();?> </td>
@@ -45,15 +45,15 @@ use Ora\Kanbanize\KanbanizeTask;
  
 	<td>
 	<?php if(in_array($singletask->getId(), $acceptable)){?>
-	<a href="/kanbanize/task/<?php echo $singletask->getTaskId();?>/client/test?method=accept">
-	<button class="btn btn-primary" id ="<?php echo $singletask->getTaskId();?>">Accept</button>
+	<a href="/kanbanize/task/<?php echo $singletask->getId();?>/client/test?method=accept">
+	<button class="btn btn-primary" id ="<?php echo $singletask->getId();?>">Accept</button>
 	</a>
 	<?php }?>
 	</td>
 	<td>
 	<?php if(in_array($singletask->getId(), $back2ongoing)){?>
-	<a href="/kanbanize/task/<?php echo $singletask->getTaskId();?>/client/test?method=ongoing">
-	<button class="btn btn-primary" id ="<?php echo $singletask->getTaskId();?>">Back to ongoing</button>
+	<a href="/kanbanize/task/<?php echo $singletask->getId();?>/client/test?method=ongoing">
+	<button class="btn btn-primary" id ="<?php echo $singletask->getId();?>">Back to ongoing</button>
 	</a>
 	<?php }?>
 	</td>

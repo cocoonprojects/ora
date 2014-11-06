@@ -15,4 +15,6 @@ interface KanbanizeService {
 	public function acceptTask(KanbanizeTask $kanbanizeTask);
 	
 	public function moveBackToOngoing(KanbanizeTask $kanbanizeTask);
+	
+	public function listAvailableKanbanizeTasks();
 }

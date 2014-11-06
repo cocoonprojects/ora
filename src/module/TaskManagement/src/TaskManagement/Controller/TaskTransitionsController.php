@@ -16,6 +16,7 @@ use Kanbanize\Service\KanbanizeService;
 use Zend\Db\Sql\Predicate\IsNull;
 use Ora\Kanbanize\Exception\IllegalRemoteStateException;
 use Ora\Kanbanize\Exception\KanbanizeApiException;
+use Ora\TaskManagement\TaskService;
 
 class TaskTransitionsController extends AbstractHATEOASRestfulController
 {
@@ -29,6 +30,11 @@ class TaskTransitionsController extends AbstractHATEOASRestfulController
 	 * @var \TaskManagement\Service\KanbanizeService
 	 */
 	protected $kanbanizeService;
+
+	/**
+	 * @var TaskService
+	 */
+	private $taskService;
 	
 	/**
 	 *
@@ -82,43 +88,30 @@ class TaskTransitionsController extends AbstractHATEOASRestfulController
 		
 		$action = $data ["action"];
 		
-		if (! isset ( $data ['boardid'] )) {
-			// bad request
-			$this->response->setStatusCode ( 400 );
-			return $this->response;
-		} else if (! $validator_NotEmpty->isValid ( $data ['boardid'] ) || ! $validator_Digits->isValid ( $data ['boardid'] )) {
-			// request not correct
-			$this->response->setStatusCode ( 406 );
-			return $this->response;
-		}
-		
 		if (! isset ( $id )) {
 			// bad request
 			$this->response->setStatusCode ( 400 );
 			return $this->response;
-		} else if (! $validator_NotEmpty->isValid ( $id ) || ! $validator_Digits->isValid ( $id )) {
+		} else if (! $validator_NotEmpty->isValid ( $id )) {
 			// request not correct
 			$this->response->setStatusCode ( 406 );
 			return $this->response;
 		}
 		
 		// TODO insert validators with
+
+		$task = $this->getTaskService()->findTaskById($id);
+		$boardId = $task->getBoardId();
+		$taskId = $task->getTaskId();
 		
-		// mock task
-		$taskId = uniqid ();
-		$boardId = $data ["boardid"];
-		
-		// TODO add real user
-		$createdBy = "Temp";
-		
-		$kanbanizeTask = new KanbanizeTask ( $taskId, $boardId, $id, new \DateTime (), $createdBy );
+		//$kanbanizeTask = new KanbanizeTask ( $taskId, $boardId, $id, new \DateTime (), $createdBy );
 		$result = 0;
 		switch ($action) {
 			
 			case "accept":
 				try {
 						
-						$result = $this->getKanbanizeService ()->acceptTask ( $kanbanizeTask );
+						$result = $this->getKanbanizeService ()->acceptTask ( $task );
 				
 				} catch ( OperationFailedException $e ) {
 					$this->response->setStatusCode ( 400 );
@@ -138,7 +131,7 @@ class TaskTransitionsController extends AbstractHATEOASRestfulController
 				break;
 			case "ongoing" :
 				try{
-				$this->getKanbanizeService ()->moveBackToOngoing ( $kanbanizeTask );
+				$this->getKanbanizeService ()->moveBackToOngoing ( $task );
 					
 				
 				}catch(OperationFailedException $e){
@@ -171,6 +164,20 @@ class TaskTransitionsController extends AbstractHATEOASRestfulController
      	if (!isset($this->kanbanizeService))
      		$this->kanbanizeService = $this->getServiceLocator ()->get ( 'TaskManagement\Service\Kanbanize' );
 		return $this->kanbanizeService;
+	}
+
+	/**
+	 * @return \Ora\TaskManagement\TaskService
+	 */
+	protected function getTaskService()
+	{
+		if (!isset($this->taskService))
+		{
+			$serviceLocator = $this->getServiceLocator();
+			$this->taskService = $serviceLocator->get('TaskManagement\TaskService');
+		}
+	
+		return $this->taskService;
 	}
 	
 	protected function getCollectionOptions()

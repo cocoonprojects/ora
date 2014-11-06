@@ -6,6 +6,7 @@ default:
         task_features:
             paths: 
                  - functional/features/task
+                 - functional/features/kanbanize
             contexts: 
                  - RestContext:
                      - http://oraproject

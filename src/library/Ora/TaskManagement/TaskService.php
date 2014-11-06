@@ -18,4 +18,6 @@ interface TaskService
 	public function deleteTask(Task $task, User $deletedBy);
 	
 	public function listAvailableTasks();
+	
+	public function findTaskById($id);
 }

@@ -158,4 +158,14 @@ class KanbanizeServiceImpl implements KanbanizeService
 		//TODO other controls to do?
 	}
 	
+
+	/**
+	 * Get the list of all available tasks
+	 */
+	public function listAvailableKanbanizeTasks()
+	{
+		$repository = $this->entityManager->getRepository('Ora\Kanbanize\KanbanizeTask');
+		return $repository->findAll();
+	}
+	
 }

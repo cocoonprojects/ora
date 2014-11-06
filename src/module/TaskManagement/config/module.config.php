@@ -58,9 +58,6 @@ return array(
         		'options' => array(
         			// Change this to something specific to your module
         			'route'    => '/task-management/tasks/:id/transitions',
-        			'constraints' => array(
-        				'id' => '[0-9]+',
-        			),
         			'defaults' => array(
         				// Change this value to reflect the namespace in which
         				// the controllers for your module are found

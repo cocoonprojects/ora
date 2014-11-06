@@ -4,6 +4,9 @@ namespace Ora\Kanbanize;
 
 use Ora\TaskManagement\Task;
 use Doctrine\ORM\Mapping AS ORM;
+use Ora\ProjectManagement\Project;
+use Ora\User\User;
+use Rhumsaa\Uuid\Uuid;
 
 
 /**
@@ -50,12 +53,26 @@ class KanbanizeTask extends Task {
 	 */
 	private $taskId;
 
-	public function __construct($taskId, $boardId, $kanbanizeTaskId, \DateTime $createdAt, $createdBy) {
-		parent::__construct($taskId, $createdAt, $createdBy);
-		$this->boardId = $boardId;
-		$this->taskId = $kanbanizeTaskId;
-	}
+// 	public function __construct($taskId, $boardId, $kanbanizeTaskId, \DateTime $createdAt, $createdBy) {
+// 		parent::__construct($taskId, $createdAt, $createdBy);
+// 		$this->boardId = $boardId;
+// 		$this->taskId = $kanbanizeTaskId;
+// 	}
 
+	public static function create(Project $project, $subject, User $createdBy) {
+		$rv = new self();
+		$rv->id = Uuid::uuid4();
+		$rv->status = self::STATUS_ONGOING;
+		$rv->subject = $subject;
+		$rv->recordThat(TaskCreated::occur($rv->id->toString(), array(
+				'task' => $rv,
+				'createdBy' => $createdBy,
+		)));
+		$rv->changeProject($project, $createdBy);
+		$rv->addMember($createdBy, $createdBy);
+		return $rv;
+	}
+	
 	public function getBoardId() {
 		return $this->boardId;
 	}
