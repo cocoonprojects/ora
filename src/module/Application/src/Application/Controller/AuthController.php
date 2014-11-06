@@ -5,26 +5,24 @@ namespace Application\Controller;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Ora\Organization\Organization;
+use Zend\Authentication\AuthenticationService;
+use ZendExtension\Authentication\Adapter\MockAuthAdapter;
+use Zend\Authentication\Result;
 
 class AuthController extends AbstractActionController
 {        
-	private $authenticationService;
-	private $userService;
-	private $organizationService;
+	private $providers;
+	private $authService;
 	private $redirectAfterLogout;
-	private $instanceProvider;
+	
+	public function __construct(AuthenticationService $authService, array $providers) {
+		$this->authService = $authService;
+		$this->providers = $providers;
+	}
 		
 	public function loginAction()
 	{
-		$resultAuthentication = array();
-		 
-		$provider = $this->params('id');
-		$provider = ucfirst($provider);
-		 		 
-		$availableProviderList = $this->getServiceLocator()->get('providerInstanceList');
-		 
 		$view = new ViewModel();
-		 
 		if(strlen($this->params('code')) > 10)
 		{
 			//TODO: $this->getServiceLocator()->get('Zend\Log\Logger')->crit('Auth: Error code parameter: '.$this->getRequest()->getQuery('code'));
@@ -32,47 +30,47 @@ class AuthController extends AbstractActionController
 			return $view;
 		}
 	
-		if("" === $provider
-				|| !array_key_exists($provider, $availableProviderList))
+		$id = $this->params('id');
+		if(empty($id) || !array_key_exists($id, $this->providers))
 		{
 			//TODO: $this->getServiceLocator()->get('Zend\Log\Logger')->crit('Auth: Error Provider parameter: '.$provider);
 			$view->setVariable('error', 'Auth.InvalidProvider');
 			return $view;
 		}
 		 
-		$instanceProvider = $availableProviderList[$provider];
-		 
-		if(!$instanceProvider->getToken($this->request))
+		$provider = $this->providers[$id];
+		if(is_null($provider)) {
+			//TODO: $this->getServiceLocator()->get('Zend\Log\Logger')->crit('Auth: Error Provider class missing: '.$provider);
+			$view->setVariable('error', 'Auth.InvalidProvider');
+			return $view;
+		}
+		if(!$provider->getToken($this->request))
 		{
 			//TODO: $this->getServiceLocator()->get('Zend\Log\Logger')->crit('Auth: InvalidToken');
 			$view->setVariable('error', 'Auth.InvalidToken');
 			return $view;
 		}
 	
-		//$adapter = $this->getServiceLocator()->get('Application\Auth\Adapter');
-		$adapter = $this->getAuthenticationAdapter();
-		$adapter->setOAuth2Client($instanceProvider);
-		$authenticationService = $this->getAuthenticationService();
-		$authenticate = $authenticationService->authenticate($adapter); // return Zend\Authentication\Result
-        
-		$view->setVariable('authenticate', $authenticate);
+		$adapter = $this->serviceLocator->get('ZendOAuth2\Auth\Adapter');
+		$adapter->setOAuth2Client($provider);
+		$adapter->getEventManager()->attach('oauth2.success', array($this, 'loadUser'));
+		$result = $this->authService->authenticate($adapter);
+		$view->setVariable('authenticate', $result);
 	
 		return $view;
 	}
 	
 	public function logoutAction()
 	{
-		$authenticationService = $this->getAuthenticationService();
-		 
-		if(!$authenticationService->hasIdentity())
+		if(!$this->authService->hasIdentity())
 		{
-			$this->returnToHome();
+			$this->redirect()->toRoute('home');
 			return;
 		}
 		 
-		$identity = $authenticationService->getIdentity();
+		$identity = $this->authService->getIdentity();
 	
-		$authenticationService->clearIdentity();
+		$this->authService->clearIdentity();
 		 
 		if(array_key_exists('sessionOfProvider', $identity) &&
 				"" != $identity["sessionOfProvider"])
@@ -81,70 +79,52 @@ class AuthController extends AbstractActionController
 			 
 		}
 			
-		return $this->getRedirectAfterLogout();
-	}
-
-	public function returnToHome()
-	{
 		return $this->redirect()->toRoute('home');
-	}	
-
-	public function getRedirectAfterLogout()
-	{
-		if (!$this->redirectAfterLogout) {
-			$this->setRedirectAfterLogout($this->redirect()->toRoute('home'));
-		}
-		return $this->redirectAfterLogout;
 	}
 	
-	public function setRedirectAfterLogout(\Zend\Http\Response $redirect)
+	public function loadUser($e)
 	{
-	
-		$this->redirectAfterLogout = $redirect;
-		return $this;
-	}
-	
-	protected function getAuthenticationAdapter()
-	{
-		$serviceLocator = $this->getServiceLocator();
-		return $serviceLocator->get('ZendOAuth2\Auth\Adapter');
-	}
-	
-	protected function getAuthenticationService()
-	{
-		if (!isset($this->authenticationService))
+		$userService = $this->serviceLocator->get('User\UserService');
+		$args = $e->getParams();
+		
+		$info = $args['info'];
+		switch($args['provider'])
 		{
-			$serviceLocator = $this->getServiceLocator();
-			$this->authenticationService = $serviceLocator->get('Application\Service\AuthenticationService');
-		}
-	
-		return $this->authenticationService;
-	}
-	
-	public function setAuthenticationService($authenticationService)
-	{
-		$this->authenticationService = $authenticationService;
-	}	
-	
-	protected function getUserService()
-	{
-		if (!isset($this->userService))
-		{
-			$serviceLocator = $this->getServiceLocator();
-			$this->userService = $serviceLocator->get('User\UserService');
-		}
-		 
-		return $this->userService;
-	}	
-	
-	protected function getOrganizationService()
-	{
-		if (!isset($this->organizationService))
-		{
-			$serviceLocator = $this->getServiceLocator();
-			$this->organizationService = $serviceLocator->get('Organization\OrganizationService');
+			case 'linkedin':
+				$info['email'] = $info['emailAddress'];
+				$info['given_name'] = $info['firstName'];
+				$info['family_name'] = $info['lastName'];
+				$info['picture'] = $info['pictureUrl'];
+				break;
 		}
 
-		return $this->organizationService;
+		$user = $userService->findUserByEmail($info['email']);
+		if(is_null($user))
+		{
+			$user = $userService->subscribeUser($info);
+		}
+
+		$args['info']['user'] = $user;
+		$args['info']['provider'] = $args['provider'];
 	}	
+	
+	public function acceptanceLoginAction() {
+// 		$env = getenv('APPLICATION_ENV') ? : "local";
+// 		if($env = 'acceptance') {
+		$adapter = new MockAuthAdapter();
+		$email = $this->params()->fromPost('email');
+		$adapter->setEmail($email);
+		$userService = $this->serviceLocator->get('User\UserService');
+		$adapter->setUserService($userService);
+		$result = $this->authService->authenticate($adapter);
+		if($result->getCode() == Result::FAILURE_IDENTITY_NOT_FOUND) {
+			$this->response->setStatusCode(400);
+		} else {
+			$this->response->setStatusCode(200);
+		}
+// 		} else {
+//			$this->response->setStatusCode(404);
+//		}
+		return $this->response;
+	}
 }

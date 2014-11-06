@@ -26,6 +26,7 @@ class DomainEntity extends AggregateRoot {
 	
 	/**
 	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+     * @ORM\JoinColumn(name="createdBy_id", referencedColumnName="id", nullable=TRUE)
 	 */
 	protected $createdBy;
 	
@@ -37,6 +38,7 @@ class DomainEntity extends AggregateRoot {
     
     /**
      * @ORM\ManyToOne(targetEntity="Ora\User\User")
+     * @ORM\JoinColumn(name="mostRecentEditBy_id", referencedColumnName="id", nullable=TRUE)
      */
     protected $mostRecentEditBy;
 	

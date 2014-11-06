@@ -21,7 +21,8 @@ class ProjectServiceFactory implements FactoryInterface
 // 			$eventStore = $serviceLocator->get('prooph.event_store');
 // 			$eventStoreStrategy = $serviceLocator->get('prooph.event_store.single_stream_strategy');
 //             self::$instance = new EventSourcingProjectService($eventStore, $eventStoreStrategy);
-	    	self::$instance = new MockProjectService();
+			$userService = $serviceLocator->get('User\UserService');
+	    	self::$instance = new MockProjectService($userService);
         }
 	    return self::$instance;
 	}
