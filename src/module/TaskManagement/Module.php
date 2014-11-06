@@ -6,6 +6,7 @@ use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use TaskManagement\Controller\MembersController;
 use TaskManagement\Controller\TasksController;
+use Zend\Mvc\MvcEvent;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {    
