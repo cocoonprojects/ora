@@ -27,11 +27,16 @@ class RestContext extends RawMinkContext implements Context
         // Initialize your context here
         $this->_restObject = new stdClass();
         $this->_client = new Guzzle\Service\Client();
-        $this->base_url = $base_url;
+        $this->base_url = $base_url;               
     }
 
     public function getBaseUrl()
     {
+    	$driver = $this->getSession()->getDriver();
+    	$driver->setCookie(session_name(), session_id());
+    	$session = new \Behat\Mink\Session($driver);
+    	$session->start();
+    	
         if ($this->base_url === "" || $this->base_url === null) 
         {            
             throw new \Exception('Base_url not loaded!');
@@ -46,7 +51,7 @@ class RestContext extends RawMinkContext implements Context
      * @Given /^that I want to make a new "([^"]*)"$/
      */
     public function thatIWantToMakeANew($objectType)
-    {
+    {    	
         $this->_restObjectType = ucwords(strtolower($objectType));
         $this->_restObjectMethod = 'post';
     }
@@ -97,6 +102,40 @@ class RestContext extends RawMinkContext implements Context
     	if($this->_response->getStatusCode() != 200) {
     		throw new \Exception('Cannot authenticate '.$email.' user');
     	}
+    	
+    	$setCookie = $this->_response->getSetCookie();
+    	
+    	//echo "set cookie: ".$setCookie."\n";
+    	$phpsessid = null;
+    	
+    	// PHPSESSID=p3sp0qs8ai1c62o9ll9o18ro20; path=/ 
+    	if(strpos($setCookie, ';') !== false)
+    	{
+    		//echo "punto e virgola ; \n";
+    		$tmp = explode(';', $setCookie);
+
+    		if(strpos($tmp[0], 'PHPSESSID') !== false)
+    		{
+    			//echo "PHPSESSID c'e \n";
+				list($nameCookie, $phpsessid) = explode('=', $tmp[0]);
+    		}
+    	}
+    	
+    	//echo "PHPSESSID: ".$phpsessid;
+    	$cookie = new Guzzle\Plugin\Cookie\Cookie();
+    	$cookie->setName('PHPSESSID');
+    	$cookie->setPath('/');
+    	
+    	$cookie->setValue($phpsessid);
+    	    	
+    	$domain = trim(str_replace("http://", "", $this->base_url));    	
+    	$cookie->setDomain($domain);
+    	
+    	$jar = new Guzzle\Plugin\Cookie\CookieJar\ArrayCookieJar();
+    	$jar->add($cookie);
+    	$plugin = new Guzzle\Plugin\Cookie\CookiePlugin($jar);
+    	
+    	$this->_client->addSubscriber($plugin);
     }
     
     /**
@@ -107,9 +146,11 @@ class RestContext extends RawMinkContext implements Context
         $baseUrl = $this->getBaseUrl();
         $this->_requestUrl = $baseUrl . $pageUrl;
         
-
+        
+        //$this->_client->addCookie('PHPSESSID',$this->_phpsessid);
+        
         switch (strtoupper($this->_restObjectMethod)) 
-        {
+        {        	
             case 'GET':
                 // Create a GET request: $client->get($uri, array $headers, $options)
                 try
@@ -168,6 +209,7 @@ class RestContext extends RawMinkContext implements Context
                     $response = $e->getResponse();
                 }
                 catch (Guzzle\Http\Exception\ServerErrorResponseException $e) {
+                	echo $e->getMessage();
                     $response = $e->getResponse();
                 }
                 catch (Guzzle\Http\Exception\BadResponseException $e) {
@@ -313,7 +355,10 @@ class RestContext extends RawMinkContext implements Context
      */
     public function echoLastResponse()
     {
-        $this->printDebug($this->_requestUrl . "\n\n" . $this->_response);
+    	//print_r($this->_requestUrl);
+    	//print_r($this->_response);
+    	echo "PHPSESSID da debug". $this->_response->getSetCookie('');
+        //$this->printDebug($this->_requestUrl . "\n\n" . $this->_response);
     }
 
 }
