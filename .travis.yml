@@ -1,4 +1,12 @@
 language: php
+
 php:
-  - "5.5"
-composer install
+  - 5.5
+  - 5.4
+  - hhvm
+
+before_script:
+  composer install
+
+script:
+  phpunit --configuration tests/phpunit.xml
