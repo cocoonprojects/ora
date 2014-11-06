@@ -3,9 +3,15 @@ $env = getenv('APPLICATION_ENV') ? : "local";
 
 return array(
     'modules' => array(
+       'DoctrineModule',
+        'DoctrineORMModule',
+    	'ProophEventStoreModule',
         'Application',
+    	'Accounting',
+    	'TaskManagement',
         'ZendOAuth2',
-    	'User'	
+    	'User',
+    	'Organization',
     	'Kanbanize'
     ),
 

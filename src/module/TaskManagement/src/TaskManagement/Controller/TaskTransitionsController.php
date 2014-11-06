@@ -98,9 +98,16 @@ class TaskTransitionsController extends AbstractHATEOASRestfulController
 			return $this->response;
 		}
 		
-		// TODO insert validators with
+		
 
 		$task = $this->getTaskService()->findTaskById($id);
+		if (!isset($task)||$task ==null ){
+			// no task found 
+			$this->response->setStatusCode ( 400 );
+			return $this->response;
+			
+		}
+		
 		$boardId = $task->getBoardId();
 		$taskId = $task->getTaskId();
 		

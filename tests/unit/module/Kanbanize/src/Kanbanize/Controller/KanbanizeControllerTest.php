@@ -16,6 +16,7 @@ use Kanbanize\Service\KanbanizeServiceFactory;
 use DoctrineORMModule\Service\EntityManagerFactory;
 use Ora\Kanbanize\KanbanizeTask;
 use Ora\Kanbanize\Exception\IllegalRemoteStateException;
+use Ora\TaskManagement\TaskService;
 
 class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 	
@@ -31,6 +32,8 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 	protected $response;
 	protected $routeMatch;
 	protected $event;
+	protected $taskService;
+	
 	
 	protected function setUp() {
 		$bootstrap = Application::init ( include ('tests/unit/test.config.php') );
@@ -50,16 +53,26 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 		$this->event->setRouteMatch ( $this->routeMatch );
 		$this->controller->setEvent ( $this->event );
 		$this->controller->setServiceLocator ( $this->serviceManager );
+		$this->taskService = $this->getMockForAbstractClass ( 'Ora\TaskManagement\TaskService', array (
+				
+				'findTaskById' 
+		) );
 		
 		$this->kanbanizeService = $this->getMockForAbstractClass ( '\Ora\Kanbanize\KanbanizeService', array (
 				
 				'acceptTask',
-				'moveBackToOngoing'
-		) );
+				'moveBackToOngoing' 
+		)
+		 );
 		
 		$this->controller->expects ( $this->any () )->method ( 'getKanbanizeService' )->will ( $this->returnCallback ( array (
 				$this,
 				'getMockedKanbanizeService' 
+		) ) );
+		
+		$this->taskService->expects ( $this->any () )->method ( 'findTaskById' )->will ( $this->returnCallback ( array (
+				$this,
+				'findTaskByIdMockedSuccessful' 
 		) ) );
 	}
 	
@@ -77,7 +90,6 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 		$this->request->setMethod ( Request::METHOD_POST );
 		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
 		$this->request->setContent ( json_encode ( array (
-				'boardid' => 3,
 				'action' => 'accept' 
 		) ) );
 		
@@ -101,7 +113,6 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 		$this->request->setMethod ( Request::METHOD_POST );
 		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
 		$this->request->setContent ( json_encode ( array (
-				'boardid' => 3,
 				'action' => 'accept' 
 		) ) );
 		
@@ -125,7 +136,7 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 		$this->request->setMethod ( Request::METHOD_POST );
 		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
 		$this->request->setContent ( json_encode ( array (
-				'boardid' => 3,
+			
 				'action' => 'ok'
 		) ) );
 	
@@ -135,29 +146,29 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals ( 406, $response->getStatusCode () );
 	}
 	
-	public function testMoveWithWrongBoardId() {
-// 		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveTask' )->will ( $this->returnCallback ( array (
+// 	public function testMoveWithWrongBoardId() {
+// // 		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveTask' )->will ( $this->returnCallback ( array (
+// // 				$this,
+// // 				'getCorrectResult'
+// // 		) ) );
+// 		$this->kanbanizeService->expects ( $this->any () )->method ( 'acceptTask' )->will ( $this->returnCallback ( array (
 // 				$this,
-// 				'getCorrectResult'
+// 				'isReallyAcceptable'
 // 		) ) );
-		$this->kanbanizeService->expects ( $this->any () )->method ( 'acceptTask' )->will ( $this->returnCallback ( array (
-				$this,
-				'isReallyAcceptable'
-		) ) );
 	
-		$this->routeMatch->setParam ( 'id', $this->getTaskId () );
-		$this->request->setMethod ( Request::METHOD_POST );
-		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
-		$this->request->setContent ( json_encode ( array (
-				'boardid' => 'numero3',
-				'action' => 'accept'
-		) ) );
+// 		$this->routeMatch->setParam ( 'id', $this->getTaskId () );
+// 		$this->request->setMethod ( Request::METHOD_POST );
+// 		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
+// 		$this->request->setContent ( json_encode ( array (
+// 				'boardid' => 'numero3',
+// 				'action' => 'accept'
+// 		) ) );
 	
-		$result = $this->controller->dispatch ( $this->request );
-		$response = $this->controller->getResponse ();
+// 		$result = $this->controller->dispatch ( $this->request );
+// 		$response = $this->controller->getResponse ();
 	
-		$this->assertEquals ( 406, $response->getStatusCode () );
-	}
+// 		$this->assertEquals ( 406, $response->getStatusCode () );
+// 	}
 	
 	public function testMoveWithNoParameters() {
 		$this->routeMatch->setParam ( 'id', $this->getTaskId () );
@@ -212,7 +223,7 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 		$this->request->setMethod ( Request::METHOD_POST );
 		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
 		$this->request->setContent ( json_encode ( array (
-				'boardid' => 3,
+				
 				'action' => 'ongoing'
 		) ) );
 	
@@ -223,26 +234,26 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testMoveBackTaskCanNotBeMovedBack() {
-// 		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveTask' )->will ( $this->returnCallback ( array (
-// 				$this,
-// 				'getCorrectResult'
-// 		) ) );
+		// $this->kanbanizeService->expects ( $this->any () )->method ( 'moveTask' )->will ( $this->returnCallback ( array (
+		// $this,
+		// 'getCorrectResult'
+		// ) ) );
 		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveBackToOngoing' )->will ( $this->returnCallback ( array (
 				$this,
-				'canNotBeMovedBack'
+				'canNotBeMovedBack' 
 		) ) );
-	
+		
 		$this->routeMatch->setParam ( 'id', $this->getTaskId () );
 		$this->request->setMethod ( Request::METHOD_POST );
 		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
 		$this->request->setContent ( json_encode ( array (
-				'boardid' => 3,
-				'action' => 'ongoing'
+				
+				'action' => 'ongoing' 
 		) ) );
-	
+		
 		$result = $this->controller->dispatch ( $this->request );
 		$response = $this->controller->getResponse ();
-	
+		
 		$this->assertEquals ( 400, $response->getStatusCode () );
 	}
 	
@@ -260,7 +271,7 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 		$this->request->setMethod ( Request::METHOD_POST );
 		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
 		$this->request->setContent ( json_encode ( array (
-				'boardid' => 3,
+				
 				'action' => 'ok'
 		) ) );
 	
@@ -270,39 +281,43 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals ( 406, $response->getStatusCode () );
 	}
 	
-	public function testMoveBackTaskWithWrongBoardId() {
-// 		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveTask' )->will ( $this->returnCallback ( array (
+// 	public function testMoveBackTaskWithWrongBoardId() {
+// // 		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveTask' )->will ( $this->returnCallback ( array (
+// // 				$this,
+// // 				'getCorrectResult'
+// // 		) ) );
+// 		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveBackToOngoing' )->will ( $this->returnCallback ( array (
 // 				$this,
-// 				'getCorrectResult'
+// 				'canBeMovedBack'
 // 		) ) );
-		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveBackToOngoing' )->will ( $this->returnCallback ( array (
-				$this,
-				'canBeMovedBack'
-		) ) );
 	
-		$this->routeMatch->setParam ( 'id', $this->getTaskId () );
-		$this->request->setMethod ( Request::METHOD_POST );
-		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
-		$this->request->setContent ( json_encode ( array (
-				'boardid' => 'numero3',
-				'action' => 'ongoing'
-		) ) );
+// 		$this->routeMatch->setParam ( 'id', $this->getTaskId () );
+// 		$this->request->setMethod ( Request::METHOD_POST );
+// 		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
+// 		$this->request->setContent ( json_encode ( array (
+// 				'boardid' => 'numero3',
+// 				'action' => 'ongoing'
+// 		) ) );
 	
-		$result = $this->controller->dispatch ( $this->request );
-		$response = $this->controller->getResponse ();
+// 		$result = $this->controller->dispatch ( $this->request );
+// 		$response = $this->controller->getResponse ();
 	
-		$this->assertEquals ( 406, $response->getStatusCode () );
-	}
+// 		$this->assertEquals ( 406, $response->getStatusCode () );
+// 	}
 	
 	public function tearDown() {
 	}
 	
 	private function getTaskId() {
-		return 1;
+		return "00000000-0000-0000-0000-000000000001";
 	}
 	
 	public function getMockedKanbanizeService() {
 		return $this->kanbanizeService;
+	}
+	
+	public function getMockedTaskService(){
+		return $this->taskService;
 	}
 	
 	public function getCorrectResult() {
@@ -323,6 +338,17 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 	
 	public function canNotBeMovedBack(){
 		throw new IllegalRemoteStateException("errore");
+	}
+	public function findTaskByIdMockedSuccessful() {
+		return $this->mockedTask;
+	}
+	
+	public function getMockedTaskId(){
+		return 111;
+	}
+	
+	public function getMockedBoardId(){
+		return 3;
 	}
 	
 }
