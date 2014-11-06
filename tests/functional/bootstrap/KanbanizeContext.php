@@ -79,6 +79,9 @@ class AlreadyInDestination extends MockService {
 	public function acceptTask(KanbanizeTask $kanbanizeTask) {
 		throw new AlreadyInDestinationException();
 	}
+	public function moveBackToOngoing(KanbanizeTask $kanbanizeTask) {
+		throw new AlreadyInDestinationException();
+	}	
 }
 
 class CannotAccept extends MockService {
