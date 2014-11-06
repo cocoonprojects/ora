@@ -6,7 +6,7 @@ php:
   - hhvm
 
 before_script:
-  - composer install
+  - composer install -d src
 
 script:
   - phpunit --configuration tests/phpunit.xml
