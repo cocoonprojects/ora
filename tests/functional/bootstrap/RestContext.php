@@ -97,7 +97,7 @@ class RestContext extends RawMinkContext implements Context
 		self::$schemaTool->dropSchema($classes);	
 
 		//cancello la tabella event_stream
-		$sql_drop_event_store = "drop table event_stream";
+		$sql_drop_event_store = "drop table if exists event_stream";
 		$statement_del = self::$entityManager->getConnection()->executeUpdate($sql_drop_event_store, array(), array());
 		
 	}
