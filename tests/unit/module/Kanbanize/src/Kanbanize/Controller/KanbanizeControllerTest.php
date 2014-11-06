@@ -143,7 +143,7 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 		$result = $this->controller->dispatch ( $this->request );
 		$response = $this->controller->getResponse ();
 	
-		$this->assertEquals ( 406, $response->getStatusCode () );
+		$this->assertEquals ( 400, $response->getStatusCode () );
 	}
 	
 // 	public function testMoveWithWrongBoardId() {
@@ -278,7 +278,7 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 		$result = $this->controller->dispatch ( $this->request );
 		$response = $this->controller->getResponse ();
 	
-		$this->assertEquals ( 406, $response->getStatusCode () );
+		$this->assertEquals ( 400, $response->getStatusCode () );
 	}
 	
 // 	public function testMoveBackTaskWithWrongBoardId() {

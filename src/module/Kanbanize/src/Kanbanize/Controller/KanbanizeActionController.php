@@ -95,12 +95,15 @@ class KanbanizeActionController extends AbstractActionController {
 			switch($task->getStatus()) {
 				//FIXME backlog
 				case -1:
+					break;
 				case Task::STATUS_IDEA:
-				case Task::STATUS_OPEN:
-				case Task::STATUS_ONGOING:
+					break;
 				case Task::STATUS_COMPLETED:
 					$acceptable[] = $task->getId();
+				case Task::STATUS_OPEN:
 					$back2ongoing[] = $task->getId();
+					break;
+				case Task::STATUS_ONGOING:
 					break;
 				case Task::STATUS_ACCEPTED:
 					
