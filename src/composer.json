@@ -1,7 +1,7 @@
 {
 	"name": "cocoonprojects/ora",
 	"description": "Non-hierarchical clustering technology platform",
-	"version": "0.0.1-dev"
+	"version": "0.0.1-dev",
 	"license": "BSD-3-Clause",
 	"keywords": [ "liquido", "liquid organization", "credits accounting", "decision making", "reputation"],
 	"homepage": "https://github.com/cocoonprojects/ora",
