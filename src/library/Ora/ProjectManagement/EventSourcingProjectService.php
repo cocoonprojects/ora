@@ -2,29 +2,29 @@
 
 namespace Ora\ProjectManagement;
 
-use Ora\EventStore\EventStore;
-use Ora\EntitySerializer;
+use Prooph\EventStore\Aggregate\AggregateRepository;
+use Prooph\EventStore\Aggregate\AggregateType;
+use Prooph\EventStore\EventStore;
+use Prooph\EventStore\Stream\StreamStrategyInterface;
+use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
+use Ora\User\User;
 
 /**
  * @author Giannotti Fabio
  */
-class EventSourcingProjectService implements ProjectService
+class EventSourcingProjectService extends AggregateRepository implements ProjectService
 {
-    private $entityManager;
-    private $eventStore;
-    private $entitySerializer;
-    
-    public function __construct($entityManager, EventStore $eventStore, EntitySerializer $entitySerializer)
-    {
-        $this->entityManager = $entityManager;
-        $this->eventStore = $eventStore;
-	    $this->entitySerializer = $entitySerializer;
-    }
-	
-	public function findProject($id)
+	public function __construct(EventStore $eventStore, StreamStrategyInterface $eventStoreStrategy) {
+		parent::__construct($eventStore, new AggregateTranslator(), $eventStoreStrategy, new AggregateType('Ora\ProjectManagement\Project'));
+	}
+    	
+	public function getProject($id)
 	{
-	    $project = $this->entityManager->getRepository('Ora\ProjectManagement\Project')->findOneBy(array("id"=>$id));
-	    
-	    return $project;
+		try {
+		    $project = $this->getAggregateRoot($this->aggregateType, $id);
+		    return $project;
+		} catch (\RuntimeException $e) {
+			return null;
+		}
 	}
 } 

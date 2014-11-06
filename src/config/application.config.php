@@ -16,13 +16,14 @@ return array(
     'modules' => array(
 		'DoctrineModule',
         'DoctrineORMModule',
+    	'ProophEventStoreModule',
         'Application',
-        'TaskManagement',
-        'ProjectManagement',
-        'User',
-        'Auth',
+    	'Accounting',
+    	'TaskManagement',
         'ZendOAuth2',
-        'Kanbanize'
+    	'User',
+    	'Organization',
+    	'Kanbanize'
     ),
 
     // These are various options for the listeners attached to the ModuleManager
@@ -44,4 +45,3 @@ return array(
         ),
     ),
 );
-

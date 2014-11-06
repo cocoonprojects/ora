@@ -10,18 +10,31 @@ return array(
         'invokables' => array(
             'TaskManagement\Controller\Members' => 'TaskManagement\Controller\MembersController',
             'TaskManagement\Controller\Tasks' => 'TaskManagement\Controller\TasksController',
+            'TaskManagement\Controller\Projects' => 'TaskManagement\Controller\ProjectsController',
             'TaskManagement\Controller\TaskTransitions' => 'TaskManagement\Controller\TaskTransitionsController',
         ),
     ),
+    
     'router' => array(
         'routes' => array(
+			'projects' => array(
+				'type' => 'Segment',
+				'options' => array(
+					'route'    => '/task-management/projects[/:id]',
+					'constraints' => array(
+						'id' => '[0-9a-z\-]+',
+					),
+					'defaults' => array(
+						'controller' => 'TaskManagement\Controller\Projects'
+					),
+				),
+			),
             'members' => array(
                 'type' => 'Segment',
                 'options' => array(
-                    'route'    => '/task-management/tasks/:taskid/members/[:id]',
+                    'route'    => '/task-management/tasks/:taskId/members',
                     'constraints' => array(
-                        'taskid' => '[a-zA-Z0-9]+',
-                        'id' => '[a-zA-Z0-9]+'
+                        'taskId' => '[0-9a-z\-]+'
                     ),
                     'defaults' => array(
                         'controller' => 'TaskManagement\Controller\Members'
@@ -33,14 +46,14 @@ return array(
                 'options' => array(
                     'route'    => '/task-management/tasks[/:id]',
                     'constraints' => array(
-                        'id' => '[a-zA-Z0-9]+'
+                        'id' => '[0-9a-z\-]+'
                     ),
                     'defaults' => array(
                         'controller' => 'TaskManagement\Controller\Tasks'
                     ),
                 ),
             ),
-        	'transitions' => array(
+            'transitions' => array(
         		'type'    => 'Segment',
         		'options' => array(
         			// Change this to something specific to your module
@@ -58,6 +71,7 @@ return array(
         	),
         ),
     ),
+
     'translator' => array(),
     'view_manager' => array(
         'strategies' => array(

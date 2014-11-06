@@ -3,27 +3,57 @@
 namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Zend\Stdlib\InitializableInterface;
 use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
+use Zend\Authentication\AuthenticationService;
+use Ora\TaskManagement\TaskService;
+use Ora\ProjectManagement\ProjectService;
+use Ora\User\User;
+use Ora\ProjectManagement\Project;
+use Ora\IllegalStateException;
 
-class TasksController extends AbstractHATEOASRestfulController implements InitializableInterface
+class TasksController extends AbstractHATEOASRestfulController
 {
     protected static $collectionOptions = array('GET', 'POST');
     protected static $resourceOptions = array('DELETE', 'POST', 'GET', 'PUT');
-	protected $taskService;
-	protected $projectService;
     
-    public function init()
-    {
-        // Executed before any other method
-    }
+    /**
+     * 
+     * @var AuthenticationService
+     */
+	private $authService;
+	/**
+	 * 
+	 * @var TaskService
+	 */
+    private $taskService;
+    /**
+     * 
+     * @var ProjectService
+     */
+	private $projectService;
 	
+	protected $task = null;
+	
+	public function preDispatch($e)
+	{
+		$taskId = $this->params()->fromRoute('id');
+        if (!empty($taskId)) 
+        {
+            // Check if task with specified ID exist
+        	$this->task = $this->getTaskService()->getTask($taskId);
+            if(is_null($this->task)) {
+                $this->response->setStatusCode(404);
+                return $this->response;            	
+            }
+        }
+	}
+
+	    	    
     public function get($id)
     {        
         // HTTP STATUS CODE 405: Method not allowed
         $this->response->setStatusCode(405);
-         
         return $this->response;
     }
 	
@@ -37,11 +67,10 @@ class TasksController extends AbstractHATEOASRestfulController implements Initia
     public function getList()
     {
         // TODO: Verificare che l'utente abbia il permesso per accedere all'elenco dei task disponibili?
-        $availableTasks = $this->getTaskService()->listAvailableTasks();
-       	
+    	$availableTasks = $this->getTaskService()->listAvailableTasks();
        	$this->response->setStatusCode(200);
-       	
-        return new JsonModel($availableTasks);
+       	$view = new JsonModel();       	
+        return $view->setVariable('tasks', $availableTasks);
     }
     
     /**
@@ -54,66 +83,42 @@ class TasksController extends AbstractHATEOASRestfulController implements Initia
      * @author Giannotti Fabio
      */
     public function create($data)
-    {        
-        // Definition of used Zend Validators
-        $validator_NotEmpty = new \Zend\Validator\NotEmpty();
-        
-        if (!isset($data['projectID']))
+    {
+	    $response = $this->getResponse();        
+    	if (!isset($data['projectID']) || !isset($data['subject']))
         {            
             // HTTP STATUS CODE 400: Bad Request
-            $this->response->setStatusCode(400);
-            
-            return $this->response;
+            $response->setStatusCode(400);
+            return $response;
         }
         
-        if (!isset($data['subject']))
-        {           
-            // HTTP STATUS CODE 400: Bad Request
-            $this->response->setStatusCode(400);
-            
-            return $this->response;
-        }
-        
-        $data['projectID'] = trim($data['projectID']);        
-        $data['subject'] = trim($data['subject']);
-        
+		$project = $this->getProjectService()->getProject($data['projectID']);
+		if(is_null($project)) {
+        	// Project Not Found
+        	$response->setStatusCode(404);
+			return $response;			
+		}
         // TODO: Verificare che l'utente abbia il permesso per accedere a tale progetto?
-        
-        // Check if subject is empty
-        if (!$validator_NotEmpty->isValid($data['subject']))
-        {
-            // HTTP STATUS CODE 406: Not Acceptable
-            $this->response->setStatusCode(406);
-        
-            return $this->response;
-        }
-        
-        // Check if projectID value it's empty
-        if (!$validator_NotEmpty->isValid($data['projectID']))
-        {
-            // HTTP STATUS CODE 406: Not Acceptable
-            $this->response->setStatusCode(406);
-            
-            return $this->response;
-        }
-        
-        // Check if project with specific ProjectID exist 
-        $project = $this->getProjectService()->findProject($data['projectID']);
-        if (!($project instanceof \Ora\ProjectManagement\Project))
-        {
-            // HTTP STATUS CODE 404: Not Found
-            $this->response->setStatusCode(404);
-            
-            return $this->response;
-        }
-        
-        // Creation of new task
-       	$this->getTaskService()->createNewTask($project, $data['subject']);
-        
-        // HTTP STATUS CODE 201: Created
-    	$this->response->setStatusCode(201);
-    	
-    	return $this->response;
+        $subject = trim($data['subject']);
+
+	    // Definition of used Zend Validators
+	    $validator_NotEmpty = new \Zend\Validator\NotEmpty();
+	        
+	    // Check if subject is empty
+	    if (!$validator_NotEmpty->isValid($subject))
+	    {
+	    	// HTTP STATUS CODE 406: Not Acceptable
+	        $response->setStatusCode(406);
+	        return $response;
+	    }
+	        
+	    $createdBy = $this->getAuthenticationService()->getIdentity()['user'];
+	    $task = $this->getTaskService()->createTask($project, $subject, $createdBy);
+	    // Task Created
+	    $response->setStatusCode(201);
+	    $url = $this->url()->fromRoute('tasks', array('id' => $task->getId()->toString()));
+		$response->getHeaders()->addHeaderLine('Location', $url);
+    	return $response;
     }
 
     /**
@@ -121,57 +126,39 @@ class TasksController extends AbstractHATEOASRestfulController implements Initia
      * @method PUT
      * @link http://oraproject/task-management/tasks/[:ID]
      * @param array $id ID of the Task to update 
-     * @param array $data['subject'] Updated Subject for the selected Task
+     * @param array $data['subject'] Update Subject for the selected Task
      * @return HTTPStatusCode
      * @author Giannotti Fabio
      */
     public function update($id, $data)
-    {        
-        // Check if any field must be updated
-      	if (sizeof($data) == 0)
+    {
+	   	if (!isset($data['subject']))
       	{
       	    // HTTP STATUS CODE 204: No Content (Nothing to update)
       	    $this->response->setStatusCode(204);
-      	
       	    return $this->response;
       	}
       	
-      	// Check if task with specified ID exist
-      	$task = $this->getTaskService()->findTask($id);
-      	if (is_null($task))
-      	{
-      	    // HTTP STATUS CODE 404: Not Found
-      	    $this->response->setStatusCode(404);
-      	     
-      	    return $this->response;
-      	}
-      	 
-      	// Check if subject exist...
-      	if (isset($data['subject']))
-      	{
-      	    $data['subject'] = trim($data['subject']);
+      	// TODO: Utilizzare ZendForm!
+      	$data['subject'] = trim($data['subject']);
       	    
-      	    // Definition of used Zend Validators
-      	    $validator_NotEmpty = new \Zend\Validator\NotEmpty();
+      	// Definition of used Zend Validators
+      	$validator_NotEmpty = new \Zend\Validator\NotEmpty();
       	    
-      	    // ...if exist check if subject it's empty
-          	if (!$validator_NotEmpty->isValid($data['subject']))
-          	{
-          	    // HTTP STATUS CODE 406: Not Acceptable
-          	    $this->response->setStatusCode(406);
+      	// ...if exist check if subject it's empty
+        if (!$validator_NotEmpty->isValid($data['subject']))
+        {
+            // HTTP STATUS CODE 406: Not Acceptable
+            $this->response->setStatusCode(406);
+            return $this->response;
+        }
           	
-          	    return $this->response;
-          	}
-          	
-          	$task->setSubject($data['subject']);
-      	}
-      	      	      	
-      	// Edit existing task
-      	$this->getTaskService()->editTask($task);
+	    $updatedBy = $this->getAuthenticationService()->getIdentity()['user'];
+        $this->task->setSubject($data['subject'], $updatedBy);
+	    $this->getTaskService()->editTask($this->task);
       	
       	// HTTP STATUS CODE 202: Element Accepted
       	$this->response->setStatusCode(202);
-      	
         return $this->response;
     }
     
@@ -206,33 +193,16 @@ class TasksController extends AbstractHATEOASRestfulController implements Initia
      * @author Giannotti Fabio
      */
     public function delete($id)
-    {
-      	// Check if task with specified ID exist
-      	$task = $this->getTaskService()->findTask($id);
-      	if (!($task instanceof \Ora\TaskManagement\Task))
-      	{
-      	    // HTTP STATUS CODE 404: Not Found
-      	    $this->response->setStatusCode(404);
-            
-      	    return $this->response;
-      	}
-      	
-      	// TODO: Stiamo controllando se il task da cancellare si trova nello status di ONGOIN. Gli
-      	// stati al momento sono salvati dentro l'entità. Fare in modo che qui non ci sia scritto
-      	// direttamente 20, ma che venga utilizzata una costante globale o qualcosa di simile.
-        if ($task->getStatus() !== 20) // Ongoing...
-        {
+    {     	
+		try {
+			$deletedBy = $this->getAuthenticationService()->getIdentity()['user'];
+	      	$this->getTaskService()->deleteTask($this->task, $deletedBy);
+	      	// HTTP STATUS CODE 200: Completed
+	      	$this->response->setStatusCode(200);
+		} catch (IllegalStateException $e) {
             // HTTP STATUS CODE 406: Not Acceptable
-            $this->response->setStatusCode(406);
-            
-            return $this->response;
-        }
-      	
-      	// Delete existing task
-      	$this->getTaskService()->deleteTask($task);
-      	
-      	// HTTP STATUS CODE 200: Completed
-      	$this->response->setStatusCode(200);
+            $this->response->setStatusCode(406);			
+		}
       	
         return $this->response;
     }
@@ -257,7 +227,7 @@ class TasksController extends AbstractHATEOASRestfulController implements Initia
         if (!isset($this->projectService))
         {
             $serviceLocator = $this->getServiceLocator();
-            $this->projectService = $serviceLocator->get('ProjectManagement\ProjectService');
+            $this->projectService = $serviceLocator->get('TaskManagement\ProjectService');
         }
     
         return $this->projectService;
@@ -272,5 +242,15 @@ class TasksController extends AbstractHATEOASRestfulController implements Initia
         }
         
         return $this->taskService;
+    }
+    
+    protected function getAuthenticationService() {
+        if (!isset($this->authService)) 
+        {
+            $serviceLocator = $this->getServiceLocator();
+            $this->authService = $serviceLocator->get('Application\Service\AuthenticationService');
+        }
+        
+        return $this->authService;
     }
 }

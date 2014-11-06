@@ -4,7 +4,6 @@ namespace User;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
-use Zend\Stdlib\InitializableInterface;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {    
@@ -35,7 +34,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             ),
         );
     }
-
     public function onBootstrap($e)
     {
         $sm = $e->getApplication()->getServiceManager();

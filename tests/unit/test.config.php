@@ -3,14 +3,10 @@ $env = getenv('APPLICATION_ENV') ? : "local";
 
 return array(
     'modules' => array(
-		'DoctrineModule',
-        'DoctrineORMModule',
         'Application',
-        'TaskManagement',
-        'ProjectManagement',
-        'Auth',
         'ZendOAuth2',
-        'Kanbanize'
+    	'User'	
+    	'Kanbanize'
     ),
 
     'module_listener_options' => array(

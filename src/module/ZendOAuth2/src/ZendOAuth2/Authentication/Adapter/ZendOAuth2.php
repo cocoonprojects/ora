@@ -27,8 +27,7 @@ class ZendOAuth2 implements AdapterInterface, EventManagerAwareInterface
         if(is_object($this->client) AND is_object($this->client->getInfo())) { 
         
             $args['code'] = Result::SUCCESS;
-            //$args['info'] = (array)$this->client->getInfo();
-            $args['info'] = $this->getInfoOfProvider();
+            $args['info'] = (array)$this->client->getInfo();
             $args['provider'] = $this->client->getProvider();
             $args['token'] = (array)$this->client->getSessionToken();
             
@@ -41,42 +40,9 @@ class ZendOAuth2 implements AdapterInterface, EventManagerAwareInterface
         } else {
             
             return new Result(Result::FAILURE, $this->client->getError());
-            
-        }
-        
+        }        
     }
-
-    public function getInfoOfProvider()
-    {    	
-    	$infoOfSession = array();
-    	$info = (array)$this->client->getInfo();
-    	
-    	$infoOfSession['provider'] = $this->client->getProvider();
-    	$infoOfSession['sessionOfProvider'] = $this->client->getSessionContainer()->getManager()->getStorage();
-    	
-    	switch($this->client->getProvider())
-    	{
-    		case 'google':
-			    		$infoOfSession['name'] = $info['name'];
-			    		$infoOfSession['picture'] = $info['picture'];
-			    		$infoOfSession['email'] = $info['email'];    			
-    					break;
-    		case 'linkedin':
-    					$infoOfSession['name'] = $info['firstName']." ".$info['lastName'];
-    					$infoOfSession['picture'] = $info['pictureUrl'];
-    					$infoOfSession['email'] = $info['emailAddress'];    			
-    					break; 
-    		case 'TestProvider':
-			    		$infoOfSession['name'] = $info['name'];
-			    		$infoOfSession['picture'] = $info['picture'];
-			    		$infoOfSession['email'] = $info['email']; 
-    					break;    					   						
-    	}
-    	    	
-    	return $infoOfSession;
-    }
-    
-    
+ 
     public function setEventManager(EventManagerInterface $events)
     {
         $events->setIdentifiers(__CLASS__);
@@ -90,6 +56,5 @@ class ZendOAuth2 implements AdapterInterface, EventManagerAwareInterface
             $this->setEventManager(new EventManager());
         }
         return $this->events;
-    }
-    
+    }    
 }

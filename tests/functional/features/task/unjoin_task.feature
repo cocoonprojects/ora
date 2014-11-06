@@ -1,31 +1,34 @@
-Feature: Testing the RESTfulness of the Task Controller (UNJOIN USER FROM MEMBERS/TEAM OF TASK)
+Feature: Unjoin a task
+	As a member of a task if I haven't estimated it yet
+	I want to unjoin the task
+	in order to not be involved any more in task related activities
 
 @task @members @unjointeam @POST
-Scenario: Unjoin user into members of existing task
+Scenario: Successfully unjoining an existing task the logged user is member of
 	Given that I want to delete a "Member"
-	When I request "/task-management/tasks/1/members/2"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000003/members"
 	Then the response status code should be 200
 
 @task @members @unjointeam @POST
-Scenario: Unjoin user into members of existing task when user is not member of team
+Scenario: Unjoining an existing task which the logged user isn't member of is invariant
 	Given that I want to delete a "Member"
-	When I request "/task-management/tasks/3/members/1"
-	Then the response status code should be 403
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000004/members"
+	Then the response status code should be 204
 	
 @task @members @unjointeam @POST
-Scenario: Unjoin user into members of not existing task
+Scenario: Cannot unjoin a not existing task
 	Given that I want to delete a "Member"
-	When I request "/task-management/tasks/IDNONVALIDO/members/1"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-0000000000x0/members"
 	Then the response status code should be 404
 	
 @task @members @unjointeam @POST
-Scenario: Unjoin not existing user into members of existing task
+Scenario: Cannot unjoin a completed task
 	Given that I want to delete a "Member"
-	When I request "/task-management/tasks/1/members/IDNONVALIDO"
-	Then the response status code should be 404
-	
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000001/members"
+	Then the response status code should be 406
+
 @task @members @unjointeam @POST
-Scenario: Unjoin user into members of existing task withoud specify user id
+Scenario: Cannot unjoin an accepted task
 	Given that I want to delete a "Member"
-	When I request "/task-management/tasks/1/members/"
-	Then the response status code should be 405
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000002/members"
+	Then the response status code should be 406
