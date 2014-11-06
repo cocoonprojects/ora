@@ -6,7 +6,8 @@ php:
   - hhvm
 
 before_script:
-  composer install
+  - composer install
 
 script:
-  phpunit --configuration tests/phpunit.xml
+  - phpunit --configuration tests/phpunit.xml
+  - ./bin/behat --config tests/behat.yml
