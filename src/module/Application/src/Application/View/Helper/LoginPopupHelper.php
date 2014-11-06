@@ -6,17 +6,18 @@ use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 class LoginPopupHelper extends AbstractHelper implements ServiceLocatorAwareInterface
-{	
-	public function __invoke()
-	{				
-		$serviceLocator = $this->getServiceLocator();		
-		$authenticationService = $serviceLocator->get('Application\Service\AuthenticationService');
+{
+	/**
+	 * 
+	 * @var ServiceLocatorInterface
+	 */
+	private $serviceLocator;
 	
-		if(!$authenticationService->hasIdentity())
+	public function __invoke()
+	{
+		$authService = $this->getServiceLocator()->get('Application\Service\AuthenticationService');
+		if(!$authService->hasIdentity())
 		{
-			$urlList = array();
-			$serviceManager = $this->getServiceLocator();
-			
 			$output = "<div id='popupLogin' class='modal fade'>
 					<div class='modal-dialog'>
 						<div class='modal-content'>
@@ -30,9 +31,8 @@ class LoginPopupHelper extends AbstractHelper implements ServiceLocatorAwareInte
 							<div class='modal-body'>
 								<center>";
 
-			$providerInstanceList = $serviceManager->get('providerInstanceList');
-			
-			foreach($providerInstanceList as $provider => $instance)
+			$providers = $this->getServiceLocator()->get('OAuth2\Providers');
+			foreach($providers as $provider => $instance)
 			{
 				$output .=  "<a onclick=\"auth.openAuthWindow('{$instance->getUrl()}'); return false;\" class='btn btn-success btn-lg' href='#'>Login con {$provider}</a>&nbsp;";
 			}
@@ -46,15 +46,14 @@ class LoginPopupHelper extends AbstractHelper implements ServiceLocatorAwareInte
 			return $output;		
 		}		
 	}
-		
+	
 	public function setServiceLocator(ServiceLocatorInterface $helperPluginManager)
 	{
 		$this->serviceLocator = $helperPluginManager->getServiceLocator();
 		return $this;
 	}
 
-	public function getServiceLocator()
-	{
+	public function getServiceLocator() {
 		return $this->serviceLocator;
-	}	
+	}
 }

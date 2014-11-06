@@ -1,15 +1,6 @@
 <?php
 
 return array(
-
-	'controllers' => array(
-        'invokables' => array(
-            'TaskManagement\Controller\Members' => 'TaskManagement\Controller\MembersController',
-            'TaskManagement\Controller\Tasks' => 'TaskManagement\Controller\TasksController',
-            'TaskManagement\Controller\Projects' => 'TaskManagement\Controller\ProjectsController',
-        ),
-    ),
-    
     'router' => array(
         'routes' => array(
 			'projects' => array(

@@ -34,15 +34,19 @@ class User extends DomainEntity implements \Serializable
 	private $email;
 		
 	/**
-	 * @ORM\Column(type="integer", options={"default" = "0"})
+	 * @ORM\Column(type="integer")
 	 * @var boolean
 	 */
 	private $status;
 	
-	public static function create(Uuid $userID, User $createdBy = null) {
+	public static function create(User $createdBy = null) {
 		$rv = new self();
-		$rv->id = $userID;
-		$rv->status == self::STATUS_ACTIVE;
+		$rv->id = Uuid::uuid4();
+		$rv->status = self::STATUS_ACTIVE;
+		$rv->createdAt = new \DateTime();
+		$rv->createdBy = is_null($createdBy) ? $rv : $createdBy;
+		$rv->mostRecentEditAt = $rv->createdAt;
+		$rv->mostRecentEditBy = $rv->createdBy;
 		/**
 		 * TODO: implementare l'Event Sourcing
 		 */
@@ -91,8 +95,9 @@ class User extends DomainEntity implements \Serializable
 	
 	public function serialize()
 	{
+		$id = $this->id instanceof Uuid ? $this->id->toString() : $this->id; 
 		$data = array(
-			'id' => $this->id->toString(),
+			'id' => $id,
 			'email' => $this->email,
 			'firstname' => $this->firstname,
 			'lastname' => $this->lastname,

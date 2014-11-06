@@ -18,12 +18,10 @@ class UserServiceFactory implements FactoryInterface
 	{
 	    if(is_null(self::$instance)) 
 	    {
-            $eventStore = $serviceLocator->get('Application\Service\EventStore');
-
-            $entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-            $authenticationService = $serviceLocator->get('Application\Service\AuthenticationService');
-            
-            self::$instance = new EventSourcingUserService($entityManager, $eventStore, $entitySerializer, $authenticationService);            
+			$eventStore = $serviceLocator->get('prooph.event_store');
+			$eventStoreStrategy = $serviceLocator->get('prooph.event_store.single_stream_strategy');
+			$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
+	    	self::$instance = new EventSourcingUserService($eventStore, $eventStoreStrategy, $entityManager);            
         }
 
 	    return self::$instance;

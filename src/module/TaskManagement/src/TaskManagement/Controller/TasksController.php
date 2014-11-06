@@ -11,6 +11,7 @@ use Ora\ProjectManagement\ProjectService;
 use Ora\User\User;
 use Ora\ProjectManagement\Project;
 use Ora\IllegalStateException;
+use Zend\Authentication\AuthenticationServiceInterface;
 
 class TasksController extends AbstractHATEOASRestfulController
 {
@@ -35,13 +36,19 @@ class TasksController extends AbstractHATEOASRestfulController
 	
 	protected $task = null;
 	
+	public function __construct(TaskService $taskService, AuthenticationServiceInterface $authService)
+	{
+		$this->taskService = $taskService;
+		$this->authService = $authService;
+	}
+	
 	public function preDispatch($e)
 	{
 		$taskId = $this->params()->fromRoute('id');
         if (!empty($taskId)) 
         {
             // Check if task with specified ID exist
-        	$this->task = $this->getTaskService()->getTask($taskId);
+        	$this->task = $this->taskService->getTask($taskId);
             if(is_null($this->task)) {
                 $this->response->setStatusCode(404);
                 return $this->response;            	
@@ -67,7 +74,7 @@ class TasksController extends AbstractHATEOASRestfulController
     public function getList()
     {
         // TODO: Verificare che l'utente abbia il permesso per accedere all'elenco dei task disponibili?
-    	$availableTasks = $this->getTaskService()->listAvailableTasks();
+    	$availableTasks = $this->taskService->listAvailableTasks();
        	$this->response->setStatusCode(200);
        	$view = new JsonModel();       	
         return $view->setVariable('tasks', $availableTasks);
@@ -112,8 +119,8 @@ class TasksController extends AbstractHATEOASRestfulController
 	        return $response;
 	    }
 	        
-	    $createdBy = $this->getAuthenticationService()->getIdentity()['user'];
-	    $task = $this->getTaskService()->createTask($project, $subject, $createdBy);
+	    $createdBy = $this->authService->getIdentity()['user'];
+	    $task = $this->taskService->createTask($project, $subject, $createdBy);
 	    // Task Created
 	    $response->setStatusCode(201);
 	    $url = $this->url()->fromRoute('tasks', array('id' => $task->getId()->toString()));
@@ -153,9 +160,9 @@ class TasksController extends AbstractHATEOASRestfulController
             return $this->response;
         }
           	
-	    $updatedBy = $this->getAuthenticationService()->getIdentity()['user'];
+	    $updatedBy = $this->authService->getIdentity()['user'];
         $this->task->setSubject($data['subject'], $updatedBy);
-	    $this->getTaskService()->editTask($this->task);
+	    $this->taskService->editTask($this->task);
       	
       	// HTTP STATUS CODE 202: Element Accepted
       	$this->response->setStatusCode(202);
@@ -195,8 +202,8 @@ class TasksController extends AbstractHATEOASRestfulController
     public function delete($id)
     {     	
 		try {
-			$deletedBy = $this->getAuthenticationService()->getIdentity()['user'];
-	      	$this->getTaskService()->deleteTask($this->task, $deletedBy);
+			$deletedBy = $this->authService->getIdentity()['user'];
+	      	$this->taskService->deleteTask($this->task, $deletedBy);
 	      	// HTTP STATUS CODE 200: Completed
 	      	$this->response->setStatusCode(200);
 		} catch (IllegalStateException $e) {
@@ -217,11 +224,6 @@ class TasksController extends AbstractHATEOASRestfulController
         return self::$resourceOptions;
     }
     
-    protected function getJsonModelClass()
-    {
-        return $this->jsonModelClass;
-    }
-    
     protected function getProjectService()
     {
         if (!isset($this->projectService))
@@ -233,24 +235,4 @@ class TasksController extends AbstractHATEOASRestfulController
         return $this->projectService;
     }
     
-    protected function getTaskService() 
-    {
-        if (!isset($this->taskService)) 
-        {
-            $serviceLocator = $this->getServiceLocator();
-            $this->taskService = $serviceLocator->get('TaskManagement\TaskService');
-        }
-        
-        return $this->taskService;
-    }
-    
-    protected function getAuthenticationService() {
-        if (!isset($this->authService)) 
-        {
-            $serviceLocator = $this->getServiceLocator();
-            $this->authService = $serviceLocator->get('Application\Service\AuthenticationService');
-        }
-        
-        return $this->authService;
-    }
 }

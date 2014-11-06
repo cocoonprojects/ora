@@ -4,7 +4,6 @@ namespace Organization;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
-use Zend\Stdlib\InitializableInterface;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {    
