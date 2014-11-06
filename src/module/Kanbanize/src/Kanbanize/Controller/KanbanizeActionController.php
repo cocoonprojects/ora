@@ -98,13 +98,12 @@ class KanbanizeActionController extends AbstractActionController {
 				case Task::STATUS_IDEA:
 				case Task::STATUS_OPEN:
 				case Task::STATUS_ONGOING:
-					$acceptable[] = $task->getId();
-					break;
 				case Task::STATUS_COMPLETED:
 					$acceptable[] = $task->getId();
-				case Task::STATUS_ACCEPTED:
 					$back2ongoing[] = $task->getId();
 					break;
+				case Task::STATUS_ACCEPTED:
+					
 			}
 		}
 		
