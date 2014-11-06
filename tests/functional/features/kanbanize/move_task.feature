@@ -4,7 +4,7 @@ I want my acceptance to be reflected on Kanbanize itself
 in order to advance the card processing
 
 Scenario: Successfully accepting an existing already accepted Kanbanize Task
-	Given that I want to use AlreadyInDestination as Kanbanize Service
+	Given that I want to use "AlreadyInDestination" as Kanbanize Service
 	And that I want to make a new "KanbanizeTask"
 	And that its "action" is "accept"
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000006/transitions"
@@ -17,7 +17,7 @@ Scenario: Successfully accepting an existing completed Kanbanize Task
 	Then the response status code should be 200
 
 Scenario: Cannot accept an existing ongoing Kanbanize Task
-	Given that I want to use CannotAccept as Kanbanize Service
+	Given that I want to use "CannotAccept" as Kanbanize Service
 	And that I want to make a new "KanbanizeTask"
 	And that its "action" is "accept"
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000008/transitions"
@@ -42,14 +42,14 @@ Scenario: Succesfully moving an ongoing Kanbanize Task to completed
 	Then the response status code should be 200
 		
 Scenario: Cannot move an accepted Kanbanize Task to ongoing
-	Given that I want to use CannotMoveToOngoing as Kanbanize Service
+	Given that I want to use "CannotMoveToOngoing" as Kanbanize Service
 	And that I want to make a new "KanbanizeTask"
 	And that its "action" is "ongoing"
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000006/transitions"
 	Then the response status code should be 400
 	
 Scenario: Succesfully keep an ongoing Kanbanize Task in ongoing
-	Given that I want to use AlreadyInDestination as Kanbanize Service
+	Given that I want to use "AlreadyInDestination" as Kanbanize Service
 	And that I want to make a new "KanbanizeTask"
 	And that its "action" is "ongoing"
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000012/transitions"
