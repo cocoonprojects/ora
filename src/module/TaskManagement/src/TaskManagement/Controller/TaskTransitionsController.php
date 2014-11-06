@@ -17,6 +17,7 @@ use Zend\Db\Sql\Predicate\IsNull;
 use Ora\Kanbanize\Exception\IllegalRemoteStateException;
 use Ora\Kanbanize\Exception\KanbanizeApiException;
 use Ora\TaskManagement\TaskService;
+use Ora\Kanbanize\Exception\AlreadyInDestinationException;
 
 class TaskTransitionsController extends AbstractHATEOASRestfulController
 {
@@ -123,7 +124,11 @@ class TaskTransitionsController extends AbstractHATEOASRestfulController
 				} catch ( OperationFailedException $e ) {
 					$this->response->setStatusCode ( 400 );
 					return $this->response;
-				} catch ( IllegalRemoteStateException $e1 ) {
+				}catch ( AlreadyInDestinationException $e3 ) {
+					$this->response->setStatusCode ( 204 );
+					return $this->response;
+				}
+				 catch ( IllegalRemoteStateException $e1 ) {
 					$this->response->setStatusCode ( 400 );
 					return $this->response;
 				}
@@ -139,16 +144,19 @@ class TaskTransitionsController extends AbstractHATEOASRestfulController
 			case "ongoing" :
 				try{
 				$this->getKanbanizeService ()->moveBackToOngoing ( $task );
-					
 				
 				}catch(OperationFailedException $e){
 					$this->response->setStatusCode ( 400 );
 					return $this->response;
-				}catch(IllegalRemoteStateException $e2){
+				}catch(AlreadyInDestinationException $e2){
+					$this->response->setStatusCode ( 204 );
+					return $this->response;
+				}
+				catch(IllegalRemoteStateException $e3){
 					$this->response->setStatusCode ( 400 );
 					return $this->response;
 				}
-				catch (KanbanizeApiException $e2){
+				catch (KanbanizeApiException $e4){
 					$this->response->setStatusCode ( 504 );
 					return $this->response;
 				}

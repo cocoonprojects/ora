@@ -11,6 +11,7 @@ use Ora\EventStore\EventStore;
 use Ora\EntitySerializer;
 use Ora\Kanbanize\Exception\OperationFailedException;
 use Ora\Kanbanize\Exception\IllegalRemoteStateException;
+use Ora\Kanbanize\Exception\AlreadyInDestinationException;
 
 /**
  * Service Kanbanize
@@ -136,7 +137,7 @@ class KanbanizeServiceImpl implements KanbanizeService
 		if ( $task['columnname'] != KanbanizeTask::COLUMN_ACCEPTED){
 			$this::moveTask($kanbanizeTask, KanbanizeTask::COLUMN_ACCEPTED);
 		}else{
-			throw new IllegalRemoteStateException("Task is already in accepted column");
+			throw new AlreadyInDestinationException("Task is already in accepted column");
 		}
 		
 		//TODO check if all team as evaluated the task
@@ -150,6 +151,10 @@ class KanbanizeServiceImpl implements KanbanizeService
   		if(isset($task['Error'])) {
   			throw new OperationFailedException($task["Error"]);
   		}
+  		if($task["columnname"]== KanbanizeTask::COLUMN_ONGOING){
+  			throw new AlreadyInDestinationException("Task is already in ongoing column");
+  		}
+  		
 		if($task['columnname'] == KanbanizeTask::COLUMN_COMPLETED || $task['columnname'] == KanbanizeTask::COLUMN_ACCEPTED){
 			$this::moveTask($kanbanizeTask, KanbanizeTask::COLUMN_ONGOING);
 		}else{
