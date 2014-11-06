@@ -104,7 +104,7 @@ class TaskTransitionsController extends AbstractHATEOASRestfulController
 		$task = $this->getTaskService()->findTaskById($id);
 		if (!isset($task)||$task ==null ){
 			// no task found 
-			$this->response->setStatusCode ( 400 );
+			$this->response->setStatusCode ( 404 );
 			return $this->response;
 			
 		}
@@ -191,7 +191,7 @@ class TaskTransitionsController extends AbstractHATEOASRestfulController
 					return $this->response;
 				break;
 			default :
-				$this->response->setStatusCode ( 406 );
+				$this->response->setStatusCode ( 400 );
 				break;
 		}
 		
