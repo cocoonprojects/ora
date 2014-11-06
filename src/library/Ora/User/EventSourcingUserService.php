@@ -2,56 +2,41 @@
 
 namespace Ora\User;
 
+use Doctrine\ORM\EntityManager;
 use Prooph\EventStore\EventStore;
+use Prooph\EventStore\Stream\StreamStrategyInterface;
+use Prooph\EventStore\Aggregate\AggregateRepository;
+use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
+use Prooph\EventStore\Aggregate\AggregateType;
 use Ora\User\Role;
 use Ora\Organization\Organization;
 use Ora\UserOrganization\UserOrganization;
 use Ora\User\User;
 
-class EventSourcingUserService implements UserService
+class EventSourcingUserService extends AggregateRepository implements UserService
 {
 	private $entityManager;
-	private $eventStore;
-	private $entitySerializer;
 	
-	public function __construct($entityManager, EventStore $eventStore, $entitySerializer, $authenticationService)
+	public function __construct(EventStore $eventStore, StreamStrategyInterface $eventStoreStrategy, EntityManager $entityManager)
 	{
+		parent::__construct($eventStore, new AggregateTranslator(), $eventStoreStrategy, new AggregateType('Ora\User\User'));
 		$this->entityManager = $entityManager;
-		$this->eventStore = $eventStore;
-		$this->entitySerializer = $entitySerializer;
-		$this->authenticationService = $authenticationService;
 	}
 	
 	public function subscribeUser($infoOfUser)
 	{
 		$user = $this->create($infoOfUser, Role::instance(Role::ROLE_USER));
-			
-		$event = new UserSubscribedEvent(new \DateTime(), $user, $this->entitySerializer);
-				
-		$this->eventStore->appendToStream($event);
-				
+		$this->entityManager->persist($user);			
+		$this->entityManager->flush($user);
 		return $user;			
 	}
 		
-	public function create($infoOfUser, Role $role)
-	{
-		$userID = uniqid();
-		$createdAt = new \DateTime();
-		$createdBy = null;
-	   
-		if($this->authenticationService->hasIdentity())
-		{
-			$user = $this->authenticationService->getIdentity();	
-			$createdBy = $user;
-		}
-	
-		$user = new User($userID, $createdAt, $createdBy);
-	
+	public function create($infoOfUser, Role $role, User $createdBy = null)
+	{	
+		$user = User::create($createdBy);
 		$user->setEmail($infoOfUser['email']);
 		$user->setLastname($infoOfUser['family_name']);
 		$user->setFirstname($infoOfUser['given_name']);
-		$user->setSystemRole($role);
-					
 		return $user;
 	}
 
@@ -64,7 +49,7 @@ class EventSourcingUserService implements UserService
 		return $user;		
 	}
 	
-	public function findUserByEmail($mail)
+	public function findUserByEmail($email)
 	{
 		$user = $this->entityManager
 					->getRepository('Ora\User\User')

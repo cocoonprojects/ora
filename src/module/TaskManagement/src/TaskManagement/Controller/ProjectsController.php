@@ -78,11 +78,6 @@ class ProjectsController extends AbstractHATEOASRestfulController
         return self::$resourceOptions;
     }
     
-    protected function getJsonModelClass()
-    {
-        return $this->jsonModelClass;
-    }
-    
     protected function getProjectService() 
     {
         if (!isset($this->projectService)) 

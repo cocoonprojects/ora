@@ -6,22 +6,26 @@ use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 class UserBoxHelper extends AbstractHelper implements ServiceLocatorAwareInterface
-{	
+{
+	/**
+	 * 
+	 * @var \Zend\Di\ServiceLocatorInterface
+	 */
+	private $serviceLocator;
+	
 	public function __invoke()
-	{				
-		$serviceLocator = $this->getServiceLocator();		
-		$authenticationService = $serviceLocator->get('Application\Service\AuthenticationService');
-		
-		if($authenticationService->hasIdentity())
+	{
+		$authService = $this->getServiceLocator()->get('Application\Service\AuthenticationService');
+		if($authService->hasIdentity())
 		{
-			$identity = $authenticationService->getIdentity();
+			$identity = $authService->getIdentity();
 			
 			$output = "<li><a>{$identity['user']->getFirstname()} {$identity['user']->getLastname()}</a></li>";
 			$output .= "<li><a href='/auth/logout'>Logout</a></li>";				
 		}
 		else 
 		{
-			$output = "<li><a id='login-auth'>Login</a></li>";
+			$output = '<li><a href="#" id="login-auth">Login</a></li>';
 		}
 
 		return $output;
@@ -33,8 +37,7 @@ class UserBoxHelper extends AbstractHelper implements ServiceLocatorAwareInterfa
 		return $this;
 	}
 
-	public function getServiceLocator()
-	{
+	public function getServiceLocator() {
 		return $this->serviceLocator;
-	}	
+	}
 }

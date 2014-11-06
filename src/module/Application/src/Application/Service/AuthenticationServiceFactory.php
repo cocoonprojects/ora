@@ -11,15 +11,16 @@ use Rhumsaa\Uuid\Uuid;
 
 class AuthenticationServiceFactory implements FactoryInterface 
 {
+	private static $instance;
     
 	public function createService(ServiceLocatorInterface $serviceLocator) 
 	{
-//		$authenticationService = new AuthenticationService();
-		$user = User::create(Uuid::fromString('60000000-0000-0000-0000-000000000000'));
-		$user->setFirstname('Mark');
-		$user->setLastname('Rogers');
-		$user->setEmail('mark.rogers@ora.local');
-		$authenticationService = new MockAuthenticationService($user);
-	    return $authenticationService;
+		if(is_null(self::$instance)) {
+// 			self::$instance = new AuthenticationService();
+			$userService = $serviceLocator->get('User\UserService');
+			$user = $userService->findUser('60000000-0000-0000-0000-000000000000');
+			self::$instance = new MockAuthenticationService($user);				
+		}
+	    return self::$instance;
 	}
 }
