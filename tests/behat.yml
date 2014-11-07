@@ -10,11 +10,11 @@ default:
                  - RestContext:
                      - http://oraproject.org
                    
-        login_google_features:
+        login_features:
             paths: 
-                 - functional/features/login-google
+                 - functional/features/login
             contexts: 
-                 - GoogleLoginContext
+                 - LoginContext
                  
     extensions:
         Behat\MinkExtension:
