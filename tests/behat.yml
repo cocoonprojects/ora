@@ -20,7 +20,7 @@ default:
             paths: 
                  - functional/features/kanbanize
             contexts: 
-                 - KanbanizeContext:
+                 - RestContext:
                      - http://192.168.56.111
     extensions:
         Behat\MinkExtension:
