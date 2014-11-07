@@ -29,7 +29,6 @@ class KanbanizeActionController extends AbstractActionController {
 	public function indexAction() {
 		
  		$method = $this->params()->fromQuery('method', 'get');
-		//TODO use right board id
 		$id = $this->getEvent()->getRouteMatch()->getParam('id');
 		$ch = curl_init('http://160.97.24.61/staging/task-management/tasks/'.$id.'/transitions');
 		switch($method) {
@@ -67,7 +66,7 @@ class KanbanizeActionController extends AbstractActionController {
 			$fm->addSuccessMessage("Task moved successfully ".curl_getinfo($ch,CURLINFO_HTTP_CODE));
 		}
 		
-		$this->redirect()->toRoute('list', array('response' => $response));
+		$this->redirect()->toUrl('http://160.97.24.61/staging/kanbanize/list');
 		
 	}
 	
@@ -106,7 +105,7 @@ class KanbanizeActionController extends AbstractActionController {
 				case Task::STATUS_ONGOING:
 					break;
 				case Task::STATUS_ACCEPTED:
-					
+					break;
 			}
 		}
 		
