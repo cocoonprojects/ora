@@ -309,7 +309,7 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	private function getTaskId() {
-		return "00000000-0000-0000-0000-000000000001";
+		return "00000000-0000-0000-0000-000000000101";
 	}
 	
 	public function getMockedKanbanizeService() {
