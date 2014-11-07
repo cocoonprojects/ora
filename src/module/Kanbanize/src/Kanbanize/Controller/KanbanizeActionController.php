@@ -11,7 +11,7 @@ use Application\Service\KanbanizeService;
 use Rhumsaa\Uuid\Uuid;
 
 /**
- * TestKanbanizeActionController
+ * KanbanizeActionController
  *
  * @author
  *
@@ -116,14 +116,4 @@ class KanbanizeActionController extends AbstractActionController {
 		
 	}
 
-	protected function getAuthenticationService() {
-		if (!isset($this->authService))
-		{
-			$serviceLocator = $this->getServiceLocator();
-			$this->authService = $serviceLocator->get('Application\Service\AuthenticationService');
-		}
-	
-		return $this->authService;
-	}
-	
 }
