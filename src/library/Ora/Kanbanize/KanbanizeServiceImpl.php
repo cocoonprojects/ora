@@ -63,7 +63,7 @@ class KanbanizeServiceImpl implements KanbanizeService
   		else {
   			$this->kanbanize->moveTask($boardId, $taskId, $status);
   			
-  			$kanbanizeTask->setStatus(KanbanizeTask::getMappedStatus($status));
+  			//$kanbanizeTask->setStatus(KanbanizeTask::getMappedStatus($status));
   			
   			return 1;
   		}
