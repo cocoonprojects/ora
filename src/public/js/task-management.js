@@ -61,7 +61,7 @@ TaskManagement.prototype = {
 		var userID = $(e.target).closest("tr").data("userid");
 		
 		$.ajax({
-			url: '/task-management/tasks/' + taskID + '/members/' + userID,
+			url: basePath + '/task-management/tasks/' + taskID + '/members/' + userID,
 			method: 'DELETE',
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
@@ -81,7 +81,7 @@ TaskManagement.prototype = {
 		var userID = $(e.target).closest("tr").data("userid");
 		
 		$.ajax({
-			url: '/task-management/tasks/' + taskID + '/members/' + userID,
+			url: basePath + '/task-management/tasks/' + taskID + '/members/' + userID,
 			method: 'POST',
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
@@ -111,7 +111,7 @@ TaskManagement.prototype = {
 		var taskID = $("#inputEditTaskID").val();
 
 		$.ajax({
-			url: '/task-management/tasks/' + taskID,
+			url: basePath + '/task-management/tasks/' + taskID,
 			method: 'PUT',
 			data: $('#formEditTask').serialize(),
 			dataType: 'json',
@@ -137,7 +137,7 @@ TaskManagement.prototype = {
 	deleteTaskConfirmed: function(taskID)
 	{
 		$.ajax({
-			url: '/task-management/tasks/' + taskID,
+			url: basePath + '/task-management/tasks/' + taskID,
 			method: 'DELETE',
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
@@ -152,7 +152,7 @@ TaskManagement.prototype = {
 	listAvailableTask: function()
 	{
 		$.ajax({
-			url: '/task-management/tasks',
+			url: basePath + '/task-management/tasks',
 			method: 'GET',
 			dataType: 'json'
 		})
@@ -246,7 +246,7 @@ TaskManagement.prototype = {
 	createNewTask: function()
 	{
 		$.ajax({
-			url: '/task-management/tasks',
+			url: basePath + '/task-management/tasks',
 			method: 'POST',
 			data: $('#formCreateNewTask').serialize(),
 			dataType: 'json',
