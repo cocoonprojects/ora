@@ -9,6 +9,8 @@
  * Date: 20.07.14 - 15:34
  */
 
+include('dbparams.php');
+
 /**
  * ProophEventStore Db Adapter Configuration
  *
@@ -41,11 +43,11 @@ $adapter = array(
     'options' => array(
         'connection' => array(
             'driver' => 'Pdo_Mysql',
-    		'hostname' => 'localhost',
-    		'port' 	   => 3306,
-    		'username' => 'ora',
-    		'password' => 'ora_DB!',
-    		'database' => 'oraproject'
+    		'hostname' => $dbParams['hostname'],
+    		'port' 	   => $dbParams['port'],
+    		'username' => $dbParams['username'],
+    		'password' => $dbParams['password'],
+    		'database' => $dbParams['database']
 		),
         //It's also possible to specify an DI alias for Zend\Db\Adapter\Adapter instead of configure a connection.
         //'zend_db_adapter' => 'Zend\Db\Adapter\Adapter',
