@@ -42,6 +42,8 @@ class RestContext extends RawMinkContext implements Context
      */
     public static function setupApplication(BeforeSuiteScope $scope){
 		    			
+    	echo "Setting up application...\n";
+    	
 		putenv('APPLICATION_ENV=acceptance');
     	
 		$path_config = __DIR__.'/../../../src/config/application.config.php';	 	
@@ -49,54 +51,50 @@ class RestContext extends RawMinkContext implements Context
         putenv("ZF2_PATH=".$path);
 
 	 	include '/vagrant/src/init_autoloader.php';
-        self::$zendApp = Zend\Mvc\Application::init(require $path_config);	
+        self::$zendApp = Zend\Mvc\Application::init(require $path_config); //new application instance
 	
-        $sm = self::$zendApp->getServiceManager();
-		
+        $sm = self::$zendApp->getServiceManager();		
 		self::$entityManager = $sm->get('doctrine.entitymanager.orm_default');
-
 		self::$schemaTool = new \Doctrine\ORM\Tools\SchemaTool(self::$entityManager);
+				
+		self::deleteDatabase(); //useful at the very first execution of this function 
 		
-		//posso recuperare eventualmente solo le entità che mi interessano
-//		$classes = array(
-//		  self::$entityManager->getClassMetadata('Entities\User'),
-//		  self::$entityManager->getClassMetadata('Entities\Profile')
-//		);
-		
+		//get all doctrine metadata for create schema
 		$classes = self::$entityManager->getMetadataFactory()->getAllMetadata();
-
-		self::deleteDatabase(); //serve solo la prima volta che sono eseguiti i test, se il database non e' stato svuotato
-		
 		self::$schemaTool->createSchema($classes);
 		
-		//recupero la query sql per creare la tabella event_store
+		//get query for event_store table creation
 		$sql = file_get_contents("/vagrant/src/vendor/prooph/event-store-zf2-adapter/scripts/mysql-single-stream-default-schema.sql");
-		//eseguo la query sul database
 		$statement = self::$entityManager->getConnection()->prepare($sql);		
 		$statement->execute();
-		$statement->closeCursor();
+		$statement->closeCursor(); //needed for mysql database
 		
-		//recupero la query sql per popolare il database con i dati di test	
+		//get query for test data
 		$sql = file_get_contents("/vagrant/tests/sql/init.sql");
-		//eseguo la query sul database
 		$statement = self::$entityManager->getConnection()->executeUpdate($sql, array(), array());		
 		
+		
+		echo "...done!\n";
     }
     
     /** @AfterSuite */
 	public static function teardownApplication(AfterSuiteScope $scope){
-				
+
+		echo "Tear down application...\n";
+		
 		self::deleteDatabase();
+		
+		echo "...done!\n";
 		
 	} 
     
 	private static function deleteDatabase(){
 		
-		//cancello il database con doctrine
+		//drop tables creates by doctrine
 		$classes = self::$entityManager->getMetadataFactory()->getAllMetadata();
 		self::$schemaTool->dropSchema($classes);	
 
-		//cancello la tabella event_stream
+		//drop event_stream table
 		$sql_drop_event_store = "drop table if exists event_stream";
 		$statement_del = self::$entityManager->getConnection()->executeUpdate($sql_drop_event_store, array(), array());
 		
