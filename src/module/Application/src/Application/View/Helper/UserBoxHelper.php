@@ -21,7 +21,7 @@ class UserBoxHelper extends AbstractHelper implements ServiceLocatorAwareInterfa
 			$identity = $authService->getIdentity();
 			
 			$output = "<li><a>{$identity['user']->getFirstname()} {$identity['user']->getLastname()}</a></li>";
-			$output .= "<li><a href='/auth/logout'>Logout</a></li>";				
+			$output .= "<li><a href='".$this->getView()->basePath()."/auth/logout'>Logout</a></li>";				
 		}
 		else 
 		{
