@@ -31,7 +31,7 @@ class KanbanizeActionController extends AbstractActionController {
  		$method = $this->params()->fromQuery('method', 'get');
 		//TODO use right board id
 		$id = $this->getEvent()->getRouteMatch()->getParam('id');
-		$ch = curl_init('http://192.168.56.111/task-management/tasks/'.$id.'/transitions');
+		$ch = curl_init('http://160.97.24.61/staging/task-management/tasks/'.$id.'/transitions');
 		switch($method) {
 			case 'accept':
 				// only for test purposes the id of the board is hardcoded
