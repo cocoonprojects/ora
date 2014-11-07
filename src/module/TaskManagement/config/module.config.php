@@ -1,6 +1,17 @@
 <?php
 
 return array(
+	'service_manager' => array(
+		'factories' => array(
+			'TaskManagement\Service\Kanbanize' => 'TaskManagement\Service\KanbanizeServiceFactory'
+		),
+	),
+	'controllers' => array(
+        'invokables' => array(
+            'TaskManagement\Controller\TaskTransitions' => 'TaskManagement\Controller\TaskTransitionsController',
+        ),
+    ),
+    
     'router' => array(
         'routes' => array(
 			'projects' => array(
@@ -39,10 +50,22 @@ return array(
                     ),
                 ),
             ),
+            'transitions' => array(
+        		'type'    => 'Segment',
+        		'options' => array(
+        			// Change this to something specific to your module
+        			'route'    => '/task-management/tasks/:id/transitions',
+        			'defaults' => array(
+        				// Change this value to reflect the namespace in which
+        				// the controllers for your module are found
+        				'__NAMESPACE__' => 'TaskManagement\Controller',
+        				'controller'    => 'TaskTransitions',
+        			),
+        		),
+        	),
         ),
     ),
-    
-    'service_manager' => array(),
+
     'translator' => array(),
     'view_manager' => array(
         'strategies' => array(

@@ -23,6 +23,7 @@ return array(
     	'User',
     	'Organization',
         'Application',
+        'Kanbanize'
     ),
 
     // These are various options for the listeners attached to the ModuleManager
