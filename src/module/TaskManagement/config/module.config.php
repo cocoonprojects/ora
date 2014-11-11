@@ -3,7 +3,17 @@
 return array(
     'router' => array(
         'routes' => array(
-			'projects' => array(
+            'tasks-home' => array(
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => array(
+                    'route'    => '/task-management/',
+                    'defaults' => array(
+                        'controller' => 'TaskManagement\Controller\Index',
+                        'action'     => 'index',
+                    ),
+                ),
+            ),
+        	'projects' => array(
 				'type' => 'Segment',
 				'options' => array(
 					'route'    => '/task-management/projects[/:id]',
