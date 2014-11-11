@@ -26,5 +26,5 @@
 		"behat/mink-selenium-driver": "*",
 		"behat/mink-selenium2-driver": "*",
 		"guzzle/plugin": "3.7.*@dev"
-    }
+	}
 }
