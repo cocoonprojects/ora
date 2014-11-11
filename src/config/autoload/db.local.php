@@ -1,15 +1,8 @@
 <?php
- 
-$dbParams = array(
-    'hostname' => 'localhost',
-    'port' => 3306,
-    'username' => 'ora',
-    'password' => 'ora_DB!',
-    'database' => 'oraproject'
-);
- 
+
+include('dbparams.php');
+
 return array(
-			
     'doctrine' => array(
         'connection' => array(
             'orm_default' => array(

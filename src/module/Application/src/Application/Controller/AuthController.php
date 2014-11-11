@@ -117,11 +117,21 @@ class AuthController extends AbstractActionController
 		$userService = $this->serviceLocator->get('User\UserService');
 		$adapter->setUserService($userService);
 		$result = $this->authService->authenticate($adapter);
-		if($result->getCode() == Result::FAILURE_IDENTITY_NOT_FOUND) {
+
+		if($this->authService->hasIdentity())
+		{
+			$this->response->setStatusCode(200);
+		}
+		else
+		{
+			$this->response->setStatusCode(505);
+		}
+		
+		/*if($result->getCode() == Result::FAILURE_IDENTITY_NOT_FOUND) {
 			$this->response->setStatusCode(400);
 		} else {
 			$this->response->setStatusCode(200);
-		}
+		}*/
 // 		} else {
 //			$this->response->setStatusCode(404);
 //		}

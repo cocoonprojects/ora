@@ -15,10 +15,10 @@ class IndexController extends AbstractActionController
 	
 	public function indexAction()
 	{
-		$a = $this->getCreditsAccountFactory()->listAccounts();
-		$viewModel = new ViewModel();
-		$viewModel->setVariable('accounts', $a);
-		return $viewModel;
+// 		$a = $this->getCreditsAccountFactory()->listAccounts();
+// 		$viewModel = new ViewModel();
+// 		$viewModel->setVariable('accounts', $a);
+// 		return $viewModel;
 	}
 
 	protected function getCreditsAccountFactory() {

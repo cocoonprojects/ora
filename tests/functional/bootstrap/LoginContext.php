@@ -7,7 +7,7 @@ use Behat\Behat\Tester\Exception\PendingException;
 use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 
-class GoogleLoginContext extends MinkContext implements Context
+class LoginContext extends MinkContext implements Context
 {
     public function __construct()
     {

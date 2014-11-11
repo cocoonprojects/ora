@@ -16,15 +16,11 @@ use Ora\User\User;
  * @ORM\Entity @ORM\Table(name="tasks")
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="type", type="string")
- * @ORM\DiscriminatorMap({
- *                    "task" = "Ora\TaskManagement\Task"
- *                    })
  * @author Giannotti Fabio
  *
  */
 
-// TODO: Aggiungere questo rigo a DiscriminatorMap
-//"kanbanizeTask" = "Ora\Kanbanize\KanbanizeTask"
+// If no DiscriminatorMap annotation is specified, doctrine uses lower-case class name as default values
 
 class Task extends DomainEntity implements \Serializable
 {	

@@ -8,6 +8,16 @@ return array(
 	),
 	'router' => array(
 		'routes' => array(
+            'accounting-home' => array(
+                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'options' => array(
+                    'route'    => '/accounting/',
+                    'defaults' => array(
+                        'controller' => 'Accounting\Controller\Index',
+                        'action'     => 'index',
+                    ),
+                ),
+            ),
 			'accounts' => array (
 				'type'    => 'segment',
 				'options' => array (
@@ -19,20 +29,6 @@ return array(
 						'controller' => 'Accounting\Controller\Accounts'
 					),
 				),
-			),
-			'home' => array(
-					'type'    => 'segment',
-					'options' => array(
-							'route'    => '/accounting[/][:action][/:id]',
-							'constraints' => array(
-									'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
-									'id'     => '[0-9]+',
-							),
-							'defaults' => array(
-									'controller' => 'Accounting\Controller\Index',
-									'action'     => 'index',
-							),
-					),
 			),
 		),
 	),

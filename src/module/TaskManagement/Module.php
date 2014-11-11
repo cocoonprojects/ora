@@ -10,11 +10,6 @@ use Zend\Mvc\MvcEvent;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {    
-	public function onBootstrap(MvcEvent $e)
-	{
-        $sm = $e->getApplication()->getServiceManager();
-    }
-	
 	public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';
@@ -38,6 +33,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
     {
         return array(
             'invokables' => array(
+	            'TaskManagement\Controller\Index' => 'TaskManagement\Controller\IndexController',
 	            'TaskManagement\Controller\Projects' => 'TaskManagement\Controller\ProjectsController',
             ),
             'factories' => array(

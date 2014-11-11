@@ -8,14 +8,20 @@ default:
                  - functional/features/task
             contexts: 
                  - RestContext:
-                     - http://oraproject.org
+                     - http://oraprojecttest
                    
-        login_google_features:
+        login_features:
             paths: 
-                 - functional/features/login-google
+                 - functional/features/login
             contexts: 
-                 - GoogleLoginContext
+                 - LoginContext
                  
+        kanbanize_features:
+            paths: 
+                 - functional/features/kanbanize
+            contexts: 
+                 - RestContext:
+                     - http://192.168.56.111
     extensions:
         Behat\MinkExtension:
             base_url:  http://oraprojecttest
