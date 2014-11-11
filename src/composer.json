@@ -26,13 +26,5 @@
 		"behat/mink-selenium-driver": "*",
 		"behat/mink-selenium2-driver": "*",
 		"guzzle/plugin": "3.7.*@dev"
-    },
-    "scripts": {
-        "post-install-cmd": [
-            "bower install --allow-root"
-        ],
-        "post-update-cmd": [
-            "bower update --allow-root"
-        ]
     }
 }
