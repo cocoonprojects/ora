@@ -16,10 +16,10 @@ class AuthenticationServiceFactory implements FactoryInterface
 	public function createService(ServiceLocatorInterface $serviceLocator) 
 	{
 		if(is_null(self::$instance)) {
-// 			self::$instance = new AuthenticationService();
-			$userService = $serviceLocator->get('User\UserService');
-			$user = $userService->findUser('60000000-0000-0000-0000-000000000000');
-			self::$instance = new MockAuthenticationService($user);				
+			self::$instance = new AuthenticationService();
+// 			$userService = $serviceLocator->get('User\UserService');
+// 			$user = $userService->findUser('60000000-0000-0000-0000-000000000000');
+// 			self::$instance = new MockAuthenticationService($user);				
 		}
 	    return self::$instance;
 	}
