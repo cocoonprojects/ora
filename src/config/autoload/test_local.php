@@ -20,12 +20,6 @@
     						'client_secret' => '',
     						'redirect_uri'  => 'http://localhost/auth/login/linkedin',
     				),
-    				'testProvider' => array(
-    						'client_id'     => '',
-    						'client_secret' => '',
-    						'redirect_uri'  => 'http://localhost/auth/login/testProvider',
-    						'auth_uri'      => 'http://oraprojecttest/auth/login/testprovider',
-    				),
     		),
     		    		
             'doctrine' => array(

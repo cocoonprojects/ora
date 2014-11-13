@@ -3,8 +3,6 @@
 namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Zend\View\Model\JsonModel;
-use Zend\View\Model\ViewModel;
 use Zend\Authentication\AuthenticationService;
 use Ora\TaskManagement\TaskService;
 use Ora\ProjectManagement\ProjectService;
@@ -12,11 +10,12 @@ use Ora\User\User;
 use Ora\ProjectManagement\Project;
 use Ora\IllegalStateException;
 use Zend\Authentication\AuthenticationServiceInterface;
+use TaskManagement\View\TaskJsonModel;
 
 class TasksController extends AbstractHATEOASRestfulController
 {
     protected static $collectionOptions = array('GET', 'POST');
-    protected static $resourceOptions = array('DELETE', 'POST', 'GET', 'PUT');
+    protected static $resourceOptions = array('DELETE', 'GET', 'PUT');
     
     /**
      * 
@@ -68,7 +67,7 @@ class TasksController extends AbstractHATEOASRestfulController
      * Return a list of available tasks
      * @method GET
      * @link http://oraproject/task-management/tasks
-     * @return \Zend\View\Model\JsonModel
+     * @return TaskJsonModel
      * @author Giannotti Fabio
      */
     public function getList()
@@ -76,8 +75,10 @@ class TasksController extends AbstractHATEOASRestfulController
         // TODO: Verificare che l'utente abbia il permesso per accedere all'elenco dei task disponibili?
     	$availableTasks = $this->taskService->listAvailableTasks();
        	$this->response->setStatusCode(200);
-       	$view = new JsonModel();       	
-        return $view->setVariable('tasks', $availableTasks);
+       	$view = new TaskJsonModel();       	
+        $view->setVariable('resource', $availableTasks);
+        $view->setVariable('url', $this->url()->fromRoute('tasks'));
+        return $view;
     }
     
     /**
@@ -166,29 +167,6 @@ class TasksController extends AbstractHATEOASRestfulController
       	
       	// HTTP STATUS CODE 202: Element Accepted
       	$this->response->setStatusCode(202);
-        return $this->response;
-    }
-    
-    /**
-     * Update all existing tasks
-     * @method PUT
-     * @link http://oraproject/task-management/tasks
-     * @return HTTPStatusCode
-     * @author Giannotti Fabio
-     */
-    public function replaceList($data)
-    {
-        // HTTP STATUS CODE 405: Method not allowed
-        $this->response->setStatusCode(405);
-         
-        return $this->response;
-    }    
-    
-    public function deleteList()
-    {
-        // HTTP STATUS CODE 405: Method not allowed
-        $this->response->setStatusCode(405);
-         
         return $this->response;
     }
     

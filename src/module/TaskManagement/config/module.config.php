@@ -34,18 +34,6 @@ return array(
 					),
 				),
 			),
-            'members' => array(
-                'type' => 'Segment',
-                'options' => array(
-                    'route'    => '/task-management/tasks/:taskId/members',
-                    'constraints' => array(
-                        'taskId' => '[0-9a-z\-]+'
-                    ),
-                    'defaults' => array(
-                        'controller' => 'TaskManagement\Controller\Members'
-                    ),
-                ),
-            ),
             'tasks' => array(
                 'type' => 'Segment',
                 'options' => array(
@@ -55,6 +43,18 @@ return array(
                     ),
                     'defaults' => array(
                         'controller' => 'TaskManagement\Controller\Tasks'
+                    ),
+                ),
+            ),
+            'members' => array(
+                'type' => 'Segment',
+                'options' => array(
+                    'route'    => '/task-management/tasks/:taskId/members',
+                    'constraints' => array(
+                        'taskId' => '[0-9a-z\-]+'
+                    ),
+                    'defaults' => array(
+                        'controller' => 'TaskManagement\Controller\Members'
                     ),
                 ),
             ),

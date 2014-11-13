@@ -3,7 +3,6 @@ Feature: Create task
 	I want to create a new task into one of my organization projects
 	in order to allow the team to start the estimation
 
-@task @create @POST
 Scenario: Successfully creating a new Task with just the reference project and a subject
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Task"
@@ -12,7 +11,6 @@ Scenario: Successfully creating a new Task with just the reference project and a
 	When I request "/task-management/tasks"
 	Then the response status code should be 201
 	And the header 'Location' should be '/task-management/tasks/[0-9a-z\-]+'
-	
 	
 @task @create @POST
 Scenario: Cannot create a new Task with no parameters

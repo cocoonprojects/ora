@@ -2,26 +2,19 @@
 
 namespace Ora\TaskManagement;
 
-use Doctrine\ORM\Mapping AS ORM;
-use Doctrine\Common\Collections\ArrayCollection;
-use Rhumsaa\Uuid\Uuid;
-use Ora\DomainEntity;
 use Ora\IllegalStateException;
 use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
 use Ora\ProjectManagement\Project;
 use Ora\User\User;
+use Ora\DomainEntity;
+use Rhumsaa\Uuid\Uuid;
 
 /**
- * @ORM\Entity @ORM\Table(name="tasks")
- * @ORM\InheritanceType("SINGLE_TABLE")
- * @ORM\DiscriminatorColumn(name="type", type="string")
+ * 
  * @author Giannotti Fabio
  *
  */
-
-// If no DiscriminatorMap annotation is specified, doctrine uses lower-case class name as default values
-
 class Task extends DomainEntity implements \Serializable
 {	
     CONST STATUS_IDEA = 0;
@@ -34,48 +27,43 @@ class Task extends DomainEntity implements \Serializable
     CONST ROLE_MEMBER = 'member';
     CONST ROLE_OWNER  = 'owner';
     
-	/**
-	 * @ORM\Column(type="string")
+    /**
+	 * 
 	 * @var string
 	 */
 	private $subject;
 	
 	/**
-	 * @ORM\Column(type="integer")
+	 * 
 	 * @var int
 	 */
 	private $status;
 	
 	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\ProjectManagement\Project")
+	 * 
+	 * @var Uuid
 	 */
-	private $project;
+	private $projectId;
 	
 	/**
-	 * @ORM\ManyToMany(targetEntity="Ora\User\User")
-	 * @ORM\JoinTable(name="task_users",
-	 *      joinColumns={@ORM\JoinColumn(name="task_id", referencedColumnName="id")},
-	 *      inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")}
-	 *      )
 	 */
-	private $members;
+	private $members = array();
 	
-	protected function __construct() 
-	{
-		$this->members = new ArrayCollection();
+	public function getId() {
+		return $this->id;
 	}
 	
 	public static function create(Project $project, $subject, User $createdBy) {
 		$rv = new self();
 		$rv->id = Uuid::uuid4();
 		$rv->status = self::STATUS_ONGOING;
-		$rv->subject = $subject;
 		$rv->recordThat(TaskCreated::occur($rv->id->toString(), array(
-				'task' => $rv,
-				'createdBy' => $createdBy,
+				'status' => $rv->status,
+				'by' => $createdBy->getId(),
 		)));
+		$rv->setSubject($subject, $createdBy);
 		$rv->changeProject($project, $createdBy);
-		$rv->addMember($createdBy, $createdBy);
+		$rv->addMember($createdBy, $createdBy, self::ROLE_OWNER);
 		return $rv;
 	}
 	
@@ -84,9 +72,8 @@ class Task extends DomainEntity implements \Serializable
 			throw new IllegalStateException('Cannot delete a task in state '.$this->getStatus().'. Task '.$this->getId()->toString().' won\'t be deleted');
 		}
 		$this->recordThat(TaskDeleted::occur($this->id->toString(), array(
-			'task' => $this,
 			'prevStatus' => $this->getStatus(),
-			'deletedBy'  => $deletedBy,
+			'by'  => $deletedBy->getId(),
 		)));
 	}
 	
@@ -96,17 +83,15 @@ class Task extends DomainEntity implements \Serializable
 	
 	public function complete(User $completedBy) {
 		$this->recordThat(TaskCompleted::occur($this->id->toString(), array(
-			'task' => $this,
 			'prevStatus' => $this->getStatus(),
-			'completedBy' => $completedBy,
+			'by' => $completedBy->getId(),
 		)));
 	}
 	
 	public function accept(User $acceptedBy) {
 		$this->recordThat(TaskAccepted::occur($this->id->toString(), array(
-			'task' => $this,
 			'prevStatus' => $this->getStatus(),
-			'acceptedBy' => $acceptedBy,
+			'by' => $acceptedBy->getId(),
 		)));
 	}
 	
@@ -116,9 +101,8 @@ class Task extends DomainEntity implements \Serializable
 	
 	public function setSubject($subject, User $updatedBy) {
 		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
-			'task' => $this,
 			'subject' => $subject,
-			'updatedBy' => $updatedBy,
+			'by' => $updatedBy->getId(),
 		)));
 	}
 	
@@ -126,11 +110,14 @@ class Task extends DomainEntity implements \Serializable
 		if($this->status == self::STATUS_COMPLETED || $this->status == self::STATUS_ACCEPTED) {
 			throw new IllegalStateException('Cannot set the task project in '.$this->status.' state');
 		}
-		$this->recordThat(ProjectChanged::occur($this->id->toString(), array(
-				'task' => $this,
-				'project' => $project,
-				'updatedBy' => $updatedBy,
-		)));
+		$payload = array(
+				'projectId' => $project->getId()->toString(),
+				'by' => $updatedBy->getId(),
+		);
+		if(!is_null($this->projectId)) {
+			$payload['prevProjectId'] = $this->projectId->toString();
+		}
+		$this->recordThat(ProjectChanged::occur($this->id->toString(), $payload));
 	}
 	
 	public function getProject() {
@@ -142,14 +129,13 @@ class Task extends DomainEntity implements \Serializable
 		if($this->status == self::STATUS_COMPLETED || $this->status == self::STATUS_ACCEPTED) {
 			throw new IllegalStateException('Cannot add a member to a task in '.$this->status.' state');
 		}
-		$key = $user->getId() instanceof Uuid ? $user->getId()->toString() : $user->getId();
-        if ($this->members->containsKey($key)) {
+        if (array_key_exists($user->getId(), $this->members)) {
         	throw new DuplicatedDomainEntityException($this, $user); 
         }
         $this->recordThat(MemberAdded::occur($this->id->toString(), array(
-        	'task' => $this,
-        	'user' => $user,
-        	'addedBy' => $addedBy,
+        	'userId' => $user->getId(),
+        	'role' => $role,
+        	'by' => $addedBy->getId(),
         )));
 	}
 	
@@ -160,14 +146,12 @@ class Task extends DomainEntity implements \Serializable
 		}
 		// TODO: Integrare controllo per cui è possibile effettuare l'UNJOIN
         // solo nel caso in cui non sia stata ancora effettuata nessuna stima
-		$key = $member->getId() instanceof Uuid ? $member->getId()->toString() : $member->getId();
-		if (!$this->members->containsKey($key)) {
+		if (!array_key_exists($member->getId(), $this->members)) {
         	throw new DomainEntityUnavailableException($this, $member); 
         }
 		$this->recordThat(MemberRemoved::occur($this->id->toString(), array(
-        	'task' => $this,
-			'user' => $member,
-        	'removedBy' => $removedBy,
+			'userId' => $member->getId(),
+        	'by' => $removedBy->getId(),
         )));
 	}
 	
@@ -196,62 +180,42 @@ class Task extends DomainEntity implements \Serializable
 	protected function whenTaskCreated(TaskCreated $event)
 	{
 		$this->id = Uuid::fromString($event->aggregateId());
-		$task = $event->payload()['task'];
-		$createdBy = $event->payload()['createdBy'];
-		$this->createdAt = $event->occurredOn();
-		$this->createdBy = $createdBy;
-		$this->mostRecentEditAt = $this->createdAt;
-		$this->mostRecentEditBy = $this->createdBy;
-		$this->status = $task->status;
-		$this->subject = $task->subject;
+		$this->status = $event->payload()['status'];
 	}
 	
 	protected function whenTaskCompleted(TaskCompleted $event) {
 		$this->status = self::STATUS_COMPLETED;
-		$this->mostRecentEditAt = $event->occurredOn();
-		$this->mostRecentEditBy = $event->payload()['completedBy'];
 	}
 	
 	protected function whenTaskAccepted(TaskAccepted $event) {
 		$this->status = self::STATUS_ACCEPTED;
-		$this->mostRecentEditAt = $event->occurredOn();
-		$this->mostRecentEditBy = $event->payload()['acceptedBy'];
 	}
 	
 	protected function whenTaskDeleted(TaskDeleted $event) {
 		$this->status = self::STATUS_DELETED;
-		$this->mostRecentEditAt = $event->occurredOn();
-		$this->mostRecentEditBy = $event->payload()['deletedBy'];
 	}
 	
 	protected function whenTaskUpdated(TaskUpdated $event) {
 		if(isset($event->payload()['subject'])) {
 			$this->subject = $event->payload()['subject'];
 		}
-		$this->mostRecentEditAt = $event->occurredOn();
-		$this->mostRecentEditBy = $event->payload()['updatedBy'];
 	}
 	
 	protected function whenMemberAdded(MemberAdded $event) {
 		$p = $event->payload();
-		$id = $p['user']->getId() instanceof Uuid ? $p['user']->getId()->toString() : $p['user']->getId();
-		$this->members->set($id, $p['user']);
-		$this->mostRecentEditAt = $event->occurredOn();
-		$this->mostRecentEditBy = $p['addedBy'];
+		$id = $p['userId'];
+		$this->members[$id] = $p['role'];
 	}
 
-	public function whenMemberRemoved(MemberRemoved $event) {
+	protected function whenMemberRemoved(MemberRemoved $event) {
 		$p = $event->payload();
-		$id = $p['user']->getId() instanceof Uuid ? $p['user']->getId()->toString() : $p['user']->getId();
-		$this->members->remove($id);
-		$this->mostRecentEditAt = $event->occurredOn();
-		$this->mostRecentEditBy = $p['removedBy'];
+		$id = $p['userId'];
+		unset($this->members[$id]);
 	}
 	
-	public function whenProjectChanged(ProjectChanged $event) {
+	protected function whenProjectChanged(ProjectChanged $event) {
 		$p = $event->payload();
-		$this->project = $p['project'];
-		$this->mostRecentEditAt = $event->occurredOn();
-		$this->mostRecentEditBy = $p['updatedBy'];
+		$this->projectId = Uuid::fromString($p['projectId']);
 	}
+	
 }

@@ -7,9 +7,22 @@ use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use TaskManagement\Controller\MembersController;
 use TaskManagement\Controller\TasksController;
 use Zend\Mvc\MvcEvent;
+use Ora\TaskManagement\TaskListener;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {    
+	public function onBootstrap(MvcEvent $e)
+	{
+		$application = $e->getApplication();
+		$eventManager = $application->getEventManager();
+		$serviceManager = $application->getServiceManager();
+	
+		$entityManager = $serviceManager->get('doctrine.entitymanager.orm_default');
+		$eventStore = $serviceManager->get('prooph.event_store');
+		$taskListener = new TaskListener($entityManager);
+		$taskListener->attach($eventStore);
+	}
+		
 	public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';

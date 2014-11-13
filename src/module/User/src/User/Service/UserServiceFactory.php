@@ -5,12 +5,13 @@ namespace User\Service;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
+use Ora\User\UserService;
 use Ora\User\EventSourcingUserService;
 
 class UserServiceFactory implements FactoryInterface 
 {
     /**
-     * @var EventSourcingTaskService
+     * @var UserService
      */
     private static $instance;
     
@@ -23,7 +24,6 @@ class UserServiceFactory implements FactoryInterface
 			$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
 	    	self::$instance = new EventSourcingUserService($eventStore, $eventStoreStrategy, $entityManager);            
         }
-
 	    return self::$instance;
 	}
 }

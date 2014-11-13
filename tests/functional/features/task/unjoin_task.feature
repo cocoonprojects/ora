@@ -12,7 +12,7 @@ Scenario: Successfully unjoining an existing task the logged user is member of
 
 @task @members @unjointeam @POST
 Scenario: Unjoining an existing task which the logged user isn't member of is invariant
-	Given that I am authenticated as "mark.rogers@ora.local" 
+	Given that I am authenticated as "phil.toledo@ora.local" 
 	And that I want to delete a "Member"
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000004/members"
 	Then the response status code should be 204

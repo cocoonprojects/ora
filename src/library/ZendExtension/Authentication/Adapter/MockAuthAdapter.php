@@ -19,6 +19,10 @@ class MockAuthAdapter implements AdapterInterface
 	 */
 	private $service;
 	
+	public function __construct(UserService $service) {
+		$this->service = $service;
+	}
+	
 	public function authenticate() {
 		$user = $this->service->findUserByEmail($this->email);
 		if(is_null($user)) {
@@ -29,9 +33,5 @@ class MockAuthAdapter implements AdapterInterface
 	
 	public function setEmail($email) {
 		$this->email = $email;
-	}
-	
-	public function setUserService(UserService $service) {
-		$this->service = $service;
 	}
 }

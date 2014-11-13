@@ -15,6 +15,9 @@ use Zend\ModuleManager\ModuleManager;
 use Zend\Mvc\Application;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Db\Adapter\Adapter as ZendDbAdapter;
+use Guzzle\Plugin\Cookie\Cookie;
+use Guzzle\Plugin\Cookie\CookieJar\ArrayCookieJar;
+use Guzzle\Plugin\Cookie\CookiePlugin;
 
 
 /**
@@ -185,37 +188,27 @@ class RestContext extends RawMinkContext implements Context
     		throw new \Exception('Cannot authenticate '.$email.' user');
     	}
     	
-    	$setCookie = $this->_response->getSetCookie();
-    	
-    	//echo "set cookie: ".$setCookie."\n";
-    	$phpsessid = null;
-    	
+    	$cookie = $this->_response->getSetCookie();
     	// PHPSESSID=p3sp0qs8ai1c62o9ll9o18ro20; path=/ 
-    	if(strpos($setCookie, ';') !== false)
-    	{
-    		//echo "punto e virgola ; \n";
-    		$tmp = explode(';', $setCookie);
+    	$tmp = explode(';', $cookie);
 
-    		if(strpos($tmp[0], 'PHPSESSID') !== false)
-    		{
-    			//echo "PHPSESSID c'e \n";
-				list($nameCookie, $phpsessid) = explode('=', $tmp[0]);
-    		}
+    	$phpsessid = null;
+    	if(strpos($tmp[0], 'PHPSESSID') !== false)
+    	{
+			list($nameCookie, $phpsessid) = explode('=', $tmp[0]);
     	}
-    	
+    	 
     	//echo "PHPSESSID: ".$phpsessid;
-    	$cookie = new Guzzle\Plugin\Cookie\Cookie();
+    	$cookie = new Cookie();
     	$cookie->setName('PHPSESSID');
     	$cookie->setPath('/');
-    	
     	$cookie->setValue($phpsessid);
-    	    	
     	$domain = trim(str_replace("http://", "", $this->base_url));    	
     	$cookie->setDomain($domain);
     	
-    	$jar = new Guzzle\Plugin\Cookie\CookieJar\ArrayCookieJar();
+    	$jar = new ArrayCookieJar();
     	$jar->add($cookie);
-    	$plugin = new Guzzle\Plugin\Cookie\CookiePlugin($jar);
+    	$plugin = new CookiePlugin($jar);
     	
     	$this->_client->addSubscriber($plugin);
     }
@@ -437,10 +430,10 @@ class RestContext extends RawMinkContext implements Context
      */
     public function echoLastResponse()
     {
-    	//print_r($this->_requestUrl);
-    	//print_r($this->_response);
-    	echo "PHPSESSID da debug". $this->_response->getSetCookie('');
-        //$this->printDebug($this->_requestUrl . "\n\n" . $this->_response);
+    	print_r($this->_requestUrl);
+    	print_r($this->_response->getBody(true));
+//     	echo "PHPSESSID da debug". $this->_response->getSetCookie('');
+//         $this->printDebug($this->_requestUrl . "\n\n" . $this->_response);
     }
 
 }

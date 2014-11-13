@@ -18,7 +18,7 @@ class AuthenticationServiceFactory implements FactoryInterface
 		if(is_null(self::$instance)) {
 			self::$instance = new AuthenticationService();
 // 			$userService = $serviceLocator->get('User\UserService');
-// 			$user = $userService->findUser('60000000-0000-0000-0000-000000000000');
+// 			$user = $userService->findUserByEmail('mark.rogers@ora.local');
 // 			self::$instance = new MockAuthenticationService($user);				
 		}
 	    return self::$instance;
