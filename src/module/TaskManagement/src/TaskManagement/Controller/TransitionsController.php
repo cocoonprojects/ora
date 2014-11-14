@@ -2,15 +2,13 @@
 namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
+use Ora\Kanbanize\KanbanizeService;
 use Ora\Kanbanize\KanbanizeTask;
-use Zend\View\Model\ViewModel;
-use Kanbanize\Service\KanbanizeService;
-use Zend\Db\Sql\Predicate\IsNull;
 use Ora\Kanbanize\Exception\IllegalRemoteStateException;
 use Ora\Kanbanize\Exception\KanbanizeApiException;
-use Ora\TaskManagement\TaskService;
 use Ora\Kanbanize\Exception\AlreadyInDestinationException;
-use \Ora\Kanbanize\KanbanizeService;
+use Zend\View\Model\ViewModel;
+use Ora\TaskManagement\TaskService;
 
 class TransitionsController extends AbstractHATEOASRestfulController
 {
@@ -19,7 +17,7 @@ class TransitionsController extends AbstractHATEOASRestfulController
 	
 	/**
 	 *
-	 * @var \TaskManagement\Service\KanbanizeService
+	 * @var KanbanizeService
 	 */
 	protected $kanbanizeService;
 
@@ -59,7 +57,7 @@ class TransitionsController extends AbstractHATEOASRestfulController
 // 		// TODO create task based on $data received
 // 		$taskId = uniqid ();
 // 		try {
-// 			$result = $this->getKanbanizeService ()->createNewTask ( 1, "arharharharha", $boardId );
+// 			$result = $this->kanbanizeService->createNewTask ( 1, "arharharharha", $boardId );
 // 		} catch ( OperationFailedException $e ) {
 // 			$this->response->setStatusCode ( 400 );
 // 			return $this->response;
@@ -114,7 +112,7 @@ class TransitionsController extends AbstractHATEOASRestfulController
 			case "completed":
 				try {
 			
-					$result = $this->getKanbanizeService ()->moveToCompleted ( $task );
+					$result = $this->kanbanizeService->moveToCompleted ( $task );
 			
 				} catch ( OperationFailedException $e ) {
 					$this->response->setStatusCode ( 400 );
@@ -140,7 +138,7 @@ class TransitionsController extends AbstractHATEOASRestfulController
 			case "accept":
 				try {
 						
-						$result = $this->getKanbanizeService ()->acceptTask ( $task );
+						$result = $this->kanbanizeService->acceptTask ( $task );
 				
 				} catch ( OperationFailedException $e ) {
 					$this->response->setStatusCode ( 400 );
@@ -164,7 +162,7 @@ class TransitionsController extends AbstractHATEOASRestfulController
 				break;
 			case "ongoing" :
 				try{
-				$this->getKanbanizeService ()->moveBackToOngoing ( $task );
+				$this->kanbanizeService->moveBackToOngoing ( $task );
 				
 				}catch(OperationFailedException $e){
 					$this->response->setStatusCode ( 400 );

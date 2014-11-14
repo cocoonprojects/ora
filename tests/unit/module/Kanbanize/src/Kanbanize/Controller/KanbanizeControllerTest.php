@@ -2,7 +2,7 @@
 
 namespace Kanbanize\Controller;
 
-use TaskManagement\Controller\TaskTransitionsController;
+use TaskManagement\Controller\TransitionsController;
 use Zend\Http\Request;
 use Zend\Http\Response;
 use Zend\Mvc\MvcEvent;
@@ -21,10 +21,9 @@ use Ora\TaskManagement\TaskService;
 class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 	
 	protected $serviceManager;
-	
 	/**
-	 *
-	 * @var \Ora\Kanbanize\KanbanizeService
+	 * 
+	 * @var KanbanizeService
 	 */
 	protected $kanbanizeService;
 	protected $controller;
@@ -34,12 +33,16 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 	protected $event;
 	protected $taskService;
 	
-	
 	protected function setUp() {
 		$bootstrap = Application::init ( include ('tests/unit/test.config.php') );
 		$this->serviceManager = $bootstrap->getServiceManager ();
-		$this->controller = $this->getMock ( 'TaskManagement\Controller\TaskTransitionsController', array (
-				'getKanbanizeService' 
+		$this->kanbanizeService = $this->getMockForAbstractClass ( 'Ora\Kanbanize\KanbanizeService', array (
+				'acceptTask',
+				'moveBackToOngoing' 
+		)
+		 );
+		$this->controller = $this->getMock ( 'TaskManagement\Controller\TransitionsController', NULL, array(
+				$this->getMockedKanbanizeService(),
 		) );
 		$this->request = new Request ();
 		$this->routeMatch = new RouteMatch ( array (
@@ -57,19 +60,7 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 				
 				'findTaskById' 
 		) );
-		
-		$this->kanbanizeService = $this->getMockForAbstractClass ( '\Ora\Kanbanize\KanbanizeService', array (
-				
-				'acceptTask',
-				'moveBackToOngoing' 
-		)
-		 );
-		
-		$this->controller->expects ( $this->any () )->method ( 'getKanbanizeService' )->will ( $this->returnCallback ( array (
-				$this,
-				'getMockedKanbanizeService' 
-		) ) );
-		
+						
 		$this->taskService->expects ( $this->any () )->method ( 'findTaskById' )->will ( $this->returnCallback ( array (
 				$this,
 				'findTaskByIdMockedSuccessful' 
@@ -77,10 +68,6 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testMoveSuccessfullyDone() {
-// 		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveTask' )->will ( $this->returnCallback ( array (
-// 				$this,
-// 				'getCorrectResult' 
-// 		) ) );
 		$this->kanbanizeService->expects ( $this->any () )->method ( 'acceptTask' )->will ( $this->returnCallback ( array (
 				$this,
 				'isReallyAcceptable' 
