@@ -5,7 +5,7 @@ namespace Ora\User;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
-use Ora\DomainEntity;
+use Ora\ReadModel\DomainEntity;
 
 /**
  * @ORM\Entity @ORM\Table(name="users")
@@ -35,16 +35,16 @@ class User extends DomainEntity implements \Serializable
 		
 	/**
 	 * @ORM\Column(type="integer")
-	 * @var boolean
+	 * @var int
 	 */
 	private $status;
 	
 	public static function create(User $createdBy = null) {
 		$rv = new self();
-		$rv->id = Uuid::uuid4();
+		$rv->id = Uuid::uuid4()->toString();
 		$rv->status = self::STATUS_ACTIVE;
 		$rv->createdAt = new \DateTime();
-		$rv->createdBy = is_null($createdBy) ? $rv : $createdBy;
+		$rv->createdBy = $createdBy;
 		$rv->mostRecentEditAt = $rv->createdAt;
 		$rv->mostRecentEditBy = $rv->createdBy;
 		/**
@@ -95,9 +95,8 @@ class User extends DomainEntity implements \Serializable
 	
 	public function serialize()
 	{
-		$id = $this->id instanceof Uuid ? $this->id->toString() : $this->id; 
 		$data = array(
-			'id' => $id,
+			'id' => $this->id,
 			'email' => $this->email,
 			'firstname' => $this->firstname,
 			'lastname' => $this->lastname,
@@ -109,7 +108,7 @@ class User extends DomainEntity implements \Serializable
 	public function unserialize($encodedData)
 	{
 	    $data = unserialize($encodedData);
-	    $this->id = Uuid::fromString($data['id']);
+	    $this->id = $data['id'];
 	    $this->email = $data['email'];
 	    $this->firstname = $data['firstname'];
 	    $this->lastname = $data['lastname'];

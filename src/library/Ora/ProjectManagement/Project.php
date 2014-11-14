@@ -2,20 +2,19 @@
 
 namespace Ora\ProjectManagement;
 
-use Doctrine\ORM\Mapping AS ORM;
 use Ora\DomainEntity;
-use Rhumsaa\Uuid\Uuid;
 use Ora\User\User;
+use Rhumsaa\Uuid\Uuid;
 
 /**
- * @ORM\Entity @ORM\Table(name="projects")
+ * 
  * @author Giannotti Fabio
  *
  */
 class Project extends DomainEntity implements \Serializable
 {	    
 	/**
-	 * @ORM\Column(type="string")
+	 * 
 	 * @var string
 	 */
 	private $subject;

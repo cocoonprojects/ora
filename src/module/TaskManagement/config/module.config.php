@@ -1,15 +1,5 @@
 <?php
 return array(
-	'service_manager' => array(
-		'factories' => array(
-			'TaskManagement\Service\Kanbanize' => 'TaskManagement\Service\KanbanizeServiceFactory'
-		),
-	),
-	'controllers' => array(
-        'invokables' => array(
-            'TaskManagement\Controller\TaskTransitions' => 'TaskManagement\Controller\TaskTransitionsController',
-        ),
-    ),
 	'router' => array(
         'routes' => array(
             'tasks-home' => array(
@@ -34,18 +24,6 @@ return array(
 					),
 				),
 			),
-            'members' => array(
-                'type' => 'Segment',
-                'options' => array(
-                    'route'    => '/task-management/tasks/:taskId/members',
-                    'constraints' => array(
-                        'taskId' => '[0-9a-z\-]+'
-                    ),
-                    'defaults' => array(
-                        'controller' => 'TaskManagement\Controller\Members'
-                    ),
-                ),
-            ),
             'tasks' => array(
                 'type' => 'Segment',
                 'options' => array(
@@ -58,6 +36,18 @@ return array(
                     ),
                 ),
             ),
+            'members' => array(
+                'type' => 'Segment',
+                'options' => array(
+                    'route'    => '/task-management/tasks/:taskId/members',
+                    'constraints' => array(
+                        'taskId' => '[0-9a-z\-]+'
+                    ),
+                    'defaults' => array(
+                        'controller' => 'TaskManagement\Controller\Members'
+                    ),
+                ),
+            ),
             'transitions' => array(
         		'type'    => 'Segment',
         		'options' => array(
@@ -67,7 +57,7 @@ return array(
         				// Change this value to reflect the namespace in which
         				// the controllers for your module are found
         				'__NAMESPACE__' => 'TaskManagement\Controller',
-        				'controller'    => 'TaskTransitions',
+        				'controller'    => 'Transitions',
         			),
         		),
         	),

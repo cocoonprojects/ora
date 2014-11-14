@@ -31,18 +31,7 @@ class Module
         
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);        
-        
-//         $eventStore = $serviceManager->get('prooph.event_store');
-//         $this->entityManager = $serviceManager->get('doctrine.entitymanager.orm_default');
-// 		$eventStore->getPersistenceEvents()->attach('commit.post', array($this, 'postCommitEvent'));        
     }
-    
-//     public function postCommitEvent(PostCommitEvent $event) {
-// 		foreach ($event->getRecordedEvents() as $streamEvent) {
-// 			$this->entityManager->persist($streamEvent->getEntity());
-//         }
-//         $this->entityManager->flush();
-//     }
     
     public function getConfig()
     {
@@ -60,7 +49,9 @@ class Module
             		$locator = $sm->getServiceLocator();
             		$providers = $locator->get('OAuth2\Providers');
             		$authService = $locator->get('Application\Service\AuthenticationService');
+            		$userService = $locator->get('User\UserService');
             		$controller = new AuthController($authService, $providers);
+            		$controller->setUserService($userService);
             		return $controller;
             	},
             )

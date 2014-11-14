@@ -37,7 +37,7 @@ class MembersController extends AbstractHATEOASRestfulController
     
     public function __construct(TaskService $taskService, AuthenticationServiceInterface $authService) {
     	$this->authService = $authService;
-		$this->taskService = $taskService;
+		$this->taskService = $taskService;		
     }
     
     public function preDispatch($e)

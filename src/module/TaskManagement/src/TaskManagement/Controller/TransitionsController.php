@@ -1,12 +1,4 @@
 <?php
-/**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link      http://github.com/zendframework/Kanbanize for the canonical source repository
- * @copyright Copyright (c) 2005-2012 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
- */
-
 namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
@@ -18,11 +10,10 @@ use Ora\Kanbanize\Exception\IllegalRemoteStateException;
 use Ora\Kanbanize\Exception\KanbanizeApiException;
 use Ora\TaskManagement\TaskService;
 use Ora\Kanbanize\Exception\AlreadyInDestinationException;
+use \Ora\Kanbanize\KanbanizeService;
 
-class TaskTransitionsController extends AbstractHATEOASRestfulController
+class TransitionsController extends AbstractHATEOASRestfulController
 {
-	//protected static $resourceOptions = array ('GET','POST','PUT');
-	//protected static $collectionOptions = array ('DELETE','GET');
 	protected static $resourceOptions = array ('POST');
 	protected static $collectionOptions= array ();
 	
@@ -37,46 +28,50 @@ class TaskTransitionsController extends AbstractHATEOASRestfulController
 	 */
 	private $taskService;
 	
-	/**
-	 *
-	 * @param
-	 *        	$data
-	 */
-	public function create($data) {
-		// TODO inserire subject e project in $data
-		// kanbanize api take
-		$validator_NotEmpty = new \Zend\Validator\NotEmpty ();
-		$validator_Digits = new \Zend\Validator\Digits ();
-		
-		if (! isset ( $data ["boardid"] )) {
-			// bad request
-			$this->response->setStatusCode ( 400 );
-			return $this->response;
-		}
-		
-		$boardId = $data ["boardid"];
-		if (! $validator_NotEmpty->isValid ( $boardId ) || ! $validator_Digits->isValid ( $boardId )) {
-			// request not correct
-			$this->response->setStatusCode ( 406 );
-			return $this->response;
-		}
-		
-		// TODO create task based on $data received
-		$taskId = uniqid ();
-		try {
-			$result = $this->getKanbanizeService ()->createNewTask ( 1, "arharharharha", $boardId );
-		} catch ( OperationFailedException $e ) {
-			$this->response->setStatusCode ( 400 );
-			return $this->response;
-		}
-		catch (KanbanizeApiException $e2){
-			$this->response->setStatusCode ( 504 );
-			return $this->response;
-		}
-		
-		$this->response->setStatusCode ( 201 );
-		return $this->response;
+	public function __construct(KanbanizeService $kanbanizeService) {
+		$this->kanbanizeService = $kanbanizeService;
 	}
+	
+// 	/**
+// 	 *
+// 	 * @param
+// 	 *        	$data
+// 	 */
+// 	public function create($data) {
+// 		// TODO inserire subject e project in $data
+// 		// kanbanize api take
+// 		$validator_NotEmpty = new \Zend\Validator\NotEmpty ();
+// 		$validator_Digits = new \Zend\Validator\Digits ();
+		
+// 		if (! isset ( $data ["boardid"] )) {
+// 			// bad request
+// 			$this->response->setStatusCode ( 400 );
+// 			return $this->response;
+// 		}
+		
+// 		$boardId = $data ["boardid"];
+// 		if (! $validator_NotEmpty->isValid ( $boardId ) || ! $validator_Digits->isValid ( $boardId )) {
+// 			// request not correct
+// 			$this->response->setStatusCode ( 406 );
+// 			return $this->response;
+// 		}
+		
+// 		// TODO create task based on $data received
+// 		$taskId = uniqid ();
+// 		try {
+// 			$result = $this->getKanbanizeService ()->createNewTask ( 1, "arharharharha", $boardId );
+// 		} catch ( OperationFailedException $e ) {
+// 			$this->response->setStatusCode ( 400 );
+// 			return $this->response;
+// 		}
+// 		catch (KanbanizeApiException $e2){
+// 			$this->response->setStatusCode ( 504 );
+// 			return $this->response;
+// 		}
+		
+// 		$this->response->setStatusCode ( 201 );
+// 		return $this->response;
+// 	}
 	
 	public function invoke($id, $data) {
 		$validator_NotEmpty = new \Zend\Validator\NotEmpty ();
@@ -198,15 +193,6 @@ class TaskTransitionsController extends AbstractHATEOASRestfulController
 		return $this->response;
 	}
 	
-     /**
-      * @return \Kanbanize\Service\KanbanizeService
-      */
-    protected function getKanbanizeService(){
-     	if (!isset($this->kanbanizeService))
-     		$this->kanbanizeService = $this->getServiceLocator ()->get ( 'TaskManagement\Service\Kanbanize' );
-		return $this->kanbanizeService;
-	}
-
 	/**
 	 * @return \Ora\TaskManagement\TaskService
 	 */

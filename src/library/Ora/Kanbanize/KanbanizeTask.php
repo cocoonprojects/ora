@@ -2,11 +2,11 @@
 
 namespace Ora\Kanbanize;
 
-use Ora\TaskManagement\Task;
 use Doctrine\ORM\Mapping AS ORM;
 use Ora\ProjectManagement\Project;
 use Ora\User\User;
 use Rhumsaa\Uuid\Uuid;
+use Ora\ReadModel\Task;
 
 
 /**
@@ -42,22 +42,16 @@ class KanbanizeTask extends Task {
 	);
 	
 	/**
-	 * @ORM\Column(type="integer")
-	 * @var int
+	 * @ORM\Column(type="string")
+	 * @var string
 	 */
 	private $boardId;
 
 	/**
-	 *  @ORM\Column(type="integer")
-	 * @var int
+	 *  @ORM\Column(type="string")
+	 * @var string
 	 */
 	private $taskId;
-
-// 	public function __construct($taskId, $boardId, $kanbanizeTaskId, \DateTime $createdAt, $createdBy) {
-// 		parent::__construct($taskId, $createdAt, $createdBy);
-// 		$this->boardId = $boardId;
-// 		$this->taskId = $kanbanizeTaskId;
-// 	}
 
 	public static function create(Project $project, $subject, User $createdBy) {
 		$rv = new self();

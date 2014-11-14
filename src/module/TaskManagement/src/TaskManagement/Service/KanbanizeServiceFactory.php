@@ -15,12 +15,8 @@ class KanbanizeServiceFactory implements FactoryInterface
 	public function createService(ServiceLocatorInterface $serviceLocator) 
 	{
 		if(is_null(self::$instance)) {
-			//$eventStore = $serviceLocator->get('Application\Service\EventStore');
 			$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-			//$entitySerializer = new EntitySerializer($entityManager);
-			
 			$config = $serviceLocator->get('Config');
-			
 			$apiKey = $config['kanbanize']['apikey'];
 			$url = $config['kanbanize']['url'];
 			

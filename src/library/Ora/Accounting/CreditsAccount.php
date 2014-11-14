@@ -6,7 +6,7 @@ use Ora\DomainEntity;
 use Rhumsaa\Uuid\Uuid;
 
 /**
- * @ORM\Entity @ORM\Table(name="creditsAccounts")
+ * ORM\Entity @ORM\Table(name="creditsAccounts")
  * @author andreabandera
  *
  */

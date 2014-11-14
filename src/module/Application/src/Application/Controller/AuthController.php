@@ -8,11 +8,17 @@ use Ora\Organization\Organization;
 use Zend\Authentication\AuthenticationService;
 use ZendExtension\Authentication\Adapter\MockAuthAdapter;
 use Zend\Authentication\Result;
+use Ora\User\UserService;
 
 class AuthController extends AbstractActionController
 {        
 	private $providers;
 	private $authService;
+	/**
+	 * 
+	 * @var UserService
+	 */
+	private $userService;
 	private $redirectAfterLogout;
 	
 	public function __construct(AuthenticationService $authService, array $providers) {
@@ -84,7 +90,6 @@ class AuthController extends AbstractActionController
 	
 	public function loadUser($e)
 	{
-		$userService = $this->serviceLocator->get('User\UserService');
 		$args = $e->getParams();
 		
 		$info = $args['info'];
@@ -98,10 +103,10 @@ class AuthController extends AbstractActionController
 				break;
 		}
 
-		$user = $userService->findUserByEmail($info['email']);
+		$user = $this->userService->findUserByEmail($info['email']);
 		if(is_null($user))
 		{
-			$user = $userService->subscribeUser($info);
+			$user = $this->userService->subscribeUser($info);
 		}
 
 		$args['info']['user'] = $user;
@@ -111,30 +116,23 @@ class AuthController extends AbstractActionController
 	public function acceptanceLoginAction() {
 // 		$env = getenv('APPLICATION_ENV') ? : "local";
 // 		if($env = 'acceptance') {
-		$adapter = new MockAuthAdapter();
 		$email = $this->params()->fromPost('email');
+		$adapter = new MockAuthAdapter($this->userService);
 		$adapter->setEmail($email);
-		$userService = $this->serviceLocator->get('User\UserService');
-		$adapter->setUserService($userService);
 		$result = $this->authService->authenticate($adapter);
 
-		if($this->authService->hasIdentity())
-		{
-			$this->response->setStatusCode(200);
-		}
-		else
-		{
-			$this->response->setStatusCode(505);
-		}
-		
-		/*if($result->getCode() == Result::FAILURE_IDENTITY_NOT_FOUND) {
+		if($result->getCode() == Result::FAILURE_IDENTITY_NOT_FOUND) {
 			$this->response->setStatusCode(400);
 		} else {
 			$this->response->setStatusCode(200);
-		}*/
+		}
 // 		} else {
 //			$this->response->setStatusCode(404);
 //		}
 		return $this->response;
+	}
+	
+	public function setUserService(UserService $userService) {
+		$this->userService = $userService;
 	}
 }

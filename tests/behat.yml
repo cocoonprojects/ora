@@ -16,12 +16,6 @@ default:
             contexts: 
                  - LoginContext
                  
-        kanbanize_features:
-            paths: 
-                 - functional/features/kanbanize
-            contexts: 
-                 - RestContext:
-                     - http://192.168.56.111
     extensions:
         Behat\MinkExtension:
             base_url:  http://oraprojecttest
