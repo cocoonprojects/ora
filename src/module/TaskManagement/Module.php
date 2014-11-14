@@ -8,6 +8,7 @@ use TaskManagement\Controller\MembersController;
 use TaskManagement\Controller\TasksController;
 use Zend\Mvc\MvcEvent;
 use Ora\TaskManagement\TaskListener;
+use TaskManagement\Controller\TransitionsController;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {    
@@ -64,6 +65,12 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             		$controller = new MembersController($taskService, $authService);
             		return $controller;
             	},
+            	'TaskManagement\Controller\Transitions' => function ($sm) {
+            		$locator = $sm->getServiceLocator();
+            		$kanbanizeService = $locator->get('TaskManagement\KanbanizeService');
+            		$controller = new TransitionsController($kanbanizeService);
+            		return $controller;
+            	}
             )
         );        
     } 
@@ -73,7 +80,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
         return array (
             'factories' => array (
                 'TaskManagement\ProjectService' => 'TaskManagement\Service\ProjectServiceFactory',
-            	'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory'
+            	'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',
+				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
             ),
         );
     }

@@ -1,15 +1,5 @@
 <?php
 return array(
-	'service_manager' => array(
-		'factories' => array(
-			'TaskManagement\Service\Kanbanize' => 'TaskManagement\Service\KanbanizeServiceFactory'
-		),
-	),
-	'controllers' => array(
-        'invokables' => array(
-            'TaskManagement\Controller\TaskTransitions' => 'TaskManagement\Controller\TaskTransitionsController',
-        ),
-    ),
 	'router' => array(
         'routes' => array(
             'tasks-home' => array(
@@ -67,7 +57,7 @@ return array(
         				// Change this value to reflect the namespace in which
         				// the controllers for your module are found
         				'__NAMESPACE__' => 'TaskManagement\Controller',
-        				'controller'    => 'TaskTransitions',
+        				'controller'    => 'Transitions',
         			),
         		),
         	),
