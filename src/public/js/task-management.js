@@ -182,11 +182,21 @@ TaskManagement.prototype = {
 		
 		container
 			.append("<h2>Create new task</h2>" +
-					"<form id='formCreateNewTask'>" +
-						"<input type='text' name='projectID' class='form-control' value='1' readonly/>" +
-						"<div class='form-group'><label for='subject' style='font-weight:normal'>Subject</label><input type=text name='subject' class='form-control' value='' required></div>" +
-						"<button type='submit' class='btn btn-info btn-block'>Create a new task</button>" +
-					"</form>"
+				"<form id='formCreateNewTask'>" +
+                    "<div class='form-group'>" + 
+                        "<label for='projectID' style='font-weight:normal'>Project</label>"+
+                        "<select name='projectID' class='form-control' required>" +
+                            "<option value='\'\''>---</option>" +
+                            "<option value='00000000-1000-0000-0000-000000000000'>O.R.A.</option>" +
+                            "<option value='00000000-1100-0000-0000-000000000000'>Open Governance<option>" +
+                        "</select>" +
+                        "<label for='subject' style='font-weight:normal'>Subject</label>"+
+                        "<input type=text name='subject' class='form-control' value='' required>"+
+                    "</div>" +
+                    "<button type='submit' class='btn btn-info btn-block'>" +
+                        "Create a new task"+
+                    "</button>" +
+				"</form>"
 			);
 		
 		container
