@@ -34,6 +34,8 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 	protected $taskService;
 	
 	protected function setUp() {
+		//TODO: change in acceptance when setup and teardown of db is implemented
+		putenv('APPLICATION_ENV=staging');
 		$bootstrap = Application::init ( include ('tests/unit/test.config.php') );
 		$this->serviceManager = $bootstrap->getServiceManager ();
 		$this->kanbanizeService = $this->getMockForAbstractClass ( 'Ora\Kanbanize\KanbanizeService', array (
