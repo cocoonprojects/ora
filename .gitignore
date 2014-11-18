@@ -8,4 +8,4 @@ src/vendor/
 .DS_Store
 ./vagrant/config/
 src/data/cache/
-src/composer.lock
+
