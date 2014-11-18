@@ -13,7 +13,7 @@ class KanbanizeContext extends RawMinkContext implements Context {
 	 *  @BeforeSuite
 	 */
 	public static function setupTasksOnKanbanize(){
-		$config = include '../src/config/autoload/kanbanize.local.php';
+		$config = include '../src/config/autoload/auth.global.php';
 		$api = new KanbanizeAPI();
 		$api->setApiKey($config['kanbanize']['apikey']);
 		$api->setUrl($config['kanbanize']['url']);
