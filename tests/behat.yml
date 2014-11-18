@@ -2,20 +2,7 @@ default:
     autoload:
         - functional/bootstrap
 
-    suites:   
-        task_features:
-            paths: 
-                 - functional/features/task
-            contexts: 
-                 - RestContext:
-                     - http://oraprojecttest
-                   
-        login_features:
-            paths: 
-                 - functional/features/login
-            contexts: 
-                 - LoginContext
-                 
+    suites:
         kanbanize_features:
             paths: 
                  - functional/features/kanbanize
