@@ -1,5 +1,10 @@
 <?php
 return array(
+	'service_manager' => array(
+		'factories' => array(
+			'TaskManagement\Service\Kanbanize' => 'TaskManagement\Service\KanbanizeServiceFactory'
+		),
+	),
 	'router' => array(
         'routes' => array(
             'tasks-home' => array(
@@ -64,7 +69,6 @@ return array(
         ),
     ),
     
-    'service_manager' => array(),
     'translator' => array(),
     'view_manager' => array(
         'strategies' => array(

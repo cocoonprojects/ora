@@ -53,7 +53,7 @@ class RestContext extends RawMinkContext implements Context
 		$path = __DIR__.'/../../../src/vendor/zendframework/zendframework/library';		
         putenv("ZF2_PATH=".$path);
 
-	 	include '/vagrant/src/init_autoloader.php';
+	 	include __DIR__.'/../../../src/init_autoloader.php';
         self::$zendApp = Zend\Mvc\Application::init(require $path_config); //new application instance
 	
         $sm = self::$zendApp->getServiceManager();		
@@ -67,13 +67,13 @@ class RestContext extends RawMinkContext implements Context
 		self::$schemaTool->createSchema($classes);
 		
 		//get query for event_store table creation
-		$sql = file_get_contents("/vagrant/src/vendor/prooph/event-store-zf2-adapter/scripts/mysql-single-stream-default-schema.sql");
+		$sql = file_get_contents(__DIR__."/../../../src/vendor/prooph/event-store-zf2-adapter/scripts/mysql-single-stream-default-schema.sql");
 		$statement = self::$entityManager->getConnection()->prepare($sql);		
 		$statement->execute();
 		$statement->closeCursor(); //needed for mysql database
 		
 		//get query for test data
-		$sql = file_get_contents("/vagrant/tests/sql/init.sql");
+		$sql = file_get_contents(__DIR__."/../../sql/init.sql");
 		$statement = self::$entityManager->getConnection()->executeUpdate($sql, array(), array());		
 		
 		
