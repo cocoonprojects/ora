@@ -16,6 +16,13 @@ default:
             contexts: 
                  - LoginContext
                  
+        kanbanize_features:
+            paths: 
+                 - functional/features/kanbanize
+            contexts: 
+                 - RestContext:
+                     - http://160.97.24.61/staging
+                 - KanbanizeContext
     extensions:
         Behat\MinkExtension:
             base_url:  http://oraprojecttest
