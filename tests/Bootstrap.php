@@ -39,7 +39,7 @@ class Bootstrap
         //static::initAutoloader();
 
         // use ModuleManager to load this module and it's dependencies
- 		$config = ArrayUtils::merge($config, include(__DIR__.'/../config/application.config.php'));
+ 		$config = ArrayUtils::merge($config, include(__DIR__.'/../src/config/application.config.php'));
         
         $serviceManager = new ServiceManager(new ServiceManagerConfig());
         $serviceManager->setService('ApplicationConfig', $config);
@@ -118,7 +118,7 @@ class Bootstrap
     	self::$schemaTool->createSchema($classes);
     
     	//get query for event_store table creation
-    	$sql = file_get_contents(__DIR__."/../vendor/prooph/event-store-zf2-adapter/scripts/mysql-single-stream-default-schema.sql");
+    	$sql = file_get_contents(__DIR__."/../src/vendor/prooph/event-store-zf2-adapter/scripts/mysql-single-stream-default-schema.sql");
     	$statement = self::$entityManager->getConnection()->prepare($sql);
     	$statement->execute();
     	$statement->closeCursor(); //needed for mysql database
