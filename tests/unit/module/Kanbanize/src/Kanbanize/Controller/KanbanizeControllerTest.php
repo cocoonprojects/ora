@@ -35,27 +35,8 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 	protected $routeMatch;
 	protected $event;
 	protected $taskService;
-	
-	// configuration before suite
-	public static function setUpBeforeClass()
-	{
-	
 		
-	}
-	
-	public static function tearDownAfterClass()
-    {
-     
-    }
-    
-    protected function tearDown()
-    {
-    	 //$this->deleteDatabase();
-    }
-	
-	
 	protected function setUp() {
-    	putenv("APPLICATION_ENV=acceptance");
 		$this->serviceManager = Bootstrap::getServiceManager ();
 		$this->kanbanizeService = $this->getMockForAbstractClass ( 'Ora\Kanbanize\KanbanizeService', array (
 				'acceptTask',
@@ -108,10 +89,6 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testMoveOfNotAcceptableTask() {
-// 		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveTask' )->will ( $this->returnCallback ( array (
-// 				$this,
-// 				'getCorrectResult' 
-// 		) ) );
 		$this->kanbanizeService->expects ( $this->any () )->method ( 'acceptTask' )->will ( $this->returnCallback ( array (
 				$this,
 				'isNotAcceptable' 
@@ -131,10 +108,6 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testMoveWithWrongAction() {
-// 		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveTask' )->will ( $this->returnCallback ( array (
-// 				$this,
-// 				'getCorrectResult'
-// 		) ) );
 		$this->kanbanizeService->expects ( $this->any () )->method ( 'acceptTask' )->will ( $this->returnCallback ( array (
 				$this,
 				'isReallyAcceptable'
@@ -153,30 +126,6 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 	
 		$this->assertEquals ( 400, $response->getStatusCode () );
 	}
-	
-// 	public function testMoveWithWrongBoardId() {
-// // 		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveTask' )->will ( $this->returnCallback ( array (
-// // 				$this,
-// // 				'getCorrectResult'
-// // 		) ) );
-// 		$this->kanbanizeService->expects ( $this->any () )->method ( 'acceptTask' )->will ( $this->returnCallback ( array (
-// 				$this,
-// 				'isReallyAcceptable'
-// 		) ) );
-	
-// 		$this->routeMatch->setParam ( 'id', $this->getTaskId () );
-// 		$this->request->setMethod ( Request::METHOD_POST );
-// 		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
-// 		$this->request->setContent ( json_encode ( array (
-// 				'boardid' => 'numero3',
-// 				'action' => 'accept'
-// 		) ) );
-	
-// 		$result = $this->controller->dispatch ( $this->request );
-// 		$response = $this->controller->getResponse ();
-	
-// 		$this->assertEquals ( 406, $response->getStatusCode () );
-// 	}
 	
 	public function testMoveWithNoParameters() {
 		$this->routeMatch->setParam ( 'id', $this->getTaskId () );
@@ -218,10 +167,6 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 	
 	//Back2OnGoingTests
 	public function testMoveBackSuccessfullyDone() {
-// 		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveTask' )->will ( $this->returnCallback ( array (
-// 				$this,
-// 				'getCorrectResult'
-// 		) ) );
 		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveBackToOngoing' )->will ( $this->returnCallback ( array (
 				$this,
 				'canBeMovedBack'
@@ -242,10 +187,6 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testMoveBackTaskCanNotBeMovedBack() {
-		// $this->kanbanizeService->expects ( $this->any () )->method ( 'moveTask' )->will ( $this->returnCallback ( array (
-		// $this,
-		// 'getCorrectResult'
-		// ) ) );
 		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveBackToOngoing' )->will ( $this->returnCallback ( array (
 				$this,
 				'canNotBeMovedBack' 
@@ -266,10 +207,6 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testMoveBackTaskWithWrongAction() {
-// 		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveTask' )->will ( $this->returnCallback ( array (
-// 				$this,
-// 				'getCorrectResult'
-// 		) ) );
 		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveBackToOngoing' )->will ( $this->returnCallback ( array (
 				$this,
 				'canBeMovedBack'
@@ -288,32 +225,6 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 	
 		$this->assertEquals ( 400, $response->getStatusCode () );
 	}
-	
-// 	public function testMoveBackTaskWithWrongBoardId() {
-// // 		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveTask' )->will ( $this->returnCallback ( array (
-// // 				$this,
-// // 				'getCorrectResult'
-// // 		) ) );
-// 		$this->kanbanizeService->expects ( $this->any () )->method ( 'moveBackToOngoing' )->will ( $this->returnCallback ( array (
-// 				$this,
-// 				'canBeMovedBack'
-// 		) ) );
-	
-// 		$this->routeMatch->setParam ( 'id', $this->getTaskId () );
-// 		$this->request->setMethod ( Request::METHOD_POST );
-// 		$this->request->getHeaders ()->addHeaderLine ( 'Content-Type', 'application/json' );
-// 		$this->request->setContent ( json_encode ( array (
-// 				'boardid' => 'numero3',
-// 				'action' => 'ongoing'
-// 		) ) );
-	
-// 		$result = $this->controller->dispatch ( $this->request );
-// 		$response = $this->controller->getResponse ();
-	
-// 		$this->assertEquals ( 406, $response->getStatusCode () );
-// 	}
-	
-	
 	
 	private function getTaskId() {
 		return "00000000-0000-0000-0000-000000000101";
