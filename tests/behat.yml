@@ -3,12 +3,19 @@ default:
         - functional/bootstrap
 
     suites:
+        task_features:
+            paths: 
+                - functional/features/task
+            contexts: 
+                - RestContext:
+                    - http://oraprojecttest
+
         kanbanize_features:
             paths: 
                  - functional/features/kanbanize
             contexts: 
                  - RestContext:
-                     - http://160.97.24.61/staging
+                     - http://oraprojecttest
                  - KanbanizeContext
     extensions:
         Behat\MinkExtension:
