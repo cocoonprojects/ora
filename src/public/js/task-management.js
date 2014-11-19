@@ -11,7 +11,7 @@ TaskManagement.prototype = {
 	bindEventsOn: function()
 	{
 		var that = this;
-		
+	        
 		// LIST AVAILABLE TASKS
 		$("body").on("click", "#listAvailableTask", function(e){
 			e.preventDefault();
@@ -53,6 +53,18 @@ TaskManagement.prototype = {
 			e.preventDefault();
 			that.unjoinTaskMembers(e);
 		});
+
+        //ACCEPT TASK FOR KAMBANIZE       
+		$("body").on("click", "button[data-action='acceptTask']", function(e){
+			e.preventDefault();
+			that.acceptTask(e);
+		});
+
+        //BACK TO ONGOING             
+		$("body").on("click", "button[data-action='back2ongoingTask']", function(e){
+			e.preventDefault();
+			that.backToOngoingTask(e);
+		}); 
 	},
 	
 	unjoinTaskMembers: function(e)
@@ -148,8 +160,39 @@ TaskManagement.prototype = {
 			}
 		});
 	},
-	
-	listAvailableTask: function()
+
+    acceptTask: function(){
+        //$this->basePath("/kanbanize/task/".$singletask->getId()."/client/test?method=accept"); ?>">
+		var taskID = $(e.target).closest("tr").data("taskid");
+        $.ajax({
+			url: basePath + '/kanbanize/task/' + taskID + '/client/test?method=accept',
+			dataType: 'json',
+			complete: function(xhr, textStatus) {
+				if (xhr.status === 200)
+					alert("Task accepted succesfully");
+				else
+					alert("Error. Status Code: " + xhr.status);
+			}
+		});
+    },
+
+    
+    backToOngoingTask: function(){
+        //$this->basePath("/kanbanize/task/".$singletask->getId()."/client/test?method=ongoing"); ?>">
+		var taskID = $(e.target).closest("tr").data("taskid");
+        $.ajax({
+			url: basePath + '/kanbanize/task/' + taskID + '/client/test?method=ongoing',
+			dataType: 'json',
+			complete: function(xhr, textStatus) {
+				if (xhr.status === 200)
+					alert("Task moved to ongoing succesfully");
+				else
+					alert("Error. Status Code: " + xhr.status);
+			}
+		});
+    },
+
+    listAvailableTask: function()
 	{
 		$.ajax({
 			url: basePath + '/task-management/tasks',
@@ -223,7 +266,7 @@ TaskManagement.prototype = {
 					
 					// Stabilisco se visualizzare il JOIN oppure l'UNJOIN
 					if (task.alreadyMember) {
-						actions = actions + "<button data-action='unjoinTask' class='btn btn-danger' style='margin-left:5px;'>UnJoin</button>";
+						actions = actions + "<button data-action='unjoinTask' class='btn btn-primary' style='margin-left:5px;'>UnJoin</button>";
 					} else {
 						actions = actions + "<button data-action='joinTask' class='btn btn-success'>Join</button>";
 					}
@@ -236,14 +279,20 @@ TaskManagement.prototype = {
 					task.status = "Accepted";
 					actions = "<button class='btn btn-info btn-block'>Assign share</button>";
 				}
-							
+                else if (task.status == 30){
+                    
+                    actions = "<button data-action='acceptTask' class='btn btn-info btn-block'>Accept</button>"; 
+                    actions = "<button data-action='back2ongoingTask' class='btn btn-info btn-block'>Ongoing</button>"; 
+                }
+
 				$('#listAvailableTasks tbody')
 					.append(
-						"<tr data-taskid='"+task.id+"' data-tasksubject='" + task.subject + "' data-userid='"+json.loggeduser.id+"'>" +
+						/*"<tr data-taskid='"+task.id+"' data-tasksubject='" + task.subject + "' data-userid='"+json.loggeduser.id+"'>" +	*/
+                        "<tr data-taskid='"+task.id+"' data-tasksubject='" + task.subject + "' data-type='"+task.type+"'>" +
 							"<td>" + task.subject + "</td>" +
-							"<td>" + task.created_at.date.replace('.000000','') + "</td>" +
-							"<td>" + task.created_by.name + "</td>" +
-							"<td>" + task.members.join() + "</td>" +
+							"<td>" + task.createdAt.date.replace('.000000','') + "</td>" +
+							"<td>" + task.createdBy + "</td>" +
+                            "<td>" + $.map(task.members, function(n,i){return n.firstname+" "+n.lastname;}).join()+
 							"<td class='text-center'>" + task.status + "</td>" +
 							"<td class='text-center'>" + actions + "</td>" +
 						"</tr>");

@@ -24,7 +24,9 @@ class KanbanizeTask extends Task {
 	CONST COLUMN_ONGOING = "OnGoing";
 	CONST COLUMN_COMPLETED = 'Completed';
 	CONST COLUMN_ACCEPTED = 'Accepted';
-	
+
+    CONST TYPE = 'kanbanizetask';
+
 	private static $mapping = array(
 			self::COLUMN_IDEA		=> Task::STATUS_IDEA,
 			self::COLUMN_OPEN		=> Task::STATUS_OPEN,
