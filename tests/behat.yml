@@ -9,6 +9,11 @@ default:
             contexts: 
                 - RestContext:
                     - http://oraprojecttest
+        login_features:
+            paths: 
+                - functional/features/login
+            contexts: 
+                - LoginContext
 
         kanbanize_features:
             paths: 
