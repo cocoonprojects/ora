@@ -22,9 +22,12 @@ class Bootstrap
 {
     protected static $serviceManager;
 	protected static $config;
+	protected static $entityManager;
+	protected static $schemaTool;
 
     public static function init($config)
     {
+    	putenv("APPLICATION_ENV=acceptance");
         $zf2ModulePaths = array(dirname(dirname(__DIR__)));
         if (($path = static::findParentPath('vendor'))) {
             $zf2ModulePaths[] = $path;
@@ -43,6 +46,8 @@ class Bootstrap
         $serviceManager->get('ModuleManager')->loadModules();
         static::$serviceManager = $serviceManager;
         static::$config = $config;
+        self::deleteDatabase();
+        self::setupDatabase();
     }
 
     public static function getServiceManager()
@@ -96,4 +101,31 @@ class Bootstrap
         }
         return $dir . '/' . $path;
     }
+
+    public static function deleteDatabase(){
+    	//drop tables creates by doctrine
+    	$classes = self::$entityManager->getMetadataFactory()->getAllMetadata();
+    	self::$schemaTool->dropSchema($classes);
+    
+    	//drop event_stream table
+    	$sql_drop_event_store = "drop table if exists event_stream";
+    	$statement_del = self::$entityManager->getConnection()->executeUpdate($sql_drop_event_store, array(), array());
+    }
+    
+    public static function setupDatabase(){
+    	//get all doctrine metadata for create schema
+    	$classes = self::$entityManager->getMetadataFactory()->getAllMetadata();
+    	self::$schemaTool->createSchema($classes);
+    
+    	//get query for event_store table creation
+    	$sql = file_get_contents(__DIR__."/../vendor/prooph/event-store-zf2-adapter/scripts/mysql-single-stream-default-schema.sql");
+    	$statement = self::$entityManager->getConnection()->prepare($sql);
+    	$statement->execute();
+    	$statement->closeCursor(); //needed for mysql database
+    
+    	//get query for test data
+    	$sql = file_get_contents(__DIR__."/sql/init.sql");
+    	$statement = self::$entityManager->getConnection()->executeUpdate($sql, array(), array());
+    }
+    
 }

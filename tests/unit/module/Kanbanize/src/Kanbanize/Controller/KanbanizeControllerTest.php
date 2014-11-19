@@ -12,11 +12,13 @@ use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
 use Zend\Mvc\Application;
 use Zend\Http\Client;
 use Zend\ServiceManager\ServiceManager;
+use Zend\EventManager\EventManager;
 use Kanbanize\Service\KanbanizeServiceFactory;
 use DoctrineORMModule\Service\EntityManagerFactory;
 use Ora\Kanbanize\KanbanizeTask;
 use Ora\Kanbanize\Exception\IllegalRemoteStateException;
 use Ora\TaskManagement\TaskService;
+
 
 class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 	
@@ -33,22 +35,39 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 	protected $event;
 	protected $taskService;
 	
+	// configuration before suite
+	public static function setUpBeforeClass()
+	{
+	
+		
+	}
+	
+public static function tearDownAfterClass()
+    {
+     
+    }
+    
+    protected function tearDown()
+    {
+    	 //$this->deleteDatabase();
+    }
+	
+	
 	protected function setUp() {
-		//TODO: change in acceptance when setup and teardown of db is implemented
-		putenv('APPLICATION_ENV=staging');
+    	putenv("APPLICATION_ENV=acceptance");
 		$bootstrap = Application::init ( include ('tests/unit/test.config.php') );
 		$this->serviceManager = $bootstrap->getServiceManager ();
 		$this->kanbanizeService = $this->getMockForAbstractClass ( 'Ora\Kanbanize\KanbanizeService', array (
 				'acceptTask',
-				'moveBackToOngoing' 
+				'moveBackToOngoing'
 		)
-		 );
+		);
 		$this->controller = $this->getMock ( 'TaskManagement\Controller\TransitionsController', NULL, array(
 				$this->getMockedKanbanizeService(),
 		) );
 		$this->request = new Request ();
 		$this->routeMatch = new RouteMatch ( array (
-				'controller' => 'kanbanize' 
+				'controller' => 'kanbanize'
 		) );
 		$this->event = new MvcEvent ();
 		$config = $this->serviceManager->get ( 'Config' );
@@ -59,13 +78,13 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 		$this->controller->setEvent ( $this->event );
 		$this->controller->setServiceLocator ( $this->serviceManager );
 		$this->taskService = $this->getMockForAbstractClass ( 'Ora\TaskManagement\TaskService', array (
-				
-				'findTaskById' 
+		
+				'findTaskById'
 		) );
-						
+		
 		$this->taskService->expects ( $this->any () )->method ( 'findTaskById' )->will ( $this->returnCallback ( array (
 				$this,
-				'findTaskByIdMockedSuccessful' 
+				'findTaskByIdMockedSuccessful'
 		) ) );
 	}
 	
@@ -294,8 +313,7 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 // 		$this->assertEquals ( 406, $response->getStatusCode () );
 // 	}
 	
-	public function tearDown() {
-	}
+	
 	
 	private function getTaskId() {
 		return "00000000-0000-0000-0000-000000000101";
