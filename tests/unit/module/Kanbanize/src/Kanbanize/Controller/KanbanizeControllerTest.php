@@ -18,6 +18,7 @@ use DoctrineORMModule\Service\EntityManagerFactory;
 use Ora\Kanbanize\KanbanizeTask;
 use Ora\Kanbanize\Exception\IllegalRemoteStateException;
 use Ora\TaskManagement\TaskService;
+use Test\Bootstrap;
 
 
 class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
@@ -42,7 +43,7 @@ class KanbanizeControllerTest extends \PHPUnit_Framework_TestCase {
 		
 	}
 	
-public static function tearDownAfterClass()
+	public static function tearDownAfterClass()
     {
      
     }
@@ -55,8 +56,7 @@ public static function tearDownAfterClass()
 	
 	protected function setUp() {
     	putenv("APPLICATION_ENV=acceptance");
-		$bootstrap = Application::init ( include ('tests/unit/test.config.php') );
-		$this->serviceManager = $bootstrap->getServiceManager ();
+		$this->serviceManager = Bootstrap::getServiceManager ();
 		$this->kanbanizeService = $this->getMockForAbstractClass ( 'Ora\Kanbanize\KanbanizeService', array (
 				'acceptTask',
 				'moveBackToOngoing'

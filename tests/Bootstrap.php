@@ -6,6 +6,7 @@ use Zend\Loader\AutoloaderFactory;
 use Zend\Mvc\Service\ServiceManagerConfig;
 use Zend\ServiceManager\ServiceManager;
 use RuntimeException;
+use Zend\Stdlib\ArrayUtils;
 
 error_reporting(E_ALL | E_STRICT);
 chdir(dirname(__DIR__));
@@ -24,21 +25,13 @@ class Bootstrap
 	protected static $config;
 	protected static $entityManager;
 	protected static $schemaTool;
+	protected static $zendApp;
 
     public static function init($config)
     {
-    	putenv("APPLICATION_ENV=acceptance");
-        $zf2ModulePaths = array(dirname(dirname(__DIR__)));
-        if (($path = static::findParentPath('vendor'))) {
-            $zf2ModulePaths[] = $path;
-        }
-        if (($path = static::findParentPath('module')) !== $zf2ModulePaths[0]) {
-            $zf2ModulePaths[] = $path;
-        }
-
-        //static::initAutoloader();
-
-        // use ModuleManager to load this module and it's dependencies
+        self::$zendApp = \Zend\Mvc\Application::init(include(__DIR__.'/../src/config/application.config.php')); //new application instance
+	
+        $serviceManager = self::$zendApp->getServiceManager();		
  		$config = ArrayUtils::merge($config, include(__DIR__.'/../src/config/application.config.php'));
         
         $serviceManager = new ServiceManager(new ServiceManagerConfig());
@@ -46,6 +39,8 @@ class Bootstrap
         $serviceManager->get('ModuleManager')->loadModules();
         static::$serviceManager = $serviceManager;
         static::$config = $config;
+		static::$entityManager = $serviceManager->get('doctrine.entitymanager.orm_default');
+		static::$schemaTool = new \Doctrine\ORM\Tools\SchemaTool(self::$entityManager);
         self::deleteDatabase();
         self::setupDatabase();
     }
@@ -129,3 +124,5 @@ class Bootstrap
     }
     
 }
+
+Bootstrap::init(include 'unit/test.config.php');
