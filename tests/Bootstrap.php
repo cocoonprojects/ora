@@ -29,6 +29,8 @@ class Bootstrap
 
     public static function init($config)
     {
+
+    	putenv('APPLICATION_ENV=acceptance');
         self::$zendApp = \Zend\Mvc\Application::init(include(__DIR__.'/../src/config/application.config.php')); //new application instance
 	
         $serviceManager = self::$zendApp->getServiceManager();		
