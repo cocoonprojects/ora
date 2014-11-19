@@ -3,21 +3,15 @@
 namespace User\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Zend\Stdlib\InitializableInterface;
 use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 
-class UsersController extends AbstractHATEOASRestfulController implements InitializableInterface
+class UsersController extends AbstractHATEOASRestfulController
 {
     protected static $collectionOptions = array('GET', 'POST');
     protected static $resourceOptions = array('DELETE', 'POST', 'GET', 'PUT');
     protected $userService;
 
-    public function init()
-    {
-        // Executed before any other method
-    }
-    
     public function get($id)
     {
         // HTTP STATUS CODE 405: Method not allowed
@@ -51,6 +45,14 @@ class UsersController extends AbstractHATEOASRestfulController implements Initia
     }
     
     public function replaceList($data)
+    {
+        // HTTP STATUS CODE 405: Method not allowed
+        $this->response->setStatusCode(405);
+         
+        return $this->response;
+    }
+    
+    public function deleteList()
     {
         // HTTP STATUS CODE 405: Method not allowed
         $this->response->setStatusCode(405);

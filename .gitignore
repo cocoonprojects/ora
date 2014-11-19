@@ -1,12 +1,11 @@
 bin/
-/src/vendor/
+src/vendor/
 .vagrant/
-/.project
-/.buildpath
+.project
+.buildpath
 *.old
 .settings/
 .DS_Store
 ./vagrant/config/
-/config/
-/src/data/cache/
-/src/composer.lock
+src/data/cache/
+

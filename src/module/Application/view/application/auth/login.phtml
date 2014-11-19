@@ -1,0 +1,85 @@
+<?php 
+
+	if(isset($this->error))
+	{
+?>		
+		<div class="row">
+		
+			<div class="col-lg-12">
+				<h4>Error!</h4>
+				<p><a href="javascript:window.history.back(); ">Torna indietro</a></p>
+			</div>
+		 
+		</div>	
+
+<?php
+		switch($this->error)
+		{
+			case 'Auth.InvalidCode': 
+									echo "InvalidCode";
+									break;
+			case 'Auth.InvalidProvider': 
+									echo "Provider not valid";
+									break;
+			case 'Auth.InvalidToken': 
+									echo "Token not valid";
+									break;
+		}
+	}	
+	elseif(!$this->authenticate->isValid())
+	{ 
+?>
+
+		<div class="row">
+		
+		        <div class="col-lg-12">
+		          <h4>Error!</h4>
+		          <p><a href="javascript:window.history.back(); ">Torna indietro</a></p>
+		        </div>
+		       
+		</div>
+
+	<?php 
+		
+		switch ($this->authenticate->getCode()) {
+				
+			case \Zend\Authentication\Result::FAILURE_IDENTITY_NOT_FOUND:
+				echo "Identity not found";
+				break;
+		
+			case \Zend\Authentication\Result::FAILURE_CREDENTIAL_INVALID:
+				echo "Credential invalid";
+				break;
+		
+			default:
+				echo "Internal error";
+				break;
+		}
+	} 
+	else 
+	{
+?>
+
+	<div class="row">	
+	        <div class="col-lg-12">
+	          <h4>Welcome!</h4>	          
+	        </div>
+	</div>
+	
+<script type="text/javascript">
+
+	$(document).ready(function() 
+				{
+					if(opener != null)
+					{
+						opener.location.reload(true);
+						self.close();
+					}
+	})
+
+</script>
+
+
+<?php 
+	}
+?>

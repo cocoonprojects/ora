@@ -2,26 +2,28 @@
 
 namespace Ora\ProjectManagement;
 
-use Doctrine\ORM\Mapping AS ORM;
 use Ora\DomainEntity;
+use Ora\User\User;
+use Rhumsaa\Uuid\Uuid;
 
 /**
- * @ORM\Entity @ORM\Table(name="projects")
+ * 
  * @author Giannotti Fabio
  *
  */
-class Project extends DomainEntity 
+class Project extends DomainEntity implements \Serializable
 {	    
 	/**
-	 * @ORM\Column(type="string")
+	 * 
 	 * @var string
 	 */
 	private $subject;
 	
-	// TODO: Utilizzare Ora\User\User $createdBy se createdBy dev'essere una relazione con lo USER
-	public function __construct($projectID, \DateTime $createdAt, Ora\User\User $createdBy) 
+	public function __construct(Uuid $id, User $createdBy, \DateTime $createdAt = null) 
 	{
-		parent::__construct($projectID, $createdAt, $createdBy);
+		$this->id = $id;
+		$this->createdAt = $createdAt == null ? new \DateTime() : $createdAt;
+		$this->createdBy = $createdBy;
 	}
 	
 	public function getSubject() {
@@ -31,4 +33,21 @@ class Project extends DomainEntity
 	public function setSubject($subject) {
 		$this->subject = $subject;
 	}
+
+	public function serialize()
+	{
+		$data = array(
+			'id' => $this->id->toString(),
+			'subject' => $this->subject,
+		);
+	    return serialize($data); 
+	}
+	
+	public function unserialize($encodedData)
+	{
+	    $data = unserialize($encodedData);
+	    $this->id = Uuid::fromString($data['id']);
+	    $this->subject = $data['subject'];
+	}
+	
 }

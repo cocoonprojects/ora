@@ -3,13 +3,13 @@
 namespace Ora\Organization;
 
 use Doctrine\ORM\Mapping AS ORM;
-use Ora\DomainEntity;
+use Ora\ReadModel\DomainEntity;
 
 /**
  * @ORM\Entity @ORM\Table(name="organizations")
  * @author Giannotti Fabio
  */
-class Organization extends DomainEntity 
+class Organization extends DomainEntity
 {	    
 	/**
 	 * @ORM\Column(type="string")

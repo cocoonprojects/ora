@@ -2,33 +2,60 @@
 
 namespace Ora\User;
 
-use Ora\EventStore\EventStore;
-use Ora\EntitySerializer;
+use Doctrine\ORM\EntityManager;
+use Prooph\EventStore\EventStore;
+use Prooph\EventStore\Stream\StreamStrategyInterface;
+use Prooph\EventStore\Aggregate\AggregateRepository;
+use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
+use Prooph\EventStore\Aggregate\AggregateType;
+use Ora\User\Role;
+use Ora\Organization\Organization;
+use Ora\UserOrganization\UserOrganization;
+use Ora\User\User;
 
-
-/**
- * @author Giannotti Fabio
- */
-class EventSourcingUserService implements UserService
+class EventSourcingUserService extends AggregateRepository implements UserService
 {
-    private $entityManager;
-    private $eventStore;
-    private $entitySerializer;
-    
-    public function __construct($entityManager, EventStore $eventStore, EntitySerializer $entitySerializer)
-    {
-        $this->entityManager = $entityManager;
-        $this->eventStore = $eventStore;
-	    $this->entitySerializer = $entitySerializer;
-    }
+	private $entityManager;
 	
-	/**
-	 * Retrieve user entity with specified ID
-	 */
+	public function __construct(EventStore $eventStore, StreamStrategyInterface $eventStoreStrategy, EntityManager $entityManager)
+	{
+		parent::__construct($eventStore, new AggregateTranslator(), $eventStoreStrategy, new AggregateType('Ora\User\User'));
+		$this->entityManager = $entityManager;
+	}
+	
+	public function subscribeUser($infoOfUser)
+	{
+		$user = $this->create($infoOfUser, Role::instance(Role::ROLE_USER));
+		$this->entityManager->persist($user);			
+		$this->entityManager->flush($user);
+		return $user;			
+	}
+		
+	public function create($infoOfUser, Role $role, User $createdBy = null)
+	{	
+		$user = User::create($createdBy);
+		$user->setEmail($infoOfUser['email']);
+		$user->setLastname($infoOfUser['family_name']);
+		$user->setFirstname($infoOfUser['given_name']);
+		return $user;
+	}
+
 	public function findUser($id)
 	{
-	    $user = $this->entityManager->getRepository('Ora\User\User')->findOneBy(array("id"=>$id));
-	     
-	    return $user;
+		$user = $this->entityManager
+				     ->getRepository('Ora\User\User')
+		             ->findOneBy(array("id" => $id));
+		 
+		return $user;		
+	}
+	
+	public function findUserByEmail($email)
+	{
+		$user = $this->entityManager
+					->getRepository('Ora\User\User')
+					->findOneBy(array("email" => $email));
+			
+		return $user;		
 	}
 }
+?>

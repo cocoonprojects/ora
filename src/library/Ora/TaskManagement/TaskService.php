@@ -2,20 +2,22 @@
 
 namespace Ora\TaskManagement;
 
+use Ora\ProjectManagement\Project;
+use Ora\User\User;
 /**
  * @author Giannotti Fabio
  */
 interface TaskService
 {
-	public function createNewTask(\Ora\ProjectManagement\Project $project, $taskSubject);
+	public function createTask(Project $project, $subject, User $createdBy);
 	
-	public function editTask(\Ora\TaskManagement\Task $task);
+	public function editTask(Task $task);
 	
-	public function findTask($id);
+	public function getTask($id);
 	
-	public function deleteTask(\Ora\TaskManagement\Task $task);
+	public function deleteTask(Task $task, User $deletedBy);
 	
 	public function listAvailableTasks();
 	
-	public function addTaskUser(\Ora\TaskManagement\Task $task, \Ora\User\User $user);
+	public function findTaskById($id);
 }

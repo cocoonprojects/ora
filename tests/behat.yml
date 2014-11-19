@@ -2,20 +2,26 @@ default:
     autoload:
         - functional/bootstrap
 
-    suites:   
+    suites:
         task_features:
             paths: 
-                 - functional/features/task
+                - functional/features/task
+            contexts: 
+                - RestContext:
+                    - http://oraprojecttest
+        login_features:
+            paths: 
+                - functional/features/login
+            contexts: 
+                - LoginContext
+
+        kanbanize_features:
+            paths: 
+                 - functional/features/kanbanize
             contexts: 
                  - RestContext:
-                     - http://oraproject
-                   
-        login_google_features:
-            paths: 
-                 - functional/features/login-google
-            contexts: 
-                 - GoogleLoginContext
-                 
+                     - http://oraprojecttest
+                 - KanbanizeContext
     extensions:
         Behat\MinkExtension:
             base_url:  http://oraprojecttest

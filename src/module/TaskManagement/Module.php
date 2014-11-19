@@ -4,11 +4,27 @@ namespace TaskManagement;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
-use Zend\Stdlib\InitializableInterface;
+use TaskManagement\Controller\MembersController;
+use TaskManagement\Controller\TasksController;
+use Zend\Mvc\MvcEvent;
+use Ora\TaskManagement\TaskListener;
+use TaskManagement\Controller\TransitionsController;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {    
-    public function getConfig()
+	public function onBootstrap(MvcEvent $e)
+	{
+		$application = $e->getApplication();
+		$eventManager = $application->getEventManager();
+		$serviceManager = $application->getServiceManager();
+	
+		$entityManager = $serviceManager->get('doctrine.entitymanager.orm_default');
+		$eventStore = $serviceManager->get('prooph.event_store');
+		$taskListener = new TaskListener($entityManager);
+		$taskListener->attach($eventStore);
+	}
+		
+	public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';
     }
@@ -27,26 +43,46 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
         );
     }
     
+    public function getControllerConfig() 
+    {
+        return array(
+            'invokables' => array(
+	            'TaskManagement\Controller\Index' => 'TaskManagement\Controller\IndexController',
+	            'TaskManagement\Controller\Projects' => 'TaskManagement\Controller\ProjectsController',
+            ),
+            'factories' => array(
+	            'TaskManagement\Controller\Tasks' => function ($sm) {
+	            	$locator = $sm->getServiceLocator();
+	            	$authService = $locator->get('Application\Service\AuthenticationService');
+	            	$taskService = $locator->get('TaskManagement\TaskService');
+	            	$controller = new TasksController($taskService, $authService);
+	            	return $controller;
+	            },
+	            'TaskManagement\Controller\Members' => function ($sm) {
+            		$locator = $sm->getServiceLocator();
+            		$authService = $locator->get('Application\Service\AuthenticationService');
+            		$taskService = $locator->get('TaskManagement\TaskService');
+            		$controller = new MembersController($taskService, $authService);
+            		return $controller;
+            	},
+            	'TaskManagement\Controller\Transitions' => function ($sm) {
+            		$locator = $sm->getServiceLocator();
+            		$kanbanizeService = $locator->get('TaskManagement\KanbanizeService');
+            		$controller = new TransitionsController($kanbanizeService);
+            		return $controller;
+            	}
+            )
+        );        
+    } 
+    
     public function getServiceConfig()
     {
         return array (
             'factories' => array (
-                'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory'
+                'TaskManagement\ProjectService' => 'TaskManagement\Service\ProjectServiceFactory',
+            	'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',
+				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
             ),
         );
     }
-    
-    public function onBootstrap($e)
-    {
-        $sm = $e->getApplication()->getServiceManager();
-        
-        $controllers = $sm->get('ControllerLoader');
-        
-        $controllers->addInitializer(function($controller, $cl) {
-            if ($controller instanceof InitializableInterface) {
-                $controller->init();
-            }
-        }, false); // false tells the loader to run this initializer after all others
-    }
-
 }

@@ -11,14 +11,26 @@ namespace Application;
 
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
+use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
+use Doctrine\ORM\EntityManager;
+use Application\Controller\AuthController;
 
 class Module
 {
+	/**
+	 * 
+	 * @var EntityManager
+	 */
+// 	private $entityManager;
+	
     public function onBootstrap(MvcEvent $e)
     {
-        $eventManager        = $e->getApplication()->getEventManager();
+    	$application = $e->getApplication();
+        $eventManager = $application->getEventManager();
+        $serviceManager = $application->getServiceManager();
+        
         $moduleRouteListener = new ModuleRouteListener();
-        $moduleRouteListener->attach($eventManager);
+        $moduleRouteListener->attach($eventManager);        
     }
     
     public function getConfig()
@@ -30,21 +42,51 @@ class Module
     {
         return array(
             'invokables' => array(
-                'Application\Controller\Index' => 'Application\Controller\IndexController'
+                'Application\Controller\Index' => 'Application\Controller\IndexController',
+            ),
+            'factories' => array(
+            	'Application\Controller\Auth'  => function ($sm) {
+            		$locator = $sm->getServiceLocator();
+            		$providers = $locator->get('OAuth2\Providers');
+            		$authService = $locator->get('Application\Service\AuthenticationService');
+            		$userService = $locator->get('User\UserService');
+            		$controller = new AuthController($authService, $providers);
+            		$controller->setUserService($userService);
+            		return $controller;
+            	},
             )
         );        
     } 
     
-    // Service Manager Configuration
     public function getServiceConfig()
     {
         return array(
             'factories' => array(
-                'Application\Service\EventStore' => 'Application\Service\EventStoreFactory'
-            )
+            	'Application\Service\AuthenticationService' => 'Application\Service\AuthenticationServiceFactory',
+            	'Zend\Log\Logger' => function($sm){
+            		
+	                $logger = new Zend\Log\Logger;
+	                $writer = new Zend\Log\Writer\Stream('./data/log/'.date('Y-m-d').'-error.log');
+	                 
+	                $logger->addWriter($writer);  
+	                
+	                return $logger;
+	            },
+	            'OAuth2\Providers' => 'Application\Service\OAuth2ProvidersFactory',
+            ),
         );
     }
 
+    public function getViewHelperConfig()
+    {
+    	return array(
+    			'invokables' => array(
+    				'UserBoxHelper' => 'Application\View\Helper\UserBoxHelper',
+    				'LoginPopupHelper' => 'Application\View\Helper\LoginPopupHelper',
+    			),
+    	);
+    }
+        
     public function getAutoloaderConfig()
     {    	
         return array(
