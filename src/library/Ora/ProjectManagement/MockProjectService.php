@@ -4,6 +4,7 @@ namespace Ora\ProjectManagement;
 use Rhumsaa\Uuid\Uuid;
 use Ora\User\User;
 use Ora\User\UserService;
+use Ora\ReadModel\Organization;
 
 class MockProjectService implements ProjectService {
 	
@@ -12,10 +13,12 @@ class MockProjectService implements ProjectService {
 	 * @var UserService
 	 */
 	private $userService;
+	private $entityManager;
 	
-	public function __construct(UserService $userService)
+	public function __construct(UserService $userService, $entityManager)
 	{
 		$this->userService = $userService;
+		$this->entityManager = $entityManager;
 	}
 	
 	public function getProject($id) {
@@ -28,5 +31,14 @@ class MockProjectService implements ProjectService {
 		} catch(\InvalidArgumentException $e) {
 			return null;
 		}
+	}
+	
+	public function findOrganizationProjects(Organization $organization)
+	{
+		$projects = $this->entityManager
+					     ->getRepository('Ora\ReadModel\Project')
+					     ->findBy(array('id' => '00000000-1000-0000-0000-000000000000'));
+					     		
+		return $projects;		
 	}
 }

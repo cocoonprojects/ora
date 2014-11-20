@@ -8,6 +8,7 @@ use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Stream\StreamStrategyInterface;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Ora\User\User;
+use Ora\ReadModel\Organization;
 
 /**
  * @author Giannotti Fabio
@@ -26,5 +27,14 @@ class EventSourcingProjectService extends AggregateRepository implements Project
 		} catch (\RuntimeException $e) {
 			return null;
 		}
+	}
+	
+	public function findOrganizationProjects(Organization $organization)
+	{
+		$projects = $this->entityManager
+						     ->getRepository('Ora\ReadModel\Project')
+							 ->findBy(array("organization" => $organization));
+		
+		return $projects;		
 	}
 } 

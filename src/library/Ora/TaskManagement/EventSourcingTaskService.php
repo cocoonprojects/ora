@@ -11,6 +11,7 @@ use Prooph\EventStore\Aggregate\AggregateType;
 use Ora\User\User;
 use Ora\ProjectManagement\Project;
 use Ora\IllegalStateException;
+use Ora\ReadModel\Project as ReadModelProject;
 
 /**
  * @author Giannotti Fabio
@@ -26,7 +27,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	}
 	
 	public function createTask(Project $project, $subject, User $createdBy)
-	{
+	{		
 		$this->eventStore->beginTransaction();
 	    $task = Task::create($project, $subject, $createdBy);
 	    $this->addAggregateRoot($task);
@@ -77,5 +78,11 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	
 	public function findTaskById($id) {
 		return $this->entityManager->find('Ora\ReadModel\Task', $id);
+	}
+	
+	public function findProjectTasks(ReadModelProject $project)
+	{	
+		$repository = $this->entityManager->getRepository('Ora\ReadModel\Task')->findBy(array('project' => $project));
+	    return $repository;
 	}
 }

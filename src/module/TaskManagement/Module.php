@@ -55,14 +55,17 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 	            	$locator = $sm->getServiceLocator();
 	            	$authService = $locator->get('Application\Service\AuthenticationService');
 	            	$taskService = $locator->get('TaskManagement\TaskService');
-	            	$controller = new TasksController($taskService, $authService);
+	            	$projectService = $locator->get('TaskManagement\ProjectService');
+	            	$organizationService = $locator->get('User\OrganizationService');
+	            	$controller = new TasksController($taskService, $authService, $projectService, $organizationService);
 	            	return $controller;
 	            },
 	            'TaskManagement\Controller\Members' => function ($sm) {
             		$locator = $sm->getServiceLocator();
             		$authService = $locator->get('Application\Service\AuthenticationService');
             		$taskService = $locator->get('TaskManagement\TaskService');
-            		$controller = new MembersController($taskService, $authService);
+            		$projectService = $locator->get('TaskManagement\ProjectService');
+            		$controller = new MembersController($taskService, $authService, $projectService);
             		return $controller;
             	},
             	'TaskManagement\Controller\Transitions' => function ($sm) {

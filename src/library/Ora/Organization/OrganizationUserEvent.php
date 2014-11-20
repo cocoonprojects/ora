@@ -8,6 +8,6 @@ use Prooph\EventSourcing\AggregateChanged;
 * 
 */
 
-class UserOrganizationEvent extends AggregateChanged 
+class OrganizationUserEvent extends AggregateChanged 
 {   
 }

@@ -2,7 +2,7 @@
 
 $env = getenv('APPLICATION_ENV') ? : "local";
 
-//$env = "test_local";
+//$env = "acceptance";
 
 //TODO: Get APPLICATION_ENV from shell parameters when use ./doctrine-module command 
 /*if ($env == "" || $env == null)
@@ -21,7 +21,6 @@ return array(
     	'Accounting',
     	'TaskManagement',
     	'User',
-    	'Organization',
         'Application',
         'Kanbanize'
     ),

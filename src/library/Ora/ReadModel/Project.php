@@ -18,6 +18,12 @@ class Project extends DomainEntity
 	 */
 	private $subject;
 	
+	/**
+	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\Organization")
+	 * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", nullable=false)
+	 */
+	private $organization;	
+	
 	public function getSubject() {
 		return $this->subject;
 	}
@@ -25,4 +31,13 @@ class Project extends DomainEntity
 	public function setSubject($subject) {
 		$this->subject = $subject;
 	}
+	
+	public function getOrganization() {
+		return $this->organization;
+	}
+	
+	public function setOrganization(Organization $organization) {
+		$this->organization = $organization;
+		return $this->organization;
+	}	
 }

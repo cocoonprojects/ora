@@ -2,41 +2,51 @@
 
 namespace Ora\Organization;
 
-use Ora\EventStore\EventStore;
-use Ora\UserOrganization\UserOrganization;
+use Doctrine\ORM\EntityManager;
+use Prooph\EventStore\EventStore;
+use Prooph\EventStore\Aggregate\AggregateRepository;
+use Prooph\EventStore\Stream\StreamStrategyInterface;
+use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
+use Prooph\EventStore\Aggregate\AggregateType;
+use Ora\IllegalStateException;
 use Ora\User\User;
+use Ora\ReadModel\Organization;
 
-class EventSourcingOrganizationService implements OrganizationService
+class EventSourcingOrganizationService extends AggregateRepository implements OrganizationService
 {
     private $entityManager;
-    private $eventStore;
     
-    public function __construct($entityManager, EventStore $eventStore, $entitySerializer)
+    public function __construct(EventStore $eventStore, StreamStrategyInterface $eventStoreStrategy, EntityManager $entityManager)
     {
-        $this->entityManager = $entityManager;
-        $this->eventStore = $eventStore;
-	    $this->entitySerializer = $entitySerializer;
+		parent::__construct($eventStore, new AggregateTranslator(), $eventStoreStrategy, new AggregateType('Ora\TaskManagement\Task'));
+		$this->entityManager = $entityManager;
     }
 	
-    public function addUser(Organization $organization, User $user)
-    {
-    	$createdAt = new \DateTime();
-    	
-    	
-    	$userOrganization = new UserOrganization($createdAt, $user, $user, $organization, UserOrganization::$organizationRoleMap[ROLE_MEMBER]);
-    	
-    	$event = new AddUserToOrganizationEvent($createdAt, $userOrganization, $this->entitySerializer);
-    	 
-    	$this->eventStore->appendToStream($event);
-    }
-
 	/**
 	*  Retrieve organization entity with specified ID
 	*/
 	public function findOrganization($id)
 	{
-	    $organization = $this->entityManager->getRepository('Ora\Organization\Organization')->findOneBy(array("id"=>$id));
+	    $organization = $this->entityManager
+	                         ->getRepository('Ora\ReadModel\Organization')
+	    					 ->findOneBy(array("id"=>$id));
 	     
 	    return $organization;
 	}
+	
+	public function findOrganizationUsers(User $user)
+	{
+		$organization = array();
+		
+		$organizationUser = $this->entityManager
+		            			 ->getRepository('Ora\ReadModel\OrganizationUser')
+								  ->findBy(array('user' => $user));
+		
+		foreach($organizationUser as $relation)
+		{
+			$organization[] = $relation->getOrganization();
+		}
+		
+		return $organization;
+	}	
 }

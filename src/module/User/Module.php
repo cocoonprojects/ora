@@ -31,6 +31,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
         return array (
             'factories' => array (
                 'User\UserService' => 'User\Service\UserServiceFactory',
+                'User\OrganizationService' => 'User\Service\OrganizationServiceFactory'
             ),
         );
     }

@@ -10,7 +10,6 @@ use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Prooph\EventStore\Aggregate\AggregateType;
 use Ora\User\Role;
 use Ora\Organization\Organization;
-use Ora\UserOrganization\UserOrganization;
 use Ora\User\User;
 
 class EventSourcingUserService extends AggregateRepository implements UserService
