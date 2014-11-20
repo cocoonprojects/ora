@@ -1,3 +1,4 @@
+set FOREIGN_KEY_CHECKS = 0;
 delete from tasks;
 delete from projects;
 truncate event_stream;
@@ -83,3 +84,5 @@ INSERT INTO `tasks` (id, project_id, subject, status, createdAt, mostRecentEditA
 ('00000000-0000-0000-0000-000000000111','00000000-1000-0000-0000-000000000000','completedTask',40,'2014-11-06 15:48:17','2014-11-06 15:48:17','kanbanizetask',3,120);
 INSERT INTO `tasks` (id, project_id, subject, status, createdAt, mostRecentEditAt, type, boardId, taskId) VALUES
 ('00000000-0000-0000-0000-000000000112','00000000-1000-0000-0000-000000000000','ongoingTask',20,'2014-11-06 15:56:56','2014-11-06 15:56:56','kanbanizetask',3,118);
+
+set FOREIGN_KEY_CHECKS = 1;
