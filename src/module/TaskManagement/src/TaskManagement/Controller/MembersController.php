@@ -11,6 +11,7 @@ use Ora\TaskManagement\Task;
 use Ora\IllegalStateException;
 use Ora\DomainEntityUnavailableException;
 use Zend\Authentication\AuthenticationServiceInterface;
+use Ora\ProjectManagement\ProjectService;
 
 class MembersController extends AbstractHATEOASRestfulController
 {
@@ -30,14 +31,21 @@ class MembersController extends AbstractHATEOASRestfulController
     protected $authService;
     
     /**
+     *
+     * @var ProjectService
+     */
+    protected $projectService;  
+      
+    /**
      * 
      * @var Task
      */
     protected $task = null;
     
-    public function __construct(TaskService $taskService, AuthenticationServiceInterface $authService) {
+    public function __construct(TaskService $taskService, AuthenticationServiceInterface $authService, ProjectService $projectService) {
     	$this->authService = $authService;
-		$this->taskService = $taskService;		
+		$this->taskService = $taskService;	
+		$this->projectService = $projectService;
     }
     
     public function preDispatch($e)
@@ -58,25 +66,53 @@ class MembersController extends AbstractHATEOASRestfulController
      * @author Giannotti Fabio
      */
     public function create($data)
-    {
-    	$user = $this->authService->getIdentity()['user'];
+    {  	    	
     	try {
-       		$this->task->addMember($user, $user);
+    		
+    		$loggedUser = $this->authService->getIdentity()['user'];
+    		 
+    		$projectId = $this->task->getProjectId();
+
+    		$project = $this->projectService->getProject($projectId);
+    		
+    		if(is_null($project)) {
+    			// Project Not Found   
+    			echo "Progetto not found"; 			
+    			$this->response->setStatusCode(404);
+    			return $this->response;
+    		}    		
+    		    		
+       		$this->task->addMember($loggedUser, $loggedUser);
        		$this->taskService->editTask($this->task);
 	    	$this->response->setStatusCode(201);
-    	} catch (DuplicatedDomainEntityException $e) {
+    	} catch (DuplicatedDomainEntityException $e) {    		
     		$this->response->setStatusCode(204);
         } catch (IllegalStateException $e) {
         	$this->response->setStatusCode(406);	// Not acceptable
     	}
+    	
     	return $this->response;
     }
 
     public function deleteList()
     {
-    	$user = $this->authService->getIdentity()['user'];
         try {
-       		$this->task->removeMember($user, $user);
+        	
+
+        	$loggedUser = $this->authService->getIdentity()['user'];
+        	         	
+        	$projectId = $this->task->getProjectId();
+        	
+        	$project = $this->projectService->getProject($projectId);
+        	
+        	if(is_null($project)) {
+        		// Project Not Found
+        		echo "Progetto not found";
+        		$this->response->setStatusCode(404);
+        		return $this->response;
+        	}
+        	      	
+       		$this->task->removeMember($loggedUser, $loggedUser);
        		$this->taskService->editTask($this->task);
 	    	$this->response->setStatusCode(200);
         } catch (DomainEntityUnavailableException $e) {

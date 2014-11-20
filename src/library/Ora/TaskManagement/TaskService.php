@@ -4,6 +4,8 @@ namespace Ora\TaskManagement;
 
 use Ora\ProjectManagement\Project;
 use Ora\User\User;
+use Ora\ReadModel\Project as ReadModelProject;
+
 /**
  * @author Giannotti Fabio
  */
@@ -20,4 +22,6 @@ interface TaskService
 	public function listAvailableTasks();
 	
 	public function findTaskById($id);
+	
+	public function findProjectTasks(ReadModelProject $project);
 }

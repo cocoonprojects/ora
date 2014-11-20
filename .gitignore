@@ -8,4 +8,5 @@ src/vendor/
 .DS_Store
 ./vagrant/config/
 src/data/cache/
-
+src/config/autoload/auth.global.php
+src/config/autoload/auth.local.php

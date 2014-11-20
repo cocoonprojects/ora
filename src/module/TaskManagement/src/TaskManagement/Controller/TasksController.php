@@ -11,6 +11,7 @@ use Ora\ProjectManagement\Project;
 use Ora\IllegalStateException;
 use Zend\Authentication\AuthenticationServiceInterface;
 use TaskManagement\View\TaskJsonModel;
+use Ora\Organization\OrganizationService;
 
 class TasksController extends AbstractHATEOASRestfulController
 {
@@ -32,13 +33,21 @@ class TasksController extends AbstractHATEOASRestfulController
      * @var ProjectService
      */
 	private $projectService;
-	
+			
+	/**
+	 *
+	 * @var OrganizationService
+	 */
+	private $organizationService;
+		
 	protected $task = null;
 	
-	public function __construct(TaskService $taskService, AuthenticationServiceInterface $authService)
+	public function __construct(TaskService $taskService, AuthenticationServiceInterface $authService, ProjectService $projectService, OrganizationService $organizationService)
 	{
 		$this->taskService = $taskService;
 		$this->authService = $authService;
+		$this->projectService = $projectService;
+		$this->organizationService = $organizationService;
 	}
 	
 	public function preDispatch($e)
@@ -71,10 +80,30 @@ class TasksController extends AbstractHATEOASRestfulController
      * @author Giannotti Fabio
      */
     public function getList()
-    {
-        // TODO: Verificare che l'utente abbia il permesso per accedere all'elenco dei task disponibili?
-    	$availableTasks = $this->taskService->listAvailableTasks();
-       	$this->response->setStatusCode(200);
+    {    	
+    	$loggedUser = $this->authService->getIdentity()['user'];
+    	$availableTasks = array();
+    	
+    	if(is_null($loggedUser))
+    	{
+    		// HTTP STATUS CODE 403: Forbidden (As a member organization)
+    		$this->response->setStatusCode(403);
+    		return $this->response;
+    	}    	
+
+    	$organizationOfLoggedUser = $this->organizationService->findOrganizationUsers($loggedUser);
+    	
+    	foreach($organizationOfLoggedUser as $organization)
+    	{
+    		$projects = $this->projectService->findOrganizationProjects($organization);
+    		
+    		foreach($projects as $project)
+    		{
+    			$availableTasks = $this->taskService->findProjectTasks($project);
+    		}
+    	}
+    	
+    	$this->response->setStatusCode(200);
        	$view = new TaskJsonModel();       	
         $view->setVariable('resource', $availableTasks);
         $view->setVariable('url', $this->url()->fromRoute('tasks'));
@@ -92,22 +121,33 @@ class TasksController extends AbstractHATEOASRestfulController
      * @author Giannotti Fabio
      */
     public function create($data)
-    {
-	    $response = $this->getResponse();        
+    {       	
+    	$response = $this->getResponse();
+    	
+    	$loggedUser = $this->authService->getIdentity()['user'];
+    	
+    	if(is_null($loggedUser))
+    	{
+    		// HTTP STATUS CODE 403: Forbidden (As a member organization)
+    		$response->setStatusCode(403);
+    		return $response;
+    	}
+    	       
     	if (!isset($data['projectID']) || !isset($data['subject']))
         {            
             // HTTP STATUS CODE 400: Bad Request
             $response->setStatusCode(400);
             return $response;
-        }
-        
-		$project = $this->getProjectService()->getProject($data['projectID']);
-		if(is_null($project)) {
+        }   
+		
+        $project = $this->projectService->getProject($data['projectID']);
+                     
+        if(is_null($project)) {
         	// Project Not Found
         	$response->setStatusCode(404);
-			return $response;			
-		}
-        // TODO: Verificare che l'utente abbia il permesso per accedere a tale progetto?
+        	return $response;
+        }
+                
         $subject = trim($data['subject']);
 
 	    // Definition of used Zend Validators
@@ -121,12 +161,14 @@ class TasksController extends AbstractHATEOASRestfulController
 	        return $response;
 	    }
 	        
-	    $createdBy = $this->authService->getIdentity()['user'];
+	    $createdBy = $loggedUser;
 	    $task = $this->taskService->createTask($project, $subject, $createdBy);
 	    // Task Created
+	     
 	    $response->setStatusCode(201);
 	    $url = $this->url()->fromRoute('tasks', array('id' => $task->getId()->toString()));
-		$response->getHeaders()->addHeaderLine('Location', $url);
+	    $response->getHeaders()->addHeaderLine('Location', $url);
+	    
     	return $response;
     }
 
@@ -201,17 +243,6 @@ class TasksController extends AbstractHATEOASRestfulController
     protected function getResourceOptions()
     {
         return self::$resourceOptions;
-    }
-    
-    protected function getProjectService()
-    {
-        if (!isset($this->projectService))
-        {
-            $serviceLocator = $this->getServiceLocator();
-            $this->projectService = $serviceLocator->get('TaskManagement\ProjectService');
-        }
-    
-        return $this->projectService;
-    }
+    }   
     
 }

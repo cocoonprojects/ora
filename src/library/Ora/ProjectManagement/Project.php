@@ -19,6 +19,12 @@ class Project extends DomainEntity implements \Serializable
 	 */
 	private $subject;
 	
+	/**
+	 *
+	 * @var Uuid
+	 */
+	private $organizationId;	
+	
 	public function __construct(Uuid $id, User $createdBy, \DateTime $createdAt = null) 
 	{
 		$this->id = $id;
@@ -34,6 +40,13 @@ class Project extends DomainEntity implements \Serializable
 		$this->subject = $subject;
 	}
 
+	public function setOrganization($organization) {
+		$this->organization = $organization;
+	}
+	
+	public function getOrganization() {
+		return $this->organization;
+	}	
 	public function serialize()
 	{
 		$data = array(

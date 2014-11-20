@@ -11,7 +11,6 @@ return array(
     	'TaskManagement',
         'ZendOAuth2',
     	'User',
-    	'Organization',
     	'Kanbanize'
     ),
 

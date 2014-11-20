@@ -119,9 +119,9 @@ class Task extends DomainEntity implements \Serializable
 		}
 		$this->recordThat(ProjectChanged::occur($this->id->toString(), $payload));
 	}
-	
-	public function getProject() {
-	    return $this->project;
+		
+	public function getProjectId() {
+	    return $this->projectId;
 	}
 	
 	public function addMember(User $user, User $addedBy, $role = self::ROLE_MEMBER)
@@ -216,6 +216,7 @@ class Task extends DomainEntity implements \Serializable
 	protected function whenProjectChanged(ProjectChanged $event) {
 		$p = $event->payload();
 		$this->projectId = Uuid::fromString($p['projectId']);
+		
 	}
 	
 }
