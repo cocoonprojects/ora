@@ -31,7 +31,9 @@ class Task extends DomainEntity
     
     CONST ROLE_MEMBER = 'member';
     CONST ROLE_OWNER  = 'owner';
-    
+
+    CONST TYPE = 'task';
+
 	/**
 	 * @ORM\Column(type="string")
 	 * @var string
@@ -50,13 +52,9 @@ class Task extends DomainEntity
 	 */
 	private $project;
 	
-	/**
-	 * @ORM\ManyToMany(targetEntity="Ora\User\User")
-	 * @ORM\JoinTable(name="task_users",
-	 *      joinColumns={@ORM\JoinColumn(name="task_id", referencedColumnName="id", onDelete="CASCADE")},
-	 *      inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")}
-	 *      )
-	 */
+   /**
+    * @ORM\OneToMany(targetEntity="Ora\ReadModel\TaskMember", mappedBy="task")
+    */
 	private $members;
 	
 	public function __construct($id) 
@@ -106,5 +104,11 @@ class Task extends DomainEntity
 	
 	public function removeMember(User $user) {
 		$this->members->removeElement($user);
-	}
+    }
+
+    public function getType(){
+
+         $c = get_called_class();
+         return $c::TYPE;
+    }
 }

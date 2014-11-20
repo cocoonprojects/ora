@@ -29,15 +29,18 @@ class TaskJsonModel extends JsonModel
 
         $members = array();
         $alreadyMember = false;
-		foreach ($t->getMembers() as $m) {
+        foreach ($t->getMembers() as $tm) {
+
+            $member = $tm->getMember();
 			$members[] = array(
-					'id' => $m->getId(),
-					'firstname' => $m->getFirstname(),
-					'lastname' => $m->getLastname(),
+					'id' => $member->getId(),
+					'firstname' => $member->getFirstname(),
+					'lastname' => $member->getLastname(),
                 );
-            if($m->getId() === $loggedUser->getId() && $alreadyMember === false){
+                   
+            if($member->getId() === $loggedUser->getId() && $alreadyMember === false){
                 $alreadyMember = true;
-            }
+            }            
 		}
 		$rv = array(
 			'id' => $t->getId(),

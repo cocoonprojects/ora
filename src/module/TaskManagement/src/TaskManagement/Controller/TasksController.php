@@ -78,6 +78,7 @@ class TasksController extends AbstractHATEOASRestfulController
        	$view = new TaskJsonModel();       	
         $view->setVariable('resource', $availableTasks);
         $view->setVariable('url', $this->url()->fromRoute('tasks'));
+        $view->setVariable('user', $this->authService->getIdentity()['user']);
         return $view;
     }
     
