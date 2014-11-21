@@ -92,27 +92,36 @@ class TaskListener
 		$entity = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
 		if(is_null($entity)) {
 			return;
-		}
+        }
+
 		$memberId = $event->payload()['userId'];
 		$user = $this->entityManager->find('Ora\User\User', $memberId);
 		if(is_null($user)) {
 			return;
-		}
-		$entity->addMember($user);
+        }        
+        $role = $event->payload()['role'];
+		$entity->addMember($user, $role);
 		$entity->setMostRecentEditAt($event->occurredOn());
 		$addedBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
 		$entity->setMostRecentEditBy($addedBy);
 		$this->entityManager->persist($entity);
+		
 	}
 	
-	protected function onMemberRemoved(StreamEvent $event) {
+    protected function onMemberRemoved(StreamEvent $event) {
+
 		$id = $event->metadata()['aggregate_id'];
-		$entity = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
+		$entity = $this->entityManager->find('Ora\ReadModel\Task', $id);
 		if(is_null($entity)) {
 			return;
-		}
-		$memberId = $event->payload()['userId'];
-		$entity->removeMemberById($memberId);
+        }               
+
+        $member = $this->entityManager->find('Ora\User\User', $event->payload()['userId']);
+        $taskMember = $this->entityManager->getRepository('Ora\ReadModel\TaskMember')->findOneBy(array('member' => $member, 'task'=> $entity)); 
+        
+        $entity->removeMember($taskMember);
+        $this->entityManager->remove($taskMember); 
+        
 		$entity->setMostRecentEditAt($event->occurredOn());
 		$removedBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
 		$entity->setMostRecentEditBy($removedBy);

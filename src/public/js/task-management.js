@@ -13,11 +13,13 @@ TaskManagement.prototype = {
 		var that = this;
 	        
 		// LIST AVAILABLE TASKS
-		$("body").on("click", "#listAvailableTask", function(e){
+		$("body").on("click", "#listAvailableTask, #acceptanceTask", function(e){
 			e.preventDefault();
 			that.listAvailableTask();
 		});
-		
+
+
+
 		// CREATE NEW TASK
 		$("body").on("submit", "#formCreateNewTask", function(e){
 			e.preventDefault();
@@ -73,7 +75,7 @@ TaskManagement.prototype = {
 		var userID = $(e.target).closest("tr").data("userid");
 		
 		$.ajax({
-			url: basePath + '/task-management/tasks/' + taskID + '/members/' + userID,
+			url: basePath + '/task-management/tasks/' + taskID + '/members',
 			method: 'DELETE',
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
@@ -93,7 +95,7 @@ TaskManagement.prototype = {
 		var userID = $(e.target).closest("tr").data("userid");
 		
 		$.ajax({
-			url: basePath + '/task-management/tasks/' + taskID + '/members/' + userID,
+			url: basePath + '/task-management/tasks/' + taskID + '/members',
 			method: 'POST',
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
@@ -161,7 +163,7 @@ TaskManagement.prototype = {
 		});
 	},
 
-    acceptTask: function(){
+    acceptTask: function(e){
         //$this->basePath("/kanbanize/task/".$singletask->getId()."/client/test?method=accept"); ?>">
 		var taskID = $(e.target).closest("tr").data("taskid");
         $.ajax({
@@ -177,7 +179,7 @@ TaskManagement.prototype = {
     },
 
     
-    backToOngoingTask: function(){
+    backToOngoingTask: function(e){
         //$this->basePath("/kanbanize/task/".$singletask->getId()."/client/test?method=ongoing"); ?>">
 		var taskID = $(e.target).closest("tr").data("taskid");
         $.ajax({
@@ -279,10 +281,11 @@ TaskManagement.prototype = {
 					task.status = "Accepted";
 					actions = "<button class='btn btn-info btn-block'>Assign share</button>";
 				}
-                else if (task.status == 30){
-                    
+                else if (task.status == 30 && task.type == 'kanbanizetask'){
+                   
+                    task.status = "Completed";
                     actions = "<button data-action='acceptTask' class='btn btn-info btn-block'>Accept</button>"; 
-                    actions = "<button data-action='back2ongoingTask' class='btn btn-info btn-block'>Ongoing</button>"; 
+                    actions = actions + "<button data-action='back2ongoingTask' class='btn btn-info btn-block'>Ongoing</button>"; 
                 }
 
 				$('#listAvailableTasks tbody')

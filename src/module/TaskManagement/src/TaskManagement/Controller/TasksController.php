@@ -91,18 +91,18 @@ class TasksController extends AbstractHATEOASRestfulController
     		return $this->response;
     	}    	
 
-    	$organizationOfLoggedUser = $this->organizationService->findOrganizationUsers($loggedUser);
-    	
-    	foreach($organizationOfLoggedUser as $organization)
-    	{
-    		$projects = $this->projectService->findOrganizationProjects($organization);
-    		
-    		foreach($projects as $project)
-    		{
-    			$availableTasks = $this->taskService->findProjectTasks($project);
-    		}
-    	}
-    	
+        $relationsOrganizationOfLoggedUser = $this->organizationService->findOrganizationUsers($loggedUser);
+
+        foreach($relationsOrganizationOfLoggedUser as $organization)
+        {
+            $projects = $this->projectService->findOrganizationProjects($organization->getOrganization());
+
+            foreach($projects as $project)
+            {
+                $availableTasks = $this->taskService->findProjectTasks($project);
+            }
+        }
+
     	$this->response->setStatusCode(200);
        	$view = new TaskJsonModel();       	
         $view->setVariable('resource', $availableTasks);

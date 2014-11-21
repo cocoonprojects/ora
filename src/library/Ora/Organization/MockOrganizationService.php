@@ -33,18 +33,23 @@ class MockOrganizationService implements OrganizationService {
 		return $organization;
 	}
 	
-	public function findOrganizationUsers(User $user)
-	{
-		$organizationList = array();
 	
-		$user = $this->userService->findUser('20000000-0000-0000-0000-000000000000');
-		
-		$organizationId = Uuid::uuid4();
-		$organization = new \Ora\ReadModel\Organization($organizationId, new \DateTime(), $user);
-		$organization->setSubject('ORA');
-	
-		$organizationList[] = $organization;
-		
-		return $organizationList;
-	}	
+    public function findOrganizationUsers(User $user)
+    {
+        $organizationList = array();
+
+        $user = $this->userService->findUser('20000000-0000-0000-0000-000000000000');
+
+        $organizationId = Uuid::uuid4();
+        $organization = new \Ora\ReadModel\Organization($organizationId, new \DateTime(), $user);
+        $organization->setSubject('ORA');
+
+        $organizationUser = new \Ora\ReadModel\OrganizationUser($user, $organization);
+        $organizationUser->setOrganizationRole('Member');
+
+        $organizationList[] = $organizationUser;
+
+        return $organizationList;
+    }
+
 }
