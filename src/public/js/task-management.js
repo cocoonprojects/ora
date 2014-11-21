@@ -284,8 +284,8 @@ TaskManagement.prototype = {
                 else if (task.status == 30 && task.type == 'kanbanizetask'){
                    
                     task.status = "Completed";
-                    actions = "<button data-action='acceptTask' class='btn btn-info btn-block'>Accept</button>"; 
-                    actions = actions + "<button data-action='back2ongoingTask' class='btn btn-info btn-block'>Ongoing</button>"; 
+                    actions = "<button data-action='acceptTask' class='btn btn-info' style='margin-right: 10px'>Accept</button>"; 
+                    actions = actions + "<button data-action='back2ongoingTask' class='btn btn-info'>Ongoing</button>"; 
                 }
 
 				$('#listAvailableTasks tbody')
