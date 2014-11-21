@@ -53,7 +53,7 @@ class Task extends DomainEntity
 	private $project;
 	
    /**
-    * @ORM\OneToMany(targetEntity="Ora\ReadModel\TaskMember", mappedBy="task")
+    * @ORM\OneToMany(targetEntity="Ora\ReadModel\TaskMember", mappedBy="task", cascade={"PERSIST", "REMOVE"})
     */
 	private $members;
 	
@@ -93,8 +93,10 @@ class Task extends DomainEntity
 		return $this->status;
 	}
 	
-	public function addMember(User $user) {
-		$this->members->add($user);
+    public function addMember(User $user, $role) {
+
+        $taskMember = new TaskMember($this, $user, $role);
+		$this->members->add($taskMember);
 		return $this->members;
 	}
 	
@@ -102,8 +104,8 @@ class Task extends DomainEntity
 		$this->members->remove($key);
 	}
 	
-	public function removeMember(User $user) {
-		$this->members->removeElement($user);
+	public function removeMember(TaskMember $member) {
+		$this->members->removeElement($member);
     }
 
     public function getType(){
