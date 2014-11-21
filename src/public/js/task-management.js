@@ -287,6 +287,9 @@ TaskManagement.prototype = {
                     actions = "<button data-action='acceptTask' class='btn btn-info' style='margin-right: 10px'>Accept</button>"; 
                     actions = actions + "<button data-action='back2ongoingTask' class='btn btn-info'>Ongoing</button>"; 
                 }
+                else if (task.status == 0){
+                    task.status = "Idea";
+                }
 
 				$('#listAvailableTasks tbody')
 					.append(
