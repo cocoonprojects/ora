@@ -163,36 +163,53 @@ TaskManagement.prototype = {
 		});
 	},
 
-    acceptTask: function(e){
-        //$this->basePath("/kanbanize/task/".$singletask->getId()."/client/test?method=accept"); ?>">
-		var taskID = $(e.target).closest("tr").data("taskid");
-        $.ajax({
-			url: basePath + '/kanbanize/task/' + taskID + '/client/test?method=accept',
-			dataType: 'json',
-			complete: function(xhr, textStatus) {
-				if (xhr.status === 200)
-					alert("Task accepted succesfully");
-				else
-					alert("Error. Status Code: " + xhr.status);
-			}
-		});
-    },
+	 acceptTask: function(e){
+	        //$this->basePath("/kanbanize/task/".$singletask->getId()."/client/test?method=accept"); ?>">
+	                var taskID = $(e.target).closest("tr").data("taskid");
+
+	                // make a post to restful controller
+	                $.ajax({
+	                        url: basePath + '/task-management/tasks/'+taskID+'/transitions',
+	                        method: 'POST',
+	                        data:{action:'accept'},
+	                        dataType: 'json',
+	                        complete: function(xhr, textStatus) {
+	                                if (xhr.status === 200)
+	                                        alert("Succesfully accepted task in kanbanize");
+	                                else if (xhr.status === 400)
+	                                        alert("Error. Cannot accept task");
+	                                else if (xhr.status === 204)
+	                                	 alert("Error. Already in accepted status");
+	                                else
+	                                        alert("Error. Status Code: " + xhr.status);
+	                        }
+	                });
+	    },
+
 
     
     backToOngoingTask: function(e){
-        //$this->basePath("/kanbanize/task/".$singletask->getId()."/client/test?method=ongoing"); ?>">
-		var taskID = $(e.target).closest("tr").data("taskid");
+    	 //$this->basePath("/kanbanize/task/".$singletask->getId()."/client/test?method=accept"); ?>">
+        var taskID = $(e.target).closest("tr").data("taskid");
+
+        // make a post to restful controller
         $.ajax({
-			url: basePath + '/kanbanize/task/' + taskID + '/client/test?method=ongoing',
-			dataType: 'json',
-			complete: function(xhr, textStatus) {
-				if (xhr.status === 200)
-					alert("Task moved to ongoing succesfully");
-				else
-					alert("Error. Status Code: " + xhr.status);
-			}
-		});
-    },
+                url: basePath + '/task-management/tasks/'+taskID+'/transitions',
+                method: 'POST',
+                data:{action:'ongoing'},
+                dataType: 'json',
+                complete: function(xhr, textStatus) {
+                        if (xhr.status === 200)
+                                alert("Succesfully moved ongoing  task in kanbanize");
+                        else if (xhr.status === 400)
+                                alert("Error. Cannot move task");
+                        else if (xhr.status === 204)
+                        	 alert("Error. Already in ongoing status");
+                        else
+                                alert("Error. Status Code: " + xhr.status);
+                }
+        });
+},
 
     listAvailableTask: function()
 	{
