@@ -2,12 +2,15 @@
 
 namespace Ora\ReadModel;
 
+use Doctrine\ORM\Mapping AS ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 use Ora\ReadModel\Task;
 use Ora\User\User;
 
 /**
  * @ORM\Entity @ORM\Table(name="estimation")
  * @ORM\InheritanceType("SINGLE_TABLE")
+ * @author Andrea Lupia
  */
 
 class Estimation {
@@ -16,12 +19,14 @@ class Estimation {
     /** @ORM\Id @ORM\ManyToOne(targetEntity="Ora\User\User") */
     private $user;
     //TODO parte intera?
-    /** @Column(type="decimal", precision=4, scale=2) */
+    /** @ORM\Column(type="decimal", precision=4, scale=2) */
     private $value;
 
-    public function __construct($id)
+    public function __construct(Task $item, User $user, $value)
     {
-    	$this->id = $id;
+    	$this->item = $item;
+    	$this->user = $user;
+    	$this->value = $value;
     }
     
     public function getItem() {
