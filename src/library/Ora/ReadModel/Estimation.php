@@ -6,14 +6,14 @@ use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Ora\ReadModel\Task;
 use Ora\User\User;
+//use Ora\DomainEntity;
 
 /**
  * @ORM\Entity @ORM\Table(name="estimation")
- * @ORM\InheritanceType("SINGLE_TABLE")
  * @author Andrea Lupia
  */
 
-class Estimation {
+class Estimation extends DomainEntity{
     /** @ORM\Id @ORM\ManyToOne(targetEntity="Ora\ReadModel\Task") */
     private $item;
     /** @ORM\Id @ORM\ManyToOne(targetEntity="Ora\User\User") */
