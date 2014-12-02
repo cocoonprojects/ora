@@ -10,7 +10,7 @@ use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Prooph\EventStore\Aggregate\AggregateType;
 use Ora\IllegalStateException;
 use Ora\User\User;
-use Ora\ReadModel\Organization;
+use Ora\ReadModel\Organization as ReadModelOrganization;
 
 class EventSourcingOrganizationService extends AggregateRepository implements OrganizationService
 {
