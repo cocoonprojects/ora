@@ -9,6 +9,7 @@ use Ora\IllegalStateException;
 use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
 use Ora\User\User;
+use Ora\ReadModel\Estimation;
 
 /**
  * @ORM\Entity @ORM\Table(name="tasks")
@@ -51,16 +52,22 @@ class Task extends DomainEntity
 	 * @ORM\JoinColumn(name="project_id", referencedColumnName="id", nullable=false)
 	 */
 	private $project;
+
+	/**
+	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\TaskMember", mappedBy="task", cascade={"PERSIST", "REMOVE"})
+	 */
+	private $members;
 	
    /**
-    * @ORM\OneToMany(targetEntity="Ora\ReadModel\TaskMember", mappedBy="task", cascade={"PERSIST", "REMOVE"})
+    * @ORM\OneToMany(targetEntity="Ora\ReadModel\Estimation", mappedBy="item", cascade={"PERSIST", "REMOVE"})
     */
-	private $members;
+	private $estimations;
 	
 	public function __construct($id) 
 	{
 		$this->id = $id;
 		$this->members = new ArrayCollection();
+		$this->estimations = new ArrayCollection();
 	}
 	
 	public function getStatus() {
@@ -94,7 +101,6 @@ class Task extends DomainEntity
 	}
 	
     public function addMember(User $user, $role) {
-
         $taskMember = new TaskMember($this, $user, $role);
 		$this->members->add($taskMember);
 		return $this->members;
@@ -108,6 +114,24 @@ class Task extends DomainEntity
 		$this->members->removeElement($member);
     }
 
+    public function getEstimations() {
+    	return $this->estimations;
+    }
+    
+    public function addEstimation(User $user, $value) {
+    	$estimation = new Estimation($this, $user, $value);
+    	$this->estimations->add($estimation);
+    	return $this->estimations;
+    }
+    
+    public function removeEstimationById($key) {
+    	$this->estimations->remove($key);
+    }
+    
+    public function removeEstimation(Estimation $estimation) {
+    	$this->estimations->removeElement($estimation);
+    }
+    
     public function getType(){
 
          $c = get_called_class();
