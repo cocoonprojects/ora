@@ -6,6 +6,7 @@ use Zend\Json\Json;
 use Ora\ReadModel\Task;
 use Ora\User\User;
 use Ora\ReadModel\Estimation;
+use Ora\ReadModel\TaskMember;
 
 class TaskJsonModel extends JsonModel
 {
@@ -45,23 +46,24 @@ class TaskJsonModel extends JsonModel
 		}
 			
 			// manage estimation calculation //
-		$avg = 0;
-		$count = 0;
-		$sum = 0;
-		if (count ( $t->getEstimations () ) == 0) {
-			$avg = "No estimation";
-		} else {
-			foreach ( $t->getEstimations () as $estimation ) {
-				if ($estimation->getValue () > 0) {
-					$sum += $estimation->getValue ();
-					$count ++;
-				}
+			$count=0;
+			$avg="Not enough Estimations";
+			$sum=0;
+	foreach($t->getMembers() as  $member){
+		$estimation = $member->getEstimation();
+		if (!is_null($estimation)){
+			if($estimation->getValue()>0){
+			$count++;
+			$sum += $estimation->getValue();
 			}
-			if ($count >= 2)
-				$avg = $sum / $count;
-			else
-				$avg = "not enough estimations";
 		}
+		
+		
+	}
+	if($count==0)
+		$avg="Estimation Not Available";
+	else if($count>=2){
+		$avg = $sum/$count;}
 		// end estimation calculation
 		
 		

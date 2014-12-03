@@ -9,7 +9,6 @@ use Ora\IllegalStateException;
 use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
 use Ora\User\User;
-use Ora\ReadModel\Estimation;
 
 /**
  * @ORM\Entity @ORM\Table(name="tasks")
@@ -58,16 +57,12 @@ class Task extends DomainEntity
 	 */
 	private $members;
 	
-   /**
-    * @ORM\OneToMany(targetEntity="Ora\ReadModel\Estimation", mappedBy="item", cascade={"PERSIST", "REMOVE"})
-    */
-	private $estimations;
-	
+  
 	public function __construct($id) 
 	{
 		$this->id = $id;
 		$this->members = new ArrayCollection();
-		$this->estimations = new ArrayCollection();
+	
 	}
 	
 	public function getStatus() {
@@ -114,23 +109,6 @@ class Task extends DomainEntity
 		$this->members->removeElement($member);
     }
 
-    public function getEstimations() {
-    	return $this->estimations;
-    }
-    
-    public function addEstimation(User $user, $value) {
-    	$estimation = new Estimation($this, $user, $value);
-    	$this->estimations->add($estimation);
-    	return $this->estimations;
-    }
-    
-    public function removeEstimationById($key) {
-    	$this->estimations->remove($key);
-    }
-    
-    public function removeEstimation(Estimation $estimation) {
-    	$this->estimations->removeElement($estimation);
-    }
     
     public function getType(){
 

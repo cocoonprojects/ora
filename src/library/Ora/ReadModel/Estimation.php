@@ -4,8 +4,8 @@ namespace Ora\ReadModel;
 
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
-use Ora\ReadModel\Task;
-use Ora\User\User;
+
+
 //use Ora\DomainEntity;
 
 /**
@@ -14,35 +14,19 @@ use Ora\User\User;
  */
 
 class Estimation extends DomainEntity{
-    /** @ORM\Id @ORM\ManyToOne(targetEntity="Ora\ReadModel\Task") */
-    private $item;
-    /** @ORM\Id @ORM\ManyToOne(targetEntity="Ora\User\User") */
-    private $user;
-    //TODO parte intera?
+
+	/**
+	 * @ORM\OneToOne(targetEntity="Ora\ReadModel\TaskMember", mappedBy="estimation")
+	 */
+	private $taskMember;
+	
     /** @ORM\Column(type="decimal", precision=10, scale=2) */
     private $value;
-
-    public function __construct(Task $item, User $user, $value)
+    
+    public function __construct(TaskMember $taskMember, $value)
     {
-    	$this->item = $item;
-    	$this->user = $user;
+    	$this->taskMember= $taskMember;
     	$this->value = $value;
-    }
-    
-    public function getItem() {
-    	return $this->item;
-    }
-    
-    public function setItem(Task $item) {
-    	$this->item = $item;
-    }
-    
-    public function getUser() {
-    	return $this>user;
-    }
-    
-    public function setUser(User $user) {
-    	$this->user = $user;
     }
     
     public function getValue() {
@@ -51,6 +35,14 @@ class Estimation extends DomainEntity{
     
     public function setValue($value) {
     	$this->value = $value;
+    }
+    
+    public function getTaskMember(){
+    	return $this->taskMember;
+    }
+    
+    public function setTaskMember($taskMember){
+    	$this->taskMember=$taskMember;
     }
     
 }

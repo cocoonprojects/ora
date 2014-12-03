@@ -4,6 +4,7 @@ namespace Ora\ReadModel;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Ora\User\User;
+use Ora\ReadModel\Estimation;
 
 /**
  * @ORM\Entity @ORM\Table(name="tasks_members")
@@ -29,13 +30,23 @@ class TaskMember {
      * @var string
      */
     private $role;
+    
+
+    /** 
+     * @ORM\OneToOne(targetEntity="Ora\ReadModel\Estimation")
+     */
+    private $estimation;
+    
+    
 
 
-    public function __construct(Task $task, User $member, $role){
+    public function __construct(Task $task, User $member, Estimation $estimation,$role){
 
         $this->task = $task;
         $this->member = $member;
         $this->role = $role;
+        $this->estimation=$estimation;
+        
     }
 
     public function getRole(){
@@ -46,6 +57,14 @@ class TaskMember {
     public function getMember(){
 
         return $this->member;
+    }
+    
+    public function getEstimation(){
+    	return $this->estimation;
+    }
+    
+    public function setEstimation($estimation){
+    	$this->estimation=$estimation;
     }
 
 }
