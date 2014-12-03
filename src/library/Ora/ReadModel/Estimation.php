@@ -19,7 +19,7 @@ class Estimation extends DomainEntity{
     /** @ORM\Id @ORM\ManyToOne(targetEntity="Ora\User\User") */
     private $user;
     //TODO parte intera?
-    /** @ORM\Column(type="decimal", precision=4, scale=2) */
+    /** @ORM\Column(type="decimal", precision=10, scale=2) */
     private $value;
 
     public function __construct(Task $item, User $user, $value)
