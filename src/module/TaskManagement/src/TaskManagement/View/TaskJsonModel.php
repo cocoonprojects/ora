@@ -5,6 +5,7 @@ use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
 use Ora\ReadModel\Task;
 use Ora\User\User;
+use Ora\ReadModel\Estimation;
 
 class TaskJsonModel extends JsonModel
 {
@@ -42,6 +43,28 @@ class TaskJsonModel extends JsonModel
                 $alreadyMember = true;
             }            
 		}
+			
+			// manage estimation calculation //
+		$avg = 0;
+		$count = 0;
+		$sum = 0;
+		if (count ( $t->getEstimations () ) == 0) {
+			$avg = "No estimation";
+		} else {
+			foreach ( $t->getEstimations () as $estimation ) {
+				if ($estimation->getValue () > 0) {
+					$sum += $estimation->getValue ();
+					$count ++;
+				}
+			}
+			if ($count >= 2)
+				$avg = $sum / $count;
+			else
+				$avg = "not enough estimations";
+		}
+		// end estimation calculation
+		
+		
 		$rv = array(
 			'id' => $t->getId(),
 			'createdAt' => $t->getCreatedAt(),
@@ -50,7 +73,8 @@ class TaskJsonModel extends JsonModel
             'createdBy' => is_null($t->getCreatedBy()) ? "" :  $t->getCreatedBy()->getFirstname()." ".$t->getCreatedBy()->getLastname(),
             'subject' => $t->getSubject(),
             'type' => $t->getType(),
-            'alreadyMember' => $alreadyMember
+            'alreadyMember' => $alreadyMember,
+				'estimation'=>$avg
 		);
 		if(!is_null($url)) {
 			$rv['_links'] = array('self' => $url.'/'.$t->getId()); 

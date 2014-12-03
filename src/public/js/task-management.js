@@ -236,6 +236,7 @@ TaskManagement.prototype = {
 								"<th>Created By</th>" +
 								"<th>Members</th>" +
 								"<th class='text-center'>Status</th>" +
+								"<th class='text-center'>Estimation</th>"+
 								"<th class='text-center'>Actions</th>" +
 							"</tr>" +
 						"</thead>" +
@@ -317,6 +318,7 @@ TaskManagement.prototype = {
 							"<td>" + task.createdBy + "</td>" +
                             "<td>" + $.map(task.members, function(n,i){return n.firstname+" "+n.lastname;}).join()+
 							"<td class='text-center'>" + task.status + "</td>" +
+							"<td class='text-center'>" + task.estimation + "</td>" +
 							"<td class='text-center'>" + actions + "</td>" +
 						"</tr>");
 			});
