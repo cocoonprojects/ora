@@ -40,12 +40,11 @@ class TaskMember {
     
 
 
-    public function __construct(Task $task, User $member, Estimation $estimation,$role){
+    public function __construct(Task $task, User $member, $role){
 
         $this->task = $task;
         $this->member = $member;
         $this->role = $role;
-        $this->estimation=$estimation;
         
     }
 

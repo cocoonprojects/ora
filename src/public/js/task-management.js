@@ -316,7 +316,13 @@ TaskManagement.prototype = {
 							"<td>" + task.subject + "</td>" +
 							"<td>" + task.createdAt.date.replace('.000000','') + "</td>" +
 							"<td>" + task.createdBy + "</td>" +
-                            "<td>" + $.map(task.members, function(n,i){return n.firstname+" "+n.lastname;}).join()+
+                            "<td>" + $.map(task.members, function(n,i){
+                                var estimationStatus = n.estimationStatus || 0;
+                                if(estimationStatus > 0){
+                                    return "<p>"+n.firstname+" "+n.lastname+" <img src='../img/tick10.png'/></p>";
+                                }
+                                return "<p>"+ n.firstname+" "+n.lastname+"</p>";
+                            }).join('')+ "</td>" + 
 							"<td class='text-center'>" + task.status + "</td>" +
 							"<td class='text-center'>" + task.estimation + "</td>" +
 							"<td class='text-center'>" + actions + "</td>" +
@@ -324,7 +330,7 @@ TaskManagement.prototype = {
 			});
 		}
 		else
-			$('#listAvailableTasks tbody').append("<tr><td colspan='6'>No available tasks found</td></tr>");
+			$('#listAvailableTasks tbody').append("<tr><td colspan='7'>No available tasks found</td></tr>");
 	},
 	
 	createNewTask: function()

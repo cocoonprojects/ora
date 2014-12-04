@@ -86,4 +86,9 @@ INSERT INTO `tasks` (id, project_id, subject, status, createdAt, mostRecentEditA
 INSERT INTO `tasks` (id, project_id, subject, status, createdAt, mostRecentEditAt, type, boardId, taskId) VALUES
 ('00000000-0000-0000-0000-000000000112','00000000-1000-0000-0000-000000000000','ongoingTask',20,'2014-11-06 15:56:56','2014-11-06 15:56:56','kanbanizetask',3,118);
 
+INSERT INTO `estimation` (id, value, createdAt, mostRecentEditAt, mostRecentEditBy_id, createdBy_id) VALUES
+('04a1c762-44dc-404c-ac33-3c0723a39c8g','1500,00', '2014-11-07 11:37:58', '2014-11-07 11:37:58', '04a1c762-44dc-404c-ac33-3c0723a39c8e', '04a1c762-44dc-404c-ac33-3c0723a39c8e');
+
+UPDATE tasks_members set estimation_id = '04a1c762-44dc-404c-ac33-3c0723a39c8g' where task_id = '48bf3325-5fb0-4707-b64f-bc3c871273ab';
+
 set FOREIGN_KEY_CHECKS = 1;
