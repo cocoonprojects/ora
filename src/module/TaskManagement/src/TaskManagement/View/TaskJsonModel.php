@@ -43,21 +43,24 @@ class TaskJsonModel extends JsonModel
 				$alreadyMember = true;
 			}
 		}
-		
+
+		$avg = "N.A.";
+		$ans = $this->average($t->getEstimations());
 		// manage estimation calculation //
-		$count = 0;
-		$avg = "Not enough Estimations";
-		$sum = 0;
-		foreach ( $t->getEstimations () as $estimation ) {
-			if ($estimation->getValue () != Estimation::NOT_ESTIMATED) {
-				$count ++;
-				$sum += $estimation->getValue ();
+		if (count ($t->getEstimations())==count ($t->getMembers())){
+			//every one choose to do not estimate the card
+			if ($ans['count'] == 0){
+				$avg ="-";
 			}
-		}
-		if ($count == 0)
-			$avg = "Estimation Not Available";
-		else if ($count >= 2) {
-			$avg = $sum / $count;
+			else {
+				$avg = $ans['average'];
+			}
+			
+			
+		}else{
+			if ($ans['count'] > 1) {
+				$avg = $ans['average'];
+			}
 		}
 		// end estimation calculation
 		
@@ -78,5 +81,22 @@ class TaskJsonModel extends JsonModel
 			);
 		}
 		return $rv;
+	}
+	
+	private function average($estimations){
+		$count = 0;
+		$sum = 0;
+		foreach ( $estimations  as $estimation ) {
+			if ($estimation->getValue () != Estimation::NOT_ESTIMATED) {
+				$count++;
+				$sum += $estimation->getValue ();
+			}
+	}
+	$ans = array();
+	$ans['count'] = $count;
+	if ($count!=0)
+		$ans['average'] = $sum / $count;
+	return $ans;
+
 	}
 }
