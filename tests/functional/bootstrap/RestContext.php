@@ -436,5 +436,53 @@ class RestContext extends RawMinkContext implements Context
 //     	echo "PHPSESSID da debug". $this->_response->getSetCookie('');
 //         $this->printDebug($this->_requestUrl . "\n\n" . $this->_response);
     }
+    
+    
+    
+    /**
+     * @Given /^the array "([^"]*)" in JSON response has elements with "([^"]*)" property$/
+     */
+    public function theJsonResponseHasElementsWithAProperty($arrayName, $propertyElement)
+    {
+    
+    	$data = json_decode($this->_response->getBody(true));
+    	if (! empty($data->$arrayName)) {
+    		foreach($data->$arrayName as $element){
+    			if (! isset($element->$propertyElement)) {
+    				throw new Exception("Property '" . $propertyElement . "' is not set in elements of {$arrayName} array!\n");
+    			}
+    		}
+    	} else {
+    		throw new Exception(
+    				"Response was not JSON\n" . $this->_response->getBody(true));
+    	}
+    }
+    
+    /**
+     * @Then /^the value of property "([^"]*)" of the element with property "([^"]*)" with value "([^"]*)" in array "([^"]*)" should be "([^"]*)"$/
+     */
+    
+    public function theValueOfPropertyOfTheElementWithPropertyWithInArrayShoudlBe($propertyNameToCheck,$propertyIdName, $propertyIdValue,$arrayName,$resultProperty){
+    	$count =0;
+    	$data = json_decode($this->_response->getBody(true));
+    	if (! empty($data->$arrayName)) {
+    		foreach($data->$arrayName as $element){
+    			if ($element->$propertyIdName==$propertyIdValue) {
+    				$count++;
+    				if($element->$propertyNameToCheck!=$resultProperty)
+    					throw new Exception("Property ".$propertyNameToCheck." value that is ".$element->$propertyNameToCheck."is not equal to desired value ".$resultProperty); 
+    			}
+    		}
+    		if ($count==0)
+    			throw new Exception("Cannot Finde an element with ".$propertyIdName." in the array ".$arrayName);
+    		
+    	} else {
+    		throw new Exception(
+    				"Response was not JSON\n" . $this->_response->getBody(true));
+    	}
+    	
+    }
+    
+    
 
 }
