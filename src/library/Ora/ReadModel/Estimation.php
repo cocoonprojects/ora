@@ -5,9 +5,6 @@ namespace Ora\ReadModel;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 
-
-//use Ora\DomainEntity;
-
 /**
  * @ORM\Entity @ORM\Table(name="estimation")
  * @author Andrea Lupia
@@ -15,6 +12,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 class Estimation extends DomainEntity{
 
+	CONST NOT_ESTIMATED = -1;
+	
 	/**
 	 * @ORM\OneToOne(targetEntity="Ora\ReadModel\TaskMember", mappedBy="estimation")
 	 */
@@ -23,9 +22,8 @@ class Estimation extends DomainEntity{
     /** @ORM\Column(type="decimal", precision=10, scale=2) */
     private $value;
     
-    public function __construct(TaskMember $taskMember, $value)
+    public function __construct($value)
     {
-    	$this->taskMember= $taskMember;
     	$this->value = $value;
     }
     
@@ -37,12 +35,16 @@ class Estimation extends DomainEntity{
     	$this->value = $value;
     }
     
-    public function getTaskMember(){
-    	return $this->taskMember;
+    public function getUser() {
+    	return $this->getTaskMember()->getMember();
     }
     
-    public function setTaskMember($taskMember){
-    	$this->taskMember=$taskMember;
+    public function getTask() {
+    	return $this->getTaskMember()->getTask();
+    }
+    
+    public function getTaskMember(){
+    	return $this->taskMember;
     }
     
 }

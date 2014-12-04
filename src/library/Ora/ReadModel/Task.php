@@ -109,6 +109,13 @@ class Task extends DomainEntity
 		$this->members->removeElement($member);
     }
 
+    public function getEstimations() {
+    	$estimations = new ArrayCollection();
+    	foreach($this->getMembers() as $member)
+    		if($member->hasEstimated())
+    			$estimations->add($member->getEstimation());
+    	return $estimations;
+    }
     
     public function getType(){
 

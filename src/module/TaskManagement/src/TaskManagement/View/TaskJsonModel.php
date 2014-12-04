@@ -27,59 +27,55 @@ class TaskJsonModel extends JsonModel
 		return Json::encode($representation);
 	}
 	
-    private function serializeOne(Task $t, $url, User $loggedUser) {
-
-        $members = array();
-        $alreadyMember = false;
-        foreach ($t->getMembers() as $tm) {
-
-            $member = $tm->getMember();
-			$members[] = array(
-					'id' => $member->getId(),
-					'firstname' => $member->getFirstname(),
-					'lastname' => $member->getLastname(),
-                );
-                   
-            if($member->getId() === $loggedUser->getId() && $alreadyMember === false){
-                $alreadyMember = true;
-            }            
-		}
+	private function serializeOne(Task $t, $url, User $loggedUser) {
+		$members = array ();
+		$alreadyMember = false;
+		foreach ( $t->getMembers () as $tm ) {
 			
-			// manage estimation calculation //
-			$count=0;
-			$avg="Not enough Estimations";
-			$sum=0;
-	foreach($t->getMembers() as  $member){
-		$estimation = $member->getEstimation();
-		if (!is_null($estimation)){
-			if($estimation->getValue()>0){
-			$count++;
-			$sum += $estimation->getValue();
+			$member = $tm->getMember ();
+			$members [] = array (
+					'id' => $member->getId (),
+					'firstname' => $member->getFirstname (),
+					'lastname' => $member->getLastname () 
+			);
+			
+			if ($member->getId () === $loggedUser->getId () && $alreadyMember === false) {
+				$alreadyMember = true;
 			}
 		}
 		
-		
-	}
-	if($count==0)
-		$avg="Estimation Not Available";
-	else if($count>=2){
-		$avg = $sum/$count;}
+		// manage estimation calculation //
+		$count = 0;
+		$avg = "Not enough Estimations";
+		$sum = 0;
+		foreach ( $t->getEstimations () as $estimation ) {
+			if ($estimation->getValue () != Estimation::NOT_ESTIMATED) {
+				$count ++;
+				$sum += $estimation->getValue ();
+			}
+		}
+		if ($count == 0)
+			$avg = "Estimation Not Available";
+		else if ($count >= 2) {
+			$avg = $sum / $count;
+		}
 		// end estimation calculation
 		
-		
-		$rv = array(
-			'id' => $t->getId(),
-			'createdAt' => $t->getCreatedAt(),
-		    'status' => $t->getStatus(),
-            'members' => $members,
-            'createdBy' => is_null($t->getCreatedBy()) ? "" :  $t->getCreatedBy()->getFirstname()." ".$t->getCreatedBy()->getLastname(),
-            'subject' => $t->getSubject(),
-            'type' => $t->getType(),
-            'alreadyMember' => $alreadyMember,
-				'estimation'=>$avg
+		$rv = array (
+				'id' => $t->getId (),
+				'createdAt' => $t->getCreatedAt (),
+				'status' => $t->getStatus (),
+				'members' => $members,
+				'createdBy' => is_null ( $t->getCreatedBy () ) ? "" : $t->getCreatedBy ()->getFirstname () . " " . $t->getCreatedBy ()->getLastname (),
+				'subject' => $t->getSubject (),
+				'type' => $t->getType (),
+				'alreadyMember' => $alreadyMember,
+				'estimation' => $avg 
 		);
-		if(!is_null($url)) {
-			$rv['_links'] = array('self' => $url.'/'.$t->getId()); 
+		if (! is_null ( $url )) {
+			$rv ['_links'] = array (
+					'self' => $url . '/' . $t->getId () 
+			);
 		}
 		return $rv;
 	}
