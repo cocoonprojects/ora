@@ -48,18 +48,24 @@ class TaskMember {
         
     }
 
-    public function getRole(){
-
+    public function getRole() {
         return $this->role;
     }
 
-    public function getMember(){
-
+    public function getMember() {
         return $this->member;
+    }
+    
+    public function getTask() {
+    	return $this->task;
     }
     
     public function getEstimation(){
     	return $this->estimation;
+    }
+    
+    public function hasEstimated() {
+    	return !is_null($this->estimation);
     }
     
     public function setEstimation($estimation){
