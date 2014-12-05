@@ -9,6 +9,13 @@ default:
             contexts: 
                 - RestContext:
                     - http://oraprojecttest
+        estimations_features:
+            paths: 
+                - functional/features/estimations
+            contexts:
+                - TaskContext:
+                    - http://oraprojecttest
+                
         login_features:
             paths: 
                 - functional/features/login

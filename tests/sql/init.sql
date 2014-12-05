@@ -7,6 +7,8 @@ delete from users;
 INSERT INTO users (id, status, createdAt, firstname, lastname, email) VALUES ('60000000-0000-0000-0000-000000000000', 1, "2014-10-09 11:33:45", "Mark", "Rogers", "mark.rogers@ora.local");
 INSERT INTO users (id, status, createdAt, firstname, lastname, email) VALUES ('70000000-0000-0000-0000-000000000000', 1, "2014-10-09 11:33:45", "Phil", "Toledo", "phil.toledo@ora.local");
 INSERT INTO users (id, status, createdAt, firstname, lastname, email) VALUES ('20000000-0000-0000-0000-000000000000', 1, "2014-10-09 11:33:45", "Paul", "Smith", "paul.smith@ora.local");
+INSERT INTO users (id, status, createdAt, firstname, lastname, email) VALUES ('80000000-0000-0000-0000-000000000000', 1, "2014-10-09 11:33:45", "Bruce", "Wayne", "bruce.wayne@gotham.local");
+INSERT INTO users (id, status, createdAt, firstname, lastname, email) VALUES ('90000000-0000-0000-0000-000000000000', 1, "2014-10-09 11:33:45", "Peter", "Parker", "spidey.web@dailybugle.local");
 
 INSERT INTO `event_stream` (`eventId`, `version`, `eventName`, `payload`, `occurredOn`, `aggregate_type`, `aggregate_id`) VALUES
 ('6126d983-20ad-47f2-9636-085395aa3b4b',1,'Ora\\TaskManagement\\TaskCreated','a:3:{s:6:\"status\";i:20;s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000000\";}','2014-11-12T19:07:59.000000+0100','Ora\\TaskManagement\\Task','00000000-0000-0000-0000-000000000000');
@@ -85,5 +87,29 @@ INSERT INTO `tasks` (id, project_id, subject, status, createdAt, mostRecentEditA
 ('00000000-0000-0000-0000-000000000111','00000000-1000-0000-0000-000000000000','completedTask',40,'2014-11-06 15:48:17','2014-11-06 15:48:17','kanbanizetask',3,120);
 INSERT INTO `tasks` (id, project_id, subject, status, createdAt, mostRecentEditAt, type, boardId, taskId) VALUES
 ('00000000-0000-0000-0000-000000000112','00000000-1000-0000-0000-000000000000','ongoingTask',20,'2014-11-06 15:56:56','2014-11-06 15:56:56','kanbanizetask',3,118);
+
+INSERT INTO `estimation` (id, value, createdAt, mostRecentEditAt, mostRecentEditBy_id, createdBy_id) VALUES
+('60000000-0000-0000-1111-000000000000','1500,00', '2014-11-07 11:37:58', '2014-11-07 11:37:58', '20000000-0000-0000-0000-000000000000', '20000000-0000-0000-0000-000000000000');
+
+INSERT INTO `tasks_members` (task_id, member_id, estimation_id, role) VALUES
+('00000000-0000-0000-0000-000000000112','20000000-0000-0000-0000-000000000000', '60000000-0000-0000-1111-000000000000', 'OWNER');
+
+
+
+
+INSERT INTO `estimation` (id, value, createdAt, mostRecentEditAt, mostRecentEditBy_id, createdBy_id) VALUES
+('04a1c762-44dc-404c-ac33-3c0723a39c8e','1500,00', '2014-11-07 11:37:58', '2014-11-07 11:37:58', '90000000-0000-0000-0000-000000000000', '90000000-0000-0000-0000-000000000000');
+INSERT INTO `estimation` (id, value, createdAt, mostRecentEditAt, mostRecentEditBy_id, createdBy_id) VALUES
+('04a1c762-44dc-404c-ac33-3c0723a39c8f','1500,00', '2014-11-07 11:37:58', '2014-11-07 11:37:58', '80000000-0000-0000-0000-000000000000', '80000000-0000-0000-0000-000000000000‭‭');
+INSERT INTO `estimation` (id, value, createdAt, mostRecentEditAt, mostRecentEditBy_id, createdBy_id) VALUES
+('04a1c762-44dc-404c-ac33-3c0723a39c8h','-1', '2014-11-07 11:37:58', '2014-11-07 11:37:58', '80000000-0000-0000-0000-000000000000', '80000000-0000-0000-0000-000000000000‭‭');
+
+
+
+
+INSERT INTO `tasks_members`(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000103','80000000-0000-0000-0000-000000000000','04a1c762-44dc-404c-ac33-3c0723a39c8f','OWNER');
+INSERT INTO `tasks_members`(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000103','90000000-0000-0000-0000-000000000000','04a1c762-44dc-404c-ac33-3c0723a39c8e','MEMBER');
+INSERT INTO `tasks_members`(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000104','80000000-0000-0000-0000-000000000000','04a1c762-44dc-404c-ac33-3c0723a39c8h','OWNER');
+INSERT INTO `tasks_members`(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000105','80000000-0000-0000-0000-000000000000',NULL,'OWNER');
 
 set FOREIGN_KEY_CHECKS = 1;
