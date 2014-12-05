@@ -319,7 +319,7 @@ TaskManagement.prototype = {
                             "<td>" + $.map(task.members, function(n,i){
                                 var estimation = n.estimation || '';
                                 if(estimation !== ''){
-                                    return "<p>"+n.firstname+" "+n.lastname+" <img src='/img/tick10.png'/></p>";
+                                    return "<p>"+n.firstname+" "+n.lastname+" <img src="basepath+"'/img/tick10.png'/></p>";
                                 }
                                 return "<p>"+ n.firstname+" "+n.lastname+"</p>";
                             }).join('')+ "</td>" + 
