@@ -5,7 +5,6 @@ use Behat\Behat\Context\Context;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Mink\Driver\BrowserKitDriver;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
-
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use Behat\Testwork\Hook\Scope\AfterSuiteScope;
 
@@ -125,7 +124,7 @@ class RestContext extends RawMinkContext implements Context
     	
         if ($this->base_url === "" || $this->base_url === null) 
         {            
-            throw new \Exception('Base_url not loaded!');
+            throw new \Exception("Base_url not loaded!");
         }
         else 
         {
@@ -343,7 +342,6 @@ class RestContext extends RawMinkContext implements Context
     public function theResponseHasAProperty($propertyName)
     {
         $data = json_decode($this->_response->getBody(true));
-        
         if (! empty($data)) {
             if (! isset($data->$propertyName)) {
                 throw new Exception("Property '" . $propertyName .
@@ -354,7 +352,26 @@ class RestContext extends RawMinkContext implements Context
                     "Response was not JSON\n" . $this->_response->getBody(true));
         }
     }
+    
+    /**
+     * @Given /^the array "([^"]*)" in JSON response has elements with "([^"]*)" property$/
+     */
+    public function theJsonResponseHasElementsWithAProperty($arrayName, $propertyElement)
+    {
 
+        $data = json_decode($this->_response->getBody(true));
+        if (! empty($data->$arrayName)) {
+            foreach($data->$arrayName as $element){           
+                if (! isset($element->$propertyElement)) {
+                    throw new Exception("Property '" . $propertyElement .
+                             "' is not set in elements of {$arrayName} array!\n");
+                }
+            }
+        } else {
+            throw new Exception(
+                    "Response was not JSON\n" . $this->_response->getBody(true));
+        }
+    }
     /**
      * @Then /^the "([^"]*)" property equals "([^"]*)"$/
      */
@@ -436,5 +453,17 @@ class RestContext extends RawMinkContext implements Context
 //     	echo "PHPSESSID da debug". $this->_response->getSetCookie('');
 //         $this->printDebug($this->_requestUrl . "\n\n" . $this->_response);
     }
-
+    
+    /**
+     * @Then /^I should see img "([^"]*)"$/
+     */    
+    public function iShouldSeeImg($arg1)
+    {
+    	$page = $this->getSession()->getPage();
+    	$page->hasContent($arg1);    	
+    }
+    
+    protected function getResponse(){
+    	return $this->_response;
+    }
 }

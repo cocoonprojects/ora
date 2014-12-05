@@ -107,12 +107,15 @@ class TaskJsonModel extends JsonModel
     private function getItemsForMembersArray(TaskMember $tm){
 
         $member = $tm->getMember();
-
+		
+        $estimationObject = $tm->getEstimation();
+        $estimationValue =  (is_null($estimationObject) ? null : $estimationObject->getValue());
+        
         return array(
             'id' => $member->getId(),
             'firstname' => $member->getFirstname(),
             'lastname' => $member->getLastname(),
-            'estimationStatus' => (is_null($tm->getEstimation()) ? null : 1)
+            'estimation' => $estimationValue
         );
     }    
 }

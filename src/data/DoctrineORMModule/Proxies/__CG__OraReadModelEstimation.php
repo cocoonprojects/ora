@@ -198,23 +198,34 @@ class Estimation extends \Ora\ReadModel\Estimation implements \Doctrine\ORM\Prox
     /**
      * {@inheritDoc}
      */
+    public function getUser()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getUser', array());
+
+        return parent::getUser();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getTask()
+    {
+
+        $this->__initializer__ && $this->__initializer__->__invoke($this, 'getTask', array());
+
+        return parent::getTask();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function getTaskMember()
     {
 
         $this->__initializer__ && $this->__initializer__->__invoke($this, 'getTaskMember', array());
 
         return parent::getTaskMember();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function setTaskMember($taskMember)
-    {
-
-        $this->__initializer__ && $this->__initializer__->__invoke($this, 'setTaskMember', array($taskMember));
-
-        return parent::setTaskMember($taskMember);
     }
 
     /**

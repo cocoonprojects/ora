@@ -317,8 +317,8 @@ TaskManagement.prototype = {
 							"<td>" + task.createdAt.date.replace('.000000','') + "</td>" +
 							"<td>" + task.createdBy + "</td>" +
                             "<td>" + $.map(task.members, function(n,i){
-                                var estimationStatus = n.estimationStatus || 0;
-                                if(estimationStatus > 0){
+                                var estimation = n.estimation || '';
+                                if(estimation !== ''){
                                     return "<p>"+n.firstname+" "+n.lastname+" <img src='../img/tick10.png'/></p>";
                                 }
                                 return "<p>"+ n.firstname+" "+n.lastname+"</p>";
