@@ -51,16 +51,18 @@ class Task extends DomainEntity
 	 * @ORM\JoinColumn(name="project_id", referencedColumnName="id", nullable=false)
 	 */
 	private $project;
-	
-   /**
-    * @ORM\OneToMany(targetEntity="Ora\ReadModel\TaskMember", mappedBy="task", cascade={"PERSIST", "REMOVE"})
-    */
+
+	/**
+	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\TaskMember", mappedBy="task", cascade={"PERSIST", "REMOVE"})
+	 */
 	private $members;
 	
+  
 	public function __construct($id) 
 	{
 		$this->id = $id;
 		$this->members = new ArrayCollection();
+	
 	}
 	
 	public function getStatus() {
@@ -94,7 +96,6 @@ class Task extends DomainEntity
 	}
 	
     public function addMember(User $user, $role) {
-
         $taskMember = new TaskMember($this, $user, $role);
 		$this->members->add($taskMember);
 		return $this->members;
@@ -108,6 +109,14 @@ class Task extends DomainEntity
 		$this->members->removeElement($member);
     }
 
+    public function getEstimations() {
+    	$estimations = new ArrayCollection();
+    	foreach($this->getMembers() as $member)
+    		if($member->hasEstimated())
+    			$estimations->add($member->getEstimation());
+    	return $estimations;
+    }
+    
     public function getType(){
 
          $c = get_called_class();

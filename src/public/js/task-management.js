@@ -236,6 +236,7 @@ TaskManagement.prototype = {
 								"<th>Created By</th>" +
 								"<th>Members</th>" +
 								"<th class='text-center'>Status</th>" +
+								"<th class='text-center'>Estimation</th>"+
 								"<th class='text-center'>Actions</th>" +
 							"</tr>" +
 						"</thead>" +
@@ -315,14 +316,21 @@ TaskManagement.prototype = {
 							"<td>" + task.subject + "</td>" +
 							"<td>" + task.createdAt.date.replace('.000000','') + "</td>" +
 							"<td>" + task.createdBy + "</td>" +
-                            "<td>" + $.map(task.members, function(n,i){return n.firstname+" "+n.lastname;}).join()+
+                            "<td>" + $.map(task.members, function(n,i){
+                                var estimation = n.estimation || '';
+                                if(estimation !== ''){
+                                    return "<p>"+n.firstname+" "+n.lastname+" <img src='../img/tick10.png'/></p>";
+                                }
+                                return "<p>"+ n.firstname+" "+n.lastname+"</p>";
+                            }).join('')+ "</td>" + 
 							"<td class='text-center'>" + task.status + "</td>" +
+							"<td class='text-center'>" + task.estimation + "</td>" +
 							"<td class='text-center'>" + actions + "</td>" +
 						"</tr>");
 			});
 		}
 		else
-			$('#listAvailableTasks tbody').append("<tr><td colspan='6'>No available tasks found</td></tr>");
+			$('#listAvailableTasks tbody').append("<tr><td colspan='7'>No available tasks found</td></tr>");
 	},
 	
 	createNewTask: function()
