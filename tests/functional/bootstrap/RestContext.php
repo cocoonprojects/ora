@@ -351,26 +351,6 @@ class RestContext extends RawMinkContext implements Context
             throw new Exception(
                     "Response was not JSON\n" . $this->_response->getBody(true));
         }
-    }
-    
-    /**
-     * @Given /^the array "([^"]*)" in JSON response has elements with "([^"]*)" property$/
-     */
-    public function theJsonResponseHasElementsWithAProperty($arrayName, $propertyElement)
-    {
-
-        $data = json_decode($this->_response->getBody(true));
-        if (! empty($data->$arrayName)) {
-            foreach($data->$arrayName as $element){           
-                if (! isset($element->$propertyElement)) {
-                    throw new Exception("Property '" . $propertyElement .
-                             "' is not set in elements of {$arrayName} array!\n");
-                }
-            }
-        } else {
-            throw new Exception(
-                    "Response was not JSON\n" . $this->_response->getBody(true));
-        }
     }
     /**
      * @Then /^the "([^"]*)" property equals "([^"]*)"$/
