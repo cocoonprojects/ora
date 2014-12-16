@@ -1,12 +1,12 @@
 <?php
-namespace Ora\ProjectManagement;
+namespace Ora\StreamManagement;
 
 use Rhumsaa\Uuid\Uuid;
 use Ora\User\User;
 use Ora\User\UserService;
 use Ora\ReadModel\Organization;
 
-class MockProjectService implements ProjectService {
+class MockStreamService implements StreamService {
 	
 	/**
 	 * 
@@ -21,24 +21,24 @@ class MockProjectService implements ProjectService {
 		$this->entityManager = $entityManager;
 	}
 	
-	public function getProject($id) {
+	public function getStream($id) {
 		try {
-			$projectId = Uuid::fromString($id);
+			$streamId = Uuid::fromString($id);
 			$user = $this->userService->findUser('20000000-0000-0000-0000-000000000000');
-			$rv = new Project($projectId, $user);
-			$rv->setSubject('First project');
+			$rv = new Stream($streamId, $user);
+			$rv->setSubject('First stream');
 			return $rv;
 		} catch(\InvalidArgumentException $e) {
 			return null;
 		}
 	}
 	
-	public function findOrganizationProjects(Organization $organization)
+	public function findOrganizationStreams(Organization $organization)
 	{
-		$projects = $this->entityManager
-					     ->getRepository('Ora\ReadModel\Project')
+		$streams = $this->entityManager
+					     ->getRepository('Ora\ReadModel\Stream')
 					     ->findBy(array('id' => '00000000-1000-0000-0000-000000000000'));
 					     		
-		return $projects;		
+		return $streams;		
 	}
 }

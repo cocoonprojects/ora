@@ -36,7 +36,7 @@ class TransitionsController extends AbstractHATEOASRestfulController
 // 	 *        	$data
 // 	 */
 // 	public function create($data) {
-// 		// TODO inserire subject e project in $data
+// 		// TODO inserire subject e stream in $data
 // 		// kanbanize api take
 // 		$validator_NotEmpty = new \Zend\Validator\NotEmpty ();
 // 		$validator_Digits = new \Zend\Validator\Digits ();

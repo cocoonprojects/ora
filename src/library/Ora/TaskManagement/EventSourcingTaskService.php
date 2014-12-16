@@ -9,9 +9,9 @@ use Prooph\EventStore\Stream\StreamStrategyInterface;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Prooph\EventStore\Aggregate\AggregateType;
 use Ora\User\User;
-use Ora\ProjectManagement\Project;
+use Ora\StreamManagement\Stream;
 use Ora\IllegalStateException;
-use Ora\ReadModel\Project as ReadModelProject;
+use Ora\ReadModel\Stream as ReadModelStream;
 
 /**
  * @author Giannotti Fabio
@@ -26,10 +26,10 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		$this->entityManager = $entityManager;
 	}
 	
-	public function createTask(Project $project, $subject, User $createdBy)
+	public function createTask(Stream $stream, $subject, User $createdBy)
 	{		
 		$this->eventStore->beginTransaction();
-	    $task = Task::create($project, $subject, $createdBy);
+	    $task = Task::create($stream, $subject, $createdBy);
 	    $this->addAggregateRoot($task);
 		$this->eventStore->commit();
 		return $task;
@@ -41,7 +41,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	public function getTask($id)
 	{
 		try {
-		    $task = $this->getAggregateRoot($this->aggregateType, $id);
+			$task = $this->getAggregateRoot($this->aggregateType, $id);
 		    return $task;
         } catch (\RuntimeException $e) {
         	return null;
@@ -80,9 +80,9 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		return $this->entityManager->find('Ora\ReadModel\Task', $id);
 	}
 	
-	public function findProjectTasks(ReadModelProject $project)
+	public function findStreamTasks(ReadModelStream $stream)
 	{	
-		$repository = $this->entityManager->getRepository('Ora\ReadModel\Task')->findBy(array('project' => $project));
+		$repository = $this->entityManager->getRepository('Ora\ReadModel\Task')->findBy(array('stream' => $stream));
 	    return $repository;
 	}
 }

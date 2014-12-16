@@ -2,16 +2,16 @@
 
 namespace Ora\TaskManagement;
 
-use Ora\ProjectManagement\Project;
+use Ora\StreamManagement\Stream;
 use Ora\User\User;
-use Ora\ReadModel\Project as ReadModelProject;
+use Ora\ReadModel\Stream as ReadModelStream;
 
 /**
  * @author Giannotti Fabio
  */
 interface TaskService
 {
-	public function createTask(Project $project, $subject, User $createdBy);
+	public function createTask(Stream $stream, $subject, User $createdBy);
 	
 	public function editTask(Task $task);
 	
@@ -23,5 +23,5 @@ interface TaskService
 	
 	public function findTaskById($id);
 	
-	public function findProjectTasks(ReadModelProject $project);
+	public function findStreamTasks(ReadModelStream $stream);
 }

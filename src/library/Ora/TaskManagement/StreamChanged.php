@@ -6,6 +6,6 @@ use Prooph\EventSourcing\AggregateChanged;
  *
  * @author Giannotti Fabio
  */
-class ProjectChanged extends AggregateChanged
+class StreamChanged extends AggregateChanged
 {
 }

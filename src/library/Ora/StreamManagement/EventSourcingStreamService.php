@@ -1,6 +1,6 @@
 <?php
 
-namespace Ora\ProjectManagement;
+namespace Ora\StreamManagement;
 
 use Prooph\EventStore\Aggregate\AggregateRepository;
 use Prooph\EventStore\Aggregate\AggregateType;
@@ -13,28 +13,28 @@ use Ora\ReadModel\Organization;
 /**
  * @author Giannotti Fabio
  */
-class EventSourcingProjectService extends AggregateRepository implements ProjectService
+class EventSourcingStreamService extends AggregateRepository implements StreamService
 {
 	public function __construct(EventStore $eventStore, StreamStrategyInterface $eventStoreStrategy) {
-		parent::__construct($eventStore, new AggregateTranslator(), $eventStoreStrategy, new AggregateType('Ora\ProjectManagement\Project'));
+		parent::__construct($eventStore, new AggregateTranslator(), $eventStoreStrategy, new AggregateType('Ora\StreamManagement\Stream'));
 	}
     	
-	public function getProject($id)
+	public function getStream($id)
 	{
 		try {
-		    $project = $this->getAggregateRoot($this->aggregateType, $id);
-		    return $project;
+		    $stream = $this->getAggregateRoot($this->aggregateType, $id);
+		    return $stream;
 		} catch (\RuntimeException $e) {
 			return null;
 		}
 	}
 	
-	public function findOrganizationProjects(Organization $organization)
+	public function findOrganizationStreams(Organization $organization)
 	{
-		$projects = $this->entityManager
-						     ->getRepository('Ora\ReadModel\Project')
+		$streams = $this->entityManager
+						     ->getRepository('Ora\ReadModel\Stream')
 							 ->findBy(array("organization" => $organization));
 		
-		return $projects;		
+		return $streams;		
 	}
 } 

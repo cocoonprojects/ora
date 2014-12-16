@@ -47,10 +47,10 @@ class Task extends DomainEntity
 	private $status;
 	
 	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\Project")
-	 * @ORM\JoinColumn(name="project_id", referencedColumnName="id", nullable=false)
+	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\Stream")
+	 * @ORM\JoinColumn(name="stream_id", referencedColumnName="id", nullable=false)
 	 */
-	private $project;
+	private $stream;
 
 	/**
 	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\TaskMember", mappedBy="task", cascade={"PERSIST", "REMOVE"})
@@ -77,13 +77,13 @@ class Task extends DomainEntity
 		$this->subject = $subject;
 	}
 	
-	public function getProject() {
-	    return $this->project;
+	public function getStream() {
+	    return $this->stream;
 	}
 	
-	public function setProject(Project $project) {
-		$this->project = $project;
-		return $this->project;
+	public function setStream(Stream $stream) {
+		$this->stream = $stream;
+		return $this->stream;
 	}
 	
 	public function getMembers() {

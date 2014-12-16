@@ -295,19 +295,19 @@ class KanbanizeAPI {
 	/**
 	 *
 	 * @return array null array
-	 *         - projects	Array of the projects.
-	 *         - [][name] The name of the project
-	 *         - [][id] The ID of the project
-	 *         - [][boards] Array of details for any boards in current project ( name, id )
+	 *         - streams	Array of the streams.
+	 *         - [][name] The name of the stream
+	 *         - [][id] The ID of the stream
+	 *         - [][boards] Array of details for any boards in current stream ( name, id )
 	 *        
 	 */
-	public function getProjectsAndBoards() {
+	public function getStreamsAndBoards() {
 		$call = new KanbanizeAPICall ();
-		$call->setFunction ( 'get_projects_and_boards' );
+		$call->setFunction ( 'get_streams_and_boards' );
 		
 		$resp = $this->doCall ( $call );
 		if ($resp) {
-			return @$resp ['projects'] ?  : null;
+			return @$resp ['streams'] ?  : null;
 		}
 		
 		return null;

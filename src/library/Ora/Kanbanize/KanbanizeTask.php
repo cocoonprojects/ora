@@ -3,7 +3,7 @@
 namespace Ora\Kanbanize;
 
 use Doctrine\ORM\Mapping AS ORM;
-use Ora\ProjectManagement\Project;
+use Ora\StreamManagement\Stream;
 use Ora\User\User;
 use Rhumsaa\Uuid\Uuid;
 use Ora\ReadModel\Task;
@@ -55,7 +55,7 @@ class KanbanizeTask extends Task {
 	 */
 	private $taskId;
 
-	public static function create(Project $project, $subject, User $createdBy) {
+	public static function create(Stream $stream, $subject, User $createdBy) {
 		$rv = new self();
 		$rv->id = Uuid::uuid4();
 		$rv->status = self::STATUS_ONGOING;
@@ -64,7 +64,7 @@ class KanbanizeTask extends Task {
 				'task' => $rv,
 				'createdBy' => $createdBy,
 		)));
-		$rv->changeProject($project, $createdBy);
+		$rv->changeStream($stream, $createdBy);
 		$rv->addMember($createdBy, $createdBy);
 		return $rv;
 	}
