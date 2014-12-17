@@ -75,33 +75,25 @@ class TasksController extends AbstractHATEOASRestfulController
     /**
      * Return a list of available tasks
      * @method GET
-     * @link http://oraproject/task-management/tasks
+     * @link http://oraproject/task-management/tasks?streamID=[uuid]
      * @return TaskJsonModel
      * @author Giannotti Fabio
      */
     public function getList()
     {    	
-    	$loggedUser = $this->authService->getIdentity()['user'];
     	$availableTasks = array();
     	
-    	if(is_null($loggedUser))
+    	$streamID = $this->getRequest()->getQuery('streamID');
+    	
+    	if(!is_null($streamID)) 
     	{
-    		// HTTP STATUS CODE 403: Forbidden (As a member organization)
-    		$this->response->setStatusCode(403);
-    		return $this->response;
-    	}    	
-
-        $relationsOrganizationOfLoggedUser = $this->organizationService->findOrganizationUsers($loggedUser);
-
-        foreach($relationsOrganizationOfLoggedUser as $organization)
-        {
-            $streams = $this->streamService->findOrganizationStreams($organization->getOrganization());
-
-            foreach($streams as $stream)
-            {
-                $availableTasks = $this->taskService->findStreamTasks($stream);
-            }
-        }
+    		$stream = $this->projectService->getProject($streamID);
+    		$availableTasks = $this->taskService->findStreamTasks($stream);
+    	}
+		else
+		{
+			$availableTasks = $this->taskService->findTasks();
+		}    	
 
     	$this->response->setStatusCode(200);
        	$view = new TaskJsonModel();       	

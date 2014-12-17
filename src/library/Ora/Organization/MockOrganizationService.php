@@ -34,7 +34,7 @@ class MockOrganizationService implements OrganizationService {
 	}
 	
 	
-    public function findOrganizationUsers(User $user)
+    public function findUserOrganizationMembership(User $user)
     {
         $organizationList = array();
 
@@ -44,12 +44,17 @@ class MockOrganizationService implements OrganizationService {
         $organization = new \Ora\ReadModel\Organization($organizationId, new \DateTime(), $user);
         $organization->setSubject('ORA');
 
-        $organizationUser = new \Ora\ReadModel\OrganizationUser($user, $organization);
+        $organizationUser = new \Ora\ReadModel\OrganizationMembership($user, $organization);
         $organizationUser->setOrganizationRole('Member');
 
         $organizationList[] = $organizationUser;
 
         return $organizationList;
     }
+    
+    public function findOrganizationMembership(Organization $organization)
+    {
+    
+    }    
 
 }

@@ -7,10 +7,10 @@ use Ora\ReadModel\Organization;
 use Ora\User\User;
 
 /**
- * @ORM\Entity @ORM\Table(name="organization_users")
+ * @ORM\Entity @ORM\Table(name="organization_members")
  *
  */
-class OrganizationUser extends DomainEntity 
+class OrganizationMembership extends DomainEntity 
 {	
 	const ROLE_ADMIN = "Admin";
 	const ROLE_MEMBER = "Member";
@@ -25,7 +25,7 @@ class OrganizationUser extends DomainEntity
 	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
 	 * @ORM\Id
 	 */
-	protected $user;
+	protected $member;
 
 	/**
 	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\Organization")
@@ -33,9 +33,9 @@ class OrganizationUser extends DomainEntity
 	 */
 	protected $organization;
 		
-	public function __construct(User $user, Organization $organization)
+	public function __construct(User $member, Organization $organization)
 	{
-		$this->user = $user;
+		$this->member = $member;
 		$this->organization = $organization;
 	}		
 
@@ -44,9 +44,9 @@ class OrganizationUser extends DomainEntity
 		$this->organizationRole = $role;
 	}
 		
-	public function setUser(User $user)
+	public function setMember(User $member)
 	{
-		$this->user = $user;
+		$this->member = $member;
 	}
 	
 	public function setOrganization(Organization $organization)
@@ -59,9 +59,9 @@ class OrganizationUser extends DomainEntity
 		return $this->organizationRole;
 	}
 			
-	public function getUser()
+	public function getMember()
 	{
-		return $this->user;
+		return $this->member;
 	}	
 	
 	public function getOrganization()

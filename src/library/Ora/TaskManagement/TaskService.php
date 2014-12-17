@@ -19,9 +19,10 @@ interface TaskService
 	
 	public function deleteTask(Task $task, User $deletedBy);
 	
-	public function listAvailableTasks();
+	public function findTasks();
 	
 	public function findTaskById($id);
 	
 	public function findStreamTasks(ReadModelStream $stream);
+
 }
