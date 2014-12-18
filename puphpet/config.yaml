@@ -114,8 +114,7 @@ php:
         pear:
             - Console_GetoptPlus
             - XML_Util2
-        pecl:
-            - pecl_http
+        pecl: {  }
     ini:
         display_errors: On
         error_reporting: '-1'

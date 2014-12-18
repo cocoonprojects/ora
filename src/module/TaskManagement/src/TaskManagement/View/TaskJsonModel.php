@@ -32,7 +32,8 @@ class TaskJsonModel extends JsonModel
 		$members = array ();
 		$alreadyMember = false;
 		foreach ( $t->getMembers () as $tm ) {
-		
+
+            $memberToAdd = array();    
 		    $items = $this->getItemsForMembersArray($tm);
             foreach($items as $key=>$val){
                 if(!is_null($val)){
@@ -40,8 +41,8 @@ class TaskJsonModel extends JsonModel
                 }
             }
             $members[] = $memberToAdd;
- 
-        	$member = $tm->getMember ();
+
+            $member = $tm->getMember ();
             		
 			if ($member->getId () === $loggedUser->getId () && $alreadyMember === false) {
 				$alreadyMember = true;
@@ -83,7 +84,10 @@ class TaskJsonModel extends JsonModel
 			$rv ['_links'] = array (
 					'self' => $url . '/' . $t->getId () 
 			);
-		}
+        }
+
+       
+
 		return $rv;
 	}
 	
@@ -109,8 +113,9 @@ class TaskJsonModel extends JsonModel
         $member = $tm->getMember();
 		
         $estimationObject = $tm->getEstimation();
+      
         $estimationValue =  (is_null($estimationObject) ? null : $estimationObject->getValue());
-        
+
         return array(
             'id' => $member->getId(),
             'firstname' => $member->getFirstname(),
