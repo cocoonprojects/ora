@@ -4,28 +4,37 @@ namespace Accounting\Controller;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
 use Ora\CreditsAccount\CreditsAccountsService;
+use Ora\Accounting\AccountService;
+use Zend\Authentication\AuthenticationServiceInterface;
 
 class IndexController extends AbstractActionController
 {
 	/**
 	 * 
-	 * @var CreditsAccountsService
+	 * @var AccountService
 	 */
-	protected $accountsService;
+	protected $accountService;
+	/**
+	 * 
+	 * @var AuthenticationServiceInterface
+	 */
+	private $authService;
+	
+	public function __construct(AccountService $accountService, AuthenticationServiceInterface $authService) {
+		$this->accountService = $accountService;
+		$this->authService = $authService;
+	}
 	
 	public function indexAction()
 	{
-// 		$a = $this->getCreditsAccountFactory()->listAccounts();
-// 		$viewModel = new ViewModel();
-// 		$viewModel->setVariable('accounts', $a);
-// 		return $viewModel;
+		$rv = new ViewModel();
+		if($this->authService->hasIdentity()) {
+			$identity = $this->authService->getIdentity()['user'];
+			
+			$accounts = $this->accountService->findAccounts($identity);
+			$rv->setVariable('accounts', $accounts);
+		}
+		return $rv;
 	}
 
-	protected function getCreditsAccountFactory() {
-		if (!$this->accountsService) {
-             $sm = $this->getServiceLocator();
-             $this->accountsService = $sm->get('Accounting\CreditsAccountsService');
-         }
-         return $this->accountsService;
-	}
 }

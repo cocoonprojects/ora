@@ -40,8 +40,7 @@ class User extends DomainEntity implements \Serializable
 	private $status;
 	
 	public static function create(User $createdBy = null) {
-		$rv = new self();
-		$rv->id = Uuid::uuid4()->toString();
+		$rv = new self(Uuid::uuid4()->toString());
 		$rv->status = self::STATUS_ACTIVE;
 		$rv->createdAt = new \DateTime();
 		$rv->createdBy = $createdBy;

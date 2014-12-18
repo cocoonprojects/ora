@@ -1,5 +1,4 @@
 <?php echo $this->doctype(); ?>
-
 <html lang="en">
     <head>
         <meta charset="utf-8">
@@ -31,7 +30,7 @@
     </head>
     
     <body>
-        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
             <div class="container">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -48,9 +47,7 @@
                         <li><a href=""><?php echo $this->translate('Decisions') ?></a></li>
                         <li><a href="<?php echo $this->url('people-home') ?>"><?php echo $this->translate('People') ?></a></li>
 					</ul>
-                    <ul class="nav navbar-nav navbar-right">
-                        <?php echo $this->UserBoxHelper(); ?>
-                    </ul>
+					<?php echo $this->UserBoxHelper(); ?>
                 </div><!--/.nav-collapse -->
             </div>
         </nav>
@@ -62,8 +59,6 @@
             ?>
             <hr>
             <footer>
-                <p>&copy; 2005 - <?php echo date('Y') ?> by Zend Technologies Ltd. <?php echo $this->translate('All rights reserved.') ?></p>
-                
                 <script>
                     taskManagement = new TaskManagement();
                 </script>

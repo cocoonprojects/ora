@@ -4,19 +4,35 @@ namespace Accounting\Controller;
 use Accounting\View\CreditsAccountJsonModel;
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Rhumsaa\Uuid\Uuid;
+use Ora\Accounting\AccountService;
 
 class AccountsController extends AbstractHATEOASRestfulController
 {
-	protected static $collectionOptions = array ('GET','POST');
-	protected static $resourceOptions = array ('DELETE','GET');
-	protected $accountsService;
+	protected static $collectionOptions = ['GET'];
+	protected static $resourceOptions = ['GET'];
+	/**
+	 * 
+	 * @var AccountService
+	 */
+	protected $accountService;
+	
+	public function __construct(AccountService $accountService) {
+		$this->accountService = $accountService;
+	}
 	
 	// Gets my credits accounts list
 	public function getList()
 	{
-		$rv = $this->getCreditsAccountsService()->listAccounts();
+		if(!$this->authService->hasIdentity()) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+		
+		$identity = $this->authService->getIdentity()['user'];
+		$accounts = $this->accountService->findAccounts($identity);
+		
 		$viewModel = new CreditsAccountJsonModel();
-		$viewModel->setVariable('resource', $rv);
+		$viewModel->setVariable('resource', $accounts);
 		$viewModel->setVariable('url', $this->url()->fromRoute('accounts'));
 		return $viewModel;
 	}
@@ -24,15 +40,16 @@ class AccountsController extends AbstractHATEOASRestfulController
 	// Creates my credits account for an organization if not already existing
 	public function create($data)
 	{
+		
 		// if JSON Content-Type, returns decoded data; for
 		// application/x-www-form-urlencoded, returns array
-		$this->getCreditsAccountsService()->create();
+		$this->accountService->create();
 		$response = $this->getResponse();
 		$response->setStatusCode(201); // Created
-// 		$response->getHeaders()->addHeaderLine(
-// 				'Location',
-// 				$this->url()->fromRoute('accounts', array('id' => $resource->getId()))
-// 		);
+		$response->getHeaders()->addHeaderLine(
+				'Location',
+				$this->url()->fromRoute('accounts', array('id' => $resource->getId()))
+		);
 		return $response;
 	}
 	
@@ -63,11 +80,4 @@ class AccountsController extends AbstractHATEOASRestfulController
 		return $this->jsonModelClass;
 	}
 	
-	protected function getCreditsAccountsService() {
-		if (!isset($this->accountsService)) {
-             $sm = $this->getServiceLocator();
-             $this->accountsService = $sm->get('Accounting\CreditsAccountsService');
-         }
-         return $this->accountsService;
-	}
 }

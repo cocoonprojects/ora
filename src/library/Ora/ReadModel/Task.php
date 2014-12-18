@@ -20,7 +20,7 @@ use Ora\User\User;
 
 // If no DiscriminatorMap annotation is specified, doctrine uses lower-case class name as default values
 
-class Task extends DomainEntity
+class Task extends EditableEntity
 {	
     CONST STATUS_IDEA = 0;
     CONST STATUS_OPEN = 10;

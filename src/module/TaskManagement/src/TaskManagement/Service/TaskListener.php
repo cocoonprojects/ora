@@ -1,11 +1,10 @@
 <?php
-namespace Ora\TaskManagement;
+namespace TaskManagement\Service;
 
 use Doctrine\ORM\EntityManager;
 use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Stream\StreamEvent;
-use Ora\ReadModel\Task;
 
 class TaskListener
 {
@@ -29,11 +28,7 @@ class TaskListener
 
 			$handler = $this->determineEventHandlerMethodFor($streamEvent);
 			if (! method_exists($this, $handler)) {
-				throw new \RuntimeException(sprintf(
-						"Missing event handler method %s for aggregate root %s",
-						$handler,
-						get_class($this)
-				));
+				continue;
 			}
 			
 			$this->{$handler}($streamEvent);				

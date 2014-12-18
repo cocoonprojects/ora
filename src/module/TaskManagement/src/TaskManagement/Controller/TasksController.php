@@ -15,8 +15,8 @@ use Ora\Organization\OrganizationService;
 
 class TasksController extends AbstractHATEOASRestfulController
 {
-    protected static $collectionOptions = array('GET', 'POST');
-    protected static $resourceOptions = array('DELETE', 'GET', 'PUT');
+    protected static $collectionOptions = ['GET', 'POST'];
+    protected static $resourceOptions = ['DELETE', 'GET', 'PUT'];
     
     /**
      * 
@@ -33,7 +33,6 @@ class TasksController extends AbstractHATEOASRestfulController
      * @var StreamService
      */
 	private $streamService;
-					
 	protected $task = null;
 	
 	public function __construct(TaskService $taskService, AuthenticationServiceInterface $authService, StreamService $streamService)
@@ -57,7 +56,6 @@ class TasksController extends AbstractHATEOASRestfulController
         }
 	}
 
-	    	    
     public function get($id)
     {        
         // HTTP STATUS CODE 405: Method not allowed

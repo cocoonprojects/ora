@@ -1,15 +1,14 @@
 <?php
 namespace Ora\Accounting;
 
-interface CreditsAccountsService {
+use Ora\User\User;
+use Ora\Organization\Organization;
+
+interface AccountService {
 	
-	/**
-	 * Currency should be based on the organization
-	 * @param string $currency
-	 */
-	public function create();
+	public function createPersonalAccount(User $holder);
 	
-	public function listAccounts();
+	public function createOrganizationAccount(User $holder, Organization $organization);	
 	
 	public function getAccount($id);
 	
@@ -18,5 +17,7 @@ interface CreditsAccountsService {
 	public function withdraw(CreditsAccount $source, $value); 
 	
 	public function transfer(CreditsAccount $source, CreditsAccount $destination, $value, \DateTime $when);
+	
+	public function findAccounts(User $user);
 
 }

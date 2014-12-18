@@ -3,7 +3,7 @@ namespace Accounting\View;
 
 use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
-use Ora\Accounting\CreditsAccount;
+use Ora\Accounting\Account;
 
 class CreditsAccountJsonModel extends JsonModel
 {
@@ -22,7 +22,7 @@ class CreditsAccountJsonModel extends JsonModel
 		return Json::encode($representation);
 	}
 	
-	private function serializeOne(CreditsAccount $account, $url) {
+	private function serializeOne(Account $account, $url) {
 		$rv = array(
 			'id' => $account->getId(),
 			'createdAt' => $account->getCreatedAt(),

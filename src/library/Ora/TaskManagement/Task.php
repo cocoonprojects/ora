@@ -49,10 +49,6 @@ class Task extends DomainEntity implements \Serializable
 	 */
 	private $members = array();
 	
-	public function getId() {
-		return $this->id;
-	}
-	
 	public static function create(Stream $stream, $subject, User $createdBy) {
 		$rv = new self();
 		$rv->id = Uuid::uuid4();
