@@ -36,13 +36,7 @@ class EventSourcingOrganizationService extends AggregateRepository implements Or
 	
 	public function findUserOrganizationMembership(User $user)
 	{
-		$organization = array();
-		
-		$organizationMembership = $this->entityManager
-		            			 ->getRepository('Ora\ReadModel\OrganizationMembership')
-								  ->findBy(array('user' => $user));
-				
-		return $organizationMembership;
+
 	}	
 	
 	public function findOrganizationMembership(Organization $organization)

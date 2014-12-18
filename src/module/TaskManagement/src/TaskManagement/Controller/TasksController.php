@@ -87,7 +87,7 @@ class TasksController extends AbstractHATEOASRestfulController
     	
     	if(!is_null($streamID)) 
     	{
-    		$stream = $this->streamService->getStream($streamID); // TODO
+    		$stream = $this->streamService->findStream($streamID);
     		$availableTasks = $this->taskService->findStreamTasks($stream);
     	}
 		else

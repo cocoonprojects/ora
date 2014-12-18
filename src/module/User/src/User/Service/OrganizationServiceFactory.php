@@ -22,8 +22,6 @@ class OrganizationServiceFactory implements FactoryInterface
 			$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
 			
             self::$instance = new EventSourcingOrganizationService($eventStore, $eventStoreStrategy, $entityManager);
-	    	//$userService = $serviceLocator->get('User\UserService');
-	    	//self::$instance = new MockOrganizationService($userService);
         }
 	    return self::$instance;
 	}
