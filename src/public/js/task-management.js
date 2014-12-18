@@ -66,7 +66,13 @@ TaskManagement.prototype = {
 		$("body").on("click", "button[data-action='back2ongoingTask']", function(e){
 			e.preventDefault();
 			that.backToOngoingTask(e);
-		}); 
+		});
+		//INSERT ESTIMATION
+		$("body").on("click", "button[data-action='makestima']", function(e){
+			alert ("stima" );
+			that.makeEstimation(e);
+			
+		});
 	},
 	
 	unjoinTaskMembers: function(e)
@@ -324,7 +330,7 @@ TaskManagement.prototype = {
                                 return "<p>"+ n.firstname+" "+n.lastname+"</p>";
                             }).join('')+ "</td>" + 
 							"<td class='text-center'>" + task.status + "</td>" +
-							"<td class='text-center'>" + task.estimation + "</td>" +
+							"<td class='text-center'> <button data-action='makestima' class='btn' id='"+task.id+"'> IeStima </button>" + task.estimation + "</td>" +
 							"<td class='text-center'>" + actions + "</td>" +
 						"</tr>");
 			});
@@ -348,5 +354,22 @@ TaskManagement.prototype = {
 			}
 		});
 	},
+	
+	makeEstimation : function(e){
+		 var taskID = $(e.target).closest("tr").data("taskid");
+		 alert (taskID);
+		$.ajax({
+			url: basePath + '/task-management/tasks/'+taskID+'/estimation',
+			method: 'POST',
+			data: {value:100},
+			dataType: 'json',
+			complete: function(xhr, textStatus) {
+				if (xhr.status === 201)
+					alert("Estimation done");
+				else
+					alert("Error. Status Code: " + xhr.status);
+			}
+		});
+	}
 	
 };

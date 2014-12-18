@@ -6,6 +6,7 @@ use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Stream\StreamEvent;
 use Ora\ReadModel\Task;
+use Ora\ReadModel\Estimation;
 
 class TaskListener
 {
@@ -135,6 +136,26 @@ class TaskListener
 			return;
 		}
 		$this->entityManager->remove($entity); // TODO: Solo con l'id no?
+	}
+	
+	protected function onEstimationAdded(StreamEvent $event) {
+		//FIXME
+		$memberId = $event->payload()['userId'];
+		$user = $this->entityManager->find('Ora\User\User', $memberId);
+		if(is_null($user)) {
+			return;
+		}
+		$id = $event->metadata()['aggregate_id'];
+		$taskMember = $this->entityManager->find('Ora\\ReadModel\\TaskMember', array('task' => $id, 'member' => $memberId));
+		$estId = $event->payload()['id'];
+		$value = $event->payload()['value'];
+		$esti = new Estimation($estId, $value);
+		$esti->setCreatedAt($event->occurredOn());
+		$esti->setCreatedBy($user);
+		$esti->setMostRecentEditAt($event->occurredOn());
+		$esti->setMostRecentEditBy($user);
+		$taskMember->setEstimation($esti);
+		$this->entityManager->persist($taskMember);
 	}
 	
 	protected function determineEventHandlerMethodFor(StreamEvent $e)

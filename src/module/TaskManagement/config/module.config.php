@@ -66,6 +66,16 @@ return array(
         			),
         		),
         	),
+        	'estimations'	=> array(
+        		'type'		=> 'Segment',
+        		'options'	=> array(
+        			'route'		=> '/task-management/tasks/:taskId/estimation',
+        			'defaults'	=>	array(
+        				'__NAMESPACE__' => 'TaskManagement\Controller',
+        				'controller'    => 'Estimation',
+        			),
+        		),
+        	),
         ),
     ),
     
