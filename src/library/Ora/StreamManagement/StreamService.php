@@ -11,6 +11,6 @@ interface StreamService
 {
 	public function getStream($id);
 	
-	public function findOrganizationStreams(Organization $organization);
+	public function findStream($id);
 	
 } 

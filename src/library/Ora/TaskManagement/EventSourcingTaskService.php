@@ -70,7 +70,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	/**
 	 * Get the list of all available tasks 
 	 */
-	public function listAvailableTasks()
+	public function findTasks()
 	{
 		$repository = $this->entityManager->getRepository('Ora\ReadModel\Task');
 	    return $repository->findAll();	    
@@ -84,5 +84,5 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	{	
 		$repository = $this->entityManager->getRepository('Ora\ReadModel\Task')->findBy(array('stream' => $stream));
 	    return $repository;
-	}
+	}	
 }

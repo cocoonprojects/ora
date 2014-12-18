@@ -33,12 +33,8 @@ class MockStreamService implements StreamService {
 		}
 	}
 	
-	public function findOrganizationStreams(Organization $organization)
+	public function findStream($id)
 	{
-		$streams = $this->entityManager
-					     ->getRepository('Ora\ReadModel\Stream')
-					     ->findBy(array('id' => '00000000-1000-0000-0000-000000000000'));
-					     		
-		return $streams;		
+		return $this->entityManager->find('Ora\ReadModel\Stream', '00000000-1000-0000-0000-000000000000');
 	}
 }
