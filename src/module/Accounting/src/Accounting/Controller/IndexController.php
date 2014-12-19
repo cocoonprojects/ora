@@ -28,12 +28,6 @@ class IndexController extends AbstractActionController
 	public function indexAction()
 	{
 		$rv = new ViewModel();
-		if($this->authService->hasIdentity()) {
-			$identity = $this->authService->getIdentity()['user'];
-			
-			$accounts = $this->accountService->findAccounts($identity);
-			$rv->setVariable('accounts', $accounts);
-		}
 		return $rv;
 	}
 

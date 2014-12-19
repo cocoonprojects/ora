@@ -1,10 +1,10 @@
 <?php
 namespace Accounting\Controller;
 
-use Accounting\View\CreditsAccountJsonModel;
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Rhumsaa\Uuid\Uuid;
+use Zend\Authentication\AuthenticationServiceInterface;
 use Ora\Accounting\AccountService;
+use Accounting\View\AccountsJsonModel;
 
 class AccountsController extends AbstractHATEOASRestfulController
 {
@@ -15,9 +15,15 @@ class AccountsController extends AbstractHATEOASRestfulController
 	 * @var AccountService
 	 */
 	protected $accountService;
+	/**
+	 * 
+	 * @var AuthenticationServiceInterface
+	 */
+	protected $authService;
 	
-	public function __construct(AccountService $accountService) {
+	public function __construct(AccountService $accountService, AuthenticationServiceInterface $authService) {
 		$this->accountService = $accountService;
+		$this->authService = $authService;
 	}
 	
 	// Gets my credits accounts list
@@ -31,9 +37,8 @@ class AccountsController extends AbstractHATEOASRestfulController
 		$identity = $this->authService->getIdentity()['user'];
 		$accounts = $this->accountService->findAccounts($identity);
 		
-		$viewModel = new CreditsAccountJsonModel();
+		$viewModel = new AccountsJsonModel($this->url());
 		$viewModel->setVariable('resource', $accounts);
-		$viewModel->setVariable('url', $this->url()->fromRoute('accounts'));
 		return $viewModel;
 	}
 
@@ -74,10 +79,6 @@ class AccountsController extends AbstractHATEOASRestfulController
 	
 	protected function getResourceOptions() {
 		return self::$resourceOptions;
-	}
-	
-	protected function getJsonModelClass(){
-		return $this->jsonModelClass;
 	}
 	
 }

@@ -7,6 +7,8 @@ use Zend\Mvc\MvcEvent;
 use Accounting\Controller\IndexController;
 use Accounting\Service\AccountListener;
 use Accounting\Controller\AccountsController;
+use Accounting\Controller\DepositsController;
+use Accounting\Controller\StatementsController;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {
@@ -47,7 +49,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
     {
         return array(
             'invokables' => array(
-				'Accounting\Controller\Accounts' => 'Accounting\Controller\AccountsController',
             ),
             'factories' => array(
 	            'Accounting\Controller\Index' => function ($sm) {
@@ -59,10 +60,27 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 	            },
 	            'Accounting\Controller\Accounts' => function ($sm) {
 	            	$locator = $sm->getServiceLocator();
+	            	$authService = $locator->get('Application\Service\AuthenticationService');
 	            	$accountService = $locator->get('Accounting\CreditsAccountsService');
-	            	$controller = new AccountsController($accountService);
+	            	$controller = new AccountsController($accountService, $authService);
 	            	return $controller;
-	            }
+	            },
+				'Accounting\Controller\Deposits' => function ($sm) {
+	            	$locator = $sm->getServiceLocator();
+	            	$authService = $locator->get('Application\Service\AuthenticationService');
+	            	$accountService = $locator->get('Accounting\CreditsAccountsService');
+	            	$controller = new DepositsController($accountService, $authService);
+	            	$eventStore = $locator->get('prooph.event_store');
+	            	$controller->setTransactionManager($eventStore);
+	            	return $controller;
+	            },
+				'Accounting\Controller\Statements' => function ($sm) {
+	            	$locator = $sm->getServiceLocator();
+	            	$authService = $locator->get('Application\Service\AuthenticationService');
+	            	$accountService = $locator->get('Accounting\CreditsAccountsService');
+	            	$controller = new StatementsController($accountService, $authService);
+	            	return $controller;
+	            },
             )
         );        
     } 

@@ -15,12 +15,24 @@ return array(
 			'deposits' => array (
 				'type'    => 'segment',
 				'options' => array (
-					'route'       => '/accounting/accounts/:id/deposits',
+					'route'       => '/accounting/accounts/:accountId/deposits',
+					'constraints' => array (
+						'accountId'     => '[0-9a-z\-]+',
+					),
+					'defaults'    => array (
+						'controller' => 'Accounting\Controller\Deposits'
+					),
+				),
+			),
+			'statements' => array (
+				'type'    => 'segment',
+				'options' => array (
+					'route'       => '/accounting/accounts/:id/statement',
 					'constraints' => array (
 						'id'     => '[0-9a-z\-]+',
 					),
 					'defaults'    => array (
-						'controller' => 'Accounting\Controller\Deposits'
+						'controller' => 'Accounting\Controller\Statements'
 					),
 				),
 			),
@@ -45,5 +57,12 @@ return array(
 		'template_path_stack' => array(
 			'accounting' => __DIR__ . '/../view',
 		),
+	),
+	'asset_manager' => array(
+			'resolver_configs' => array(
+					'paths' => array(
+							'Application' => __DIR__ . '/../public',
+					),
+			),
 	),
 );

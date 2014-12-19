@@ -17,7 +17,7 @@ class TaskJsonModel extends JsonModel
         $loggedUser = $this->getVariable('user');
 
         if(is_array($resource)) {
-			$representation = array( 'tasks' => array());
+			$representation['tasks'] = [];
 			foreach ($resource as $r) {
 				$representation['tasks'][] = $this->serializeOne($r, $url, $loggedUser);
 			}

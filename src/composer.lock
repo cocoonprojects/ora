@@ -4,20 +4,20 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "1b2e47888438748c006bb293e3a15b77",
+    "hash": "16a100833eb9180ea457877219af2391",
     "packages": [
         {
             "name": "beberlei/assert",
-            "version": "v2.1",
+            "version": "v2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/beberlei/assert.git",
-                "reference": "8c60f8a1c31dcd61c928bf024bc59a3472f00632"
+                "reference": "633a9473cd30ec8868c0d95d0567b7992aa7aa26"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/beberlei/assert/zipball/8c60f8a1c31dcd61c928bf024bc59a3472f00632",
-                "reference": "8c60f8a1c31dcd61c928bf024bc59a3472f00632",
+                "url": "https://api.github.com/repos/beberlei/assert/zipball/633a9473cd30ec8868c0d95d0567b7992aa7aa26",
+                "reference": "633a9473cd30ec8868c0d95d0567b7992aa7aa26",
                 "shasum": ""
             },
             "require": {
@@ -26,7 +26,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.0.x-dev"
+                    "dev-master": "2.1.x-dev"
                 }
             },
             "autoload": {
@@ -53,7 +53,7 @@
                 "assertion",
                 "validation"
             ],
-            "time": "2014-11-06 10:17:53"
+            "time": "2014-12-18 14:02:16"
         },
         {
             "name": "codeliner/array-reader",
@@ -387,16 +387,16 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "dev-master",
+            "version": "v2.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "ea3715a100f20741d8a2088896f94c09dfeea920"
+                "reference": "71140662c0a954602e81271667b6e03d9f53ea34"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/ea3715a100f20741d8a2088896f94c09dfeea920",
-                "reference": "ea3715a100f20741d8a2088896f94c09dfeea920",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/71140662c0a954602e81271667b6e03d9f53ea34",
+                "reference": "71140662c0a954602e81271667b6e03d9f53ea34",
                 "shasum": ""
             },
             "require": {
@@ -454,7 +454,7 @@
                 "persistence",
                 "queryobject"
             ],
-            "time": "2014-12-02 15:14:39"
+            "time": "2014-12-04 21:57:15"
         },
         {
             "name": "doctrine/doctrine-module",
@@ -462,12 +462,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/DoctrineModule.git",
-                "reference": "9fb484eb3e0f8d794bded862b0bfc231fd775039"
+                "reference": "9bccf8429aecbe4f9fe0c94c0f60e9fe2eafd162"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/DoctrineModule/zipball/9fb484eb3e0f8d794bded862b0bfc231fd775039",
-                "reference": "9fb484eb3e0f8d794bded862b0bfc231fd775039",
+                "url": "https://api.github.com/repos/doctrine/DoctrineModule/zipball/9bccf8429aecbe4f9fe0c94c0f60e9fe2eafd162",
+                "reference": "9bccf8429aecbe4f9fe0c94c0f60e9fe2eafd162",
                 "shasum": ""
             },
             "require": {
@@ -536,7 +536,7 @@
                 "module",
                 "zf2"
             ],
-            "time": "2014-11-12 22:06:36"
+            "time": "2014-12-10 01:04:13"
         },
         {
             "name": "doctrine/doctrine-orm-module",
@@ -544,12 +544,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/DoctrineORMModule.git",
-                "reference": "a284fa4a5c764b3000fe931e8d47e8b381048215"
+                "reference": "e1855a64e8dfdd2b3f212855991b005faf3d2b33"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/DoctrineORMModule/zipball/a284fa4a5c764b3000fe931e8d47e8b381048215",
-                "reference": "a284fa4a5c764b3000fe931e8d47e8b381048215",
+                "url": "https://api.github.com/repos/doctrine/DoctrineORMModule/zipball/e1855a64e8dfdd2b3f212855991b005faf3d2b33",
+                "reference": "e1855a64e8dfdd2b3f212855991b005faf3d2b33",
                 "shasum": ""
             },
             "require": {
@@ -557,6 +557,7 @@
                 "doctrine/doctrine-module": "0.9.*",
                 "doctrine/orm": ">=2.4,<2.6-dev",
                 "php": ">=5.3.23",
+                "symfony/console": "~2.5",
                 "zendframework/zend-mvc": "~2.3",
                 "zendframework/zend-servicemanager": "~2.3",
                 "zendframework/zend-stdlib": "~2.3"
@@ -618,7 +619,7 @@
                 "orm",
                 "zf2"
             ],
-            "time": "2014-11-27 15:20:57"
+            "time": "2014-12-10 19:57:07"
         },
         {
             "name": "doctrine/inflector",
@@ -796,12 +797,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/doctrine2.git",
-                "reference": "b9506ac64a9ee00efda64fb0e9c2616a3bf08bf7"
+                "reference": "5a6bbbd6241d803b686a13a0c373e0febe656987"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/doctrine2/zipball/b9506ac64a9ee00efda64fb0e9c2616a3bf08bf7",
-                "reference": "b9506ac64a9ee00efda64fb0e9c2616a3bf08bf7",
+                "url": "https://api.github.com/repos/doctrine/doctrine2/zipball/5a6bbbd6241d803b686a13a0c373e0febe656987",
+                "reference": "5a6bbbd6241d803b686a13a0c373e0febe656987",
                 "shasum": ""
             },
             "require": {
@@ -863,7 +864,7 @@
                 "database",
                 "orm"
             ],
-            "time": "2014-12-04 13:03:09"
+            "time": "2014-12-10 00:33:23"
         },
         {
             "name": "guzzle/guzzle",
@@ -931,6 +932,77 @@
             "time": "2012-04-24 00:54:02"
         },
         {
+            "name": "kriswallsmith/assetic",
+            "version": "v1.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/kriswallsmith/assetic.git",
+                "reference": "02105abcd35fb32933bc566e4c3bec84c612e9c1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/kriswallsmith/assetic/zipball/02105abcd35fb32933bc566e4c3bec84c612e9c1",
+                "reference": "02105abcd35fb32933bc566e4c3bec84c612e9c1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.1",
+                "symfony/process": "~2.1"
+            },
+            "require-dev": {
+                "cssmin/cssmin": "*",
+                "joliclic/javascript-packer": "*",
+                "kamicane/packager": "*",
+                "leafo/lessphp": "*",
+                "leafo/scssphp": "*",
+                "leafo/scssphp-compass": "*",
+                "mrclay/minify": "*",
+                "phpunit/phpunit": "~3.7",
+                "ptachoire/cssembed": "*",
+                "twig/twig": "~1.6"
+            },
+            "suggest": {
+                "leafo/lessphp": "Assetic provides the integration with the lessphp LESS compiler",
+                "leafo/scssphp": "Assetic provides the integration with the scssphp SCSS compiler",
+                "leafo/scssphp-compass": "Assetic provides the integration with the SCSS compass plugin",
+                "ptachoire/cssembed": "Assetic provides the integration with phpcssembed to embed data uris",
+                "twig/twig": "Assetic provides the integration with the Twig templating engine"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Assetic": "src/"
+                },
+                "files": [
+                    "src/functions.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kris Wallsmith",
+                    "email": "kris.wallsmith@gmail.com",
+                    "homepage": "http://kriswallsmith.net/"
+                }
+            ],
+            "description": "Asset Management for PHP",
+            "homepage": "https://github.com/kriswallsmith/assetic",
+            "keywords": [
+                "assets",
+                "compression",
+                "minification"
+            ],
+            "time": "2014-12-12 05:37:00"
+        },
+        {
             "name": "prooph/event-sourcing",
             "version": "v1.0.0",
             "source": {
@@ -987,16 +1059,16 @@
         },
         {
             "name": "prooph/event-store",
-            "version": "v1.1.1",
+            "version": "v1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/prooph/event-store.git",
-                "reference": "672f230947f642fe3dc5a3faf867de9946857c5f"
+                "reference": "948525de99d53ce029631b709ea7e6dc911b8e28"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/prooph/event-store/zipball/672f230947f642fe3dc5a3faf867de9946857c5f",
-                "reference": "672f230947f642fe3dc5a3faf867de9946857c5f",
+                "url": "https://api.github.com/repos/prooph/event-store/zipball/948525de99d53ce029631b709ea7e6dc911b8e28",
+                "reference": "948525de99d53ce029631b709ea7e6dc911b8e28",
                 "shasum": ""
             },
             "require": {
@@ -1048,7 +1120,7 @@
                 "prooph",
                 "zf2"
             ],
-            "time": "2014-10-25 20:27:39"
+            "time": "2014-12-11 15:25:10"
         },
         {
             "name": "prooph/event-store-zf2-adapter",
@@ -1293,6 +1365,68 @@
             "time": "2014-11-09 18:42:56"
         },
         {
+            "name": "rwoverdijk/assetmanager",
+            "version": "1.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/RWOverdijk/AssetManager.git",
+                "reference": "47d29f56fc7935833adba9e18e17f777b9e8a2d6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/RWOverdijk/AssetManager/zipball/47d29f56fc7935833adba9e18e17f777b9e8a2d6",
+                "reference": "47d29f56fc7935833adba9e18e17f777b9e8a2d6",
+                "shasum": ""
+            },
+            "require": {
+                "kriswallsmith/assetic": "~1.1.2",
+                "php": ">=5.3.3",
+                "zendframework/zend-eventmanager": "2.*",
+                "zendframework/zend-loader": "2.*",
+                "zendframework/zend-modulemanager": "2.*",
+                "zendframework/zend-mvc": "2.*",
+                "zendframework/zend-servicemanager": "2.*",
+                "zendframework/zend-stdlib": "2.*"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.0",
+                "squizlabs/php_codesniffer": "1.5.*",
+                "zendframework/zendframework": "2.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "AssetManager": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Marco Pivetta",
+                    "email": "ocramius@gmail.com",
+                    "homepage": "http://ocramius.github.com/",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Wesley Overdijk",
+                    "email": "r.w.overdijk@gmail.com",
+                    "homepage": "http://blog.spoonx.nl/"
+                }
+            ],
+            "description": "An assetmanager module for Zend Framework 2.",
+            "homepage": "https://github.com/RWOverdijk/AssetManager",
+            "keywords": [
+                "asset",
+                "asset manager",
+                "zend framework 2",
+                "zf2"
+            ],
+            "time": "2014-05-29 15:34:41"
+        },
+        {
             "name": "symfony/console",
             "version": "v2.6.1",
             "target-dir": "Symfony/Component/Console",
@@ -1404,6 +1538,53 @@
                 }
             ],
             "description": "Symfony EventDispatcher Component",
+            "homepage": "http://symfony.com",
+            "time": "2014-12-02 20:19:20"
+        },
+        {
+            "name": "symfony/process",
+            "version": "v2.6.1",
+            "target-dir": "Symfony/Component/Process",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/Process.git",
+                "reference": "bf0c9bd625f13b0b0bbe39919225cf145dfb935a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/Process/zipball/bf0c9bd625f13b0b0bbe39919225cf145dfb935a",
+                "reference": "bf0c9bd625f13b0b0bbe39919225cf145dfb935a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.6-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\Process\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                },
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                }
+            ],
+            "description": "Symfony Process Component",
             "homepage": "http://symfony.com",
             "time": "2014-12-02 20:19:20"
         },
@@ -2993,16 +3174,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "4.3.5",
+            "version": "4.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "2dab9d593997db4abcf58d0daf798eb4e9cecfe1"
+                "reference": "bbe7bcb83b6ec1a9eaabbe1b70d4795027c53ee0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/2dab9d593997db4abcf58d0daf798eb4e9cecfe1",
-                "reference": "2dab9d593997db4abcf58d0daf798eb4e9cecfe1",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/bbe7bcb83b6ec1a9eaabbe1b70d4795027c53ee0",
+                "reference": "bbe7bcb83b6ec1a9eaabbe1b70d4795027c53ee0",
                 "shasum": ""
             },
             "require": {
@@ -3019,8 +3200,9 @@
                 "phpunit/phpunit-mock-objects": "~2.3",
                 "sebastian/comparator": "~1.0",
                 "sebastian/diff": "~1.1",
-                "sebastian/environment": "~1.0",
+                "sebastian/environment": "~1.1",
                 "sebastian/exporter": "~1.0",
+                "sebastian/global-state": "~1.0",
                 "sebastian/version": "~1.0",
                 "symfony/yaml": "~2.0"
             },
@@ -3033,7 +3215,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.3.x-dev"
+                    "dev-master": "4.4.x-dev"
                 }
             },
             "autoload": {
@@ -3042,10 +3224,6 @@
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
-            "include-path": [
-                "",
-                "../../symfony/yaml/"
-            ],
             "license": [
                 "BSD-3-Clause"
             ],
@@ -3057,13 +3235,13 @@
                 }
             ],
             "description": "The PHP Unit Testing framework.",
-            "homepage": "http://www.phpunit.de/",
+            "homepage": "https://phpunit.de/",
             "keywords": [
                 "phpunit",
                 "testing",
                 "xunit"
             ],
-            "time": "2014-11-11 10:11:09"
+            "time": "2014-12-05 06:49:03"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -3350,6 +3528,57 @@
                 "exporter"
             ],
             "time": "2014-09-10 00:51:36"
+        },
+        {
+            "name": "sebastian/global-state",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/global-state.git",
+                "reference": "c7428acdb62ece0a45e6306f1ae85e1c05b09c01"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/global-state/zipball/c7428acdb62ece0a45e6306f1ae85e1c05b09c01",
+                "reference": "c7428acdb62ece0a45e6306f1ae85e1c05b09c01",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.2"
+            },
+            "suggest": {
+                "ext-uopz": "*"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Sebastian Bergmann",
+                    "email": "sebastian@phpunit.de"
+                }
+            ],
+            "description": "Snapshotting of global state",
+            "homepage": "http://www.github.com/sebastianbergmann/global-state",
+            "keywords": [
+                "global state"
+            ],
+            "time": "2014-10-06 09:23:50"
         },
         {
             "name": "sebastian/version",
@@ -3795,53 +4024,6 @@
             "time": "2014-12-02 20:19:20"
         },
         {
-            "name": "symfony/process",
-            "version": "v2.6.1",
-            "target-dir": "Symfony/Component/Process",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/Process.git",
-                "reference": "bf0c9bd625f13b0b0bbe39919225cf145dfb935a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Process/zipball/bf0c9bd625f13b0b0bbe39919225cf145dfb935a",
-                "reference": "bf0c9bd625f13b0b0bbe39919225cf145dfb935a",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.3"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.6-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Symfony\\Component\\Process\\": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Symfony Community",
-                    "homepage": "http://symfony.com/contributors"
-                },
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                }
-            ],
-            "description": "Symfony Process Component",
-            "homepage": "http://symfony.com",
-            "time": "2014-12-02 20:19:20"
-        },
-        {
             "name": "symfony/yaml",
             "version": "v2.6.1",
             "target-dir": "Symfony/Component/Yaml",
@@ -3896,10 +4078,10 @@
         "doctrine/doctrine-module": 20,
         "doctrine/doctrine-orm-module": 20,
         "doctrine/orm": 20,
-        "doctrine/dbal": 20,
         "guzzle/plugin": 20
     },
     "prefer-stable": false,
+    "prefer-lowest": false,
     "platform": {
         "php": ">=5.3.3"
     },

@@ -19,9 +19,54 @@ class AccountTransaction extends DomainEntity {
 	 */
 	protected $account;
 	/**
-	 * 
-	 * @var unknown
+	 * @ORM\Column(type="float")
+	 * @var float
 	 */
 	protected $amount;
+	/**
+	 * @ORM\Column(type="string", nullable=true)
+	 * @var string
+	 */
+	protected $description;
+	/**
+	 * @ORM\Column(type="float", scale=2)
+	 * @var float
+	 */
+	protected $balance;
 	
+	public function setAccount(Account $account) {
+		$this->account = $account;
+		return $this;
+	}
+	
+	public function getAccount() {
+		return $this->account;
+	}
+	
+	public function setAmount($amount) {
+		$this->amount = $amount;
+		return $this;
+	}
+	
+	public function getAmount() {
+		return $this->amount;
+	}
+	
+	public function setDescription($description) {
+		$this->description = $description;
+		return $this;
+	}
+	
+	public function getDescription() {
+		return $this->description;
+	}
+	
+	public function setBalance($balance) {
+		$this->balance = $balance;
+		return $this;
+	}
+	
+	public function getBalance() {
+		return $this->balance;
+	}
 }

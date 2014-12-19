@@ -16,10 +16,10 @@ class AuthenticationServiceFactory implements FactoryInterface
 	public function createService(ServiceLocatorInterface $serviceLocator) 
 	{
 		if(is_null(self::$instance)) {
-			self::$instance = new AuthenticationService();
-// 			$userService = $serviceLocator->get('User\UserService');
-// 			$user = $userService->findUserByEmail('mark.rogers@ora.local');
-// 			self::$instance = new MockAuthenticationService($user);				
+// 			self::$instance = new AuthenticationService();
+			$userService = $serviceLocator->get('User\UserService');
+			$user = $userService->findUserByEmail('dottorbabba@gmail.com');
+			self::$instance = new MockAuthenticationService($user);				
 		}
 	    return self::$instance;
 	}

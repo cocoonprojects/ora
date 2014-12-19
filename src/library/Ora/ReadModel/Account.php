@@ -28,7 +28,8 @@ class Account extends EditableEntity {
 	 */
 	protected $holders;
 	/**
-	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\AccountTransaction", mappedBy="account")
+	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\AccountTransaction", mappedBy="account", cascade="persist")
+	 * @ORM\OrderBy({"createdAt" = "DESC"})
 	 * @var ArrayCollection
 	 */
 	protected $transactions;
@@ -51,6 +52,15 @@ class Account extends EditableEntity {
 	
 	public function getHolders() {
 		return $this->holders;
+	}
+	
+	public function getTransactions() {
+		return $this->transactions;
+	}
+	
+	public function addTransaction(AccountTransaction $transaction) {
+		$this->transactions->add($transaction);
+		return $this;
 	}
 	
 }

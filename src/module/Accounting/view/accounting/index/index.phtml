@@ -1,26 +1,23 @@
+<?php $this->headScript()->appendFile($this->basePath() . '/js/accounting.js'); ?>
 <div class="container-fluid">
-<?php if(empty($this->accounts)) {?>
-<?php } else {
-	$account = $this->accounts[0];
-?>
 	<h1>Credits</h1>
-	<p>Balance at <?php echo $this->dateFormat($account->getBalance()->getDate(), IntlDateFormatter::MEDIUM, IntlDateFormatter::MEDIUM) ?>: <?php echo $account->getBalance()->getValue() ?></p>
+	<ul id="accounts"></ul>
 	
-	<table class="table">
+	<table class="table" id="transactions-container">
 		<caption>Transactions</caption>
 		<thead>
+			<tr>
+				<td colspan="3" style="text-align: right; font-weight: bold">Actual Balance</td>
+				<td id="actual-balance"></td>
+			</tr>
 			<tr>
 				<th>Date</th>
 				<th>Description</th>
 				<th>Ref.</th>
 				<th>Amount</th>
 			</tr>
-			<tr>
-				<td>Initial Balance</td>
-				<td></td>
-			</tr>
 		</thead>
-		<tbody>
+		<tbody id="transactions">
 			<tr>
 				<td></td>
 				<td></td>
@@ -30,15 +27,10 @@
 		</tbody>
 		<tfoot>
 			<tr>
-				<td colspan="3">Final Balance</td>
-				<td></td>
+				<td colspan="3" style="text-align: right; font-weight: bold">Initial balance</td>
+				<td id="starting-balance"></td>
 			</tr>
 		</tfoot>
 	</table>
 	<ul>
-<?php for($i = 1; $i < count($this->accounts); $i++) { ?>
-	<li><a href="<?php echo $this->url('accounts', array('id' => $this->accounts[$i]->getId()))?>">Account <?php echo $this->accounts[$i]->getId()?></a></li>
-<?php } ?>
-	</ul>
-<?php } ?>
 </div>

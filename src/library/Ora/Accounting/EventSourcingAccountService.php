@@ -48,16 +48,6 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 		return $this->getAggregateRoot($this->aggregateRootType, $id);
 	}
 	
-	public function deposit(CreditsAccount $destination, $value) {
-		$e = new CreditsDepositedEvent($when, $this, $value);
-		$this->eventStore->appendToStream($e);
-	}
-	
-	public function withdraw(CreditsAccount $source, $value) {
-		$e = new CreditsWithdrawnEvent($when, $this, $value);
-		$this->eventStore->appendToStream($e);
-	}
-	
 	public function transfer(CreditsAccount $source, CreditsAccount $destination, $value, \DateTime $when) {
 		try {
 			$source->withdraw($value, $when);
@@ -77,4 +67,7 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 		return $query->getResult();
 	}
 	
+	public function findAccount($id) {
+		return $this->entityManager->getRepository('Ora\ReadModel\Account')->find($id);
+	}
 }

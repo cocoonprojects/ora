@@ -18,6 +18,7 @@ return array(
         'DoctrineORMModule',
     	'ProophEventStoreModule',
         'ZendOAuth2',
+    	'AssetManager',
     	'Accounting',
     	'TaskManagement',
     	'User',

@@ -8,6 +8,7 @@ use Prooph\EventStore\Stream\StreamEvent;
 use Ora\ReadModel\Task;
 use Ora\ReadModel\Balance;
 use Ora\ReadModel\Account;
+use Ora\ReadModel\Deposit;
 
 class AccountListener
 {
@@ -63,17 +64,24 @@ class AccountListener
 	
 	protected function onCreditsDeposited(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		if(isset($event->payload()['subject'])) {
-			$entity = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
-			if(is_null($entity)) {
-				return;
-			}
-			$entity->setSubject($event->payload()['subject']);
-			$entity->setMostRecentEditAt($event->occurredOn());
-			$updatedBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
-			$entity->setMostRecentEditBy($updatedBy);
-			$this->entityManager->persist($entity);
-		}
+		$entity = $this->entityManager->find('Ora\\ReadModel\\Account', $id);
+		
+		$transaction = new Deposit($event->eventId());
+		$transaction->setAccount($entity);
+		$amount = $event->payload()['amount'];
+		$transaction->setAmount($amount);
+		$transaction->setBalance($entity->getBalance()->getValue() + $amount);
+		$transaction->setDescription($event->payload()['description']);
+		$transaction->setCreatedAt($event->occurredOn());
+		$payer = $this->entityManager->find('Ora\User\User', $event->payload()['payer']);
+		$transaction->setCreatedBy($payer);
+		$entity->addTransaction($transaction);
+		
+		$balance = new Balance($transaction->getBalance(), $event->occurredOn());
+		$entity->setBalance($balance);
+		$entity->setMostRecentEditAt($event->occurredOn());
+		$entity->setMostRecentEditBy($payer);
+		$this->entityManager->persist($entity);
 	}
 	
 	protected function determineEventHandlerMethodFor(StreamEvent $e)

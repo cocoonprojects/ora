@@ -5,11 +5,11 @@ use Doctrine\ORM\Mapping AS ORM;
 use Ora\User\User;
 
 /**
- * @ORM\Entity
+ * 
  * @author andreabandera
  *
  */
-class EditableEntity extends DomainEntity {
+abstract class EditableEntity extends DomainEntity {
 	
     /**
      * @ORM\Column(type="datetime")

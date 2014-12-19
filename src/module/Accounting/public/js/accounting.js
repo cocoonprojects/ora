@@ -14,10 +14,11 @@ Accounting.prototype = {
 		{
 			var that = this;
 
-			$().ready(function(e){
+			$("body").on("click", "a.statement", function(e){
 				e.preventDefault();
-				that.listAccounts();
+				that.listTransactions(this.href);
 			});
+			
 		},
 
 		listAccounts: function()
@@ -29,22 +30,52 @@ Accounting.prototype = {
 			})
 			.done(this.onListAccountsCompleted.bind(this));
 		},
+		
+		listTransactions: function(url)
+		{
+			$.ajax({
+				url: url,
+				method: 'GET',
+				dataType: 'json'
+			})
+			.done(this.onListTransactionsCompleted.bind(this));
+		},
 
 		onListAccountsCompleted: function(json)
 		{
-			var container = $('.jumbotron').closest('.container');	// TODO: Da cambiare
-	
+			var container = $('#accounts');
 			container.empty();
-			if ($(json.accounts).length > 0)
-			{
-				account = json.accounts[0];
-				container.append("<p>Balance at " + account.balance.date + ": " + account.balance.value + "</p>");
-			}
-	
-			container.append('<ul>');
+			
 			$.each(json.accounts, function(key, account) {
-				container.append('<li><a href="' + account._links.self + '"></a>Account ' + account.id + '</li>')
+				balanceDate = new Date(Date.parse(account.balance.date));
+				container.append('<li>Account ' + account.id + ' balance at ' + balanceDate.toLocaleString() + ': ' + account.balance.value + ' <a href="' + account._links.statement + '" class="statement">Transactions</a></li>');
+				if(account._links.deposits != undefined) {
+					container.append('<form method="POST" action="' + account._links.deposits + '"><input type="text" name="amount"/><button type="submit">Deposit</button></form>');
+				}
 			});
-			container.append('</ul>');
 		},
+		
+		onListTransactionsCompleted: function(json)
+		{
+			var container = $('#transactions');
+			container.empty();
+			var top = $('#actual-balance');
+			top.empty();
+			var bottom = $('#starting-balance');
+			
+			$.each(json.statement.transactions, function(key, transaction) {
+				transactionDate = new Date(Date.parse(transaction.date));
+				if(key == 0) { top.append(transaction.balance); }
+				cssClass = transaction.type == 'Deposit' ? 'text-success' : '';
+				container.append('<tr><td>' + transactionDate.toLocaleString() + '</td><td>' + transaction.description + '</td><td>' + transaction.type + '</td><td class=' + cssClass + '>' + transaction.amount + '</td></tr>');
+				bottom.empty();
+				bottom.append(transaction.balance);
+			});
+			
+		}
 }
+
+$().ready(function(e){
+	accounting = new Accounting();
+	accounting.listAccounts();
+});

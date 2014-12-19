@@ -32,15 +32,16 @@ class Account extends DomainEntity {
 		return $rv;
 	}
 	
-	public function deposit($amout, User $holder) {
+	public function deposit($amount, User $holder, $description) {
 		if ($amount <= 0) {
 			throw new IllegalAmountException($amount);
 		}
-		if(!array_key_exists($holder->getId(), $this->holders)) {
-			throw new IllegalPayerException();
-		}
-		$rv->recordThat(CreditsDeposited::occur($rv->id->toString(), array(
+// 		if(!array_key_exists($holder->getId(), $this->holders)) {
+// 			throw new IllegalPayerException();
+// 		}
+		$this->recordThat(CreditsDeposited::occur($this->id->toString(), array(
 				'amount' => $amount,
+				'description' => $description,
 				'payer'	 => $holder->getId(),
 		)));
 	}
@@ -55,11 +56,10 @@ class Account extends DomainEntity {
 		$this->holders = $event->payload()['holders'];
 	}
 	
-	private function whenCreditsDeposited(CreditsDeposited $e) {
+	protected function whenCreditsDeposited(CreditsDeposited $e) {
 		$current = $this->getBalance()->getValue();
-		$value = $e->payload()['value'];
-		$updated = new Balance($current + $value, $e->occurredOn());
-		$this->setBalance($updated);
+		$value = $e->payload()['amount'];
+		$this->balance = new Balance($current + $value, $e->occurredOn());
 	}
 	
 }
