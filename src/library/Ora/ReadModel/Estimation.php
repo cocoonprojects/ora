@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @ORM\Entity @ORM\Table(name="estimation")
+ * @ORM\Entity @ORM\Table(name="estimations")
  * @author Andrea Lupia
  */
 
