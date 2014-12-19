@@ -8,20 +8,20 @@ Scenario: Successfully creating a new Estimation
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Estimation"
 	And that its "value" is "100"
-	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000116/estimation"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000120/estimation"
 	Then the response status code should be 201
 	
 Scenario: Cannot create a new Estimation with no params
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Estimation"
-	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000116/estimation"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000121/estimation"
 	Then the response status code should be 400
 
 Scenario: Cannot create a new Estimation with wrong params
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Estimation"
 	And that its "value" is "estimation"
-	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000116/estimation"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000121/estimation"
 	Then the response status code should be 400
 
 Scenario: Cannot create a new Estimation with not existing task
@@ -43,14 +43,14 @@ Scenario: Cannot create a new Estimation if the member has already estimate the 
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Estimation"
 	And that its "value" is "250"
-	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000119/estimation"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000120/estimation"
 	Then the response status code should be 204
 	
 Scenario: Cannot create a new Estimation if the user is not member of the task
-	Given that I am authenticated as "pippo@ora.local"
+	Given that I am authenticated as "phil.toledo@ora.local"
 	And that I want to make a new "Estimation"
 	And that its "value" is "300"
-	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000116/estimation"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000122/estimation"
 	Then the response status code should be 401
 
 
