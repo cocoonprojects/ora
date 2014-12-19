@@ -9,6 +9,8 @@ use Ora\StreamManagement\Stream;
 use Ora\User\User;
 use Ora\DomainEntity;
 use Rhumsaa\Uuid\Uuid;
+use Ora\ReadModel\Estimation;
+use Ora\ReadModel\TaskMember;
 
 /**
  * 
@@ -48,6 +50,10 @@ class Task extends DomainEntity implements \Serializable
 	/**
 	 */
 	private $members = array();
+
+	/**
+	 */
+	private $estimations = array();
 	
 	public function getId() {
 		return $this->id;
@@ -155,8 +161,35 @@ class Task extends DomainEntity implements \Serializable
         )));
 	}
 	
+	public function addEstimation(User $member, $value) {
+		//in which states I can add an estimation?
+		if($this->status != self::STATUS_ONGOING) {
+			throw new IllegalStateException('Cannot estimate a task in the state '.$this->status.'.');
+		}
+		//check that the task in the estimation is the current one
+		//check if the member have joined the task
+		if(!array_key_exists($member->getId(), $this->members)) {
+        	throw new DomainEntityUnavailableException($this, $member); 
+		}
+		//this estimation already exists?
+        if (array_key_exists($member->getId(), $this->estimations)) {
+        	throw new DuplicatedDomainEntityException($this, $member); 
+        }
+		//record the estimation
+		$estId = Uuid::uuid4();
+        $this->recordThat(EstimationAdded::occur($this->id->toString(), array(
+        	'id'	 => $estId,
+        	'userId' => $member->getId(),
+        	'value'  => $value,
+        )));
+	}
+	
 	public function getMembers() {
 	    return $this->members;
+	}
+	
+	public function getEstimations() {
+		return $this->estimations;
 	}
 	
 	public function serialize()
@@ -217,6 +250,12 @@ class Task extends DomainEntity implements \Serializable
 		$p = $event->payload();
 		$this->streamId = Uuid::fromString($p['streamId']);
 		
+	}
+	
+	protected function whenEstimationAdded(EstimationAdded $event) {
+		$p = $event->payload();
+		$id = $p['userId'];
+		$this->estimations[$id] = $p['value'];
 	}
 	
 }

@@ -9,6 +9,7 @@ use TaskManagement\Controller\TasksController;
 use Zend\Mvc\MvcEvent;
 use Ora\TaskManagement\TaskListener;
 use TaskManagement\Controller\TransitionsController;
+use TaskManagement\Controller\EstimationController;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {    
@@ -71,6 +72,14 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             		$locator = $sm->getServiceLocator();
             		$kanbanizeService = $locator->get('TaskManagement\KanbanizeService');
             		$controller = new TransitionsController($kanbanizeService);
+            		return $controller;
+            	},
+            	'TaskManagement\Controller\Estimation' => function ($sm) {
+            		$locator = $sm->getServiceLocator();
+            		$authService = $locator->get('Application\Service\AuthenticationService');
+            		$taskService = $locator->get('TaskManagement\TaskService');
+            		$streamService = $locator->get('TaskManagement\StreamService');
+            		$controller = new EstimationController($taskService, $authService, $streamService);
             		return $controller;
             	}
             )

@@ -31,6 +31,7 @@ class TaskJsonModel extends JsonModel
 	private function serializeOne(Task $t, $url, User $loggedUser) {
 		$members = array ();
 		$alreadyMember = false;
+		$alreadyEstimated = false;
 		foreach ( $t->getMembers () as $tm ) {
 
             $memberToAdd = array();    
@@ -46,6 +47,7 @@ class TaskJsonModel extends JsonModel
             		
 			if ($member->getId () === $loggedUser->getId () && $alreadyMember === false) {
 				$alreadyMember = true;
+				$alreadyEstimated = $tm->hasEstimated();
 			}
 		}
 
@@ -78,6 +80,7 @@ class TaskJsonModel extends JsonModel
 				'subject' => $t->getSubject (),
 				'type' => $t->getType (),
 				'alreadyMember' => $alreadyMember,
+				'alreadyEstimated' => $alreadyEstimated,
 				'estimation' => $avg 
 		);
 		if (! is_null ( $url )) {

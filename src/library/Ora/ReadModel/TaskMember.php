@@ -33,7 +33,7 @@ class TaskMember {
     
 
     /** 
-     * @ORM\OneToOne(targetEntity="Ora\ReadModel\Estimation")
+     * @ORM\OneToOne(targetEntity="Ora\ReadModel\Estimation", cascade={"persist"})
      */
     private $estimation;
     

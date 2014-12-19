@@ -22,8 +22,9 @@ class Estimation extends DomainEntity{
     /** @ORM\Column(type="decimal", precision=10, scale=2) */
     private $value;
     
-    public function __construct($value)
+    public function __construct($id, $value)
     {
+    	$this->id = $id;
     	$this->value = $value;
     }
     
