@@ -96,7 +96,7 @@ class EstimationController extends AbstractHATEOASRestfulController {
 		} catch (DuplicatedDomainEntityException $e) {
 			$this->response->setStatusCode(204);
 		} catch (DomainEntityUnavailableException $e) {
-			$this->response->setStatusCode(203);//FIXME
+			$this->response->setStatusCode(401);// Unauthorized
 		} catch (IllegalStateException $e) {
 			$this->response->setStatusCode(406);	// Not acceptable
 		}

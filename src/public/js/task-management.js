@@ -299,6 +299,12 @@ TaskManagement.prototype = {
 					
 					actions = actions + "<button data-action='openEditTaskBox' class='btn btn-warning' style='margin-left:5px;margin-right:5px;'>Edit</button>";
 					actions = actions + "<button data-action='deleteTask' class='btn btn-danger'>Delete</button>";
+					//aggiunta bottone stima
+					var show = task.alreadyMember && !task.alreadyEstimated;
+					if( show ){
+						actions += "<button data-action='makestima' class='btn' id='"+task.id+" 'style='margin-left:5px; background-color:#B68437; color:white;'> Stima </button>";
+					}
+					 
 				}
 				else if (task.status == 40)
 				{
@@ -330,7 +336,7 @@ TaskManagement.prototype = {
                                 return "<p>"+ n.firstname+" "+n.lastname+"</p>";
                             }).join('')+ "</td>" + 
 							"<td class='text-center'>" + task.status + "</td>" +
-							"<td class='text-center'> <button data-action='makestima' class='btn' id='"+task.id+"'> IeStima </button>" + task.estimation + "</td>" +
+							"<td class='text-center'>" + task.estimation + "</td>" +
 							"<td class='text-center'>" + actions + "</td>" +
 						"</tr>");
 			});
