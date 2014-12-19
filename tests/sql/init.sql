@@ -88,13 +88,27 @@ INSERT INTO `tasks` (id, project_id, subject, status, createdAt, mostRecentEditA
 INSERT INTO `tasks` (id, project_id, subject, status, createdAt, mostRecentEditAt, type, boardId, taskId) VALUES
 ('00000000-0000-0000-0000-000000000112','00000000-1000-0000-0000-000000000000','ongoingTask',20,'2014-11-06 15:56:56','2014-11-06 15:56:56','kanbanizetask',3,118);
 
+INSERT INTO `tasks` (id, project_id, subject, status, createdAt, mostRecentEditAt, type, boardId, taskId) VALUES
+('00000000-0000-0000-0000-000000000120','00000000-1000-0000-0000-000000000000','ongoingTask',20,'2014-12-19 15:56:56','2014-12-19 15:56:56','kanbanizetask',3,121);
+INSERT INTO `tasks_members` (task_id, member_id, estimation_id, role) VALUES
+('00000000-0000-0000-0000-000000000120','60000000-0000-0000-0000-000000000000', NULL, 'OWNER');
+
+INSERT INTO `tasks` (id, project_id, subject, status, createdAt, mostRecentEditAt, type, boardId, taskId) VALUES
+('00000000-0000-0000-0000-000000000121','00000000-1000-0000-0000-000000000000','ongoingTask',20,'2014-12-19 15:56:56','2014-12-19 15:56:56','kanbanizetask',3,122);
+INSERT INTO `tasks_members` (task_id, member_id, estimation_id, role) VALUES
+('00000000-0000-0000-0000-000000000121','60000000-0000-0000-0000-000000000000', NULL, 'OWNER');
+
+INSERT INTO `tasks` (id, project_id, subject, status, createdAt, mostRecentEditAt, type, boardId, taskId) VALUES
+('00000000-0000-0000-0000-000000000122','00000000-1000-0000-0000-000000000000','NonOngoingTask',20,'2014-12-19 15:56:56','2014-12-19 15:56:56','kanbanizetask',3,123);
+INSERT INTO `tasks_members` (task_id, member_id, estimation_id, role) VALUES
+('00000000-0000-0000-0000-000000000122','60000000-0000-0000-0000-000000000000', NULL, 'OWNER');
+
+
 INSERT INTO `estimation` (id, value, createdAt, mostRecentEditAt, mostRecentEditBy_id, createdBy_id) VALUES
 ('60000000-0000-0000-1111-000000000000','1500,00', '2014-11-07 11:37:58', '2014-11-07 11:37:58', '20000000-0000-0000-0000-000000000000', '20000000-0000-0000-0000-000000000000');
 
 INSERT INTO `tasks_members` (task_id, member_id, estimation_id, role) VALUES
 ('00000000-0000-0000-0000-000000000112','20000000-0000-0000-0000-000000000000', '60000000-0000-0000-1111-000000000000', 'OWNER');
-
-
 
 
 INSERT INTO `estimation` (id, value, createdAt, mostRecentEditAt, mostRecentEditBy_id, createdBy_id) VALUES
@@ -106,10 +120,10 @@ INSERT INTO `estimation` (id, value, createdAt, mostRecentEditAt, mostRecentEdit
 
 
 
-
 INSERT INTO `tasks_members`(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000103','80000000-0000-0000-0000-000000000000','04a1c762-44dc-404c-ac33-3c0723a39c8f','OWNER');
 INSERT INTO `tasks_members`(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000103','90000000-0000-0000-0000-000000000000','04a1c762-44dc-404c-ac33-3c0723a39c8e','MEMBER');
 INSERT INTO `tasks_members`(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000104','80000000-0000-0000-0000-000000000000','04a1c762-44dc-404c-ac33-3c0723a39c8h','OWNER');
 INSERT INTO `tasks_members`(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000105','80000000-0000-0000-0000-000000000000',NULL,'OWNER');
 
 set FOREIGN_KEY_CHECKS = 1;
+
