@@ -70,7 +70,8 @@ TaskManagement.prototype = {
 		//INSERT ESTIMATION
 		$("body").on("click", "button[data-action='makestima']", function(e){
 			alert ("stima" );
-			that.makeEstimation(e);
+			that.showDialog(e);
+		//	that.makeEstimation(e);
 			
 		});
 	},
@@ -361,7 +362,7 @@ TaskManagement.prototype = {
 		});
 	},
 	
-	makeEstimation : function(e){
+	makeEstimation : function(id , value){
 		 var taskID = $(e.target).closest("tr").data("taskid");
 		 alert (taskID);
 		$.ajax({
@@ -376,6 +377,87 @@ TaskManagement.prototype = {
 					alert("Error. Status Code: " + xhr.status);
 			}
 		});
+	},
+	
+	showDialog : function (e){
+		 var taskID = $(e.target).closest("tr").data("taskid");
+		 alert("show dialog");
+		 $("#modalestimation").remove();
+		 var modaltoappend = "<div class='modal fade' id='modalestimation'>"+
+		 						"<div class='modal-dialog'>"+
+		 							"<div class='modal-content'>"+
+		 								"<div class='modal-header'>"+
+		 									"<button type='button' class='close' data-dismiss='modal'><span aria-hidden='true'>&times;</span><span class='sr-only'>Close</span></button>"+
+		 									"<h4 class='modal-title'>Inserisci Stima</h4>"+
+		 								"</div>"+
+		 								"<div class='modal-body'>"+
+		 								"<div class='form-group' id='formmodal'>"+
+		 								"<div class='checkbox'>"+
+		 							    "<label>"+
+		 							      "<input type='checkbox' id ='checkstima' > Non voglio stimare"+
+		 							    "</label>"+"<br> <br>"+
+		 							   "<label for='valuestima' id ='labelstima'>Valore Stima</label>"+
+		 							   "<input type='number' id='valuestima' pattern='/^[+]?([0-9]+(?:[\.][0-9]*)?|\.[0-9]+)$/' class='form-control' placeholder='Valore Stima'>"+
+		 							   "</div>"+
+		 							  "</div>"+
+		 								"</div>"+
+		 								"<div class='modal-footer'>"+
+		 									"<button type='button' class='btn btn-default' id ='closemodal'>Close</button>"+
+		 									"<button type='button' class='btn btn-primary' id='confirmestimation'>Confirm</button>"+
+		 								"</div>"+
+		 							"</div><!-- /.modal-content -->"+
+		 						"</div><!-- /.modal-dialog -->"+
+		 					"</div><!-- /.modal -->";
+		 $("body").append(modaltoappend);
+		 $("#modalestimation").modal({keyboard: true});
+		 $('#checkstima').click(function() {
+			    var $this = $(this);
+			    // $this will contain a reference to the checkbox   
+			    if ($this.is(':checked')) {
+			    	$("#valuestima").prop('disabled', true);
+			    } else {
+			        // the checkbox was unchecked
+			    	$("#valuestima").prop('disabled', false);
+			    }
+			});
+		 $("#closemodal").click(function(){
+			 $("#modalestimation").modal('hide');
+			
+		 });
+		 $("#confirmestimation").click(function(){
+			 var valuetosubmit;
+		
+				if ($('#checkstima').is(':checked') ){
+					valuetosubmit = -1;
+				}else{
+					 var valuetosubmit = $("#valuestima").val();
+					 if (!($.isNumeric(valuetosubmit)&&valuetosubmit>0)){
+						 alert ("valore non conforme");
+						 $("#formmodal").addClass("has-error");
+						 return;
+					 }
+						 
+				}
+				
+				alert(taskID+" ----------> "+valuetosubmit);
+//				$.ajax({
+//					url: basePath + '/task-management/tasks/'+taskID+'/estimation',
+//					method: 'POST',
+//					data: {value:valuetosubmit},
+//					dataType: 'json',
+//					complete: function(xhr, textStatus) {
+//						if (xhr.status === 201)
+//							alert("Estimation done");
+//						else
+//							alert("Error. Status Code: " + xhr.status);
+//					}
+//				});
+				
+				
+				
+
+		 });
+		 
 	}
 	
 };
