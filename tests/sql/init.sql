@@ -99,7 +99,7 @@ INSERT INTO `tasks_members` (task_id, member_id, estimation_id, role) VALUES
 ('00000000-0000-0000-0000-000000000121','60000000-0000-0000-0000-000000000000', NULL, 'OWNER');
 
 INSERT INTO `tasks` (id, project_id, subject, status, createdAt, mostRecentEditAt, type, boardId, taskId) VALUES
-('00000000-0000-0000-0000-000000000122','00000000-1000-0000-0000-000000000000','NonOngoingTask',20,'2014-12-19 15:56:56','2014-12-19 15:56:56','kanbanizetask',3,123);
+('00000000-0000-0000-0000-000000000122','00000000-1000-0000-0000-000000000000','NonOngoingTask',30,'2014-12-19 15:56:56','2014-12-19 15:56:56','kanbanizetask',3,123);
 INSERT INTO `tasks_members` (task_id, member_id, estimation_id, role) VALUES
 ('00000000-0000-0000-0000-000000000122','60000000-0000-0000-0000-000000000000', NULL, 'OWNER');
 
