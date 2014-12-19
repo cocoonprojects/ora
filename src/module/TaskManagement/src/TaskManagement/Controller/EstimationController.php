@@ -6,7 +6,7 @@ use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Zend\Authentication\AuthenticationService;
 use Ora\TaskManagement\TaskService;
 use Ora\TaskManagement\Task;
-use Ora\ProjectManagement\ProjectService;
+use Ora\StreamManagement\StreamService;
 use Ora\ReadModel\Estimation;
 use Zend\Authentication\AuthenticationServiceInterface;
 use Zend\View\Model\JsonModel;
@@ -41,9 +41,9 @@ class EstimationController extends AbstractHATEOASRestfulController {
 	
 	/**
 	 *
-	 * @var ProjectService
+	 * @var StreamService
 	 */
-	protected $projectService;
+	protected $streamService;
 
 	/**
 	 *
@@ -51,10 +51,10 @@ class EstimationController extends AbstractHATEOASRestfulController {
 	 */
 	protected $task = null;
 	
-	public function __construct(TaskService $taskService, AuthenticationServiceInterface $authService, ProjectService $projectService) {
+	public function __construct(TaskService $taskService, AuthenticationServiceInterface $authService, StreamService $streamService) {
 		$this->authService = $authService;
 		$this->taskService = $taskService;
-		$this->projectService = $projectService;
+		$this->streamService = $streamService;
 	}
 	
 	public function preDispatch($e)
@@ -77,13 +77,13 @@ class EstimationController extends AbstractHATEOASRestfulController {
 	
 			$loggedUser = $this->authService->getIdentity()['user'];
 	
-			$projectId = $this->task->getProjectId();
+			$streamId = $this->task->getStreamId();
 	
-			$project = $this->projectService->getProject($projectId);
+			$stream = $this->streamService->getStream($streamId);
 
-			if(is_null($project)) {
-				// Project Not Found
-				echo "Project not found";
+			if(is_null($stream)) {
+				// Stream Not Found
+				echo "Stream not found";
 				$this->response->setStatusCode(404);
 				return $this->response;
 			}
