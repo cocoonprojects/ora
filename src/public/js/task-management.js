@@ -366,7 +366,7 @@ TaskManagement.prototype = {
 		 var taskID = $(e.target).closest("tr").data("taskid");
 		 alert (taskID);
 		$.ajax({
-			url: basePath + '/task-management/tasks/'+taskID+'/estimation',
+			url: '/task-management/tasks/'+taskID+'/estimation',
 			method: 'POST',
 			data: {value:100},
 			dataType: 'json',
@@ -441,7 +441,7 @@ TaskManagement.prototype = {
 				
 				//alert(taskID+" ----------> "+valuetosubmit);
 				$.ajax({
-					url: basePath + '/task-management/tasks/'+taskID+'/estimation',
+					url: '/task-management/tasks/'+taskID+'/estimation',
 					method: 'POST',
 					data: {value:valuetosubmit},
 					dataType: 'json',
