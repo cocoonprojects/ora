@@ -88,9 +88,31 @@ class EstimationController extends AbstractHATEOASRestfulController {
 				return $this->response;
 			}
 
-			//FIXME
+			if(!array_key_exists('value', $data)) {
+				//bad request
+				$this->response->setStatusCode(400);
+				return $this->response;
+			}
 			
-			$this->task->addEstimation($loggedUser, $data['value']);
+			//TODO check if the value is numeric
+			$value = $data['value'];
+
+			$validator_NotEmpty = new \Zend\Validator\NotEmpty ();
+			$validator_Digits = new \Zend\Validator\Digits ();
+			$validator_GT = new \Zend\Validator\GreaterThan();
+			$validator_GT->setMin(0);
+			$validator_eq = new \Zend\Validator\Between();
+			$validator_eq->setMin(-1);
+			$validator_eq->setMax(-1);
+			
+			
+			if (! $validator_NotEmpty->isValid ( $value ) || !$validator_Digits->isValid($value) || (!$validator_GT->isValid($value) && !$validator_eq->isValid($value))) {
+				// request not correct
+				$this->response->setStatusCode ( 400 );
+				return $this->response;
+			}
+			
+			$this->task->addEstimation($loggedUser, $value);
 			$this->taskService->editTask($this->task);
 			$this->response->setStatusCode(201);
 		} catch (DuplicatedDomainEntityException $e) {
