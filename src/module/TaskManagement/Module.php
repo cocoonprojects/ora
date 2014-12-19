@@ -56,8 +56,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 	            	$authService = $locator->get('Application\Service\AuthenticationService');
 	            	$taskService = $locator->get('TaskManagement\TaskService');
 	            	$streamService = $locator->get('TaskManagement\StreamService');
-	            	$organizationService = $locator->get('User\OrganizationService');
-	            	$controller = new TasksController($taskService, $authService, $streamService, $organizationService);
+	            	$controller = new TasksController($taskService, $authService, $streamService);
 	            	return $controller;
 	            },
 	            'TaskManagement\Controller\Members' => function ($sm) {

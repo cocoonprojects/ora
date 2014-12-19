@@ -94,7 +94,7 @@ class TransitionsController extends AbstractHATEOASRestfulController
 		
 		
 
-		$task = $this->getTaskService()->findTaskById($id);
+		$task = $this->getTaskService()->findTask($id);
 		if (!isset($task)||$task ==null ){
 			// no task found 
 			$this->response->setStatusCode ( 404 );

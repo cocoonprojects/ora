@@ -33,21 +33,14 @@ class TasksController extends AbstractHATEOASRestfulController
      * @var StreamService
      */
 	private $streamService;
-			
-	/**
-	 *
-	 * @var OrganizationService
-	 */
-	private $organizationService;
-		
+					
 	protected $task = null;
 	
-	public function __construct(TaskService $taskService, AuthenticationServiceInterface $authService, StreamService $streamService, OrganizationService $organizationService)
+	public function __construct(TaskService $taskService, AuthenticationServiceInterface $authService, StreamService $streamService)
 	{
 		$this->taskService = $taskService;
 		$this->authService = $authService;
 		$this->streamService = $streamService;
-		$this->organizationService = $organizationService;
 	}
 	
 	public function preDispatch($e)
