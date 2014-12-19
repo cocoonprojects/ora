@@ -69,7 +69,7 @@ TaskManagement.prototype = {
 		});
 		//INSERT ESTIMATION
 		$("body").on("click", "button[data-action='makestima']", function(e){
-			alert ("stima" );
+			//alert ("stima" );
 			that.showDialog(e);
 		//	that.makeEstimation(e);
 			
@@ -381,7 +381,7 @@ TaskManagement.prototype = {
 	
 	showDialog : function (e){
 		 var taskID = $(e.target).closest("tr").data("taskid");
-		 alert("show dialog");
+		// alert("show dialog");
 		 $("#modalestimation").remove();
 		 var modaltoappend = "<div class='modal fade' id='modalestimation'>"+
 		 						"<div class='modal-dialog'>"+
@@ -439,19 +439,20 @@ TaskManagement.prototype = {
 						 
 				}
 				
-				alert(taskID+" ----------> "+valuetosubmit);
-//				$.ajax({
-//					url: basePath + '/task-management/tasks/'+taskID+'/estimation',
-//					method: 'POST',
-//					data: {value:valuetosubmit},
-//					dataType: 'json',
-//					complete: function(xhr, textStatus) {
-//						if (xhr.status === 201)
-//							alert("Estimation done");
-//						else
-//							alert("Error. Status Code: " + xhr.status);
-//					}
-//				});
+				//alert(taskID+" ----------> "+valuetosubmit);
+				$.ajax({
+					url: basePath + '/task-management/tasks/'+taskID+'/estimation',
+					method: 'POST',
+					data: {value:valuetosubmit},
+					dataType: 'json',
+					complete: function(xhr, textStatus) {
+						if (xhr.status === 201)
+							alert("Estimation done");
+						else
+							alert("Error. Status Code: " + xhr.status);
+						 $("#modalestimation").modal('hide');
+					}
+				});
 				
 				
 				
