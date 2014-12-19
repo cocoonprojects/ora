@@ -5,9 +5,9 @@ namespace TaskManagement\Controller;
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Zend\Authentication\AuthenticationService;
 use Ora\TaskManagement\TaskService;
-use Ora\ProjectManagement\ProjectService;
+use Ora\StreamManagement\StreamService;
 use Ora\User\User;
-use Ora\ProjectManagement\Project;
+use Ora\StreamManagement\Stream;
 use Ora\IllegalStateException;
 use Zend\Authentication\AuthenticationServiceInterface;
 use TaskManagement\View\TaskJsonModel;
@@ -30,24 +30,17 @@ class TasksController extends AbstractHATEOASRestfulController
     private $taskService;
     /**
      * 
-     * @var ProjectService
+     * @var StreamService
      */
-	private $projectService;
-			
-	/**
-	 *
-	 * @var OrganizationService
-	 */
-	private $organizationService;
-		
+	private $streamService;
+					
 	protected $task = null;
 	
-	public function __construct(TaskService $taskService, AuthenticationServiceInterface $authService, ProjectService $projectService, OrganizationService $organizationService)
+	public function __construct(TaskService $taskService, AuthenticationServiceInterface $authService, StreamService $streamService)
 	{
 		$this->taskService = $taskService;
 		$this->authService = $authService;
-		$this->projectService = $projectService;
-		$this->organizationService = $organizationService;
+		$this->streamService = $streamService;
 	}
 	
 	public function preDispatch($e)
@@ -75,33 +68,25 @@ class TasksController extends AbstractHATEOASRestfulController
     /**
      * Return a list of available tasks
      * @method GET
-     * @link http://oraproject/task-management/tasks
+     * @link http://oraproject/task-management/tasks?streamID=[uuid]
      * @return TaskJsonModel
      * @author Giannotti Fabio
      */
     public function getList()
     {    	
-    	$loggedUser = $this->authService->getIdentity()['user'];
     	$availableTasks = array();
     	
-    	if(is_null($loggedUser))
+    	$streamID = $this->getRequest()->getQuery('streamID');
+    	
+    	if(!is_null($streamID)) 
     	{
-    		// HTTP STATUS CODE 403: Forbidden (As a member organization)
-    		$this->response->setStatusCode(403);
-    		return $this->response;
-    	}    	
-
-        $relationsOrganizationOfLoggedUser = $this->organizationService->findOrganizationUsers($loggedUser);
-
-        foreach($relationsOrganizationOfLoggedUser as $organization)
-        {
-            $projects = $this->projectService->findOrganizationProjects($organization->getOrganization());
-
-            foreach($projects as $project)
-            {
-                $availableTasks = $this->taskService->findProjectTasks($project);
-            }
-        }
+    		$stream = $this->streamService->findStream($streamID);
+    		$availableTasks = $this->taskService->findStreamTasks($stream);
+    	}
+		else
+		{
+			$availableTasks = $this->taskService->findTasks();
+		}    	
 
     	$this->response->setStatusCode(200);
        	$view = new TaskJsonModel();       	
@@ -112,10 +97,10 @@ class TasksController extends AbstractHATEOASRestfulController
     }
     
     /**
-     * Create a new task into specified project
+     * Create a new task into specified stream
      * @method POST
      * @link http://oraproject/task-management/tasks
-     * @param array $data['projectID'] Parent project ID of the new task
+     * @param array $data['streamID'] Parent stream ID of the new task
      * @param array $data['subject'] Task subject
      * @return HTTPStatusCode
      * @author Giannotti Fabio
@@ -133,17 +118,17 @@ class TasksController extends AbstractHATEOASRestfulController
     		return $response;
     	}
     	       
-    	if (!isset($data['projectID']) || !isset($data['subject']))
+    	if (!isset($data['streamID']) || !isset($data['subject']))
         {            
             // HTTP STATUS CODE 400: Bad Request
             $response->setStatusCode(400);
             return $response;
         }   
 		
-        $project = $this->projectService->getProject($data['projectID']);
+        $stream = $this->streamService->getStream($data['streamID']);
                      
-        if(is_null($project)) {
-        	// Project Not Found
+        if(is_null($stream)) {
+        	// Stream Not Found
         	$response->setStatusCode(404);
         	return $response;
         }
@@ -162,7 +147,7 @@ class TasksController extends AbstractHATEOASRestfulController
 	    }
 	        
 	    $createdBy = $loggedUser;
-	    $task = $this->taskService->createTask($project, $subject, $createdBy);
+	    $task = $this->taskService->createTask($stream, $subject, $createdBy);
 	    // Task Created
 	     
 	    $response->setStatusCode(201);

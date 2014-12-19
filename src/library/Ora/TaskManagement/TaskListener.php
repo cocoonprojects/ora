@@ -70,18 +70,18 @@ class TaskListener
 		}
 	}
 	
-	protected function onProjectChanged(StreamEvent $event) {
+	protected function onStreamChanged(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$entity = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
 		if(is_null($entity)) {
 			return;
 		}
-		$projectId = $event->payload()['projectId'];
-		$project = $this->entityManager->find('Ora\ReadModel\Project', $projectId);
-		if(is_null($project)) {
+		$streamId = $event->payload()['streamId'];
+		$stream = $this->entityManager->find('Ora\ReadModel\Stream', $streamId);
+		if(is_null($stream)) {
 			return;
 		}
-		$entity->setProject($project);
+		$entity->setStream($stream);
 		$entity->setMostRecentEditAt($event->occurredOn());
 		$updatedBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
 		$entity->setMostRecentEditBy($updatedBy);

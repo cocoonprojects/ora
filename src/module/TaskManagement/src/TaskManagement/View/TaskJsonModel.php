@@ -95,19 +95,19 @@ class TaskJsonModel extends JsonModel
 	}
 	
 	private function average($estimations){
-		$count = 0;
-		$sum = 0;
-		foreach ( $estimations  as $estimation ) {
-			if ($estimation->getValue () != Estimation::NOT_ESTIMATED) {
-				$count++;
-				$sum += $estimation->getValue ();
-			}
-	}
-	$ans = array();
-	$ans['count'] = $count;
-	if ($count!=0)
-		$ans['average'] = $sum / $count;
-	return $ans;
+        $count = 0;
+        $sum = 0;
+        foreach ( $estimations  as $estimation ) {
+            if ($estimation->getValue () != Estimation::NOT_ESTIMATED) {
+                $count++;
+                $sum += $estimation->getValue ();
+            }
+        }
+        $ans = array();
+        $ans['count'] = $count;
+        if ($count!=0)
+            $ans['average'] = $sum / $count;
+        return $ans;
 
     }
 

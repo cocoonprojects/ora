@@ -24,7 +24,7 @@ Scenario: Requesting the list of available task then the specified task must hav
     And that I want to find a "Task"
 	When I request "/task-management/tasks"
 	Then the response is JSON
-	And the value of property "estimation" of the element with property "id" with value "00000000-0000-0000-0000-000000000103" in array "tasks" should be "1500"
+	And the value of property "estimation" of the element with property "id" with value "00000000-0000-0000-0000-000000000108" in array "tasks" should be "1500"
 	
 Scenario: Requesting the list of available task then the specified task must have - avg value 
     Given that I am authenticated as "mark.rogers@ora.local" 
@@ -38,4 +38,4 @@ Scenario: Requesting the list of available task then the specified task must hav
     And that I want to find a "Task"
 	When I request "/task-management/tasks"
 	Then the response is JSON
-	And the value of property "estimation" of the element with property "id" with value "00000000-0000-0000-0000-000000000105" in array "tasks" should be "N.A."
+	And the value of property "estimation" of the element with property "id" with value "00000000-0000-0000-0000-000000000107" in array "tasks" should be "N.A."

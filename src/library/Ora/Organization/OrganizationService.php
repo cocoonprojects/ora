@@ -8,5 +8,7 @@ interface OrganizationService
 {	
 	public function findOrganization($id);
 	
-	public function findOrganizationUsers(User $user);	
+	//public function findUserOrganizationMembership(User $user);
+
+	//public function findOrganizationMembership();
 }

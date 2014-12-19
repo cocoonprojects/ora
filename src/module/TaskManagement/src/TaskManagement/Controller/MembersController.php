@@ -11,7 +11,7 @@ use Ora\TaskManagement\Task;
 use Ora\IllegalStateException;
 use Ora\DomainEntityUnavailableException;
 use Zend\Authentication\AuthenticationServiceInterface;
-use Ora\ProjectManagement\ProjectService;
+use Ora\StreamManagement\StreamService;
 
 class MembersController extends AbstractHATEOASRestfulController
 {
@@ -32,9 +32,9 @@ class MembersController extends AbstractHATEOASRestfulController
     
     /**
      *
-     * @var ProjectService
+     * @var StreamService
      */
-    protected $projectService;  
+    protected $streamService;  
       
     /**
      * 
@@ -42,10 +42,10 @@ class MembersController extends AbstractHATEOASRestfulController
      */
     protected $task = null;
     
-    public function __construct(TaskService $taskService, AuthenticationServiceInterface $authService, ProjectService $projectService) {
+    public function __construct(TaskService $taskService, AuthenticationServiceInterface $authService, StreamService $streamService) {
     	$this->authService = $authService;
 		$this->taskService = $taskService;	
-		$this->projectService = $projectService;
+		$this->streamService = $streamService;
     }
     
     public function preDispatch($e)
@@ -71,12 +71,12 @@ class MembersController extends AbstractHATEOASRestfulController
     		
     		$loggedUser = $this->authService->getIdentity()['user'];
     		 
-    		$projectId = $this->task->getProjectId();
+    		$streamId = $this->task->getStreamId();
 
-    		$project = $this->projectService->getProject($projectId);
+    		$stream = $this->streamService->getStream($streamId);
     		
-    		if(is_null($project)) {
-    			// Project Not Found   
+    		if(is_null($stream)) {
+    			// Stream Not Found   
     			echo "Progetto not found"; 			
     			$this->response->setStatusCode(404);
     			return $this->response;
@@ -101,12 +101,12 @@ class MembersController extends AbstractHATEOASRestfulController
 
         	$loggedUser = $this->authService->getIdentity()['user'];
         	         	
-        	$projectId = $this->task->getProjectId();
+        	$streamId = $this->task->getStreamId();
         	
-        	$project = $this->projectService->getProject($projectId);
+        	$stream = $this->streamService->getStream($streamId);
         	
-        	if(is_null($project)) {
-        		// Project Not Found
+        	if(is_null($stream)) {
+        		// Stream Not Found
         		echo "Progetto not found";
         		$this->response->setStatusCode(404);
         		return $this->response;

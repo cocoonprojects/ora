@@ -5,14 +5,14 @@ namespace TaskManagement\Service;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-use Ora\ProjectManagement\MockProjectService;
-use Ora\ProjectManagement\EventSourcingProjectService;
-use Ora\ProjectManagement\ProjectService;
+use Ora\StreamManagement\MockStreamService;
+use Ora\StreamManagement\EventSourcingStreamService;
+use Ora\StreamManagement\StreamService;
 
-class ProjectServiceFactory implements FactoryInterface 
+class StreamServiceFactory implements FactoryInterface 
 {
     /**
-     * @var EventSourcingProjectService
+     * @var EventSourcingStreamService
      */
     private static $instance;
     
@@ -22,10 +22,10 @@ class ProjectServiceFactory implements FactoryInterface
 	    {
  			//$eventStore = $serviceLocator->get('prooph.event_store');
  			//$eventStoreStrategy = $serviceLocator->get('prooph.event_store.single_stream_strategy');
-            // self::$instance = new EventSourcingProjectService($eventStore, $eventStoreStrategy);
+            // self::$instance = new EventSourcingStreamService($eventStore, $eventStoreStrategy);
 	    	$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
 			$userService = $serviceLocator->get('User\UserService');
-	    	self::$instance = new MockProjectService($userService, $entityManager);
+	    	self::$instance = new MockStreamService($userService, $entityManager);
         }
 	    return self::$instance;
 	}

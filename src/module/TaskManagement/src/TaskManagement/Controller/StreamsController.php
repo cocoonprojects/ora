@@ -1,16 +1,16 @@
 <?php
 
-namespace ProjectManagement\Controller;
+namespace StreamManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 
-class ProjectsController extends AbstractHATEOASRestfulController
+class StreamsController extends AbstractHATEOASRestfulController
 {
     protected static $collectionOptions = array ('GET','POST');
     protected static $resourceOptions = array ('DELETE','GET');
-	protected $projectService;
+	protected $streamService;
 	
     public function get($id)
     {
@@ -78,14 +78,14 @@ class ProjectsController extends AbstractHATEOASRestfulController
         return self::$resourceOptions;
     }
     
-    protected function getProjectService() 
+    protected function getStreamService() 
     {
-        if (!isset($this->projectService)) 
+        if (!isset($this->streamService)) 
         {
             $serviceLocator = $this->getServiceLocator();
-            $this->projectService = $serviceLocator->get('TaskManagement\ProjectService');
+            $this->streamService = $serviceLocator->get('TaskManagement\StreamService');
         }
         
-        return $this->projectService;
+        return $this->streamService;
     }
 }

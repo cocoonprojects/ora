@@ -17,15 +17,15 @@ return array(
                     ),
                 ),
             ),
-        	'projects' => array(
+        	'streams' => array(
 				'type' => 'Segment',
 				'options' => array(
-					'route'    => '/task-management/projects[/:id]',
+					'route'    => '/task-management/streams[/:id]',
 					'constraints' => array(
 						'id' => '[0-9a-z\-]+',
 					),
 					'defaults' => array(
-						'controller' => 'TaskManagement\Controller\Projects'
+						'controller' => 'TaskManagement\Controller\Streams'
 					),
 				),
 			),

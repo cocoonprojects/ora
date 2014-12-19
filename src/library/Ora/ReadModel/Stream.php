@@ -6,11 +6,11 @@ use Doctrine\ORM\Mapping AS ORM;
 use Ora\ReadModel\DomainEntity;
 
 /**
- * @ORM\Entity @ORM\Table(name="projects")
+ * @ORM\Entity @ORM\Table(name="streams")
  * @author Giannotti Fabio
  *
  */
-class Project extends DomainEntity
+class Stream extends DomainEntity
 {	    
 	/**
 	 * @ORM\Column(type="string")

@@ -69,29 +69,7 @@
                 </script>
             </footer>
         </div> <!-- /container -->
-
-<?php 
-        	
-        	if('staging' == getenv('APPLICATION_ENV'))
-        	{
-				$this->inlineScript()->captureStart();
-				echo <<<JS
-    				basePath = '/staging';
-JS;
-$this->inlineScript()->captureEnd();
-        		
-        	}
-        	else
-        	{
-        		$this->inlineScript()->captureStart();
-        		echo <<<JS
-    				basePath = '';
-JS;
-        		$this->inlineScript()->captureEnd();        		
-        	}   
-
-        	
-        ?>          
+    
         <?php echo $this->inlineScript() ?>
                   
     </body>        

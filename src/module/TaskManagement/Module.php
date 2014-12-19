@@ -49,24 +49,23 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
         return array(
             'invokables' => array(
 	            'TaskManagement\Controller\Index' => 'TaskManagement\Controller\IndexController',
-	            'TaskManagement\Controller\Projects' => 'TaskManagement\Controller\ProjectsController',
+	            'TaskManagement\Controller\Streams' => 'TaskManagement\Controller\StreamsController',
             ),
             'factories' => array(
 	            'TaskManagement\Controller\Tasks' => function ($sm) {
 	            	$locator = $sm->getServiceLocator();
 	            	$authService = $locator->get('Application\Service\AuthenticationService');
 	            	$taskService = $locator->get('TaskManagement\TaskService');
-	            	$projectService = $locator->get('TaskManagement\ProjectService');
-	            	$organizationService = $locator->get('User\OrganizationService');
-	            	$controller = new TasksController($taskService, $authService, $projectService, $organizationService);
+	            	$streamService = $locator->get('TaskManagement\StreamService');
+	            	$controller = new TasksController($taskService, $authService, $streamService);
 	            	return $controller;
 	            },
 	            'TaskManagement\Controller\Members' => function ($sm) {
             		$locator = $sm->getServiceLocator();
             		$authService = $locator->get('Application\Service\AuthenticationService');
             		$taskService = $locator->get('TaskManagement\TaskService');
-            		$projectService = $locator->get('TaskManagement\ProjectService');
-            		$controller = new MembersController($taskService, $authService, $projectService);
+            		$streamService = $locator->get('TaskManagement\StreamService');
+            		$controller = new MembersController($taskService, $authService, $streamService);
             		return $controller;
             	},
             	'TaskManagement\Controller\Transitions' => function ($sm) {
@@ -79,8 +78,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             		$locator = $sm->getServiceLocator();
             		$authService = $locator->get('Application\Service\AuthenticationService');
             		$taskService = $locator->get('TaskManagement\TaskService');
-            		$projectService = $locator->get('TaskManagement\ProjectService');
-            		$controller = new EstimationController($taskService, $authService, $projectService);
+            		$streamService = $locator->get('TaskManagement\StreamService');
+            		$controller = new EstimationController($taskService, $authService, $streamService);
             		return $controller;
             	}
             )
@@ -91,7 +90,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
     {
         return array (
             'factories' => array (
-                'TaskManagement\ProjectService' => 'TaskManagement\Service\ProjectServiceFactory',
+                'TaskManagement\StreamService' => 'TaskManagement\Service\StreamServiceFactory',
             	'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',
 				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
             ),

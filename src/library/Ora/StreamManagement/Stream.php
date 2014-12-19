@@ -1,6 +1,6 @@
 <?php
 
-namespace Ora\ProjectManagement;
+namespace Ora\StreamManagement;
 
 use Ora\DomainEntity;
 use Ora\User\User;
@@ -11,7 +11,7 @@ use Rhumsaa\Uuid\Uuid;
  * @author Giannotti Fabio
  *
  */
-class Project extends DomainEntity implements \Serializable
+class Stream extends DomainEntity implements \Serializable
 {	    
 	/**
 	 * 

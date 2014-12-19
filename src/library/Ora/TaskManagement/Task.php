@@ -5,7 +5,7 @@ namespace Ora\TaskManagement;
 use Ora\IllegalStateException;
 use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
-use Ora\ProjectManagement\Project;
+use Ora\StreamManagement\Stream;
 use Ora\User\User;
 use Ora\DomainEntity;
 use Rhumsaa\Uuid\Uuid;
@@ -45,7 +45,7 @@ class Task extends DomainEntity implements \Serializable
 	 * 
 	 * @var Uuid
 	 */
-	private $projectId;
+	private $streamId;
 	
 	/**
 	 */
@@ -59,7 +59,7 @@ class Task extends DomainEntity implements \Serializable
 		return $this->id;
 	}
 	
-	public static function create(Project $project, $subject, User $createdBy) {
+	public static function create(Stream $stream, $subject, User $createdBy) {
 		$rv = new self();
 		$rv->id = Uuid::uuid4();
 		$rv->status = self::STATUS_ONGOING;
@@ -68,7 +68,7 @@ class Task extends DomainEntity implements \Serializable
 				'by' => $createdBy->getId(),
 		)));
 		$rv->setSubject($subject, $createdBy);
-		$rv->changeProject($project, $createdBy);
+		$rv->changeStream($stream, $createdBy);
 		$rv->addMember($createdBy, $createdBy, self::ROLE_OWNER);
 		return $rv;
 	}
@@ -112,22 +112,22 @@ class Task extends DomainEntity implements \Serializable
 		)));
 	}
 	
-	public function changeProject(Project $project, User $updatedBy) {
+	public function changeStream(Stream $stream, User $updatedBy) {
 		if($this->status == self::STATUS_COMPLETED || $this->status == self::STATUS_ACCEPTED) {
-			throw new IllegalStateException('Cannot set the task project in '.$this->status.' state');
+			throw new IllegalStateException('Cannot set the task stream in '.$this->status.' state');
 		}
 		$payload = array(
-				'projectId' => $project->getId()->toString(),
+				'streamId' => $stream->getId()->toString(),
 				'by' => $updatedBy->getId(),
 		);
-		if(!is_null($this->projectId)) {
-			$payload['prevProjectId'] = $this->projectId->toString();
+		if(!is_null($this->streamId)) {
+			$payload['prevStreamId'] = $this->streamId->toString();
 		}
-		$this->recordThat(ProjectChanged::occur($this->id->toString(), $payload));
+		$this->recordThat(StreamChanged::occur($this->id->toString(), $payload));
 	}
 		
-	public function getProjectId() {
-	    return $this->projectId;
+	public function getStreamId() {
+	    return $this->streamId;
 	}
 	
 	public function addMember(User $user, User $addedBy, $role = self::ROLE_MEMBER)
@@ -246,9 +246,9 @@ class Task extends DomainEntity implements \Serializable
 		unset($this->members[$id]);
 	}
 	
-	protected function whenProjectChanged(ProjectChanged $event) {
+	protected function whenStreamChanged(StreamChanged $event) {
 		$p = $event->payload();
-		$this->projectId = Uuid::fromString($p['projectId']);
+		$this->streamId = Uuid::fromString($p['streamId']);
 		
 	}
 	
