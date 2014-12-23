@@ -64,11 +64,10 @@ class AccountsController extends AbstractHATEOASRestfulController
 		
 	}
 	
-	// Get the Bank Statement
 	public function get($id)
 	{
-		$rv = $this->getCreditsAccountsService()->getAccount($id);
-		$viewModel = new CreditsAccountJsonModel();
+		$rv = $this->accountService->findAccount($id);
+		$viewModel = new AccountJsonModel();
 		$viewModel->setVariable('resource', $rv);
 		return $viewModel;
 	}
