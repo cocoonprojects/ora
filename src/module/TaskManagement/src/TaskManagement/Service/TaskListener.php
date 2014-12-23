@@ -5,6 +5,7 @@ use Doctrine\ORM\EntityManager;
 use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Stream\StreamEvent;
+use Ora\ReadModel\Task;
 
 class TaskListener
 {
