@@ -31,8 +31,8 @@ class LoginPopupHelper extends AbstractHelper implements ServiceLocatorAwareInte
 							<div class='modal-body'>
 								<center>";
 
-			$providers = $this->getServiceLocator()->get('OAuth2\Providers');
-			foreach($providers as $provider => $instance)
+			$adapterResolver = $this->getServiceLocator()->get('Application\Service\AdapterResolver');
+			foreach($adapterResolver->getProviders() as $provider => $instance)
 			{
 				$output .=  "<a onclick=\"auth.openAuthWindow('{$instance->getUrl()}'); return false;\" class='btn btn-success btn-lg' href='#'>Login con {$provider}</a>&nbsp;";
 			}
