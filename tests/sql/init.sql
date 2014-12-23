@@ -1,9 +1,10 @@
 delete from tasks_members;
 delete from tasks;
 delete from streams;
+delete from accounts;
 delete from organizations;
 delete from event_stream;
-delete from estimation;
+delete from estimations;
 delete from users;
 
 INSERT INTO users (id, status, createdAt, firstname, lastname, email) VALUES ('60000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Mark', 'Rogers', 'mark.rogers@ora.local');
@@ -84,11 +85,10 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
 ('c033eb32-2ad4-49d5-b25c-3c0b600b7de2',4,'Ora\\TaskManagement\\MemberAdded','a:4:{s:6:\"userId\";s:36:\"60000000-0000-0000-0000-000000000000\";s:4:\"role\";s:5:\"owner\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000112\";}','2014-11-12T19:07:59.000000+0100','Ora\\TaskManagement\\Task','00000000-0000-0000-0000-000000000112');
 
 INSERT INTO `organizations` (id, name, createdAt, mostRecentEditAt) VALUES ('00000000-0000-0000-1000-000000000000', 'O.R.A. Team','2014-11-06 13:11:05','2014-11-06 13:11:05');
-INSERT INTO organizations (id, subject, createdAt, mostRecentEditAt) VALUES ('11000000-0000-0000-0000-000000000000', 'My brand new Organization','2014-11-06 13:11:05','2014-11-06 13:11:05');
 insert into accounts(id, organization_id, createdAt, mostRecentEditAt, balance_value, balance_date, createdBy_id, mostRecentEditBy_id, type) values ('dcde992b-5aa9-4447-98ae-c8115906dcb7', '00000000-0000-0000-1000-000000000000', '2014-12-09 15:25:18', '2014-12-09 15:25:18', 0, '2014-12-09 15:25:18', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000', 'organizationaccount');
 
-INSERT INTO streams (id, subject, createdAt, mostRecentEditAt, organization_id) VALUES ('00000000-1000-0000-0000-000000000000', 'O.R.A.: Organization Resource Aggregator','2014-11-06 13:11:05','2014-11-06 13:11:05', '11000000-0000-0000-0000-000000000000');
-INSERT INTO streams (id, subject, createdAt, mostRecentEditAt, organization_id) VALUES ('00000000-1100-0000-0000-000000000000', 'Open Goverance','2014-11-06 13:11:05','2014-11-06 13:11:05', '11000000-0000-0000-0000-000000000000');
+INSERT INTO streams (id, subject, createdAt, mostRecentEditAt, organization_id) VALUES ('00000000-1000-0000-0000-000000000000', 'O.R.A.: Organization Resource Aggregator','2014-11-06 13:11:05','2014-11-06 13:11:05', '00000000-0000-0000-1000-000000000000');
+INSERT INTO streams (id, subject, createdAt, mostRecentEditAt, organization_id) VALUES ('00000000-1100-0000-0000-000000000000', 'Open Goverance','2014-11-06 13:11:05','2014-11-06 13:11:05', '00000000-0000-0000-1000-000000000000');
 
 INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type, boardId, taskId) VALUES
 ('00000000-0000-0000-0000-000000000101','00000000-1000-0000-0000-000000000000','BATMAN',0,'2014-11-06 13:11:05','2014-11-06 13:11:05','kanbanizetask',3,111);
@@ -115,14 +115,14 @@ INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, 
 INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type, boardId, taskId) VALUES
 ('00000000-0000-0000-0000-000000000112','00000000-1000-0000-0000-000000000000','ongoingTask',20,'2014-11-06 15:56:56','2014-11-06 15:56:56','kanbanizetask',3,118);
 
-INSERT INTO estimation (id, value, createdAt, mostRecentEditAt) VALUES
-('60000000-0000-0000-1111-000000000000','1500,00', '2014-11-07 11:37:58', '2014-11-07 11:37:58');
-INSERT INTO estimation (id, value, createdAt, mostRecentEditAt) VALUES
-('04a1c762-44dc-404c-ac33-3c0723a39c8e','1500,00', '2014-11-07 11:37:58', '2014-11-07 11:37:58');
-INSERT INTO estimation (id, value, createdAt, mostRecentEditAt) VALUES
-('04a1c762-44dc-404c-ac33-3c0723a39c8f','1500,00', '2014-11-07 11:37:58', '2014-11-07 11:37:58');
-INSERT INTO estimation (id, value, createdAt, mostRecentEditAt) VALUES
-('04a1c762-44dc-404c-ac33-3c0723a39c8h','-1', '2014-11-07 11:37:58', '2014-11-07 11:37:58');
+INSERT INTO estimations (id, value, createdAt) VALUES
+('60000000-0000-0000-1111-000000000000','1500,00', '2014-11-07 11:37:58');
+INSERT INTO estimations (id, value, createdAt) VALUES
+('04a1c762-44dc-404c-ac33-3c0723a39c8e','1500,00', '2014-11-07 11:37:58');
+INSERT INTO estimations (id, value, createdAt) VALUES
+('04a1c762-44dc-404c-ac33-3c0723a39c8f','1500,00', '2014-11-07 11:37:58');
+INSERT INTO estimations (id, value, createdAt) VALUES
+('04a1c762-44dc-404c-ac33-3c0723a39c8h','-1', '2014-11-07 11:37:58');
 
 
 INSERT INTO tasks_members (task_id, member_id, estimation_id, role) VALUES
