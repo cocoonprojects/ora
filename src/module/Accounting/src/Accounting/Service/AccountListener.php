@@ -47,7 +47,8 @@ class AccountListener
 	
 	protected function onAccountCreated(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$createdBy = $this->entityManager->find('Ora\User\User', $event->payload()['holders'][0]);
+		$holders = $event->payload()['holders'];
+		$createdBy = $this->entityManager->find('Ora\User\User', array_keys($holders)[0]);
 		if(isset($event->payload()['organization'])) {
 			$orgId = $event->payload()['organization'];
 			$organization = $this->entityManager->find('Ora\ReadModel\Organization', $orgId);
