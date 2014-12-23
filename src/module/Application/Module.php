@@ -47,10 +47,10 @@ class Module
             'factories' => array(
             	'Application\Controller\Auth'  => function ($sm) {
             		$locator = $sm->getServiceLocator();
-            		$providers = $locator->get('OAuth2\Providers');
+					$resolver = $locator->get('Application\Service\AdapterResolver');
             		$authService = $locator->get('Application\Service\AuthenticationService');
             		$userService = $locator->get('User\UserService');
-            		$controller = new AuthController($authService, $providers);
+            		$controller = new AuthController($authService, $resolver);
             		$controller->setUserService($userService);
             		return $controller;
             	},
@@ -63,16 +63,7 @@ class Module
         return array(
             'factories' => array(
             	'Application\Service\AuthenticationService' => 'Application\Service\AuthenticationServiceFactory',
-            	'Zend\Log\Logger' => function($sm){
-            		
-	                $logger = new Zend\Log\Logger;
-	                $writer = new Zend\Log\Writer\Stream('./data/log/'.date('Y-m-d').'-error.log');
-	                 
-	                $logger->addWriter($writer);  
-	                
-	                return $logger;
-	            },
-	            'OAuth2\Providers' => 'Application\Service\OAuth2ProvidersFactory',
+	            'Application\Service\AdapterResolver' => 'Application\Service\OAuth2AdapterResolverFactory',
             ),
         );
     }
@@ -80,10 +71,10 @@ class Module
     public function getViewHelperConfig()
     {
     	return array(
-    			'invokables' => array(
-    				'UserBoxHelper' => 'Application\View\Helper\UserBoxHelper',
-    				'LoginPopupHelper' => 'Application\View\Helper\LoginPopupHelper',
-    			),
+    		'invokables' => array(
+    			'UserBoxHelper' => 'Application\View\Helper\UserBoxHelper',
+    			'LoginPopupHelper' => 'Application\View\Helper\LoginPopupHelper',
+    		),
     	);
     }
         
