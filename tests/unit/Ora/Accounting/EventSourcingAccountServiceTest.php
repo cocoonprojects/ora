@@ -45,8 +45,14 @@ class EventSourcingAccountServiceTest extends TestCase
 		$this->assertInstanceOf('Ora\Accounting\OrganizationAccount', $a);
 	}
 	
-// 	protected function tearDown() {
-// 		parent::tearDown();
-// 	}
-	
+	public function testDeposit() {
+		$holder = new User('1');
+		$organization = new Organization(Uuid::uuid4(), $holder);
+		$account = $this->accountService->createOrganizationAccount($holder, $organization);
+		$balance = $account->getBalance()->getValue();
+		$this->eventStore->beginTransaction();
+		$account->deposit(150, $holder, "My first deposit");
+		$this->eventStore->commit();
+		$this->assertEquals($balance + 150, $account->getBalance()->getValue());
+	}
 }
