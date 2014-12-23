@@ -24,6 +24,8 @@
 			case 'Auth.InvalidToken': 
 									echo "Token not valid";
 									break;
+			default:
+				echo $this->error;
 		}
 	}	
 	elseif(!$this->authenticate->isValid())
