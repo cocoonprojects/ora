@@ -37,9 +37,6 @@ class TaskMember {
      */
     private $estimation;
     
-    
-
-
     public function __construct(Task $task, User $member, $role){
 
         $this->task = $task;

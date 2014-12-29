@@ -3,7 +3,6 @@
 namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Zend\Authentication\AuthenticationService;
 use Ora\TaskManagement\TaskService;
 use Ora\StreamManagement\StreamService;
 use Ora\User\User;
@@ -11,18 +10,12 @@ use Ora\StreamManagement\Stream;
 use Ora\IllegalStateException;
 use Zend\Authentication\AuthenticationServiceInterface;
 use TaskManagement\View\TaskJsonModel;
-use Ora\Organization\OrganizationService;
 
 class TasksController extends AbstractHATEOASRestfulController
 {
-    protected static $collectionOptions = array('GET', 'POST');
-    protected static $resourceOptions = array('DELETE', 'GET', 'PUT');
+    protected static $collectionOptions = ['GET', 'POST'];
+    protected static $resourceOptions = ['DELETE', 'GET', 'PUT'];
     
-    /**
-     * 
-     * @var AuthenticationService
-     */
-	private $authService;
 	/**
 	 * 
 	 * @var TaskService
@@ -33,36 +26,24 @@ class TasksController extends AbstractHATEOASRestfulController
      * @var StreamService
      */
 	private $streamService;
-					
-	protected $task = null;
-	
-	public function __construct(TaskService $taskService, AuthenticationServiceInterface $authService, StreamService $streamService)
+		
+	public function __construct(TaskService $taskService, StreamService $streamService)
 	{
 		$this->taskService = $taskService;
-		$this->authService = $authService;
 		$this->streamService = $streamService;
 	}
 	
-	public function preDispatch($e)
-	{
-		$taskId = $this->params()->fromRoute('id');
-        if (!empty($taskId)) 
-        {
-            // Check if task with specified ID exist
-        	$this->task = $this->taskService->getTask($taskId);
-            if(is_null($this->task)) {
-                $this->response->setStatusCode(404);
-                return $this->response;            	
-            }
-        }
-	}
-
-	    	    
     public function get($id)
     {        
-        // HTTP STATUS CODE 405: Method not allowed
-        $this->response->setStatusCode(405);
-        return $this->response;
+    	$task = $this->taskService->findTask($id);
+        if(is_null($task)) {
+        	$this->response->setStatusCode(404);
+        	return response;
+        }
+    	$this->response->setStatusCode(200);
+        $view = new TaskJsonModel($this->url());
+        $view->setVariable('resource', $task);
+        return $view;
     }
 	
     /**
@@ -80,6 +61,9 @@ class TasksController extends AbstractHATEOASRestfulController
     	
     	if(!is_null($streamID)) 
     	{
+    		/**
+    		 * TODO: E' inutile la chiamata a findStream
+    		 */
     		$stream = $this->streamService->findStream($streamID);
     		$availableTasks = $this->taskService->findStreamTasks($stream);
     	}
@@ -89,10 +73,8 @@ class TasksController extends AbstractHATEOASRestfulController
 		}    	
 
     	$this->response->setStatusCode(200);
-       	$view = new TaskJsonModel();       	
+       	$view = new TaskJsonModel($this->url());       	
         $view->setVariable('resource', $availableTasks);
-        $view->setVariable('url', $this->url()->fromRoute('tasks'));
-        $view->setVariable('user', $this->authService->getIdentity()['user']);
         return $view;
     }
     
@@ -107,30 +89,28 @@ class TasksController extends AbstractHATEOASRestfulController
      */
     public function create($data)
     {       	
-    	$response = $this->getResponse();
-    	
-    	$loggedUser = $this->authService->getIdentity()['user'];
+    	$loggedUser = $this->identity()['user'];
     	
     	if(is_null($loggedUser))
     	{
     		// HTTP STATUS CODE 403: Forbidden (As a member organization)
-    		$response->setStatusCode(403);
-    		return $response;
+    		$this->response->setStatusCode(403);
+    		return $this->response;
     	}
     	       
     	if (!isset($data['streamID']) || !isset($data['subject']))
         {            
             // HTTP STATUS CODE 400: Bad Request
-            $response->setStatusCode(400);
-            return $response;
+            $this->response->setStatusCode(400);
+            return $this->response;
         }   
 		
         $stream = $this->streamService->getStream($data['streamID']);
                      
         if(is_null($stream)) {
         	// Stream Not Found
-        	$response->setStatusCode(404);
-        	return $response;
+        	$this->response->setStatusCode(404);
+        	return $this->response;
         }
                 
         $subject = trim($data['subject']);
@@ -142,19 +122,19 @@ class TasksController extends AbstractHATEOASRestfulController
 	    if (!$validator_NotEmpty->isValid($subject))
 	    {
 	    	// HTTP STATUS CODE 406: Not Acceptable
-	        $response->setStatusCode(406);
-	        return $response;
+	        $this->response->setStatusCode(406);
+	        return $this->response;
 	    }
 	        
 	    $createdBy = $loggedUser;
 	    $task = $this->taskService->createTask($stream, $subject, $createdBy);
 	    // Task Created
 	     
-	    $response->setStatusCode(201);
+	    $this->response->setStatusCode(201);
 	    $url = $this->url()->fromRoute('tasks', array('id' => $task->getId()->toString()));
-	    $response->getHeaders()->addHeaderLine('Location', $url);
+	    $this->response->getHeaders()->addHeaderLine('Location', $url);
 	    
-    	return $response;
+    	return $this->response;
     }
 
     /**
@@ -168,10 +148,15 @@ class TasksController extends AbstractHATEOASRestfulController
      */
     public function update($id, $data)
     {
-	   	if (!isset($data['subject']))
+        $task = $this->taskService->getTask($id);
+        if(is_null($task)) {
+            $this->response->setStatusCode(404);
+            return $this->response;            	
+		}
+    	
+    	if (!isset($data['subject']))
       	{
-      	    // HTTP STATUS CODE 204: No Content (Nothing to update)
-      	    $this->response->setStatusCode(204);
+      	    $this->response->setStatusCode(204);	// HTTP STATUS CODE 204: No Content (Nothing to update)
       	    return $this->response;
       	}
       	
@@ -189,9 +174,9 @@ class TasksController extends AbstractHATEOASRestfulController
             return $this->response;
         }
           	
-	    $updatedBy = $this->authService->getIdentity()['user'];
-        $this->task->setSubject($data['subject'], $updatedBy);
-	    $this->taskService->editTask($this->task);
+	    $updatedBy = $this->identity()['user'];
+        $task->setSubject($data['subject'], $updatedBy);
+	    $this->taskService->editTask($task);
       	
       	// HTTP STATUS CODE 202: Element Accepted
       	$this->response->setStatusCode(202);
@@ -207,9 +192,15 @@ class TasksController extends AbstractHATEOASRestfulController
      */
     public function delete($id)
     {     	
-		try {
-			$deletedBy = $this->authService->getIdentity()['user'];
-	      	$this->taskService->deleteTask($this->task, $deletedBy);
+        $task = $this->taskService->getTask($id);
+        if(is_null($task)) {
+            $this->response->setStatusCode(404);
+            return $this->response;            	
+		}
+    	
+    	try {
+			$deletedBy = $this->identity()['user'];
+	      	$this->taskService->deleteTask($task, $deletedBy);
 	      	// HTTP STATUS CODE 200: Completed
 	      	$this->response->setStatusCode(200);
 		} catch (IllegalStateException $e) {

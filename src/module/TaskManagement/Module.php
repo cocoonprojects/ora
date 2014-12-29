@@ -2,14 +2,14 @@
 
 namespace TaskManagement;
 
+use Zend\Mvc\MvcEvent;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use TaskManagement\Controller\MembersController;
 use TaskManagement\Controller\TasksController;
-use Zend\Mvc\MvcEvent;
-use Ora\TaskManagement\TaskListener;
 use TaskManagement\Controller\TransitionsController;
 use TaskManagement\Controller\EstimationController;
+use TaskManagement\Service\TaskListener;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {    
@@ -54,15 +54,14 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             'factories' => array(
 	            'TaskManagement\Controller\Tasks' => function ($sm) {
 	            	$locator = $sm->getServiceLocator();
-	            	$authService = $locator->get('Application\Service\AuthenticationService');
 	            	$taskService = $locator->get('TaskManagement\TaskService');
 	            	$streamService = $locator->get('TaskManagement\StreamService');
-	            	$controller = new TasksController($taskService, $authService, $streamService);
+	            	$controller = new TasksController($taskService, $streamService);
 	            	return $controller;
 	            },
 	            'TaskManagement\Controller\Members' => function ($sm) {
             		$locator = $sm->getServiceLocator();
-            		$authService = $locator->get('Application\Service\AuthenticationService');
+            		$authService = $locator->get('Zend\Authentication\AuthenticationService');
             		$taskService = $locator->get('TaskManagement\TaskService');
             		$streamService = $locator->get('TaskManagement\StreamService');
             		$controller = new MembersController($taskService, $authService, $streamService);

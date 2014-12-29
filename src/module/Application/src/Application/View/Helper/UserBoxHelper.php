@@ -15,20 +15,21 @@ class UserBoxHelper extends AbstractHelper implements ServiceLocatorAwareInterfa
 	
 	public function __invoke()
 	{
-		$authService = $this->getServiceLocator()->get('Application\Service\AuthenticationService');
+		$authService = $this->getServiceLocator()->get('Zend\Authentication\AuthenticationService');
+		$rv = '<ul class="nav navbar-nav navbar-right">';
 		if($authService->hasIdentity())
 		{
-			$identity = $authService->getIdentity();
+			$identity = $authService->getIdentity()['user'];
 			
-			$output = "<li><a>{$identity['user']->getFirstname()} {$identity['user']->getLastname()}</a></li>";
-			$output .= "<li><a href='".$this->getView()->basePath()."/auth/logout'>Logout</a></li>";				
+			$rv .= '<li><a href="#" class="navbar-link">'.$identity->getFirstname().' '.$identity->getLastname().'</a></li>';
+			$rv .= '<li><a class="" href="'.$this->getView()->basePath().'/auth/logout">Logout</a></li>';
 		}
 		else 
 		{
-			$output = '<li><a href="#" id="login-auth">Login</a></li>';
+			$rv .= '<li><a href="#" id="login-auth" class="">Login</a></li>';
 		}
-
-		return $output;
+		$rv .= '</ul>';
+		return $rv;
 	}	
 	
 	public function setServiceLocator(ServiceLocatorInterface $helperPluginManager)

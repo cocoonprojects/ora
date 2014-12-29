@@ -24,5 +24,4 @@ interface TaskService
 	public function findTask($id);
 	
 	public function findStreamTasks(ReadModelStream $stream);
-
 }

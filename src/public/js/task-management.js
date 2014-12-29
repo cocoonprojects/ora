@@ -18,8 +18,6 @@ TaskManagement.prototype = {
 			that.listAvailableTask();
 		});
 
-
-
 		// CREATE NEW TASK
 		$("body").on("submit", "#formCreateNewTask", function(e){
 			e.preventDefault();

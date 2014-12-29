@@ -1,18 +1,36 @@
+<?php $this->headScript()->appendFile($this->basePath() . '/js/accounting.js'); ?>
 <div class="container-fluid">
-	<h1>My Credits Accounts</h1>
-	<div class="row">
-		<div class="col-md-2">
-			Search: <input ng-model="query">
-		</div>
-		<div class="col-md-10">
-			<ul>
-				<li ng-repeat="account in accounts | filter:query">{{account.id}}</li>
-				<?php foreach ($this->accounts as $a) {?>
-				<li ng-repeat="account in accounts | filter:query">
-					<?php echo $a->getId() ?>
-					<span class=""><?php echo $this->currencyFormat($a->getBalance()->getValue(), $a->getCurrency()); ?></span>
-				</li><?php } ?>
-			</ul>
-		</div>
-	</div>
+	<h1>Credits</h1>
+	<ul id="accounts"></ul>
+	
+	<table class="table" id="transactions-container">
+		<caption>Transactions</caption>
+		<thead>
+			<tr>
+				<td colspan="3" style="text-align: right; font-weight: bold">Actual Balance</td>
+				<td id="actual-balance"></td>
+			</tr>
+			<tr>
+				<th>Date</th>
+				<th>Description</th>
+				<th>Ref.</th>
+				<th>Amount</th>
+			</tr>
+		</thead>
+		<tbody id="transactions">
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="3" style="text-align: right; font-weight: bold">Initial balance</td>
+				<td id="starting-balance"></td>
+			</tr>
+		</tfoot>
+	</table>
+	<ul>
 </div>

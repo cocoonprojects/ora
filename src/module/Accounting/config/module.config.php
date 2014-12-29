@@ -1,11 +1,5 @@
 <?php
 return array(
-	'controllers' => array(
-		'invokables' => array(
-			'Accounting\Controller\Accounts' => 'Accounting\Controller\AccountsController',
-			'Accounting\Controller\Index' => 'Accounting\Controller\IndexController',
-		),
-	),
 	'router' => array(
 		'routes' => array(
             'accounting-home' => array(
@@ -18,6 +12,30 @@ return array(
                     ),
                 ),
             ),
+			'deposits' => array (
+				'type'    => 'segment',
+				'options' => array (
+					'route'       => '/accounting/accounts/:accountId/deposits',
+					'constraints' => array (
+						'accountId'     => '[0-9a-z\-]+',
+					),
+					'defaults'    => array (
+						'controller' => 'Accounting\Controller\Deposits'
+					),
+				),
+			),
+			'statements' => array (
+				'type'    => 'segment',
+				'options' => array (
+					'route'       => '/accounting/accounts/:id/statement',
+					'constraints' => array (
+						'id'     => '[0-9a-z\-]+',
+					),
+					'defaults'    => array (
+						'controller' => 'Accounting\Controller\Statements'
+					),
+				),
+			),
 			'accounts' => array (
 				'type'    => 'segment',
 				'options' => array (
@@ -39,8 +57,12 @@ return array(
 		'template_path_stack' => array(
 			'accounting' => __DIR__ . '/../view',
 		),
-		'template_map' => array(
-			'accounting/layout' => __DIR__ . '/../view/layout/layout.phtml',
-		),
+	),
+	'asset_manager' => array(
+			'resolver_configs' => array(
+					'paths' => array(
+							'Application' => __DIR__ . '/../public',
+					),
+			),
 	),
 );
