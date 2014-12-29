@@ -3,7 +3,6 @@ Feature: List tasks
 	I want to read the list of tasks available
 	in order to understand their current status, members count and how I can contribute
 
-@wip
 Scenario: Requesting the list of available tasks without any parameters
     Given that I am authenticated as "mark.rogers@ora.local" 
     And that I want to find a "Task"
@@ -12,7 +11,6 @@ Scenario: Requesting the list of available tasks without any parameters
 	And the response should be JSON
 	And the response should have a "tasks" property
 
-@wip
 Scenario: Requesting a task that the first member evaluated 1500 credits and the second skipped
     Given that I am authenticated as "mark.rogers@ora.local" 
     And that I want to find a "Task"
@@ -22,7 +20,6 @@ Scenario: Requesting a task that the first member evaluated 1500 credits and the
 	And the "estimation" property should be "1500"
 	And the "members" property size should be "2"
 
-@wip
 Scenario: Requesting a task with skipped estimation by the only member 
     Given that I am authenticated as "mark.rogers@ora.local" 
     And that I want to find a "Task"
@@ -32,7 +29,6 @@ Scenario: Requesting a task with skipped estimation by the only member
 	And the "estimation" property should be "-1"
 	And the "members" property size should be "1"
 	
-@wip
 Scenario: Requesting a task estimated by only one member 
     Given that I am authenticated as "mark.rogers@ora.local" 
     And that I want to find a "Task"

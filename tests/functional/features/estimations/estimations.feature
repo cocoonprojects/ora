@@ -3,9 +3,6 @@ Feature: estimations list
     I want to see who already assigned an estimation
     in order to understand how the estimation progress
 
-@task @estimations @GET
-
-@wip
 Scenario: Seeing who already estimated a task
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "members who estimated a task"

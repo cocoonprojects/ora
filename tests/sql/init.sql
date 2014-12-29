@@ -1,3 +1,14 @@
+CREATE TABLE IF NOT EXISTS `event_stream` (
+  `eventId` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `version` int(11) NOT NULL,
+  `eventName` text COLLATE utf8_unicode_ci NOT NULL,
+  `payload` text COLLATE utf8_unicode_ci NOT NULL,
+  `occurredOn` text COLLATE utf8_unicode_ci NOT NULL,
+  `aggregate_id` text COLLATE utf8_unicode_ci NOT NULL,
+  `aggregate_type` text COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`eventId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 delete from tasks_members;
 delete from tasks;
 delete from streams;
@@ -83,6 +94,9 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
 ('6e943d08-7a9a-4a2a-a8b5-201bfeb57b65',3,'Ora\\TaskManagement\\StreamChanged','a:3:{s:8:\"streamId\";s:36:\"00000000-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000112\";}','2014-11-12T19:07:59.000000+0100','Ora\\TaskManagement\\Task','00000000-0000-0000-0000-000000000112');
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
 ('c033eb32-2ad4-49d5-b25c-3c0b600b7de2',4,'Ora\\TaskManagement\\MemberAdded','a:4:{s:6:\"userId\";s:36:\"60000000-0000-0000-0000-000000000000\";s:4:\"role\";s:5:\"owner\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000112\";}','2014-11-12T19:07:59.000000+0100','Ora\\TaskManagement\\Task','00000000-0000-0000-0000-000000000112');
+
+INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
+('44f1b89a-156b-4dbf-b5c9-9a0540460a0b',1,'Ora\\Accounting\\AccountCreated','a:3:{s:7:\"balance\";i:0;s:7:\"holders\";a:1:{s:36:\"60000000-0000-0000-0000-000000000000\";s:11:\"Mark Rogers\";}s:12:\"aggregate_id\";s:36:\"dcde992b-5aa9-4447-98ae-c8115906dcb7\";}','2014-12-29T17:32:07.000000+0100','Ora\\Accounting\\OrganizationAccount','dcde992b-5aa9-4447-98ae-c8115906dcb7');
 
 INSERT INTO `organizations` (id, name, createdAt, mostRecentEditAt) VALUES ('00000000-0000-0000-1000-000000000000', 'O.R.A. Team','2014-11-06 13:11:05','2014-11-06 13:11:05');
 insert into accounts(id, organization_id, createdAt, mostRecentEditAt, balance_value, balance_date, createdBy_id, mostRecentEditBy_id, type) values ('dcde992b-5aa9-4447-98ae-c8115906dcb7', '00000000-0000-0000-1000-000000000000', '2014-12-09 15:25:18', '2014-12-09 15:25:18', 0, '2014-12-09 15:25:18', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000', 'organizationaccount');

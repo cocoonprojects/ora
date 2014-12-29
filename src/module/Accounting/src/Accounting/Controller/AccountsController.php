@@ -15,26 +15,20 @@ class AccountsController extends AbstractHATEOASRestfulController
 	 * @var AccountService
 	 */
 	protected $accountService;
-	/**
-	 * 
-	 * @var AuthenticationServiceInterface
-	 */
-	protected $authService;
 	
-	public function __construct(AccountService $accountService, AuthenticationServiceInterface $authService) {
+	public function __construct(AccountService $accountService) {
 		$this->accountService = $accountService;
-		$this->authService = $authService;
 	}
 	
 	// Gets my credits accounts list
 	public function getList()
 	{
-		if(!$this->authService->hasIdentity()) {
+		if(!$this->identity()) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
 		
-		$identity = $this->authService->getIdentity()['user'];
+		$identity = $this->identity()['user'];
 		$accounts = $this->accountService->findAccounts($identity);
 		
 		$viewModel = new AccountsJsonModel($this->url());
@@ -42,32 +36,14 @@ class AccountsController extends AbstractHATEOASRestfulController
 		return $viewModel;
 	}
 
-	// Creates my credits account for an organization if not already existing
-	public function create($data)
-	{
-		
-		// if JSON Content-Type, returns decoded data; for
-		// application/x-www-form-urlencoded, returns array
-		$this->accountService->create();
-		$response = $this->getResponse();
-		$response->setStatusCode(201); // Created
-		$response->getHeaders()->addHeaderLine(
-				'Location',
-				$this->url()->fromRoute('accounts', array('id' => $resource->getId()))
-		);
-		return $response;
-	}
-	
-	// Deletes an existing credits account
-	public function delete($id)
-	{
-		
-	}
-	
 	public function get($id)
 	{
 		$rv = $this->accountService->findAccount($id);
-		$viewModel = new AccountJsonModel();
+		if(is_null($rv)) {
+			$this->response->setStatusCode(404);
+			return $this->response;
+		}
+		$viewModel = new AccountsJsonModel($this->url());
 		$viewModel->setVariable('resource', $rv);
 		return $viewModel;
 	}

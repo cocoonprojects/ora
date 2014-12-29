@@ -19,16 +19,16 @@ class StatementJsonModel extends JsonModel
 	public function serialize()
 	{
 		$account = $this->getVariable('resource');
-		$representation['statement'] = ['balance' => array(
+		$representation['balance'] = array(
 				'value' => $account->getBalance()->getValue(),
 				'date' => date_format($account->getBalance()->getDate(), 'c'),
-		)];
+		);
 		foreach ($account->getTransactions() as $transaction) {
-			$representation['statement']['transactions'][] = $this->serializeOne($transaction);
+			$representation['transactions'][] = $this->serializeOne($transaction);
 		}
-		$representation['statement']['_links']['self'] = $this->url->fromRoute('statements', ['id' => $account->getId()]); 
+		$representation['_links']['self'] = $this->url->fromRoute('statements', ['id' => $account->getId()]); 
 		if($account instanceof OrganizationAccount) {
-			$representation['statement']['_links']['deposits'] = $this->url->fromRoute('deposits', ['accountId' => $account->getId()]);
+			$representation['_links']['deposits'] = $this->url->fromRoute('deposits', ['accountId' => $account->getId()]);
 		}
 		return Json::encode($representation);
 	}
