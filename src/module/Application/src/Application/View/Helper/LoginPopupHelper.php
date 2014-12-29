@@ -15,7 +15,7 @@ class LoginPopupHelper extends AbstractHelper implements ServiceLocatorAwareInte
 	
 	public function __invoke()
 	{
-		$authService = $this->getServiceLocator()->get('Application\Service\AuthenticationService');
+		$authService = $this->getServiceLocator()->get('Zend\Authentication\AuthenticationService');
 		if(!$authService->hasIdentity())
 		{
 			$output = "<div id='popupLogin' class='modal fade'>

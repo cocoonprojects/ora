@@ -15,7 +15,7 @@ class UserBoxHelper extends AbstractHelper implements ServiceLocatorAwareInterfa
 	
 	public function __invoke()
 	{
-		$authService = $this->getServiceLocator()->get('Application\Service\AuthenticationService');
+		$authService = $this->getServiceLocator()->get('Zend\Authentication\AuthenticationService');
 		$rv = '<ul class="nav navbar-nav navbar-right">';
 		if($authService->hasIdentity())
 		{

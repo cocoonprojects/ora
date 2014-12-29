@@ -64,7 +64,8 @@ class MockOAuth2Adapter implements AdapterInterface, EventManagerAwareInterface,
 		$args = $this->getEventManager()->prepareArgs($args);
 		$this->getEventManager()->trigger('oauth2.success', $this, $args);
 		
-		return new Result(Result::SUCCESS, $args['info']);
+		$rv = new Result(Result::SUCCESS, $args['info']);
+		return $rv;
 	}
 	
 	public function setEmail($email) {

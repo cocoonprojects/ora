@@ -9,5 +9,6 @@ Scenario: Successfully subscribing and checking the account
 	And that I want to find a "Account"
 	When I request "/accounting/accounts"
 	Then the response status code should be 200
-	And the "accounts" property size is "1"
+	And the response should be JSON
+	And the "accounts" property size should be "1"
 	

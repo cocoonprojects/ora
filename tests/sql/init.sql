@@ -123,6 +123,8 @@ INSERT INTO estimations (id, value, createdAt) VALUES
 ('04a1c762-44dc-404c-ac33-3c0723a39c8f','1500,00', '2014-11-07 11:37:58');
 INSERT INTO estimations (id, value, createdAt) VALUES
 ('04a1c762-44dc-404c-ac33-3c0723a39c8h','-1', '2014-11-07 11:37:58');
+INSERT INTO estimations (id, value, createdAt) VALUES
+('05a1c762-44dc-404c-ac33-3c0723a39c8h','-1', '2014-11-07 11:37:58');
 
 
 INSERT INTO tasks_members (task_id, member_id, estimation_id, role) VALUES
@@ -131,3 +133,4 @@ INSERT INTO tasks_members(task_id, member_id,role) VALUES('00000000-0000-0000-00
 INSERT INTO tasks_members(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000108','90000000-0000-0000-0000-000000000000','04a1c762-44dc-404c-ac33-3c0723a39c8e','MEMBER');
 INSERT INTO tasks_members(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000108','80000000-0000-0000-0000-000000000000','04a1c762-44dc-404c-ac33-3c0723a39c8h','OWNER');
 INSERT INTO tasks_members(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000112','80000000-0000-0000-0000-000000000000',NULL,'OWNER');
+INSERT INTO tasks_members(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000104','20000000-0000-0000-0000-000000000000','05a1c762-44dc-404c-ac33-3c0723a39c8h','OWNER');

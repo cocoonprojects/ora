@@ -10,7 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @author Andrea Lupia
  */
 
-class Estimation extends DomainEntity{
+class Estimation extends DomainEntity {
 
 	CONST NOT_ESTIMATED = -1;
 	

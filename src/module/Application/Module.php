@@ -48,7 +48,7 @@ class Module
             	'Application\Controller\Auth'  => function ($sm) {
             		$locator = $sm->getServiceLocator();
 					$resolver = $locator->get('Application\Service\AdapterResolver');
-            		$authService = $locator->get('Application\Service\AuthenticationService');
+            		$authService = $locator->get('Zend\Authentication\AuthenticationService');
             		$userService = $locator->get('User\UserService');
             		$controller = new AuthController($authService, $resolver);
             		$controller->setUserService($userService);
@@ -62,7 +62,7 @@ class Module
     {
         return array(
             'factories' => array(
-            	'Application\Service\AuthenticationService' => 'Application\Service\AuthenticationServiceFactory',
+            	'Zend\Authentication\AuthenticationService' => 'Application\Service\AuthenticationServiceFactory',
 	            'Application\Service\AdapterResolver' => 'Application\Service\OAuth2AdapterResolverFactory',
             ),
         );

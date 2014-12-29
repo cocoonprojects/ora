@@ -109,17 +109,33 @@ class Task extends EditableEntity
 		$this->members->removeElement($member);
     }
 
-    public function getEstimations() {
-    	$estimations = new ArrayCollection();
-    	foreach($this->getMembers() as $member)
-    		if($member->hasEstimated())
-    			$estimations->add($member->getEstimation());
-    	return $estimations;
-    }
-    
     public function getType(){
 
          $c = get_called_class();
          return $c::TYPE;
+    }
+    
+    public function getEstimation() {
+    	$tot = null;
+    	$estimationsCount = 0;
+    	$notEstimationCount = 0;
+    	foreach ($this->members as $member) {
+    		$estimation = $member->getEstimation();
+    		if(!is_null($estimation)) {
+    			if($estimation->getValue() != Estimation::NOT_ESTIMATED) {
+    				$tot += $estimation->getValue();
+    				$estimationsCount++;
+    			} else {
+    				$notEstimationCount++;
+    			}
+    		}
+    	}
+    	if($notEstimationCount == count($this->members)) {
+    		return Estimation::NOT_ESTIMATED;
+    	}
+    	if(($estimationsCount + $notEstimationCount) == count($this->members) || $estimationsCount > 2) {
+    		return $tot / $estimationsCount;
+    	}
+    	return null;
     }
 }
