@@ -72,7 +72,6 @@ Scenario: Cannot deposit wrong number of credits into the organization account
 	When I request "/accounting/accounts/dcde992b-5aa9-4447-98ae-c8115906dcb7/deposits"
 	Then the response status code should be 400
 
-@wip
 Scenario: Cannot deposit without a number of credits into the organization account
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Deposit"

@@ -73,26 +73,14 @@ class EstimationController extends AbstractHATEOASRestfulController {
 	
 	public function create($data)
 	{
+		if(!isset($data['value'])) {
+			$this->response->setStatusCode(400);
+			return $this->response;
+		}
 		try {
 	
+	
 			$loggedUser = $this->authService->getIdentity()['user'];
-	
-			$streamId = $this->task->getStreamId();
-	
-			$stream = $this->streamService->getStream($streamId);
-
-			if(is_null($stream)) {
-				// Stream Not Found
-				echo "Stream not found";
-				$this->response->setStatusCode(404);
-				return $this->response;
-			}
-
-			if(!array_key_exists('value', $data)) {
-				//bad request
-				$this->response->setStatusCode(400);
-				return $this->response;
-			}
 			
 			//TODO check if the value is numeric
 			$value = $data['value'];

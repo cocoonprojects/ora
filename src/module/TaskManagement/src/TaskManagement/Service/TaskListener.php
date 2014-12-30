@@ -148,8 +148,6 @@ class TaskListener
 		$esti = new Estimation($estId, $value);
 		$esti->setCreatedAt($event->occurredOn());
 		$esti->setCreatedBy($user);
-		$esti->setMostRecentEditAt($event->occurredOn());
-		$esti->setMostRecentEditBy($user);
 		$taskMember->setEstimation($esti);
 		$this->entityManager->persist($taskMember);
 	}

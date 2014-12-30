@@ -3,19 +3,22 @@ Feature: Create new Estimation
 	I want to be able to insert my estimation on ongoing task
 	in order to contribute to task estimation
 
-Scenario: Successfully creating a new Estimation
+@wip
+Scenario: Successfully assign an estimation to a task
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Estimation"
 	And that its "value" is "100"
 	When I request "/task-management/tasks/156eaec0-f997-4efe-94c9-b8c15da1f779/estimation"
 	Then the response status code should be 201
-	
+
+@wip
 Scenario: Cannot create a new Estimation with no params
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Estimation"
 	When I request "/task-management/tasks/2662e530-b58e-4dfc-9d0a-e140c2a62610/estimation"
 	Then the response status code should be 400
 
+@wip
 Scenario: Cannot create a new Estimation with wrong params
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Estimation"
@@ -23,6 +26,7 @@ Scenario: Cannot create a new Estimation with wrong params
 	When I request "/task-management/tasks/2662e530-b58e-4dfc-9d0a-e140c2a62610/estimation"
 	Then the response status code should be 400
 
+@wip
 Scenario: Cannot create a new Estimation with not existing task
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Estimation"
@@ -38,6 +42,7 @@ Scenario: Cannot create a new Estimation with not existing task
 #	When I request "/task-management/tasks/8924d278-4bb5-4f16-90d6-ee08aa639d88/estimation"
 #	Then the response status code should be 406	
 
+@wip
 Scenario: Cannot create a new Estimation if the member has already estimate the task
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Estimation"
@@ -45,6 +50,7 @@ Scenario: Cannot create a new Estimation if the member has already estimate the 
 	When I request "/task-management/tasks/156eaec0-f997-4efe-94c9-b8c15da1f779/estimation"
 	Then the response status code should be 204
 	
+@wip
 Scenario: Cannot create a new Estimation if the user is not member of the task
 	Given that I am authenticated as "phil.toledo@ora.local"
 	And that I want to make a new "Estimation"

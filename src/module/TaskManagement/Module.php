@@ -75,7 +75,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             	},
             	'TaskManagement\Controller\Estimation' => function ($sm) {
             		$locator = $sm->getServiceLocator();
-            		$authService = $locator->get('Application\Service\AuthenticationService');
+            		$authService = $locator->get('Zend\Authentication\AuthenticationService');
             		$taskService = $locator->get('TaskManagement\TaskService');
             		$streamService = $locator->get('TaskManagement\StreamService');
             		$controller = new EstimationController($taskService, $authService, $streamService);

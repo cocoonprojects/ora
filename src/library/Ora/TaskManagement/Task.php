@@ -162,8 +162,7 @@ class Task extends DomainEntity implements \Serializable
 		if($this->status != self::STATUS_ONGOING) {
 			throw new IllegalStateException('Cannot estimate a task in the state '.$this->status.'.');
 		}
-		//check that the task in the estimation is the current one
-		//check if the member have joined the task
+		//check if the estimator is a task member
 		if(!array_key_exists($member->getId(), $this->members)) {
         	throw new DomainEntityUnavailableException($this, $member); 
 		}
