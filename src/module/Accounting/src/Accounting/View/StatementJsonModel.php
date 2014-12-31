@@ -28,7 +28,7 @@ class StatementJsonModel extends JsonModel
 		}
 		$representation['_links']['self'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'statement']); 
 		if($account instanceof OrganizationAccount) {
-			$representation['_links']['deposits'] = $this->url->fromRoute('accounts', ['accountId' => $account->getId(), 'controller' => 'deposits']);
+			$representation['_links']['deposits'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'deposits']);
 		}
 		return Json::encode($representation);
 	}
