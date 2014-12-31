@@ -2,9 +2,9 @@
 namespace Accounting\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
+use Zend\Authentication\AuthenticationServiceInterface;
 use Ora\Accounting\AccountService;
 use Ora\Accounting\Account;
-use Zend\Authentication\AuthenticationServiceInterface;
 use Ora\Accounting\IllegalAmountException;
 
 class DepositsController extends AbstractHATEOASRestfulController
