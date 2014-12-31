@@ -10,7 +10,7 @@ return array(
             'tasks-home' => array(
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => array(
-                    'route'    => '/task-management/',
+                    'route'    => '/task-management',
                     'defaults' => array(
                         'controller' => 'TaskManagement\Controller\Index',
                         'action'     => 'index',
@@ -32,27 +32,29 @@ return array(
             'tasks' => array(
                 'type' => 'Segment',
                 'options' => array(
-                    'route'    => '/task-management/tasks[/:id]',
+                    'route'    => '/task-management/tasks[/:id][/:controller]',
                     'constraints' => array(
                         'id' => '[0-9a-z\-]+'
                     ),
                     'defaults' => array(
-                        'controller' => 'TaskManagement\Controller\Tasks'
+        				'__NAMESPACE__' => 'TaskManagement\Controller',
+                    	'controller' => 'Tasks'
                     ),
                 ),
             ),
-            'members' => array(
-                'type' => 'Segment',
-                'options' => array(
-                    'route'    => '/task-management/tasks/:taskId/members',
-                    'constraints' => array(
-                        'taskId' => '[0-9a-z\-]+'
-                    ),
-                    'defaults' => array(
-                        'controller' => 'TaskManagement\Controller\Members'
-                    ),
-                ),
-            ),
+        ),
+    ),
+    
+    'translator' => array(),
+    'view_manager' => array(
+        'strategies' => array(
+            'ViewJsonStrategy',
+        ),
+    )
+);
+
+/**
+ *          
             'transitions' => array(
         		'type'    => 'Segment',
         		'options' => array(
@@ -66,23 +68,5 @@ return array(
         			),
         		),
         	),
-        	'estimations'	=> array(
-        		'type'		=> 'Segment',
-        		'options'	=> array(
-        			'route'		=> '/task-management/tasks/:taskId/estimation',
-        			'defaults'	=>	array(
-        				'__NAMESPACE__' => 'TaskManagement\Controller',
-        				'controller'    => 'Estimation',
-        			),
-        		),
-        	),
-        ),
-    ),
-    
-    'translator' => array(),
-    'view_manager' => array(
-        'strategies' => array(
-            'ViewJsonStrategy',
-        ),
-    )
-);
+ * /
+ */

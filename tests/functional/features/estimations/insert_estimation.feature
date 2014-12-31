@@ -1,62 +1,100 @@
-Feature: Create new Estimation
+Feature: Estimate a task
 	As a task member
-	I want to be able to insert my estimation on ongoing task
+	I want to be able to estimate on ongoing task
 	in order to contribute to task estimation
 
 @wip
-Scenario: Successfully assign an estimation to a task
+Scenario: Cannot estimate a task without an estimation value
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Estimation"
-	And that its "value" is "100"
-	When I request "/task-management/tasks/156eaec0-f997-4efe-94c9-b8c15da1f779/estimation"
-	Then the response status code should be 201
-
-@wip
-Scenario: Cannot create a new Estimation with no params
-	Given that I am authenticated as "mark.rogers@ora.local"
-	And that I want to make a new "Estimation"
-	When I request "/task-management/tasks/2662e530-b58e-4dfc-9d0a-e140c2a62610/estimation"
+	When I request "/task-management/tasks/156eaec0-f997-4efe-94c9-b8c15da1f779/estimations"
 	Then the response status code should be 400
 
 @wip
-Scenario: Cannot create a new Estimation with wrong params
+Scenario: Cannot estimate a task with negative estimation value
+	Given that I am authenticated as "mark.rogers@ora.local"
+	And that I want to make a new "Estimation"
+	And that its "value" is "-100"
+	When I request "/task-management/tasks/156eaec0-f997-4efe-94c9-b8c15da1f779/estimations"
+	Then the response status code should be 400
+
+@wip
+Scenario: Cannot estimate a task with invalid estimation value
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Estimation"
 	And that its "value" is "estimation"
-	When I request "/task-management/tasks/2662e530-b58e-4dfc-9d0a-e140c2a62610/estimation"
+	When I request "/task-management/tasks/156eaec0-f997-4efe-94c9-b8c15da1f779/estimations"
 	Then the response status code should be 400
 
 @wip
-Scenario: Cannot create a new Estimation with not existing task
+Scenario: Successfully estimating a task
+	Given that I am authenticated as "mark.rogers@ora.local"
+	And that I want to make a new "Estimation"
+	And that its "value" is "100"
+	When I request "/task-management/tasks/156eaec0-f997-4efe-94c9-b8c15da1f779/estimations"
+	Then the response status code should be 201
+
+@wip
+Scenario: Successfully skipping the estimation of a task
+	Given that I am authenticated as "mark.rogers@ora.local"
+	And that I want to make a new "Estimation"
+	And that its "value" is "-1"
+	When I request "/task-management/tasks/2662e530-b58e-4dfc-9d0a-e140c2a62610/estimations"
+	Then the response status code should be 201
+
+@wip
+Scenario: Successfully assigning no value to a task
+	Given that I am authenticated as "mark.rogers@ora.local"
+	And that I want to make a new "Estimation"
+	And that its "value" is "0"
+	When I request "/task-management/tasks/8924d278-4bb5-4f16-90d6-ee08aa639d88/estimations"
+	Then the response status code should be 201
+
+@wip
+Scenario: Cannot estimate a not existing task
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Estimation"
 	And that its "value" is "200"
-	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000888/estimation"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000888/estimations"
 	Then the response status code should be 404
 
-#Test unavailable, missing TaskAccepted event
-#Scenario: Cannot create a new Estimation if the task is not in ongoing status
-#	Given that I am authenticated as "mark.rogers@ora.local"
-#	And that I want to make a new "Estimation"
-#	And that its "value" is "150"
-#	When I request "/task-management/tasks/8924d278-4bb5-4f16-90d6-ee08aa639d88/estimation"
-#	Then the response status code should be 406	
+@wip
+Scenario: Cannot estimate a completed task
+	Given that I am authenticated as "mark.rogers@ora.local"
+	And that I want to make a new "Estimation"
+	And that its "value" is "150"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000001/estimations"
+	Then the response status code should be 406	
 
 @wip
-Scenario: Cannot create a new Estimation if the member has already estimate the task
+Scenario: Cannot estimate an accepted task
+	Given that I am authenticated as "mark.rogers@ora.local"
+	And that I want to make a new "Estimation"
+	And that its "value" is "150"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000002/estimations"
+	Then the response status code should be 406	
+
+@wip @now
+Scenario: Cannot estimate a deleted task
+	Given that I am authenticated as "mark.rogers@ora.local"
+	And that I want to make a new "Estimation"
+	And that its "value" is "150"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000003/estimations"
+	Then echo last response
+	Then the response status code should be 406	
+
+@wip
+Scenario: Cannot estimate if the member has already estimate the task
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Estimation"
 	And that its "value" is "250"
-	When I request "/task-management/tasks/156eaec0-f997-4efe-94c9-b8c15da1f779/estimation"
+	When I request "/task-management/tasks/156eaec0-f997-4efe-94c9-b8c15da1f779/estimations"
 	Then the response status code should be 204
 	
 @wip
-Scenario: Cannot create a new Estimation if the user is not member of the task
+Scenario: Cannot estimate if not member of the task
 	Given that I am authenticated as "phil.toledo@ora.local"
 	And that I want to make a new "Estimation"
 	And that its "value" is "300"
-	When I request "/task-management/tasks/2662e530-b58e-4dfc-9d0a-e140c2a62610/estimation"
+	When I request "/task-management/tasks/2662e530-b58e-4dfc-9d0a-e140c2a62610/estimations"
 	Then the response status code should be 401
-
-
-

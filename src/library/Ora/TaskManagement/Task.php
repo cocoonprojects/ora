@@ -158,7 +158,7 @@ class Task extends DomainEntity implements \Serializable
 	}
 	
 	public function addEstimation(User $member, $value) {
-		//in which states I can add an estimation?
+		var_dump($this->status);
 		if($this->status != self::STATUS_ONGOING) {
 			throw new IllegalStateException('Cannot estimate a task in the state '.$this->status.'.');
 		}

@@ -8,7 +8,7 @@ use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use TaskManagement\Controller\MembersController;
 use TaskManagement\Controller\TasksController;
 use TaskManagement\Controller\TransitionsController;
-use TaskManagement\Controller\EstimationController;
+use TaskManagement\Controller\EstimationsController;
 use TaskManagement\Service\TaskListener;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
@@ -61,10 +61,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 	            },
 	            'TaskManagement\Controller\Members' => function ($sm) {
             		$locator = $sm->getServiceLocator();
-            		$authService = $locator->get('Zend\Authentication\AuthenticationService');
             		$taskService = $locator->get('TaskManagement\TaskService');
-            		$streamService = $locator->get('TaskManagement\StreamService');
-            		$controller = new MembersController($taskService, $authService, $streamService);
+            		$controller = new MembersController($taskService);
             		return $controller;
             	},
             	'TaskManagement\Controller\Transitions' => function ($sm) {
@@ -73,12 +71,10 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             		$controller = new TransitionsController($kanbanizeService);
             		return $controller;
             	},
-            	'TaskManagement\Controller\Estimation' => function ($sm) {
+            	'TaskManagement\Controller\Estimations' => function ($sm) {
             		$locator = $sm->getServiceLocator();
-            		$authService = $locator->get('Zend\Authentication\AuthenticationService');
             		$taskService = $locator->get('TaskManagement\TaskService');
-            		$streamService = $locator->get('TaskManagement\StreamService');
-            		$controller = new EstimationController($taskService, $authService, $streamService);
+            		$controller = new EstimationsController($taskService);
             		return $controller;
             	}
             )
