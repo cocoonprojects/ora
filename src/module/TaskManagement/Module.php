@@ -67,8 +67,9 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             	},
             	'TaskManagement\Controller\Transitions' => function ($sm) {
             		$locator = $sm->getServiceLocator();
+	            	$taskService = $locator->get('TaskManagement\TaskService');
             		$kanbanizeService = $locator->get('TaskManagement\KanbanizeService');
-            		$controller = new TransitionsController($kanbanizeService);
+            		$controller = new TransitionsController($taskService, $kanbanizeService);
             		return $controller;
             	},
             	'TaskManagement\Controller\Estimations' => function ($sm) {

@@ -48,25 +48,6 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	}
 	
 	/**
-	 * Append new event for UPDATE the specified task entity with $data parameters
-	 */
-	public function editTask(Task $task)
-	{
-		$this->eventStore->beginTransaction();
-		$this->eventStore->commit();
-	}
-	
-	/**
-	 * Append new event for DELETE the specified task entity
-	 */
-	public function deleteTask(Task $task, User $deletedBy)
-	{
-		$this->eventStore->beginTransaction();
-		$task->delete($deletedBy);    
-	    $this->eventStore->commit();
-	}
-	
-	/**
 	 * Get the list of all available tasks 
 	 */
 	public function findTasks()

@@ -12,39 +12,16 @@ return array(
                     ),
                 ),
             ),
-			'deposits' => array (
-				'type'    => 'segment',
-				'options' => array (
-					'route'       => '/accounting/accounts/:accountId/deposits',
-					'constraints' => array (
-						'accountId'     => '[0-9a-z\-]+',
-					),
-					'defaults'    => array (
-						'controller' => 'Accounting\Controller\Deposits'
-					),
-				),
-			),
-			'statements' => array (
-				'type'    => 'segment',
-				'options' => array (
-					'route'       => '/accounting/accounts/:id/statement',
-					'constraints' => array (
-						'id'     => '[0-9a-z\-]+',
-					),
-					'defaults'    => array (
-						'controller' => 'Accounting\Controller\Statements'
-					),
-				),
-			),
 			'accounts' => array (
 				'type'    => 'segment',
 				'options' => array (
-					'route'       => '/accounting/accounts[/:id]',
+					'route'       => '/accounting/accounts[/:id][/:controller]',
 					'constraints' => array (
 						'id'     => '[0-9a-z\-]+',
 					),
 					'defaults'    => array (
-						'controller' => 'Accounting\Controller\Accounts'
+						'__NAMESPACE__' => 'Accounting\Controller',
+						'controller' => 'Accounts'
 					),
 				),
 			),

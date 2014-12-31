@@ -10,6 +10,7 @@ use Ora\StreamManagement\Stream;
 use Ora\IllegalStateException;
 use Zend\Authentication\AuthenticationServiceInterface;
 use TaskManagement\View\TaskJsonModel;
+use Ora\TaskManagement\Task;
 
 class TasksController extends AbstractHATEOASRestfulController
 {
@@ -75,6 +76,13 @@ class TasksController extends AbstractHATEOASRestfulController
      */
     public function create($data)
     {       	
+    	if (!isset($data['streamID']) || !isset($data['subject']))
+        {            
+            // HTTP STATUS CODE 400: Bad Request
+            $this->response->setStatusCode(400);
+            return $this->response;
+        }   
+		
     	$loggedUser = $this->identity()['user'];
     	
     	if(is_null($loggedUser))
@@ -84,13 +92,6 @@ class TasksController extends AbstractHATEOASRestfulController
     		return $this->response;
     	}
     	       
-    	if (!isset($data['streamID']) || !isset($data['subject']))
-        {            
-            // HTTP STATUS CODE 400: Bad Request
-            $this->response->setStatusCode(400);
-            return $this->response;
-        }   
-		
         $stream = $this->streamService->getStream($data['streamID']);
                      
         if(is_null($stream)) {
@@ -99,13 +100,11 @@ class TasksController extends AbstractHATEOASRestfulController
         	return $this->response;
         }
                 
-        $subject = trim($data['subject']);
-
 	    // Definition of used Zend Validators
 	    $validator_NotEmpty = new \Zend\Validator\NotEmpty();
 	        
 	    // Check if subject is empty
-	    if (!$validator_NotEmpty->isValid($subject))
+	    if (!$validator_NotEmpty->isValid($data['subject']))
 	    {
 	    	// HTTP STATUS CODE 406: Not Acceptable
 	        $this->response->setStatusCode(406);
@@ -113,7 +112,7 @@ class TasksController extends AbstractHATEOASRestfulController
 	    }
 	        
 	    $createdBy = $loggedUser;
-	    $task = $this->taskService->createTask($stream, $subject, $createdBy);
+	    $task = $this->taskService->createTask($stream, $data['subject'], $createdBy);
 	    // Task Created
 	     
 	    $this->response->setStatusCode(201);
@@ -134,21 +133,17 @@ class TasksController extends AbstractHATEOASRestfulController
      */
     public function update($id, $data)
     {
+    	if (!isset($data['subject'])) {
+      	    $this->response->setStatusCode(204);	// HTTP STATUS CODE 204: No Content (Nothing to update)
+      	    return $this->response;
+      	}
+      	
         $task = $this->taskService->getTask($id);
         if(is_null($task)) {
             $this->response->setStatusCode(404);
             return $this->response;            	
 		}
     	
-    	if (!isset($data['subject']))
-      	{
-      	    $this->response->setStatusCode(204);	// HTTP STATUS CODE 204: No Content (Nothing to update)
-      	    return $this->response;
-      	}
-      	
-      	// TODO: Utilizzare ZendForm!
-      	$data['subject'] = trim($data['subject']);
-      	    
       	// Definition of used Zend Validators
       	$validator_NotEmpty = new \Zend\Validator\NotEmpty();
       	    
@@ -161,11 +156,16 @@ class TasksController extends AbstractHATEOASRestfulController
         }
           	
 	    $updatedBy = $this->identity()['user'];
-        $task->setSubject($data['subject'], $updatedBy);
-	    $this->taskService->editTask($task);
+	    $this->transaction()->begin();
+	    try {
+        	$task->setSubject($data['subject'], $updatedBy);
+        	$this->transaction()->commit();
+	      	// HTTP STATUS CODE 202: Element Accepted
+	      	$this->response->setStatusCode(202);
+	    } catch (\Exception $e) {
+	    	$this->transaction()->rollback();
+	    }
       	
-      	// HTTP STATUS CODE 202: Element Accepted
-      	$this->response->setStatusCode(202);
         return $this->response;
     }
     
@@ -183,13 +183,19 @@ class TasksController extends AbstractHATEOASRestfulController
             $this->response->setStatusCode(404);
             return $this->response;            	
 		}
+    	if($task->getStatus() == Task::STATUS_DELETED) {
+			$this->response->setStatusCode(204);
+			return $this->response;
+		}
     	
+		$deletedBy = $this->identity()['user'];
+		$this->transaction()->begin();
     	try {
-			$deletedBy = $this->identity()['user'];
-	      	$this->taskService->deleteTask($task, $deletedBy);
-	      	// HTTP STATUS CODE 200: Completed
+    		$task->delete($deletedBy);
+    		$this->transaction()->commit();
 	      	$this->response->setStatusCode(200);
 		} catch (IllegalStateException $e) {
+			$this->transaction()->rollback();
             // HTTP STATUS CODE 406: Not Acceptable
             $this->response->setStatusCode(406);			
 		}

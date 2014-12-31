@@ -102,8 +102,9 @@ class Task extends DomainEntity implements \Serializable
 	}
 	
 	public function setSubject($subject, User $updatedBy) {
+		$s = trim($subject);
 		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
-			'subject' => $subject,
+			'subject' => $s,
 			'by' => $updatedBy->getId(),
 		)));
 	}

@@ -38,9 +38,9 @@ class AccountsJsonModel extends JsonModel
 			),
 		);
 		$rv['_links']['self'] = $this->url->fromRoute('accounts', ['id' => $account->getId()]); 
-		$rv['_links']['statement'] = $this->url->fromRoute('statements', ['id' => $account->getId()]);
+		$rv['_links']['statement'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'statements']);
 		if($account instanceof OrganizationAccount) {
-			$rv['_links']['deposits'] = $this->url->fromRoute('deposits', ['accountId' => $account->getId()]);
+			$rv['_links']['deposits'] = $this->url->fromRoute('accounts', ['accountId' => $account->getId(), 'controller' => 'deposits']);
 		}
 		return $rv;
 	}

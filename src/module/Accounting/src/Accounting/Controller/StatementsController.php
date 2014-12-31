@@ -2,7 +2,6 @@
 namespace Accounting\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Zend\Authentication\AuthenticationServiceInterface;
 use Ora\Accounting\AccountService;
 use Accounting\View\StatementJsonModel;
 
@@ -15,26 +14,20 @@ class StatementsController extends AbstractHATEOASRestfulController
 	 * @var AccountService
 	*/
 	protected $accountService;
-	/**
-	 *
-	 * @var AuthenticationServiceInterface
-	 */
-	protected $authService;
 
-	public function __construct(AccountService $accountService, AuthenticationServiceInterface $authService) {
+	public function __construct(AccountService $accountService) {
 		$this->accountService = $accountService;
-		$this->authService = $authService;
 	}
 
 	public function get($id)
 	{
-		$this->account = $this->accountService->findAccount($id);
-		if(is_null($this->account)) {
+		$account = $this->accountService->findAccount($id);
+		if(is_null($account)) {
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
 		$viewModel = new StatementJsonModel($this->url());
-		$viewModel->setVariable('resource', $this->account);
+		$viewModel->setVariable('resource', $account);
 		return $viewModel;
 	}
 

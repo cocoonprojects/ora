@@ -41,3 +41,7 @@ Scenario: Cannot delete an accepted task
 	Then the response status code should be 406
 	
 Scenario: Deleting a deleted task is invariant
+	Given that I am authenticated as "mark.rogers@ora.local" 
+	And that I want to delete a "Task"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000003"
+	Then the response status code should be 204

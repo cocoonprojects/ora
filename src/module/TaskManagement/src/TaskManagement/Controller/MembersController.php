@@ -31,13 +31,16 @@ class MembersController extends AbstractHATEOASRestfulController
 			return $this->response;
         }
     	$loggedUser = $this->identity()['user'];
+    	$this->transaction()->begin();
     	try {    		
        		$task->addMember($loggedUser, $loggedUser);
-       		$this->taskService->editTask($task);
+       		$this->transaction()->commit();
 	    	$this->response->setStatusCode(201);
     	} catch (DuplicatedDomainEntityException $e) {    		
+       		$this->transaction()->rollback();
     		$this->response->setStatusCode(204);
         } catch (IllegalStateException $e) {
+       		$this->transaction()->rollback();
         	$this->response->setStatusCode(406);	// Not acceptable
     	}
     	
@@ -52,13 +55,16 @@ class MembersController extends AbstractHATEOASRestfulController
 			return $this->response;
         }
        	$loggedUser = $this->identity()['user'];
-    	try {
+    	$this->transaction()->begin();
+       	try {
        		$task->removeMember($loggedUser, $loggedUser);
-       		$this->taskService->editTask($task);
+       		$this->transaction()->commit();
 	    	$this->response->setStatusCode(200);
         } catch (DomainEntityUnavailableException $e) {
+       		$this->transaction()->rollback();
         	$this->response->setStatusCode(204);	// No content
         } catch (IllegalStateException $e) {
+       		$this->transaction()->rollback();
         	$this->response->setStatusCode(406);	// Not acceptable
         }
     	return $this->response;

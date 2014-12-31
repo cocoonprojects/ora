@@ -6,13 +6,14 @@ use Zend\Json\Json;
 use Ora\ReadModel\Task;
 use Ora\ReadModel\Estimation;
 use Ora\ReadModel\TaskMember;
+use Zend\Mvc\Controller\Plugin\Url;
 
 class TaskJsonModel extends JsonModel
 {
 	private $url;
 	
-	public function __construct($urlPlugin) {
-		$this->url = $urlPlugin;
+	public function __construct(Url $url) {
+		$this->url = $url;
 	}
 	
 	public function serialize()

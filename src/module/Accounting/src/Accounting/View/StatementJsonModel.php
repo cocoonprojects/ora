@@ -26,9 +26,9 @@ class StatementJsonModel extends JsonModel
 		foreach ($account->getTransactions() as $transaction) {
 			$representation['transactions'][] = $this->serializeOne($transaction);
 		}
-		$representation['_links']['self'] = $this->url->fromRoute('statements', ['id' => $account->getId()]); 
+		$representation['_links']['self'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'statements']); 
 		if($account instanceof OrganizationAccount) {
-			$representation['_links']['deposits'] = $this->url->fromRoute('deposits', ['accountId' => $account->getId()]);
+			$representation['_links']['deposits'] = $this->url->fromRoute('accounts', ['accountId' => $account->getId(), 'controller' => 'deposits']);
 		}
 		return Json::encode($representation);
 	}

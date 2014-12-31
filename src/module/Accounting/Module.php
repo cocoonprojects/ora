@@ -49,36 +49,25 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
     {
         return array(
             'invokables' => array(
+            		'Accounting\Controller\Index' => 'Accounting\Controller\IndexController',
             ),
             'factories' => array(
-	            'Accounting\Controller\Index' => function ($sm) {
-	            	$locator = $sm->getServiceLocator();
-	            	$authService = $locator->get('Zend\Authentication\AuthenticationService');
-	            	$accountService = $locator->get('Accounting\CreditsAccountsService');
-	            	$controller = new IndexController($accountService, $authService);
-	            	return $controller;
-	            },
 	            'Accounting\Controller\Accounts' => function ($sm) {
 	            	$locator = $sm->getServiceLocator();
-	            	$authService = $locator->get('Zend\Authentication\AuthenticationService');
 	            	$accountService = $locator->get('Accounting\CreditsAccountsService');
-	            	$controller = new AccountsController($accountService, $authService);
+	            	$controller = new AccountsController($accountService);
 	            	return $controller;
 	            },
 				'Accounting\Controller\Deposits' => function ($sm) {
 	            	$locator = $sm->getServiceLocator();
-	            	$authService = $locator->get('Zend\Authentication\AuthenticationService');
 	            	$accountService = $locator->get('Accounting\CreditsAccountsService');
-	            	$controller = new DepositsController($accountService, $authService);
-	            	$eventStore = $locator->get('prooph.event_store');
-	            	$controller->setTransactionManager($eventStore);
+	            	$controller = new DepositsController($accountService);
 	            	return $controller;
 	            },
-				'Accounting\Controller\Statements' => function ($sm) {
+				'Accounting\Controller\Statement' => function ($sm) {
 	            	$locator = $sm->getServiceLocator();
-	            	$authService = $locator->get('Zend\Authentication\AuthenticationService');
 	            	$accountService = $locator->get('Accounting\CreditsAccountsService');
-	            	$controller = new StatementsController($accountService, $authService);
+	            	$controller = new StatementsController($accountService);
 	            	return $controller;
 	            },
             )
@@ -90,7 +79,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 		return array (
 			'factories' => array (
 				'Accounting\CreditsAccountsService' => 'Accounting\Service\AccountServiceFactory',
-     			),
+     		),
      	);
 	}
 

@@ -12,11 +12,7 @@ interface TaskService
 {
 	public function createTask(Stream $stream, $subject, User $createdBy);
 	
-	public function editTask(Task $task);
-	
 	public function getTask($id);
-	
-	public function deleteTask(Task $task, User $deletedBy);
 	
 	public function findTasks();
 	

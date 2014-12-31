@@ -58,6 +58,15 @@ class Module
         );        
     } 
     
+	public function getControllerPluginConfig()
+	{
+	    return array(
+	        'factories' => array(
+	            'transaction' => 'Application\Controller\Plugin\TransactionPluginFactory'
+	        ),
+	    );
+	}
+	
     public function getServiceConfig()
     {
         return array(
