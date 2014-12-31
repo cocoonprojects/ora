@@ -3,7 +3,6 @@ Feature: Delete Task
 	I want to delete an ongoing task
 	in order to remove it definitely from the system
 
-@now
 Scenario: Successfully deleting an ongoing task
 	Given that I am authenticated as "mark.rogers@ora.local" 
 	And that I want to delete a "Task"

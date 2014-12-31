@@ -11,6 +11,15 @@ Scenario: Requesting the list of available tasks without any parameters
 	And the response should be JSON
 	And the response should have a "tasks" property
 
+Scenario: Requesting the list of tasks of a stream
+    Given that I am authenticated as "mark.rogers@ora.local" 
+    And that I want to find a "Task"
+	And that its "streamID" is "00000000-1000-0000-0000-000000000000"
+	When I request "/task-management/tasks"
+	Then the response status code should be 200
+	And the response should be JSON
+	And the response should have a "tasks" property
+
 Scenario: Requesting a task that the first member evaluated 1500 credits and the second skipped
     Given that I am authenticated as "mark.rogers@ora.local" 
     And that I want to find a "Task"

@@ -11,7 +11,6 @@ use Prooph\EventStore\Aggregate\AggregateType;
 use Ora\User\User;
 use Ora\StreamManagement\Stream;
 use Ora\IllegalStateException;
-use Ora\ReadModel\Stream as ReadModelStream;
 
 /**
  * @author Giannotti Fabio
@@ -80,9 +79,9 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		return $this->entityManager->find('Ora\ReadModel\Task', $id);
 	}
 	
-	public function findStreamTasks(ReadModelStream $stream)
+	public function findStreamTasks($streamId)
 	{	
-		$repository = $this->entityManager->getRepository('Ora\ReadModel\Task')->findBy(array('stream' => $stream));
+		$repository = $this->entityManager->getRepository('Ora\ReadModel\Task')->findBy(array('stream' => $streamId));
 	    return $repository;
 	}	
 }

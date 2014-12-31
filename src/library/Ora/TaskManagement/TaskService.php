@@ -4,7 +4,6 @@ namespace Ora\TaskManagement;
 
 use Ora\StreamManagement\Stream;
 use Ora\User\User;
-use Ora\ReadModel\Stream as ReadModelStream;
 
 /**
  * @author Giannotti Fabio
@@ -23,5 +22,5 @@ interface TaskService
 	
 	public function findTask($id);
 	
-	public function findStreamTasks(ReadModelStream $stream);
+	public function findStreamTasks($streamId);
 }

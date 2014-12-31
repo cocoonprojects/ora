@@ -9,7 +9,6 @@ Scenario: Successfully unjoining an ongoing task the logged user is member of
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000000/members"
 	Then the response status code should be 200
 
-@now
 Scenario: Unjoining an ongoing task the logged user isn't member of is invariant
 	Given that I am authenticated as "paul.smith@ora.local" 
 	And that I want to delete a "Member"
