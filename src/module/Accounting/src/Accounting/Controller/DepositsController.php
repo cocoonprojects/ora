@@ -6,6 +6,7 @@ use Zend\Authentication\AuthenticationServiceInterface;
 use Ora\Accounting\AccountService;
 use Ora\Accounting\Account;
 use Ora\Accounting\IllegalAmountException;
+use Prooph\EventStore\EventStore;
 
 class DepositsController extends AbstractHATEOASRestfulController
 {
@@ -22,7 +23,7 @@ class DepositsController extends AbstractHATEOASRestfulController
 	 */
 	protected $authService;
 	/**
-	 * 
+	 * @var EventStore
 	 */
 	protected $transactionManager;
 	/**
@@ -57,7 +58,7 @@ class DepositsController extends AbstractHATEOASRestfulController
 	public function create($data) {
 		$response = $this->getResponse();
 		
-		if(!$this->authService->hasIdentity()) {
+		if(!$this->identity()) {
 			$response->setStatusCode(401);
 			return $response;
 		}
@@ -69,21 +70,20 @@ class DepositsController extends AbstractHATEOASRestfulController
 		$this->transactionManager->beginTransaction();
 		try {
 			$this->account->deposit($amount, $payer, $description);
-		} catch (IllegalAmountException $e) {
-			$response->setStatusCode(400);
-			return $response;
-		} catch (IllegalPayerException $e) {
-			$response->setStatusCode(400);
-			return $response;
-		} finally {
 			$this->transactionManager->commit();
+			$response->setStatusCode(201); // Created
+			$response->getHeaders()->addHeaderLine(
+					'Location',
+					$this->url()->fromRoute('accounts', array('id' => $this->account->getId()))
+			);
+		} catch (IllegalAmountException $e) {
+			$this->transactionManager->rollback();
+			$response->setStatusCode(400);
+		} catch (IllegalPayerException $e) {
+			$this->transactionManager->rollback();
+			$response->setStatusCode(400);
 		}
 		
-		$response->setStatusCode(201); // Created
-		$response->getHeaders()->addHeaderLine(
-				'Location',
-				$this->url()->fromRoute('accounts', array('id' => $this->account->getId()))
-		);
 		return $response;
 	}
 

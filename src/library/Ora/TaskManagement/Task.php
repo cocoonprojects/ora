@@ -157,8 +157,7 @@ class Task extends DomainEntity implements \Serializable
         )));
 	}
 	
-	public function addEstimation(User $member, $value) {
-		var_dump($this->status);
+	public function addEstimation($value, User $member) {
 		if($this->status != self::STATUS_ONGOING) {
 			throw new IllegalStateException('Cannot estimate a task in the state '.$this->status.'.');
 		}
@@ -174,7 +173,7 @@ class Task extends DomainEntity implements \Serializable
 		$estId = Uuid::uuid4();
         $this->recordThat(EstimationAdded::occur($this->id->toString(), array(
         	'id'	 => $estId,
-        	'userId' => $member->getId(),
+        	'by' => $member->getId(),
         	'value'  => $value,
         )));
 	}
@@ -249,7 +248,7 @@ class Task extends DomainEntity implements \Serializable
 	
 	protected function whenEstimationAdded(EstimationAdded $event) {
 		$p = $event->payload();
-		$id = $p['userId'];
+		$id = $p['by'];
 		$this->estimations[$id] = $p['value'];
 	}
 	

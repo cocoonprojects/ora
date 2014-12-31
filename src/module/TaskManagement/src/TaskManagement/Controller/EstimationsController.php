@@ -57,8 +57,7 @@ class EstimationsController extends AbstractHATEOASRestfulController {
 		}
 			
 		$task = $this->taskService->getTask($id);
-		if (is_null($task))
-		{
+		if (is_null($task)) {
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}

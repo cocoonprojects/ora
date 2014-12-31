@@ -136,7 +136,7 @@ class TaskListener
 	
 	protected function onEstimationAdded(StreamEvent $event) {
 		//FIXME
-		$memberId = $event->payload()['userId'];
+		$memberId = $event->payload()['by'];
 		$user = $this->entityManager->find('Ora\User\User', $memberId);
 		if(is_null($user)) {
 			return;
