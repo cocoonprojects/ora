@@ -1,6 +1,6 @@
 var TaskManagement = function()
 {
-	this.bindEventsOn(); 
+	this.bindEventsOn();
 };
 
 TaskManagement.prototype = {
@@ -8,16 +8,18 @@ TaskManagement.prototype = {
 	constructor: TaskManagement,
 	classe: 'TaskManagement',
 	
+	statuses: {
+			0: 'Idea',
+			10:	'Open',
+			20: 'Ongoing',
+			30: 'Completed',
+			40: 'Accepted'
+	},
+	
 	bindEventsOn: function()
 	{
 		var that = this;
 	        
-		// LIST AVAILABLE TASKS
-		$("body").on("click", "#listAvailableTask, #acceptanceTask", function(e){
-			e.preventDefault();
-			that.listAvailableTask();
-		});
-
 		// CREATE NEW TASK
 		$("body").on("submit", "#formCreateNewTask", function(e){
 			e.preventDefault();
@@ -168,7 +170,7 @@ TaskManagement.prototype = {
 		});
 	},
 
-	 acceptTask: function(e){
+	acceptTask: function(e){
 	        //$this->basePath("/kanbanize/task/".$singletask->getId()."/client/test?method=accept"); ?>">
 	                var taskID = $(e.target).closest("tr").data("taskid");
 
@@ -228,120 +230,72 @@ TaskManagement.prototype = {
 	
 	onListAvailableTaskCompleted: function(json)
 	{
-		var container = $('.jumbotron').closest('.container');
+		var container = $('#tasks');
+		container.empty();
 		
-		container
-			.empty()
-			.append("<h2>List of available tasks</h2>" +
-					"<table id='listAvailableTasks' class='table table-striped table-bordered table-hover'>" +
-						"<thead>" +
-							"<tr class='success'>" +
-								"<th>Subject</th>" +
-								"<th>Created At</th>" +
-								"<th>Created By</th>" +
-								"<th>Members</th>" +
-								"<th class='text-center'>Status</th>" +
-								"<th class='text-center'>Estimation</th>"+
-								"<th class='text-center'>Actions</th>" +
-							"</tr>" +
-						"</thead>" +
-						"<tbody></tbody>" +
-					"</table>");
-		
-		container
-			.append("<h2>Create new task</h2>" +
-				"<form id='formCreateNewTask'>" +
-                    "<div class='form-group'>" + 
-                        "<label for='streamID' style='font-weight:normal'>Stream</label>"+
-                        "<select name='streamID' class='form-control' required>" +
-                            "<option value='\'\''>---</option>" +
-                            "<option value='00000000-1000-0000-0000-000000000000'>O.R.A.</option>" +
-                            "<option value='00000000-1100-0000-0000-000000000000'>Open Governance<option>" +
-                        "</select>" +
-                        "<label for='subject' style='font-weight:normal'>Subject</label>"+
-                        "<input type=text name='subject' class='form-control' value='' required>"+
-                    "</div>" +
-                    "<button type='submit' class='btn btn-info btn-block'>" +
-                        "Create a new task"+
-                    "</button>" +
-				"</form>"
-			);
-		
-		container
-			.append("<div id='editTaskBox' style='display:none'>" +
-						"<h2>Edit existing Task</h2>" +
-						"<form id='formEditTask'>" +
-							"<div class='form-group'><label for='taskID' style='font-weight:normal'>Task ID</label><input id='inputEditTaskID' type=text class='form-control' disabled></div>" +
-							"<div class='form-group'><label for='subject' style='font-weight:normal'>Subject</label><input id='inputEditTaskSubject' type=text name='subject' class='form-control' required></div>" +
-							"<button id='btnEditTask' type='submit' class='btn btn-warning btn-block'>Edit this task</button>" +
-						"</form>"+
-					"</div>"
-		);
-		
-		$('#listAvailableTasks tbody').empty();
-		
-		if ($(json.tasks).length > 0)
-		{
+		if ($(json.tasks).length == 0) {
+			container.append("<tr><td colspan='6'>No available tasks found</td></tr>");
+		} else {
+			that = this;
 			$.each(json.tasks, function(key, task) {
-				
+				subject = task._links.self == undefined ? task.subject : '<a href="' + task._links.self + '">' + task.subject + '</a>';
+				createdAt = new Date(Date.parse(task.createdAt));
+				estimation = task.estimation;
 				var actions = "";
-				if (task.status == 20)
-				{
-					task.status = "Ongoing";
-					
-					// Stabilisco se visualizzare il JOIN oppure l'UNJOIN
-					if (task.alreadyMember) {
-						actions = actions + "<button data-action='unjoinTask' class='btn btn-primary' style='margin-left:5px;'>UnJoin</button>";
-					} else {
-						actions = actions + "<button data-action='joinTask' class='btn btn-success'>Join</button>";
-					}
-					
-					actions = actions + "<button data-action='openEditTaskBox' class='btn btn-warning' style='margin-left:5px;margin-right:5px;'>Edit</button>";
-					actions = actions + "<button data-action='deleteTask' class='btn btn-danger'>Delete</button>";
-					//aggiunta bottone stima
-					var show = task.alreadyMember && !task.alreadyEstimated;
-					if( show ){
-						actions += "<button data-action='makestima' class='btn' id='"+task.id+" 'style='margin-left:5px; background-color:#B68437; color:white;'> Stima </button>";
-					}
-					 
+				if (task._links.join != undefined) {
+					actions += '<button data-action="unjoinTask" class="btn btn-default">Join</button>';
 				}
-				else if (task.status == 40)
-				{
-					task.status = "Accepted";
-					actions = "<button class='btn btn-info btn-block'>Assign share</button>";
+				if (task._links.unjoin != undefined) {
+					actions += '<button data-action="joinTask" class="btn btn-default">Unjoin</button>';
 				}
-                else if (task.status == 30 && task.type == 'kanbanizetask'){
-                   
-                    task.status = "Completed";
-                    actions = "<button data-action='acceptTask' class='btn btn-info' style='margin-right: 10px'>Accept</button>"; 
-                    actions = actions + "<button data-action='back2ongoingTask' class='btn btn-info'>Ongoing</button>"; 
-                }
-                else if (task.status == 0){
-                    task.status = "Idea";
-                }
+				if (task._links.edit != undefined) {
+					actions += '<button data-action="openEditTaskBox" class="btn btn-default">Edit</button>';
+				}
+				if (task._links['delete'] != undefined) {
+					actions += '<button data-action="deleteTask" class="btn btn-default">Delete</button>';
+				}
+				if (task._links.estimate != undefined) {
+					actions += '<button data-action="makestima" class="btn btn-default">Estimate</button>';
+				}
+				if (task._links.execute != undefined) {
+					actions += '<button data-action="back2ongoingTask" class="btn btn-default">Ongoing</button>';
+				}
+				if (task._links.complete != undefined) {
+					actions += '<button class="btn btn-default">Complete</button>';
+				}
+				if (task._links.accept != undefined) {
+					actions += '<button data-action="acceptTask" class="btn btn-default">Accept</button>';
+				}
+				if (task._links.assignShares != undefined) {
+					actions += '<button class="btn btn-default">Assign share</button>';
+				}
+				switch(task.estimation) {
+				case -1:
+					estimation = 'Skipped';
+					break;
+				case null:
+					estimation = 'In progress';
+					break;
+				}
 
-				$('#listAvailableTasks tbody')
-					.append(
+				container.append(
 						/*"<tr data-taskid='"+task.id+"' data-tasksubject='" + task.subject + "' data-userid='"+json.loggeduser.id+"'>" +	*/
-                        "<tr data-taskid='"+task.id+"' data-tasksubject='" + task.subject + "' data-type='"+task.type+"'>" +
-							"<td>" + task.subject + "</td>" +
-							"<td>" + task.createdAt.date.replace('.000000','') + "</td>" +
-							"<td>" + task.createdBy + "</td>" +
-                            "<td>" + $.map(task.members, function(n,i){
-                                var estimation = n.estimation || '';
-                                if(estimation !== ''){
-                                    return "<p>"+n.firstname+" "+n.lastname+" <img src=/img/tick10.png></p>";
+                        "<tr>" +
+							'<td>' + subject + '</td>' +
+							"<td>" + createdAt.toLocaleString() + "</td>" +
+                            "<td>" + $.map(task.members, function(object,key) {
+                            	rv = '<span class="task-member">' + object.firstname + " " + object.lastname;
+                                if(object.estimation != null){
+                                    rv += '<img src="/img/tick10.png">';
                                 }
-                                return "<p>"+ n.firstname+" "+n.lastname+"</p>";
-                            }).join('')+ "</td>" + 
-							"<td class='text-center'>" + task.status + "</td>" +
-							"<td class='text-center'>" + task.estimation + "</td>" +
-							"<td class='text-center'>" + actions + "</td>" +
+                                return rv + '</span>';
+                            }).join('') + "</td>" + 
+							'<td>' + that.statuses[task.status] + '</td>' +
+							'<td>' + estimation + '</td>' +
+							'<td>' + actions + '</td>' +
 						"</tr>");
 			});
 		}
-		else
-			$('#listAvailableTasks tbody').append("<tr><td colspan='7'>No available tasks found</td></tr>");
 	},
 	
 	createNewTask: function()
@@ -460,3 +414,8 @@ TaskManagement.prototype = {
 	}
 	
 };
+
+$().ready(function(e){
+	collaboration = new TaskManagement();
+	collaboration.listAvailableTask();
+});

@@ -13,7 +13,10 @@ use Ora\ReadModel\Estimation;
  */
 class TaskMember {	
 
-    /** 
+    CONST ROLE_MEMBER = 'member';
+    CONST ROLE_OWNER  = 'owner';
+	
+	/** 
      * @ORM\Id 
      * @ORM\ManyToOne(targetEntity="Ora\ReadModel\Task") 
      */

@@ -42,7 +42,7 @@ class TasksController extends AbstractHATEOASRestfulController
         	return response;
         }
     	$this->response->setStatusCode(200);
-        $view = new TaskJsonModel($this->url());
+        $view = new TaskJsonModel($this->url(), $this->identity()['user']);
         $view->setVariable('resource', $task);
         return $view;
     }
@@ -60,7 +60,7 @@ class TasksController extends AbstractHATEOASRestfulController
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks() : $this->taskService->findStreamTasks($streamID);
 
     	$this->response->setStatusCode(200);
-       	$view = new TaskJsonModel($this->url());       	
+       	$view = new TaskJsonModel($this->url(), $this->identity()['user']);       	
         $view->setVariable('resource', $availableTasks);
         return $view;
     }

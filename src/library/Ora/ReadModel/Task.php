@@ -108,6 +108,15 @@ class Task extends EditableEntity
 	public function removeMember(TaskMember $member) {
 		$this->members->removeElement($member);
     }
+    
+    public function getMember(User $user) {
+    	foreach ($this->members as $member) {
+    		if($member->getMember()->getId() == $user->getId()) {
+    			return $member;
+    		}
+    	}
+    	return null;
+    }
 
     public function getType(){
 

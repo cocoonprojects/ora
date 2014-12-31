@@ -51,7 +51,7 @@ class TransitionsController extends AbstractHATEOASRestfulController
 		$result = 0;
 		try {
 			switch ($action) {
-				case "completed":
+				case "complete":
 					$this->kanbanizeService->moveToCompleted ( $task );
 					$this->response->setStatusCode ( 200 );
 					break;
@@ -59,7 +59,7 @@ class TransitionsController extends AbstractHATEOASRestfulController
 					$this->kanbanizeService->acceptTask ( $task );
 					$this->response->setStatusCode ( 200 );
 					break;
-				case "ongoing" :
+				case "execute" :
 					$this->kanbanizeService->moveBackToOngoing ( $task );
 					$this->response->setStatusCode ( 200 );
 					break;

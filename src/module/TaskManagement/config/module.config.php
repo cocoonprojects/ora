@@ -46,9 +46,19 @@ return array(
     ),
     
     'translator' => array(),
-    'view_manager' => array(
-        'strategies' => array(
-            'ViewJsonStrategy',
-        ),
-    )
+	'view_manager' => array(
+		'strategies' => array(
+			'ViewJsonStrategy',
+		),
+		'template_path_stack' => array(
+			'task-management' => __DIR__ . '/../view',
+		),
+	),
+	'asset_manager' => array(
+		'resolver_configs' => array(
+			'paths' => array(
+				'Application' => __DIR__ . '/../public',
+			),
+		),
+	),
 );

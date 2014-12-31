@@ -1,1 +1,47 @@
-<h1>Task Management</h1>
+<?php
+	$this->headScript()->appendFile($this->basePath() . '/js/task-management.js');
+	$this->headStyle()->appendStyle('span.task-member { display: block }');
+?>
+<div class="container-fluid">
+	<h1>Task Management</h1>
+	<table class="table table-striped table-bordered table-hover" id="tasks-container">
+		<caption>Tasks</caption>
+		<thead>
+			<tr>
+				<th>Subject</th>
+				<th>Created At</th>
+				<th>Members</th>
+				<th>Status</th>
+				<th>Estimation</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody id="tasks">
+		</tbody>
+	</table>
+	<h2>Create new task</h2>
+	<form>
+		<div class="form-group"> 
+			<label for="streamID">Stream</label>
+			<select name="streamID" class="form-control" required="required">
+				<option value=""></option>
+				<option value="00000000-1000-0000-0000-000000000000">O.R.A.</option>
+				<option value="00000000-1100-0000-0000-000000000000">Open Governance<option>
+			</select>
+			<label for="subject">Subject</label>
+			<input type="text" name="subject" class="form-control" required="required">
+		</div>
+		<button type="submit" class="btn btn-default">Create a new task</button>
+	</form>
+	<div id="editTaskBox" style="display:none">
+		<h2>Edit existing Task</h2>
+		<form id="formEditTask">
+			<input type="hidden" id="inputEditTaskID">
+			<div class="form-group">
+				<label for="subject">Subject</label>
+				<input id="inputEditTaskSubject" type="text" name="subject" class="form-control" required="required">
+			</div>
+			<button id='btnEditTask' type='submit' class='btn btn-default'>Edit this task</button>
+		</form>
+	</div>
+</div>

@@ -36,10 +36,10 @@ return array(
 		),
 	),
 	'asset_manager' => array(
-			'resolver_configs' => array(
-					'paths' => array(
-							'Application' => __DIR__ . '/../public',
-					),
+		'resolver_configs' => array(
+			'paths' => array(
+				'Application' => __DIR__ . '/../public',
 			),
+		),
 	),
 );

@@ -23,10 +23,8 @@
             ->prependFile($this->basePath() . '/js/respond.min.js', 'text/javascript', array('conditional' => 'lt IE 9',))
             ->prependFile($this->basePath() . '/js/html5shiv.js',   'text/javascript', array('conditional' => 'lt IE 9',))
         ; ?>
-
-        <!-- Inclusione classi -->
-        <?php echo $this->headScript()->prependFile($this->basePath() . '/js/task-management.js'); ?>
-                   
+        <!-- In page styles -->
+        <?php echo $this->headStyle(); ?>
     </head>
     
     <body>
@@ -59,9 +57,6 @@
             ?>
             <hr>
             <footer>
-                <script>
-                    taskManagement = new TaskManagement();
-                </script>
             </footer>
         </div> <!-- /container -->
     
