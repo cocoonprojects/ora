@@ -1,6 +1,3 @@
-/**
- * 
- */
 var Accounting = function()
 {
 	this.bindEventsOn(); 
@@ -14,7 +11,7 @@ Accounting.prototype = {
 		{
 			var that = this;
 
-			$("body").on("click", "a.statement", function(e){
+			$("a.statement").on("click", function(e){
 				e.preventDefault();
 				that.listTransactions(this.href);
 			});
@@ -24,7 +21,7 @@ Accounting.prototype = {
 		listAccounts: function()
 		{
 			$.ajax({
-				url: basePath + '/accounting/accounts',
+				url: '/accounting/accounts',
 				method: 'GET',
 				dataType: 'json'
 			})
@@ -48,7 +45,11 @@ Accounting.prototype = {
 			
 			$.each(json.accounts, function(key, account) {
 				balanceDate = new Date(Date.parse(account.balance.date));
-				container.append('<li>Account ' + account.id + ' balance at ' + balanceDate.toLocaleString() + ': ' + account.balance.value + ' <a href="' + account._links.statement + '" class="statement">Transactions</a></li>');
+				s = '<li>Account ' + account.id + ' balance at ' + balanceDate.toLocaleString() + ': ' + account.balance.value;
+				if(account._links.statement != undefined) {
+					s += ' <a href="' + account._links.statement + '" class="statement">Transactions</a>';
+				}
+				container.append(s + '</li>');
 				if(account._links.deposits != undefined) {
 					container.append('<form method="POST" action="' + account._links.deposits + '"><input type="text" name="amount"/><button type="submit">Deposit</button></form>');
 				}

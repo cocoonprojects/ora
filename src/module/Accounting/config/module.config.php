@@ -38,7 +38,7 @@ return array(
 	'asset_manager' => array(
 		'resolver_configs' => array(
 			'paths' => array(
-				'Application' => __DIR__ . '/../public',
+				'Accounting' => __DIR__ . '/../public',
 			),
 		),
 	),
