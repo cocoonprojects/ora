@@ -407,7 +407,7 @@ TaskManagement.prototype = {
                             "<td>" + $.map(task.members, function(object, key) {
                             	rv = '<span class="task-member">' + object.firstname + " " + object.lastname;
                                 if(object.estimation != null){
-                                    rv += ' <img src="/img/tick10.png">';
+                                    rv += ' <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>';
                                 }
                                 return rv + '</span>';
                             }).join('') + "</td>" + 
