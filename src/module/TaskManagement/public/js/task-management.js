@@ -20,40 +20,40 @@ TaskManagement.prototype = {
 	{
 		var that = this;
 	        
-		// CREATE NEW TASK
-		$("body").on("submit", "#formCreateNewTask", function(e){
+		$("#createTaskModal").on("submit", "form", function(e){
 			e.preventDefault();
-			that.createNewTask();
+			that.createNewTask(e);
 		});
 		
-		// OPEN EDIT TASK BOX
-		$("body").on("click", "button[data-action='openEditTaskBox']", function(e){
-			e.preventDefault();
-			that.openEditTaskBox(e);
+		$("#editTaskModal").on("show.bs.modal", function(e) {
+			var button = $(e.relatedTarget) // Button that triggered the modal
+			var url = button.data('href');
+			var subject = button.data('subject');
+			$("#editTaskModal form").attr("action", url);
+			$('#editTaskSubject').val(subject);
 		});
-		
-		// EDIT TASK
-		$("body").on("submit", "#formEditTask", function(e){
+
+		$("#editTaskModal").on("submit", "form", function(e){
 			e.preventDefault();
 			that.editTask(e);
 		});
 		
 		// DELETE TASK
-		$("body").on("click", "button[data-action='deleteTask']", function(e){
+		$("body").on("click", "a[data-action='deleteTask']", function(e){
 			e.preventDefault();
 			that.deleteTask(e);
 		});
 		
 		// JOIN TASK MEMBERS
-		$("body").on("click", "button[data-action='joinTask']", function(e){
+		$("body").on("click", "a[data-action='joinTask']", function(e){
 			e.preventDefault();
-			that.joinTaskMembers(e);
+			that.joinTask(e);
 		});
 		
 		// UNJOIN TASK MEMBERS
-		$("body").on("click", "button[data-action='unjoinTask']", function(e){
+		$("body").on("click", "a[data-action='unjoinTask']", function(e){
 			e.preventDefault();
-			that.unjoinTaskMembers(e);
+			that.unjoinTask(e);
 		});
 
         //ACCEPT TASK FOR KAMBANIZE       
@@ -62,173 +62,278 @@ TaskManagement.prototype = {
 			that.acceptTask(e);
 		});
 
-        //BACK TO ONGOING             
-		$("body").on("click", "button[data-action='back2ongoingTask']", function(e){
+		$("body").on("click", "button[data-action='completeTask']", function(e){
 			e.preventDefault();
-			that.backToOngoingTask(e);
+			that.completeTask(e);
 		});
+
+        //BACK TO ONGOING             
+		$("body").on("click", "button[data-action='executeTask']", function(e){
+			e.preventDefault();
+			that.executeTask(e);
+		});
+
+		$("#estimateTaskModal").on("show.bs.modal", function(e) {
+			var button = $(e.relatedTarget) // Button that triggered the modal
+			var url = button.data('href');
+			var credits = button.data('credits');
+			$("#estimateTaskModal form").attr("action", url);
+			if(credits == -1) {
+				$('#estimateTaskCredits').val(null);
+			    $("#estimateTaskCredits").prop('disabled', true);
+			    $("#estimateTaskSkip").prop('checked', true);
+			} else {
+				$('#estimateTaskCredits').val(credits);
+			}
+		});
+		
+		$('#estimateTaskSkip').on('click', function(e) {
+			if(this.is(':checked')) {
+			    $("#estimateTaskCredits").prop('disabled', true);
+			} else {
+				$("#estimateTaskCredits").prop('disabled', false);
+			}
+		});
+
 		//INSERT ESTIMATION
-		$("body").on("click", "button[data-action='makestima']", function(e){
-			//alert ("stima" );
-			that.showDialog(e);
-		//	that.makeEstimation(e);
-			
+		$("#estimateTaskModal").on("submit", "form", function(e){
+			e.preventDefault();
+			that.estimateTask(e);
 		});
 	},
 	
-	unjoinTaskMembers: function(e)
+	unjoinTask: function(e)
 	{
-		var taskID = $(e.target).closest("tr").data("taskid");
-		var userID = $(e.target).closest("tr").data("userid");
+		var url = $(e.target).attr('href');
+		
+		that = this;
 		
 		$.ajax({
-			url: '/task-management/tasks/' + taskID + '/members',
+			url: url,
 			method: 'DELETE',
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
-				if (xhr.status === 200)
-					alert("Succesfully unjoined from the Team of this task");
-				else if (xhr.status === 403)
-					alert("Error. You are not part of that team or the creator of this task");
-				else
-					alert("Error. Status Code: " + xhr.status);
+				alertDiv = $('#tasks-alert');
+				alertDiv.removeClass();
+				if (xhr.status === 200) {
+					alertDiv.addClass('alert alert-success');
+					alertDiv.text('You successfully left the team that is working on the task');
+					that.listTasks();
+				}
+				else if (xhr.status === 204) {
+					alertDiv.addClass('alert alert-warning');
+					alertDiv.text('You are not member of the team that is working on the task');
+				}
+				else {
+					alertDiv.addClass('alert alert-danger');
+					alertDiv.text('An unknown error "' + xhr.status + '" occurred while trying to leave the task');
+				}
 			}
 		});
 	},
 	
-	joinTaskMembers: function(e)
+	joinTask: function(e)
 	{
-		var taskID = $(e.target).closest("tr").data("taskid");
-		var userID = $(e.target).closest("tr").data("userid");
+		var url = $(e.target).attr('href');
+		
+		that = this;
 		
 		$.ajax({
-			url: '/task-management/tasks/' + taskID + '/members',
+			url: url,
 			method: 'POST',
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
-				if (xhr.status === 201)
-					alert("Succesfully join into the Team of this task");
-				else if (xhr.status === 403)
-					alert("Error. You are already part of that team or the creator of this task");
-				else
-					alert("Error. Status Code: " + xhr.status);
+				alertDiv = $('#tasks-alert');
+				alertDiv.removeClass();
+				if (xhr.status === 201) {
+					alertDiv.addClass('alert alert-success');
+					alertDiv.text('You successfully joined the team that is working on the task');
+					that.listTasks();
+				}
+				else if (xhr.status === 204) {
+					alertDiv.addClass('alert alert-warning');
+					alertDiv.text('You are already member of the team that is working on the task');
+				}
+				else {
+					alertDiv.addClass('alert alert-danger');
+					alertDiv.text('An unknown error "' + xhr.status + '" occurred while trying to join the task');
+				}
 			}
 		});
 	},
 	
-	openEditTaskBox: function(e)
+	getTask: function(e)
 	{
-		var taskID = $(e.target).closest("tr").data("taskid");
-		var taskSubject = $(e.target).closest("tr").data("tasksubject");
-
-		$("#editTaskBox").show();
-		$("#inputEditTaskID").val(taskID);
-		$('#inputEditTaskSubject').val(taskSubject);
+		var url = $(e.relatedTarget).attr('href');
+		$.ajax({
+			url: url,
+			method: 'GET',
+			dataType: 'json'
+		})
+		.done(this.onTaskCompleted.bind(this));
 		
+	},
+	
+	onTaskCompleted: function(json) {
 	},
 	
 	editTask: function(e)
 	{
-		var taskID = $("#inputEditTaskID").val();
+		var url = $(e.target).attr('action');
 
+		that = this;
+		
 		$.ajax({
-			url: '/task-management/tasks/' + taskID,
+			url: url,
 			method: 'PUT',
-			data: $('#formEditTask').serialize(),
+			data: $('#editTaskModal form').serialize(),
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
-				if (xhr.status === 202)
-					alert("Task edited succesfully");
-				else
-					alert("Error. Status Code: " + xhr.status);
+				if (xhr.status === 202) {
+					that.listTasks();
+					$('#editTaskModal').modal('hide');
+				}
+				else {
+					alertDiv = $('#editTaskModal div.alert');
+					alertDiv.removeClass();
+					alertDiv.addClass('alert alert-danger');
+					alertDiv.text('An unknown error "' + xhr.status + '" occurred while trying to edit the task');
+				}
 			}
 		});
 	},
 	
 	deleteTask: function(e)
 	{
-		var taskID = $(e.target).closest("tr").data("taskid");
+		if (!confirm('Are you sure you want to delete this task?')) {
+			return;
+		}
+
+		var url = $(e.target).attr('href');
+			
+		that = this;
 		
-		if (confirm('Are you sure you want to delete this entity?'))
-			this.deleteTaskConfirmed(taskID);
-		else
-			alert("Operation aborted...");
-	},
-	
-	deleteTaskConfirmed: function(taskID)
-	{
 		$.ajax({
-			url: '/task-management/tasks/' + taskID,
+			url: url,
 			method: 'DELETE',
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
-				if (xhr.status === 200)
-					alert("Task deleted succesfully");
-				else
-					alert("Error. Status Code: " + xhr.status);
+				alertDiv = $('#tasks-alert');
+				alertDiv.removeClass();
+				if (xhr.status === 200) {
+					alertDiv.addClass('alert alert-success');
+					alertDiv.text('You successfully deleted the task');
+					that.listTasks();
+				}
+				else {
+					alertDiv.addClass('alert alert-danger');
+					alertDiv.text('An unknown error "' + xhr.status + '" occurred while trying to delete the task');
+				}
 			}
 		});
 	},
-
+	
 	acceptTask: function(e){
-	        //$this->basePath("/kanbanize/task/".$singletask->getId()."/client/test?method=accept"); ?>">
-	                var taskID = $(e.target).closest("tr").data("taskid");
-
-	                // make a post to restful controller
-	                $.ajax({
-	                        url: '/task-management/tasks/'+taskID+'/transitions',
-	                        method: 'POST',
-	                        data:{action:'accept'},
-	                        dataType: 'json',
-	                        complete: function(xhr, textStatus) {
-	                                if (xhr.status === 200)
-	                                        alert("Succesfully accepted task in kanbanize");
-	                                else if (xhr.status === 400)
-	                                        alert("Error. Cannot accept task");
-	                                else if (xhr.status === 204)
-	                                	 alert("Error. Already in accepted status");
-	                                else
-	                                        alert("Error. Status Code: " + xhr.status);
-	                        }
-	                });
-	    },
-
-
-    
-    backToOngoingTask: function(e){
-    	 //$this->basePath("/kanbanize/task/".$singletask->getId()."/client/test?method=accept"); ?>">
-        var taskID = $(e.target).closest("tr").data("taskid");
-
-        // make a post to restful controller
+		var url = $(e.target).attr('href');
+		
+		that = this;
+		
         $.ajax({
-                url: '/task-management/tasks/'+taskID+'/transitions',
-                method: 'POST',
-                data:{action:'ongoing'},
-                dataType: 'json',
-                complete: function(xhr, textStatus) {
-                        if (xhr.status === 200)
-                                alert("Succesfully moved ongoing  task in kanbanize");
-                        else if (xhr.status === 400)
-                                alert("Error. Cannot move task");
-                        else if (xhr.status === 204)
-                        	 alert("Error. Already in ongoing status");
-                        else
-                                alert("Error. Status Code: " + xhr.status);
-                }
+            url: url,
+            method: 'POST',
+            data:{action:'accept'},
+            dataType: 'json',
+            complete: function(xhr, textStatus) {
+				alertDiv = $('#tasks-alert');
+				alertDiv.removeClass();
+				if (xhr.status === 200) {
+					alertDiv.addClass('alert alert-success');
+					alertDiv.text('You have successfully accepted the task');
+					that.listTasks();
+				}
+				else if (xhr.status === 204) {
+					alertDiv.addClass('alert alert-warning');
+					alertDiv.text('The task is already accepted');
+				}
+				else {
+					alertDiv.addClass('alert alert-danger');
+					alertDiv.text('An unknown error "' + xhr.status + '" occurred while trying to acceot the task');
+				}
+            }
         });
-},
+    },
 
-    listAvailableTask: function()
+	completeTask: function(e){
+		var url = $(e.target).attr('href');
+		
+		that = this;
+		
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data:{action:'complete'},
+            dataType: 'json',
+            complete: function(xhr, textStatus) {
+				alertDiv = $('#tasks-alert');
+				alertDiv.removeClass();
+				if (xhr.status === 200) {
+					alertDiv.addClass('alert alert-success');
+					alertDiv.text('You have successfully completed the task');
+					that.listTasks();
+				}
+				else if (xhr.status === 204) {
+					alertDiv.addClass('alert alert-warning');
+					alertDiv.text('The task is already completed');
+				}
+				else {
+					alertDiv.addClass('alert alert-danger');
+					alertDiv.text('An unknown error "' + xhr.status + '" occurred while trying to complete the task');
+				}
+            }
+        });
+    },
+
+    executeTask: function(e){
+		var url = $(e.target).attr('href');
+		
+		that = this;
+		
+        $.ajax({
+            url: url,
+            method: 'POST',
+            data:{action:'execute'},
+            dataType: 'json',
+            complete: function(xhr, textStatus) {
+				alertDiv = $('#tasks-alert');
+				alertDiv.removeClass();
+				if (xhr.status === 200) {
+					alertDiv.addClass('alert alert-success');
+					alertDiv.text('You have successfully put in execution the task');
+					that.listTasks();
+				}
+				else if (xhr.status === 204) {
+					alertDiv.addClass('alert alert-warning');
+					alertDiv.text('The task is already in execution');
+				}
+				else {
+					alertDiv.addClass('alert alert-danger');
+					alertDiv.text('An unknown error "' + xhr.status + '" occurred while trying to execute the task');
+				}
+            }
+        });
+    },
+
+    listTasks: function()
 	{
 		$.ajax({
 			url: '/task-management/tasks',
 			method: 'GET',
 			dataType: 'json'
 		})
-		.done(this.onListAvailableTaskCompleted.bind(this));
+		.done(this.onListTasksCompleted.bind(this));
 	},
 	
-	onListAvailableTaskCompleted: function(json)
+	onListTasksCompleted: function(json)
 	{
 		var container = $('#tasks');
 		container.empty();
@@ -237,45 +342,61 @@ TaskManagement.prototype = {
 			container.append("<tr><td colspan='6'>No available tasks found</td></tr>");
 		} else {
 			that = this;
+			if(json._links.create != undefined) {
+				$("#createTaskModal form").attr("action", json._links.create);
+				$("#createTaskBtn").show();
+			} else {
+				$("#createTaskModal form").attr("action", null);
+				$("#createTaskBtn").hide();
+			}
 			$.each(json.tasks, function(key, task) {
 				subject = task._links.self == undefined ? task.subject : '<a href="' + task._links.self + '">' + task.subject + '</a>';
 				createdAt = new Date(Date.parse(task.createdAt));
-				estimation = task.estimation;
-				var actions = "";
+				var actions = [];
+				if (task._links.edit != undefined) {
+					actions.push('<a data-href="' + task._links.edit + '" data-subject="' + task.subject + '" data-toggle="modal" data-target="#editTaskModal" class="btn btn-default">Edit</a>');
+				}
 				if (task._links.join != undefined) {
-					actions += '<button data-action="unjoinTask" class="btn btn-default">Join</button>';
+					actions.push('<a href="' + task._links.join + '" class="btn btn-default" data-action="joinTask">Join</a>');
 				}
 				if (task._links.unjoin != undefined) {
-					actions += '<button data-action="joinTask" class="btn btn-default">Unjoin</button>';
-				}
-				if (task._links.edit != undefined) {
-					actions += '<button data-action="openEditTaskBox" class="btn btn-default">Edit</button>';
+					actions.push('<a href="' + task._links.unjoin + '" data-action="unjoinTask" class="btn btn-default">Unjoin</a>');
 				}
 				if (task._links['delete'] != undefined) {
-					actions += '<button data-action="deleteTask" class="btn btn-default">Delete</button>';
-				}
-				if (task._links.estimate != undefined) {
-					actions += '<button data-action="makestima" class="btn btn-default">Estimate</button>';
+					actions.push('<a href="' + task._links['delete'] + '" data-action="deleteTask" class="btn btn-default">Delete</a>');
 				}
 				if (task._links.execute != undefined) {
-					actions += '<button data-action="back2ongoingTask" class="btn btn-default">Ongoing</button>';
+					actions.push('<button data-action="executeTask" class="btn btn-default">Ongoing</button>');
+				}
+				if (task._links.estimate != undefined) {
+					s = '<a data-href="' + task._links.estimate + '"';;
+					if(task.estimation != null) {
+						s += ' data-credits="' + task.estimation + '"';
+					}
+					s += ' data-toggle="modal" data-target="#estimateTaskModal" class="btn btn-default">Estimate</a>';
+					actions.push(s);
 				}
 				if (task._links.complete != undefined) {
-					actions += '<button class="btn btn-default">Complete</button>';
+					actions.push('<button data-action="completeTask" class="btn btn-default">Complete</button>');
 				}
 				if (task._links.accept != undefined) {
-					actions += '<button data-action="acceptTask" class="btn btn-default">Accept</button>';
+					actions.push('<button data-action="acceptTask" class="btn btn-default">Accept</button>');
 				}
 				if (task._links.assignShares != undefined) {
-					actions += '<button class="btn btn-default">Assign share</button>';
+					actions.push('<button class="btn btn-default">Assign share</button>');
 				}
 				switch(task.estimation) {
+				case undefined:
+					estimation = '';
+					break;
 				case -1:
 					estimation = 'Skipped';
 					break;
 				case null:
 					estimation = 'In progress';
 					break;
+				default:
+					estimation = task.estimation;
 				}
 
 				container.append(
@@ -283,139 +404,76 @@ TaskManagement.prototype = {
                         "<tr>" +
 							'<td>' + subject + '</td>' +
 							"<td>" + createdAt.toLocaleString() + "</td>" +
-                            "<td>" + $.map(task.members, function(object,key) {
+                            "<td>" + $.map(task.members, function(object, key) {
                             	rv = '<span class="task-member">' + object.firstname + " " + object.lastname;
                                 if(object.estimation != null){
-                                    rv += '<img src="/img/tick10.png">';
+                                    rv += ' <img src="/img/tick10.png">';
                                 }
                                 return rv + '</span>';
                             }).join('') + "</td>" + 
 							'<td>' + that.statuses[task.status] + '</td>' +
 							'<td>' + estimation + '</td>' +
-							'<td>' + actions + '</td>' +
+							'<td>' + actions.join(' ') + '</td>' +
 						"</tr>");
 			});
 		}
 	},
 	
-	createNewTask: function()
+	createNewTask: function(e)
 	{
-		$.ajax({
-			url: '/task-management/tasks',
-			method: 'POST',
-			data: $('#formCreateNewTask').serialize(),
-			dataType: 'json',
-			complete: function(xhr, textStatus) {
-				if (xhr.status === 201)
-					alert("New task created succesfully");
-				else
-					alert("Error. Status Code: " + xhr.status);
-			}
-		});
-	},
-	
-	makeEstimation : function(id , value){
-		 var taskID = $(e.target).closest("tr").data("taskid");
-		 alert (taskID);
-		$.ajax({
-			url: '/task-management/tasks/'+taskID+'/estimation',
-			method: 'POST',
-			data: {value:100},
-			dataType: 'json',
-			complete: function(xhr, textStatus) {
-				if (xhr.status === 201)
-					alert("Estimation done");
-				else
-					alert("Error. Status Code: " + xhr.status);
-			}
-		});
-	},
-	
-	showDialog : function (e){
-		 var taskID = $(e.target).closest("tr").data("taskid");
-		// alert("show dialog");
-		 $("#modalestimation").remove();
-		 var modaltoappend = "<div class='modal fade' id='modalestimation'>"+
-		 						"<div class='modal-dialog'>"+
-		 							"<div class='modal-content'>"+
-		 								"<div class='modal-header'>"+
-		 									"<button type='button' class='close' data-dismiss='modal'><span aria-hidden='true'>&times;</span><span class='sr-only'>Close</span></button>"+
-		 									"<h4 class='modal-title'>Inserisci Stima</h4>"+
-		 								"</div>"+
-		 								"<div class='modal-body'>"+
-		 								"<div class='form-group' id='formmodal'>"+
-		 								"<div class='checkbox'>"+
-		 							    "<label>"+
-		 							      "<input type='checkbox' id ='checkstima' > Non voglio stimare"+
-		 							    "</label>"+"<br> <br>"+
-		 							   "<label for='valuestima' id ='labelstima'>Valore Stima</label>"+
-		 							   "<input type='number' id='valuestima' pattern='/^[+]?([0-9]+(?:[\.][0-9]*)?|\.[0-9]+)$/' class='form-control' placeholder='Valore Stima'>"+
-		 							   "</div>"+
-		 							  "</div>"+
-		 								"</div>"+
-		 								"<div class='modal-footer'>"+
-		 									"<button type='button' class='btn btn-default' id ='closemodal'>Close</button>"+
-		 									"<button type='button' class='btn btn-primary' id='confirmestimation'>Confirm</button>"+
-		 								"</div>"+
-		 							"</div><!-- /.modal-content -->"+
-		 						"</div><!-- /.modal-dialog -->"+
-		 					"</div><!-- /.modal -->";
-		 $("body").append(modaltoappend);
-		 $("#modalestimation").modal({keyboard: true});
-		 $('#checkstima').click(function() {
-			    var $this = $(this);
-			    // $this will contain a reference to the checkbox   
-			    if ($this.is(':checked')) {
-			    	$("#valuestima").prop('disabled', true);
-			    } else {
-			        // the checkbox was unchecked
-			    	$("#valuestima").prop('disabled', false);
-			    }
-			});
-		 $("#closemodal").click(function(){
-			 $("#modalestimation").modal('hide');
-			
-		 });
-		 $("#confirmestimation").click(function(){
-			 var valuetosubmit;
-		
-				if ($('#checkstima').is(':checked') ){
-					valuetosubmit = -1;
-				}else{
-					 var valuetosubmit = $("#valuestima").val();
-					 if (!($.isNumeric(valuetosubmit)&&valuetosubmit>0)){
-						 alert ("valore non conforme");
-						 $("#formmodal").addClass("has-error");
-						 return;
-					 }
-						 
-				}
-				
-				//alert(taskID+" ----------> "+valuetosubmit);
-				$.ajax({
-					url: '/task-management/tasks/'+taskID+'/estimation',
-					method: 'POST',
-					data: {value:valuetosubmit},
-					dataType: 'json',
-					complete: function(xhr, textStatus) {
-						if (xhr.status === 201)
-							alert("Estimation done");
-						else
-							alert("Error. Status Code: " + xhr.status);
-						 $("#modalestimation").modal('hide');
-					}
-				});
-				
-				
-				
+		var url = $(e.target).attr('action');
 
-		 });
-		 
+		that = this;
+		
+		$.ajax({
+			url: url,
+			method: 'POST',
+			data: $('#createTaskModal form').serialize(),
+			dataType: 'json',
+			complete: function(xhr, textStatus) {
+				if (xhr.status === 201) {
+					that.listTasks();
+					$('#createTaskModal').modal('hide');
+				}
+				else {
+					alertDiv = $('#createTaskModal div.alert');
+					alertDiv.removeClass();
+					alertDiv.addClass('alert alert-danger');
+					alertDiv.text('An unknown error "' + xhr.status + '" occurred while trying to create the task');
+				}
+			}
+		});
+	},
+	
+	estimateTask : function (e){
+		var url = $(e.target).attr('action');
+
+		that = this;
+		
+		var credits = $('#estimateTaskSkip').is(':checked') ? -1 : $("#estimateTaskCredits").val();
+				
+		$.ajax({
+			url: url,
+			method: 'POST',
+			data: {value:credits},
+			dataType: 'json',
+			complete: function(xhr, textStatus) {
+				if (xhr.status === 201) {
+					that.listTasks();
+					$('#estimateTaskModal').modal('hide');
+				} else {
+					alertDiv = $('#estimateTaskModal div.alert');
+					alertDiv.removeClass();
+					alertDiv.addClass('alert alert-danger');
+					alertDiv.text('An unknown error "' + xhr.status + '" occurred while trying to estimate the task');
+				}
+			}
+		});
 	}
 	
 };
 
 $().ready(function(e){
 	collaboration = new TaskManagement();
-	collaboration.listAvailableTask();
+	collaboration.listTasks();
 });

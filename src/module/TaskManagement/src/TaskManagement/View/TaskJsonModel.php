@@ -35,6 +35,9 @@ class TaskJsonModel extends JsonModel
 			$representation['tasks'] = [];
 			foreach ($resource as $r) {
 				$representation['tasks'][] = $this->serializeOne($r);
+				if($this->isAllowed('create')) {
+					$representation['_links']['create'] = $this->url->fromRoute('tasks');
+				}
 			}
 		} else {
 			$representation = $this->serializeOne($resource);
@@ -57,7 +60,7 @@ class TaskJsonModel extends JsonModel
 			$links['unjoin'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']); 
 		}
 		if($this->isAllowed('estimate', $task)) {
-			$links['estimate'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'estimates']); 
+			$links['estimate'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'estimations']); 
 		}
 		if($this->isAllowed('execute', $task)) {
 			$links['execute'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transactions']); 
@@ -79,9 +82,12 @@ class TaskJsonModel extends JsonModel
 			'createdBy' => is_null ( $task->getCreatedBy () ) ? "" : $task->getCreatedBy ()->getFirstname () . " " . $task->getCreatedBy ()->getLastname (),
 			'subject' => $task->getSubject (),
 			'type' => $task->getType (),
-			'estimation' => $task->getEstimation(),
 			'_links' => $links,
 		];
+		
+		if($task->getStatus() >= Task::STATUS_ONGOING) {
+			$rv['estimation'] = $task->getEstimation();
+		}
 
 		return $rv;
 	}
@@ -111,7 +117,10 @@ class TaskJsonModel extends JsonModel
     	];
     }
     
-    private function isAllowed($action, Task $task) {
+    private function isAllowed($action, Task $task = null) {
+    	if(is_null($task)) {
+    		return true; // placeholder
+    	}
     	switch ($action) {
     		case 'edit':
     		case 'delete':
@@ -161,6 +170,9 @@ class TaskJsonModel extends JsonModel
     			return false;
     		case 'complete':
     			if(!in_array($task->getStatus(), [Task::STATUS_ONGOING, Task::STATUS_ACCEPTED])) {
+    				return false;
+    			}
+    			if(is_null($task->getEstimation())) {
     				return false;
     			}
     			$member = $task->getMember($this->user);
