@@ -4,8 +4,14 @@ namespace ZendExtension\Authentication;
 use Zend\Authentication\AuthenticationServiceInterface;
 use Ora\User\User;
 use Zend\Authentication\Result;
+use Zend\Authentication\AuthenticationService;
 
-class MockAuthenticationService implements AuthenticationServiceInterface {
+/**
+ * This Mock should estend AuthenticationServiceInterface, but due to a bug of ZF2 in identity controller plugin it must exted AuthenticationService
+ * @author andreabandera
+ *
+ */
+class MockAuthenticationService extends AuthenticationService {
 	
 	private $identity = array();
 	

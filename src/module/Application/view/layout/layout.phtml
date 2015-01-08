@@ -1,5 +1,4 @@
 <?php echo $this->doctype(); ?>
-
 <html lang="en">
     <head>
         <meta charset="utf-8">
@@ -24,14 +23,12 @@
             ->prependFile($this->basePath() . '/js/respond.min.js', 'text/javascript', array('conditional' => 'lt IE 9',))
             ->prependFile($this->basePath() . '/js/html5shiv.js',   'text/javascript', array('conditional' => 'lt IE 9',))
         ; ?>
-
-        <!-- Inclusione classi -->
-        <?php echo $this->headScript()->prependFile($this->basePath() . '/js/task-management.js'); ?>
-                   
+        <!-- In page styles -->
+        <?php echo $this->headStyle(); ?>
     </head>
     
     <body>
-        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
             <div class="container">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -48,9 +45,7 @@
                         <li><a href=""><?php echo $this->translate('Decisions') ?></a></li>
                         <li><a href="<?php echo $this->url('people-home') ?>"><?php echo $this->translate('People') ?></a></li>
 					</ul>
-                    <ul class="nav navbar-nav navbar-right">
-                        <?php echo $this->UserBoxHelper(); ?>
-                    </ul>
+					<?php echo $this->UserBoxHelper(); ?>
                 </div><!--/.nav-collapse -->
             </div>
         </nav>
@@ -60,14 +55,6 @@
             
             echo $this->LoginPopupHelper(); 
             ?>
-            <hr>
-            <footer>
-                <p>&copy; 2005 - <?php echo date('Y') ?> by Zend Technologies Ltd. <?php echo $this->translate('All rights reserved.') ?></p>
-                
-                <script>
-                    taskManagement = new TaskManagement();
-                </script>
-            </footer>
         </div> <!-- /container -->
     
         <?php echo $this->inlineScript() ?>

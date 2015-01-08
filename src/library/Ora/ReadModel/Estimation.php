@@ -6,11 +6,11 @@ use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @ORM\Entity @ORM\Table(name="estimation")
+ * @ORM\Entity @ORM\Table(name="estimations")
  * @author Andrea Lupia
  */
 
-class Estimation extends DomainEntity{
+class Estimation extends DomainEntity {
 
 	CONST NOT_ESTIMATED = -1;
 	

@@ -15,6 +15,9 @@ $path = __DIR__ . '/../src/vendor/zendframework/zendframework/library';
 putenv("ZF2_PATH=".$path);
 
 include __DIR__ . '/../src/init_autoloader.php';
+if(isset($loader)) {
+	$loader->set('Prooph\\EventStoreTest\\', __DIR__ . '/../src/vendor/prooph/event-store/tests');
+}
 
 /**
  * Test bootstrap, for setting up autoloading

@@ -29,18 +29,6 @@ class DomainEntity {
 	 */
 	protected $createdBy;
 	
-    /**
-     * @ORM\Column(type="datetime")
-     * @var datetime
-     */
-    protected $mostRecentEditAt;
-    
-    /**
-     * @ORM\ManyToOne(targetEntity="Ora\User\User")
-     * @ORM\JoinColumn(name="mostRecentEditBy_id", referencedColumnName="id", nullable=TRUE)
-     */
-    protected $mostRecentEditBy;
-    
     public function __construct($id) {
     	$this->id = $id;
     }
@@ -66,24 +54,6 @@ class DomainEntity {
     public function setCreatedBy(User $user) {
     	$this->createdBy = $user;
     	return $this->createdBy;
-    }
-
-    public function getMostRecentEditAt() {
-        return $this->mostRecentEditAt;
-    }
-    
-	public function setMostRecentEditAt(\DateTime $when) {
-		$this->mostRecentEditAt = $when;
-		return $this->mostRecentEditAt;
-	}
-	
-    public function getMostRecentEditBy() {
-        return $this->mostRecentEditBy;
-    }
-    
-    public function setMostRecentEditBy(User $user) {
-    	$this->mostRecentEditBy = $user;
-    	return $this->mostRecentEditBy;
     }
 
     public function equals(DomainEntity $object = null) {

@@ -1,23 +1,21 @@
 <?php
 namespace Ora\Accounting;
 
-use Doctrine\ORM\Mapping AS ORM;
-
 /**
- * ORM\Embeddable
+ * 
  * @author andreabandera
  *
  */
-class Balance {
+class Balance  implements \Serializable {
 	
 	/**
-	 * ORM\Column(type="integer")
-	 * @var int
+	 * 
+	 * @var float
 	 */
 	private $value;
 	
 	/**
-	 * ORM\Column(type="datetime")
+	 * 
 	 * @var DateTime
 	 */
 	private $date;
@@ -36,5 +34,21 @@ class Balance {
 	public function getDate()
 	{
 		return $this->date;
+	}
+
+	public function serialize()
+	{
+		$data = array(
+			'value' => $this->value,
+			'date' => $this->date,
+		);
+	    return serialize($data); 
+	}
+	
+	public function unserialize($encodedData)
+	{
+	    $data = unserialize($encodedData);
+	    $this->value = $data['value'];
+	    $this->date = $data['date'];
 	}
 }

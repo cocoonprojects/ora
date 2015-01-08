@@ -3,14 +3,13 @@
 namespace Ora\ReadModel;
 
 use Doctrine\ORM\Mapping AS ORM;
-use Ora\ReadModel\Organization;
 use Ora\User\User;
 
 /**
  * @ORM\Entity @ORM\Table(name="organization_members")
  *
  */
-class OrganizationMembership extends DomainEntity 
+class OrganizationMembership extends EditableEntity 
 {	
 	const ROLE_ADMIN = "Admin";
 	const ROLE_MEMBER = "Member";

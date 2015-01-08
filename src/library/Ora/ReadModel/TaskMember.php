@@ -13,7 +13,10 @@ use Ora\ReadModel\Estimation;
  */
 class TaskMember {	
 
-    /** 
+    CONST ROLE_MEMBER = 'member';
+    CONST ROLE_OWNER  = 'owner';
+	
+	/** 
      * @ORM\Id 
      * @ORM\ManyToOne(targetEntity="Ora\ReadModel\Task") 
      */
@@ -37,9 +40,6 @@ class TaskMember {
      */
     private $estimation;
     
-    
-
-
     public function __construct(Task $task, User $member, $role){
 
         $this->task = $task;

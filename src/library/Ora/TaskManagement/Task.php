@@ -55,10 +55,6 @@ class Task extends DomainEntity implements \Serializable
 	 */
 	private $estimations = array();
 	
-	public function getId() {
-		return $this->id;
-	}
-	
 	public static function create(Stream $stream, $subject, User $createdBy) {
 		$rv = new self();
 		$rv->id = Uuid::uuid4();
@@ -106,8 +102,9 @@ class Task extends DomainEntity implements \Serializable
 	}
 	
 	public function setSubject($subject, User $updatedBy) {
+		$s = trim($subject);
 		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
-			'subject' => $subject,
+			'subject' => $s,
 			'by' => $updatedBy->getId(),
 		)));
 	}
@@ -161,13 +158,11 @@ class Task extends DomainEntity implements \Serializable
         )));
 	}
 	
-	public function addEstimation(User $member, $value) {
-		//in which states I can add an estimation?
+	public function addEstimation($value, User $member) {
 		if($this->status != self::STATUS_ONGOING) {
 			throw new IllegalStateException('Cannot estimate a task in the state '.$this->status.'.');
 		}
-		//check that the task in the estimation is the current one
-		//check if the member have joined the task
+		//check if the estimator is a task member
 		if(!array_key_exists($member->getId(), $this->members)) {
         	throw new DomainEntityUnavailableException($this, $member); 
 		}
@@ -179,7 +174,7 @@ class Task extends DomainEntity implements \Serializable
 		$estId = Uuid::uuid4();
         $this->recordThat(EstimationAdded::occur($this->id->toString(), array(
         	'id'	 => $estId,
-        	'userId' => $member->getId(),
+        	'by' => $member->getId(),
         	'value'  => $value,
         )));
 	}
@@ -254,7 +249,7 @@ class Task extends DomainEntity implements \Serializable
 	
 	protected function whenEstimationAdded(EstimationAdded $event) {
 		$p = $event->payload();
-		$id = $p['userId'];
+		$id = $p['by'];
 		$this->estimations[$id] = $p['value'];
 	}
 	
