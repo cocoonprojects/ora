@@ -23,7 +23,7 @@ Scenario: Cannot accept an existing ongoing Kanbanize Task
 	
 Scenario: Succesfully moving a completed Kanbanize Task to ongoing
 	Given that I want to make a new "KanbanizeTask"
-	And that its "action" is "ongoing"
+	And that its "action" is "execute"
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000110/transitions"
 	Then the response status code should be 200
 

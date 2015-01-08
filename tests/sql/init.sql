@@ -118,7 +118,7 @@ INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, 
 INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type, boardId, taskId) VALUES
 ('00000000-0000-0000-0000-000000000103','00000000-1000-0000-0000-000000000000','POISONIVY',0,'2014-11-06 13:12:14','2014-11-06 13:12:14','kanbanizetask',3,113);
 INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type, boardId, taskId) VALUES
-('00000000-0000-0000-0000-000000000104','00000000-1000-0000-0000-000000000000','wrongbatman',0,'2014-11-06 13:12:50','2014-11-06 13:12:50','kanbanizetask',4,1);
+('00000000-0000-0000-0000-000000000104','00000000-1000-0000-0000-000000000000','wrongbatman',30,'2014-11-06 13:12:50','2014-11-06 13:12:50','kanbanizetask',4,1);
 INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type, boardId, taskId) VALUES
 ('00000000-0000-0000-0000-000000000105','00000000-1000-0000-0000-000000000000','wrongbatmanagain',0,'2014-11-06 13:13:15','2014-11-06 13:13:15','kanbanizetask',3,69);
 INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type, boardId, taskId) VALUES
