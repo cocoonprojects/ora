@@ -5,23 +5,32 @@ namespace Ora\TaskManagement;
 use Doctrine\ORM\EntityManager;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Aggregate\AggregateRepository;
-use Prooph\EventStore\Stream\StreamStrategyInterface;
+use Prooph\EventStore\Stream\MappedSuperclassStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Prooph\EventStore\Aggregate\AggregateType;
 use Ora\User\User;
 use Ora\StreamManagement\Stream;
-use Ora\IllegalStateException;
 
 /**
  * @author Giannotti Fabio
  */
 class EventSourcingTaskService extends AggregateRepository implements TaskService
 {
+	/**
+	 * 
+	 * @var EntityManager
+	 */
 	private $entityManager;
+	/**
+	 * 
+	 * @var AggregateType
+	 */
+	private $aggregateRootType;
     
-    public function __construct(EventStore $eventStore, StreamStrategyInterface $eventStoreStrategy, EntityManager $entityManager)
+    public function __construct(EventStore $eventStore, EntityManager $entityManager)
     {
-		parent::__construct($eventStore, new AggregateTranslator(), $eventStoreStrategy, new AggregateType('Ora\TaskManagement\Task'));
+    	$this->aggregateRootType = new AggregateType('Ora\\TaskManagement\\Task');
+		parent::__construct($eventStore, new AggregateTranslator(), new MappedSuperclassStreamStrategy($eventStore, $this->aggregateRootType, [$this->aggregateRootType->toString() => 'event_stream']));
 		$this->entityManager = $entityManager;
 	}
 	
@@ -40,7 +49,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	public function getTask($id)
 	{
 		try {
-			$task = $this->getAggregateRoot($this->aggregateType, $id);
+			$task = $this->getAggregateRoot($this->aggregateRootType, $id);
 		    return $task;
         } catch (\RuntimeException $e) {
         	return null;

@@ -441,7 +441,13 @@ class RestContext extends RawMinkContext implements Context
                              $this->_response->getStatusCode() . ')');
         }
     }
-
+    
+    /**
+     * @Then /^the header "([^"]*)" should be "([^"]*)"$/
+     */
+	public function theHeaderShouldBe($header, $value) {
+		
+	}
     /**
      * @Then /^echo last response$/
      */

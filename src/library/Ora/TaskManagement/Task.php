@@ -55,7 +55,7 @@ class Task extends DomainEntity implements \Serializable
 	 */
 	private $estimations = array();
 	
-	public static function create(Stream $stream, $subject, User $createdBy) {
+	public static function create(Stream $stream, $subject, User $createdBy, array $options = null) {
 		$rv = new self();
 		$rv->id = Uuid::uuid4();
 		$rv->status = self::STATUS_ONGOING;
@@ -83,7 +83,20 @@ class Task extends DomainEntity implements \Serializable
 	    return $this->status;
 	}
 	
+	public function execute(User $completedBy) {
+		if(!in_array($this->status, [Task::STATUS_OPEN, Task::STATUS_COMPLETED])) {
+			throw new IllegalStateException('Cannot execute a task in '.$this->status.' state');
+		}
+		$this->recordThat(TaskOngoing::occur($this->id->toString(), array(
+				'prevStatus' => $this->getStatus(),
+				'by' => $completedBy->getId(),
+		)));
+	}
+	
 	public function complete(User $completedBy) {
+		if(!in_array($this->status, [Task::STATUS_ONGOING, Task::STATUS_ACCEPTED])) {
+			throw new IllegalStateException('Cannot complete a task in '.$this->status.' state');
+		}
 		$this->recordThat(TaskCompleted::occur($this->id->toString(), array(
 			'prevStatus' => $this->getStatus(),
 			'by' => $completedBy->getId(),
@@ -91,6 +104,9 @@ class Task extends DomainEntity implements \Serializable
 	}
 	
 	public function accept(User $acceptedBy) {
+		if($this->status != Task::STATUS_COMPLETED) {
+			throw new IllegalStateException('Cannot accept a task in '.$this->status.' state');
+		}
 		$this->recordThat(TaskAccepted::occur($this->id->toString(), array(
 			'prevStatus' => $this->getStatus(),
 			'by' => $acceptedBy->getId(),
@@ -209,6 +225,10 @@ class Task extends DomainEntity implements \Serializable
 	{
 		$this->id = Uuid::fromString($event->aggregateId());
 		$this->status = $event->payload()['status'];
+	}
+	
+	protected function whenTaskOngoing(TaskOngoing $event) {
+		$this->status = self::STATUS_ONGOING;
 	}
 	
 	protected function whenTaskCompleted(TaskCompleted $event) {

@@ -7,6 +7,8 @@ use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Stream\StreamEvent;
 use Ora\ReadModel\Task;
 use Ora\ReadModel\Estimation;
+use Ora\Kanbanize\ReadModel\KanbanizeTask;
+use Ora\Kanbanize\KanbanizeService;
 
 class TaskListener
 {
@@ -16,8 +18,18 @@ class TaskListener
 	 */
 	private $entityManager;
 	
+	/**
+	 * 
+	 * @var KanbanizeService
+	 */
+	private $kanbanizeService;
+	
 	public function __construct(EntityManager $entityManager) {
 		$this->entityManager = $entityManager;
+	}
+	
+	public function setKanbanizeService(KanbanizeService $service) {
+		$this->kanbanizeService = $service;
 	}
 	
 	public function attach(EventStore $eventStore) {
@@ -42,7 +54,16 @@ class TaskListener
 		$id = $event->metadata()['aggregate_id'];
 		$status = $event->payload()['status'];
 		$createdBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
-		$entity = new Task($id);
+		
+		switch($event->metadata()['aggregate_type']) {
+			case 'Ora\\Kanbanize\\KanbanizeTask' :
+				$entity = new KanbanizeTask($id);
+				$entity->setBoardId($event->payload()['kanbanizeBoardId']);
+				$entity->setTaskId($event->payload()['kanbanizeTaskId']);
+				break;
+			default:
+				$entity = new Task($id);
+		}
 		$entity->setStatus($status);
 		$entity->setCreatedAt($event->occurredOn());
 		$entity->setCreatedBy($createdBy);
@@ -150,6 +171,45 @@ class TaskListener
 		$esti->setCreatedBy($user);
 		$taskMember->setEstimation($esti);
 		$this->entityManager->persist($taskMember);
+	}
+	
+	protected function onTaskCompleted(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
+		if(is_null($this->kanbanizeService) == false && $task instanceof KanbanizeTask) {
+			$this->kanbanizeService->completeTask($task);
+		}
+		$task->setStatus(Task::STATUS_COMPLETED);
+        $user = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+		$task->setMostRecentEditBy($user);
+		$task->setMostRecentEditAt($event->occurredOn());
+		$this->entityManager->persist($task);
+	}
+	
+	protected function onTaskAccepted(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
+		if(is_null($this->kanbanizeService) == false && $task instanceof KanbanizeTask) {
+			$this->kanbanizeService->acceptTask($task);
+		}
+		$task->setStatus(Task::STATUS_ACCEPTED);
+		$user = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+		$task->setMostRecentEditBy($user);
+		$task->setMostRecentEditAt($event->occurredOn());
+		$this->entityManager->persist($task);
+	}
+	
+	protected function onTaskOngoing(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
+		if(is_null($this->kanbanizeService) == false && $task instanceof KanbanizeTask) {
+			$this->kanbanizeService->executeTask($task);
+		}
+		$task->setStatus(Task::STATUS_ONGOING);
+		$user = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+		$task->setMostRecentEditBy($user);
+		$task->setMostRecentEditAt($event->occurredOn());
+		$this->entityManager->persist($task);
 	}
 	
 	protected function determineEventHandlerMethodFor(StreamEvent $e)

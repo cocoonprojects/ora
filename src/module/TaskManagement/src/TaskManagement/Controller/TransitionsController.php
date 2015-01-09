@@ -3,12 +3,14 @@ namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Ora\Kanbanize\KanbanizeService;
-use Ora\Kanbanize\KanbanizeTask;
+use Ora\Kanbanize\ReadModel\KanbanizeTask;
 use Ora\Kanbanize\Exception\IllegalRemoteStateException;
 use Ora\Kanbanize\Exception\KanbanizeApiException;
 use Ora\Kanbanize\Exception\AlreadyInDestinationException;
 use Zend\View\Model\ViewModel;
 use Ora\TaskManagement\TaskService;
+use Ora\TaskManagement\Task;
+use Ora\IllegalStateException;
 
 class TransitionsController extends AbstractHATEOASRestfulController
 {
@@ -36,45 +38,62 @@ class TransitionsController extends AbstractHATEOASRestfulController
 			$this->response->setStatusCode ( 400 );
 			return $this->response;
 		}
-		$task = $this->taskService->findTask($id);
+		$task = $this->taskService->getTask($id);
 		if (is_null($task)) {
 			$this->response->setStatusCode ( 404 );
 			return $this->response;
 			
 		}
 		$action = $data ["action"];
-
-		$boardId = $task->getBoardId();
-		$taskId = $task->getTaskId();
-		
-		//$kanbanizeTask = new KanbanizeTask ( $taskId, $boardId, $id, new \DateTime (), $createdBy );
-		$result = 0;
-		try {
-			switch ($action) {
-				case "complete":
-					$this->kanbanizeService->moveToCompleted ( $task );
-					$this->response->setStatusCode ( 200 );
+		switch ($action) {
+			case "complete":
+				if($task->getStatus() == Task::STATUS_COMPLETED) {
+					$this->response->setStatusCode ( 204 );
 					break;
-				case "accept":
-					$this->kanbanizeService->acceptTask ( $task );
+				}
+				$this->transaction()->begin();
+				try {
+					$task->complete($this->identity()['user']);
+					$this->transaction()->commit();
 					$this->response->setStatusCode ( 200 );
-					break;
-				case "execute" :
-					$this->kanbanizeService->moveBackToOngoing ( $task );
-					$this->response->setStatusCode ( 200 );
-					break;
-				default :
+				} catch ( IllegalStateException $e ) {
+					$this->transaction()->rollback();
 					$this->response->setStatusCode ( 400 );
+				}
+				break;
+			case "accept":
+				if($task->getStatus() == Task::STATUS_ACCEPTED) {
+					$this->response->setStatusCode ( 204 );
 					break;
-			}
-		} catch ( OperationFailedException $e ) {
-			$this->response->setStatusCode ( 400 );
-		} catch ( AlreadyInDestinationException $e ) {
-			$this->response->setStatusCode ( 204 );
-		} catch ( IllegalRemoteStateException $e ) {
-			$this->response->setStatusCode ( 400 );
-		} catch ( KanbanizeApiException $e ) {
-			$this->response->setStatusCode ( 504 );
+				}
+				$this->transaction()->begin();
+				try {
+					$task->accept($this->identity()['user']);
+					$this->transaction()->commit();
+					$this->response->setStatusCode ( 200 );
+				} catch ( IllegalStateException $e ) {
+					$this->transaction()->rollback();
+					$this->response->setStatusCode ( 400 );
+				}
+				break;
+			case "execute":
+				if($task->getStatus() == Task::STATUS_ONGOING) {
+					$this->response->setStatusCode ( 204 );
+					break;
+				}
+				$this->transaction()->begin();
+				try {
+					$task->execute($this->identity()['user']);
+					$this->transaction()->commit();
+					$this->response->setStatusCode ( 200 );
+				} catch ( IllegalStateException $e ) {
+					$this->transaction()->rollback();
+					$this->response->setStatusCode ( 400 );
+				}
+				break;
+			default :
+				$this->response->setStatusCode ( 400 );
+				break;
 		}
 		
 		return $this->response;

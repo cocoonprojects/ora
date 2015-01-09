@@ -21,7 +21,9 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 	
 		$entityManager = $serviceManager->get('doctrine.entitymanager.orm_default');
 		$eventStore = $serviceManager->get('prooph.event_store');
+		$kanbanizeService = $serviceManager->get('TaskManagement\KanbanizeService');
 		$taskListener = new TaskListener($entityManager);
+		$taskListener->setKanbanizeService($kanbanizeService);
 		$taskListener->attach($eventStore);
 	}
 		

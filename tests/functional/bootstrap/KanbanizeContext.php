@@ -3,7 +3,7 @@
 use Behat\Behat\Context\Context;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Ora\Kanbanize\KanbanizeAPI;
-use Ora\Kanbanize\KanbanizeTask;
+use Ora\Kanbanize\ReadModel\KanbanizeTask;
 
 class KanbanizeContext extends RawMinkContext implements Context {
 
