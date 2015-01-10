@@ -390,31 +390,32 @@ TaskManagement.prototype = {
 					estimation = '';
 					break;
 				case -1:
-					estimation = 'Skipped';
+					estimation = '<li>Estimation skipped</li>';
 					break;
 				case null:
-					estimation = 'In progress';
+					estimation = '<li>Estimation in progress</li>';
 					break;
 				default:
-					estimation = task.estimation;
+					estimation = '<li>' + task.estimation + ' credits</li>';
 				}
+				
+				a = actions.length == 0 ? '' : '<li>' + actions.join(' ') + '</li>';
 
 				container.append(
-						/*"<tr data-taskid='"+task.id+"' data-tasksubject='" + task.subject + "' data-userid='"+json.loggeduser.id+"'>" +	*/
-                        "<tr>" +
-							'<td>' + subject + '</td>' +
-							"<td>" + createdAt.toLocaleString() + "</td>" +
-                            "<td>" + $.map(task.members, function(object, key) {
-                            	rv = '<span class="task-member">' + object.firstname + " " + object.lastname;
-                                if(object.estimation != null){
-                                    rv += ' <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>';
-                                }
-                                return rv + '</span>';
-                            }).join('') + "</td>" + 
-							'<td>' + that.statuses[task.status] + '</td>' +
-							'<td>' + estimation + '</td>' +
-							'<td>' + actions.join(' ') + '</td>' +
-						"</tr>");
+                    '<li class="panel panel-default">' +
+						'<div class="panel-heading">' + subject + '</div>' +
+						'<div class="panel-body"><ul><li>Created at ' + createdAt.toLocaleString() + "</li>" +
+						'<li>' + that.statuses[task.status] + '</li>' +
+						estimation +
+						"<li>Members: " + $.map(task.members, function(object, key) {
+							rv = '<span class="task-member">' + object.firstname + " " + object.lastname;
+							if(object.estimation != null){
+								rv += ' <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>';
+							}
+							return rv + '</span>';
+						}).join('') + "</li>" + 
+						a + '</div>' +
+					'</li>');
 			});
 		}
 	},
