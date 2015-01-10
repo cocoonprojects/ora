@@ -2,12 +2,12 @@
 	$this->headScript()->appendFile($this->basePath() . '/js/task-management.js');
 	$this->headStyle()->appendStyle('span.task-member { display: block }');
 ?>
+<div style="position: fixed; bottom: 2em; right: 2em">
+	<a class="btn btn-primary btn-fab btn-raised mdi-content-add" data-toggle="modal" data-target="#createTaskModal" id="createTaskBtn"></a>
+</div>
 <div class="container-fluid">
 	<div class="page-header">
 		<h1>Items</h1>
-	</div>
-	<div style="position: fixed; bottom: 2em; right: 2em">
-		<a class="btn btn-primary btn-fab btn-raised mdi-content-add" data-toggle="modal" data-target="#createTaskModal" id="createTaskBtn"></a>
 	</div>
 	<ul id="tasks" style="list-style: none; padding: 0; margin: 0">
 	</ul>
