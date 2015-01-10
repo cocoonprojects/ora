@@ -11,7 +11,7 @@ Accounting.prototype = {
 		{
 			var that = this;
 
-			$("a.statement").on("click", function(e){
+			$("body").on("click", "a.statement", function(e){
 				e.preventDefault();
 				that.listTransactions(this.href);
 			});
