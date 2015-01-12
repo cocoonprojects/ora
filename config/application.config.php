@@ -1,1 +1,0 @@
-/vagrant/src/config/application.config.php
