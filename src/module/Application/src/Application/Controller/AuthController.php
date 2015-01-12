@@ -43,6 +43,11 @@ class AuthController extends AbstractActionController
 			} else {
 				$adapter->getEventManager()->attach('oauth2.success', array($this, 'loadUser'));
 				$result = $this->authService->authenticate($adapter);
+				if(getenv('APPLICATION_ENV') != 'acceptance') {
+					if($result->isValid()) {
+						$this->redirect()->toRoute('home');	
+					}
+				}
 				$view->setVariable('authenticate', $result);
 			}
 		} catch (InvalidTokenException $e) {

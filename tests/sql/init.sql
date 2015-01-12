@@ -25,8 +25,6 @@ INSERT INTO users (id, status, createdAt, firstname, lastname, email) VALUES ('8
 INSERT INTO users (id, status, createdAt, firstname, lastname, email) VALUES ('90000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Peter', 'Parker', 'spidey.web@dailybugle.local');
 
 INSERT INTO `organizations` (id, name, createdAt, mostRecentEditAt) VALUES ('00000000-0000-0000-1000-000000000000', 'O.R.A. Team','2014-11-06 13:11:05','2014-11-06 13:11:05');
-#INSERT INTO organization_members (member_id, organization_id, role) VALUES
-#('60000000-0000-0000-0000-000000000000','00000000-0000-0000-1000-000000000000','admin');
 insert into accounts(id, organization_id, createdAt, mostRecentEditAt, balance_value, balance_date, createdBy_id, mostRecentEditBy_id, type) values ('dcde992b-5aa9-4447-98ae-c8115906dcb7', '00000000-0000-0000-1000-000000000000', '2014-12-09 15:25:18', '2014-12-09 15:25:18', 0, '2014-12-09 15:25:18', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000', 'organizationaccount');
 
 INSERT INTO streams (id, subject, createdAt, mostRecentEditAt, organization_id) VALUES ('00000000-1000-0000-0000-000000000000', 'O.R.A.: Organization Resource Aggregator','2014-11-06 13:11:05','2014-11-06 13:11:05', '00000000-0000-0000-1000-000000000000');

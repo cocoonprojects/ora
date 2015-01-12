@@ -26,7 +26,7 @@ class UserBoxHelper extends AbstractHelper implements ServiceLocatorAwareInterfa
 		}
 		else 
 		{
-			$rv .= '<li><a href="#" id="login-auth" class="">Login</a></li>';
+			$rv .= '<li><a href="#" data-toggle="modal" data-target="#loginModal" class="">Sign in</a></li>';
 		}
 		$rv .= '</ul>';
 		return $rv;
