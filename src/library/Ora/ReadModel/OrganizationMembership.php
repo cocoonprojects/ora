@@ -9,16 +9,16 @@ use Ora\User\User;
  * @ORM\Entity @ORM\Table(name="organization_members")
  *
  */
-class OrganizationMembership extends EditableEntity 
+class OrganizationMembership 
 {	
-	const ROLE_ADMIN = "Admin";
-	const ROLE_MEMBER = "Member";
+	const ROLE_ADMIN = "admin";
+	const ROLE_MEMBER = "member";
 		
 	/**
 	 * @ORM\Column(type="string")
 	 * @var string
 	 */
-	private $organizationRole;
+	private $role;
 			
 	/**
 	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
@@ -32,15 +32,39 @@ class OrganizationMembership extends EditableEntity
 	 */
 	protected $organization;
 		
+	/**
+	 * @ORM\Column(type="datetime")
+	 * @var DateTime
+	 */
+	protected $createdAt;
+	
+	/**
+	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+     * @ORM\JoinColumn(name="createdBy_id", referencedColumnName="id")
+	 */
+	protected $createdBy;
+	
+    /**
+     * @ORM\Column(type="datetime")
+     * @var datetime
+     */
+    protected $mostRecentEditAt;
+    
+    /**
+     * @ORM\ManyToOne(targetEntity="Ora\User\User")
+     * @ORM\JoinColumn(name="mostRecentEditBy_id", referencedColumnName="id")
+     */
+    protected $mostRecentEditBy;
+	
 	public function __construct(User $member, Organization $organization)
 	{
 		$this->member = $member;
 		$this->organization = $organization;
 	}		
 
-	public function setOrganizationRole($role)
+	public function setRole($role)
 	{
-		$this->organizationRole = $role;
+		$this->role = $role;
 	}
 		
 	public function setMember(User $member)
@@ -53,9 +77,9 @@ class OrganizationMembership extends EditableEntity
 		$this->organization = $organization;
 	}
 		
-	public function getOrganizationRole()
+	public function getRole()
 	{
-		return $this->organizationRole;
+		return $this->role;
 	}
 			
 	public function getMember()
@@ -68,4 +92,40 @@ class OrganizationMembership extends EditableEntity
 		return $this->organization;
 	}
 	
+	public function getCreatedAt() {
+		return $this->createdAt;
+	}
+	
+	public function setCreatedAt(\DateTime $when) {
+		$this->createdAt = $when;
+		return $this->createdAt;
+	}
+	
+    public function getCreatedBy() {
+        return $this->createdBy;
+    }
+    
+    public function setCreatedBy(User $user) {
+    	$this->createdBy = $user;
+    	return $this->createdBy;
+    }
+
+    public function getMostRecentEditAt() {
+        return $this->mostRecentEditAt;
+    }
+    
+	public function setMostRecentEditAt(\DateTime $when) {
+		$this->mostRecentEditAt = $when;
+		return $this->mostRecentEditAt;
+	}
+	
+    public function getMostRecentEditBy() {
+        return $this->mostRecentEditBy;
+    }
+    
+    public function setMostRecentEditBy(User $user) {
+    	$this->mostRecentEditBy = $user;
+    	return $this->mostRecentEditBy;
+    }
+
 }

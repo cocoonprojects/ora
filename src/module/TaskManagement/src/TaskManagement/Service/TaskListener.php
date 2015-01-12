@@ -118,16 +118,14 @@ class TaskListener
 			return;
         }        
         $role = $event->payload()['role'];
-		$entity->addMember($user, $role);
-		$entity->setMostRecentEditAt($event->occurredOn());
 		$addedBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+		$entity->addMember($user, $role, $addedBy, $event->occurredOn());
+		$entity->setMostRecentEditAt($event->occurredOn());
 		$entity->setMostRecentEditBy($addedBy);
 		$this->entityManager->persist($entity);
-		
 	}
 	
     protected function onMemberRemoved(StreamEvent $event) {
-
 		$id = $event->metadata()['aggregate_id'];
 		$entity = $this->entityManager->find('Ora\ReadModel\Task', $id);
 		if(is_null($entity)) {

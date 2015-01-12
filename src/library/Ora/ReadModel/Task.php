@@ -57,7 +57,6 @@ class Task extends EditableEntity
 	 */
 	private $members;
 	
-  
 	public function __construct($id) 
 	{
 		$this->id = $id;
@@ -95,8 +94,12 @@ class Task extends EditableEntity
 		return $this->status;
 	}
 	
-    public function addMember(User $user, $role) {
+    public function addMember(User $user, $role, User $by, \DateTime $when) {
         $taskMember = new TaskMember($this, $user, $role);
+        $taskMember->setCreatedAt($when);
+        $taskMember->setCreatedBy($by);
+        $taskMember->setMostRecentEditAt($when);
+        $taskMember->setMostRecentEditBy($by);
 		$this->members->add($taskMember);
 		return $this->members;
 	}

@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS `event_stream` (
   PRIMARY KEY (`eventId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-delete from tasks_members;
+delete from task_members;
 delete from tasks;
 delete from streams;
 delete from accounts;
@@ -25,6 +25,8 @@ INSERT INTO users (id, status, createdAt, firstname, lastname, email) VALUES ('8
 INSERT INTO users (id, status, createdAt, firstname, lastname, email) VALUES ('90000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Peter', 'Parker', 'spidey.web@dailybugle.local');
 
 INSERT INTO `organizations` (id, name, createdAt, mostRecentEditAt) VALUES ('00000000-0000-0000-1000-000000000000', 'O.R.A. Team','2014-11-06 13:11:05','2014-11-06 13:11:05');
+#INSERT INTO organization_members (member_id, organization_id, role) VALUES
+#('60000000-0000-0000-0000-000000000000','00000000-0000-0000-1000-000000000000','admin');
 insert into accounts(id, organization_id, createdAt, mostRecentEditAt, balance_value, balance_date, createdBy_id, mostRecentEditBy_id, type) values ('dcde992b-5aa9-4447-98ae-c8115906dcb7', '00000000-0000-0000-1000-000000000000', '2014-12-09 15:25:18', '2014-12-09 15:25:18', 0, '2014-12-09 15:25:18', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000', 'organizationaccount');
 
 INSERT INTO streams (id, subject, createdAt, mostRecentEditAt, organization_id) VALUES ('00000000-1000-0000-0000-000000000000', 'O.R.A.: Organization Resource Aggregator','2014-11-06 13:11:05','2014-11-06 13:11:05', '00000000-0000-0000-1000-000000000000');
@@ -169,15 +171,15 @@ INSERT INTO estimations (id, value, createdAt) VALUES
 ('05a1c762-44dc-404c-ac33-3c0723a39c8h','-1', '2014-11-07 11:37:58');
 
 
-INSERT INTO tasks_members (task_id, member_id, estimation_id, role) VALUES
+INSERT INTO task_members (task_id, member_id, estimation_id, role) VALUES
 ('00000000-0000-0000-0000-000000000107','20000000-0000-0000-0000-000000000000', '60000000-0000-0000-1111-000000000000', 'OWNER');
-INSERT INTO tasks_members(task_id, member_id,role) VALUES('00000000-0000-0000-0000-000000000107','80000000-0000-0000-0000-000000000000','MEMBER');
-INSERT INTO tasks_members(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000108','90000000-0000-0000-0000-000000000000','04a1c762-44dc-404c-ac33-3c0723a39c8e','MEMBER');
-INSERT INTO tasks_members(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000108','80000000-0000-0000-0000-000000000000','04a1c762-44dc-404c-ac33-3c0723a39c8h','OWNER');
-INSERT INTO tasks_members(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000112','80000000-0000-0000-0000-000000000000',NULL,'OWNER');
-INSERT INTO tasks_members(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000104','20000000-0000-0000-0000-000000000000','05a1c762-44dc-404c-ac33-3c0723a39c8h','OWNER');
+INSERT INTO task_members(task_id, member_id,role) VALUES('00000000-0000-0000-0000-000000000107','80000000-0000-0000-0000-000000000000','MEMBER');
+INSERT INTO task_members(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000108','90000000-0000-0000-0000-000000000000','04a1c762-44dc-404c-ac33-3c0723a39c8e','MEMBER');
+INSERT INTO task_members(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000108','80000000-0000-0000-0000-000000000000','04a1c762-44dc-404c-ac33-3c0723a39c8h','OWNER');
+INSERT INTO task_members(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000112','80000000-0000-0000-0000-000000000000',NULL,'OWNER');
+INSERT INTO task_members(task_id, member_id,estimation_id,role) VALUES('00000000-0000-0000-0000-000000000104','20000000-0000-0000-0000-000000000000','05a1c762-44dc-404c-ac33-3c0723a39c8h','OWNER');
 
-INSERT INTO tasks_members(task_id, member_id,role) VALUES
+INSERT INTO task_members(task_id, member_id,role) VALUES
 ('156eaec0-f997-4efe-94c9-b8c15da1f779','60000000-0000-0000-0000-000000000000','owner'),
 ('2662e530-b58e-4dfc-9d0a-e140c2a62610','60000000-0000-0000-0000-000000000000','owner'),
 ('8924d278-4bb5-4f16-90d6-ee08aa639d88','60000000-0000-0000-0000-000000000000','owner'),

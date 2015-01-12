@@ -14,6 +14,8 @@ use Zend\Mvc\MvcEvent;
 use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
 use Doctrine\ORM\EntityManager;
 use Application\Controller\AuthController;
+use Zend\Log\Writer\Stream;
+use Zend\Log\Logger;
 
 class Module
 {
@@ -73,6 +75,12 @@ class Module
             'factories' => array(
             	'Zend\Authentication\AuthenticationService' => 'Application\Service\AuthenticationServiceFactory',
 	            'Application\Service\AdapterResolver' => 'Application\Service\OAuth2AdapterResolverFactory',
+            	'Zend\Log' => function ($sl) {
+            		$writer = new Stream('/vagrant/src/data/logs/application.log');
+            		$logger = new Logger();
+            		$logger->addWriter($writer);
+            		return $logger;
+            	}
             ),
         );
     }

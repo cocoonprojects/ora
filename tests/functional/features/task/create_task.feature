@@ -2,7 +2,7 @@ Feature: Create task
 	As an organization member
 	I want to create a new task into one of my organization streams
 	in order to allow the team to start the estimation
-@wip
+
 Scenario: Successfully creating a task into a stream and with a subject
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Task"

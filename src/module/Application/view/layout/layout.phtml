@@ -57,15 +57,8 @@
                 </div><!--/.nav-collapse -->
             </div>
         </nav>
-        <div class="container">
-            <?php             
-            echo $this->content; 
-            
-            echo $this->LoginPopupHelper(); 
-            ?>
-        </div> <!-- /container -->
-    
-        <?php echo $this->inlineScript() ?>
-                  
+		<?php echo $this->content; ?>
+		<?php echo $this->LoginPopupHelper(); ?>
+		<?php echo $this->inlineScript() ?>
     </body>        
 </html>

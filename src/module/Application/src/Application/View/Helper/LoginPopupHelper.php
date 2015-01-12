@@ -28,17 +28,16 @@ class LoginPopupHelper extends AbstractHelper implements ServiceLocatorAwareInte
 								</button>
 								<h4 class='modal-title'>Effettua il login</h4>
 							</div>
-							<div class='modal-body'>
-								<center>";
+							<div class='modal-body'>";
 
 			$adapterResolver = $this->getServiceLocator()->get('Application\Service\AdapterResolver');
 			foreach($adapterResolver->getProviders() as $provider => $instance)
 			{
-				$output .=  "<a onclick=\"auth.openAuthWindow('{$instance->getUrl()}'); return false;\" class='btn btn-success btn-lg' href='#'>Login con {$provider}</a>&nbsp;";
+				$url = $instance->getUrl();
+				$output .= '<a class="btn btn-primary btn-lg" href="' . $url . '">Login con ' . $provider . '</a>';
 			}
 			
-			$output .=" </center>
-		              </div>
+			$output .="</div>
 		            </div><!-- /.modal-content -->
 		          </div><!-- /.modal-dialog -->
 		        </div><!-- /.modal -->";			
@@ -56,4 +55,5 @@ class LoginPopupHelper extends AbstractHelper implements ServiceLocatorAwareInte
 	public function getServiceLocator() {
 		return $this->serviceLocator;
 	}
+	
 }

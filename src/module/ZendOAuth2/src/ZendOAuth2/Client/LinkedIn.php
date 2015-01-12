@@ -110,7 +110,6 @@ class LinkedIn extends AbstractOAuth2Client
 	        try {
 		        	$retVal = $this->getHttpclientResponse();
 		        
-		        	//var_dump($retVal);
 		            if (strlen(trim($retVal)) > 0) {
 		            	
 		            	$this->session->info = \Zend\Json\Decoder::decode($retVal);
