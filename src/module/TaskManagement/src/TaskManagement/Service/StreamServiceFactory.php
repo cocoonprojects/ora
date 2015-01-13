@@ -24,8 +24,7 @@ class StreamServiceFactory implements FactoryInterface
  			//$eventStoreStrategy = $serviceLocator->get('prooph.event_store.single_stream_strategy');
             // self::$instance = new EventSourcingStreamService($eventStore, $eventStoreStrategy);
 	    	$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-			$userService = $serviceLocator->get('User\UserService');
-	    	self::$instance = new MockStreamService($userService, $entityManager);
+	    	self::$instance = new MockStreamService($entityManager);
         }
 	    return self::$instance;
 	}

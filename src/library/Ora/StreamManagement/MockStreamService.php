@@ -2,39 +2,28 @@
 namespace Ora\StreamManagement;
 
 use Rhumsaa\Uuid\Uuid;
-use Ora\User\User;
-use Ora\User\UserService;
-use Ora\ReadModel\Organization;
 
 class MockStreamService implements StreamService {
 	
-	/**
-	 * 
-	 * @var UserService
-	 */
-	private $userService;
 	private $entityManager;
 	
-	public function __construct(UserService $userService, $entityManager)
+	public function __construct($entityManager)
 	{
-		$this->userService = $userService;
 		$this->entityManager = $entityManager;
 	}
 	
 	public function getStream($id) {
-		try {
-			$streamId = Uuid::fromString($id);
-			$user = $this->userService->findUser('20000000-0000-0000-0000-000000000000');
-			$rv = new Stream($streamId, $user);
-			$rv->setSubject('First stream');
-			return $rv;
-		} catch(\InvalidArgumentException $e) {
+		$s = $this->findStream($id);
+		if(is_null($s)) {
 			return null;
 		}
+		$rv = new Stream(Uuid::fromString($s->getId()), $s->getCreatedBy());
+		$rv->setSubject($s->getSubject());
+		return $rv;
 	}
 	
 	public function findStream($id)
 	{
-		return $this->entityManager->find('Ora\ReadModel\Stream', '00000000-1000-0000-0000-000000000000');
+		return $this->entityManager->find('Ora\ReadModel\Stream', $id);
 	}
 }
