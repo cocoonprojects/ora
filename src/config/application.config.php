@@ -23,7 +23,6 @@ return array(
     	'TaskManagement',
     	'User',
         'Application',
-        'Kanbanize'
     ),
 
     // These are various options for the listeners attached to the ModuleManager

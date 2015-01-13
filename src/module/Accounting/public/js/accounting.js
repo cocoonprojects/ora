@@ -16,10 +16,23 @@ Accounting.prototype = {
 				that.listTransactions(this.href);
 			});
 			
+			$("#depositModal").on("show.bs.modal", function(e) {
+				var button = $(e.relatedTarget) // Button that triggered the modal
+				var url = button.data('href');
+				$(this).find("form").attr("action", url);
+			});
+
+			$("#depositModal").on("submit", "form", function(e){
+				e.preventDefault();
+				that.depositCredits(this);
+			});
+			
 		},
 
 		listAccounts: function()
 		{
+			$('#transactions-container').hide();
+
 			$.ajax({
 				url: '/accounting/accounts',
 				method: 'GET',
@@ -37,22 +50,47 @@ Accounting.prototype = {
 			})
 			.done(this.onListTransactionsCompleted.bind(this));
 		},
+		
+		depositCredits: function(form)
+		{
+			jform = $(form);
+			that = this;
+			$.ajax({
+				url: jform.attr('action'),
+				method: 'POST',
+				data: jform.serialize(),
+				dataType: 'json',
+				complete: function(xhr, textStatus) {
+					if (xhr.status === 201) {
+						that.listAccounts();
+						$('#depositModal').modal('hide');
+					}
+					else {
+						alertDiv = $('#depositModal div.alert');
+						alertDiv.removeClass();
+						alertDiv.addClass('alert alert-danger');
+						alertDiv.text('An unknown error "' + xhr.status + '" occurred while trying to edit the task');
+					}
+				}
+			});
+		},
 
 		onListAccountsCompleted: function(json)
 		{
 			var container = $('#accounts');
 			container.empty();
-			
+						
 			$.each(json.accounts, function(key, account) {
 				balanceDate = new Date(Date.parse(account.balance.date));
-				s = '<li>Account ' + account.id + ' balance at ' + balanceDate.toLocaleString() + ': ' + account.balance.value;
+				s= account.organization == undefined ? 'My account' : account.organization + ' account';
+				s = '<li><h4>' + s + ' balance: <span class="text-primary">' + account.balance.value + ' credits</span> at ' + balanceDate.toLocaleString() + '</h4>';
 				if(account._links.statement != undefined) {
-					s += ' <a href="' + account._links.statement + '" class="statement">Transactions</a>';
+					s += ' <a href="' + account._links.statement + '" class="btn btn-default statement">View transactions</a>';
+				}
+				if(account._links.deposits != undefined) {
+					s += ' <a href="#" data-href="' + account._links.deposits + '" class="btn btn-primary" data-toggle="modal" data-target="#depositModal">Deposit</a>';
 				}
 				container.append(s + '</li>');
-				if(account._links.deposits != undefined) {
-					container.append('<form method="POST" action="' + account._links.deposits + '"><input type="text" name="amount"/><button type="submit">Deposit</button></form>');
-				}
 			});
 		},
 		
@@ -64,7 +102,14 @@ Accounting.prototype = {
 			top.empty();
 			var bottom = $('#starting-balance');
 			
-			$.each(json.statement.transactions, function(key, transaction) {
+			var c = $('#transactions-container');
+			if(json.organization != undefined) {
+				c.find('h3').text(json.organization + ' transactions');
+			} else {
+				c.find('h3').text('My transactions');
+			}
+			
+			$.each(json.transactions, function(key, transaction) {
 				transactionDate = new Date(Date.parse(transaction.date));
 				if(key == 0) { top.append(transaction.balance); }
 				cssClass = transaction.type == 'Deposit' ? 'text-success' : '';
@@ -73,6 +118,7 @@ Accounting.prototype = {
 				bottom.append(transaction.balance);
 			});
 			
+			c.show();
 		}
 }
 

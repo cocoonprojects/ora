@@ -23,6 +23,9 @@ class StatementJsonModel extends JsonModel
 				'value' => $account->getBalance()->getValue(),
 				'date' => date_format($account->getBalance()->getDate(), 'c'),
 		);
+		if($account instanceof OrganizationAccount) {
+			$representation['organization'] = $account->getOrganization()->getName(); 
+		}
 		$representation['transactions'] = array();
 		foreach ($account->getTransactions() as $transaction) {
 			$representation['transactions'][] = $this->serializeOne($transaction);

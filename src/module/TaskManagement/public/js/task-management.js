@@ -28,8 +28,8 @@ TaskManagement.prototype = {
 		$("#editTaskModal").on("show.bs.modal", function(e) {
 			var button = $(e.relatedTarget) // Button that triggered the modal
 			var url = button.data('href');
-			var subject = button.data('subject');
 			$("#editTaskModal form").attr("action", url);
+			var subject = button.data('subject');
 			$('#editTaskSubject').val(subject);
 		});
 
