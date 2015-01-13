@@ -21,14 +21,16 @@ class OrganizationMembership
 	private $role;
 			
 	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
 	 * @ORM\Id
+	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+     * @ORM\JoinColumn(name="member_id", referencedColumnName="id", onDelete="CASCADE")
 	 */
 	protected $member;
 
 	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\Organization")
 	 * @ORM\Id
+	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\Organization")
+     * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", onDelete="CASCADE")
 	 */
 	protected $organization;
 		

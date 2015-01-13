@@ -19,12 +19,14 @@ class TaskMember {
 	/** 
      * @ORM\Id 
      * @ORM\ManyToOne(targetEntity="Ora\ReadModel\Task") 
+     * @ORM\JoinColumn(name="task_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $task;
 
     /** 
      * @ORM\Id 
-     * @ORM\ManyToOne(targetEntity="Ora\User\User") 
+     * @ORM\ManyToOne(targetEntity="Ora\User\User")
+     * @ORM\JoinColumn(name="member_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $member;
 
