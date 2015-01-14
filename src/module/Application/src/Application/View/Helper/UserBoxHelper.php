@@ -32,7 +32,7 @@ class UserBoxHelper extends AbstractHelper implements ServiceLocatorAwareInterfa
 // 						</ul>
 // 					</li>';
 			$rv = '<ul class="nav navbar-nav navbar-right"><li><a href="'.$this->getView()->basePath().'/auth/logout">Logout</a></li></ul>';
-			$rv .= '<p class="nav navbar-text navbar-right">'.$identity->getEmail().'</p>';
+			$rv .= '<p class="nav navbar-text navbar-right" style="margin-top: 15px; margin-bottom:15px;"><img src="'.$identity->getPicture().'" alt="Avatar" style="width: 32px; height: 32px;" class="img-circle"> '.$identity->getEmail().'</p>';
 		}
 		else 
 		{

@@ -47,6 +47,7 @@ class EventSourcingUserService extends AggregateRepository implements UserServic
 		$user->setEmail($infoOfUser['email']);
 		$user->setLastname($infoOfUser['family_name']);
 		$user->setFirstname($infoOfUser['given_name']);
+		$user->setPicture($infoOfUser['picture']);
 		return $user;
 	}
 

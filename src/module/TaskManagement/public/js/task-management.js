@@ -464,6 +464,7 @@ TaskManagement.prototype = {
 
 $().ready(function(e){
 	$('#content div.alert').hide();
+	$('#firstLevelMenu li').eq(0).addClass('active');
 	collaboration = new TaskManagement();
 	collaboration.listTasks();
 });

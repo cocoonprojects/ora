@@ -41,6 +41,12 @@ class User extends EditableEntity
 	private $status;
 	
 	/**
+	 * @ORM\Column(type="string")
+	 * @var string
+	 */
+	private $picture;
+	
+	/**
 	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\OrganizationMembership", mappedBy="member", fetch="LAZY")
 	 * @var ArrayCollection
 	 */
@@ -66,6 +72,7 @@ class User extends EditableEntity
 	public function setFirstname($firstname)
 	{
 		$this->firstname = $firstname;
+		return $this;
 	}
 	
 	public function getFirstname()
@@ -76,6 +83,7 @@ class User extends EditableEntity
 	public function setLastname($lastname)
 	{
 		$this->lastname = $lastname;
+		return $this;
 	}
 	
 	public function getLastname()
@@ -86,6 +94,7 @@ class User extends EditableEntity
 	public function setEmail($email)
 	{
 		$this->email = $email;
+		return $this;
 	}
 	
 	public function getEmail()
@@ -96,6 +105,7 @@ class User extends EditableEntity
 	public function setStatus($status)
 	{
 		$this->status = $status;
+		return $this;
 	}
 	
 	public function getStatus()
@@ -106,5 +116,14 @@ class User extends EditableEntity
 	public function getOrganizationMemberships()
 	{
 		return $this->memberships;
+	}
+	
+	public function setPicture($url) {
+		$this->picture = $url;
+		return $this;
+	}
+	
+	public function getPicture() {
+		return $this->picture;
 	}
 }

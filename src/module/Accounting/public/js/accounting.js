@@ -107,9 +107,11 @@ Accounting.prototype = {
 			balanceDate = new Date(Date.parse(json.balance.date));
 			p = container.find('p');
 			p.html('<span class="text-primary">' + json.balance.value + ' credits</span> at ' + balanceDate.toLocaleString());
+			p.append('<ul role="menu">');
 			if(json._links.deposits != undefined) {
-				p.append(' <a href="#" data-href="' + json._links.deposits + '" class="btn btn-default" data-toggle="modal" data-target="#depositModal">Deposit</a>');
+				p.append('<li><a href="#" data-href="' + json._links.deposits + '" class="btn btn-default" data-toggle="modal" data-target="#depositModal">Deposit</a></li>');
 			}
+			p.append('</ul>');
 
 			c = container.find('tbody').empty();
 			var top = $('#actual-balance');
@@ -142,6 +144,7 @@ Accounting.prototype = {
 }
 
 $().ready(function(e){
+	$('#firstLevelMenu li').eq(1).addClass('active');
 	accounting = new Accounting();
 	accounting.listAccounts();
 });
