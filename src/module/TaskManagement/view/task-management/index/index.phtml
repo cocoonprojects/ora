@@ -5,9 +5,14 @@
 <div style="position: fixed; bottom: 2em; right: 2em">
 	<a class="btn btn-primary btn-fab btn-raised mdi-content-add" data-toggle="modal" data-target="#createTaskModal" id="createTaskBtn"></a>
 </div>
-<div class="container">
+<div class="container" id="content">
 	<div class="page-header">
 		<h1>Items</h1>
+	</div>
+	<div class="alert" role="alert">
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+		  <span aria-hidden="true">&times;</span>
+		</button>
 	</div>
 	<ul id="tasks" style="list-style: none; padding: 0; margin: 0">
 	</ul>

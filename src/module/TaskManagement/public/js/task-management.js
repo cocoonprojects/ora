@@ -20,6 +20,12 @@ TaskManagement.prototype = {
 	{
 		var that = this;
 	        
+		$("#createTaskModal").on("show.bs.modal", function(e) {
+			form = $(this).find("form");
+			form[0].reset();
+			$(this).find('div.alert').hide();			
+		});
+		
 		$("#createTaskModal").on("submit", "form", function(e){
 			e.preventDefault();
 			that.createNewTask(e);
@@ -31,6 +37,7 @@ TaskManagement.prototype = {
 			$("#editTaskModal form").attr("action", url);
 			var subject = button.data('subject');
 			$('#editTaskSubject').val(subject);
+			$(this).find('div.alert').hide();			
 		});
 
 		$("#editTaskModal").on("submit", "form", function(e){
@@ -85,6 +92,7 @@ TaskManagement.prototype = {
 			} else {
 				$('#estimateTaskCredits').val(credits);
 			}
+			$(this).find('div.alert').hide();			
 		});
 		
 		$('#estimateTaskSkip').on('click', function(e) {
@@ -113,20 +121,16 @@ TaskManagement.prototype = {
 			method: 'DELETE',
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
-				alertDiv = $('#tasks-alert');
-				alertDiv.removeClass();
+				m = $('#content');
 				if (xhr.status === 200) {
-					alertDiv.addClass('alert alert-success');
-					alertDiv.text('You successfully left the team that is working on the task');
+					that.show(m, 'success', 'You successfully left the team that is working on the task');
 					that.listTasks();
 				}
 				else if (xhr.status === 204) {
-					alertDiv.addClass('alert alert-warning');
-					alertDiv.text('You are not member of the team that is working on the task');
+					that.show(m, 'warning', 'You are not member of the team that is working on the task');
 				}
 				else {
-					alertDiv.addClass('alert alert-danger');
-					alertDiv.text('An unknown error "' + xhr.status + '" occurred while trying to leave the task');
+					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to leave the task');
 				}
 			}
 		});
@@ -143,20 +147,16 @@ TaskManagement.prototype = {
 			method: 'POST',
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
-				alertDiv = $('#tasks-alert');
-				alertDiv.removeClass();
+				m = $('#content');
 				if (xhr.status === 201) {
-					alertDiv.addClass('alert alert-success');
-					alertDiv.text('You successfully joined the team that is working on the task');
+					that.show(m, 'success', 'You successfully joined the team that is working on the task');
 					that.listTasks();
 				}
 				else if (xhr.status === 204) {
-					alertDiv.addClass('alert alert-warning');
-					alertDiv.text('You are already member of the team that is working on the task');
+					that.show(m, 'warning', 'You are already member of the team that is working on the task');
 				}
 				else {
-					alertDiv.addClass('alert alert-danger');
-					alertDiv.text('An unknown error "' + xhr.status + '" occurred while trying to join the task');
+					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to join the task');
 				}
 			}
 		});
@@ -179,25 +179,24 @@ TaskManagement.prototype = {
 	
 	editTask: function(e)
 	{
-		var url = $(e.target).attr('action');
+		var form = $(e.target);
+		var url = form.attr('action');
 
 		that = this;
 		
 		$.ajax({
 			url: url,
 			method: 'PUT',
-			data: $('#editTaskModal form').serialize(),
+			data: form.serialize(),
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
+				m = $('#editTaskModal');
 				if (xhr.status === 202) {
+					m.modal('hide');
 					that.listTasks();
-					$('#editTaskModal').modal('hide');
 				}
 				else {
-					alertDiv = $('#editTaskModal div.alert');
-					alertDiv.removeClass();
-					alertDiv.addClass('alert alert-danger');
-					alertDiv.text('An unknown error "' + xhr.status + '" occurred while trying to edit the task');
+					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to edit the task');
 				}
 			}
 		});
@@ -218,16 +217,13 @@ TaskManagement.prototype = {
 			method: 'DELETE',
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
-				alertDiv = $('#tasks-alert');
-				alertDiv.removeClass();
+				m = $('#content');
 				if (xhr.status === 200) {
-					alertDiv.addClass('alert alert-success');
-					alertDiv.text('You successfully deleted the task');
+					that.show(m, 'success', 'You successfully deleted the task');
 					that.listTasks();
 				}
 				else {
-					alertDiv.addClass('alert alert-danger');
-					alertDiv.text('An unknown error "' + xhr.status + '" occurred while trying to delete the task');
+					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to delete the task');
 				}
 			}
 		});
@@ -244,20 +240,16 @@ TaskManagement.prototype = {
             data:{action:'accept'},
             dataType: 'json',
             complete: function(xhr, textStatus) {
-				alertDiv = $('#tasks-alert');
-				alertDiv.removeClass();
+				m = $('#content');
 				if (xhr.status === 200) {
-					alertDiv.addClass('alert alert-success');
-					alertDiv.text('You have successfully accepted the task');
+					that.show(m, 'success', 'You have successfully accepted the task');
 					that.listTasks();
 				}
 				else if (xhr.status === 204) {
-					alertDiv.addClass('alert alert-warning');
-					alertDiv.text('The task is already accepted');
+					that.show(m, 'warning', 'The task is already accepted');
 				}
 				else {
-					alertDiv.addClass('alert alert-danger');
-					alertDiv.text('An unknown error "' + xhr.status + '" occurred while trying to acceot the task');
+					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to acceot the task');
 				}
             }
         });
@@ -274,20 +266,16 @@ TaskManagement.prototype = {
             data:{action:'complete'},
             dataType: 'json',
             complete: function(xhr, textStatus) {
-				alertDiv = $('#tasks-alert');
-				alertDiv.removeClass();
+				m = $('#content');
 				if (xhr.status === 200) {
-					alertDiv.addClass('alert alert-success');
-					alertDiv.text('You have successfully completed the task');
+					that.show(m, 'success', 'You have successfully completed the task');
 					that.listTasks();
 				}
 				else if (xhr.status === 204) {
-					alertDiv.addClass('alert alert-warning');
-					alertDiv.text('The task is already completed');
+					that.show(m, 'warning', 'The task is already completed');
 				}
 				else {
-					alertDiv.addClass('alert alert-danger');
-					alertDiv.text('An unknown error "' + xhr.status + '" occurred while trying to complete the task');
+					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to complete the task');
 				}
             }
         });
@@ -304,27 +292,23 @@ TaskManagement.prototype = {
             data:{action:'execute'},
             dataType: 'json',
             complete: function(xhr, textStatus) {
-				alertDiv = $('#tasks-alert');
-				alertDiv.removeClass();
+				m = $('#content');
 				if (xhr.status === 200) {
-					alertDiv.addClass('alert alert-success');
-					alertDiv.text('You have successfully put in execution the task');
+					that.show(m, 'success', 'You have successfully put in execution the task');
 					that.listTasks();
 				}
 				else if (xhr.status === 204) {
-					alertDiv.addClass('alert alert-warning');
-					alertDiv.text('The task is already in execution');
+					that.show(m, 'warning', 'The task is already in execution');
 				}
 				else {
-					alertDiv.addClass('alert alert-danger');
-					alertDiv.text('An unknown error "' + xhr.status + '" occurred while trying to execute the task');
+					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to execute the task');
 				}
             }
         });
     },
 
     listTasks: function()
-	{
+	{    	
 		$.ajax({
 			url: '/task-management/tasks',
 			method: 'GET',
@@ -432,15 +416,13 @@ TaskManagement.prototype = {
 			data: $('#createTaskModal form').serialize(),
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
+				m = $('#createTaskModal');
 				if (xhr.status === 201) {
+					m.modal('hide');
 					that.listTasks();
-					$('#createTaskModal').modal('hide');
 				}
 				else {
-					alertDiv = $('#createTaskModal div.alert');
-					alertDiv.removeClass();
-					alertDiv.addClass('alert alert-danger');
-					alertDiv.text('An unknown error "' + xhr.status + '" occurred while trying to create the task');
+					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to create the task');
 				}
 			}
 		});
@@ -459,22 +441,29 @@ TaskManagement.prototype = {
 			data: {value:credits},
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
+				m = $('#estimateTaskModal');
 				if (xhr.status === 201) {
+					m.modal('hide');
 					that.listTasks();
-					$('#estimateTaskModal').modal('hide');
 				} else {
-					alertDiv = $('#estimateTaskModal div.alert');
-					alertDiv.removeClass();
-					alertDiv.addClass('alert alert-danger');
-					alertDiv.text('An unknown error "' + xhr.status + '" occurred while trying to estimate the task');
+					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to estimate the task');
 				}
 			}
 		});
+	},
+	
+	show: function(container, level, message) {
+		alertDiv = container.find('div.alert');
+		alertDiv.removeClass();
+		alertDiv.addClass('alert alert-' + level);
+		alertDiv.text(message);
+		alertDiv.show();
 	}
 	
 };
 
 $().ready(function(e){
+	$('#content div.alert').hide();
 	collaboration = new TaskManagement();
 	collaboration.listTasks();
 });

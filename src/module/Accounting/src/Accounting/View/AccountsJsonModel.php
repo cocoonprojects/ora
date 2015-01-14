@@ -7,14 +7,8 @@ use Ora\ReadModel\Account;
 use Ora\ReadModel\OrganizationAccount;
 use Zend\Mvc\Controller\Plugin\Url;
 
-class AccountsJsonModel extends JsonModel
+class AccountsJsonModel extends StatementJsonModel
 {
-	private $url;
-	
-	public function __construct(Url $url) {
-		$this->url = $url;	
-	} 
-	
 	public function serialize()
 	{
 		$resource = $this->getVariable('resource');
@@ -30,15 +24,16 @@ class AccountsJsonModel extends JsonModel
 	}
 	
 	private function serializeOne(Account $account) {
-		$rv = array(
-			'createdAt' => date_format($account->getCreatedAt(), 'c'),
-			'balance' => array('value' => $account->getBalance()->getValue(),
-								'date' => date_format($account->getBalance()->getDate(), 'c'),
-			),
-		);
+		$rv = $this->serializeBalance($account);
+		$rv['createdAt'] = date_format($account->getCreatedAt(), 'c');
 		if($account instanceof OrganizationAccount) {
-			$rv['organization'] = $account->getOrganization()->getName(); 
+			$rv['organization'] = $account->getOrganization()->getName();
 		}
+		$rv = array_merge($rv, $this->serializeLinks($account));
+		return $rv;
+	}
+	
+	protected function serializeLinks($account) {
 		$rv['_links']['self'] = $this->url->fromRoute('accounts', ['id' => $account->getId()]);
 		if($this->isAllowed('statement', $account)) { 
 			$rv['_links']['statement'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'statement']);
@@ -49,23 +44,4 @@ class AccountsJsonModel extends JsonModel
 		return $rv;
 	}
 	
-	private function isAllowed($action, Account $account = null) {
-    	if(is_null($account)) {
-    		return true; // placeholder
-    	}
-    	switch ($action) {
-    		case 'statement':
-    			if($account->getTransactions()->isEmpty()) {
-    				return false;
-    			}
-    			return true;
-    		case 'deposit':
-    			if($account instanceof OrganizationAccount) {
-    				return true;
-    			}
-    			return false;
-    		default:
-    			return false;
-    	}
-	}
 }
