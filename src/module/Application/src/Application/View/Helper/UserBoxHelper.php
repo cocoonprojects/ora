@@ -16,12 +16,10 @@ class UserBoxHelper extends AbstractHelper implements ServiceLocatorAwareInterfa
 	public function __invoke()
 	{
 		$authService = $this->getServiceLocator()->get('Zend\Authentication\AuthenticationService');
-		$rv = '<ul class="nav navbar-nav navbar-right">';
 		if($authService->hasIdentity())
 		{
 			$identity = $authService->getIdentity()['user'];
 			
-			$rv .= '<li><p class="nav navbar-text">'.$identity->getEmail().'</p></li>';
 // 			$rv .= '<li class="dropdown">
 // 						<button class="btn btn-default dropdown-toggle" type="button" id="userDropdownMenu" data-toggle="dropdown" aria-expanded="true">'.$identity->getFirstname().' '.$identity->getLastname().'
 // 								<span class="caret"></span>
@@ -33,13 +31,13 @@ class UserBoxHelper extends AbstractHelper implements ServiceLocatorAwareInterfa
 // 							<li role="presentation"><a role="menuitem" tabindex="-1" href="#">Separated link</a></li>
 // 						</ul>
 // 					</li>';
-			$rv .= '<li><a class="" href="'.$this->getView()->basePath().'/auth/logout">Logout</a></li>';
+			$rv = '<ul class="nav navbar-nav navbar-right"><li><a href="'.$this->getView()->basePath().'/auth/logout">Logout</a></li></ul>';
+			$rv .= '<p class="nav navbar-text navbar-right">'.$identity->getEmail().'</p>';
 		}
 		else 
 		{
-			$rv .= '<li><a href="#" data-toggle="modal" data-target="#loginModal" class="">Sign in</a></li>';
+			$rv = '<ul class="nav navbar-nav navbar-right"><li><a href="#" data-toggle="modal" data-target="#loginModal">Sign in</a></li></ul>';
 		}
-		$rv .= '</ul>';
 		return $rv;
 	}	
 	
