@@ -11,9 +11,9 @@ Accounting.prototype = {
 		{
 			var that = this;
 
-			$("body").on("click", "li[role='presentation'] a", function(e){
+			$("body").on("click", "#accounts li[role='presentation'] a", function(e){
 				e.preventDefault();
-				$("li[role='presentation']").removeClass('active');
+				$("#accounts li[role='presentation']").removeClass('active');
 				li = $(this).parent();
 				li.attr('class', 'active');
 				that.listTransactions(this.href);

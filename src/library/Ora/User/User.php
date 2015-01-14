@@ -41,7 +41,7 @@ class User extends EditableEntity
 	private $status;
 	
 	/**
-	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\OrganizationMembership", mappedBy="member")
+	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\OrganizationMembership", mappedBy="member", fetch="LAZY")
 	 * @var ArrayCollection
 	 */
 	private $memberships;

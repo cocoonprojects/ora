@@ -21,7 +21,18 @@ class UserBoxHelper extends AbstractHelper implements ServiceLocatorAwareInterfa
 		{
 			$identity = $authService->getIdentity()['user'];
 			
-			$rv .= '<li><a href="#" class="navbar-link">'.$identity->getFirstname().' '.$identity->getLastname().'</a></li>';
+			$rv .= '<li><p class="navbar-text">'.$identity->getEmail().'</p></li>';
+// 			$rv .= '<li class="dropdown">
+// 						<button class="btn btn-default dropdown-toggle" type="button" id="userDropdownMenu" data-toggle="dropdown" aria-expanded="true">'.$identity->getFirstname().' '.$identity->getLastname().'
+// 								<span class="caret"></span>
+// 						</button>
+// 						<ul class="dropdown-menu" role="menu" aria-labelledby="userDropdownMenu">
+// 							<li role="presentation">'.$identity->getEmail().'</li>
+// 							<li role="presentation"><a role="menuitem" tabindex="-1" href="#">Edit Profile</a></li>
+// 							<li role="presentation"><a role="menuitem" tabindex="-1" href="#">Something else here</a></li>
+// 							<li role="presentation"><a role="menuitem" tabindex="-1" href="#">Separated link</a></li>
+// 						</ul>
+// 					</li>';
 			$rv .= '<li><a class="" href="'.$this->getView()->basePath().'/auth/logout">Logout</a></li>';
 		}
 		else 
