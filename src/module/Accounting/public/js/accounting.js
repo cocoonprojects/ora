@@ -119,11 +119,11 @@ Accounting.prototype = {
 			
 			$.each(json.transactions, function(key, transaction) {
 				transactionDate = new Date(Date.parse(transaction.date));
-				if(key == 0) { top.append(transaction.balance); }
+				if(key == 0) { top.text(transaction.balance); }
 				cssClass = transaction.type == 'Deposit' ? 'text-success' : '';
 				c.append('<tr><td>' + transactionDate.toLocaleString() + '</td><td>' + transaction.description + '</td><td>' + transaction.type + '</td><td class=' + cssClass + '>' + transaction.amount + '</td></tr>');
 				bottom.empty();
-				bottom.append(transaction.balance);
+				bottom.text(transaction.balance);
 			});
 			if(json.transactions.length == 0) {
 				c.append('<tr><td colspan="4">No transactions in your history</td></tr>');
