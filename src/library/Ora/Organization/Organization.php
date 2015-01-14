@@ -13,7 +13,7 @@ class Organization extends DomainEntity implements \Serializable
 	 * 
 	 * @var string
 	 */
-	private $subject;
+	private $name;
 		
 	
 	public function __construct(Uuid $id, User $createdBy, \DateTime $createdAt = null) 
@@ -23,19 +23,19 @@ class Organization extends DomainEntity implements \Serializable
 		$this->createdBy = $createdBy;
 	}
 	
-	public function getSubject() {
-		return $this->subject;
+	public function getName() {
+		return $this->name;
 	}
 	
-	public function setSubject($subject) {
-		$this->subject = $subject;
+	public function setName($name) {
+		$this->name = $name;
 	}
 
 	public function serialize()
 	{
 		$data = array(
 			'id' => $this->id->toString(),
-			'subject' => $this->subject,
+			'name' => $this->name,
 		);
 	    return serialize($data); 
 	}
@@ -44,7 +44,7 @@ class Organization extends DomainEntity implements \Serializable
 	{
 	    $data = unserialize($encodedData);
 	    $this->id = Uuid::fromString($data['id']);
-	    $this->subject = $data['subject'];
+	    $this->name = $data['name'];
 	}
 	
 }

@@ -7,13 +7,17 @@ use Ora\ReadModel\Account;
 use Ora\ReadModel\OrganizationAccount;
 use Zend\Mvc\Controller\Plugin\Url;
 use Ora\ReadModel\AccountTransaction;
+use Ora\User\User;
 
 class StatementJsonModel extends JsonModel
 {
 	protected $url;
 	
-	public function __construct(Url $url) {
-		$this->url = $url;	
+	protected $user;
+	
+	public function __construct(Url $url, User $user) {
+		$this->url = $url;
+		$this->user = $user;
 	} 
 	
 	public function serialize()
@@ -72,7 +76,19 @@ class StatementJsonModel extends JsonModel
     	}
     	switch ($action) {
     		case 'statement':
-    			return true;
+    			$user = $this->user;
+    			if($account instanceof OrganizationAccount) {
+    				$organization = $account->getOrganization();
+    				$memberships = $user->getOrganizationMemberships();
+    				if($memberships->exists(function($key, $value) use ($organization) {
+    					return $value->getOrganization()->getId() == $organization->getId();
+    				})) {
+    					return true;
+    				}
+    			}
+    			return $account->getHolders()->exists(function($key, $value) use ($user) {
+    				return $value->getId() == $user->getId();
+    			});
     		case 'deposit':
     			if($account instanceof OrganizationAccount) {
     				return true;

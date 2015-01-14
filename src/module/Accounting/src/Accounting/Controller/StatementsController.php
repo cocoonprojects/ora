@@ -26,7 +26,8 @@ class StatementsController extends AbstractHATEOASRestfulController
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-		$viewModel = new StatementJsonModel($this->url());
+		$identity = $this->identity()['user'];
+		$viewModel = new StatementJsonModel($this->url(), $identity);
 		$viewModel->setVariable('resource', $account);
 		return $viewModel;
 	}

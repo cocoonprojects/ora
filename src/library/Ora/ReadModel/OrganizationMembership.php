@@ -22,7 +22,7 @@ class OrganizationMembership
 			
 	/**
 	 * @ORM\Id
-	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+	 * @ORM\ManyToOne(targetEntity="Ora\User\User", inversedBy="memberships")
      * @ORM\JoinColumn(name="member_id", referencedColumnName="id", onDelete="CASCADE")
 	 */
 	protected $member;

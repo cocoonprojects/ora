@@ -28,7 +28,7 @@ class Account extends EditableEntity {
 	 */
 	protected $holders;
 	/**
-	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\AccountTransaction", mappedBy="account", cascade="persist")
+	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\AccountTransaction", mappedBy="account", cascade="persist", fetch="LAZY")
 	 * @ORM\OrderBy({"createdAt" = "DESC"})
 	 * @var ArrayCollection
 	 */

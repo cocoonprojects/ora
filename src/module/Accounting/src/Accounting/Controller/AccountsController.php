@@ -31,7 +31,7 @@ class AccountsController extends AbstractHATEOASRestfulController
 		$identity = $this->identity()['user'];
 		$accounts = $this->accountService->findAccounts($identity);
 		
-		$viewModel = new AccountsJsonModel($this->url());
+		$viewModel = new AccountsJsonModel($this->url(), $identity);
 		$viewModel->setVariable('resource', $accounts);
 		return $viewModel;
 	}
@@ -43,7 +43,7 @@ class AccountsController extends AbstractHATEOASRestfulController
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-		$viewModel = new AccountsJsonModel($this->url());
+		$viewModel = new AccountsJsonModel($this->url(), $identity);
 		$viewModel->setVariable('resource', $rv);
 		return $viewModel;
 	}

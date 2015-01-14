@@ -5,13 +5,14 @@ namespace Ora\User;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
-use Ora\ReadModel\DomainEntity;
+use Ora\ReadModel\OrganizationMembership;
+use Ora\ReadModel\EditableEntity;
 
 /**
  * @ORM\Entity @ORM\Table(name="users")
  *
  */
-class User extends DomainEntity implements \Serializable
+class User extends EditableEntity
 {	   
 	const STATUS_ACTIVE = 1;
 	 
@@ -39,6 +40,19 @@ class User extends DomainEntity implements \Serializable
 	 */
 	private $status;
 	
+	/**
+	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\OrganizationMembership", mappedBy="member")
+	 * @var ArrayCollection
+	 */
+	private $memberships;
+	
+	public function __construct($id) {
+		$this->id = $id;
+		$this->memberships = new ArrayCollection();
+		var_dump('Passo nel costruttore di User con');
+		var_dump($this->memberships);
+	}
+	
 	public static function create(User $createdBy = null) {
 		$rv = new self(Uuid::uuid4()->toString());
 		$rv->status = self::STATUS_ACTIVE;
@@ -46,9 +60,6 @@ class User extends DomainEntity implements \Serializable
 		$rv->createdBy = $createdBy;
 		$rv->mostRecentEditAt = $rv->createdAt;
 		$rv->mostRecentEditBy = $rv->createdBy;
-		/**
-		 * TODO: implementare l'Event Sourcing
-		 */
 		return $rv;
 	}
 	
@@ -92,25 +103,8 @@ class User extends DomainEntity implements \Serializable
 		return $this->status;
 	}	
 	
-	public function serialize()
+	public function getOrganizationMemberships()
 	{
-		$data = array(
-			'id' => $this->id,
-			'email' => $this->email,
-			'firstname' => $this->firstname,
-			'lastname' => $this->lastname,
-			'status' => $this->status,
-		);
-	    return serialize($data); 
-	}
-	
-	public function unserialize($encodedData)
-	{
-	    $data = unserialize($encodedData);
-	    $this->id = $data['id'];
-	    $this->email = $data['email'];
-	    $this->firstname = $data['firstname'];
-	    $this->lastname = $data['lastname'];
-	    $this->status = $data['status'];
+		return $this->memberships;
 	}
 }

@@ -61,7 +61,6 @@ class Task extends EditableEntity
 	{
 		$this->id = $id;
 		$this->members = new ArrayCollection();
-	
 	}
 	
 	public function getStatus() {

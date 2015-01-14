@@ -69,7 +69,8 @@ Accounting.prototype = {
 				complete: function(xhr, textStatus) {
 					switch(xhr.status) {
 					case 201:
-						that.listAccounts();
+						href = $('li.active[role="presentation"] a').attr('href');
+						that.listTransactions(href);
 						$('#depositModal').modal('hide');
 						break;
 					case 400:
@@ -104,15 +105,17 @@ Accounting.prototype = {
 //			}
 			
 			balanceDate = new Date(Date.parse(json.balance.date));
-			container.find('p').html('<span class="text-primary">' + json.balance.value + ' credits</span> at ' + balanceDate.toLocaleString());
+			p = container.find('p');
+			p.html('<span class="text-primary">' + json.balance.value + ' credits</span> at ' + balanceDate.toLocaleString());
 			if(json._links.deposits != undefined) {
-				s += ' <a href="' + json._links.deposits + '" class="btn btn-default">Deposit</a>';
+				p.append(' <a href="#" data-href="' + json._links.deposits + '" class="btn btn-default" data-toggle="modal" data-target="#depositModal">Deposit</a>');
 			}
 
 			c = container.find('tbody').empty();
 			var top = $('#actual-balance');
-			top.empty();
+			top.text(0);
 			var bottom = $('#starting-balance');
+			bottom.text(0);
 			
 			$.each(json.transactions, function(key, transaction) {
 				transactionDate = new Date(Date.parse(transaction.date));
@@ -122,6 +125,9 @@ Accounting.prototype = {
 				bottom.empty();
 				bottom.append(transaction.balance);
 			});
+			if(json.transactions.length == 0) {
+				c.append('<tr><td colspan="4">No transactions in your history</td></tr>');
+			}
 			
 			container.show();
 		},
