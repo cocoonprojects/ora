@@ -39,7 +39,7 @@ class TasksController extends AbstractHATEOASRestfulController
     	$task = $this->taskService->findTask($id);
         if(is_null($task)) {
         	$this->response->setStatusCode(404);
-        	return response;
+        	return $this->response;
         }
     	$this->response->setStatusCode(200);
         $view = new TaskJsonModel($this->url(), $this->identity()['user']);
@@ -83,12 +83,10 @@ class TasksController extends AbstractHATEOASRestfulController
             return $this->response;
         }   
 		
-    	$loggedUser = $this->identity()['user'];
-    	
+    	$loggedUser = $this->identity()['user'];    	
     	if(is_null($loggedUser))
     	{
-    		// HTTP STATUS CODE 403: Forbidden (As a member organization)
-    		$this->response->setStatusCode(403);
+    		$this->response->setStatusCode(401);
     		return $this->response;
     	}
     	       

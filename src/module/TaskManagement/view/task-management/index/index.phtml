@@ -1,6 +1,6 @@
 <?php
 	$this->headScript()->appendFile($this->basePath() . '/js/task-management.js');
-	$this->headStyle()->appendStyle('span.task-member { display: block }');
+	$this->headStyle()->appendStyle('ul.task-details { list-style: none; margin:0; padding: 0; }');
 ?>
 <div style="position: fixed; bottom: 2em; right: 2em">
 	<a class="btn btn-primary btn-fab btn-raised mdi-content-add" data-toggle="modal" data-target="#createTaskModal" id="createTaskBtn"></a>

@@ -37,7 +37,8 @@ class TaskMember {
     private $role;
     
     /** 
-     * @ORM\OneToOne(targetEntity="Ora\ReadModel\Estimation", cascade={"persist"})
+     * @ORM\Embedded(class="Ora\ReadModel\Estimation")
+     * @var Estimation
      */
     private $estimation;
     
@@ -91,8 +92,11 @@ class TaskMember {
     	return !is_null($this->estimation);
     }
     
-    public function setEstimation($estimation){
-    	$this->estimation=$estimation;
+    public function setEstimation(Estimation $estimation) {
+    	$this->estimation = $estimation;
+    	$this->mostRecentEditAt = $estimation->getCreatedAt();
+    	$this->mostRecentEditBy = $this->member;
+    	return $this;
     }
 
 	public function getCreatedAt() {

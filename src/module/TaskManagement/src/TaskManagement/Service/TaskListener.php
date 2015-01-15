@@ -154,20 +154,17 @@ class TaskListener
 	}
 	
 	protected function onEstimationAdded(StreamEvent $event) {
-		//FIXME
 		$memberId = $event->payload()['by'];
-		$user = $this->entityManager->find('Ora\User\User', $memberId);
+		$user = $this->entityManager->find('Ora\\User\\User', $memberId);
 		if(is_null($user)) {
 			return;
 		}
 		$id = $event->metadata()['aggregate_id'];
-		$taskMember = $this->entityManager->find('Ora\\ReadModel\\TaskMember', array('task' => $id, 'member' => $memberId));
-		$estId = $event->payload()['id'];
+		$taskMember = $this->entityManager->find('Ora\\ReadModel\\TaskMember', array('task' => $id, 'member' => $user));
+		
 		$value = $event->payload()['value'];
-		$esti = new Estimation($estId, $value);
-		$esti->setCreatedAt($event->occurredOn());
-		$esti->setCreatedBy($user);
-		$taskMember->setEstimation($esti);
+
+		$taskMember->setEstimation(new Estimation($value, $event->occurredOn()));
 		$this->entityManager->persist($taskMember);
 	}
 	

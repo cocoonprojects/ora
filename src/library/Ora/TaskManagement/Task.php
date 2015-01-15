@@ -182,14 +182,12 @@ class Task extends DomainEntity implements \Serializable
 		if(!array_key_exists($member->getId(), $this->members)) {
         	throw new DomainEntityUnavailableException($this, $member); 
 		}
-		//this estimation already exists?
-        if (array_key_exists($member->getId(), $this->estimations)) {
-        	throw new DuplicatedDomainEntityException($this, $member); 
-        }
-		//record the estimation
-		$estId = Uuid::uuid4();
+// 		//this estimation already exists?
+//         if (array_key_exists($member->getId(), $this->estimations)) {
+//         	throw new DuplicatedDomainEntityException($this, $member); 
+//         }
+		// TODO: Estimation need an id?
         $this->recordThat(EstimationAdded::occur($this->id->toString(), array(
-        	'id'	 => $estId,
         	'by' => $member->getId(),
         	'value'  => $value,
         )));
@@ -264,7 +262,6 @@ class Task extends DomainEntity implements \Serializable
 	protected function whenStreamChanged(StreamChanged $event) {
 		$p = $event->payload();
 		$this->streamId = Uuid::fromString($p['streamId']);
-		
 	}
 	
 	protected function whenEstimationAdded(EstimationAdded $event) {

@@ -63,13 +63,13 @@ class TaskJsonModel extends JsonModel
 			$links['estimate'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'estimations']); 
 		}
 		if($this->isAllowed('execute', $task)) {
-			$links['execute'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transactions']); 
+			$links['execute'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']); 
 		}
 		if($this->isAllowed('complete', $task)) {
-			$links['complete'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transactions']); 
+			$links['complete'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']); 
 		}
 		if($this->isAllowed('accept', $task)) {
-			$links['accept'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transactions']); 
+			$links['accept'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']); 
 		}
 		if($this->isAllowed('assignShares', $task)) {
 			$links['assignShares'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'shares']); 
@@ -96,22 +96,26 @@ class TaskJsonModel extends JsonModel
 		$members = array();
 		foreach ($task->getMembers() as $tm) {
 			$member = $tm->getMember();
-			$members[] = [
+			$m = [
 	            'firstname' => $member->getFirstname(),
 	            'lastname' => $member->getLastname(),
 				'role' => $tm->getRole(),
-	            'estimation' => $this->getEstimation($tm),
 				'_links' => [
 					'self' => $this->url->fromRoute('users', ['id' => $member->getId()]),  
 				],
 			];
+            $m['estimation'] = $this->getEstimation($tm);
+			if($this->user->getId() != $member->getId() && isset($m['estimation'])) {
+				$m['estimation']['value'] = -2;
+			}
+			$members[] = $m;
 		}
 		return $members;
     }
     
     private function getEstimation(TaskMember $tm) {
     	$estimation = $tm->getEstimation();
-    	return is_null($estimation) ? null : [
+    	return is_null($estimation->getValue()) ? null : [
 			'value' => $estimation->getValue(),
     		'createdAt' => date_format($estimation->getCreatedAt(), 'c'),
     	];
@@ -152,10 +156,7 @@ class TaskJsonModel extends JsonModel
     	    	if(is_null($member)) {
     				return false;
     			}
-    			if(is_null($member->getEstimation())) {
-    				return true;
-    			}
-    			return false;
+    			return true;
     		case 'execute':
     			if(!in_array($task->getStatus(), [Task::STATUS_OPEN, Task::STATUS_COMPLETED])) {
     				return false;

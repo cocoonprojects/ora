@@ -23,7 +23,7 @@ Scenario: Requesting the list of tasks of a stream
 Scenario: Requesting a task that the first member evaluated 1500 credits and the second skipped
     Given that I am authenticated as "mark.rogers@ora.local" 
     And that I want to find a "Task"
-	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000108"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000107"
 	Then the response status code should be 200
 	And the response should be JSON
 	And the "estimation" property should be "1500"
@@ -32,16 +32,16 @@ Scenario: Requesting a task that the first member evaluated 1500 credits and the
 Scenario: Requesting a task with skipped estimation by the only member 
     Given that I am authenticated as "mark.rogers@ora.local" 
     And that I want to find a "Task"
-	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000104"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000106"
 	Then the response status code should be 200
 	And the response should be JSON
 	And the "estimation" property should be "-1"
 	And the "members" property size should be "1"
-	
+
 Scenario: Requesting a task estimated by only one member 
     Given that I am authenticated as "mark.rogers@ora.local" 
     And that I want to find a "Task"
-	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000107"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000108"
 	Then the response status code should be 200
 	And the response should be JSON
 	And the response shouldn't have a "estimation" property

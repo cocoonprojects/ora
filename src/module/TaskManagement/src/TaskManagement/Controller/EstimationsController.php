@@ -61,21 +61,25 @@ class EstimationsController extends AbstractHATEOASRestfulController {
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
+		if(is_null($this->identity())) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
 		$loggedUser = $this->identity()['user'];
 		$this->transaction()->begin();
 		try {
 			$task->addEstimation($value, $loggedUser);
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
-		} catch (DuplicatedDomainEntityException $e) {
-			$this->transaction()->rollback();
-			$this->response->setStatusCode(204);
+// 		} catch (DuplicatedDomainEntityException $e) {
+// 			$this->transaction()->rollback();
+// 			$this->response->setStatusCode(204);
 		} catch (DomainEntityUnavailableException $e) {
 			$this->transaction()->rollback();
-			$this->response->setStatusCode(401);// Unauthorized
+			$this->response->setStatusCode(403);	// Forbidden because not a member
 		} catch (IllegalStateException $e) {
 			$this->transaction()->rollback();
-			$this->response->setStatusCode(406);	// Not acceptable
+			$this->response->setStatusCode(412);	// Preconditions failed
 		}
 		return $this->response;
 	}

@@ -38,6 +38,12 @@ class AccountsController extends AbstractHATEOASRestfulController
 
 	public function get($id)
 	{
+		if(!$this->identity()) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+		
+		$identity = $this->identity()['user'];
 		$rv = $this->accountService->findAccount($id);
 		if(is_null($rv)) {
 			$this->response->setStatusCode(404);

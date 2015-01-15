@@ -131,14 +131,16 @@ class Task extends EditableEntity
     	$estimationsCount = 0;
     	$notEstimationCount = 0;
     	foreach ($this->members as $member) {
-    		$estimation = $member->getEstimation();
-    		if(!is_null($estimation)) {
-    			if($estimation->getValue() != Estimation::NOT_ESTIMATED) {
-    				$tot += $estimation->getValue();
-    				$estimationsCount++;
-    			} else {
-    				$notEstimationCount++;
-    			}
+    		$estimation = $member->getEstimation()->getValue();
+    		switch ($estimation) {
+    		case null:
+    			break;
+    		case Estimation::NOT_ESTIMATED:
+    			$notEstimationCount++;
+    			break;
+    		default:
+    			$tot += $estimation;
+    			$estimationsCount++;
     		}
     	}
     	if($notEstimationCount == count($this->members)) {

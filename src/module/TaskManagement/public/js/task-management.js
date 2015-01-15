@@ -80,6 +80,14 @@ TaskManagement.prototype = {
 			that.executeTask(e);
 		});
 
+		$("body").on("click", "#estimateTaskSkip", function(e) {
+			if($(this).prop('checked')) {
+			    $("#estimateTaskCredits").prop('disabled', true);
+			} else {
+				$("#estimateTaskCredits").prop('disabled', false);
+			}
+		});
+
 		$("#estimateTaskModal").on("show.bs.modal", function(e) {
 			var button = $(e.relatedTarget) // Button that triggered the modal
 			var url = button.data('href');
@@ -95,14 +103,6 @@ TaskManagement.prototype = {
 			$(this).find('div.alert').hide();			
 		});
 		
-		$('#estimateTaskSkip').on('click', function(e) {
-			if(this.is(':checked')) {
-			    $("#estimateTaskCredits").prop('disabled', true);
-			} else {
-				$("#estimateTaskCredits").prop('disabled', false);
-			}
-		});
-
 		//INSERT ESTIMATION
 		$("#estimateTaskModal").on("submit", "form", function(e){
 			e.preventDefault();
@@ -230,7 +230,7 @@ TaskManagement.prototype = {
 	},
 	
 	acceptTask: function(e){
-		var url = $(e.target).attr('href');
+		var url = $(e.target).data('href');
 		
 		that = this;
 		
@@ -256,7 +256,7 @@ TaskManagement.prototype = {
     },
 
 	completeTask: function(e){
-		var url = $(e.target).attr('href');
+		var url = $(e.target).data('href');
 		
 		that = this;
 		
@@ -264,7 +264,6 @@ TaskManagement.prototype = {
             url: url,
             method: 'POST',
             data:{action:'complete'},
-            dataType: 'json',
             complete: function(xhr, textStatus) {
 				m = $('#content');
 				if (xhr.status === 200) {
@@ -282,7 +281,7 @@ TaskManagement.prototype = {
     },
 
     executeTask: function(e){
-		var url = $(e.target).attr('href');
+		var url = $(e.target).data('href');
 		
 		that = this;
 		
@@ -323,7 +322,7 @@ TaskManagement.prototype = {
 		container.empty();
 		
 		if ($(json.tasks).length == 0) {
-			container.append("<tr><td colspan='6'>No available tasks found</td></tr>");
+			container.append("<p>No available tasks found</p>");
 		} else {
 			that = this;
 			if(json._links.create != undefined) {
@@ -337,8 +336,23 @@ TaskManagement.prototype = {
 				subject = task._links.self == undefined ? task.subject : '<a href="' + task._links.self + '">' + task.subject + '</a>';
 				createdAt = new Date(Date.parse(task.createdAt));
 				var actions = [];
-				if (task._links.edit != undefined) {
-					actions.push('<a data-href="' + task._links.edit + '" data-subject="' + task.subject + '" data-toggle="modal" data-target="#editTaskModal" class="btn btn-default">Edit</a>');
+				if (task._links.complete != undefined) {
+					actions.push('<button data-href="' + task._links.complete + '" data-action="completeTask" class="btn btn-default">Complete</button>');
+				}
+				if (task._links.accept != undefined) {
+					actions.push('<button data-href="' + task._links.accept + '" data-action="acceptTask" class="btn btn-default">Accept</button>');
+				}
+				if (task._links.execute != undefined) {
+					actions.push('<button data-href="' + task._links.execute + '" data-action="executeTask" class="btn btn-default">Ongoing</button>');
+				}
+				if (task._links.estimate != undefined) {
+					$e = '';
+					for(i = 0; i < task.members.length; i++) {
+						if(task.members[i].estimation != undefined && task.members[i].estimation.value != -2) {
+							$e = task.members[i].estimation.value;
+						}
+					};
+					actions.push('<a data-href="' + task._links.estimate + '" data-credits="' + $e + '" data-toggle="modal" data-target="#estimateTaskModal" class="btn btn-default">Estimate</a>');
 				}
 				if (task._links.join != undefined) {
 					actions.push('<a href="' + task._links.join + '" class="btn btn-default" data-action="joinTask">Join</a>');
@@ -346,28 +360,14 @@ TaskManagement.prototype = {
 				if (task._links.unjoin != undefined) {
 					actions.push('<a href="' + task._links.unjoin + '" data-action="unjoinTask" class="btn btn-default">Unjoin</a>');
 				}
-				if (task._links['delete'] != undefined) {
-					actions.push('<a href="' + task._links['delete'] + '" data-action="deleteTask" class="btn btn-default">Delete</a>');
-				}
-				if (task._links.execute != undefined) {
-					actions.push('<button data-action="executeTask" class="btn btn-default">Ongoing</button>');
-				}
-				if (task._links.estimate != undefined) {
-					s = '<a data-href="' + task._links.estimate + '"';;
-					if(task.estimation != null) {
-						s += ' data-credits="' + task.estimation + '"';
-					}
-					s += ' data-toggle="modal" data-target="#estimateTaskModal" class="btn btn-default">Estimate</a>';
-					actions.push(s);
-				}
-				if (task._links.complete != undefined) {
-					actions.push('<button data-action="completeTask" class="btn btn-default">Complete</button>');
-				}
-				if (task._links.accept != undefined) {
-					actions.push('<button data-action="acceptTask" class="btn btn-default">Accept</button>');
-				}
 				if (task._links.assignShares != undefined) {
 					actions.push('<button class="btn btn-default">Assign share</button>');
+				}
+				if (task._links.edit != undefined) {
+					actions.push('<a data-href="' + task._links.edit + '" data-subject="' + task.subject + '" data-toggle="modal" data-target="#editTaskModal" class="btn btn-default mdi-content-create"></a>');
+				}
+				if (task._links['delete'] != undefined) {
+					actions.push('<a href="' + task._links['delete'] + '" data-action="deleteTask" class="btn btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>');
 				}
 				switch(task.estimation) {
 				case undefined:
@@ -388,16 +388,16 @@ TaskManagement.prototype = {
 				container.append(
                     '<li class="panel panel-default">' +
 						'<div class="panel-heading">' + subject + '</div>' +
-						'<div class="panel-body"><ul><li>Created at ' + createdAt.toLocaleString() + "</li>" +
+						'<div class="panel-body"><ul class="task-details"><li>Created at ' + createdAt.toLocaleString() + "</li>" +
 						'<li>' + that.statuses[task.status] + '</li>' +
 						estimation +
-						"<li>Members: " + $.map(task.members, function(object, key) {
-							rv = '<span class="task-member">' + object.firstname + " " + object.lastname;
+						"<li>Members: <ul>" + $.map(task.members, function(object, key) {
+							rv = '<li><span class="task-member">' + object.firstname + " " + object.lastname;
 							if(object.estimation != null){
 								rv += ' <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>';
 							}
-							return rv + '</span>';
-						}).join('') + "</li>" + 
+							return rv + '</span></li>';
+						}).join('') + "</ul></li>" + 
 						a + '</div>' +
 					'</li>');
 			});
@@ -442,10 +442,15 @@ TaskManagement.prototype = {
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
 				m = $('#estimateTaskModal');
-				if (xhr.status === 201) {
+				switch (xhr.status) {
+				case 201:
 					m.modal('hide');
 					that.listTasks();
-				} else {
+					break;
+				case 400:
+					that.show(m, 'danger', 'You have to estimate the task or skip it');
+					break;
+				default:
 					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to estimate the task');
 				}
 			}
