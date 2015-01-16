@@ -149,7 +149,7 @@ class TaskJsonModel extends JsonModel
     			}
     			return true;
     		case 'estimate':
-    			if($task->getStatus() != Task::STATUS_ONGOING) {
+    			if(!in_array($task->getStatus(), [Task::STATUS_ONGOING, Task::STATUS_COMPLETED])) {
     				return false;
     			}
     			$member = $task->getMember($this->user);
@@ -197,7 +197,7 @@ class TaskJsonModel extends JsonModel
     			}
     			return false;
     		case 'assignShares':
-    			if($task->getStatus() != Task::STATUS_COMPLETED) {
+    			if($task->getStatus() != Task::STATUS_ACCEPTED) {
     				return false;
     			}
     			if(is_null($task->getMember($this->user))) {
