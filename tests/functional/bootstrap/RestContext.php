@@ -39,6 +39,10 @@ class RestContext extends RawMinkContext implements Context
     
 	private static $entityManager;
 	
+	private static $LOGIN_URL = '/auth/login/acceptance';
+	
+	private $json = null;
+	
 	/**
      *  @BeforeSuite
      */
@@ -183,7 +187,7 @@ class RestContext extends RawMinkContext implements Context
     {
     	$this->thatTheItsIs('email', $email);
     	$this->_restObjectMethod = 'post';
-    	$this->iRequest('/auth/acceptanceLogin');
+    	$this->iRequest(self::$LOGIN_URL);
     	if($this->_response->getStatusCode() != 200) {
     		throw new \Exception('Cannot authenticate '.$email.' user');
     	}
@@ -325,54 +329,69 @@ class RestContext extends RawMinkContext implements Context
     }
 
     /**
-     * @Then /^the response is JSON$/
+     * @Then /^the response should be JSON$/
      */
-    public function theResponseIsJson()
+    public function theResponseShouldBeJson()
     {
         $data = json_decode($this->_response->getBody(true));
-        
         if (empty($data)) {
             throw new Exception("Response was not JSON\n" . $this->_response);
         }
+        $this->json = $data;
     }
 
     /**
-     * @Given /^the response has a "([^"]*)" property$/
+     * @Then /^the response should have a "([^"]*)" property$/
      */
-    public function theResponseHasAProperty($propertyName)
+    public function theResponseShouldHaveAProperty($propertyName)
     {
-        $data = json_decode($this->_response->getBody(true));
-        if (! empty($data)) {
-            if (! isset($data->$propertyName)) {
-                throw new Exception("Property '" . $propertyName .
-                         "' is not set!\n");
-            }
-        } else {
-            throw new Exception(
-                    "Response was not JSON\n" . $this->_response->getBody(true));
-        }
+		if (! isset($this->json->$propertyName)) {
+			throw new Exception("Property '" . $propertyName ."' does not exist!\n");
+		}
     }
     /**
-     * @Then /^the "([^"]*)" property equals "([^"]*)"$/
+     * @Then /^the response shouldn't have a "([^"]*)" property$/
      */
-    public function thePropertyEquals($propertyName, $propertyValue)
+    public function theResponseShouldntHaveAProperty($propertyName)
     {
-        $data = json_decode($this->_response->getBody(true));
-        
-        if (! empty($data)) {
-            if (! isset($data->$propertyName)) {
-                throw new Exception("Property '" . $propertyName .
-                         "' is not set!\n");
-            }
-            if ($data->$propertyName !== $propertyValue) {
-                throw new \Exception(
-                        'Property value mismatch! (given: ' . $propertyValue .
-                                 ', match: ' . $data->$propertyName . ')');
-            }
-        } else {
-            throw new Exception(
-                    "Response was not JSON\n" . $this->_response->getBody(true));
-        }
+    	if (isset($this->json->$propertyName)) {
+    		throw new Exception("Property '" . $propertyName ."' exists!\n");
+    	}
+    }
+    
+    /**
+     * @Then /^the "([^"]*)" property should be "([^"]*)"$/
+     */
+    
+    public function thePropertyShoudlBe($propertyName, $value){
+    	$this->theResponseShouldHaveAProperty($propertyName);
+    	if($value == 'null' && !is_null($this->json->$propertyName)) {
+    		throw new Exception($propertyName . " property value is not ".$value.". It is ".$this->json->$propertyName);
+       	} elseif ($this->json->$propertyName != $value) {
+			throw new Exception($propertyName . " property value is not equal to ".$value.". It is ".$this->json->$propertyName); 
+		}
+    }
+    
+    /**
+     * @Then /^the "([^"]*)" property size should be "([^"]*)"$/
+     */
+    public function thePropertySizeShouldBe($propertyName, $value)
+    {
+    	$this->theResponseShouldHaveAProperty($propertyName);
+    	if (count($this->json->$propertyName) != $value) {
+			throw new \Exception('Property size isn\'t equal to ' . $value .'! It is ' . count($this->json->$propertyName));
+		}
+    }
+
+    /**
+     * @Then /^the "([^"]*)" property size should be greater or equal than "([^"]*)"$/
+     */
+    public function thePropertySizeShouldBeGreaterOrEqualThan($propertyName, $value)
+    {
+    	$this->theResponseShouldHaveAProperty($propertyName);
+   		if (count($this->json->$propertyName) < $value) {
+			throw new \Exception('Property size isn\'t greater or equal than '.$value .'! It is ' . count($this->json->$propertyName));
+		}
     }
 
     /**
@@ -422,7 +441,13 @@ class RestContext extends RawMinkContext implements Context
                              $this->_response->getStatusCode() . ')');
         }
     }
-
+    
+    /**
+     * @Then /^the header "([^"]*)" should be "([^"]*)"$/
+     */
+	public function theHeaderShouldBe($header, $value) {
+		
+	}
     /**
      * @Then /^echo last response$/
      */
@@ -436,49 +461,23 @@ class RestContext extends RawMinkContext implements Context
     
     
     /**
-     * @Given /^the array "([^"]*)" in JSON response has elements with "([^"]*)" property$/
+     * @Then /^the "([^"]*)" property contains "([^"]*)" property$/
      */
-    public function theJsonResponseHasElementsWithAProperty($arrayName, $propertyElement)
+    public function thePropertyContainsProperty($rootPropertyName, $propertyElement)
     {
-    
     	$data = json_decode($this->_response->getBody(true));
-    	if (! empty($data->$arrayName)) {
-    		foreach($data->$arrayName as $element){
-    			if (! isset($element->$propertyElement)) {
-    				throw new Exception("Property '" . $propertyElement . "' is not set in elements of {$arrayName} array!\n");
-    			}
+        if (empty($data)) {
+            throw new Exception("Response was not JSON\n" . $this->_response->getBody(true));
+        }
+        if (!isset($data->$rootPropertyName)) {
+			throw new Exception("Property '" . $rootPropertyName ."' is not set!\n");
+		}
+		foreach($data->$rootPropertyName as $element){
+    		if (! isset($element->$propertyElement)) {
+    			throw new Exception($element . " property does not contains '" . $propertyElement . "' property");
     		}
-    	} else {
-    		throw new Exception(
-    				"Response was not JSON\n" . $this->_response->getBody(true));
     	}
-    }
-    
-    /**
-     * @Then /^the value of property "([^"]*)" of the element with property "([^"]*)" with value "([^"]*)" in array "([^"]*)" should be "([^"]*)"$/
-     */
-    
-    public function theValueOfPropertyOfTheElementWithPropertyWithInArrayShoudlBe($propertyNameToCheck,$propertyIdName, $propertyIdValue,$arrayName,$resultProperty){
-    	$count =0;
-    	$data = json_decode($this->_response->getBody(true));
-    	if (! empty($data->$arrayName)) {
-    		foreach($data->$arrayName as $element){
-    			if ($element->$propertyIdName==$propertyIdValue) {
-    				$count++;
-    				if($element->$propertyNameToCheck!=$resultProperty)
-    					throw new Exception("Property ".$propertyNameToCheck." value that is ".$element->$propertyNameToCheck."is not equal to desired value ".$resultProperty); 
-    			}
-    		}
-    		if ($count==0)
-    			throw new Exception("Cannot Finde an element with ".$propertyIdName." in the array ".$arrayName);
-    		
-    	} else {
-    		throw new Exception(
-    				"Response was not JSON\n" . $this->_response->getBody(true));
-    	}
-    	
-    }
-    
+    }    
     
 	protected function getResponse(){
     	return $this->_response;

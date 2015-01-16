@@ -18,11 +18,11 @@ return array(
         'DoctrineORMModule',
     	'ProophEventStoreModule',
         'ZendOAuth2',
+    	'AssetManager',
     	'Accounting',
     	'TaskManagement',
     	'User',
         'Application',
-        'Kanbanize'
     ),
 
     // These are various options for the listeners attached to the ModuleManager
@@ -40,7 +40,7 @@ return array(
         // modules are loaded. These effectively override configuration
         // provided by modules themselves. Paths may use GLOB_BRACE notation.
         'config_glob_paths' => array(
-            __DIR__.'/../config/autoload/{,*.}{'.$env.',global}.php',
+            __DIR__.'/../config/autoload/{,*.}{global,'.$env.',local}.php',
         ),
     ),
 );

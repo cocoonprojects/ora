@@ -7,14 +7,14 @@ Feature: Login with SSO system
 Scenario: login for unknown user not authenticated in ORA Project
         Given I am not authenticated in ORA Project    
         When I go to "/" 
-        Then I should see "Login"        
+        Then I should see "Sign in"        
 
 @login        
 Scenario: login for unknown user not authenticated in ORA Project
         Given I am not authenticated in ORA Project
         When I go to "/"
-		Then I click on "Login"
-        And I should see popup "Effettua il login"        
+		Then I click on "Sign in"
+        And I should see popup "Sign in with"        
 	
        
 #Scenario: Guest select Provider for authenticatin login

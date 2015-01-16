@@ -22,7 +22,10 @@ class UserServiceFactory implements FactoryInterface
 			$eventStore = $serviceLocator->get('prooph.event_store');
 			$eventStoreStrategy = $serviceLocator->get('prooph.event_store.single_stream_strategy');
 			$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-	    	self::$instance = new EventSourcingUserService($eventStore, $eventStoreStrategy, $entityManager);            
+			$accountService = $serviceLocator->get('Accounting\CreditsAccountsService');
+	    	$e = new EventSourcingUserService($eventStore, $eventStoreStrategy, $entityManager);
+	    	$e->setAccountService($accountService);
+	    	self::$instance = $e;        
         }
 	    return self::$instance;
 	}

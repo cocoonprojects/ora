@@ -3,14 +3,13 @@
 namespace Ora\ReadModel;
 
 use Doctrine\ORM\Mapping AS ORM;
-use Ora\ReadModel\DomainEntity;
 
 /**
  * @ORM\Entity @ORM\Table(name="streams")
  * @author Giannotti Fabio
  *
  */
-class Stream extends DomainEntity
+class Stream extends EditableEntity
 {	    
 	/**
 	 * @ORM\Column(type="string")

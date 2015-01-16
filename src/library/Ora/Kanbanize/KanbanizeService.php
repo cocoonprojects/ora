@@ -2,6 +2,8 @@
 
 namespace Ora\Kanbanize;
 
+use Ora\Kanbanize\ReadModel\KanbanizeTask;
+
 interface KanbanizeService {
 
 	//public function moveTask(KanbanizeTask $kanbanizeTask, $status);
@@ -12,11 +14,9 @@ interface KanbanizeService {
 	
 	public function getTasks($boardId, $status = null);
 	
-	public function acceptTask(KanbanizeTask $kanbanizeTask);
+	public function acceptTask(KanbanizeTask $task);
 	
-	public function moveBackToOngoing(KanbanizeTask $kanbanizeTask);
-	
-	public function listAvailableKanbanizeTasks();
-	
-	public function moveToCompleted(KanbanizeTask $kanbanizeTask);
+	public function executeTask(KanbanizeTask $kanbanizeTask);
+		
+	public function completeTask(KanbanizeTask $task);
 }

@@ -5,13 +5,14 @@ namespace Ora\User;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
-use Ora\ReadModel\DomainEntity;
+use Ora\ReadModel\OrganizationMembership;
+use Ora\ReadModel\EditableEntity;
 
 /**
  * @ORM\Entity @ORM\Table(name="users")
  *
  */
-class User extends DomainEntity implements \Serializable
+class User extends EditableEntity
 {	   
 	const STATUS_ACTIVE = 1;
 	 
@@ -39,23 +40,39 @@ class User extends DomainEntity implements \Serializable
 	 */
 	private $status;
 	
+	/**
+	 * @ORM\Column(type="string")
+	 * @var string
+	 */
+	private $picture;
+	
+	/**
+	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\OrganizationMembership", mappedBy="member", fetch="LAZY")
+	 * @var ArrayCollection
+	 */
+	private $memberships;
+	
+	public function __construct($id) {
+		$this->id = $id;
+		$this->memberships = new ArrayCollection();
+		var_dump('Passo nel costruttore di User con');
+		var_dump($this->memberships);
+	}
+	
 	public static function create(User $createdBy = null) {
-		$rv = new self();
-		$rv->id = Uuid::uuid4()->toString();
+		$rv = new self(Uuid::uuid4()->toString());
 		$rv->status = self::STATUS_ACTIVE;
 		$rv->createdAt = new \DateTime();
 		$rv->createdBy = $createdBy;
 		$rv->mostRecentEditAt = $rv->createdAt;
 		$rv->mostRecentEditBy = $rv->createdBy;
-		/**
-		 * TODO: implementare l'Event Sourcing
-		 */
 		return $rv;
 	}
 	
 	public function setFirstname($firstname)
 	{
 		$this->firstname = $firstname;
+		return $this;
 	}
 	
 	public function getFirstname()
@@ -66,6 +83,7 @@ class User extends DomainEntity implements \Serializable
 	public function setLastname($lastname)
 	{
 		$this->lastname = $lastname;
+		return $this;
 	}
 	
 	public function getLastname()
@@ -76,6 +94,7 @@ class User extends DomainEntity implements \Serializable
 	public function setEmail($email)
 	{
 		$this->email = $email;
+		return $this;
 	}
 	
 	public function getEmail()
@@ -86,6 +105,7 @@ class User extends DomainEntity implements \Serializable
 	public function setStatus($status)
 	{
 		$this->status = $status;
+		return $this;
 	}
 	
 	public function getStatus()
@@ -93,25 +113,17 @@ class User extends DomainEntity implements \Serializable
 		return $this->status;
 	}	
 	
-	public function serialize()
+	public function getOrganizationMemberships()
 	{
-		$data = array(
-			'id' => $this->id,
-			'email' => $this->email,
-			'firstname' => $this->firstname,
-			'lastname' => $this->lastname,
-			'status' => $this->status,
-		);
-	    return serialize($data); 
+		return $this->memberships;
 	}
 	
-	public function unserialize($encodedData)
-	{
-	    $data = unserialize($encodedData);
-	    $this->id = $data['id'];
-	    $this->email = $data['email'];
-	    $this->firstname = $data['firstname'];
-	    $this->lastname = $data['lastname'];
-	    $this->status = $data['status'];
+	public function setPicture($url) {
+		$this->picture = $url;
+		return $this;
+	}
+	
+	public function getPicture() {
+		return $this->picture;
 	}
 }

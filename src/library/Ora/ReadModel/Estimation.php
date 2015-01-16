@@ -3,48 +3,38 @@
 namespace Ora\ReadModel;
 
 use Doctrine\ORM\Mapping AS ORM;
-use Doctrine\Common\Collections\ArrayCollection;
 
 /**
- * @ORM\Entity @ORM\Table(name="estimation")
+ * @ORM\Embeddable
  * @author Andrea Lupia
  */
 
-class Estimation extends DomainEntity{
+class Estimation {
 
 	CONST NOT_ESTIMATED = -1;
 	
 	/**
-	 * @ORM\OneToOne(targetEntity="Ora\ReadModel\TaskMember", mappedBy="estimation")
+	 * @ORM\Column(type="datetime", nullable=true)
+	 * @var DateTime
 	 */
-	private $taskMember;
+	protected $createdAt;
 	
-    /** @ORM\Column(type="decimal", precision=10, scale=2) */
+    /**
+     *  @ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
+	 */
     private $value;
     
-    public function __construct($value)
-    {
+    public function __construct($value, \DateTime $createdAt) {
     	$this->value = $value;
+    	$this->createdAt = $createdAt;
     }
     
     public function getValue() {
     	return $this->value;
     }
     
-    public function setValue($value) {
-    	$this->value = $value;
-    }
-    
-    public function getUser() {
-    	return $this->getTaskMember()->getMember();
-    }
-    
-    public function getTask() {
-    	return $this->getTaskMember()->getTask();
-    }
-    
-    public function getTaskMember(){
-    	return $this->taskMember;
-    }
-    
+	public function getCreatedAt() {
+		return $this->createdAt;
+	}
+	
 }

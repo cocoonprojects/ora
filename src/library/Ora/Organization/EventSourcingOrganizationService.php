@@ -11,6 +11,7 @@ use Prooph\EventStore\Aggregate\AggregateType;
 use Ora\IllegalStateException;
 use Ora\User\User;
 use Ora\ReadModel\Organization as ReadModelOrganization;
+use Ora\ReadModel\Organization;
 
 class EventSourcingOrganizationService extends AggregateRepository implements OrganizationService
 {
@@ -34,19 +35,14 @@ class EventSourcingOrganizationService extends AggregateRepository implements Or
 	    return $organization;
 	}
 	
-	public function findOrganizationUsers(User $user)
+	public function findUserOrganizationMembership(User $user)
 	{
-		$organization = array();
-		
-		$organizationUser = $this->entityManager
-		            			 ->getRepository('Ora\ReadModel\OrganizationUser')
-								  ->findBy(array('user' => $user));
-		
-		foreach($organizationUser as $relation)
-		{
-			$organization[] = $relation->getOrganization();
-		}
-		
-		return $organization;
+		return $this->entityManager->getRepository('Ora\ReadModel\OrganizationMembership')->findBy(array('member' => $user));
 	}	
+	
+	public function findOrganizationMembership(Organization $organization)
+	{
+		return $this->entityManager->getRepository('Ora\ReadModel\OrganizationMembership')->findBy(array('organization' => $organization));
+	}
+	
 }

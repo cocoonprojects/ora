@@ -28,13 +28,9 @@ class EventSourcingStreamService extends AggregateRepository implements StreamSe
 			return null;
 		}
 	}
-	
-	public function findOrganizationStreams(Organization $organization)
-	{
-		$streams = $this->entityManager
-						     ->getRepository('Ora\ReadModel\Stream')
-							 ->findBy(array("organization" => $organization));
 		
-		return $streams;		
+	public function findStream($id)
+	{
+		return $this->entityManager->find('Ora\ReadModel\Stream', $id);
 	}
 } 

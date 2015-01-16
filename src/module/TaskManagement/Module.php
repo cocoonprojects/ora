@@ -2,13 +2,14 @@
 
 namespace TaskManagement;
 
+use Zend\Mvc\MvcEvent;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use TaskManagement\Controller\MembersController;
 use TaskManagement\Controller\TasksController;
-use Zend\Mvc\MvcEvent;
-use Ora\TaskManagement\TaskListener;
 use TaskManagement\Controller\TransitionsController;
+use TaskManagement\Controller\EstimationsController;
+use TaskManagement\Service\TaskListener;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {    
@@ -20,7 +21,9 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 	
 		$entityManager = $serviceManager->get('doctrine.entitymanager.orm_default');
 		$eventStore = $serviceManager->get('prooph.event_store');
+		$kanbanizeService = $serviceManager->get('TaskManagement\KanbanizeService');
 		$taskListener = new TaskListener($entityManager);
+		$taskListener->setKanbanizeService($kanbanizeService);
 		$taskListener->attach($eventStore);
 	}
 		
@@ -53,25 +56,28 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             'factories' => array(
 	            'TaskManagement\Controller\Tasks' => function ($sm) {
 	            	$locator = $sm->getServiceLocator();
-	            	$authService = $locator->get('Application\Service\AuthenticationService');
 	            	$taskService = $locator->get('TaskManagement\TaskService');
 	            	$streamService = $locator->get('TaskManagement\StreamService');
-	            	$organizationService = $locator->get('User\OrganizationService');
-	            	$controller = new TasksController($taskService, $authService, $streamService, $organizationService);
+	            	$controller = new TasksController($taskService, $streamService);
 	            	return $controller;
 	            },
 	            'TaskManagement\Controller\Members' => function ($sm) {
             		$locator = $sm->getServiceLocator();
-            		$authService = $locator->get('Application\Service\AuthenticationService');
             		$taskService = $locator->get('TaskManagement\TaskService');
-            		$streamService = $locator->get('TaskManagement\StreamService');
-            		$controller = new MembersController($taskService, $authService, $streamService);
+            		$controller = new MembersController($taskService);
             		return $controller;
             	},
             	'TaskManagement\Controller\Transitions' => function ($sm) {
             		$locator = $sm->getServiceLocator();
+	            	$taskService = $locator->get('TaskManagement\TaskService');
             		$kanbanizeService = $locator->get('TaskManagement\KanbanizeService');
-            		$controller = new TransitionsController($kanbanizeService);
+            		$controller = new TransitionsController($taskService, $kanbanizeService);
+            		return $controller;
+            	},
+            	'TaskManagement\Controller\Estimations' => function ($sm) {
+            		$locator = $sm->getServiceLocator();
+            		$taskService = $locator->get('TaskManagement\TaskService');
+            		$controller = new EstimationsController($taskService);
             		return $controller;
             	}
             )

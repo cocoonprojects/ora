@@ -1,18 +1,71 @@
-<div class="container-fluid">
-	<h1>My Credits Accounts</h1>
-	<div class="row">
-		<div class="col-md-2">
-			Search: <input ng-model="query">
-		</div>
-		<div class="col-md-10">
-			<ul>
-				<li ng-repeat="account in accounts | filter:query">{{account.id}}</li>
-				<?php foreach ($this->accounts as $a) {?>
-				<li ng-repeat="account in accounts | filter:query">
-					<?php echo $a->getId() ?>
-					<span class=""><?php echo $this->currencyFormat($a->getBalance()->getValue(), $a->getCurrency()); ?></span>
-				</li><?php } ?>
-			</ul>
+<?php $this->headScript()->appendFile($this->basePath() . '/js/accounting.js'); ?>
+<div class="container">
+	<div class="page-header">
+		<h1>Credits</h1>
+	</div>
+	<ul id="accounts" class="nav nav-pills"></ul>
+	<div id="account">
+			<h4>Balance</h4>
+			<p></p>
+			<table class="table">
+				<caption><h4>Transactions</h4></caption>
+				<thead>
+					<tr>
+						<td colspan="3" style="text-align: right; font-weight: bold">Actual Balance</td>
+						<td id="actual-balance"></td>
+					</tr>
+					<tr>
+						<th>Date</th>
+						<th>Description</th>
+						<th>Ref.</th>
+						<th>Amount</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+				</tbody>
+				<tfoot>
+					<tr>
+						<td colspan="3" style="text-align: right; font-weight: bold">Initial balance</td>
+						<td id="starting-balance"></td>
+					</tr>
+				</tfoot>
+			</table>
+	</div>
+</div>
+<div class="modal fade" id="depositModal" tabindex="-1" role="dialog" aria-labelledby="depositModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form method="POST" action="">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="depositModalLabel">Deposit</h4>
+				</div>
+				<div class="modal-body">
+					<div class="alert" role="alert">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						  <span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="form-group">
+						<label for="amount">Credits</label>
+						<input type="number" name="amount" id="amount" class="form-control" required="required" min="0"/>
+					</div>
+					<div class="form-group">
+						<label for="description">Description</label>
+						<input type="text" name="description" id="description" class="form-control" placeholder="Describe where these credits come from"/>
+					</div>
+					</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-primary">Submit</button>
+				</div>
+			</form>
 		</div>
 	</div>
 </div>

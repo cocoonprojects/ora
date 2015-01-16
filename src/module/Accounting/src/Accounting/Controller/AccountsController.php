@@ -1,52 +1,55 @@
 <?php
 namespace Accounting\Controller;
 
-use Accounting\View\CreditsAccountJsonModel;
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Rhumsaa\Uuid\Uuid;
+use Zend\Authentication\AuthenticationServiceInterface;
+use Ora\Accounting\AccountService;
+use Accounting\View\AccountsJsonModel;
 
 class AccountsController extends AbstractHATEOASRestfulController
 {
-	protected static $collectionOptions = array ('GET','POST');
-	protected static $resourceOptions = array ('DELETE','GET');
-	protected $accountsService;
+	protected static $collectionOptions = ['GET'];
+	protected static $resourceOptions = ['GET'];
+	/**
+	 * 
+	 * @var AccountService
+	 */
+	protected $accountService;
+	
+	public function __construct(AccountService $accountService) {
+		$this->accountService = $accountService;
+	}
 	
 	// Gets my credits accounts list
 	public function getList()
 	{
-		$rv = $this->getCreditsAccountsService()->listAccounts();
-		$viewModel = new CreditsAccountJsonModel();
-		$viewModel->setVariable('resource', $rv);
-		$viewModel->setVariable('url', $this->url()->fromRoute('accounts'));
+		if(!$this->identity()) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+		
+		$identity = $this->identity()['user'];
+		$accounts = $this->accountService->findAccounts($identity);
+		
+		$viewModel = new AccountsJsonModel($this->url(), $identity);
+		$viewModel->setVariable('resource', $accounts);
 		return $viewModel;
 	}
 
-	// Creates my credits account for an organization if not already existing
-	public function create($data)
-	{
-		// if JSON Content-Type, returns decoded data; for
-		// application/x-www-form-urlencoded, returns array
-		$this->getCreditsAccountsService()->create();
-		$response = $this->getResponse();
-		$response->setStatusCode(201); // Created
-// 		$response->getHeaders()->addHeaderLine(
-// 				'Location',
-// 				$this->url()->fromRoute('accounts', array('id' => $resource->getId()))
-// 		);
-		return $response;
-	}
-	
-	// Deletes an existing credits account
-	public function delete($id)
-	{
-		
-	}
-	
-	// Get the Bank Statement
 	public function get($id)
 	{
-		$rv = $this->getCreditsAccountsService()->getAccount($id);
-		$viewModel = new CreditsAccountJsonModel();
+		if(!$this->identity()) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+		
+		$identity = $this->identity()['user'];
+		$rv = $this->accountService->findAccount($id);
+		if(is_null($rv)) {
+			$this->response->setStatusCode(404);
+			return $this->response;
+		}
+		$viewModel = new AccountsJsonModel($this->url(), $identity);
 		$viewModel->setVariable('resource', $rv);
 		return $viewModel;
 	}
@@ -59,15 +62,4 @@ class AccountsController extends AbstractHATEOASRestfulController
 		return self::$resourceOptions;
 	}
 	
-	protected function getJsonModelClass(){
-		return $this->jsonModelClass;
-	}
-	
-	protected function getCreditsAccountsService() {
-		if (!isset($this->accountsService)) {
-             $sm = $this->getServiceLocator();
-             $this->accountsService = $sm->get('Accounting\CreditsAccountsService');
-         }
-         return $this->accountsService;
-	}
 }

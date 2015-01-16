@@ -14,6 +14,8 @@ use Zend\Mvc\MvcEvent;
 use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
 use Doctrine\ORM\EntityManager;
 use Application\Controller\AuthController;
+use Zend\Log\Writer\Stream;
+use Zend\Log\Logger;
 
 class Module
 {
@@ -47,10 +49,10 @@ class Module
             'factories' => array(
             	'Application\Controller\Auth'  => function ($sm) {
             		$locator = $sm->getServiceLocator();
-            		$providers = $locator->get('OAuth2\Providers');
-            		$authService = $locator->get('Application\Service\AuthenticationService');
+					$resolver = $locator->get('Application\Service\AdapterResolver');
+            		$authService = $locator->get('Zend\Authentication\AuthenticationService');
             		$userService = $locator->get('User\UserService');
-            		$controller = new AuthController($authService, $providers);
+            		$controller = new AuthController($authService, $resolver);
             		$controller->setUserService($userService);
             		return $controller;
             	},
@@ -58,21 +60,27 @@ class Module
         );        
     } 
     
+	public function getControllerPluginConfig()
+	{
+	    return array(
+	        'factories' => array(
+	            'transaction' => 'Application\Controller\Plugin\TransactionPluginFactory'
+	        ),
+	    );
+	}
+	
     public function getServiceConfig()
     {
         return array(
             'factories' => array(
-            	'Application\Service\AuthenticationService' => 'Application\Service\AuthenticationServiceFactory',
-            	'Zend\Log\Logger' => function($sm){
-            		
-	                $logger = new Zend\Log\Logger;
-	                $writer = new Zend\Log\Writer\Stream('./data/log/'.date('Y-m-d').'-error.log');
-	                 
-	                $logger->addWriter($writer);  
-	                
-	                return $logger;
-	            },
-	            'OAuth2\Providers' => 'Application\Service\OAuth2ProvidersFactory',
+            	'Zend\Authentication\AuthenticationService' => 'Application\Service\AuthenticationServiceFactory',
+	            'Application\Service\AdapterResolver' => 'Application\Service\OAuth2AdapterResolverFactory',
+            	'Zend\Log' => function ($sl) {
+            		$writer = new Stream('/vagrant/src/data/logs/application.log');
+            		$logger = new Logger();
+            		$logger->addWriter($writer);
+            		return $logger;
+            	}
             ),
         );
     }
@@ -80,10 +88,10 @@ class Module
     public function getViewHelperConfig()
     {
     	return array(
-    			'invokables' => array(
-    				'UserBoxHelper' => 'Application\View\Helper\UserBoxHelper',
-    				'LoginPopupHelper' => 'Application\View\Helper\LoginPopupHelper',
-    			),
+    		'invokables' => array(
+    			'UserBoxHelper' => 'Application\View\Helper\UserBoxHelper',
+    			'LoginPopupHelper' => 'Application\View\Helper\LoginPopupHelper',
+    		),
     	);
     }
         

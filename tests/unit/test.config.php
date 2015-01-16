@@ -11,7 +11,6 @@ return array(
     	'TaskManagement',
         'ZendOAuth2',
     	'User',
-    	'Kanbanize'
     ),
 
     'module_listener_options' => array(

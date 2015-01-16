@@ -15,30 +15,30 @@ class LoginPopupHelper extends AbstractHelper implements ServiceLocatorAwareInte
 	
 	public function __invoke()
 	{
-		$authService = $this->getServiceLocator()->get('Application\Service\AuthenticationService');
+		$authService = $this->getServiceLocator()->get('Zend\Authentication\AuthenticationService');
 		if(!$authService->hasIdentity())
 		{
-			$output = "<div id='popupLogin' class='modal fade'>
-					<div class='modal-dialog'>
-						<div class='modal-content'>
-							<div class='modal-header'>
-								<button type='button' class='close' data-dismiss='modal'>
-									<span aria-hidden='true'>&times;</span>
-									<span class='sr-only'>Close</span>
+			$output = '<div id="loginModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal">
+									<span aria-hidden="true">&times;</span>
+									<span class="sr-only">Close</span>
 								</button>
-								<h4 class='modal-title'>Effettua il login</h4>
+								<h4 class="modal-title">Sign in with</h4>
 							</div>
-							<div class='modal-body'>
-								<center>";
+							<div class="modal-body" style="text-align: center">';
 
-			$providers = $this->getServiceLocator()->get('OAuth2\Providers');
-			foreach($providers as $provider => $instance)
+			$adapterResolver = $this->getServiceLocator()->get('Application\Service\AdapterResolver');
+			$signin = array();
+			foreach($adapterResolver->getProviders() as $provider => $instance)
 			{
-				$output .=  "<a onclick=\"auth.openAuthWindow('{$instance->getUrl()}'); return false;\" class='btn btn-success btn-lg' href='#'>Login con {$provider}</a>&nbsp;";
+				$url = $instance->getUrl();
+				$signin[] = '<a class="btn btn-primary btn-lg" href="' . $url . '">' . $provider . '</a>';
 			}
-			
-			$output .=" </center>
-		              </div>
+			$output .= empty($signin) ? '' : implode(' ', $signin);
+			$output .="</div>
 		            </div><!-- /.modal-content -->
 		          </div><!-- /.modal-dialog -->
 		        </div><!-- /.modal -->";			
@@ -56,4 +56,5 @@ class LoginPopupHelper extends AbstractHelper implements ServiceLocatorAwareInte
 	public function getServiceLocator() {
 		return $this->serviceLocator;
 	}
+	
 }

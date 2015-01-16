@@ -1,11 +1,5 @@
 <?php
 return array(
-	'controllers' => array(
-		'invokables' => array(
-			'Accounting\Controller\Accounts' => 'Accounting\Controller\AccountsController',
-			'Accounting\Controller\Index' => 'Accounting\Controller\IndexController',
-		),
-	),
 	'router' => array(
 		'routes' => array(
             'accounting-home' => array(
@@ -21,12 +15,13 @@ return array(
 			'accounts' => array (
 				'type'    => 'segment',
 				'options' => array (
-					'route'       => '/accounting/accounts[/:id]',
+					'route'       => '/accounting/accounts[/:id][/:controller]',
 					'constraints' => array (
 						'id'     => '[0-9a-z\-]+',
 					),
 					'defaults'    => array (
-						'controller' => 'Accounting\Controller\Accounts'
+						'__NAMESPACE__' => 'Accounting\Controller',
+						'controller' => 'Accounts'
 					),
 				),
 			),
@@ -39,8 +34,12 @@ return array(
 		'template_path_stack' => array(
 			'accounting' => __DIR__ . '/../view',
 		),
-		'template_map' => array(
-			'accounting/layout' => __DIR__ . '/../view/layout/layout.phtml',
+	),
+	'asset_manager' => array(
+		'resolver_configs' => array(
+			'paths' => array(
+				'Accounting' => __DIR__ . '/../public',
+			),
 		),
 	),
 );

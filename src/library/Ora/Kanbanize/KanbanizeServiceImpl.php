@@ -2,16 +2,11 @@
 
 namespace Ora\Kanbanize;
 
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
-use Ora\Kanbanize\KanbanizeTask;
 use Ora\Kanbanize\KanbanizeAPI;
 use Ora\Kanbanize\KanbanizeService;
-use Ora\EventStore\EventStore;
-use Ora\EntitySerializer;
 use Ora\Kanbanize\Exception\OperationFailedException;
 use Ora\Kanbanize\Exception\IllegalRemoteStateException;
-use Ora\Kanbanize\Exception\AlreadyInDestinationException;
+use Ora\Kanbanize\ReadModel\KanbanizeTask;
 
 /**
  * Service Kanbanize
@@ -21,52 +16,29 @@ use Ora\Kanbanize\Exception\AlreadyInDestinationException;
  */
 class KanbanizeServiceImpl implements KanbanizeService 
 {
-	
-	/**
-	 * Event Manager
-	 *
-	 * @var \Zend\EventManager\EventManagerInterface
-	 */
-	private $eventManager;
-	
 	/**
 	 * Kanbanize API
 	 *
-	 * @var \Ora\Kanbanize\KanbanizeAPI
+	 * @var KanbanizeAPI
 	 */
 	private $kanbanize;
-	private $entityManager;
 	
 	/*
 	 * Constructs service
 	 */
-	public function __construct($entityManager, $apiKey, $url) {
-		$this->entityManager = $entityManager;
-		$this->kanbanize = new KanbanizeAPI ();
-		$this->kanbanize->setApiKey ( $apiKey );
-		$this->kanbanize->setUrl ( $url );
+	public function __construct(KanbanizeAPI $api) {
+		$this->kanbanize = $api;
 	}
 
 	private function moveTask(KanbanizeTask $kanbanizeTask, $status) {
-		$movedAt = new \DateTime();
-		
   		$boardId = $kanbanizeTask->getBoardId();
   		$taskId = $kanbanizeTask->getTaskId();
-  		$task = $this->kanbanize->getTaskDetails($boardId, $taskId);
-  		if(isset($task['Error'])) {
-  			throw new OperationFailedException($task["Error"]);
+  		$response = $this->kanbanize->moveTask($boardId, $taskId, $status);
+  		if($response != 1) {
+  			throw new OperationFailedException('Unable to move the task ' + $taskId + ' in board ' + $boardId + 'to the column ' + $status + ' because of ' + $response);
   		}
-  		else if($task['columnname'] == $status) {
-  			//Task already in this column, nothing to do
-  			throw new IllegalRemoteStateException("task already in the destination column");
-  		}
-  		else {
-  			$this->kanbanize->moveTask($boardId, $taskId, $status);
-  			
-  			//$kanbanizeTask->setStatus(KanbanizeTask::getMappedStatus($status));
-  			
-  			return 1;
-  		}
+  		
+  		return 1;
 	}
 
 	/**
@@ -126,75 +98,49 @@ class KanbanizeServiceImpl implements KanbanizeService
 		}
 	}
 
-	public function acceptTask(KanbanizeTask $kanbanizeTask) {
-		//Check if the task is already accepted
-		$boardId = $kanbanizeTask->getBoardId();
-		$taskId = $kanbanizeTask->getTaskId();
-		$task = $this->kanbanize->getTaskDetails($boardId, $taskId);
-  		if(isset($task['Error'])) {
-  			throw new OperationFailedException($task["Error"]);
+	public function acceptTask(KanbanizeTask $task) {
+		$info = $this->kanbanize->getTaskDetails($task->getBoardId(), $task->getTaskId());
+  		if(isset($info['Error'])) {
+  			throw new OperationFailedException($info["Error"]);
   		}
-		if ( $task['columnname'] == KanbanizeTask::COLUMN_ACCEPTED){
-			throw new AlreadyInDestinationException("Task is already in accepted column");
+		if ( $info['columnname'] == KanbanizeTask::COLUMN_ACCEPTED){
+			return;
 		}
-		if($task['columnname'] == KanbanizeTask::COLUMN_COMPLETED){
-			$this::moveTask($kanbanizeTask, KanbanizeTask::COLUMN_ACCEPTED);
+		if($info['columnname'] == KanbanizeTask::COLUMN_COMPLETED){
+			$this::moveTask($task, KanbanizeTask::COLUMN_ACCEPTED);
 		}else{
-			throw new IllegalRemoteStateException("Cannot move task in ongoing from "+$task["columnname"]);
+			throw new IllegalRemoteStateException("Cannot accpet a task which is " + $info["columnname"]);
 		}
-		
-		//TODO check if all team as evaluated the task
 	}
 
-	public function moveBackToOngoing(KanbanizeTask $kanbanizeTask) {
-		//Check if the task can be moved back to ongoing
-		$boardId = $kanbanizeTask->getBoardId();
-		$taskId = $kanbanizeTask->getTaskId();
-		$task = $this->kanbanize->getTaskDetails($boardId, $taskId);
-  		if(isset($task['Error'])) {
-  			throw new OperationFailedException($task["Error"]);
+	public function executeTask(KanbanizeTask $task) {
+		$info = $this->kanbanize->getTaskDetails($task->getBoardId(), $task->getTaskId());
+  		if(isset($info['Error'])) {
+  			throw new OperationFailedException($info["Error"]);
   		}
-  		if($task["columnname"]== KanbanizeTask::COLUMN_ONGOING){
-  			throw new AlreadyInDestinationException("Task is already in ongoing column");
+  		if($info["columnname"] == KanbanizeTask::COLUMN_ONGOING){
+  			return;
   		}
   		
-		if($task['columnname'] == KanbanizeTask::COLUMN_COMPLETED || $task['columnname'] == KanbanizeTask::COLUMN_OPEN){
-			$this::moveTask($kanbanizeTask, KanbanizeTask::COLUMN_ONGOING);
+		if($info['columnname'] == KanbanizeTask::COLUMN_COMPLETED || $info['columnname'] == KanbanizeTask::COLUMN_OPEN){
+			$this::moveTask($task, KanbanizeTask::COLUMN_ONGOING);
 		}else{
-			throw new IllegalRemoteStateException("Cannot move task in ongoing from "+$task["columnname"]);
+			throw new IllegalRemoteStateException("Cannot move task in ongoing from "+$info["columnname"]);
 		}
-		//TODO other controls to do?
 	}
 	
-	public function moveToCompleted(KanbanizeTask $kanbanizeTask) {
-		//Check if the task can be moved back to ongoing
-		$boardId = $kanbanizeTask->getBoardId();
-		$taskId = $kanbanizeTask->getTaskId();
-		$task = $this->kanbanize->getTaskDetails($boardId, $taskId);
-		if(isset($task['Error'])) {
-			throw new OperationFailedException($task["Error"]);
+	public function completeTask(KanbanizeTask $task) {
+		$info = $this->kanbanize->getTaskDetails($task->getBoardId(), $task->getTaskId());
+		if(isset($info['Error'])) {
+			throw new OperationFailedException($info["Error"]);
 		}
-		if($task["columnname"]== KanbanizeTask::COLUMN_COMPLETED){
-			throw new AlreadyInDestinationException("Task is already in completed column");
+		if($info["columnname"] == KanbanizeTask::COLUMN_COMPLETED){
+			return;
 		}
-	
-		if($task['columnname'] == KanbanizeTask::COLUMN_ONGOING || $task['columnname'] == KanbanizeTask::COLUMN_ACCEPTED){
-			$this::moveTask($kanbanizeTask, KanbanizeTask::COLUMN_COMPLETED);
-		}else{
-			throw new IllegalRemoteStateException("Cannot move task in completed from "+$task["columnname"]);
+		if (in_array($info['columnname'], [KanbanizeTask::COLUMN_ONGOING, KanbanizeTask::COLUMN_ACCEPTED])) {
+			$this->moveTask($task, KanbanizeTask::COLUMN_COMPLETED);
+		} else {
+			throw new IllegalRemoteStateException("Cannot move task in completed from "+$info["columnname"]);
 		}
-		//TODO other controls to do?
 	}
-	
-	
-
-	/**
-	 * Get the list of all available tasks
-	 */
-	public function listAvailableKanbanizeTasks()
-	{
-		$repository = $this->entityManager->getRepository('Ora\Kanbanize\KanbanizeTask');
-		return $repository->findAll();
-	}
-	
 }

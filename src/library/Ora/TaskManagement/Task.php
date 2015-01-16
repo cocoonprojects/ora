@@ -9,6 +9,8 @@ use Ora\StreamManagement\Stream;
 use Ora\User\User;
 use Ora\DomainEntity;
 use Rhumsaa\Uuid\Uuid;
+use Ora\ReadModel\Estimation;
+use Ora\ReadModel\TaskMember;
 
 /**
  * 
@@ -48,12 +50,12 @@ class Task extends DomainEntity implements \Serializable
 	/**
 	 */
 	private $members = array();
+
+	/**
+	 */
+	private $estimations = array();
 	
-	public function getId() {
-		return $this->id;
-	}
-	
-	public static function create(Stream $stream, $subject, User $createdBy) {
+	public static function create(Stream $stream, $subject, User $createdBy, array $options = null) {
 		$rv = new self();
 		$rv->id = Uuid::uuid4();
 		$rv->status = self::STATUS_ONGOING;
@@ -81,7 +83,20 @@ class Task extends DomainEntity implements \Serializable
 	    return $this->status;
 	}
 	
+	public function execute(User $completedBy) {
+		if(!in_array($this->status, [Task::STATUS_OPEN, Task::STATUS_COMPLETED])) {
+			throw new IllegalStateException('Cannot execute a task in '.$this->status.' state');
+		}
+		$this->recordThat(TaskOngoing::occur($this->id->toString(), array(
+				'prevStatus' => $this->getStatus(),
+				'by' => $completedBy->getId(),
+		)));
+	}
+	
 	public function complete(User $completedBy) {
+		if(!in_array($this->status, [Task::STATUS_ONGOING, Task::STATUS_ACCEPTED])) {
+			throw new IllegalStateException('Cannot complete a task in '.$this->status.' state');
+		}
 		$this->recordThat(TaskCompleted::occur($this->id->toString(), array(
 			'prevStatus' => $this->getStatus(),
 			'by' => $completedBy->getId(),
@@ -89,6 +104,9 @@ class Task extends DomainEntity implements \Serializable
 	}
 	
 	public function accept(User $acceptedBy) {
+		if($this->status != Task::STATUS_COMPLETED) {
+			throw new IllegalStateException('Cannot accept a task in '.$this->status.' state');
+		}
 		$this->recordThat(TaskAccepted::occur($this->id->toString(), array(
 			'prevStatus' => $this->getStatus(),
 			'by' => $acceptedBy->getId(),
@@ -100,8 +118,9 @@ class Task extends DomainEntity implements \Serializable
 	}
 	
 	public function setSubject($subject, User $updatedBy) {
+		$s = trim($subject);
 		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
-			'subject' => $subject,
+			'subject' => $s,
 			'by' => $updatedBy->getId(),
 		)));
 	}
@@ -155,8 +174,31 @@ class Task extends DomainEntity implements \Serializable
         )));
 	}
 	
+	public function addEstimation($value, User $member) {
+		if($this->status != self::STATUS_ONGOING) {
+			throw new IllegalStateException('Cannot estimate a task in the state '.$this->status.'.');
+		}
+		//check if the estimator is a task member
+		if(!array_key_exists($member->getId(), $this->members)) {
+        	throw new DomainEntityUnavailableException($this, $member); 
+		}
+// 		//this estimation already exists?
+//         if (array_key_exists($member->getId(), $this->estimations)) {
+//         	throw new DuplicatedDomainEntityException($this, $member); 
+//         }
+		// TODO: Estimation need an id?
+        $this->recordThat(EstimationAdded::occur($this->id->toString(), array(
+        	'by' => $member->getId(),
+        	'value'  => $value,
+        )));
+	}
+	
 	public function getMembers() {
 	    return $this->members;
+	}
+	
+	public function getEstimations() {
+		return $this->estimations;
 	}
 	
 	public function serialize()
@@ -181,6 +223,10 @@ class Task extends DomainEntity implements \Serializable
 	{
 		$this->id = Uuid::fromString($event->aggregateId());
 		$this->status = $event->payload()['status'];
+	}
+	
+	protected function whenTaskOngoing(TaskOngoing $event) {
+		$this->status = self::STATUS_ONGOING;
 	}
 	
 	protected function whenTaskCompleted(TaskCompleted $event) {
@@ -216,7 +262,12 @@ class Task extends DomainEntity implements \Serializable
 	protected function whenStreamChanged(StreamChanged $event) {
 		$p = $event->payload();
 		$this->streamId = Uuid::fromString($p['streamId']);
-		
+	}
+	
+	protected function whenEstimationAdded(EstimationAdded $event) {
+		$p = $event->payload();
+		$id = $p['by'];
+		$this->estimations[$id] = $p['value'];
 	}
 	
 }

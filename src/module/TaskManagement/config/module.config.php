@@ -10,7 +10,7 @@ return array(
             'tasks-home' => array(
                 'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => array(
-                    'route'    => '/task-management/',
+                    'route'    => '/task-management',
                     'defaults' => array(
                         'controller' => 'TaskManagement\Controller\Index',
                         'action'     => 'index',
@@ -32,47 +32,33 @@ return array(
             'tasks' => array(
                 'type' => 'Segment',
                 'options' => array(
-                    'route'    => '/task-management/tasks[/:id]',
+                    'route'    => '/task-management/tasks[/:id][/:controller]',
                     'constraints' => array(
                         'id' => '[0-9a-z\-]+'
                     ),
                     'defaults' => array(
-                        'controller' => 'TaskManagement\Controller\Tasks'
-                    ),
-                ),
-            ),
-            'members' => array(
-                'type' => 'Segment',
-                'options' => array(
-                    'route'    => '/task-management/tasks/:taskId/members',
-                    'constraints' => array(
-                        'taskId' => '[0-9a-z\-]+'
-                    ),
-                    'defaults' => array(
-                        'controller' => 'TaskManagement\Controller\Members'
-                    ),
-                ),
-            ),
-            'transitions' => array(
-        		'type'    => 'Segment',
-        		'options' => array(
-        			// Change this to something specific to your module
-        			'route'    => '/task-management/tasks/:id/transitions',
-        			'defaults' => array(
-        				// Change this value to reflect the namespace in which
-        				// the controllers for your module are found
         				'__NAMESPACE__' => 'TaskManagement\Controller',
-        				'controller'    => 'Transitions',
-        			),
-        		),
-        	),
+                    	'controller' => 'Tasks'
+                    ),
+                ),
+            ),
         ),
     ),
     
     'translator' => array(),
-    'view_manager' => array(
-        'strategies' => array(
-            'ViewJsonStrategy',
-        ),
-    )
+	'view_manager' => array(
+		'strategies' => array(
+			'ViewJsonStrategy',
+		),
+		'template_path_stack' => array(
+			'task-management' => __DIR__ . '/../view',
+		),
+	),
+	'asset_manager' => array(
+		'resolver_configs' => array(
+			'paths' => array(
+				'TaskManagement' => __DIR__ . '/../public',
+			),
+		),
+	),
 );
