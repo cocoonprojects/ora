@@ -61,7 +61,8 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('a')
 			->from('Ora\ReadModel\Account', 'a')
-			->where(':user MEMBER OF a.holders')
+			->leftJoin('Ora\ReadModel\OrganizationMembership', 'm', 'WITH', 'm.organization = a.organization')
+			->where($builder->expr()->orX(':user = m.member', ':user MEMBER OF a.holders'))
 			->setParameter('user', $holder)
 			->getQuery();
 		return $query->getResult();

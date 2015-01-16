@@ -77,23 +77,15 @@ class StatementJsonModel extends JsonModel
     	switch ($action) {
     		case 'statement':
     			$user = $this->user;
-    			if($account instanceof OrganizationAccount) {
-    				$organization = $account->getOrganization();
-    				$memberships = $user->getOrganizationMemberships();
-    				if($memberships->exists(function($key, $value) use ($organization) {
-    					return $value->getOrganization()->getId() == $organization->getId();
-    				})) {
-    					return true;
-    				}
-    			}
-    			return $account->getHolders()->exists(function($key, $value) use ($user) {
-    				return $value->getId() == $user->getId();
-    			});
-    		case 'deposit':
-    			if($account instanceof OrganizationAccount) {
+    			if($account instanceof OrganizationAccount && $this->user->isMemberOf($account->getOrganization())) {
     				return true;
     			}
-    			return false;
+    			return $account->isHeldBy($this->user);
+    		case 'deposit':
+    			if(!($account instanceof OrganizationAccount)) {
+    				return false;
+    			}
+    			return $account->isHeldBy($this->user);
     		default:
     			return false;
     	}

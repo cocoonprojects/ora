@@ -28,7 +28,7 @@ class AccountsController extends AbstractHATEOASRestfulController
 			return $this->response;
 		}
 		
-		$identity = $this->identity()['user'];
+		$identity = $this->loggedIdentity();
 		$accounts = $this->accountService->findAccounts($identity);
 		
 		$viewModel = new AccountsJsonModel($this->url(), $identity);

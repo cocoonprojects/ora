@@ -34,6 +34,13 @@ class Account extends EditableEntity {
 	 */
 	protected $transactions;
 	
+	/**
+	 * @ORM\OneToOne(targetEntity="Organization")
+	 * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", nullable=true)
+	 * @var Organization
+	 */
+	protected $organization;
+	
 	public function __construct($id, User $holder) {
 		parent::__construct($id);
 		$this->holders = new ArrayCollection();
@@ -63,4 +70,9 @@ class Account extends EditableEntity {
 		return $this;
 	}
 	
+	public function isHeldBy(User $user) {
+		return $this->holders->exists(function($key, $value) use ($user) {
+			return $user->equals($value);
+		});
+	}
 }

@@ -9,6 +9,7 @@ use Zend\Authentication\AuthenticationServiceInterface;
 use ZendExtension\Authentication\AdapterResolver;
 use ZendExtension\Authentication\OAuth2\InvalidTokenException;
 use Ora\User\UserService;
+use Zend\Session\Container;
 
 class AuthController extends AbstractActionController
 {
@@ -60,6 +61,8 @@ class AuthController extends AbstractActionController
 	public function logoutAction()
 	{
 		$this->authService->clearIdentity();
+		$sm = Container::getDefaultManager();
+		$sm->destroy();
 		return $this->redirect()->toRoute('home');
 	}
 	

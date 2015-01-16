@@ -6,16 +6,46 @@ use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
 use Ora\ReadModel\OrganizationMembership;
-use Ora\ReadModel\EditableEntity;
+use Ora\ReadModel\Organization;
 
 /**
  * @ORM\Entity @ORM\Table(name="users")
  *
  */
-class User extends EditableEntity
+class User
 {	   
 	const STATUS_ACTIVE = 1;
 	 
+	/**
+	 * @ORM\Id @ORM\Column(type="string") 
+	 * @var string
+	 */
+	protected $id;
+	
+	/**
+	 * @ORM\Column(type="datetime")
+	 * @var DateTime
+	 */
+	protected $createdAt;
+	
+	/**
+	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+     * @ORM\JoinColumn(name="createdBy_id", referencedColumnName="id", nullable=TRUE)
+	 */
+	protected $createdBy;
+	
+    /**
+     * @ORM\Column(type="datetime")
+     * @var datetime
+     */
+    protected $mostRecentEditAt;
+    
+    /**
+     * @ORM\ManyToOne(targetEntity="Ora\User\User")
+     * @ORM\JoinColumn(name="mostRecentEditBy_id", referencedColumnName="id", nullable=TRUE)
+     */
+    protected $mostRecentEditBy;
+    
 	/**
 	 * @ORM\Column(type="string", length=100, nullable=TRUE)
 	 * @var string
@@ -47,26 +77,72 @@ class User extends EditableEntity
 	private $picture;
 	
 	/**
-	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\OrganizationMembership", mappedBy="member", fetch="LAZY")
+	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\OrganizationMembership", mappedBy="member")
 	 * @var ArrayCollection
 	 */
-	private $memberships;
+	protected $memberships;
 	
-	public function __construct($id) {
-		$this->id = $id;
+	private function __construct() {
 		$this->memberships = new ArrayCollection();
-		var_dump('Passo nel costruttore di User con');
-		var_dump($this->memberships);
 	}
 	
 	public static function create(User $createdBy = null) {
-		$rv = new self(Uuid::uuid4()->toString());
+		$rv = new self();
+		$rv->id = Uuid::uuid4()->toString();
 		$rv->status = self::STATUS_ACTIVE;
 		$rv->createdAt = new \DateTime();
 		$rv->createdBy = $createdBy;
 		$rv->mostRecentEditAt = $rv->createdAt;
 		$rv->mostRecentEditBy = $rv->createdBy;
 		return $rv;
+	}
+	
+	public function getId() {
+		return $this->id;
+	}
+	
+	public function getCreatedAt() {
+		return $this->createdAt;
+	}
+	
+	public function setCreatedAt(\DateTime $when) {
+		$this->createdAt = $when;
+		return $this->createdAt;
+	}
+	
+    public function getCreatedBy()
+    {
+        return $this->createdBy;
+    }
+    
+    public function setCreatedBy(User $user) {
+    	$this->createdBy = $user;
+    	return $this->createdBy;
+    }
+
+    public function getMostRecentEditAt() {
+        return $this->mostRecentEditAt;
+    }
+    
+	public function setMostRecentEditAt(\DateTime $when) {
+		$this->mostRecentEditAt = $when;
+		return $this->mostRecentEditAt;
+	}
+	
+    public function getMostRecentEditBy() {
+        return $this->mostRecentEditBy;
+    }
+    
+    public function setMostRecentEditBy(User $user) {
+    	$this->mostRecentEditBy = $user;
+    	return $this->mostRecentEditBy;
+    }
+
+    public function equals(User $object = null) {
+		if(is_null($object)) {
+			return false;
+		}
+		return $this->id == $object->getId();
 	}
 	
 	public function setFirstname($firstname)
@@ -125,5 +201,12 @@ class User extends EditableEntity
 	
 	public function getPicture() {
 		return $this->picture;
+	}
+	
+	public function isMemberOf(Organization $organization) {
+		$rv = $this->memberships->exists(function($key, $value) use ($organization) {
+			return $value->getOrganization()->equals($organization);
+		});
+		return $rv;
 	}
 }
