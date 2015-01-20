@@ -19,20 +19,12 @@ class UserBoxHelper extends AbstractHelper implements ServiceLocatorAwareInterfa
 		if($authService->hasIdentity())
 		{
 			$identity = $authService->getIdentity()['user'];
-			
-// 			$rv .= '<li class="dropdown">
-// 						<button class="btn btn-default dropdown-toggle" type="button" id="userDropdownMenu" data-toggle="dropdown" aria-expanded="true">'.$identity->getFirstname().' '.$identity->getLastname().'
-// 								<span class="caret"></span>
-// 						</button>
-// 						<ul class="dropdown-menu" role="menu" aria-labelledby="userDropdownMenu">
-// 							<li role="presentation">'.$identity->getEmail().'</li>
-// 							<li role="presentation"><a role="menuitem" tabindex="-1" href="#">Edit Profile</a></li>
-// 							<li role="presentation"><a role="menuitem" tabindex="-1" href="#">Something else here</a></li>
-// 							<li role="presentation"><a role="menuitem" tabindex="-1" href="#">Separated link</a></li>
-// 						</ul>
-// 					</li>';
-			$rv = '<ul class="nav navbar-nav navbar-right"><li><a href="'.$this->getView()->basePath().'/auth/logout">Logout</a></li></ul>';
-			$rv .= '<p class="nav navbar-text navbar-right" style="margin-top: 15px; margin-bottom:15px;"><img src="'.$identity->getPicture().'" alt="Avatar" style="width: 32px; height: 32px;" class="img-circle"> '.$identity->getEmail().'</p>';
+			$rv = '<ul class="nav navbar-nav navbar-right">
+					<li><a href="'.$this->getView()->basePath().'/auth/logout">Logout</a></li>
+					</ul>
+					<div class="pull-right navbar-text">
+					<img src="'.$identity->getPicture().'" alt="Avatar" style="max-width: 32px; max-height: 32px;" class="img-circle">
+					'.$identity->getEmail().'</div>';
 		}
 		else 
 		{

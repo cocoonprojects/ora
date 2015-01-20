@@ -91,14 +91,20 @@ TaskManagement.prototype = {
 		$("#estimateTaskModal").on("show.bs.modal", function(e) {
 			var button = $(e.relatedTarget) // Button that triggered the modal
 			var url = button.data('href');
-			var credits = button.data('credits');
 			$("#estimateTaskModal form").attr("action", url);
-			if(credits == -1) {
+			var credits = button.data('credits');
+			if(credits == undefined) {
 				$('#estimateTaskCredits').val(null);
-			    $("#estimateTaskCredits").prop('disabled', true);
-			    $("#estimateTaskSkip").prop('checked', true);
+			    $("#estimateTaskCredits").prop('disabled', false);
+			    $("#estimateTaskSkip").prop('checked', false);
+			} else if (credits == -1) {
+				$('#estimateTaskCredits').val(null);
+				$("#estimateTaskCredits").prop('disabled', true);
+				$("#estimateTaskSkip").prop('checked', true);
 			} else {
 				$('#estimateTaskCredits').val(credits);
+			    $("#estimateTaskCredits").prop('disabled', false);
+			    $("#estimateTaskSkip").prop('checked', false);
 			}
 			$(this).find('div.alert').hide();			
 		});
@@ -307,7 +313,9 @@ TaskManagement.prototype = {
     },
 
     listTasks: function()
-	{    	
+	{   
+    	$('#content div.alert').hide();
+    	
 		$.ajax({
 			url: '/task-management/tasks',
 			method: 'GET',
@@ -349,10 +357,10 @@ TaskManagement.prototype = {
 					$e = '';
 					for(i = 0; i < task.members.length; i++) {
 						if(task.members[i].estimation != undefined && task.members[i].estimation.value != -2) {
-							$e = task.members[i].estimation.value;
+							$e = ' data-credits="' + task.members[i].estimation.value + '"';
 						}
 					};
-					actions.push('<a data-href="' + task._links.estimate + '" data-credits="' + $e + '" data-toggle="modal" data-target="#estimateTaskModal" class="btn btn-default">Estimate</a>');
+					actions.push('<a data-href="' + task._links.estimate  + '"' + $e + ' data-toggle="modal" data-target="#estimateTaskModal" class="btn btn-default">Estimate</a>');
 				}
 				if (task._links.join != undefined) {
 					actions.push('<a href="' + task._links.join + '" class="btn btn-default" data-action="joinTask">Join</a>');

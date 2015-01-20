@@ -64,7 +64,8 @@ class Module
 	{
 	    return array(
 	        'factories' => array(
-	            'transaction' => 'Application\Controller\Plugin\TransactionPluginFactory'
+	            'transaction' => 'Application\Controller\Plugin\TransactionPluginFactory',
+	        	'loggedIdentity' => 'Application\Controller\Plugin\LoggedIdentityPluginFactory',
 	        ),
 	    );
 	}

@@ -60,7 +60,7 @@ class DomainEntity {
 		if(is_null($object)) {
 			return false;
 		}
-		return $this->id->compareTo($object->getId()) === 0;
+		return $this->id == $object->getId();
 	}
 	
 }
