@@ -3,7 +3,7 @@
 namespace Ora\Organization;
 
 use Ora\User\User;
-use Ora\ReadModel\Organization;
+use Ora\ReadModel\Organization as OrganizationReadModel;;
 
 interface OrganizationService
 {	
@@ -11,6 +11,6 @@ interface OrganizationService
 	
 	public function findUserOrganizationMembership(User $user);
 
-	public function findOrganizationMembership(Organization $organization);
+	public function findOrganizationMembership(OrganizationReadModel $organization);
 	
 }

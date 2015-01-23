@@ -5,8 +5,8 @@ $env = getenv('APPLICATION_ENV') ? : "local";
 $dbParams = array(
 		'hostname' => 'localhost',
 		'port' => 3306,
-		'username' => 'ora',
-		'password' => 'ora_DB!'
+		'username' => getenv('DB_USERNAME'),
+		'password' => getenv('DB_PASSWORD')
 		);
 if($env == "local") {
 	$dbParams['database'] = 'oraproject';

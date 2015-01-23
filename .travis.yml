@@ -3,14 +3,22 @@ language: php
 php:
   - 5.5
   - 5.4
-  - hhvm
+
+env:
+  - APPLICATION_ENV=acceptance
+
+install:
+  - composer self-update
 
 before_script:
-  # Set the GitHub OAuth token to make use of the 5000 per hour rate limit
+  - mysql -e 'create database oraproject_test;'
+    # Set the GitHub OAuth token to make use of the 5000 per hour rate limit
   - "mkdir -p ~/.composer"
   - cp .travis.composer.config.json ~/.composer/config.json
-  - composer install -d src
+  - composer install -d src --dev
 
 script:
   - phpunit --configuration tests/phpunit.xml
-  - ./bin/behat --config tests/behat.yml
+  - cd tests
+  - ../src/bin/behat
+  
