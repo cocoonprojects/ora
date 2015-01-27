@@ -15,8 +15,8 @@
 			<div class="panel-heading">{{task.subject}}</div>
 			<div class="panel-body">
 				<ul style="list-style: none; padding: 0; margin: 0">
-					<li>{{'Created at ' + task.createdAt.toLocaleString()}}</li>
-					<li>that.statuses[task.status]</li>
+					<li>Created at {{ task.createdAt | date : 'short' }}</li>
+					<li>{{task.status}}</li>
 					<li>estimation</li>
 					<li>Members: {{task.members.length}}</li>
 					<li>				if (task._links.complete != undefined) {

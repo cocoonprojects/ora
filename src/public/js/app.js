@@ -1,6 +1,7 @@
 var oraApp = angular.module('oraApp', [
    'ngRoute',
-   'taskManagementControllers'
+   'taskManagementControllers',
+   'taskManagementServices'
 ]);
 oraApp.config(['$routeProvider',
    function($routeProvider) {
