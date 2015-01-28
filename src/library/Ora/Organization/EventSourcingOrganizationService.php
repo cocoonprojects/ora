@@ -8,10 +8,8 @@ use Prooph\EventStore\Aggregate\AggregateRepository;
 use Prooph\EventStore\Stream\StreamStrategyInterface;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Prooph\EventStore\Aggregate\AggregateType;
-use Ora\IllegalStateException;
 use Ora\User\User;
-use Ora\ReadModel\Organization as ReadModelOrganization;
-use Ora\ReadModel\Organization;
+use Ora\ReadModel\Organization as OrganizationReadModel;
 
 class EventSourcingOrganizationService extends AggregateRepository implements OrganizationService
 {
@@ -40,7 +38,7 @@ class EventSourcingOrganizationService extends AggregateRepository implements Or
 		return $this->entityManager->getRepository('Ora\ReadModel\OrganizationMembership')->findBy(array('member' => $user));
 	}	
 	
-	public function findOrganizationMembership(Organization $organization)
+	public function findOrganizationMembership(OrganizationReadModel $organization)
 	{
 		return $this->entityManager->getRepository('Ora\ReadModel\OrganizationMembership')->findBy(array('organization' => $organization));
 	}

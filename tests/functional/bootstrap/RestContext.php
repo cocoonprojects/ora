@@ -51,7 +51,7 @@ class RestContext extends RawMinkContext implements Context
     	echo "Setting up application...\n";
     	
 		putenv('APPLICATION_ENV=acceptance');
-    	
+		
 		$path_config = __DIR__.'/../../../src/config/application.config.php';	 	
 		$path = __DIR__.'/../../../src/vendor/zendframework/zendframework/library';		
         putenv("ZF2_PATH=".$path);
