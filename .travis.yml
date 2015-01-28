@@ -20,5 +20,5 @@ before_script:
 script:
   - phpunit --configuration tests/phpunit.xml
   - cd tests
-  - ../src/bin/behat
+  - ../src/vendor/bin/behat
   
