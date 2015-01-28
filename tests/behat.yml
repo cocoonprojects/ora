@@ -9,13 +9,13 @@ default:
                 - functional/features/accounts
             contexts: 
                 - RestContext:
-                    - http://localhost
+                    - http://oraprojecttest
         estimations_features:
             paths: 
                 - functional/features/estimations
             contexts:
                 - TaskContext:
-                    - http://localhost
+                    - http://oraprojecttest
                 
         login_features:
             paths: 
@@ -28,10 +28,10 @@ default:
                  - functional/features/kanbanize
             contexts: 
                  - RestContext:
-                     - http://localhost
+                     - http://oraprojecttest
                  - KanbanizeContext
     extensions:
         Behat\MinkExtension:
-            base_url:  http://localhost
+            base_url:  http://oraprojecttest
             goutte:    ~
             selenium2: ~
