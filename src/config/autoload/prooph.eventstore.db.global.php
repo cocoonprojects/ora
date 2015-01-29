@@ -9,8 +9,6 @@
  * Date: 20.07.14 - 15:34
  */
 
-include('dbparams.php');
-
 /**
  * ProophEventStore Db Adapter Configuration
  *
@@ -43,11 +41,11 @@ $adapter = array(
     'options' => array(
         'connection' => array(
             'driver' => 'Pdo_Mysql',
-    		'hostname' => $dbParams['hostname'],
-    		'port' 	   => $dbParams['port'],
-    		'username' => $dbParams['username'],
-    		'password' => $dbParams['password'],
-    		'database' => $dbParams['database']
+    		'hostname' => getenv('DB_HOSTNAME'),
+    		'port' 	   => getenv('DB_PORT'),
+    		'username' => getenv('DB_USERNAME'),
+    		'password' => getenv('DB_PASSWORD'),
+    		'database' => getenv('DB_NAME')
 		),
         //It's also possible to specify an DI alias for Zend\Db\Adapter\Adapter instead of configure a connection.
         //'zend_db_adapter' => 'Zend\Db\Adapter\Adapter',
