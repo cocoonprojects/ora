@@ -47,7 +47,7 @@ class RestContext extends RawMinkContext implements Context
      *  @BeforeSuite
      */
     public static function setupApplication(BeforeSuiteScope $scope){
-		    			
+		
     	echo "Setting up application...\n";
     	
 		putenv('APPLICATION_ENV=acceptance');
@@ -116,7 +116,7 @@ class RestContext extends RawMinkContext implements Context
         // Initialize your context here
         $this->_restObject = new stdClass();
         $this->_client = new Guzzle\Service\Client();
-        $this->base_url = $base_url;               
+        $this->base_url = $base_url;
     }
 
     public function getBaseUrl()
@@ -189,7 +189,7 @@ class RestContext extends RawMinkContext implements Context
     	$this->_restObjectMethod = 'post';
     	$this->iRequest(self::$LOGIN_URL);
     	if($this->_response->getStatusCode() != 200) {
-    		throw new \Exception('Cannot authenticate '.$email.' user');
+    		throw new \Exception('Cannot authenticate '.$email.' user: response status code for url '. $this->_requestUrl . ' is '.$this->_response->getStatusCode());
     	}
     	
     	$cookie = $this->_response->getSetCookie();

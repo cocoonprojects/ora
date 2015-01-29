@@ -12,13 +12,13 @@ Scenario: Successfully creating a task into a stream and with a subject
 	Then the response status code should be 201
 	And the header "Location" should be "/task-management/tasks/[0-9a-z\-]+"
 	
-Scenario: Cannot create a task without specifying the stream it belongs to and its subject
+Scenario: Cannot create a task outside a stream
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Task"
 	When I request "/task-management/tasks"
 	Then the response status code should be 400
 
-Scenario: Cannot create a task without specifying the stream it belongs to
+Scenario: Cannot create a task into a non existing stream
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Task"
 	And that its "subject" is "UNA ROTONDA SUL MARE"
@@ -26,7 +26,7 @@ Scenario: Cannot create a task without specifying the stream it belongs to
 	When I request "/task-management/tasks"
 	Then the response status code should be 404
 
-Scenario: Cannot create a task without specifying an existing stream it belongs to
+Scenario: Cannot create a task into a non existing stream
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Task"
 	And that its "subject" is "UNA ROTONDA SUL MARE"
