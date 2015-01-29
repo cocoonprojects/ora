@@ -20,5 +20,4 @@ before_script:
 script:
   - phpunit --configuration tests/phpunit.xml
   - cd tests
-  - ../src/vendor/bin/behat
-  
+  - ../src/vendor/bin/behat --profile travis-ci

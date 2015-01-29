@@ -17,6 +17,7 @@ use Zend\Db\Adapter\Adapter as ZendDbAdapter;
 use Guzzle\Plugin\Cookie\Cookie;
 use Guzzle\Plugin\Cookie\CookieJar\ArrayCookieJar;
 use Guzzle\Plugin\Cookie\CookiePlugin;
+use Doctrine\ORM\EntityManager;
 
 
 /**
@@ -36,7 +37,10 @@ class RestContext extends RawMinkContext implements Context
     private static $zendApp;
     /** @var Doctrine\ORM\Tools\SchemaTool  */
 	private static $schemaTool;
-    
+    /**
+     * 
+     * @var EntityManager
+     */
 	private static $entityManager;
 	
 	private static $LOGIN_URL = '/auth/login/acceptance';
@@ -47,10 +51,8 @@ class RestContext extends RawMinkContext implements Context
      *  @BeforeSuite
      */
     public static function setupApplication(BeforeSuiteScope $scope){
-		
-    	echo "Setting up application...\n";
-    	
 		putenv('APPLICATION_ENV=acceptance');
+    	echo "APPLICATION_ENV=" . getenv('APPLICATION_ENV') . ' set\n';    	
 		
 		$path_config = __DIR__.'/../../../src/config/application.config.php';	 	
 		$path = __DIR__.'/../../../src/vendor/zendframework/zendframework/library';		
@@ -105,6 +107,7 @@ class RestContext extends RawMinkContext implements Context
 		$sql_drop_event_store = "drop table if exists event_stream";
 		$statement_del = self::$entityManager->getConnection()->executeUpdate($sql_drop_event_store, array(), array());
 		
+    	echo "Database " . ' dropped\n';    	
 	}
 	
     /**
