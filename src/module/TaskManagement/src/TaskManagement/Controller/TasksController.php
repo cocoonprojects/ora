@@ -12,6 +12,7 @@ use Zend\Authentication\AuthenticationServiceInterface;
 use TaskManagement\View\TaskJsonModel;
 use Ora\TaskManagement\Task;
 
+
 class TasksController extends AbstractHATEOASRestfulController
 {
     protected static $collectionOptions = ['GET', 'POST'];
@@ -27,11 +28,11 @@ class TasksController extends AbstractHATEOASRestfulController
      * @var StreamService
      */
 	private $streamService;
-		
+	
 	public function __construct(TaskService $taskService, StreamService $streamService)
 	{
 		$this->taskService = $taskService;
-		$this->streamService = $streamService;
+		$this->streamService = $streamService;		
 	}
 	
     public function get($id)
@@ -75,7 +76,8 @@ class TasksController extends AbstractHATEOASRestfulController
      * @author Giannotti Fabio
      */
     public function create($data)
-    {       	
+    {   
+    	
     	if (!isset($data['streamID']) || !isset($data['subject']))
         {            
             // HTTP STATUS CODE 400: Bad Request
@@ -89,9 +91,9 @@ class TasksController extends AbstractHATEOASRestfulController
     		$this->response->setStatusCode(401);
     		return $this->response;
     	}
-    	       
-        $stream = $this->streamService->getStream($data['streamID']);
-                     
+
+    	$stream = $this->streamService->getStream($data['streamID']);
+    	
         if(is_null($stream)) {
         	// Stream Not Found
         	$this->response->setStatusCode(404);

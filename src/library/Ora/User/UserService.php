@@ -14,10 +14,9 @@ interface UserService
 	/**
 	 * Create a User
 	 *
-	 * @param array [email, lastname, firstname]
-	 * @param Role $role
+	 * @param array [email, lastname, firstname]	 
 	 */	
-	public function create($infoOfUser, Role $role);
+	public function create($infoOfUser);
 	
 	/**
 	 * Find a User by id

@@ -1,4 +1,5 @@
 <?php
+
 return array(
 	'service_manager' => array(
 		'factories' => array(
@@ -60,5 +61,27 @@ return array(
 				'TaskManagement' => __DIR__ . '/../public',
 			),
 		),
-	),
+    ),
+    
+    'bjyauthorize'=> array(
+    
+    	'resource_providers' => array(
+            'BjyAuthorize\Provider\Resource\Config' => array(
+                'Ora\StreamManagement\Stream' => array(),
+            ),
+        ),
+    
+        'rule_providers' => array(
+            'BjyAuthorize\Provider\Rule\Config' => array(
+                'allow' => array(
+                    
+                    array(array('user'), 
+                    		'Ora\StreamManagement\Stream', 
+                    		array('createTask'), 
+                    		'assertion.CreateTaskAssertion'),
+                                        
+                ),
+            ),
+        ),
+    ),
 );
