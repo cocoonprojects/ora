@@ -11,6 +11,8 @@ use TaskManagement\Controller\TransitionsController;
 use TaskManagement\Controller\EstimationsController;
 use TaskManagement\Service\TaskListener;
 use TaskManagement\Controller\SharesController;
+use TaskManagement\Service\CreateTaskAssertion;
+
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {    
@@ -98,7 +100,14 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
                 'TaskManagement\StreamService' => 'TaskManagement\Service\StreamServiceFactory',
             	'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',
 				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
+			    //'assertion.CreateTaskAssertion' => 'Application\Services\CreateTaskAssertionFactory',
+				'assertion.CreateTaskAssertion' => function($locator){
+	                $authService = $locator->get('Zend\Authentication\AuthenticationService');
+	        		$loggedUser = $authService->getIdentity()['user'];
+	        							        
+	        		return new CreateTaskAssertion($loggedUser);
+                }
             ),
-        );
+		);
     }
 }

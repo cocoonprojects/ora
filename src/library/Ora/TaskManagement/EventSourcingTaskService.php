@@ -10,7 +10,11 @@ use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Prooph\EventStore\Aggregate\AggregateType;
 use Ora\User\User;
 use Ora\StreamManagement\Stream;
+
 use Ora\ReadModel\Share;
+
+use BjyAuthorize\Service\Authorize;
+
 
 /**
  * @author Giannotti Fabio
@@ -27,16 +31,27 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @var AggregateType
 	 */
 	private $aggregateRootType;
-    
-    public function __construct(EventStore $eventStore, EntityManager $entityManager)
+	
+	private $authorize;
+		
+    public function __construct(EventStore $eventStore, EntityManager $entityManager, Authorize $authorize)
     {
     	$this->aggregateRootType = new AggregateType('Ora\\TaskManagement\\Task');
 		parent::__construct($eventStore, new AggregateTranslator(), new MappedSuperclassStreamStrategy($eventStore, $this->aggregateRootType, [$this->aggregateRootType->toString() => 'event_stream']));
 		$this->entityManager = $entityManager;
+		$this->authorize = $authorize;	
 	}
 	
 	public function createTask(Stream $stream, $subject, User $createdBy)
-	{		
+	{			
+		if (!$this->authorize->isAllowed($stream, 'createTask')) {
+           	
+   	 		var_dump("non autorizzato");
+   	 		die();
+   	 		//lanciare un'eccezione per non autorizzato
+        }
+		
+		
 		$this->eventStore->beginTransaction();
 	    $task = Task::create($stream, $subject, $createdBy);
 	    $this->addAggregateRoot($task);
@@ -74,6 +89,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	{	
 		$repository = $this->entityManager->getRepository('Ora\ReadModel\Task')->findBy(array('stream' => $streamId));
 	    return $repository;
+
 	}
 	
 // 	public function findTaskShares($id) {
@@ -84,5 +100,6 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 // 			->getArrayResult();
 // 		return $rv;
 // 	}
-	
+
+
 }

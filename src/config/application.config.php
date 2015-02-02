@@ -23,7 +23,6 @@ return array(
     	'TaskManagement',
     	'User',
         'Application',
-        'Kanbanize',
 		'BjyAuthorize'
 
     ),

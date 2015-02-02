@@ -5,13 +5,15 @@ namespace Ora\StreamManagement;
 use Ora\DomainEntity;
 use Ora\User\User;
 use Rhumsaa\Uuid\Uuid;
+use Ora\ReadModel\Organization;
+use Zend\Permissions\Acl\Resource\ResourceInterface;
 
 /**
  * 
  * @author Giannotti Fabio
  *
  */
-class Stream extends DomainEntity implements \Serializable
+class Stream extends DomainEntity implements \Serializable, ResourceInterface
 {	    
 	/**
 	 * 
@@ -25,11 +27,12 @@ class Stream extends DomainEntity implements \Serializable
 	 */
 	private $organizationId;	
 	
-	public function __construct(Uuid $id, User $createdBy, \DateTime $createdAt = null) 
+	public function __construct(Uuid $id, User $createdBy, Organization $organization, \DateTime $createdAt = null) 
 	{
 		$this->id = $id;
 		$this->createdAt = $createdAt == null ? new \DateTime() : $createdAt;
 		$this->createdBy = $createdBy;
+		$this->updateOrganization($organization, $createdBy);
 	}
 	
 	public function getSubject() {
@@ -40,13 +43,6 @@ class Stream extends DomainEntity implements \Serializable
 		$this->subject = $subject;
 	}
 
-	public function setOrganization($organization) {
-		$this->organization = $organization;
-	}
-	
-	public function getOrganization() {
-		return $this->organization;
-	}	
 	public function serialize()
 	{
 		$data = array(
@@ -62,5 +58,33 @@ class Stream extends DomainEntity implements \Serializable
 	    $this->id = Uuid::fromString($data['id']);
 	    $this->subject = $data['subject'];
 	}
+	
+	public function updateOrganization(Organization $organization, User $updatedBy){
+		
+		$payload = array(
+				'organizationId' => $organization->getId(),
+				'by' => $updatedBy->getId(),
+		);
+		if(!is_null($this->organizationId)) {
+			$payload['prevOrganizationId'] = $this->organizationId->toString();
+		}
+		
+		$this->recordThat(OrganizationUpdated::occur($this->id->toString(), $payload));
+	}
+	
+	public function whenOrganizationUpdated(OrganizationUpdated $event){
+		
+		$p = $event->payload();
+		$this->organizationId = Uuid::fromString($p['organizationId']);
+	}
+	
+	public function getOrganizationId(){
+    	return $this->organizationId;
+    }
+    
+
+	public function getResourceId(){			
+        return get_class($this);
+    }
 	
 }
