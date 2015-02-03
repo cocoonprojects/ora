@@ -173,9 +173,9 @@ class TaskJsonModel extends JsonModel
     			if(!in_array($task->getStatus(), [Task::STATUS_ONGOING, Task::STATUS_ACCEPTED])) {
     				return false;
     			}
-    			if(is_null($task->getEstimation())) {
-    				return false;
-    			}
+//     			if(is_null($task->getEstimation())) {
+//     				return false;
+//     			}
     			$member = $task->getMember($this->user);
     			if(is_null($member)) {
     				return false;
@@ -186,6 +186,9 @@ class TaskJsonModel extends JsonModel
     			return false;
     		case 'accept':
     			if($task->getStatus() != Task::STATUS_COMPLETED) {
+    				return false;
+    			}
+    			if(is_null($task->getEstimation())) {
     				return false;
     			}
     			$member = $task->getMember($this->user);

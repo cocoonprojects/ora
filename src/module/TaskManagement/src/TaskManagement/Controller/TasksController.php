@@ -194,8 +194,7 @@ class TasksController extends AbstractHATEOASRestfulController
 	      	$this->response->setStatusCode(200);
 		} catch (IllegalStateException $e) {
 			$this->transaction()->rollback();
-            // HTTP STATUS CODE 406: Not Acceptable
-            $this->response->setStatusCode(406);			
+            $this->response->setStatusCode(412);	// Preconditions failed			
 		}
       	
         return $this->response;

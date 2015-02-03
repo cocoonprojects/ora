@@ -25,11 +25,10 @@ Scenario: Cannot join a completed task
 	Given that I am authenticated as "phil.toledo@ora.local" 
 	And that I want to make a new "Member"
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000001/members"
-	Then the response status code should be 406
+	Then the response status code should be 412
 
-@task @members @jointeam @POST
 Scenario: Cannot join an accepted task
 	Given that I am authenticated as "phil.toledo@ora.local" 
 	And that I want to make a new "Member"
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000002/members"
-	Then the response status code should be 406
+	Then the response status code should be 412

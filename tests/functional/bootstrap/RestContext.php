@@ -52,7 +52,7 @@ class RestContext extends RawMinkContext implements Context
      */
     public static function setupApplication(BeforeSuiteScope $scope){
 		putenv('APPLICATION_ENV=acceptance');
-    	echo "APPLICATION_ENV=" . getenv('APPLICATION_ENV') . ' set\n';    	
+    	echo "APPLICATION_ENV=" . getenv('APPLICATION_ENV') . "\n";    	
 		
 		$path_config = __DIR__.'/../../../src/config/application.config.php';	 	
 		$path = __DIR__.'/../../../src/vendor/zendframework/zendframework/library';		
@@ -70,6 +70,7 @@ class RestContext extends RawMinkContext implements Context
 		//get all doctrine metadata for create schema
 		$classes = self::$entityManager->getMetadataFactory()->getAllMetadata();
 		self::$schemaTool->createSchema($classes);
+		echo "Database schema created\n";
 		
 		//get query for event_store table creation
 		$sql = file_get_contents(__DIR__.'/../../../src/vendor/prooph/event-store-zf2-adapter/scripts/mysql-single-stream-default-schema.sql');
@@ -77,13 +78,13 @@ class RestContext extends RawMinkContext implements Context
 		$statement = self::$entityManager->getConnection()->prepare($sql);		
 		$statement->execute();
 		$statement->closeCursor(); //needed for mysql database
+		echo "Event store table created\n";
 		
 		//get query for test data
 		$sql = file_get_contents(__DIR__.'/../../../tests/sql/init.sql');
 		$statement = self::$entityManager->getConnection()->executeUpdate($sql, array(), array());		
 		
-		
-		echo "...done!\n";
+		echo "Database initialized\n";
     }
     
     /** @AfterSuite */
@@ -107,7 +108,7 @@ class RestContext extends RawMinkContext implements Context
 		$sql_drop_event_store = "drop table if exists event_stream";
 		$statement_del = self::$entityManager->getConnection()->executeUpdate($sql_drop_event_store, array(), array());
 		
-    	echo "Database " . ' dropped\n';    	
+    	echo "Database " . " dropped\n";    	
 	}
 	
     /**
