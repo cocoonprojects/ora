@@ -10,6 +10,7 @@ use TaskManagement\Controller\TasksController;
 use TaskManagement\Controller\TransitionsController;
 use TaskManagement\Controller\EstimationsController;
 use TaskManagement\Service\TaskListener;
+use TaskManagement\Controller\SharesController;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {    
@@ -78,6 +79,12 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             		$locator = $sm->getServiceLocator();
             		$taskService = $locator->get('TaskManagement\TaskService');
             		$controller = new EstimationsController($taskService);
+            		return $controller;
+            	},
+            	'TaskManagement\Controller\Shares' => function ($sm) {
+            		$locator = $sm->getServiceLocator();
+            		$taskService = $locator->get('TaskManagement\TaskService');
+            		$controller = new SharesController($taskService);
             		return $controller;
             	}
             )

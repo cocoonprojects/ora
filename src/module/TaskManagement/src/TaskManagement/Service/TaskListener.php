@@ -9,6 +9,7 @@ use Ora\ReadModel\Task;
 use Ora\ReadModel\Estimation;
 use Ora\Kanbanize\ReadModel\KanbanizeTask;
 use Ora\Kanbanize\KanbanizeService;
+use Ora\ReadModel\Share;
 
 class TaskListener
 {
@@ -205,6 +206,20 @@ class TaskListener
 		$task->setMostRecentEditBy($user);
 		$task->setMostRecentEditAt($event->occurredOn());
 		$this->entityManager->persist($task);
+	}
+	
+	protected function onSharesAssigned(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
+		$evaluator = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+		$shares = $event->payload()['shares'];
+		foreach($shares as $key => $value) {
+			$valued = $this->entityManager->find('Ora\User\User', $value);
+			$share = new Share($task, $evaluator, $valued);
+			$share->setValue($value);
+			$share->setCreatedAt($event->occurredOn());
+			$this->entityManager->persist($share);
+		}
 	}
 	
 	protected function determineEventHandlerMethodFor(StreamEvent $e)
