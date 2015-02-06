@@ -2,6 +2,7 @@
 namespace TaskManagement\Service;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Stream\StreamEvent;
@@ -161,7 +162,7 @@ class TaskListener
 			return;
 		}
 		$id = $event->metadata()['aggregate_id'];
-		$taskMember = $this->entityManager->find('Ora\\ReadModel\\TaskMember', array('task' => $id, 'member' => $user));
+		$taskMember = $this->entityManager->find('Ora\ReadModel\TaskMember', array('task' => $id, 'member' => $user));
 		
 		$value = $event->payload()['value'];
 
@@ -211,15 +212,14 @@ class TaskListener
 	protected function onSharesAssigned(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
-		$evaluator = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+		$evaluator = $task->getMemberById($event->payload()['by']);
+		$evaluator->resetShares();
 		$shares = $event->payload()['shares'];
 		foreach($shares as $key => $value) {
-			$valued = $this->entityManager->find('Ora\User\User', $value);
-			$share = new Share($task, $evaluator, $valued);
-			$share->setValue($value);
-			$share->setCreatedAt($event->occurredOn());
-			$this->entityManager->persist($share);
+			$valued = $task->getMemberById($key);
+			$evaluator->setShare($valued, $value, $event->occurredOn());
 		}
+		$this->entityManager->persist($task);
 	}
 	
 	protected function determineEventHandlerMethodFor(StreamEvent $e)

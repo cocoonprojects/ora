@@ -42,6 +42,12 @@ class TaskMember {
      */
     private $estimation;
     
+    /**
+     * @ORM\OneToMany(targetEntity="Ora\ReadModel\Share", mappedBy="evaluator", cascade="persist", orphanRemoval=TRUE);
+     * @var ArrayCollection
+     */
+    private $shares;
+    
 	/**
 	 * @ORM\Column(type="datetime")
 	 * @var DateTime
@@ -70,6 +76,7 @@ class TaskMember {
         $this->task = $task;
         $this->member = $member;
         $this->role = $role;
+        $this->shares = new ArrayCollection();
     }
 
     public function getRole() {
@@ -134,5 +141,21 @@ class TaskMember {
     	$this->mostRecentEditBy = $user;
     	return $this->mostRecentEditBy;
     }
+    
+    public function setShare(TaskMember $valued, $value, \DateTime $when) {
+    	$share = new Share($this, $valued);
+    	$share->setValue($value);
+    	$share->setCreatedAt($when);
+    	$this->shares->add($share);
+    	return $this;
+    }
 
+    public function resetShares() {
+    	$this->shares->clear();
+    	return $this;
+    }
+    
+    public function getShares() {
+    	return $this->shares;
+    }
 }

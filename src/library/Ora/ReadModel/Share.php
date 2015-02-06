@@ -13,23 +13,29 @@ class Share {
 	
 	/**
 	 * @ORM\Id
-	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\Task")
-	 * @ORM\JoinColumn(name="task_id", referencedColumnName="id", onDelete="CASCADE")
-	 * @var Task
+	 * @ORM\GeneratedValue(strategy="AUTO")
+	 * @ORM\Column(name="id", type="integer")
 	 */
-	private $task;
+	private $id;
+	
 	/**
-	 * @ORM\Id
-	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
-	 * @ORM\JoinColumn(name="evaluator_id", referencedColumnName="id", onDelete="CASCADE")
-	 * @var User
+	 * 
+	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\TaskMember", inversedBy="$shares")
+	 * @ORM\JoinColumns({
+	 * 		@ORM\JoinColumn(name="evaluator_id", referencedColumnName="member_id", onDelete="CASCADE", nullable=FALSE),
+	 * 		@ORM\JoinColumn(name="task_id", referencedColumnName="task_id", onDelete="CASCADE", nullable=FALSE)
+	 * })
+	 * @var TaskMember
 	 */
 	private $evaluator;
 	/**
-	 * @ORM\Id
-	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
-	 * @ORM\JoinColumn(name="valued_id", referencedColumnName="id", onDelete="CASCADE")
-	 * @var User
+	 * 
+	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\TaskMember")
+	 * @ORM\JoinColumns({
+	 * 		@ORM\JoinColumn(name="valued_id", referencedColumnName="member_id", onDelete="CASCADE", nullable=FALSE),
+	 * 		@ORM\JoinColumn(name="task_id", referencedColumnName="task_id", onDelete="CASCADE", nullable=FALSE)
+	 * })
+	 * @var TaskMember
 	 */
 	private $valued;
 	/**
@@ -43,8 +49,7 @@ class Share {
 	 */
 	private $createdAt;
 	
-	public function __construct(Task $task, User $evaluator, User $valued) {
-		$this->task = $task;
+	public function __construct(TaskMember $evaluator, TaskMember $valued) {
 		$this->evaluator = $evaluator;
 		$this->valued = $valued;
 	}
@@ -56,10 +61,6 @@ class Share {
 	
 	public function getValue() {
 		return $this->value;
-	}
-	
-	public function getTask() {
-		return $this->task;
 	}
 	
 	public function getEvaluator() {

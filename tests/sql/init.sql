@@ -72,7 +72,9 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
 INSERT INTO `tasks` (id, stream_id, subject, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type) VALUES
 ('00000000-0000-0000-0000-000000000002','00000000-1000-0000-0000-000000000000','Technology stack definition',40,'2014-11-12 19:07:59','2014-11-12 19:07:59','60000000-0000-0000-0000-000000000000','60000000-0000-0000-0000-000000000000','task');
 INSERT INTO task_members(task_id, member_id,role) VALUES
-('00000000-0000-0000-0000-000000000002','60000000-0000-0000-0000-000000000000','owner');
+('00000000-0000-0000-0000-000000000002','60000000-0000-0000-0000-000000000000','owner'),
+('00000000-0000-0000-0000-000000000002','20000000-0000-0000-0000-000000000000','member');
+
 
 # task 00000000-0000-0000-0000-000000000003, deleted, Mark Rogers (owner)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES

@@ -207,7 +207,7 @@ class Task extends DomainEntity implements \Serializable
         	throw new DomainEntityUnavailableException($this, $member); 
 		}
 		
-		$membersShares = array(); 
+		$membersShares = array();
 		foreach($shares as $key => $value) {
 			if(array_key_exists($key, $this->members)) {
 				$membersShares[$key] = $value; 
@@ -230,9 +230,9 @@ class Task extends DomainEntity implements \Serializable
 		} elseif (count($missing) > 1) {
 			throw new InvalidArgumentException(count($missing) . ' task members have missing shares. Check values for ' . implode(',', array_keys($missing)) . ' members');
 		}
-		
+
 		$this->recordThat(SharesAssigned::occur($this->id->toString(), array(
-			'shares' => $shares,
+			'shares' => $membersShares,
 			'by' => $member->getId(),
 		)));
 	}

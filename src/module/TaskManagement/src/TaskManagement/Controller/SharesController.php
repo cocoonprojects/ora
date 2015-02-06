@@ -49,7 +49,6 @@ class SharesController extends AbstractHATEOASRestfulController {
 			$this->response->setStatusCode(400);
 			return $error;
 		}
-		
 		$task = $this->taskService->getTask($id);
 		if (is_null($task)) {
 			$this->response->setStatusCode(404);
@@ -61,6 +60,7 @@ class SharesController extends AbstractHATEOASRestfulController {
 			$this->response->setStatusCode(401);
 			return $error;
 		}
+		
 		$this->transaction()->begin();
 		try {
 			$task->assignShares($data, $identity);

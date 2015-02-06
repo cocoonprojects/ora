@@ -155,4 +155,13 @@ class Task extends EditableEntity
     	}
     	return null;
     }
+    
+    public function getMemberById($id) {
+    	foreach ($this->members as $member) {
+    		if($member->getMember()->getId() == $id) {
+    			return $member;
+    		}
+    	}
+    	return null;
+    }
 }
