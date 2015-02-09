@@ -11,6 +11,7 @@ use Ora\DomainEntity;
 use Rhumsaa\Uuid\Uuid;
 use Ora\ReadModel\Estimation;
 use Ora\ReadModel\TaskMember;
+use Ora\InvalidArgumentException;
 
 /**
  * 
@@ -83,19 +84,25 @@ class Task extends DomainEntity implements \Serializable
 	    return $this->status;
 	}
 	
-	public function execute(User $completedBy) {
+	public function execute(User $executedBy) {
 		if(!in_array($this->status, [Task::STATUS_OPEN, Task::STATUS_COMPLETED])) {
 			throw new IllegalStateException('Cannot execute a task in '.$this->status.' state');
 		}
+		if(!isset($this->members[$executedBy->getId()]) || $this->members[$executedBy->getId()] != self::ROLE_OWNER) {
+			throw new InvalidArgumentException('Only the owner of the task can accept it');
+		}
 		$this->recordThat(TaskOngoing::occur($this->id->toString(), array(
 				'prevStatus' => $this->getStatus(),
-				'by' => $completedBy->getId(),
+				'by' => $executedBy->getId(),
 		)));
 	}
 	
 	public function complete(User $completedBy) {
 		if(!in_array($this->status, [Task::STATUS_ONGOING, Task::STATUS_ACCEPTED])) {
 			throw new IllegalStateException('Cannot complete a task in '.$this->status.' state');
+		}
+		if(!isset($this->members[$completedBy->getId()]) || $this->members[$completedBy->getId()] != self::ROLE_OWNER) {
+			throw new InvalidArgumentException('Only the owner of the task can accept it');
 		}
 		$this->recordThat(TaskCompleted::occur($this->id->toString(), array(
 			'prevStatus' => $this->getStatus(),
@@ -106,6 +113,12 @@ class Task extends DomainEntity implements \Serializable
 	public function accept(User $acceptedBy) {
 		if($this->status != Task::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot accept a task in '.$this->status.' state');
+		}
+		if(is_null($this->getAverageEstimation())) {
+			throw new IllegalStateException('Cannot accept a task with missing estimations by members');
+		}
+		if(!isset($this->members[$acceptedBy->getId()]) || $this->members[$acceptedBy->getId()] != self::ROLE_OWNER) {
+			throw new InvalidArgumentException('Only the owner of the task can accept it');
 		}
 		$this->recordThat(TaskAccepted::occur($this->id->toString(), array(
 			'prevStatus' => $this->getStatus(),
@@ -126,7 +139,7 @@ class Task extends DomainEntity implements \Serializable
 	}
 	
 	public function changeStream(Stream $stream, User $updatedBy) {
-		if($this->status == self::STATUS_COMPLETED || $this->status == self::STATUS_ACCEPTED) {
+		if($this->status >= self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot set the task stream in '.$this->status.' state');
 		}
 		$payload = array(
@@ -145,7 +158,7 @@ class Task extends DomainEntity implements \Serializable
 	
 	public function addMember(User $user, User $addedBy, $role = self::ROLE_MEMBER)
 	{
-		if($this->status == self::STATUS_COMPLETED || $this->status == self::STATUS_ACCEPTED) {
+		if($this->status >= self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot add a member to a task in '.$this->status.' state');
 		}
         if (array_key_exists($user->getId(), $this->members)) {
@@ -160,7 +173,7 @@ class Task extends DomainEntity implements \Serializable
 	
 	public function removeMember(User $member, User $removedBy)
 	{
-		if($this->status == self::STATUS_COMPLETED || $this->status == self::STATUS_ACCEPTED) {
+		if($this->status >= self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot remove a member from a task in '.$this->status.' state');
 		}
 		// TODO: Integrare controllo per cui è possibile effettuare l'UNJOIN
@@ -175,7 +188,7 @@ class Task extends DomainEntity implements \Serializable
 	}
 	
 	public function addEstimation($value, User $member) {
-		if($this->status != self::STATUS_ONGOING) {
+		if(!in_array($this->status, [self::STATUS_ONGOING, self::STATUS_COMPLETED])) {
 			throw new IllegalStateException('Cannot estimate a task in the state '.$this->status.'.');
 		}
 		//check if the estimator is a task member
@@ -199,6 +212,32 @@ class Task extends DomainEntity implements \Serializable
 	
 	public function getEstimations() {
 		return $this->estimations;
+	}
+	
+	public function getAverageEstimation() {
+		$tot = null;
+		$estimationsCount = 0;
+		$notEstimationCount = 0;
+		foreach ($this->members as $id => $role) {
+			$estimation = isset($this->estimations[$id]) ? $this->estimations[$id] : null;
+			switch ($estimation) {
+				case null:
+					break;
+				case Estimation::NOT_ESTIMATED:
+					$notEstimationCount++;
+					break;
+				default:
+					$tot += $estimation;
+					$estimationsCount++;
+			}
+		}
+		if($notEstimationCount == count($this->members)) {
+			return Estimation::NOT_ESTIMATED;
+		}
+		if(($estimationsCount + $notEstimationCount) == count($this->members) || $estimationsCount > 2) {
+			return $tot / $estimationsCount;
+		}
+		return null;
 	}
 	
 	public function serialize()

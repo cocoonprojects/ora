@@ -7,7 +7,7 @@ default:
             paths: 
                 - functional/features/task
                 - functional/features/accounts
-            contexts: 
+            contexts:
                 - RestContext:
                     - http://oraprojecttest
         estimations_features:
@@ -16,22 +16,35 @@ default:
             contexts:
                 - TaskContext:
                     - http://oraprojecttest
-                
         login_features:
             paths: 
                 - functional/features/login
             contexts: 
                 - LoginContext
-
         kanbanize_features:
             paths: 
-                 - functional/features/kanbanize
-            contexts: 
-                 - RestContext:
-                     - http://oraprojecttest
-                 - KanbanizeContext
+                - functional/features/kanbanize
+            contexts:
+                - KanbanizeContext:
+                    - http://oraprojecttest
+
     extensions:
         Behat\MinkExtension:
             base_url:  http://oraprojecttest
             goutte:    ~
             selenium2: ~
+
+travis-ci:
+    suites:
+        task_features:
+            contexts:
+                - RestContext:
+                    - http://localhost
+        estimations_features:
+            contexts:
+                - TaskContext:
+                    - http://localhost
+        kanbanize_features:
+            contexts:
+                - KanbanizeContext:
+                    - http://localhost

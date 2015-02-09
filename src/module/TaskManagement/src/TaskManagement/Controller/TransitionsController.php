@@ -11,6 +11,7 @@ use Zend\View\Model\ViewModel;
 use Ora\TaskManagement\TaskService;
 use Ora\TaskManagement\Task;
 use Ora\IllegalStateException;
+use Ora\InvalidArgumentException;
 
 class TransitionsController extends AbstractHATEOASRestfulController
 {
@@ -58,7 +59,10 @@ class TransitionsController extends AbstractHATEOASRestfulController
 					$this->response->setStatusCode ( 200 );
 				} catch ( IllegalStateException $e ) {
 					$this->transaction()->rollback();
-					$this->response->setStatusCode ( 400 );
+					$this->response->setStatusCode ( 412 ); // Preconditions failed
+				} catch ( InvalidArgumentException $e ) {
+					$this->transaction()->rollback();
+					$this->response->setStatusCode ( 403 );
 				}
 				break;
 			case "accept":
@@ -73,7 +77,10 @@ class TransitionsController extends AbstractHATEOASRestfulController
 					$this->response->setStatusCode ( 200 );
 				} catch ( IllegalStateException $e ) {
 					$this->transaction()->rollback();
-					$this->response->setStatusCode ( 400 );
+					$this->response->setStatusCode ( 412 ); // Preconditions failed
+				} catch ( InvalidArgumentException $e ) {
+					$this->transaction()->rollback();
+					$this->response->setStatusCode ( 403 );
 				}
 				break;
 			case "execute":
@@ -88,7 +95,10 @@ class TransitionsController extends AbstractHATEOASRestfulController
 					$this->response->setStatusCode ( 200 );
 				} catch ( IllegalStateException $e ) {
 					$this->transaction()->rollback();
-					$this->response->setStatusCode ( 400 );
+					$this->response->setStatusCode ( 412 ); // Preconditions failed
+				} catch ( InvalidArgumentException $e ) {
+					$this->transaction()->rollback();
+					$this->response->setStatusCode ( 403 );
 				}
 				break;
 			default :

@@ -1,19 +1,17 @@
 <?php
-
-use Behat\Behat\Context\Context;
-use Behat\MinkExtension\Context\RawMinkContext;
 use Ora\Kanbanize\KanbanizeAPI;
 use Ora\Kanbanize\ReadModel\KanbanizeTask;
+use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 
-class KanbanizeContext extends RawMinkContext implements Context {
+class KanbanizeContext extends RestContext {
 
 	private static $api;
 	
 	/**
 	 *  @BeforeSuite
 	 */
-	public static function setupTasksOnKanbanize(){
-		$config = include '../src/config/autoload/auth.global.php';
+	public static function setupKanbanize(BeforeSuiteScope $scope){
+		$config = file_exists('../src/config/autoload/kanbanize.local.php') ? include '../src/config/autoload/kanbanize.local.php' : include '../src/config/autoload/kanbanize.global.php';
 		$api = new KanbanizeAPI();
 		$api->setApiKey($config['kanbanize']['apikey']);
 		$api->setUrl($config['kanbanize']['url']);

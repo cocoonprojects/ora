@@ -71,9 +71,6 @@ class EstimationsController extends AbstractHATEOASRestfulController {
 			$task->addEstimation($value, $loggedUser);
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
-// 		} catch (DuplicatedDomainEntityException $e) {
-// 			$this->transaction()->rollback();
-// 			$this->response->setStatusCode(204);
 		} catch (DomainEntityUnavailableException $e) {
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(403);	// Forbidden because not a member

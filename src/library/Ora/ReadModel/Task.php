@@ -126,6 +126,10 @@ class Task extends EditableEntity
          return $c::TYPE;
     }
     
+    /**
+     * TODO: da rimuovere, deve leggere un valore già calcolato. Il calcolo sta nel write model
+     * @return string|number|NULL
+     */
     public function getEstimation() {
     	$tot = null;
     	$estimationsCount = 0;

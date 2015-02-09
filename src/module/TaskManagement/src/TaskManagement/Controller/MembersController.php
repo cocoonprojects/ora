@@ -41,7 +41,7 @@ class MembersController extends AbstractHATEOASRestfulController
     		$this->response->setStatusCode(204);
         } catch (IllegalStateException $e) {
        		$this->transaction()->rollback();
-        	$this->response->setStatusCode(406);	// Not acceptable
+        	$this->response->setStatusCode(412);	// Preconditions failed
     	}
     	
     	return $this->response;
@@ -65,7 +65,7 @@ class MembersController extends AbstractHATEOASRestfulController
         	$this->response->setStatusCode(204);	// No content
         } catch (IllegalStateException $e) {
        		$this->transaction()->rollback();
-        	$this->response->setStatusCode(406);	// Not acceptable
+        	$this->response->setStatusCode(412);	// Preconditions failed
         }
     	return $this->response;
     }

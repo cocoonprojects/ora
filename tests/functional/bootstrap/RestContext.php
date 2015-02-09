@@ -17,6 +17,7 @@ use Zend\Db\Adapter\Adapter as ZendDbAdapter;
 use Guzzle\Plugin\Cookie\Cookie;
 use Guzzle\Plugin\Cookie\CookieJar\ArrayCookieJar;
 use Guzzle\Plugin\Cookie\CookiePlugin;
+use Doctrine\ORM\EntityManager;
 
 
 /**
@@ -36,7 +37,10 @@ class RestContext extends RawMinkContext implements Context
     private static $zendApp;
     /** @var Doctrine\ORM\Tools\SchemaTool  */
 	private static $schemaTool;
-    
+    /**
+     * 
+     * @var EntityManager
+     */
 	private static $entityManager;
 	
 	private static $LOGIN_URL = '/auth/login/acceptance';
@@ -47,11 +51,9 @@ class RestContext extends RawMinkContext implements Context
      *  @BeforeSuite
      */
     public static function setupApplication(BeforeSuiteScope $scope){
-		    			
-    	echo "Setting up application...\n";
-    	
 		putenv('APPLICATION_ENV=acceptance');
-    	
+    	echo "APPLICATION_ENV=" . getenv('APPLICATION_ENV') . "\n";    	
+		
 		$path_config = __DIR__.'/../../../src/config/application.config.php';	 	
 		$path = __DIR__.'/../../../src/vendor/zendframework/zendframework/library';		
         putenv("ZF2_PATH=".$path);
@@ -68,6 +70,7 @@ class RestContext extends RawMinkContext implements Context
 		//get all doctrine metadata for create schema
 		$classes = self::$entityManager->getMetadataFactory()->getAllMetadata();
 		self::$schemaTool->createSchema($classes);
+		echo "Database schema created\n";
 		
 		//get query for event_store table creation
 		$sql = file_get_contents(__DIR__.'/../../../src/vendor/prooph/event-store-zf2-adapter/scripts/mysql-single-stream-default-schema.sql');
@@ -75,13 +78,13 @@ class RestContext extends RawMinkContext implements Context
 		$statement = self::$entityManager->getConnection()->prepare($sql);		
 		$statement->execute();
 		$statement->closeCursor(); //needed for mysql database
+		echo "Event store table created\n";
 		
 		//get query for test data
 		$sql = file_get_contents(__DIR__.'/../../../tests/sql/init.sql');
 		$statement = self::$entityManager->getConnection()->executeUpdate($sql, array(), array());		
 		
-		
-		echo "...done!\n";
+		echo "Database initialized\n";
     }
     
     /** @AfterSuite */
@@ -105,6 +108,7 @@ class RestContext extends RawMinkContext implements Context
 		$sql_drop_event_store = "drop table if exists event_stream";
 		$statement_del = self::$entityManager->getConnection()->executeUpdate($sql_drop_event_store, array(), array());
 		
+    	echo "Database " . " dropped\n";    	
 	}
 	
     /**
@@ -116,7 +120,7 @@ class RestContext extends RawMinkContext implements Context
         // Initialize your context here
         $this->_restObject = new stdClass();
         $this->_client = new Guzzle\Service\Client();
-        $this->base_url = $base_url;               
+        $this->base_url = $base_url;
     }
 
     public function getBaseUrl()
@@ -189,7 +193,7 @@ class RestContext extends RawMinkContext implements Context
     	$this->_restObjectMethod = 'post';
     	$this->iRequest(self::$LOGIN_URL);
     	if($this->_response->getStatusCode() != 200) {
-    		throw new \Exception('Cannot authenticate '.$email.' user');
+    		throw new \Exception('Cannot authenticate '.$email.' user: response status code for url '. $this->_requestUrl . ' is '.$this->_response->getStatusCode());
     	}
     	
     	$cookie = $this->_response->getSetCookie();
