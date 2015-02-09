@@ -17,11 +17,11 @@ delete from organizations;
 delete from event_stream;
 delete from users;
 
-INSERT INTO users (id, status, createdAt, firstname, lastname, email) VALUES ('60000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Mark', 'Rogers', 'mark.rogers@ora.local');
-INSERT INTO users (id, status, createdAt, firstname, lastname, email) VALUES ('70000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Phil', 'Toledo', 'phil.toledo@ora.local');
-INSERT INTO users (id, status, createdAt, firstname, lastname, email) VALUES ('20000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Paul', 'Smith', 'paul.smith@ora.local');
-INSERT INTO users (id, status, createdAt, firstname, lastname, email) VALUES ('80000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Bruce', 'Wayne', 'bruce.wayne@gotham.local');
-INSERT INTO users (id, status, createdAt, firstname, lastname, email) VALUES ('90000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Peter', 'Parker', 'spidey.web@dailybugle.local');
+INSERT INTO users (id, status, createdAt, firstname, lastname, email, role) VALUES ('60000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Mark', 'Rogers', 'mark.rogers@ora.local', 'user');
+INSERT INTO users (id, status, createdAt, firstname, lastname, email, role) VALUES ('70000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Phil', 'Toledo', 'phil.toledo@ora.local', 'user');
+INSERT INTO users (id, status, createdAt, firstname, lastname, email, role) VALUES ('20000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Paul', 'Smith', 'paul.smith@ora.local', 'user');
+INSERT INTO users (id, status, createdAt, firstname, lastname, email, role) VALUES ('80000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Bruce', 'Wayne', 'bruce.wayne@gotham.local', 'user');
+INSERT INTO users (id, status, createdAt, firstname, lastname, email, role) VALUES ('90000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Peter', 'Parker', 'spidey.web@dailybugle.local','user');
 
 INSERT INTO `organizations` (id, name, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id) VALUES
 ('00000000-0000-0000-1000-000000000000', 'O.R.A. Team','2014-11-06 13:11:05','2014-11-06 13:11:05', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000');
@@ -146,4 +146,12 @@ INSERT INTO task_members(task_id, member_id,role) VALUES
 # account
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
 ('44f1b89a-156b-4dbf-b5c9-9a0540460a0b',1,'Ora\\Accounting\\AccountCreated','a:3:{s:7:\"balance\";i:0;s:7:\"holders\";a:1:{s:36:\"60000000-0000-0000-0000-000000000000\";s:11:\"Mark Rogers\";}s:12:\"aggregate_id\";s:36:\"dcde992b-5aa9-4447-98ae-c8115906dcb7\";}','2014-12-29T17:32:07.000000+0100','Ora\\Accounting\\OrganizationAccount','dcde992b-5aa9-4447-98ae-c8115906dcb7');
+
+# stream -> organization
+INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
+('6e943d09-7a9a-4a2a-a8b5-201bfeb57b63',3,'Ora\\StreamManagement\\OrganizationUpdated','a:3:{s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000110\";}','2014-11-12T19:07:59.000000+0100','Ora\\StreamManagement\\Stream','00000000-1000-0000-0000-000000000000');
+
+# organization
+INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
+('6e943d09-7a9a-4a2a-a8b5-201bfeb57b63',3,'Ora\\Organization\\OrganizationCreated','a:3:{s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000110\";}','2014-11-12T19:07:59.000000+0100','Ora\\Organization\\Organization','00000000-1000-0000-0000-000000000000');
 
