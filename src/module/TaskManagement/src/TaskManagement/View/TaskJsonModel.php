@@ -108,7 +108,7 @@ class TaskJsonModel extends JsonModel
 			if($this->user->getId() != $member->getId() && isset($m['estimation'])) {
 				$m['estimation']['value'] = -2;
 			}
-			$members[] = $m;
+			$members[$tm->getMember()->getId()] = $m;
 		}
 		return $members;
     }

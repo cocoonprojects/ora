@@ -221,7 +221,7 @@ class Task extends DomainEntity implements \Serializable
 		*/
 
 		if(array_sum($membersShares) != 100) {
-			throw new InvalidArgumentException('The total amout of shares must be 100. Check the sum of shares assigned to each member');
+			throw new InvalidArgumentException('The total amout of shares must be 100. Check the sum of assigned shares');
 		}
 
 		$missing = array_diff_key($this->members, $membersShares);
