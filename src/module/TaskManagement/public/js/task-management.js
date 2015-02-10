@@ -434,6 +434,9 @@ TaskManagement.prototype = {
 							if(object.estimation != null){
 								rv += ' <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>';
 							}
+							if(object.share != undefined) {
+								rv += ' ' + object.share + ' (' + object.delta + ')';
+							}
 							return rv + '</span></li>';
 						}).join('') + "</ul></li>" + 
 						a + '</div>' +

@@ -53,7 +53,8 @@ class Task extends EditableEntity
 	private $stream;
 
 	/**
-	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\TaskMember", mappedBy="task", cascade={"PERSIST", "REMOVE"})
+	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\TaskMember", mappedBy="task", cascade={"PERSIST", "REMOVE"}, indexBy="member_id")
+	 * @var TaskMember[]
 	 */
 	private $members;
 	
@@ -84,10 +85,6 @@ class Task extends EditableEntity
 		return $this->stream;
 	}
 	
-	public function getMembers() {
-	    return $this->members;
-	}
-	
 	public function setStatus($status) {
 		$this->status = $status;
 		return $this->status;
@@ -99,27 +96,50 @@ class Task extends EditableEntity
         $taskMember->setCreatedBy($by);
         $taskMember->setMostRecentEditAt($when);
         $taskMember->setMostRecentEditBy($by);
-		$this->members->add($taskMember);
-		return $this->members;
+		$this->members->set($user->getId(), $taskMember);
+		return $this;
 	}
 	
-	public function removeMemberById($key) {
-		$this->members->remove($key);
+	/**
+	 * 
+	 * @param id|TaskMember $member
+	 */
+	public function removeMember($member) {
+		if($member instanceof TaskMember) {
+			$this->members->removeElement($member);
+		} else {
+			$this->members->remove($key);
+		}
+		return $this;
 	}
-	
-	public function removeMember(TaskMember $member) {
-		$this->members->removeElement($member);
+    
+	/**
+	 * 
+	 * @param id|User $user
+	 * @return \Ora\ReadModel\TaskMember|NULL
+	 */
+    public function getMember($user) {
+    	$key = $user instanceof User ? $user->getId() : $user;
+    	return $this->members->get($key);
     }
     
-    public function getMember(User $user) {
-    	foreach ($this->members as $member) {
-    		if($member->getMember()->getId() == $user->getId()) {
-    			return $member;
-    		}
-    	}
-    	return null;
+    /**
+     * 
+     * @param id|User $user
+     * @return boolean
+     */
+    public function hasMember($user) {
+    	$key = $user instanceof User ? $user->getId() : $user;
+    	return $this->members->containsKey($key);
     }
 
+    /**
+     * @return TaskMember[]
+     */
+	public function getMembers() {
+	    return $this->members->toArray();
+	}
+	
     public function getType(){
 
          $c = get_called_class();
@@ -156,12 +176,29 @@ class Task extends EditableEntity
     	return null;
     }
     
-    public function getMemberById($id) {
-    	foreach ($this->members as $member) {
-    		if($member->getMember()->getId() == $id) {
-    			return $member;
-    		}
-    	}
-    	return null;
-    }
+	public function updateMembersShare() {
+		$shares = $this->getMembersShare();
+		foreach ($shares as $key => $value) {
+			$this->members->get($key)->setShare($value);
+		}
+	}
+	
+	private function getMembersShare() {
+		$rv = array();
+		$evaluators = 0;
+		foreach ($this->members as $evaluatorId => $info) {
+			if(count($info->getShares()) > 0) {
+				$evaluators++;
+				foreach($info->getShares() as $valuedId => $share) {
+					$rv[$valuedId] = isset($rv[$valuedId]) ? $rv[$valuedId] + $share->getValue() : $share->getValue();
+				}
+			}
+		}
+		if($evaluators > 0) {
+			array_walk($rv, function(&$value, $key) use ($evaluators) {
+				$value = $value / $evaluators;
+			});
+		}
+		return $rv;
+	}
 }

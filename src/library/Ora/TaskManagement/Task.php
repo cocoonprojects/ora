@@ -341,6 +341,31 @@ class Task extends DomainEntity implements \Serializable
 		$p = $event->payload();
 		$id = $p['by'];
 		$this->members[$id]['shares'] = $p['shares'];
+		$shares = $this->getMembersShare();
+		if(count($shares) > 0) {
+			foreach ($shares as $key => $value) {
+				$this->members[$key]['share'] = $value;
+			}
+		}
+	}
+	
+	protected function getMembersShare() {
+		$rv = array();
+		$evaluators = 0;
+		foreach ($this->members as $evaluatorId => $info) {
+			if(isset($info['shares'])) {
+				$evaluators++;
+				foreach($info['shares'] as $valuedId => $value) {
+					$rv[$valuedId] = isset($rv[$valuedId]) ? $rv[$valuedId] + $value : $value;
+				}
+			}
+		}
+		if($evaluators > 0) {
+			array_walk($rv, function(&$value, $key) use ($evaluators) {
+				$value = $value / $evaluators;
+			});
+		}
+		return $rv;
 	}
 	
 }

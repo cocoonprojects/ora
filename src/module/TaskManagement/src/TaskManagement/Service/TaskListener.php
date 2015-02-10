@@ -212,12 +212,12 @@ class TaskListener
 	protected function onSharesAssigned(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
-		$evaluator = $task->getMemberById($event->payload()['by']);
+		$evaluator = $task->getMember($event->payload()['by']);
 		$evaluator->resetShares();
 		$shares = $event->payload()['shares'];
 		foreach($shares as $key => $value) {
-			$valued = $task->getMemberById($key);
-			$evaluator->setShare($valued, $value, $event->occurredOn());
+			$valued = $task->getMember($key);
+			$evaluator->assignShare($valued, $value, $event->occurredOn());
 		}
 		$this->entityManager->persist($task);
 	}

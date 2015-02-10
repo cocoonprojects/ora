@@ -95,22 +95,40 @@ class TaskJsonModel extends JsonModel
     private function getMembersArray(Task $task){
 		$members = array();
 		foreach ($task->getMembers() as $tm) {
-			$member = $tm->getMember();
-			$m = [
-	            'firstname' => $member->getFirstname(),
-	            'lastname' => $member->getLastname(),
-				'role' => $tm->getRole(),
-				'_links' => [
-					'self' => $this->url->fromRoute('users', ['id' => $member->getId()]),  
-				],
-			];
-            $m['estimation'] = $this->getEstimation($tm);
-			if($this->user->getId() != $member->getId() && isset($m['estimation'])) {
-				$m['estimation']['value'] = -2;
-			}
+			$m = $this->serializaOneMember($tm);
 			$members[$tm->getMember()->getId()] = $m;
 		}
 		return $members;
+    }
+    
+    private function serializaOneMember(TaskMember $tm) {
+    	$member = $tm->getMember();
+    	$rv = [
+    			'firstname' => $member->getFirstname(),
+    			'lastname' => $member->getLastname(),
+    			'role' => $tm->getRole(),
+    			'_links' => [
+    					'self' => $this->url->fromRoute('users', ['id' => $member->getId()]),
+    			],
+    	];
+    	
+    	$rv['estimation'] = $this->getEstimation($tm);
+    	if($this->user->getId() != $member->getId() && isset($rv['estimation'])) {
+    		// others member estimation aren't exposed outside the system
+    		$rv['estimation']['value'] = -2;
+    	}
+    	
+    	if($tm->getShare() != null) {
+    		$rv['share'] = $tm->getShare();
+    		$rv['delta'] = $tm->getDelta();
+    	}
+    	foreach ($tm->getShares() as $key => $share) {
+    		$rv['shares'][$key] = array(
+    			'value' => $share->getValue(),
+    			'createdAt' => date_format($share->getCreatedAt(), 'c'),
+    		);
+    	}
+    	return $rv;
     }
     
     private function getEstimation(TaskMember $tm) {
