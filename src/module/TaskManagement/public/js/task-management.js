@@ -510,14 +510,19 @@ TaskManagement.prototype = {
 				m.modal('hide');
 				that.listTasks();
 			},
-			error: function(jqHXR, textStatus) {
-				that.show(m, 'danger', 'An unknown error "' + textStatus + '" occurred while trying to assign shares');
-			},
 			statusCode: {
-				400 : function(jqHXR){
-					error = $.parseJSON(jqHXR.responseText);
-					that.show(m, 'danger', error.description);
+				400 : function(jqHXR, textStatus, errorThrown){
+					json = $.parseJSON(jqHXR.responseText);
+					if(json.description != undefined) {
+						that.show(m, 'danger', json.description);
+					}
+					if(json.errors != undefined) {
+						that.show(m, 'danger', json.errors[0].message);
+					}
 				}
+			},
+			error: function(jqHXR, textStatus, errorThrown) {
+				that.show(m, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to assign shares');
 			}
 		});
 	},
