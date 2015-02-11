@@ -108,7 +108,7 @@ class RestContext extends RawMinkContext implements Context
 		$sql_drop_event_store = "drop table if exists event_stream";
 		$statement_del = self::$entityManager->getConnection()->executeUpdate($sql_drop_event_store, array(), array());
 		
-    	echo "Database " . " dropped\n";    	
+    	echo "Database schema dropped\n";    	
 	}
 	
     /**
@@ -195,6 +195,7 @@ class RestContext extends RawMinkContext implements Context
     	if($this->_response->getStatusCode() != 200) {
     		throw new \Exception('Cannot authenticate '.$email.' user: response status code for url '. $this->_requestUrl . ' is '.$this->_response->getStatusCode());
     	}
+    	unset($this->_restObject->email);
     	
     	$cookie = $this->_response->getSetCookie();
     	// PHPSESSID=p3sp0qs8ai1c62o9ll9o18ro20; path=/ 

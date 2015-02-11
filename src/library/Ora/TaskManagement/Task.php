@@ -52,10 +52,6 @@ class Task extends DomainEntity implements \Serializable
 	 */
 	private $members = array();
 
-	/**
-	 */
-	private $estimations = array();
-	
 	public static function create(Stream $stream, $subject, User $createdBy, array $options = null) {
 		$rv = new self();
 		$rv->id = Uuid::uuid4();
@@ -88,7 +84,7 @@ class Task extends DomainEntity implements \Serializable
 		if(!in_array($this->status, [Task::STATUS_OPEN, Task::STATUS_COMPLETED])) {
 			throw new IllegalStateException('Cannot execute a task in '.$this->status.' state');
 		}
-		if(!isset($this->members[$executedBy->getId()]) || $this->members[$executedBy->getId()] != self::ROLE_OWNER) {
+		if(!isset($this->members[$executedBy->getId()]) || $this->members[$executedBy->getId()]['role'] != self::ROLE_OWNER) {
 			throw new InvalidArgumentException('Only the owner of the task can accept it');
 		}
 		$this->recordThat(TaskOngoing::occur($this->id->toString(), array(
@@ -101,7 +97,7 @@ class Task extends DomainEntity implements \Serializable
 		if(!in_array($this->status, [Task::STATUS_ONGOING, Task::STATUS_ACCEPTED])) {
 			throw new IllegalStateException('Cannot complete a task in '.$this->status.' state');
 		}
-		if(!isset($this->members[$completedBy->getId()]) || $this->members[$completedBy->getId()] != self::ROLE_OWNER) {
+		if(!isset($this->members[$completedBy->getId()]) || $this->members[$completedBy->getId()]['role'] != self::ROLE_OWNER) {
 			throw new InvalidArgumentException('Only the owner of the task can accept it');
 		}
 		$this->recordThat(TaskCompleted::occur($this->id->toString(), array(
@@ -117,7 +113,7 @@ class Task extends DomainEntity implements \Serializable
 		if(is_null($this->getAverageEstimation())) {
 			throw new IllegalStateException('Cannot accept a task with missing estimations by members');
 		}
-		if(!isset($this->members[$acceptedBy->getId()]) || $this->members[$acceptedBy->getId()] != self::ROLE_OWNER) {
+		if(!isset($this->members[$acceptedBy->getId()]) || $this->members[$acceptedBy->getId()]['role'] != self::ROLE_OWNER) {
 			throw new InvalidArgumentException('Only the owner of the task can accept it');
 		}
 		$this->recordThat(TaskAccepted::occur($this->id->toString(), array(
@@ -195,10 +191,6 @@ class Task extends DomainEntity implements \Serializable
 		if(!array_key_exists($member->getId(), $this->members)) {
         	throw new DomainEntityUnavailableException($this, $member); 
 		}
-// 		//this estimation already exists?
-//         if (array_key_exists($member->getId(), $this->estimations)) {
-//         	throw new DuplicatedDomainEntityException($this, $member); 
-//         }
 		// TODO: Estimation need an id?
         $this->recordThat(EstimationAdded::occur($this->id->toString(), array(
         	'by' => $member->getId(),
@@ -206,20 +198,55 @@ class Task extends DomainEntity implements \Serializable
         )));
 	}
 	
-	public function getMembers() {
-	    return $this->members;
+	public function assignShares($shares, User $member) {
+		if($this->status != self::STATUS_ACCEPTED) {
+			throw new IllegalStateException('Cannot assign shares into a task in '.$this->status.' status');
+		}
+		//check if the evaluator is a task member
+		if(!array_key_exists($member->getId(), $this->members)) {
+        	throw new DomainEntityUnavailableException($this, $member); 
+		}
+		
+		$membersShares = array();
+		foreach($shares as $key => $value) {
+			if(array_key_exists($key, $this->members)) {
+				$membersShares[$key] = $value; 
+			}
+		}
+
+		/** With PHP 5.6 the previous chunk of code can be replaced with the following
+		$membersShares = array_filter($shares, function($key, $value) {
+			return array_key_exists($key, $this->members);
+		}, ARRAY_FILTER_USE_BOTH);
+		*/
+
+		if(array_sum($membersShares) != 100) {
+			throw new InvalidArgumentException('The total amout of shares must be 100. Check the sum of assigned shares');
+		}
+
+		$missing = array_diff_key($this->members, $membersShares);
+		if(count($missing) == 1) {
+			throw new InvalidArgumentException('1 task member has missing share. Check the value for member ' . implode(',', array_keys($missing)));
+		} elseif (count($missing) > 1) {
+			throw new InvalidArgumentException(count($missing) . ' task members have missing shares. Check values for ' . implode(',', array_keys($missing)) . ' members');
+		}
+
+		$this->recordThat(SharesAssigned::occur($this->id->toString(), array(
+			'shares' => $membersShares,
+			'by' => $member->getId(),
+		)));
 	}
 	
-	public function getEstimations() {
-		return $this->estimations;
+	public function getMembers() {
+		return $this->members;
 	}
 	
 	public function getAverageEstimation() {
 		$tot = null;
 		$estimationsCount = 0;
 		$notEstimationCount = 0;
-		foreach ($this->members as $id => $role) {
-			$estimation = isset($this->estimations[$id]) ? $this->estimations[$id] : null;
+		foreach ($this->members as $member) {
+			$estimation = isset($member['estimation']) ? $member['estimation'] : null;
 			switch ($estimation) {
 				case null:
 					break;
@@ -231,10 +258,11 @@ class Task extends DomainEntity implements \Serializable
 					$estimationsCount++;
 			}
 		}
-		if($notEstimationCount == count($this->members)) {
+		$membersCount = count($this->members);
+		if($notEstimationCount == $membersCount) {
 			return Estimation::NOT_ESTIMATED;
 		}
-		if(($estimationsCount + $notEstimationCount) == count($this->members) || $estimationsCount > 2) {
+		if(($estimationsCount + $notEstimationCount) == $membersCount || $estimationsCount > 2) {
 			return $tot / $estimationsCount;
 		}
 		return null;
@@ -289,7 +317,7 @@ class Task extends DomainEntity implements \Serializable
 	protected function whenMemberAdded(MemberAdded $event) {
 		$p = $event->payload();
 		$id = $p['userId'];
-		$this->members[$id] = $p['role'];
+		$this->members[$id]['role'] = $p['role'];
 	}
 
 	protected function whenMemberRemoved(MemberRemoved $event) {
@@ -306,7 +334,38 @@ class Task extends DomainEntity implements \Serializable
 	protected function whenEstimationAdded(EstimationAdded $event) {
 		$p = $event->payload();
 		$id = $p['by'];
-		$this->estimations[$id] = $p['value'];
+		$this->members[$id]['estimation'] = $p['value'];
+	}
+	
+	protected function whenSharesAssigned(SharesAssigned $event) {
+		$p = $event->payload();
+		$id = $p['by'];
+		$this->members[$id]['shares'] = $p['shares'];
+		$shares = $this->getMembersShare();
+		if(count($shares) > 0) {
+			foreach ($shares as $key => $value) {
+				$this->members[$key]['share'] = $value;
+			}
+		}
+	}
+	
+	protected function getMembersShare() {
+		$rv = array();
+		$evaluators = 0;
+		foreach ($this->members as $evaluatorId => $info) {
+			if(isset($info['shares'])) {
+				$evaluators++;
+				foreach($info['shares'] as $valuedId => $value) {
+					$rv[$valuedId] = isset($rv[$valuedId]) ? $rv[$valuedId] + $value : $value;
+				}
+			}
+		}
+		if($evaluators > 0) {
+			array_walk($rv, function(&$value, $key) use ($evaluators) {
+				$value = $value / $evaluators;
+			});
+		}
+		return $rv;
 	}
 	
 }

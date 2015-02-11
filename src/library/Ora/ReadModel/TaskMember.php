@@ -42,7 +42,25 @@ class TaskMember {
      */
     private $estimation;
     
-	/**
+    /**
+     * @ORM\OneToMany(targetEntity="Ora\ReadModel\Share", mappedBy="evaluator", cascade="persist", orphanRemoval=TRUE, indexBy="valued_id");
+     * @var Share[]
+     */
+    private $shares;
+    
+    /**
+     * @ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
+     * @var float
+     */
+	private $share;
+	
+    /**
+     * @ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
+     * @var float
+     */
+	private $delta;
+	
+    /**
 	 * @ORM\Column(type="datetime")
 	 * @var DateTime
 	 */
@@ -70,6 +88,7 @@ class TaskMember {
         $this->task = $task;
         $this->member = $member;
         $this->role = $role;
+        $this->shares = new ArrayCollection();
     }
 
     public function getRole() {
@@ -134,5 +153,38 @@ class TaskMember {
     	$this->mostRecentEditBy = $user;
     	return $this->mostRecentEditBy;
     }
+    
+    public function assignShare(TaskMember $valued, $value, \DateTime $when) {
+    	$share = new Share($this, $valued);
+    	$share->setValue($value);
+    	$share->setCreatedAt($when);
+    	$this->shares->set($valued->getMember()->getId(), $share);
+    	$this->task->updateMembersShare();
+    	return $this;
+    }
 
+    public function resetShares() {
+    	$this->shares->clear();
+    	return $this;
+    }
+    
+    public function getShares() {
+    	return $this->shares->toArray();
+    }
+
+    public function setShare($value) {
+    	$this->share = $value;
+    	
+    	$share = $this->shares->get($this->member->getId());
+     	$this->delta = is_null($share) ? null : $value - $share->getValue();
+    	return $this;
+    }
+    
+    public function getShare() {
+    	return $this->share;
+    }
+    
+    public function getDelta() {
+    	return $this->delta;
+    }
 }

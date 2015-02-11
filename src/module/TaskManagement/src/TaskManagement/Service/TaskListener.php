@@ -2,6 +2,7 @@
 namespace TaskManagement\Service;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Stream\StreamEvent;
@@ -9,6 +10,7 @@ use Ora\ReadModel\Task;
 use Ora\ReadModel\Estimation;
 use Ora\Kanbanize\ReadModel\KanbanizeTask;
 use Ora\Kanbanize\KanbanizeService;
+use Ora\ReadModel\Share;
 
 class TaskListener
 {
@@ -160,7 +162,7 @@ class TaskListener
 			return;
 		}
 		$id = $event->metadata()['aggregate_id'];
-		$taskMember = $this->entityManager->find('Ora\\ReadModel\\TaskMember', array('task' => $id, 'member' => $user));
+		$taskMember = $this->entityManager->find('Ora\ReadModel\TaskMember', array('task' => $id, 'member' => $user));
 		
 		$value = $event->payload()['value'];
 
@@ -204,6 +206,19 @@ class TaskListener
 		$user = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
 		$task->setMostRecentEditBy($user);
 		$task->setMostRecentEditAt($event->occurredOn());
+		$this->entityManager->persist($task);
+	}
+	
+	protected function onSharesAssigned(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
+		$evaluator = $task->getMember($event->payload()['by']);
+		$evaluator->resetShares();
+		$shares = $event->payload()['shares'];
+		foreach($shares as $key => $value) {
+			$valued = $task->getMember($key);
+			$evaluator->assignShare($valued, $value, $event->occurredOn());
+		}
 		$this->entityManager->persist($task);
 	}
 	

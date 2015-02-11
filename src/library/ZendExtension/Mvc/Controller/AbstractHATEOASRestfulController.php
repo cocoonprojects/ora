@@ -81,6 +81,7 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
             	$return = parent::onDispatch($e);
             	break;
         }
+        $e->setResult($return);
         return $return;
 	}
 	

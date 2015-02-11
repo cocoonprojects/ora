@@ -7,6 +7,7 @@ use Zend\Mvc\Service\ServiceManagerConfig;
 use Zend\ServiceManager\ServiceManager;
 use RuntimeException;
 use Zend\Stdlib\ArrayUtils;
+use Zend\Mvc\Application;
 
 error_reporting(E_ALL | E_STRICT);
 chdir(dirname(__DIR__));
@@ -32,9 +33,8 @@ class Bootstrap
 
     public static function init($config)
     {
-
     	putenv('APPLICATION_ENV=acceptance');
-        self::$zendApp = \Zend\Mvc\Application::init(include(__DIR__.'/../src/config/application.config.php')); //new application instance
+        self::$zendApp = Application::init(include(__DIR__.'/../src/config/application.config.php')); //new application instance
 	
         $serviceManager = self::$zendApp->getServiceManager();		
  		$config = ArrayUtils::merge($config, include(__DIR__.'/../src/config/application.config.php'));

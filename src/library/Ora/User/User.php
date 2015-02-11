@@ -77,8 +77,8 @@ class User
 	private $picture;
 	
 	/**
-	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\OrganizationMembership", mappedBy="member")
-	 * @var ArrayCollection
+	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\OrganizationMembership", mappedBy="member", indexBy="organization_id")
+	 * @var OrganizationMembership[]
 	 */
 	protected $memberships;
 	
@@ -191,7 +191,7 @@ class User
 	
 	public function getOrganizationMemberships()
 	{
-		return $this->memberships;
+		return $this->memberships->toArray();
 	}
 	
 	public function setPicture($url) {
@@ -203,10 +203,13 @@ class User
 		return $this->picture;
 	}
 	
-	public function isMemberOf(Organization $organization) {
-		$rv = $this->memberships->exists(function($key, $value) use ($organization) {
-			return $value->getOrganization()->equals($organization);
-		});
-		return $rv;
+	/**
+	 * 
+	 * @param id|Organization $organization
+	 * @return unknown
+	 */
+	public function isMemberOf($organization) {
+		$key = $organization instanceof Organization ? $organization->getId() : $organization;
+		return $this->memberships->containsKey($key);
 	}
 }
