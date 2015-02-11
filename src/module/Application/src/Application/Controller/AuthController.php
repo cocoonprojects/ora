@@ -48,7 +48,7 @@ class AuthController extends AbstractActionController
 					if($result->isValid()) {
 						$this->redirect()->toRoute('home');	
 					}
-				}
+				}				
 				$view->setVariable('authenticate', $result);
 			}
 		} catch (InvalidTokenException $e) {
@@ -70,6 +70,10 @@ class AuthController extends AbstractActionController
 	{
 		$args = $e->getParams();
 		$info = $args['info'];
+		
+		//var_dump($args['info']);echo"---------------------------------------------";
+		
+		
 		switch($args['provider'])
 		{
 			case 'linkedin':
@@ -88,6 +92,10 @@ class AuthController extends AbstractActionController
 
 		$args['info']['user'] = $user;
 		$args['info']['provider'] = $args['provider'];
+		
+		//echo"---------------------------------------------";echo sizeof($args['info']['user']->getOrganizationMemberships());echo"---------------------------------------------";
+		
+		
 	}	
 	
 	public function setUserService(UserService $userService) {

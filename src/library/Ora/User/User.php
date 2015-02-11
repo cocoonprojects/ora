@@ -17,8 +17,8 @@ use Role;
  * @ORM\Entity @ORM\Table(name="users")
  *
  */
-class User extends EditableEntity implements ProviderInterface
 
+class User extends EditableEntity implements ProviderInterface
 {	   
 	CONST STATUS_ACTIVE = 1;
     CONST ROLE_ADMIN = 'admin';
@@ -251,6 +251,6 @@ class User extends EditableEntity implements ProviderInterface
     
     public static function getRoleCollection(){
     	return self::$roles;
-    } 
+    }
 
 }
