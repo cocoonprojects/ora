@@ -176,6 +176,13 @@ class Task extends EditableEntity
     	return null;
     }
     
+    public function resetShares() {
+    	foreach ($this->members as $member) {
+    		$member->resetShares();
+    		$member->setShare(null);
+    	}
+    }
+    
 	public function updateMembersShare() {
 		$shares = $this->getMembersShare();
 		foreach ($shares as $key => $value) {
@@ -185,9 +192,12 @@ class Task extends EditableEntity
 	
 	private function getMembersShare() {
 		$rv = array();
+		foreach ($this->members as $member) {
+			$rv[$member->getMember()->getId()] = null;
+		}
 		$evaluators = 0;
 		foreach ($this->members as $evaluatorId => $info) {
-			if(count($info->getShares()) > 0) {
+			if(count($info->getShares()) > 0 && $info->getShareValueOf($info) !== null) {
 				$evaluators++;
 				foreach($info->getShares() as $valuedId => $share) {
 					$rv[$valuedId] = isset($rv[$valuedId]) ? $rv[$valuedId] + $share->getValue() : $share->getValue();

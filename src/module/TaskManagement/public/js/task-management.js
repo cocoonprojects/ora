@@ -73,6 +73,13 @@ TaskManagement.prototype = {
 
 		$("body").on("click", "button[data-action='completeTask']", function(e){
 			e.preventDefault();
+			var button = $(e.target) // Button that triggered the modal
+			var key = button.data("task");
+			if(that.data.tasks[key].status == 40) {
+				if(!confirm('Are you sure? Shares will be erased')) {
+					return false;
+				}
+			}
 			that.completeTask(e);
 		});
 
@@ -94,7 +101,7 @@ TaskManagement.prototype = {
 			var button = $(e.relatedTarget) // Button that triggered the modal
 			var url = button.data('href');
 			$("#estimateTaskModal form").attr("action", url);
-			var credits = button.data('credits');
+			var credits = button.data('task');
 			if(credits == undefined) {
 				$('#estimateTaskCredits').val(null);
 			    $("#estimateTaskCredits").prop('disabled', false);
@@ -122,10 +129,12 @@ TaskManagement.prototype = {
 			var url = button.data('href');
 			$("#assignSharesModal form").attr("action", url);
 			
+		    $("#assignShareSkip").prop('checked', false);
+
 			var container = $('#assignSharesMembers');
 			container.empty();
 
-			var key = button.data("credits");
+			var key = button.data("task");
 			$.each(that.data.tasks[key].members, function(i, object) {
 				container.append('<div class="form-group">'
 						+ '<label for="' + i + '" class="col-sm-4 control-label">' + object.firstname + ' ' + object.lastname + '</label>'
@@ -375,7 +384,7 @@ TaskManagement.prototype = {
 				createdAt = new Date(Date.parse(task.createdAt));
 				var actions = [];
 				if (task._links.complete != undefined) {
-					actions.push('<button data-href="' + task._links.complete + '" data-action="completeTask" class="btn btn-default">Complete</button>');
+					actions.push('<button data-href="' + task._links.complete + '" data-task="' + key + '" data-action="completeTask" class="btn btn-default">Complete</button>');
 				}
 				if (task._links.accept != undefined) {
 					actions.push('<button data-href="' + task._links.accept + '" data-action="acceptTask" class="btn btn-default">Accept</button>');
@@ -400,7 +409,7 @@ TaskManagement.prototype = {
 					actions.push('<a href="' + task._links.unjoin + '" data-action="unjoinTask" class="btn btn-default">Unjoin</a>');
 				}
 				if (task._links.assignShares != undefined) {
-					actions.push('<a data-href="' + task._links.assignShares + '" data-credits="' + key + '" data-toggle="modal" data-target="#assignSharesModal" class="btn btn-default">Assign share</a>');
+					actions.push('<a data-href="' + task._links.assignShares + '" data-task="' + key + '" data-toggle="modal" data-target="#assignSharesModal" class="btn btn-default">Assign share</a>');
 				}
 				if (task._links.edit != undefined) {
 					actions.push('<a data-href="' + task._links.edit + '" data-subject="' + task.subject + '" data-toggle="modal" data-target="#editTaskModal" class="btn btn-default mdi-content-create"></a>');
@@ -436,7 +445,10 @@ TaskManagement.prototype = {
 								rv += ' <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>';
 							}
 							if(object.share != undefined) {
-								rv += ' ' + object.share + ' (' + object.delta + ')';
+								rv += ' share: ' + object.share + '%';
+								if(object.delta != null) {
+									rv += ' (' + object.delta + ')';
+								}
 							}
 							return rv + '</span></li>';
 						}).join('') + "</ul></li>" + 
@@ -500,16 +512,17 @@ TaskManagement.prototype = {
 	},
 	
 	assignShares : function (e){
-		var url = $(e.target).attr('action');
+		var form = $(e.target);
+		var data = $('#assignShareSkip').is(':checked') ? { } : form.serialize();
 
 		m = $('#assignSharesModal');
 
 		that = this;
 		
 		$.ajax({
-			url: url,
+			url: form.attr('action'),
 			method: 'POST',
-			data: $('#assignSharesModal form').serialize(),
+			data: data,
 			success: function() {
 				m.modal('hide');
 				that.listTasks();

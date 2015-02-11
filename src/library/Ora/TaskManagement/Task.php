@@ -237,6 +237,20 @@ class Task extends DomainEntity implements \Serializable
 		)));
 	}
 	
+	public function skipShares(User $member) {
+		if($this->status != self::STATUS_ACCEPTED) {
+			throw new IllegalStateException('Cannot assign shares into a task in '.$this->status.' status');
+		}
+		//check if the evaluator is a task member
+		if(!array_key_exists($member->getId(), $this->members)) {
+			throw new DomainEntityUnavailableException($this, $member);
+		}
+		
+		$this->recordThat(SharesSkipped::occur($this->id->toString(), array(
+			'by' => $member->getId(),
+		)));
+	}
+	
 	public function getMembers() {
 		return $this->members;
 	}
@@ -316,6 +330,10 @@ class Task extends DomainEntity implements \Serializable
 	
 	protected function whenTaskCompleted(TaskCompleted $event) {
 		$this->status = self::STATUS_COMPLETED;
+		array_walk($this->members, function(&$value, $key) {
+			unset($value['shares']);
+			unset($value['share']);
+		});
 	}
 	
 	protected function whenTaskAccepted(TaskAccepted $event) {
@@ -368,11 +386,25 @@ class Task extends DomainEntity implements \Serializable
 		}
 	}
 	
+	protected function whenSharesSkipped(SharesSkipped $event) {
+		$p = $event->payload();
+		$id = $p['by'];
+		foreach ($this->members as $key => $value) {
+			$this->members[$id]['shares'][$key] = null;
+		}
+		$shares = $this->getMembersShare();
+		if(count($shares) > 0) {
+			foreach ($shares as $key => $value) {
+				$this->members[$key]['share'] = $value;
+			}
+		}
+	}
+	
 	protected function getMembersShare() {
 		$rv = array();
 		$evaluators = 0;
 		foreach ($this->members as $evaluatorId => $info) {
-			if(isset($info['shares'])) {
+			if(isset($info['shares'][$evaluatorId])) {
 				$evaluators++;
 				foreach($info['shares'] as $valuedId => $value) {
 					$rv[$valuedId] = isset($rv[$valuedId]) ? $rv[$valuedId] + $value : $value;

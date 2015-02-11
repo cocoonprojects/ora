@@ -177,6 +177,7 @@ class TaskListener
 			$this->kanbanizeService->completeTask($task);
 		}
 		$task->setStatus(Task::STATUS_COMPLETED);
+		$task->resetShares();
         $user = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
 		$task->setMostRecentEditBy($user);
 		$task->setMostRecentEditAt($event->occurredOn());
@@ -218,6 +219,17 @@ class TaskListener
 		foreach($shares as $key => $value) {
 			$valued = $task->getMember($key);
 			$evaluator->assignShare($valued, $value, $event->occurredOn());
+		}
+		$this->entityManager->persist($task);
+	}
+	
+	protected function onSharesSkipped(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
+		$evaluator = $task->getMember($event->payload()['by']);
+		$evaluator->resetShares();
+		foreach($task->getMembers() as $valued) {
+			$evaluator->assignShare($valued, null, $event->occurredOn());
 		}
 		$this->entityManager->persist($task);
 	}
