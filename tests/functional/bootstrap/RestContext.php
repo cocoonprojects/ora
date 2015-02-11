@@ -383,7 +383,11 @@ class RestContext extends RawMinkContext implements Context
     public function thePropertySizeShouldBe($propertyName, $value)
     {
     	$this->theResponseShouldHaveAProperty($propertyName);
-    	if (count($this->json->$propertyName) != $value) {
+    	if (is_array($this->json->$propertyName)) {
+    		if (count($this->json->$propertyName) != $value) {
+    			throw new \Exception('Property size isn\'t equal to ' . $value .'! It is ' . count($this->json->$propertyName));
+    		}
+       	} elseif (count(get_object_vars($this->json->$propertyName)) != $value) {
 			throw new \Exception('Property size isn\'t equal to ' . $value .'! It is ' . count($this->json->$propertyName));
 		}
     }
@@ -394,7 +398,11 @@ class RestContext extends RawMinkContext implements Context
     public function thePropertySizeShouldBeGreaterOrEqualThan($propertyName, $value)
     {
     	$this->theResponseShouldHaveAProperty($propertyName);
-   		if (count($this->json->$propertyName) < $value) {
+   		if (is_array($this->json->$propertyName)) {
+    		if (count($this->json->$propertyName) < $value) {
+    			throw new \Exception('Property size isn\'t greater or equal than '.$value .'! It is ' . count($this->json->$propertyName));
+    		}
+   		} elseif (count(get_object_vars($this->json->$propertyName)) < $value) {
 			throw new \Exception('Property size isn\'t greater or equal than '.$value .'! It is ' . count($this->json->$propertyName));
 		}
     }
