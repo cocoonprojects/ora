@@ -385,9 +385,10 @@ TaskManagement.prototype = {
 				}
 				if (task._links.estimate != undefined) {
 					$e = '';
-					for(i = 0; i < task.members.length; i++) {
-						if(task.members[i].estimation != undefined && task.members[i].estimation.value != -2) {
-							$e = ' data-credits="' + task.members[i].estimation.value + '"';
+					for(var memberId in task.members) {
+						var info = task.members[memberId];
+						if(info.estimation != undefined && info.estimation.value != -2) {
+							$e = ' data-credits="' + info.estimation.value + '"';
 						}
 					};
 					actions.push('<a data-href="' + task._links.estimate  + '"' + $e + ' data-toggle="modal" data-target="#estimateTaskModal" class="btn btn-default">Estimate</a>');

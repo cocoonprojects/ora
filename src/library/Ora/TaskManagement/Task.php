@@ -127,7 +127,7 @@ class Task extends DomainEntity implements \Serializable
 	}
 	
 	public function setSubject($subject, User $updatedBy) {
-		$s = trim($subject);
+		$s = is_null($subject) ? null : trim($subject);
 		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
 			'subject' => $s,
 			'by' => $updatedBy->getId(),
@@ -268,6 +268,24 @@ class Task extends DomainEntity implements \Serializable
 		return null;
 	}
 	
+	/**
+	 * 
+	 * @param id|User $user
+	 */
+	public function hasMember($user) {
+		$key = $user instanceof User ? $user->getId() : $user;
+		return isset($this->members[$key]);
+	}
+	/**
+	 * 
+	 * @param unknown $role
+	 * @param id|User $user
+	 */
+	public function hasAs($role, $user) {
+		$key = $user instanceof User ? $user->getId() : $user;
+		return isset($this->members[$key]) && $this->members[$key]['role'] == $role;
+	}
+	
 	public function serialize()
 	{
 		$data = array(
@@ -309,8 +327,9 @@ class Task extends DomainEntity implements \Serializable
 	}
 	
 	protected function whenTaskUpdated(TaskUpdated $event) {
-		if(isset($event->payload()['subject'])) {
-			$this->subject = $event->payload()['subject'];
+		$pl = $event->payload();
+		if(array_key_exists('subject', $pl)) {
+			$this->subject = $pl['subject'];
 		}
 	}
 	

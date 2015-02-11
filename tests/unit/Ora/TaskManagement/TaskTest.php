@@ -17,11 +17,36 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	 * @var User
 	 */
 	protected $taskCreator;
+	/**
+	 * 
+	 * @var Stream
+	 */
+	protected $stream;
 	
 	protected function setUp() {
 		$this->taskCreator = User::create();
-		$stream = new Stream(Uuid::fromString('00000000-1000-0000-0000-000000000002'), $this->taskCreator);
-		$this->task = Task::create($stream, 'test', $this->taskCreator);
+		$this->stream = new Stream(Uuid::fromString('00000000-1000-0000-0000-000000000002'), $this->taskCreator);
+		$this->task = Task::create($this->stream, 'test', $this->taskCreator);
+	}
+	
+	public function testCreate() {
+		$task = Task::create($this->stream, 'Test subject', $this->taskCreator);
+		$this->assertInstanceOf('Rhumsaa\Uuid\Uuid', $task->getId());
+		$this->assertEquals('Test subject', $task->getSubject());
+		$this->assertEquals(Task::STATUS_ONGOING, $task->getStatus());
+		$this->assertEquals($this->stream->getId()->toString(), $task->getStreamId());
+		$this->assertTrue($task->hasMember($this->taskCreator));
+		$this->assertTrue($task->hasAs(Task::ROLE_OWNER, $this->taskCreator));
+	}
+	
+	public function testCreateWithNoSubject() {
+		$task = Task::create($this->stream, null, $this->taskCreator);
+		$this->assertInstanceOf('Rhumsaa\Uuid\Uuid', $task->getId());
+		$this->assertNull($task->getSubject());
+		$this->assertEquals(Task::STATUS_ONGOING, $task->getStatus());
+		$this->assertEquals($this->stream->getId()->toString(), $task->getStreamId());
+		$this->assertTrue($task->hasMember($this->taskCreator));
+		$this->assertTrue($task->hasAs(Task::ROLE_OWNER, $this->taskCreator));
 	}
 	
 	public function testAddEstimation() {
