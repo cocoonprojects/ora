@@ -11,7 +11,7 @@ use Ora\IllegalStateException;
 use Zend\Authentication\AuthenticationServiceInterface;
 use TaskManagement\View\TaskJsonModel;
 use Ora\TaskManagement\Task;
-
+use BjyAuthorize\Service\Authorize;
 
 class TasksController extends AbstractHATEOASRestfulController
 {
@@ -29,10 +29,11 @@ class TasksController extends AbstractHATEOASRestfulController
      */
 	private $streamService;
 	
-	public function __construct(TaskService $taskService, StreamService $streamService)
+	public function __construct(TaskService $taskService, StreamService $streamService, Authorize $authorize)
 	{
 		$this->taskService = $taskService;
 		$this->streamService = $streamService;		
+		$this->authorize = $authorize;
 	}
 	
     public function get($id)
@@ -43,7 +44,7 @@ class TasksController extends AbstractHATEOASRestfulController
         	return $this->response;
         }
     	$this->response->setStatusCode(200);
-        $view = new TaskJsonModel($this->url(), $this->identity()['user']);
+        $view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->authorize);
         $view->setVariable('resource', $task);
         return $view;
     }
@@ -61,7 +62,7 @@ class TasksController extends AbstractHATEOASRestfulController
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks() : $this->taskService->findStreamTasks($streamID);
 
     	$this->response->setStatusCode(200);
-       	$view = new TaskJsonModel($this->url(), $this->identity()['user']);       	
+       	$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->authorize);       	
         $view->setVariable('resource', $availableTasks);
         return $view;
     }

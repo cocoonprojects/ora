@@ -101,5 +101,4 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 // 		return $rv;
 // 	}
 
-
 }

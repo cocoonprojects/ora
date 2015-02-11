@@ -5,19 +5,13 @@ namespace Ora\User;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
-use Ora\ReadModel\OrganizationMembership;
-
-use Ora\ReadModel\Organization;
-
-use Ora\ReadModel\EditableEntity;
 use BjyAuthorize\Provider\Role\ProviderInterface;   
-use Role;
 
 /**
  * @ORM\Entity @ORM\Table(name="users")
  *
  */
-class User extends EditableEntity implements ProviderInterface
+class User implements ProviderInterface
 
 {	   
 	CONST STATUS_ACTIVE = 1;
@@ -121,6 +115,10 @@ class User extends EditableEntity implements ProviderInterface
 		$rv->mostRecentEditAt = $rv->createdAt;
 		$rv->mostRecentEditBy = $rv->createdBy;
 		return $rv;
+	}
+	
+	public function addOrganizationMembership($membership){
+		$this->memberships[] = $membership;
 	}
 	
 	public function getId() {
@@ -252,5 +250,6 @@ class User extends EditableEntity implements ProviderInterface
     public static function getRoleCollection(){
     	return self::$roles;
     } 
+    
 
 }

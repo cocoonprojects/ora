@@ -8,6 +8,7 @@ use Ora\ReadModel\Estimation;
 use Ora\ReadModel\TaskMember;
 use Zend\Mvc\Controller\Plugin\Url;
 use Ora\User\User;
+use BjyAuthorize\Service\Authorize;
 
 class TaskJsonModel extends JsonModel
 {
@@ -22,27 +23,32 @@ class TaskJsonModel extends JsonModel
 	 */
 	private $user;
 	
-	public function __construct(Url $url, User $user) {
+	private $authorize;
+	
+	public function __construct(Url $url, User $user, Authorize $authorize) {
 		$this->url = $url;
 		$this->user = $user;
+		$this->authorize = $authorize;
 	}
 	
 	public function serialize()
 	{
 		$resource = $this->getVariable('resource');
-
+	
         if(is_array($resource)) {
 			$representation['tasks'] = [];
 			foreach ($resource as $r) {
 				$representation['tasks'][] = $this->serializeOne($r);
-				if($this->isAllowed('create')) {
-					$representation['_links']['create'] = $this->url->fromRoute('tasks');
-				}
+				
+				if ($this->authorize->isAllowed($r->getStream(), 'createTask')) {           	
+		    		$representation['_links']['create'] = $this->url->fromRoute('tasks');
+		        }		        
 			}
 		} else {
 			$representation = $this->serializeOne($resource);
 		}
-		return Json::encode($representation);
+		return Json::encode($representation);	
+		
 	}
 
 	private function serializeOne(Task $task) {
@@ -59,9 +65,11 @@ class TaskJsonModel extends JsonModel
 		if($this->isAllowed('unjoin', $task)) {
 			$links['unjoin'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']); 
 		}
-		if($this->isAllowed('estimate', $task)) {
-			$links['estimate'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'estimations']); 
-		}
+		
+		if ($this->authorize->isAllowed($task, 'estimateTask')) {      
+    		$links['estimate'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'estimations']); 
+    	}
+		
 		if($this->isAllowed('execute', $task)) {
 			$links['execute'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']); 
 		}

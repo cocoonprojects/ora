@@ -61,13 +61,16 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 	            	$locator = $sm->getServiceLocator();
 	            	$taskService = $locator->get('TaskManagement\TaskService');
 	            	$streamService = $locator->get('TaskManagement\StreamService');
-	            	$controller = new TasksController($taskService, $streamService);
+	            	$authorize = $locator->get('BjyAuthorize\Service\Authorize');
+	            	$controller = new TasksController($taskService, $streamService, $authorize);
+	            	
 	            	return $controller;
 	            },
 	            'TaskManagement\Controller\Members' => function ($sm) {
             		$locator = $sm->getServiceLocator();
             		$taskService = $locator->get('TaskManagement\TaskService');
-            		$controller = new MembersController($taskService);
+            		$authorize = $locator->get('BjyAuthorize\Service\Authorize');
+            		$controller = new MembersController($taskService, $authorize);
             		return $controller;
             	},
             	'TaskManagement\Controller\Transitions' => function ($sm) {
@@ -80,7 +83,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             	'TaskManagement\Controller\Estimations' => function ($sm) {
             		$locator = $sm->getServiceLocator();
             		$taskService = $locator->get('TaskManagement\TaskService');
-            		$controller = new EstimationsController($taskService);
+            		$authorize = $locator->get('BjyAuthorize\Service\Authorize');
+            		$controller = new EstimationsController($taskService, $authorize);
             		return $controller;
             	},
             	'TaskManagement\Controller\Shares' => function ($sm) {
@@ -100,13 +104,9 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
                 'TaskManagement\StreamService' => 'TaskManagement\Service\StreamServiceFactory',
             	'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',
 				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
-			    //'assertion.CreateTaskAssertion' => 'Application\Services\CreateTaskAssertionFactory',
-				'assertion.CreateTaskAssertion' => function($locator){
-	                $authService = $locator->get('Zend\Authentication\AuthenticationService');
-	        		$loggedUser = $authService->getIdentity()['user'];
-	        							        
-	        		return new CreateTaskAssertion($loggedUser);
-                }
+			    'assertion.CreateTaskAssertion' =>  'TaskManagement\Service\CreateTaskAssertionFactory',
+				'assertion.EstimateTaskAssertion' =>  'TaskManagement\Service\EstimateTaskAssertionFactory',
+				'assertion.JoinTaskAssertion' =>  'TaskManagement\Service\JoinTaskAssertionFactory',
             ),
 		);
     }

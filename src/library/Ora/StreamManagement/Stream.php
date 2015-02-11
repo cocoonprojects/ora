@@ -13,7 +13,7 @@ use Zend\Permissions\Acl\Resource\ResourceInterface;
  * @author Giannotti Fabio
  *
  */
-class Stream extends DomainEntity implements \Serializable, ResourceInterface
+class Stream extends DomainEntity implements \Serializable, ResourceInterface, ReadableStream
 {	    
 	/**
 	 * 
@@ -82,6 +82,9 @@ class Stream extends DomainEntity implements \Serializable, ResourceInterface
     	return $this->organizationId;
     }
     
+    public function getReadableOrganization(){
+    	return $this->getOrganizationId();
+    }
 
 	public function getResourceId(){			
         return get_class($this);

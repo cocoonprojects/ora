@@ -68,6 +68,9 @@ return array(
     	'resource_providers' => array(
             'BjyAuthorize\Provider\Resource\Config' => array(
                 'Ora\StreamManagement\Stream' => array(),
+    			'DoctrineORMModule\Proxy\__CG__\Ora\ReadModel\Stream' => array(),
+    			'Ora\TaskManagement\Task' => array(),
+    			'Ora\ReadModel\Task' => array(),
             ),
         ),
     
@@ -75,11 +78,31 @@ return array(
             'BjyAuthorize\Provider\Rule\Config' => array(
                 'allow' => array(
                     
-                    array(array('user'), 
-                    		'Ora\StreamManagement\Stream', 
-                    		array('createTask'), 
-                    		'assertion.CreateTaskAssertion'),
-                                        
+                    array(
+                    	array('user'), 
+                    	'Ora\StreamManagement\Stream', 
+                    	array('createTask'), 
+                    	'assertion.CreateTaskAssertion'),                    	
+                    array(
+                    	array('user'), 
+                    	'DoctrineORMModule\Proxy\__CG__\Ora\ReadModel\Stream', 
+                    	array('createTask'), 
+                    	'assertion.CreateTaskAssertion'),
+					array(
+                    	array('user'), 
+                    	'Ora\TaskManagement\Task', 
+                    	array('joinTask'), 
+                    	'assertion.JoinTaskAssertion'),
+                    array(
+                    	array('user'), 
+                    	'Ora\TaskManagement\Task', 
+                    	array('estimateTask'), 
+                    	'assertion.EstimateTaskAssertion'),
+                    array(
+                    	array('user'), 
+                    	'Ora\ReadModel\Task', 
+                    	array('estimateTask'), 
+                    	'assertion.EstimateTaskAssertion'),
                 ),
             ),
         ),

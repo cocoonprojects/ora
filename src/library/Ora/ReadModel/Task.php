@@ -9,6 +9,8 @@ use Ora\IllegalStateException;
 use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
 use Ora\User\User;
+use Zend\Permissions\Acl\Resource\ResourceInterface;
+use Ora\TaskManagement\ReadableTask;
 
 /**
  * @ORM\Entity @ORM\Table(name="tasks")
@@ -20,7 +22,7 @@ use Ora\User\User;
 
 // If no DiscriminatorMap annotation is specified, doctrine uses lower-case class name as default values
 
-class Task extends EditableEntity
+class Task extends EditableEntity implements ResourceInterface, ReadableTask
 {	
     CONST STATUS_IDEA = 0;
     CONST STATUS_OPEN = 10;
@@ -176,6 +178,7 @@ class Task extends EditableEntity
     	return null;
     }
     
+
 	public function updateMembersShare() {
 		$shares = $this->getMembersShare();
 		foreach ($shares as $key => $value) {
@@ -201,4 +204,23 @@ class Task extends EditableEntity
 		}
 		return $rv;
 	}
+
+    public function getResourceId(){
+    	return get_class($this);
+    }
+	
+    public function getReadableMembers(){
+    	
+    	$membersArray = array();
+    	
+    	foreach($this->members as $taskMember){
+    		
+    		$memberId = $taskMember->getMember()->getId();
+    		$memberRole = $taskMember->getRole();
+    		
+    		$membersArray[$memberId] = $memberRole;
+    	}
+    	
+    	return $membersArray;
+    }
 }

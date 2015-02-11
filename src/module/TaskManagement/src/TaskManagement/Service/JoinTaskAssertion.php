@@ -9,7 +9,7 @@ use Zend\Permissions\Acl\Role\RoleInterface;
 use Zend\Permissions\Acl\Assertion\AssertionInterface;
 use Ora\User\User;
 
-class CreateTaskAssertion implements AssertionInterface
+class JoinTaskAssertion implements AssertionInterface
 {
     private $loggedUser;
     private $organizationMemberships;
@@ -22,22 +22,33 @@ class CreateTaskAssertion implements AssertionInterface
     }
     
 	public function assert(Acl $acl, RoleInterface $role = null, ResourceInterface $resource = null, $privilege = null){
-
+		
 		if($this->loggedUser instanceof User){
     		
-		    //controllo se lo stream nel quale creare il task e' associato all'organizzazione 
-		    //dell'utente loggato
-			$currentOrganizationId = $resource->getReadableOrganization();
+			$taskStatus = $resource->getStatus();
 
-			foreach ($this->organizationMemberships as $membership){
-				
-		    	$organizationMembershipId = $membership->getOrganization()->getId();
-		    	
-		    	if($currentOrganizationId == $organizationMembershipId){		    		
-		    		return true;
-		    	}
-		    }
-		    return false;		    
+			//controllo se lo stream, relativo al task sul quale e' stato richiesto il JOIN, e' associato all'organizzazione 
+		    //dell'utente loggato
+		    $currentStreamId = $resource->getStreamId();
+		    
+		    //MI MANCA IL COLLEGAMENTO DA $currentStreamId A $currentStream
+		    
+		    $currentOrganizationId = $currentStream->getReadableOrganization();
+
+			if($taskStatus == $resource::STATUS_ONGOING){
+				foreach ($this->organizationMemberships as $membership){
+					
+			    	$organizationMembershipId = $membership->getOrganization()->getId();
+			    	
+			    	if($currentOrganizationId == $organizationMembershipId){		    		
+			    		return true;
+			    	}
+			    }
+			    return false;
+			}else{
+				return false;
+			}
+					    
     	}else{    	
     		return false;
     	}

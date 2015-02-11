@@ -7,6 +7,7 @@ use Ora\IllegalStateException;
 use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
 use Ora\TaskManagement\TaskService;
+use BjyAuthorize\Service\Authorize;
 
 class MembersController extends AbstractHATEOASRestfulController
 {
@@ -19,17 +20,27 @@ class MembersController extends AbstractHATEOASRestfulController
      */
     protected $taskService;
     
-    public function __construct(TaskService $taskService) {
+    private $authorize;
+    
+    public function __construct(TaskService $taskService, Authorize $authorize) {
 		$this->taskService = $taskService;	
+		$this->authorize = $authorize;
     }
     
     public function invoke($id, $data)
     {
-        $task = $this->taskService->getTask($id);
+    	$task = $this->taskService->getTask($id);
+    	
         if (is_null($task)) {
         	$this->response->setStatusCode(404);
 			return $this->response;
         }
+    	
+    	if (!$this->authorize->isAllowed($task, 'joinTask')) {      
+    		$this->response->setStatusCode(403);
+    		return $this->response;
+    	}
+    	
     	$loggedUser = $this->identity()['user'];
     	$this->transaction()->begin();
     	try {    		
