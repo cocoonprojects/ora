@@ -355,7 +355,7 @@ TaskManagement.prototype = {
 	{
 		this.data = json;
 		
-		if(this.data._links.create != undefined) {
+		if(this.data._links !== undefined && this.data._links.create !== undefined) {
 			$("#createTaskModal form").attr("action", this.data._links.create);
 			$("#createTaskBtn").show();
 		} else {

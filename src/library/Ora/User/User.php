@@ -11,7 +11,7 @@ use BjyAuthorize\Provider\Role\ProviderInterface;
  * @ORM\Entity @ORM\Table(name="users")
  *
  */
-class User implements ProviderInterface
+class User implements ProviderInterface, \Serializable
 
 {	   
 	CONST STATUS_ACTIVE = 1;
@@ -250,6 +250,36 @@ class User implements ProviderInterface
     public static function getRoleCollection(){
     	return self::$roles;
     } 
+
+	public function serialize()
+	{
+		$data = array(
+			'id' => $this->id,
+			'firstname' => $this->firstname,
+			'lastname' => $this->lastname,
+			'email' => $this->email,
+			'status' => $this->status,
+			'picture' => $this->picture
+		);
+		
+//		foreach ($this->memberships as $membership){
+//			serialize($membership);
+//		}
+		
+		return serialize($data); 
+	}
+	
+	public function unserialize($encodedData)
+	{
+	    $data = unserialize($encodedData);
+	    
+	    $this->firstname = $data['firstname'];
+	    $this->lastname = $data['lastname'];
+	    $this->email = $data['email'];
+	    $this->status = $data['status'];
+	    $this->picture = $data['picture'];
+	    
+	}
     
 
 }
