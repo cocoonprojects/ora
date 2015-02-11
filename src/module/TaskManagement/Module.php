@@ -107,6 +107,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 			    'assertion.CreateTaskAssertion' =>  'TaskManagement\Service\CreateTaskAssertionFactory',
 				'assertion.EstimateTaskAssertion' =>  'TaskManagement\Service\EstimateTaskAssertionFactory',
 				'assertion.JoinTaskAssertion' =>  'TaskManagement\Service\JoinTaskAssertionFactory',
+        		'assertion.UnjoinTaskAssertion' =>  'TaskManagement\Service\UnjoinTaskAssertionFactory',
+        		'assertion.DeleteTaskAssertion' =>  'TaskManagement\Service\DeleteTaskAssertionFactory',
             ),
 		);
     }

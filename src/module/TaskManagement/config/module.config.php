@@ -90,7 +90,7 @@ return array(
                     	'assertion.CreateTaskAssertion'),
 					array(
                     	array('user'), 
-                    	'Ora\TaskManagement\Task', 
+                    	'Ora\ReadModel\Task', 
                     	array('joinTask'), 
                     	'assertion.JoinTaskAssertion'),
                     array(
@@ -103,6 +103,26 @@ return array(
                     	'Ora\ReadModel\Task', 
                     	array('estimateTask'), 
                     	'assertion.EstimateTaskAssertion'),
+                    array(
+                    	array('user'), 
+                    	'Ora\ReadModel\Task', 
+                    	array('unjoinTask'), 
+                    	'assertion.UnjoinTaskAssertion'),
+                    array(
+                    	array('user'), 
+                    	'Ora\TaskManagement\Task', 
+                    	array('unjoinTask'), 
+                    	'assertion.UnjoinTaskAssertion'),
+                    array(
+                    	array('user'), 
+                    	'Ora\ReadModel\Task', 
+                    	array('deleteTask'), 
+                    	'assertion.DeleteTaskAssertion'),
+                    array(
+                    	array('user'), 
+                    	'Ora\TaskManagement\Task', 
+                    	array('deleteTask'), 
+                    	'assertion.DeleteTaskAssertion'),
                 ),
             ),
         ),

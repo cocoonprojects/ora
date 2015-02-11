@@ -36,10 +36,10 @@ class MembersController extends AbstractHATEOASRestfulController
 			return $this->response;
         }
     	
-    	if (!$this->authorize->isAllowed($task, 'joinTask')) {      
-    		$this->response->setStatusCode(403);
-    		return $this->response;
-    	}
+//    	if (!$this->authorize->isAllowed($task, 'joinTask')) {      
+//    		$this->response->setStatusCode(403);
+//    		return $this->response;
+//    	}
     	
     	$loggedUser = $this->identity()['user'];
     	$this->transaction()->begin();
@@ -65,6 +65,12 @@ class MembersController extends AbstractHATEOASRestfulController
         	$this->response->setStatusCode(404);
 			return $this->response;
         }
+        
+   	 	if (!$this->authorize->isAllowed($task, 'unjoinTask')) {      
+    		$this->response->setStatusCode(403);
+    		return $this->response;
+    	}
+        
        	$loggedUser = $this->identity()['user'];
     	$this->transaction()->begin();
        	try {

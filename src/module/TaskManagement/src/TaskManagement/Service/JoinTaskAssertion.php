@@ -14,28 +14,26 @@ class JoinTaskAssertion implements AssertionInterface
     private $loggedUser;
     private $organizationMemberships;
     
-    //imposto il default a null su $loggedUser
-    //se la richiesta arriva senza che l'utente sia loggato
     public function __construct($organizationMemberships, User $loggedUser = null) {
         $this->loggedUser  = $loggedUser;
         $this->organizationMemberships = $organizationMemberships;               
     }
     
 	public function assert(Acl $acl, RoleInterface $role = null, ResourceInterface $resource = null, $privilege = null){
+
+		//TODO: manca sul WriteModel la possibilita' di accedere, dalla risorsa Task, allo Stream associato. 
+		//      Al momento questa assertion e' usata solamente per il ReadModel
 		
 		if($this->loggedUser instanceof User){
     		
 			$taskStatus = $resource->getStatus();
-
-			//controllo se lo stream, relativo al task sul quale e' stato richiesto il JOIN, e' associato all'organizzazione 
-		    //dell'utente loggato
-		    $currentStreamId = $resource->getStreamId();
+		    $currentStream = $resource->getStream();		    
+		    $currentOrganizationId = $currentStream->getReadableOrganization();		    
+		    $taskMembers = $resource->getReadableMembers();
 		    
-		    //MI MANCA IL COLLEGAMENTO DA $currentStreamId A $currentStream
+		    $loggedUserIsTaskMember = array_key_exists($this->loggedUser->getId(), $taskMembers);
 		    
-		    $currentOrganizationId = $currentStream->getReadableOrganization();
-
-			if($taskStatus == $resource::STATUS_ONGOING){
+			if($taskStatus == $resource::STATUS_ONGOING && !$loggedUserIsTaskMember){
 				foreach ($this->organizationMemberships as $membership){
 					
 			    	$organizationMembershipId = $membership->getOrganization()->getId();

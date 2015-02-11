@@ -223,4 +223,11 @@ class Task extends EditableEntity implements ResourceInterface, ReadableTask
     	
     	return $membersArray;
     }
+    
+    public function getReadableEstimation($memberId){
+    	
+    	$estimation = $this->members->get($memberId) instanceof TaskMember ? $this->members->get($memberId)->getEstimation() : NULL;
+    	
+    	return $estimation instanceof Estimation ? $estimation->getValue() : NULL;
+    }
 }
