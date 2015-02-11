@@ -75,11 +75,59 @@ return array(
             'BjyAuthorize\Provider\Rule\Config' => array(
                 'allow' => array(
                     
+<<<<<<< HEAD
                     array(array('user'), 
                     		'Ora\StreamManagement\Stream', 
                     		array('createTask'), 
                     		'assertion.CreateTaskAssertion'),
                                         
+=======
+                    array(
+                    	array('user'), 
+                    	'Ora\StreamManagement\Stream', 
+                    	array('createTask'), 
+                    	'assertion.CreateTaskAssertion'),                    	
+                    array(
+                    	array('user'), 
+                    	'DoctrineORMModule\Proxy\__CG__\Ora\ReadModel\Stream', 
+                    	array('createTask'), 
+                    	'assertion.CreateTaskAssertion'),
+					array(
+                    	array('user'), 
+                    	'Ora\ReadModel\Task', 
+                    	array('joinTask'), 
+                    	'assertion.JoinTaskAssertion'),
+                    array(
+                    	array('user'), 
+                    	'Ora\TaskManagement\Task', 
+                    	array('estimateTask'), 
+                    	'assertion.EstimateTaskAssertion'),
+                    array(
+                    	array('user'), 
+                    	'Ora\ReadModel\Task', 
+                    	array('estimateTask'), 
+                    	'assertion.EstimateTaskAssertion'),
+                    array(
+                    	array('user'), 
+                    	'Ora\ReadModel\Task', 
+                    	array('unjoinTask'), 
+                    	'assertion.UnjoinTaskAssertion'),
+                    array(
+                    	array('user'), 
+                    	'Ora\TaskManagement\Task', 
+                    	array('unjoinTask'), 
+                    	'assertion.UnjoinTaskAssertion'),
+                    array(
+                    	array('user'), 
+                    	'Ora\ReadModel\Task', 
+                    	array('deleteTask'), 
+                    	'assertion.DeleteTaskAssertion'),
+                    array(
+                    	array('user'), 
+                    	'Ora\TaskManagement\Task', 
+                    	array('deleteTask'), 
+                    	'assertion.DeleteTaskAssertion'),
+>>>>>>> adding acl assertions on task management
                 ),
             ),
         ),

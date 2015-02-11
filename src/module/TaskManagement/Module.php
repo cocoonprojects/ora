@@ -100,13 +100,12 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
                 'TaskManagement\StreamService' => 'TaskManagement\Service\StreamServiceFactory',
             	'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',
 				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
-			    //'assertion.CreateTaskAssertion' => 'Application\Services\CreateTaskAssertionFactory',
-				'assertion.CreateTaskAssertion' => function($locator){
-	                $authService = $locator->get('Zend\Authentication\AuthenticationService');
-	        		$loggedUser = $authService->getIdentity()['user'];
-	        							        
-	        		return new CreateTaskAssertion($loggedUser);
-                }
+
+			    'assertion.CreateTaskAssertion' =>  'TaskManagement\Service\CreateTaskAssertionFactory',
+				'assertion.EstimateTaskAssertion' =>  'TaskManagement\Service\EstimateTaskAssertionFactory',
+				'assertion.JoinTaskAssertion' =>  'TaskManagement\Service\JoinTaskAssertionFactory',
+        		'assertion.UnjoinTaskAssertion' =>  'TaskManagement\Service\UnjoinTaskAssertionFactory',
+        		'assertion.DeleteTaskAssertion' =>  'TaskManagement\Service\DeleteTaskAssertionFactory'
             ),
 		);
     }

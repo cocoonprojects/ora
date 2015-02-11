@@ -154,14 +154,15 @@ class Task extends DomainEntity implements \Serializable
 	}
 	
 	public function addMember(User $user, User $addedBy, $role = self::ROLE_MEMBER)
-	{
+	{ 
 		if($this->status >= self::STATUS_COMPLETED) {
-			throw new IllegalStateException('Cannot add a member to a task in '.$this->status.' state');
-		}
+                       throw new IllegalStateException('Cannot add a member to a task in '.$this->status.' state');
+               }
         if (array_key_exists($user->getId(), $this->members)) {
-        	throw new DuplicatedDomainEntityException($this, $user); 
+               throw new DuplicatedDomainEntityException($this, $user); 
         }
-        $this->recordThat(MemberAdded::occur($this->id->toString(), array(
+		
+		$this->recordThat(MemberAdded::occur($this->id->toString(), array(
         	'userId' => $user->getId(),
         	'role' => $role,
         	'by' => $addedBy->getId(),
@@ -444,4 +445,17 @@ class Task extends DomainEntity implements \Serializable
 		}
 		return true;
 	}
+
+	public function getResourceId(){			
+        return get_class($this);
+    }
+    
+    public function getReadableMembers(){
+    	return $this->members;
+    }
+    
+    public function getReadableEstimation($memberId){
+    	return isset($this->members[$memberId]['estimation']) ? $this->members[$memberId]['estimation'] : NULL;
+    }
+
 }

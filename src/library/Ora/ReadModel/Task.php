@@ -212,4 +212,31 @@ class Task extends EditableEntity
 		}
 		return $rv;
 	}
+
+    public function getResourceId(){
+    	return get_class($this);
+    }
+	
+    public function getReadableMembers(){
+    	
+    	$membersArray = array();
+    	
+    	foreach($this->members as $taskMember){
+    		
+    		$memberId = $taskMember->getMember()->getId();
+    		$memberRole = $taskMember->getRole();
+    		
+    		$membersArray[$memberId] = $memberRole;
+    	}
+    	
+    	return $membersArray;
+    }
+    
+    public function getReadableEstimation($memberId){
+    	
+    	$estimation = $this->members->get($memberId) instanceof TaskMember ? $this->members->get($memberId)->getEstimation() : NULL;
+    	
+    	return $estimation instanceof Estimation ? $estimation->getValue() : NULL;
+    }
+
 }
