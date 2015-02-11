@@ -171,7 +171,7 @@ class Task extends EditableEntity
     		return Estimation::NOT_ESTIMATED;
     	}
     	if(($estimationsCount + $notEstimationCount) == count($this->members) || $estimationsCount > 2) {
-    		return $tot / $estimationsCount;
+    		return round($tot / $estimationsCount, 2);
     	}
     	return null;
     }
@@ -196,7 +196,7 @@ class Task extends EditableEntity
 		}
 		if($evaluators > 0) {
 			array_walk($rv, function(&$value, $key) use ($evaluators) {
-				$value = $value / $evaluators;
+				$value = round($value / $evaluators, 2);
 			});
 		}
 		return $rv;

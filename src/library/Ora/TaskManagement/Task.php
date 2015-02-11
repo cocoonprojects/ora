@@ -263,7 +263,7 @@ class Task extends DomainEntity implements \Serializable
 			return Estimation::NOT_ESTIMATED;
 		}
 		if(($estimationsCount + $notEstimationCount) == $membersCount || $estimationsCount > 2) {
-			return $tot / $estimationsCount;
+			return round($tot / $estimationsCount, 2);
 		}
 		return null;
 	}
@@ -381,7 +381,7 @@ class Task extends DomainEntity implements \Serializable
 		}
 		if($evaluators > 0) {
 			array_walk($rv, function(&$value, $key) use ($evaluators) {
-				$value = $value / $evaluators;
+				$value = round($value / $evaluators, 2);
 			});
 		}
 		return $rv;

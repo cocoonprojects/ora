@@ -94,7 +94,4 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(20, $this->task->getMembers()[$user2->getId()]['share']);
 	}
 	
-	public function testAssignShares() {
-		
-	}
 }
