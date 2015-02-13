@@ -21,23 +21,13 @@ class UnjoinTaskAssertion implements AssertionInterface
 		
 		if($this->loggedUser instanceof User){
 
-			$loggedUserId = $this->loggedUser->getId();
-			$resourceMembers = $resource->getReadableMembers();
-			$roleMember = array_key_exists($loggedUserId, $resourceMembers) ? $resourceMembers[$loggedUserId] : NULL ;
-
-			if($roleMember == $resource::ROLE_OWNER){
-				return false;
-			}
+			$loggedUserId = $this->loggedUser->getId();			
+			$roleMember = $resource->getMemberRole($this->loggedUser->getId());
 			
-			if($roleMember == NULL){
+			if($roleMember == $resource::ROLE_OWNER || $roleMember == $resource::NOT_MEMBER){
 				return false;
-			}
-			
+			}			
 			return true;
-					    
-    	}else{    	
-    		return false;
-    	}
-    }
-    
+		}
+    }    
 }

@@ -6,12 +6,13 @@ use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
 use BjyAuthorize\Provider\Role\ProviderInterface;   
+use Ora\ReadModel\OrganizationMembership;
 
 /**
  * @ORM\Entity @ORM\Table(name="users")
  *
  */
-class User implements ProviderInterface, \Serializable
+class User implements ProviderInterface
 
 {	   
 	CONST STATUS_ACTIVE = 1;
@@ -89,7 +90,7 @@ class User implements ProviderInterface, \Serializable
 	private $picture;
 	
 	/**
-	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\OrganizationMembership", mappedBy="member", indexBy="organization_id")
+	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\OrganizationMembership", mappedBy="member", indexBy="organization_id", fetch="EAGER")
 	 * @var OrganizationMembership[]
 	 */
 	private $memberships;
@@ -100,9 +101,7 @@ class User implements ProviderInterface, \Serializable
      */
     private $role;
 
-
-	public function __construct($id) {
-		$this->id = $id;
+    public function __construct(){
         $this->memberships = new ArrayCollection();       
 	}
 	
@@ -250,36 +249,5 @@ class User implements ProviderInterface, \Serializable
     public static function getRoleCollection(){
     	return self::$roles;
     } 
-
-	public function serialize()
-	{
-		$data = array(
-			'id' => $this->id,
-			'firstname' => $this->firstname,
-			'lastname' => $this->lastname,
-			'email' => $this->email,
-			'status' => $this->status,
-			'picture' => $this->picture
-		);
-		
-//		foreach ($this->memberships as $membership){
-//			serialize($membership);
-//		}
-		
-		return serialize($data); 
-	}
-	
-	public function unserialize($encodedData)
-	{
-	    $data = unserialize($encodedData);
-	    
-	    $this->firstname = $data['firstname'];
-	    $this->lastname = $data['lastname'];
-	    $this->email = $data['email'];
-	    $this->status = $data['status'];
-	    $this->picture = $data['picture'];
-	    
-	}
-    
 
 }

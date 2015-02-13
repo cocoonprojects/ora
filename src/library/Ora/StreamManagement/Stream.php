@@ -83,7 +83,7 @@ class Stream extends DomainEntity implements \Serializable, ResourceInterface, R
     }
     
     public function getReadableOrganization(){
-    	return $this->getOrganizationId();
+    	return $this->getOrganizationId()->toString();
     }
 
 	public function getResourceId(){			

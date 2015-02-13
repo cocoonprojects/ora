@@ -1,9 +1,12 @@
 <?php
 namespace Ora\TaskManagement;
 
+use DoctrineORMModule\Proxy\__CG__\Ora\ReadModel\Organization;
+
 use Ora\StreamManagement\Stream;
 use Rhumsaa\Uuid\Uuid;
 use Ora\User\User;
+use Ora\ReadModel\Organization as ReadModelOrganization;
 
 class TaskTest extends \PHPUnit_Framework_TestCase {
 	
@@ -17,10 +20,17 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	 * @var User
 	 */
 	protected $taskCreator;
+	/**
+	 * 
+	 * @var Organization
+	 */
+	protected $organization;
+	
 	
 	protected function setUp() {
 		$this->taskCreator = User::create();
-		$stream = new Stream(Uuid::fromString('00000000-1000-0000-0000-000000000002'), $this->taskCreator);
+		$this->organization = new ReadModelOrganization(Uuid::fromString('00000000-1000-0000-0000-000000000022'), new \DateTime(), $this->taskCreator);		
+		$stream = new Stream(Uuid::fromString('00000000-1000-0000-0000-000000000002'), $this->taskCreator, $this->organization);
 		$this->task = Task::create($stream, 'test', $this->taskCreator);
 	}
 	

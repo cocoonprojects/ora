@@ -14,10 +14,10 @@ class CreateTaskAssertionFactory implements FactoryInterface {
 	
 	public function createService(ServiceLocatorInterface $serviceLocator){
 		
-		$authService = $serviceLocator->get('Zend\Authentication\AuthenticationService');
+		$authService = $serviceLocator->get('Zend\Authentication\AuthenticationService');	
 		$loggedUser = $authService->getIdentity()['user'];
-		
-		return new CreateTaskAssertion($loggedUser);		
+
+		return new CreateTaskAssertion($loggedUser);
 	}
 }
 

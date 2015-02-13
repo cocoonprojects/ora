@@ -12,6 +12,7 @@ use Ora\TaskManagement\Task;
 use Ora\StreamManagement\Stream;
 use Rhumsaa\Uuid\Uuid;
 use Ora\User\User;
+use Ora\ReadModel\Organization as ReadModelOrganization;
 
 class SharesControllerTest extends \PHPUnit_Framework_TestCase {
 	
@@ -24,13 +25,16 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     protected $task;
     protected $member1;
     protected $member2;
+    protected $organization;
 
     protected function setUp()
     {
         $taskServiceStub = $this->getMockBuilder('Ora\TaskManagement\TaskService')->getMock();
         
         $this->member1 = User::create();
-        $this->task = Task::create(new Stream(Uuid::uuid4(), $this->member1), 'test', $this->member1);
+        $this->organization = new ReadModelOrganization(Uuid::fromString('00000000-1000-0000-0000-000000000022'), new \DateTime(), $this->member1);
+        
+        $this->task = Task::create(new Stream(Uuid::uuid4(), $this->member1, $this->organization), 'test', $this->member1);
         
         $this->member2 = User::create();
         $this->task->addMember($this->member2, $this->member2, Task::ROLE_MEMBER);

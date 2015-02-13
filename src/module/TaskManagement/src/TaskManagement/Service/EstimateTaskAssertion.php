@@ -22,7 +22,7 @@ class EstimateTaskAssertion implements AssertionInterface
 		if($this->loggedUser instanceof User){
 
 			if($resource->getStatus() == $resource::STATUS_ONGOING){
-				return array_key_exists($this->loggedUser->getId(), $resource->getReadableMembers());
+				return $resource->hasMember($this->loggedUser->getId());				
 			}
 		    return false;		    
     	}else{    	

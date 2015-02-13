@@ -383,8 +383,11 @@ class RestContext extends RawMinkContext implements Context
     public function thePropertySizeShouldBe($propertyName, $value)
     {
     	$this->theResponseShouldHaveAProperty($propertyName);
-    	if (count($this->json->$propertyName) != $value) {
-			throw new \Exception('Property size isn\'t equal to ' . $value .'! It is ' . count($this->json->$propertyName));
+
+    	$count = is_array($this->json->$propertyName) ? count($this->json->$propertyName) : count((array)$this->json->$propertyName);
+    	
+    	if ($count != $value) {
+			throw new \Exception('Property size isn\'t equal to ' . $value .'! It is ' . count($this->json->$propertyName) . '\nThe propery is: ');
 		}
     }
 

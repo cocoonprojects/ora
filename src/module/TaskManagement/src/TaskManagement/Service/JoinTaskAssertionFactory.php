@@ -10,21 +10,10 @@ class JoinTaskAssertionFactory implements FactoryInterface {
 	
 	public function createService(ServiceLocatorInterface $serviceLocator){
 		
-		$authService = $serviceLocator->get('Zend\Authentication\AuthenticationService');
-		$organizationService = $serviceLocator->get('User\OrganizationService');
-		$taskService = $serviceLocator->get('TaskManagement\TaskService');
-        
+		$authService = $serviceLocator->get('Zend\Authentication\AuthenticationService');        
 		$loggedUser = $authService->getIdentity()['user'];
-		$organizationMemberships = $organizationService->findUserOrganizationMembership($loggedUser);
-        
-		$params = $serviceLocator->get('ControllerPluginManager')->get('params')->fromRoute();
 		
-//		$taskId = $params['id'];
-//		$task = $taskService->findTask($params['id']);
-//		
-//		var_dump(get_class($task));die();
-		
-		return new JoinTaskAssertion($organizationMemberships, $loggedUser);	
+		return new JoinTaskAssertion($loggedUser);	
 		
 	}
 }
