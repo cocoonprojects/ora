@@ -81,7 +81,10 @@ class Stream extends DomainEntity implements \Serializable, ResourceInterface
 	public function getOrganizationId(){
     	return $this->organizationId;
     }
-    
+  
+    public function getReadableOrganization(){
+    	return $this->getOrganizationId()->toString();
+    }
 
 	public function getResourceId(){			
         return get_class($this);

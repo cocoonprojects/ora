@@ -11,14 +11,13 @@ use Ora\ReadModel\Organization;
 
 use Ora\ReadModel\EditableEntity;
 use BjyAuthorize\Provider\Role\ProviderInterface;   
-use Role;
+use Ora\ReadModel\OrganizationMembership;
 
 /**
  * @ORM\Entity @ORM\Table(name="users")
  *
  */
-
-class User extends EditableEntity implements ProviderInterface
+class User implements ProviderInterface
 {	   
 	CONST STATUS_ACTIVE = 1;
     CONST ROLE_ADMIN = 'admin';
@@ -95,7 +94,7 @@ class User extends EditableEntity implements ProviderInterface
 	private $picture;
 	
 	/**
-	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\OrganizationMembership", mappedBy="member", indexBy="organization_id")
+	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\OrganizationMembership", mappedBy="member", indexBy="organization_id", fetch="EAGER")
 	 * @var OrganizationMembership[]
 	 */
 	private $memberships;
@@ -106,9 +105,7 @@ class User extends EditableEntity implements ProviderInterface
      */
     private $role;
 
-
-	public function __construct($id) {
-		$this->id = $id;
+    public function __construct(){
         $this->memberships = new ArrayCollection();       
 	}
 	
@@ -252,5 +249,4 @@ class User extends EditableEntity implements ProviderInterface
     public static function getRoleCollection(){
     	return self::$roles;
     }
-
 }

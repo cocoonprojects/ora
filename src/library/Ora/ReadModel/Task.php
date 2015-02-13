@@ -2,6 +2,8 @@
 
 namespace Ora\ReadModel;
 
+use Doctrine\ORM\Query\Expr\Select;
+
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
@@ -32,6 +34,7 @@ class Task extends EditableEntity
     
     CONST ROLE_MEMBER = 'member';
     CONST ROLE_OWNER  = 'owner';
+    CONST NOT_MEMBER = 'notmember';
 
     CONST TYPE = 'task';
 
@@ -238,5 +241,12 @@ class Task extends EditableEntity
     	
     	return $estimation instanceof Estimation ? $estimation->getValue() : NULL;
     }
-
+	
+    public function getMemberRole($user){    	
+    	$key = $user instanceof User ? $user->getId() : $user;
+    	if($this->hasMember($key)){
+    		return $this->members->get($key)->getRole();
+    	}
+    	return self::NOT_MEMBER;
+    }
 }

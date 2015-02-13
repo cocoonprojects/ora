@@ -30,6 +30,7 @@ class Task extends DomainEntity implements \Serializable
     
     CONST ROLE_MEMBER = 'member';
     CONST ROLE_OWNER  = 'owner';
+    CONST NOT_MEMBER  = 'notmember';
     
     /**
 	 * 
@@ -456,6 +457,18 @@ class Task extends DomainEntity implements \Serializable
     
     public function getReadableEstimation($memberId){
     	return isset($this->members[$memberId]['estimation']) ? $this->members[$memberId]['estimation'] : NULL;
+    }    
+    
+	public function hasMember($user) {
+    	$key = $user instanceof User ? $user->getId() : $user;
+    	return array_key_exists($key, $this->members);
     }
-
+    
+    public function getMemberRole($user){ 
+    	$key = $user instanceof User ? $user->getId() : $user;
+    	if($this->hasMember($key)){
+    		return $this->members[$user]['role'];
+    	}
+    	return self::NOT_MEMBER;
+    } 
 }

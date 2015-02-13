@@ -23,13 +23,10 @@ class DeleteTaskAssertion implements AssertionInterface
 
 			$resourceStatus = $resource->getStatus();
 			$loggedUserId = $this->loggedUser->getId();
-			$resourceMembers = $resource->getReadableMembers();
-			$roleMember = array_key_exists($loggedUserId, $resourceMembers) ? $resourceMembers[$loggedUserId] : NULL ;
+			$roleMember = $resource->getMemberRole($this->loggedUser->getId());
 
-			if($roleMember == $resource::ROLE_OWNER && $resourceStatus == $resource::STATUS_ONGOING){
-				return true;
-			}			
-			return false;			
+			return $roleMember == $resource::ROLE_OWNER && $resourceStatus == $resource::STATUS_ONGOING;
+						
     	}else{    	
     		return false;
     	}

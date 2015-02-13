@@ -46,9 +46,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	{			
 		if (!$this->authorize->isAllowed($stream, 'createTask')) {
            	
-   	 		var_dump("non autorizzato");
-   	 		die();
-   	 		//lanciare un'eccezione per non autorizzato
+   	 		 throw new \BjyAuthorize\Exception\UnAuthorizedException('Cannot create task');
         }
 		
 		
