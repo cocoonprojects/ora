@@ -162,6 +162,11 @@ class TaskMember {
     	$this->task->updateMembersShare();
     	return $this;
     }
+    
+    public function getShareValueOf(TaskMember $valued) {
+    	$s = $this->shares->get($valued->getMember()->getId());
+    	return $s === null ? null : $s->getValue();
+    }
 
     public function resetShares() {
     	$this->shares->clear();

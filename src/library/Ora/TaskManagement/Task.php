@@ -127,7 +127,7 @@ class Task extends DomainEntity implements \Serializable
 	}
 	
 	public function setSubject($subject, User $updatedBy) {
-		$s = trim($subject);
+		$s = is_null($subject) ? null : trim($subject);
 		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
 			'subject' => $s,
 			'by' => $updatedBy->getId(),
@@ -237,6 +237,20 @@ class Task extends DomainEntity implements \Serializable
 		)));
 	}
 	
+	public function skipShares(User $member) {
+		if($this->status != self::STATUS_ACCEPTED) {
+			throw new IllegalStateException('Cannot assign shares into a task in '.$this->status.' status');
+		}
+		//check if the evaluator is a task member
+		if(!array_key_exists($member->getId(), $this->members)) {
+			throw new DomainEntityUnavailableException($this, $member);
+		}
+		
+		$this->recordThat(SharesSkipped::occur($this->id->toString(), array(
+			'by' => $member->getId(),
+		)));
+	}
+	
 	public function getMembers() {
 		return $this->members;
 	}
@@ -263,9 +277,27 @@ class Task extends DomainEntity implements \Serializable
 			return Estimation::NOT_ESTIMATED;
 		}
 		if(($estimationsCount + $notEstimationCount) == $membersCount || $estimationsCount > 2) {
-			return $tot / $estimationsCount;
+			return round($tot / $estimationsCount, 2);
 		}
 		return null;
+	}
+	
+	/**
+	 * 
+	 * @param id|User $user
+	 */
+	public function hasMember($user) {
+		$key = $user instanceof User ? $user->getId() : $user;
+		return isset($this->members[$key]);
+	}
+	/**
+	 * 
+	 * @param unknown $role
+	 * @param id|User $user
+	 */
+	public function hasAs($role, $user) {
+		$key = $user instanceof User ? $user->getId() : $user;
+		return isset($this->members[$key]) && $this->members[$key]['role'] == $role;
 	}
 	
 	public function serialize()
@@ -298,6 +330,10 @@ class Task extends DomainEntity implements \Serializable
 	
 	protected function whenTaskCompleted(TaskCompleted $event) {
 		$this->status = self::STATUS_COMPLETED;
+		array_walk($this->members, function(&$value, $key) {
+			unset($value['shares']);
+			unset($value['share']);
+		});
 	}
 	
 	protected function whenTaskAccepted(TaskAccepted $event) {
@@ -309,8 +345,9 @@ class Task extends DomainEntity implements \Serializable
 	}
 	
 	protected function whenTaskUpdated(TaskUpdated $event) {
-		if(isset($event->payload()['subject'])) {
-			$this->subject = $event->payload()['subject'];
+		$pl = $event->payload();
+		if(array_key_exists('subject', $pl)) {
+			$this->subject = $pl['subject'];
 		}
 	}
 	
@@ -349,11 +386,25 @@ class Task extends DomainEntity implements \Serializable
 		}
 	}
 	
+	protected function whenSharesSkipped(SharesSkipped $event) {
+		$p = $event->payload();
+		$id = $p['by'];
+		foreach ($this->members as $key => $value) {
+			$this->members[$id]['shares'][$key] = null;
+		}
+		$shares = $this->getMembersShare();
+		if(count($shares) > 0) {
+			foreach ($shares as $key => $value) {
+				$this->members[$key]['share'] = $value;
+			}
+		}
+	}
+	
 	protected function getMembersShare() {
 		$rv = array();
 		$evaluators = 0;
 		foreach ($this->members as $evaluatorId => $info) {
-			if(isset($info['shares'])) {
+			if(isset($info['shares'][$evaluatorId])) {
 				$evaluators++;
 				foreach($info['shares'] as $valuedId => $value) {
 					$rv[$valuedId] = isset($rv[$valuedId]) ? $rv[$valuedId] + $value : $value;
@@ -362,7 +413,7 @@ class Task extends DomainEntity implements \Serializable
 		}
 		if($evaluators > 0) {
 			array_walk($rv, function(&$value, $key) use ($evaluators) {
-				$value = $value / $evaluators;
+				$value = round($value / $evaluators, 2);
 			});
 		}
 		return $rv;

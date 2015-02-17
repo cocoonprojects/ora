@@ -29,12 +29,39 @@ class SharesController extends AbstractHATEOASRestfulController {
 	
 	public function invoke($id, $data)
 	{
+		$task = $this->taskService->getTask($id);
+		if (is_null($task)) {
+			$this->response->setStatusCode(404);
+			return $this->response;
+		}
+		
+		$identity = $this->loggedIdentity();
+		if(is_null($identity)) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+		
+		$error = new ErrorJsonModel();
+		if(count($data) == 0) {
+			$this->transaction()->begin();
+			try {
+				$task->skipShares($identity);
+				$this->transaction()->commit();
+				$this->response->setStatusCode(201);
+				return $this->response;
+			} catch (DomainEntityUnavailableException $e) {
+				$this->transaction()->rollback();
+				$this->response->setStatusCode(403);
+			} catch (IllegalStateException $e) {
+				$this->transaction()->rollback();
+				$this->response->setStatusCode(412);
+			}
+		}
+		
 		$validator = new ValidatorChain();
 		$validator->attach(new NotEmpty(), true)
 				  ->attach(new Float(), true)
 				  ->attach(new Between(array('min' => 0, 'max' => 100), true));
-		
-		$error = new ErrorJsonModel();
 		
 		$total = 0;
 		foreach ($data as $key => $value) {
@@ -49,18 +76,6 @@ class SharesController extends AbstractHATEOASRestfulController {
 			$this->response->setStatusCode(400);
 			return $error;
 		}
-		$task = $this->taskService->getTask($id);
-		if (is_null($task)) {
-			$this->response->setStatusCode(404);
-			return $this->response;
-		}
-		
-		$identity = $this->loggedIdentity();
-		if(is_null($identity)) {
-			$this->response->setStatusCode(401);
-			return $error;
-		}
-		
 		$this->transaction()->begin();
 		try {
 			$task->assignShares($data, $identity);

@@ -6,6 +6,6 @@ use Prooph\EventSourcing\AggregateChanged;
 /**
 * 
 */
-class SharesAssigned extends AggregateChanged
+class SharesSkipped extends AggregateChanged
 {
 }

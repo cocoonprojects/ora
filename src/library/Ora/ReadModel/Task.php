@@ -171,9 +171,16 @@ class Task extends EditableEntity
     		return Estimation::NOT_ESTIMATED;
     	}
     	if(($estimationsCount + $notEstimationCount) == count($this->members) || $estimationsCount > 2) {
-    		return $tot / $estimationsCount;
+    		return round($tot / $estimationsCount, 2);
     	}
     	return null;
+    }
+    
+    public function resetShares() {
+    	foreach ($this->members as $member) {
+    		$member->resetShares();
+    		$member->setShare(null);
+    	}
     }
     
 	public function updateMembersShare() {
@@ -185,9 +192,12 @@ class Task extends EditableEntity
 	
 	private function getMembersShare() {
 		$rv = array();
+		foreach ($this->members as $member) {
+			$rv[$member->getMember()->getId()] = null;
+		}
 		$evaluators = 0;
 		foreach ($this->members as $evaluatorId => $info) {
-			if(count($info->getShares()) > 0) {
+			if(count($info->getShares()) > 0 && $info->getShareValueOf($info) !== null) {
 				$evaluators++;
 				foreach($info->getShares() as $valuedId => $share) {
 					$rv[$valuedId] = isset($rv[$valuedId]) ? $rv[$valuedId] + $share->getValue() : $share->getValue();
@@ -196,7 +206,7 @@ class Task extends EditableEntity
 		}
 		if($evaluators > 0) {
 			array_walk($rv, function(&$value, $key) use ($evaluators) {
-				$value = $value / $evaluators;
+				$value = round($value / $evaluators, 2);
 			});
 		}
 		return $rv;

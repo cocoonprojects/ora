@@ -113,6 +113,23 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     	$this->assertEquals(201, $response->getStatusCode());
     }
     
+    public function testSkipAssignShares()
+    {
+    	$this->task->accept($this->member1);
+    	$service = $this->controller->getTaskService();
+    	$service->method('getTask')
+    			->willReturn($this->task);
+    	
+    	$this->routeMatch->setParam('id', $this->task->getId()->toString());
+    	
+    	$this->request->setMethod('post');
+    	 
+    	$result   = $this->controller->dispatch($this->request);
+    	$response = $this->controller->getResponse();
+    
+    	$this->assertEquals(201, $response->getStatusCode());
+    }
+    
     public function testAssignSharesWithMoreThan100Share()
     {
     	$this->task->accept($this->member1);
