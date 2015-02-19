@@ -13,7 +13,8 @@ TaskManagement.prototype = {
 			10:	'Open',
 			20: 'Ongoing',
 			30: 'Completed',
-			40: 'Shares assignment in progress'
+			40: 'Shares assignment in progress',
+			50:	'Closed'
 	},
 	
 	data: [],

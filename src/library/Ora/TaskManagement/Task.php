@@ -25,6 +25,7 @@ class Task extends DomainEntity implements \Serializable
     CONST STATUS_ONGOING = 20;
     CONST STATUS_COMPLETED = 30;
     CONST STATUS_ACCEPTED = 40;
+    CONST STATUS_CLOSED = 50;
     CONST STATUS_DELETED = -10;
     
     CONST ROLE_MEMBER = 'member';
@@ -235,6 +236,12 @@ class Task extends DomainEntity implements \Serializable
 			'shares' => $membersShares,
 			'by' => $member->getId(),
 		)));
+		
+		if ($this->isSharesAssignmentCompleted()) {
+			$this->recordThat(TaskClosed::occur($this->id->toString(), array(
+					'by' => $member->getId(),
+			)));
+		}
 	}
 	
 	public function skipShares(User $member) {
@@ -249,6 +256,12 @@ class Task extends DomainEntity implements \Serializable
 		$this->recordThat(SharesSkipped::occur($this->id->toString(), array(
 			'by' => $member->getId(),
 		)));
+
+		if ($this->isSharesAssignmentCompleted()) {
+			$this->recordThat(TaskClosed::occur($this->id->toString(), array(
+					'by' => $member->getId(),
+			)));
+		}
 	}
 	
 	public function getMembers() {
@@ -340,6 +353,10 @@ class Task extends DomainEntity implements \Serializable
 		$this->status = self::STATUS_ACCEPTED;
 	}
 	
+	protected function whenTaskClosed(TaskClosed $event) {
+		$this->status = self::STATUS_CLOSED;
+	}
+	
 	protected function whenTaskDeleted(TaskDeleted $event) {
 		$this->status = self::STATUS_DELETED;
 	}
@@ -419,4 +436,12 @@ class Task extends DomainEntity implements \Serializable
 		return $rv;
 	}
 	
+	private function isSharesAssignmentCompleted() {
+		foreach ($this->members as $member) {
+			if(!isset($member['shares'])) {
+				return false;
+			}
+		}
+		return true;
+	}
 }

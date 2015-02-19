@@ -197,6 +197,19 @@ class TaskListener
 		$this->entityManager->persist($task);
 	}
 	
+	protected function onTaskClosed(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
+		if(is_null($this->kanbanizeService) == false && $task instanceof KanbanizeTask) {
+			$this->kanbanizeService->closeTask($task);
+		}
+		$task->setStatus(Task::STATUS_CLOSED);
+		$user = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+		$task->setMostRecentEditBy($user);
+		$task->setMostRecentEditAt($event->occurredOn());
+		$this->entityManager->persist($task);
+	}
+	
 	protected function onTaskOngoing(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);

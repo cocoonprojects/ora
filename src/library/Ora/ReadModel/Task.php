@@ -27,6 +27,7 @@ class Task extends EditableEntity
     CONST STATUS_ONGOING = 20;
     CONST STATUS_COMPLETED = 30;
     CONST STATUS_ACCEPTED = 40;
+    CONST STATUS_CLOSED = 50;
     CONST STATUS_DELETED = -10;
     
     CONST ROLE_MEMBER = 'member';

@@ -143,4 +143,8 @@ class KanbanizeServiceImpl implements KanbanizeService
 			throw new IllegalRemoteStateException("Cannot move task in completed from "+$info["columnname"]);
 		}
 	}
+	
+	public function closeTask(KanbanizeTask $task) {
+		// TODO: To be implemented
+	}
 }
