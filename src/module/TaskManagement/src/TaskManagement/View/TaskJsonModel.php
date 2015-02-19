@@ -76,12 +76,13 @@ class TaskJsonModel extends JsonModel
 		}
 		$rv = [
 			'id' => $task->getId (),
-			'createdAt' => date_format($task->getCreatedAt(), 'c'),
-			'status' => $task->getStatus(),
-			'members' => $this->getMembersArray($task),
-			'createdBy' => is_null ( $task->getCreatedBy () ) ? "" : $task->getCreatedBy ()->getFirstname () . " " . $task->getCreatedBy ()->getLastname (),
 			'subject' => $task->getSubject (),
+			'createdAt' => date_format($task->getCreatedAt(), 'c'),
+			'createdBy' => is_null ( $task->getCreatedBy () ) ? "" : $task->getCreatedBy ()->getFirstname () . " " . $task->getCreatedBy ()->getLastname (),
 			'type' => $task->getType (),
+			'status' => $task->getStatus(),
+			'stream' => $this->getStream($task),
+			'members' => $this->getMembersArray($task),
 			'_links' => $links,
 		];
 		
@@ -89,6 +90,13 @@ class TaskJsonModel extends JsonModel
 			$rv['estimation'] = $task->getEstimation();
 		}
 
+		return $rv;
+	}
+	
+	private function getStream(Task $task) {
+		$stream = $task->getStream();
+		$rv['subject'] = $stream->getSubject();
+		$rv['_links']['self'] = $this->url->fromRoute('streams', ['id' => $stream->getId()]);
 		return $rv;
 	}
 	

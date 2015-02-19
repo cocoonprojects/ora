@@ -151,6 +151,14 @@ TaskManagement.prototype = {
 			e.preventDefault();
 			that.assignShares(e);
 		});
+
+		$("#taskDetailModal").on("show.bs.modal", function(e) {
+			container = $('#taskDetailModal .modal-body');
+			container.empty();
+
+			that.getTask(e);
+		});
+
 	},
 	
 	unjoinTask: function(e)
@@ -207,17 +215,21 @@ TaskManagement.prototype = {
 	
 	getTask: function(e)
 	{
-		var url = $(e.relatedTarget).attr('href');
+		var url = $(e.relatedTarget).data('href');
 		$.ajax({
 			url: url,
-			method: 'GET',
-			dataType: 'json'
+			method: 'GET'
 		})
 		.done(this.onTaskCompleted.bind(this));
 		
 	},
 	
 	onTaskCompleted: function(json) {
+		var container = $('#taskDetailModal h4');
+		container.text(json.subject);
+		
+		container = $('#taskDetailModal .modal-body');
+		container.append(this.renderTaskDetail(json));
 	},
 	
 	editTask: function(e)
@@ -381,8 +393,7 @@ TaskManagement.prototype = {
 		} else {
 			that = this;
 			$.each(this.data.tasks, function(key, task) {
-				subject = task._links.self == undefined ? task.subject : '<a href="' + task._links.self + '">' + task.subject + '</a>';
-				createdAt = new Date(Date.parse(task.createdAt));
+				subject = task._links.self == undefined ? task.subject : '<a data-href="' + task._links.self + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
 				var actions = [];
 				if (task._links.complete != undefined) {
 					actions.push('<button data-href="' + task._links.complete + '" data-task="' + key + '" data-action="completeTask" class="btn btn-default">Complete</button>');
@@ -418,29 +429,45 @@ TaskManagement.prototype = {
 				if (task._links['delete'] != undefined) {
 					actions.push('<a href="' + task._links['delete'] + '" data-action="deleteTask" class="btn btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>');
 				}
-				switch(task.estimation) {
-				case undefined:
-					estimation = '';
-					break;
-				case -1:
-					estimation = '<li>Estimation skipped</li>';
-					break;
-				case null:
-					estimation = '<li>Estimation in progress</li>';
-					break;
-				default:
-					estimation = '<li>' + task.estimation + ' credits</li>';
-				}
 				
-				a = actions.length == 0 ? '' : '<li>' + actions.join(' ') + '</li>';
+				rv = that.renderTask(task);
+				if ( actions.length > 0 ) {
+					rv += '<ul class="task-actions"><li>' + actions.join('</li><li>') + '</li></ul>';
+				}
 
 				container.append(
                     '<li class="panel panel-default">' +
 						'<div class="panel-heading">' + subject + '</div>' +
-						'<div class="panel-body"><ul class="task-details"><li>Created at ' + createdAt.toLocaleString() + "</li>" +
-						'<li>' + that.statuses[task.status] + '</li>' +
-						estimation +
-						"<li>Members: <ul>" + $.map(task.members, function(object, key) {
+						'<div class="panel-body">' + rv + '</div>' +
+					'</li>');
+			});
+		}
+	},
+	
+	renderTaskDetail : function(task) {
+		switch(task.estimation) {
+		case undefined:
+			estimation = '';
+			break;
+		case -1:
+			estimation = '<li>Estimation skipped</li>';
+			break;
+		case null:
+			estimation = '<li>Estimation in progress</li>';
+			break;
+		default:
+			estimation = '<li>' + task.estimation + ' credits</li>';
+		}
+		
+		createdAt = new Date(Date.parse(task.createdAt));
+
+		rv = '<ul class="task-details">' +
+				'<li>' + task.stream.subject + '</li>' +
+				'<li>Created at ' + createdAt.toLocaleString() + '</li>' +
+				'<li>' + this.statuses[task.status] + '</li>' +
+				estimation +
+				'<li>Members:' +
+					'<ul>' + $.map(task.members, function(object, key) {
 							rv = '<li><span class="task-member">' + object.firstname + " " + object.lastname;
 							if(object.estimation != null){
 								rv += ' <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>';
@@ -452,11 +479,52 @@ TaskManagement.prototype = {
 								}
 							}
 							return rv + '</span></li>';
-						}).join('') + "</ul></li>" + 
-						a + '</div>' +
-					'</li>');
-			});
+						}).join('') +
+					'</ul>' +
+				'</li>' +
+			'</ul>';
+		return rv;
+	},
+
+	renderTask : function(task) {
+		switch(task.estimation) {
+		case undefined:
+			estimation = '';
+			break;
+		case -1:
+			estimation = '<li>Estimation skipped</li>';
+			break;
+		case null:
+			estimation = '<li>Estimation in progress</li>';
+			break;
+		default:
+			estimation = '<li>' + task.estimation + ' credits</li>';
 		}
+		
+		createdAt = new Date(Date.parse(task.createdAt));
+
+		rv = '<ul class="task-details">' + 
+				'<li>Created at ' + createdAt.toLocaleString() + '</li>' +
+				'<li>' + this.statuses[task.status] + '</li>' +
+				estimation +
+				'<li>Members:' +
+					'<ul>' + $.map(task.members, function(object, key) {
+							rv = '<li><span class="task-member">' + object.firstname + " " + object.lastname;
+							if(object.estimation != null){
+								rv += ' <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>';
+							}
+							if(object.share != undefined) {
+								rv += ' share: ' + object.share + '%';
+								if(object.delta != null) {
+									rv += ' (' + object.delta + ')';
+								}
+							}
+							return rv + '</span></li>';
+						}).join('') +
+					'</ul>' +
+				'</li>' +
+			'</ul>';
+		return rv;
 	},
 	
 	createNewTask: function(e)
