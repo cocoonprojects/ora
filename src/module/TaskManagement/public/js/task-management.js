@@ -13,7 +13,7 @@ TaskManagement.prototype = {
 			10:	'Open',
 			20: 'Ongoing',
 			30: 'Completed',
-			40: 'Accpeted (shares assignment in progress)',
+			40: 'Accepted (shares assignment in progress)',
 			50:	'Closed'
 	},
 	
@@ -490,7 +490,7 @@ TaskManagement.prototype = {
 				rv += '</td>';
 			});
 			rv += '<td style="text-align: center">';
-			if(member.share != undefined && member.delta != null) {
+			if(member.share != undefined && member.share != null) {
 				rv += member.share + '%';
 			}
 			rv += '</td><td style="text-align: center">'
