@@ -398,7 +398,8 @@ TaskManagement.prototype = {
 				subject = task._links.self == undefined ? task.subject : '<a data-href="' + task._links.self + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
 				var actions = [];
 				if (task._links.complete != undefined) {
-					actions.push('<button data-href="' + task._links.complete + '" data-task="' + key + '" data-action="completeTask" class="btn btn-default">Complete</button>');
+					label = task.status == 40 ? 'Revert to complete' : 'Complete';
+					actions.push('<button data-href="' + task._links.complete + '" data-task="' + key + '" data-action="completeTask" class="btn btn-default">' + label + '</button>');
 				}
 				if (task._links.accept != undefined) {
 					actions.push('<button data-href="' + task._links.accept + '" data-action="acceptTask" class="btn btn-default">Accept</button>');
