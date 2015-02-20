@@ -13,7 +13,7 @@ TaskManagement.prototype = {
 			10:	'Open',
 			20: 'Ongoing',
 			30: 'Completed',
-			40: 'Shares assignment in progress',
+			40: 'Accpeted (shares assignment in progress)',
 			50:	'Closed'
 	},
 	
@@ -153,6 +153,8 @@ TaskManagement.prototype = {
 		});
 
 		$("#taskDetailModal").on("show.bs.modal", function(e) {
+			container = $('#taskDetailModal h4');
+			container.empty();
 			container = $('#taskDetailModal .modal-body');
 			container.empty();
 
@@ -466,23 +468,40 @@ TaskManagement.prototype = {
 				'<li>Created at ' + createdAt.toLocaleString() + '</li>' +
 				'<li>' + this.statuses[task.status] + '</li>' +
 				estimation +
-				'<li>Members:' +
-					'<ul>' + $.map(task.members, function(object, key) {
-							rv = '<li><span class="task-member">' + object.firstname + " " + object.lastname;
-							if(object.estimation != null){
-								rv += ' <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>';
-							}
-							if(object.share != undefined) {
-								rv += ' share: ' + object.share + '%';
-								if(object.delta != null) {
-									rv += ' (' + object.delta + ')';
-								}
-							}
-							return rv + '</span></li>';
-						}).join('') +
-					'</ul>' +
-				'</li>' +
 			'</ul>';
+		
+		rv += '<table class="table table-striped"><caption>Members</caption>' +
+				'<thead><tr><th></th>';
+		$.map(task.members, function(member, memberId) {
+			rv += '<th style="text-align: center">' + member.firstname.charAt(0) + member.lastname.charAt(0) + '</th>';
+		});
+		rv += '<th style="text-align: center">Avg</th><th style="text-align: center">&Delta;</th></tr></thead><tbody>';
+		$.map(task.members, function(member, memberId) {
+			rv += '<tr><th><img src="' + member.picture + '" style="max-width: 16px; max-height: 16px;" class="img-circle"> ' + member.firstname + ' ' + member.lastname;
+			if(member.estimation != null){
+				rv += ' <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>';
+			}
+			rv += '</th>';
+			$.map(task.members, function(m) {
+				rv += '<td style="text-align: center">';
+				if(m.shares != undefined) {
+					rv += m.shares[memberId].value != null ? m.shares[memberId].value + '%' : 'Skipped';
+				}
+				rv += '</td>';
+			});
+			rv += '<td style="text-align: center">';
+			if(member.share != undefined && member.delta != null) {
+				rv += member.share + '%';
+			}
+			rv += '</td><td style="text-align: center">'
+			if(member.delta != undefined && member.delta != null) {
+				rv += '' + member.delta + '%';
+			}
+			rv += '</td></tr>';
+		});
+				
+		rv +=	'</tbody>' +
+			  '</table>';
 		return rv;
 	},
 

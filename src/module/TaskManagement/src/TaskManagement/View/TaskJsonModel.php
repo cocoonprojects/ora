@@ -103,17 +103,18 @@ class TaskJsonModel extends JsonModel
     private function getMembersArray(Task $task){
 		$members = array();
 		foreach ($task->getMembers() as $tm) {
-			$m = $this->serializaOneMember($tm);
+			$m = $this->serializeOneMember($tm);
 			$members[$tm->getMember()->getId()] = $m;
 		}
 		return $members;
     }
     
-    private function serializaOneMember(TaskMember $tm) {
+    private function serializeOneMember(TaskMember $tm) {
     	$member = $tm->getMember();
     	$rv = [
     			'firstname' => $member->getFirstname(),
     			'lastname' => $member->getLastname(),
+    			'picture' => $member->getPicture(),
     			'role' => $tm->getRole(),
     			'_links' => [
     					'self' => $this->url->fromRoute('users', ['id' => $member->getId()]),
