@@ -68,7 +68,7 @@ class Task extends DomainEntity implements \Serializable
 	}
 	
 	public function delete(User $deletedBy) {
-		if($this->getStatus() == Task::STATUS_COMPLETED || $this->getStatus() == Task::STATUS_ACCEPTED) {
+		if($this->getStatus() >= Task::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot delete a task in state '.$this->getStatus().'. Task '.$this->getId()->toString().' won\'t be deleted');
 		}
 		$this->recordThat(TaskDeleted::occur($this->id->toString(), array(

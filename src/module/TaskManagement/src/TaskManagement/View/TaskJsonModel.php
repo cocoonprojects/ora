@@ -155,12 +155,12 @@ class TaskJsonModel extends JsonModel
     	switch ($action) {
     		case 'edit':
     		case 'delete':
-    			if($task->getStatus() != Task::STATUS_ONGOING) {
+    			if($task->getStatus() >= Task::STATUS_COMPLETED) {
     				return false;
     			}
     			return true;
     		case 'join':
-    			if($task->getStatus() != Task::STATUS_ONGOING) {
+    			if($task->getStatus() >= Task::STATUS_COMPLETED) {
     				return false;
     			}
     			if(is_null($task->getMember($this->user))) {
@@ -168,7 +168,7 @@ class TaskJsonModel extends JsonModel
     			}
     			return false;
     		case 'unjoin':
-    			if($task->getStatus() != Task::STATUS_ONGOING) {
+    			if($task->getStatus() >= Task::STATUS_COMPLETED) {
     				return false;
     			}
     			if(is_null($task->getMember($this->user))) {
