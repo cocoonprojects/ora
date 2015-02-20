@@ -127,7 +127,7 @@ class TaskJsonModel extends JsonModel
     		$rv['estimation']['value'] = -2;
     	}
     	
-    	if($tm->getShare() != null) {
+    	if($tm->getShare() != null && $tm->getTask()->getStatus() >= Task::STATUS_CLOSED) {
     		$rv['share'] = $tm->getShare();
     		$rv['delta'] = $tm->getDelta();
     	}
