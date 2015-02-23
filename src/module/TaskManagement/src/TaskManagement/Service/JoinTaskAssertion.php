@@ -24,11 +24,11 @@ class JoinTaskAssertion implements AssertionInterface
 		if($this->loggedUser instanceof User){
     		
 			$taskStatus = $resource->getStatus();
-
-		    $currentOrganizationId = $resource->getStream()->getReadableOrganization();		
+		    $currentOrganizationId = $resource->getStream()->getReadableOrganization();		    
 		    
 		    if($this->loggedUser->isMemberOf($currentOrganizationId)){
-		    	return $taskStatus == $resource::STATUS_ONGOING ;
+		    	return $taskStatus == $resource::STATUS_ONGOING;
+
 		    }else{
 		    	return false;
 		    }
