@@ -76,12 +76,13 @@ class TaskJsonModel extends JsonModel
 		}
 		$rv = [
 			'id' => $task->getId (),
-			'createdAt' => date_format($task->getCreatedAt(), 'c'),
-			'status' => $task->getStatus(),
-			'members' => $this->getMembersArray($task),
-			'createdBy' => is_null ( $task->getCreatedBy () ) ? "" : $task->getCreatedBy ()->getFirstname () . " " . $task->getCreatedBy ()->getLastname (),
 			'subject' => $task->getSubject (),
+			'createdAt' => date_format($task->getCreatedAt(), 'c'),
+			'createdBy' => is_null ( $task->getCreatedBy () ) ? "" : $task->getCreatedBy ()->getFirstname () . " " . $task->getCreatedBy ()->getLastname (),
 			'type' => $task->getType (),
+			'status' => $task->getStatus(),
+			'stream' => $this->getStream($task),
+			'members' => $this->getMembersArray($task),
 			'_links' => $links,
 		];
 		
@@ -92,20 +93,28 @@ class TaskJsonModel extends JsonModel
 		return $rv;
 	}
 	
+	private function getStream(Task $task) {
+		$stream = $task->getStream();
+		$rv['subject'] = $stream->getSubject();
+		$rv['_links']['self'] = $this->url->fromRoute('streams', ['id' => $stream->getId()]);
+		return $rv;
+	}
+	
     private function getMembersArray(Task $task){
 		$members = array();
 		foreach ($task->getMembers() as $tm) {
-			$m = $this->serializaOneMember($tm);
+			$m = $this->serializeOneMember($tm);
 			$members[$tm->getMember()->getId()] = $m;
 		}
 		return $members;
     }
     
-    private function serializaOneMember(TaskMember $tm) {
+    private function serializeOneMember(TaskMember $tm) {
     	$member = $tm->getMember();
     	$rv = [
     			'firstname' => $member->getFirstname(),
     			'lastname' => $member->getLastname(),
+    			'picture' => $member->getPicture(),
     			'role' => $tm->getRole(),
     			'_links' => [
     					'self' => $this->url->fromRoute('users', ['id' => $member->getId()]),
@@ -118,7 +127,7 @@ class TaskJsonModel extends JsonModel
     		$rv['estimation']['value'] = -2;
     	}
     	
-    	if($tm->getShare() != null) {
+    	if($tm->getShare() != null && $tm->getTask()->getStatus() >= Task::STATUS_CLOSED) {
     		$rv['share'] = $tm->getShare();
     		$rv['delta'] = $tm->getDelta();
     	}
@@ -146,12 +155,12 @@ class TaskJsonModel extends JsonModel
     	switch ($action) {
     		case 'edit':
     		case 'delete':
-    			if($task->getStatus() != Task::STATUS_ONGOING) {
+    			if($task->getStatus() >= Task::STATUS_COMPLETED) {
     				return false;
     			}
     			return true;
     		case 'join':
-    			if($task->getStatus() != Task::STATUS_ONGOING) {
+    			if($task->getStatus() >= Task::STATUS_COMPLETED) {
     				return false;
     			}
     			if(is_null($task->getMember($this->user))) {
@@ -159,7 +168,7 @@ class TaskJsonModel extends JsonModel
     			}
     			return false;
     		case 'unjoin':
-    			if($task->getStatus() != Task::STATUS_ONGOING) {
+    			if($task->getStatus() >= Task::STATUS_COMPLETED) {
     				return false;
     			}
     			if(is_null($task->getMember($this->user))) {

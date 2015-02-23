@@ -242,4 +242,36 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(14, $this->task->getMembers()[$user2->getId()]['share']);
 	}
 	
+	public function testLastUserShareAssignement() {
+		$user1 = User::create();
+		$user2 = User::create();
+		
+		$this->task->addMember($user1, $user1);
+		$this->task->addMember($user2, $user2);
+		
+		$this->task->complete($this->taskCreator);
+		
+		$this->task->addEstimation(1000, $user1);
+		$this->task->addEstimation(2500, $user2);
+		$this->task->addEstimation(3200, $this->taskCreator);
+		
+		$this->task->accept($this->taskCreator);
+		
+		$this->task->skipShares($this->taskCreator);
+		
+		$this->task->assignShares([
+				$this->taskCreator->getId() => 33,
+				$user1->getId()				=> 39,
+				$user2->getId()				=> 28
+		], $user1);
+		
+		$this->task->assignShares([
+				$this->taskCreator->getId() => 23,
+				$user1->getId()				=> 77,
+				$user2->getId()				=> 0
+		], $user2);
+		
+		$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
+
+	}
 }

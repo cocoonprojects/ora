@@ -19,4 +19,6 @@ interface KanbanizeService {
 	public function executeTask(KanbanizeTask $kanbanizeTask);
 		
 	public function completeTask(KanbanizeTask $task);
+	
+	public function closeTask(KanbanizeTask $task);
 }

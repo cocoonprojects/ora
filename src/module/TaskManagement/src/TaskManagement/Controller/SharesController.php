@@ -40,7 +40,6 @@ class SharesController extends AbstractHATEOASRestfulController {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		
 		$error = new ErrorJsonModel();
 		if(count($data) == 0) {
 			$this->transaction()->begin();
@@ -52,9 +51,11 @@ class SharesController extends AbstractHATEOASRestfulController {
 			} catch (DomainEntityUnavailableException $e) {
 				$this->transaction()->rollback();
 				$this->response->setStatusCode(403);
+				return $this->response;
 			} catch (IllegalStateException $e) {
 				$this->transaction()->rollback();
 				$this->response->setStatusCode(412);
+				return $this->response;
 			}
 		}
 		

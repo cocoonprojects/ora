@@ -1,7 +1,10 @@
 <?php
 	$this->headScript()->appendFile($this->basePath() . '/js/task-management.js');
 	$this->headStyle()->appendStyle('ul.task-details { list-style: none; margin:0; padding: 0; }');
-?>
+	$this->headStyle()->appendStyle('ul.task-actions { list-style: none; margin:0; padding: 0; }');
+	$this->headStyle()->appendStyle('ul.task-actions li { display: inline-block; }');
+	$this->headStyle()->appendStyle('.panel-heading a { cursor: pointer; }');
+	?>
 <div style="position: fixed; bottom: 2em; right: 2em">
 	<a class="btn btn-primary btn-fab btn-raised mdi-content-add" data-toggle="modal" data-target="#createTaskModal" id="createTaskBtn"></a>
 </div>
@@ -131,6 +134,21 @@
 					<button type="submit" class="btn btn-primary">Submit</button>
 				</div>
 			</form>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="taskDetailModal" tabindex="-1" role="dialog" aria-labelledby="taskDetailModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class='sr-only'>Close</span></button>
+				<h4 class="modal-title"></h4>
+			</div>
+			<div class="modal-body">
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
 		</div>
 	</div>
 </div>
