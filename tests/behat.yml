@@ -42,12 +42,12 @@ travis-ci:
         task_features:
             contexts:
                 - RestContext:
-                    - http://localhost
+                    - http://ora.local
         estimations_features:
             contexts:
                 - TaskContext:
-                    - http://localhost
+                    - http://ora.local
         kanbanize_features:
             contexts:
                 - KanbanizeContext:
-                    - http://localhost
+                    - http://ora.local
