@@ -41,7 +41,7 @@ travis-ci:
     suites:
         login_features:
             contexts:
-                - LoginContext
+                - LoginContext:
                     - http://127.0.0.1
         task_features:
             contexts:
