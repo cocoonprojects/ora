@@ -39,10 +39,6 @@ default:
 
 travis-ci:
     suites:
-        login_features:
-            contexts:
-                - LoginContext:
-                    - http://127.0.0.1
         task_features:
             contexts:
                 - RestContext:
@@ -55,3 +51,8 @@ travis-ci:
             contexts:
                 - KanbanizeContext:
                     - http://127.0.0.1
+    extensions:
+        Behat\MinkExtension:
+            base_url:  http://127.0.0.1
+            goutte:    ~
+            selenium2: ~
