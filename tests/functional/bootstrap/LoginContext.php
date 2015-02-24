@@ -9,8 +9,9 @@ use Behat\Gherkin\Node\TableNode;
 
 class LoginContext extends MinkContext implements Context
 {
-    public function __construct()
+    public function __construct($base_url)
     {
+	$this->base_url = $base_url;
     }
     
     /**
