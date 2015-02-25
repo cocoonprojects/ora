@@ -17,7 +17,7 @@ class MockStreamService implements StreamService {
 		if(is_null($s)) {
 			return null;
 		}
-		$rv = new Stream(Uuid::fromString($s->getId()), $s->getCreatedBy());
+		$rv = new Stream(Uuid::fromString($s->getId()), $s->getCreatedBy(), $s->getOrganization());
 		$rv->setSubject($s->getSubject());
 		return $rv;
 	}

@@ -12,13 +12,14 @@ use Rhumsaa\Uuid\Uuid;
 use Ora\ReadModel\Estimation;
 use Ora\ReadModel\TaskMember;
 use Ora\InvalidArgumentException;
+use Zend\Permissions\Acl\Resource\ResourceInterface;
 
 /**
  * 
  * @author Giannotti Fabio
  *
  */
-class Task extends DomainEntity implements \Serializable
+class Task extends DomainEntity implements \Serializable, ResourceInterface, ReadableTask
 {	
     CONST STATUS_IDEA = 0;
     CONST STATUS_OPEN = 10;
@@ -459,11 +460,6 @@ class Task extends DomainEntity implements \Serializable
     	return isset($this->members[$memberId]['estimation']) ? $this->members[$memberId]['estimation'] : NULL;
     }    
     
-	public function hasMember($user) {
-    	$key = $user instanceof User ? $user->getId() : $user;
-    	return array_key_exists($key, $this->members);
-    }
-    
     public function getMemberRole($user){ 
     	$key = $user instanceof User ? $user->getId() : $user;
     	if($this->hasMember($key)){
@@ -471,4 +467,8 @@ class Task extends DomainEntity implements \Serializable
     	}
     	return self::NOT_MEMBER;
     } 
+    
+    public function getReadableId(){
+    	return $this->id->toString();
+    }
 }

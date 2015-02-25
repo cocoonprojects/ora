@@ -8,6 +8,7 @@ use Ora\ReadModel\Estimation;
 use Ora\ReadModel\TaskMember;
 use Zend\Mvc\Controller\Plugin\Url;
 use Ora\User\User;
+use BjyAuthorize\Service\Authorize;
 
 class TaskJsonModel extends JsonModel
 {
@@ -22,9 +23,12 @@ class TaskJsonModel extends JsonModel
 	 */
 	private $user;
 	
-	public function __construct(Url $url, User $user) {
+	private $authorize;
+	
+	public function __construct(Url $url, User $user, Authorize $authorize) {
 		$this->url = $url;
 		$this->user = $user;
+		$this->authorize = $authorize;
 	}
 	
 	public function serialize()
@@ -35,7 +39,7 @@ class TaskJsonModel extends JsonModel
 			$representation['tasks'] = [];
 			foreach ($resource as $r) {
 				$representation['tasks'][] = $this->serializeOne($r);
-				if($this->isAllowed('create')) {
+				if ($this->authorize->isAllowed($r->getStream(), 'createTask')) { 
 					$representation['_links']['create'] = $this->url->fromRoute('tasks');
 				}
 			}
@@ -43,27 +47,21 @@ class TaskJsonModel extends JsonModel
 			$representation = $this->serializeOne($resource);
 		}
 		return Json::encode($representation);
+		
 	}
 
 	private function serializeOne(Task $task) {
 		$links = ['self' => $this->url->fromRoute('tasks', ['id' => $task->getId()])];
-		if($this->isAllowed('edit', $task)) {
-			$links['edit'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]); 
-		}
-		if($this->authorize->isAllowed($task, 'deleteTask')){		
-			$links['delete'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]); 
-		}
+
+		
+		if($this->authorize->isAllowed($task, 'deleteTask') === true){		
+			$links['edit'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);
+			$links['delete'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);
+		}		
+		
 		if($this->authorize->isAllowed($task, 'joinTask')){
-			$links['join'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']); 
-
+			$links['join'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']);
 		}
-//		if($this->isAllowed('unjoin', $task)) {
-//			$links['unjoin'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']); 
-//		}
-//		if($this->isAllowed('estimate', $task)) {
-//			$links['estimate'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'estimations']); 
-//		}
-
 		
 		if ($this->authorize->isAllowed($task, 'unjoinTask')) {      
     		$links['unjoin'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']); 
@@ -71,20 +69,22 @@ class TaskJsonModel extends JsonModel
 		if ($this->authorize->isAllowed($task, 'estimateTask')) {      
     		$links['estimate'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'estimations']); 
     	}
-		
+    	if ($this->authorize->isAllowed($task, 'executeTask')) {
+    		$links['execute'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
+    	}
 
-		if($this->isAllowed('execute', $task)) {
-			$links['execute'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']); 
-		}
-		if($this->isAllowed('complete', $task)) {
-			$links['complete'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']); 
-		}
-		if($this->isAllowed('accept', $task)) {
-			$links['accept'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']); 
-		}
-		if($this->isAllowed('assignShares', $task)) {
-			$links['assignShares'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'shares']); 
-		}
+		if ($this->authorize->isAllowed($task, 'completeTask')) {
+    		$links['complete'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
+    	}
+    	
+		if ($this->authorize->isAllowed($task, 'acceptTask')) {
+    		$links['accept'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
+    	}
+    	
+		if ($this->authorize->isAllowed($task, 'assignShares')) {
+    		$links['assignShares'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'shares']);
+    	}
+    	
 		$rv = [
 			'id' => $task->getId (),
 			'subject' => $task->getSubject (),
@@ -232,7 +232,7 @@ class TaskJsonModel extends JsonModel
     			$member = $task->getMember($this->user);
     			if(is_null($member)) {
     				return false;
-    			}
+    			}    			
     			if($member->getRole() == TaskMember::ROLE_OWNER) {
     				return true;
     			}

@@ -61,25 +61,26 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 	            	$locator = $sm->getServiceLocator();
 	            	$taskService = $locator->get('TaskManagement\TaskService');
 	            	$streamService = $locator->get('TaskManagement\StreamService');
-	            	$controller = new TasksController($taskService, $streamService);
+	            	$authorize = $locator->get('BjyAuthorize\Service\Authorize');
+	            	$controller = new TasksController($taskService, $streamService, $authorize);
 	            	return $controller;
 	            },
 	            'TaskManagement\Controller\Members' => function ($sm) {
             		$locator = $sm->getServiceLocator();
-            		$taskService = $locator->get('TaskManagement\TaskService');
+            		$taskService = $locator->get('TaskManagement\TaskService');            		
             		$controller = new MembersController($taskService);
             		return $controller;
             	},
             	'TaskManagement\Controller\Transitions' => function ($sm) {
             		$locator = $sm->getServiceLocator();
 	            	$taskService = $locator->get('TaskManagement\TaskService');
-            		$kanbanizeService = $locator->get('TaskManagement\KanbanizeService');
+            		$kanbanizeService = $locator->get('TaskManagement\KanbanizeService');            		
             		$controller = new TransitionsController($taskService, $kanbanizeService);
             		return $controller;
             	},
             	'TaskManagement\Controller\Estimations' => function ($sm) {
             		$locator = $sm->getServiceLocator();
-            		$taskService = $locator->get('TaskManagement\TaskService');
+            		$taskService = $locator->get('TaskManagement\TaskService');            		
             		$controller = new EstimationsController($taskService);
             		return $controller;
             	},
@@ -105,7 +106,11 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				'assertion.EstimateTaskAssertion' =>  'TaskManagement\Service\EstimateTaskAssertionFactory',
 				'assertion.JoinTaskAssertion' =>  'TaskManagement\Service\JoinTaskAssertionFactory',
         		'assertion.UnjoinTaskAssertion' =>  'TaskManagement\Service\UnjoinTaskAssertionFactory',
-        		'assertion.DeleteTaskAssertion' =>  'TaskManagement\Service\DeleteTaskAssertionFactory'
+        		'assertion.DeleteTaskAssertion' =>  'TaskManagement\Service\DeleteTaskAssertionFactory',
+        		'assertion.ExecuteTaskAssertion' =>  'TaskManagement\Service\ExecuteTaskAssertionFactory',
+        		'assertion.CompleteTaskAssertion' =>  'TaskManagement\Service\CompleteTaskAssertionFactory',
+        		'assertion.AcceptTaskAssertion' =>  'TaskManagement\Service\AcceptTaskAssertionFactory',
+        		'assertion.AssignSharesAssertion' =>  'TaskManagement\Service\AssignSharesAssertionFactory'
             ),
 		);
     }

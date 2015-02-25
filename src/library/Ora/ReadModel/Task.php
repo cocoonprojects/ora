@@ -11,6 +11,8 @@ use Ora\IllegalStateException;
 use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
 use Ora\User\User;
+use Zend\Permissions\Acl\Resource\ResourceInterface;
+use Ora\TaskManagement\ReadableTask;
 
 /**
  * @ORM\Entity @ORM\Table(name="tasks")
@@ -22,7 +24,7 @@ use Ora\User\User;
 
 // If no DiscriminatorMap annotation is specified, doctrine uses lower-case class name as default values
 
-class Task extends EditableEntity
+class Task extends EditableEntity implements ResourceInterface, ReadableTask
 {	
     CONST STATUS_IDEA = 0;
     CONST STATUS_OPEN = 10;
@@ -111,8 +113,8 @@ class Task extends EditableEntity
 	public function removeMember($member) {
 		if($member instanceof TaskMember) {
 			$this->members->removeElement($member);
-		} else {
-			$this->members->remove($key);
+		} else {			
+			$this->members->remove($member);
 		}
 		return $this;
 	}
@@ -248,5 +250,9 @@ class Task extends EditableEntity
     		return $this->members->get($key)->getRole();
     	}
     	return self::NOT_MEMBER;
+    }
+    
+    public function getReadableId(){
+    	return $this->id;
     }
 }

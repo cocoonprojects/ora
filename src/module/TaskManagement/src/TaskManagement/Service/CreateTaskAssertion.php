@@ -19,12 +19,12 @@ class CreateTaskAssertion implements AssertionInterface
     }
     
 	public function assert(Acl $acl, RoleInterface $role = null, ResourceInterface $resource = null, $privilege = null){
-		
-		if($this->loggedUser instanceof User){
 
+		if($this->loggedUser instanceof User){
+			
 		    //controllo se lo stream nel quale creare il task e' associato all'organizzazione dell'utente loggato
 			$currentOrganizationId = $resource->getReadableOrganization();
-			
+
 			if($this->loggedUser->isMemberOf($currentOrganizationId)){
 				return true;
 			}

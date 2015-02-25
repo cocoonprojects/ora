@@ -32,7 +32,7 @@ class EventSourcingUserService extends AggregateRepository implements UserServic
 	
 	public function subscribeUser($infoOfUser)
 	{
-		$user = $this->create($infoOfUser, Role::instance(Role::ROLE_USER));
+		$user = $this->create($infoOfUser);
 		$this->entityManager->persist($user);			
 		$this->entityManager->flush($user);
 		if(!is_null($this->accountService)) {
@@ -41,13 +41,14 @@ class EventSourcingUserService extends AggregateRepository implements UserServic
 		return $user;			
 	}
 		
-	public function create($infoOfUser, Role $role, User $createdBy = null)
+	public function create($infoOfUser, User $createdBy = null)
 	{	
 		$user = User::create($createdBy);
 		$user->setEmail($infoOfUser['email']);
 		$user->setLastname($infoOfUser['family_name']);
 		$user->setFirstname($infoOfUser['given_name']);
 		$user->setPicture($infoOfUser['picture']);
+		$user->setRole(User::ROLE_USER);
 		return $user;
 	}
 

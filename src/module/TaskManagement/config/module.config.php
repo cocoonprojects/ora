@@ -66,27 +66,16 @@ return array(
     'bjyauthorize'=> array(
     
     	'resource_providers' => array(
-            'BjyAuthorize\Provider\Resource\Config' => array(
-                'Ora\StreamManagement\Stream' => array(),
+            'BjyAuthorize\Provider\Resource\Config' => array(                
+				'Ora\ReadModel\Task' => array(),
+    			'DoctrineORMModule\Proxy\__CG__\Ora\ReadModel\Stream' => array(),
             ),
         ),
     
         'rule_providers' => array(
             'BjyAuthorize\Provider\Rule\Config' => array(
                 'allow' => array(
-                    
-<<<<<<< HEAD
-                    array(array('user'), 
-                    		'Ora\StreamManagement\Stream', 
-                    		array('createTask'), 
-                    		'assertion.CreateTaskAssertion'),
-                                        
-=======
-                    array(
-                    	array('user'), 
-                    	'Ora\StreamManagement\Stream', 
-                    	array('createTask'), 
-                    	'assertion.CreateTaskAssertion'),                    	
+                                        	
                     array(
                     	array('user'), 
                     	'DoctrineORMModule\Proxy\__CG__\Ora\ReadModel\Stream', 
@@ -96,12 +85,7 @@ return array(
                     	array('user'), 
                     	'Ora\ReadModel\Task', 
                     	array('joinTask'), 
-                    	'assertion.JoinTaskAssertion'),
-                    array(
-                    	array('user'), 
-                    	'Ora\TaskManagement\Task', 
-                    	array('estimateTask'), 
-                    	'assertion.EstimateTaskAssertion'),
+                    	'assertion.JoinTaskAssertion'),                    
                     array(
                     	array('user'), 
                     	'Ora\ReadModel\Task', 
@@ -111,23 +95,32 @@ return array(
                     	array('user'), 
                     	'Ora\ReadModel\Task', 
                     	array('unjoinTask'), 
-                    	'assertion.UnjoinTaskAssertion'),
-                    array(
-                    	array('user'), 
-                    	'Ora\TaskManagement\Task', 
-                    	array('unjoinTask'), 
-                    	'assertion.UnjoinTaskAssertion'),
+                    	'assertion.UnjoinTaskAssertion'),                    
                     array(
                     	array('user'), 
                     	'Ora\ReadModel\Task', 
                     	array('deleteTask'), 
-                    	'assertion.DeleteTaskAssertion'),
+                    	'assertion.DeleteTaskAssertion'),                    
+					array(
+                    	array('user'), 
+                    	'Ora\ReadModel\Task', 
+                    	array('executeTask'), 
+                    	'assertion.ExecuteTaskAssertion'),                    
+                   array(
+                    	array('user'), 
+                    	'Ora\ReadModel\Task', 
+                    	array('completeTask'), 
+                    	'assertion.CompleteTaskAssertion'),
                     array(
                     	array('user'), 
-                    	'Ora\TaskManagement\Task', 
-                    	array('deleteTask'), 
-                    	'assertion.DeleteTaskAssertion'),
->>>>>>> adding acl assertions on task management
+                    	'Ora\ReadModel\Task', 
+                    	array('acceptTask'), 
+                    	'assertion.AcceptTaskAssertion'),
+                    array(
+                    	array('user'), 
+                    	'Ora\ReadModel\Task', 
+                    	array('assignShares'), 
+                    	'assertion.AssignSharesAssertion'),
                 ),
             ),
         ),

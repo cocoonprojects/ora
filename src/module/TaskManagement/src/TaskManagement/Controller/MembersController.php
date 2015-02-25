@@ -8,6 +8,7 @@ use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
 use Ora\TaskManagement\TaskService;
 
+
 class MembersController extends AbstractHATEOASRestfulController
 {
     protected static $collectionOptions = array();
@@ -18,7 +19,7 @@ class MembersController extends AbstractHATEOASRestfulController
      * @var TaskService
      */
     protected $taskService;
-    
+        
     public function __construct(TaskService $taskService) {
 		$this->taskService = $taskService;	
     }
@@ -30,11 +31,6 @@ class MembersController extends AbstractHATEOASRestfulController
         	$this->response->setStatusCode(404);
 			return $this->response;
         }
-    	
-//    	if (!$this->authorize->isAllowed($task, 'joinTask')) {      
-//    		$this->response->setStatusCode(403);
-//    		return $this->response;
-//    	}
     	
     	$loggedUser = $this->identity()['user'];
     	$this->transaction()->begin();
@@ -61,11 +57,6 @@ class MembersController extends AbstractHATEOASRestfulController
 			return $this->response;
         }
         
-   	 	if (!$this->authorize->isAllowed($task, 'unjoinTask')) {      
-    		$this->response->setStatusCode(403);
-    		return $this->response;
-    	}
-        
        	$loggedUser = $this->identity()['user'];
     	$this->transaction()->begin();
        	try {
@@ -73,7 +64,7 @@ class MembersController extends AbstractHATEOASRestfulController
        		$this->transaction()->commit();
 	    	$this->response->setStatusCode(200);
         } catch (DomainEntityUnavailableException $e) {
-       		$this->transaction()->rollback();
+        	$this->transaction()->rollback();
         	$this->response->setStatusCode(204);	// No content
         } catch (IllegalStateException $e) {
        		$this->transaction()->rollback();

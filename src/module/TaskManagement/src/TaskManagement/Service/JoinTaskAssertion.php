@@ -18,16 +18,18 @@ class JoinTaskAssertion implements AssertionInterface
     }
     
 	public function assert(Acl $acl, RoleInterface $role = null, ResourceInterface $resource = null, $privilege = null){
-
+		
 		//TODO: manca sul WriteModel la possibilita' di accedere, dalla risorsa Task, allo Stream associato.
 		//      Al momento questa assertion e' usata solamente per il ReadModel
 		if($this->loggedUser instanceof User){
     		
-			$taskStatus = $resource->getStatus();
 		    $currentOrganizationId = $resource->getStream()->getReadableOrganization();		    
 		    
-		    if($this->loggedUser->isMemberOf($currentOrganizationId)){
-		    	return $taskStatus == $resource::STATUS_ONGOING;
+		    if($this->loggedUser->isMemberOf($currentOrganizationId) && !$resource->hasMember($this->loggedUser)){
+		    	if($resource->getStatus() >= $resource::STATUS_COMPLETED){
+		    		return false;
+		    	}
+		    	return true;		    	
 
 		    }else{
 		    	return false;

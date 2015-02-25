@@ -9,31 +9,31 @@ use Zend\Permissions\Acl\Role\RoleInterface;
 use Zend\Permissions\Acl\Assertion\AssertionInterface;
 use Ora\User\User;
 
-class UnjoinTaskAssertion implements AssertionInterface
+class AssignSharesAssertion implements AssertionInterface
 {
     private $loggedUser;
     
     public function __construct(User $loggedUser = null) {
-        $this->loggedUser  = $loggedUser;
+        $this->loggedUser  = $loggedUser;                       
     }
     
 	public function assert(Acl $acl, RoleInterface $role = null, ResourceInterface $resource = null, $privilege = null){
 		
 		if($this->loggedUser instanceof User){
-		
+			
 			if(!$resource->hasMember($this->loggedUser)){
-				return false;
-			}else{
-				
-				$roleMember = $resource->getMemberRole($this->loggedUser->getId());
-								
-				if($roleMember == $resource::ROLE_OWNER || $resource->getStatus() >= $resource::STATUS_COMPLETED){
-					return false;
-				}				
-				return true;
-			}			
-		}
-		
-		return false;
-    }    
+				return false;    		
+			}
+			
+			if($resource->getStatus() != $resource::STATUS_ACCEPTED) {
+    			return false;
+    		}
+    		
+			return true;			
+						
+    	}else{
+    		return false;    	
+    	}
+    }
+    
 }

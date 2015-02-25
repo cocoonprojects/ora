@@ -28,12 +28,20 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	 */
 	protected $stream;
 	
+	/**
+	 * @var Organization
+	 */
+	protected $organization;
+	
+	
 	protected function setUp() {
 		$this->taskCreator = User::create();
-		$this->stream = new Stream(Uuid::fromString('00000000-1000-0000-0000-000000000002'), $this->taskCreator);
+		$this->organization = new ReadModelOrganization(Uuid::fromString('00000000-1000-0000-0000-000000000022'), new \DateTime(), $this->taskCreator);		
+		$this->stream = new Stream(Uuid::fromString('00000000-1000-0000-0000-000000000002'), $this->taskCreator, $this->organization);
 		$this->task = Task::create($this->stream, 'test', $this->taskCreator);
+
 	}
-	
+		
 	public function testCreate() {
 		$task = Task::create($this->stream, 'Test subject', $this->taskCreator);
 		$this->assertInstanceOf('Rhumsaa\Uuid\Uuid', $task->getId());
@@ -52,20 +60,6 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals($this->stream->getId()->toString(), $task->getStreamId());
 		$this->assertTrue($task->hasMember($this->taskCreator));
 		$this->assertTrue($task->hasAs(Task::ROLE_OWNER, $this->taskCreator));
-	}
-	
-	/**
-	 * @var Organization
-	 */
-	protected $organization;
-	
-	
-	protected function setUp() {
-		$this->taskCreator = User::create();
-		$this->organization = new ReadModelOrganization(Uuid::fromString('00000000-1000-0000-0000-000000000022'), new \DateTime(), $this->taskCreator);		
-		$stream = new Stream(Uuid::fromString('00000000-1000-0000-0000-000000000002'), $this->taskCreator, $this->organization);
-		$this->task = Task::create($stream, 'test', $this->taskCreator);
-
 	}
 	
 	public function testAddEstimation() {
