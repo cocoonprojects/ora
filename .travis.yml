@@ -31,8 +31,8 @@ before_script:
   - "mkdir -p ~/.composer"
   - cp .travis.composer.config.json ~/.composer/config.json
   - composer install -d src --dev
-  - app/console doctrine orm:schema-tool:create
-  - app/console doctrine orm:schema-tool:update --force
+  - src/vendor/bin/doctrine-module orm:schema-tool:create
+  - src/vendor/bin/doctrine-module orm:schema-tool:update --force
 
 script:
   - phpunit --configuration tests/phpunit.xml
