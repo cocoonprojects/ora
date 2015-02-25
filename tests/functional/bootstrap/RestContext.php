@@ -47,69 +47,69 @@ class RestContext extends RawMinkContext implements Context
 	
 	private $json = null;
 	
-	/**
-     *  @BeforeSuite
-     */
-    public static function setupApplication(BeforeSuiteScope $scope){
-		putenv('APPLICATION_ENV=acceptance');
-    	echo "APPLICATION_ENV=" . getenv('APPLICATION_ENV') . "\n";    	
+// 	/**
+//      *  @BeforeSuite
+//      */
+//     public static function setupApplication(BeforeSuiteScope $scope){
+// 		putenv('APPLICATION_ENV=acceptance');
+//     	echo "APPLICATION_ENV=" . getenv('APPLICATION_ENV') . "\n";    	
 		
-		$path_config = __DIR__.'/../../../src/config/application.config.php';	 	
-		$path = __DIR__.'/../../../src/vendor/zendframework/zendframework/library';		
-        putenv("ZF2_PATH=".$path);
+// 		$path_config = __DIR__.'/../../../src/config/application.config.php';	 	
+// 		$path = __DIR__.'/../../../src/vendor/zendframework/zendframework/library';		
+//         putenv("ZF2_PATH=".$path);
 
-	 	include __DIR__.'/../../../src/init_autoloader.php';
-        self::$zendApp = Zend\Mvc\Application::init(require $path_config); //new application instance
+// 	 	include __DIR__.'/../../../src/init_autoloader.php';
+//         self::$zendApp = Zend\Mvc\Application::init(require $path_config); //new application instance
 	
-        $sm = self::$zendApp->getServiceManager();		
-		self::$entityManager = $sm->get('doctrine.entitymanager.orm_default');
-		self::$schemaTool = new \Doctrine\ORM\Tools\SchemaTool(self::$entityManager);
+//         $sm = self::$zendApp->getServiceManager();		
+// 		self::$entityManager = $sm->get('doctrine.entitymanager.orm_default');
+// 		self::$schemaTool = new \Doctrine\ORM\Tools\SchemaTool(self::$entityManager);
 				
-		self::deleteDatabase(); //useful at the very first execution of this function 
+// 		self::deleteDatabase(); //useful at the very first execution of this function 
 		
-		//get all doctrine metadata for create schema
-		$classes = self::$entityManager->getMetadataFactory()->getAllMetadata();
-		self::$schemaTool->createSchema($classes);
-		echo "Database schema created\n";
+// 		//get all doctrine metadata for create schema
+// 		$classes = self::$entityManager->getMetadataFactory()->getAllMetadata();
+// 		self::$schemaTool->createSchema($classes);
+// 		echo "Database schema created\n";
 		
-		//get query for event_store table creation
-		$sql = file_get_contents(__DIR__.'/../../../src/vendor/prooph/event-store-zf2-adapter/scripts/mysql-single-stream-default-schema.sql');
+// 		//get query for event_store table creation
+// 		$sql = file_get_contents(__DIR__.'/../../../src/vendor/prooph/event-store-zf2-adapter/scripts/mysql-single-stream-default-schema.sql');
 
-		$statement = self::$entityManager->getConnection()->prepare($sql);		
-		$statement->execute();
-		$statement->closeCursor(); //needed for mysql database
-		echo "Event store table created\n";
+// 		$statement = self::$entityManager->getConnection()->prepare($sql);		
+// 		$statement->execute();
+// 		$statement->closeCursor(); //needed for mysql database
+// 		echo "Event store table created\n";
 		
-		//get query for test data
-		$sql = file_get_contents(__DIR__.'/../../../tests/sql/init.sql');
-		$statement = self::$entityManager->getConnection()->executeUpdate($sql, array(), array());		
+// 		//get query for test data
+// 		$sql = file_get_contents(__DIR__.'/../../../tests/sql/init.sql');
+// 		$statement = self::$entityManager->getConnection()->executeUpdate($sql, array(), array());		
 		
-		echo "Database initialized\n";
-    }
+// 		echo "Database initialized\n";
+//     }
     
-    /** @AfterSuite */
-	public static function teardownApplication(AfterSuiteScope $scope){
+//     /** @AfterSuite */
+// 	public static function teardownApplication(AfterSuiteScope $scope){
 
-		echo "Tear down application...\n";
+// 		echo "Tear down application...\n";
 		
-		self::deleteDatabase();
+// 		self::deleteDatabase();
 		
-		echo "...done!\n";
+// 		echo "...done!\n";
 		
-	} 
+// 	} 
     
-	private static function deleteDatabase(){
+// 	private static function deleteDatabase(){
 		
-		//drop tables creates by doctrine
-		$classes = self::$entityManager->getMetadataFactory()->getAllMetadata();
-		self::$schemaTool->dropSchema($classes);	
+// 		//drop tables creates by doctrine
+// 		$classes = self::$entityManager->getMetadataFactory()->getAllMetadata();
+// 		self::$schemaTool->dropSchema($classes);	
 
-		//drop event_stream table
-		$sql_drop_event_store = "drop table if exists event_stream";
-		$statement_del = self::$entityManager->getConnection()->executeUpdate($sql_drop_event_store, array(), array());
+// 		//drop event_stream table
+// 		$sql_drop_event_store = "drop table if exists event_stream";
+// 		$statement_del = self::$entityManager->getConnection()->executeUpdate($sql_drop_event_store, array(), array());
 		
-    	echo "Database schema dropped\n";    	
-	}
+//     	echo "Database schema dropped\n";    	
+// 	}
 	
     /**
      * Initializes context.
