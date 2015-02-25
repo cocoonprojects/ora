@@ -1,8 +1,10 @@
 # build/travis-ci-apache - used for testing within Travis CI
 <VirtualHost *:80>
-  DocumentRoot %TRAVIS_BUILD_DIR%
+  ServerName ora.local
+  ServerAlias oraprojecttest
+  DocumentRoot "%TRAVIS_BUILD_DIR%/public"
 
-  <Directory "%TRAVIS_BUILD_DIR%">
+  <Directory "%TRAVIS_BUILD_DIR%/public">
     Options FollowSymLinks MultiViews ExecCGI
     AllowOverride All
     Order deny,allow

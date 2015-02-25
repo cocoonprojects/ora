@@ -36,23 +36,3 @@ default:
             base_url:  http://oraprojecttest
             goutte:    ~
             selenium2: ~
-
-travis-ci:
-    suites:
-        task_features:
-            contexts:
-                - RestContext:
-                    - http://127.0.0.1
-        estimations_features:
-            contexts:
-                - TaskContext:
-                    - http://127.0.0.1
-        kanbanize_features:
-            contexts:
-                - KanbanizeContext:
-                    - http://127.0.0.1
-    extensions:
-        Behat\MinkExtension:
-            base_url:  http://127.0.0.1
-            goutte:    ~
-            selenium2: ~
