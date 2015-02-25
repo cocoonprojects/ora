@@ -20,10 +20,11 @@ class TaskServiceFactory implements FactoryInterface
 	    if(is_null(self::$instance)) 
 	    {
 			$eventStore = $serviceLocator->get('prooph.event_store');
-			$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');			
+			$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
+			$authorize = $serviceLocator->get('BjyAuthorize\Service\Authorize');
 			$organizationService = $serviceLocator->get('User\OrganizationService');
 			
-			self::$instance = new EventSourcingTaskService($eventStore, $entityManager);            
+			self::$instance = new EventSourcingTaskService($eventStore, $entityManager, $authorize, $organizationService);            
         }
 	    return self::$instance;
 	}

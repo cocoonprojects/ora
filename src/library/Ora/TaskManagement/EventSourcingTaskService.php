@@ -44,12 +44,6 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	
 	public function createTask(Stream $stream, $subject, User $createdBy)
 	{			
-		if (!$this->authorize->isAllowed($stream, 'createTask')) {
-           	
-   	 		 throw new \BjyAuthorize\Exception\UnAuthorizedException('Cannot create task');
-        }
-		
-		
 		$this->eventStore->beginTransaction();
 	    $task = Task::create($stream, $subject, $createdBy);
 	    $this->addAggregateRoot($task);
