@@ -1,9 +1,16 @@
 <?php
+$env = getenv('APPLICATION_ENV') ? : "local";
+
 return array(
     'modules' => array(
+        'DoctrineModule',
+        'DoctrineORMModule',
+    	'ProophEventStoreModule',
         'Application',
+    	'Accounting',
+    	'TaskManagement',
         'ZendOAuth2',
-        'Auth'
+    	'User',
     ),
 
     'module_listener_options' => array(
@@ -12,7 +19,7 @@ return array(
             __DIR__.'/../../src/vendor',
         ),
         'config_glob_paths' => array(
-            'config/autoload/{,*.}{global,local}.php',
-        )
+            __DIR__.'/../../src/config/autoload/{,*.}{'.$env.',global}.php',
+        ),
     ) 
 );

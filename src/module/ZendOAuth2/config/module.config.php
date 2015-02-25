@@ -12,9 +12,7 @@ return array(
 
             'ZendOAuth2\Github' => 'ZendOAuth2\Client\GithubFactory',
             
-            'ZendOAuth2\Facebook' => 'ZendOAuth2\Client\FacebookFactory',
-        	
-        	'ZendOAuth2\TestProvider' => 'ZendOAuth2\Client\TestProviderFactory'        		
+            'ZendOAuth2\Facebook' => 'ZendOAuth2\Client\FacebookFactory'
             
         ),
         

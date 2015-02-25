@@ -1,0 +1,154 @@
+<?php
+	$this->headScript()->appendFile($this->basePath() . '/js/task-management.js');
+	$this->headStyle()->appendStyle('ul.task-details { list-style: none; margin:0; padding: 0; }');
+	$this->headStyle()->appendStyle('ul.task-actions { list-style: none; margin:0; padding: 0; }');
+	$this->headStyle()->appendStyle('ul.task-actions li { display: inline-block; }');
+	$this->headStyle()->appendStyle('.panel-heading a { cursor: pointer; }');
+	?>
+<div style="position: fixed; bottom: 2em; right: 2em">
+	<a class="btn btn-primary btn-fab btn-raised mdi-content-add" data-toggle="modal" data-target="#createTaskModal" id="createTaskBtn"></a>
+</div>
+<div class="container" id="content">
+	<div class="page-header">
+		<h1>Items</h1>
+	</div>
+	<div class="alert" role="alert">
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+		  <span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+	<ul id="tasks" style="list-style: none; padding: 0; margin: 0">
+	</ul>
+</div>
+<div class="modal fade" id="createTaskModal" tabindex="-1" role="dialog" aria-labelledby="createTaskModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form action="">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Create new task</h4>
+				</div>
+				<div class="modal-body">
+					<div class="alert" role="alert">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						  <span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="form-group"> 
+						<label for="streamID">Stream</label>
+						<select name="streamID" class="form-control" required="required">
+							<option value=""></option>
+							<option value="00000000-1000-0000-0000-000000000000">O.R.A.</option>
+							<option value="00000000-1100-0000-0000-000000000000">Open Governance<option>
+						</select>
+					</div>
+					<div>
+						<label for="subject">Subject</label>
+						<input type="text" name="subject" class="form-control" required="required">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-primary">Create</button>
+				</div>
+			</form>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" id="editTaskModal" tabindex="-1" role="dialog" aria-labelledby="editTaskModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form action="">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title">Edit the task</h4>
+				</div>
+				<div class="modal-body">
+					<div class="alert" role="alert">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						  <span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="form-group">
+						<label for="subject">Subject</label>
+						<input id="editTaskSubject" type="text" name="subject" class="form-control" required="required">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-primary">Submit</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="estimateTaskModal" tabindex="-1" role="dialog" aria-labelledby="estimateTaskModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form action="">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class='sr-only'>Close</span></button>
+					<h4 class="modal-title">Estimate the task</h4>
+				</div>
+				<div class="modal-body">
+					<div class="alert" role="alert">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						  <span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="form-group">
+						<label for="estimation">Credits</label>
+						<input type="number" id="estimateTaskCredits" pattern="/^[+]?([0-9]+(?:[\.][0-9]*)?|\.[0-9]+)$/" class="form-control">
+					</div>
+					<div class="checkbox"><label><input type="checkbox" id="estimateTaskSkip">Skip</label></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-primary">Submit</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="assignSharesModal" tabindex="-1" role="dialog" aria-labelledby="assignSharesModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<form action="" class="form-horizontal" onsubmit="return confirm('Are you sure?')">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class='sr-only'>Close</span></button>
+					<h4 class="modal-title">Assign shares</h4>
+				</div>
+				<div class="modal-body">
+					<div class="alert" role="alert">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						  <span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div id="assignSharesMembers"></div>
+					<div class="checkbox"><label><input type="checkbox" id="assignShareSkip">Skip</label></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-primary">Submit</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="taskDetailModal" tabindex="-1" role="dialog" aria-labelledby="taskDetailModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class='sr-only'>Close</span></button>
+				<h4 class="modal-title"></h4>
+			</div>
+			<div class="modal-body">
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>

@@ -20,6 +20,16 @@ return array(
                     ),
                 ),
             ),
+        		
+        	'login' => array(
+        		'type' => 'Zend\Mvc\Router\Http\Segment',
+        		'options' => array(
+        				'route'    => '/auth/:action[/:id]',
+        				'defaults' => array(
+        					'controller'    => 'Application\Controller\Auth',
+        				),
+        		),
+            ),
             // The following is a route to simplify getting started creating
             // new controllers and actions without needing to create a new
             // module. Simply drop new controllers in, and you can access them
@@ -97,10 +107,12 @@ return array(
     ),
     'doctrine' => array(
     	
+        // TODO: modificare il path per eliminare /vagrant/
+         
     	'configuration' => array(
         	'orm_default' => array(
         		'generate_proxies'  => true,
-        		'proxy_dir'         => 'src/data/DoctrineORMModule/Proxies'        		
+        		'proxy_dir'         => __DIR__ . '/../../../data/DoctrineORMModule/Proxies/'        		
         	)
         ),
     

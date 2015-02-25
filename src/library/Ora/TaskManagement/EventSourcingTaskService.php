@@ -2,136 +2,87 @@
 
 namespace Ora\TaskManagement;
 
-use Ora\EventStore\EventStore;
-use Ora\EntitySerializer;
+use Doctrine\ORM\EntityManager;
+use Prooph\EventStore\EventStore;
+use Prooph\EventStore\Aggregate\AggregateRepository;
+use Prooph\EventStore\Stream\MappedSuperclassStreamStrategy;
+use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
+use Prooph\EventStore\Aggregate\AggregateType;
+use Ora\User\User;
+use Ora\StreamManagement\Stream;
+use Ora\ReadModel\Share;
 
 /**
  * @author Giannotti Fabio
  */
-class EventSourcingTaskService implements TaskService
+class EventSourcingTaskService extends AggregateRepository implements TaskService
 {
-    private $entityManager;
-    private $eventStore;
-    private $entitySerializer;
+	/**
+	 * 
+	 * @var EntityManager
+	 */
+	private $entityManager;
+	/**
+	 * 
+	 * @var AggregateType
+	 */
+	private $aggregateRootType;
     
-    public function __construct($entityManager, EventStore $eventStore, EntitySerializer $entitySerializer)
+    public function __construct(EventStore $eventStore, EntityManager $entityManager)
     {
-        $this->entityManager = $entityManager;
-        $this->eventStore = $eventStore;
-	    $this->entitySerializer = $entitySerializer;
-    }
+    	$this->aggregateRootType = new AggregateType('Ora\\TaskManagement\\Task');
+		parent::__construct($eventStore, new AggregateTranslator(), new MappedSuperclassStreamStrategy($eventStore, $this->aggregateRootType, [$this->aggregateRootType->toString() => 'event_stream']));
+		$this->entityManager = $entityManager;
+	}
 	
-    /**
-     * Append new event for CREATE new task with specified parameters
-     */
-	public function createNewTask(\Ora\ProjectManagement\Project $project, $taskSubject)
-	{
-	    $createdAt = new \DateTime();
-	    // TODO: Modificare createdBy per inserire lo USERNAME esatto
-	    // prelevando il nome utente dalla sessione o da dove sia
-	    $createdBy = $this->entityManager->getRepository('Ora\User\User')->findOneBy(array("id"=>"1"));
-        
-	    // Generate unique ID for Task
-	    $taskID = uniqid();   
-	    
-	    // Creation of new task entity
-	    $task = new Task($taskID, $createdAt, $createdBy);
-
-	    // TODO: Controllare se descrizione e projectid vanno nel costruttore in quanto obbligatori
-	    $task->setSubject($taskSubject);
-	    $task->setProject($project);
-	    
-	    $event = new TaskCreatedEvent($createdAt, $task, $this->entitySerializer);
-	    
-	    $this->eventStore->appendToStream($event);
+	public function createTask(Stream $stream, $subject, User $createdBy)
+	{		
+		$this->eventStore->beginTransaction();
+	    $task = Task::create($stream, $subject, $createdBy);
+	    $this->addAggregateRoot($task);
+		$this->eventStore->commit();
+		return $task;
 	}
 	
 	/**
 	 * Retrieve task entity with specified ID
 	 */
-	public function findTask($id)
+	public function getTask($id)
 	{
-	    $task = $this->entityManager->getRepository('Ora\TaskManagement\Task')->findOneBy(array("id"=>$id));
-	     
-	    return $task;
-	}
-	
-	/**
-	 * Append new event for UPDATE the specified task entity with $data parameters
-	 */
-	public function editTask(\Ora\TaskManagement\Task $task)
-	{
-	    $editedAt = new \DateTime();
-	    // TODO: Modificare editedBy per inserire lo USERNAME esatto
-	    // prelevando il nome utente dalla sessione o da dove sia
-	    $editedBy = $this->entityManager->getRepository('Ora\User\User')->findOneBy(array("id"=>"1"));
-	    	    
-	    $task->setMostRecentEditAt($editedAt);
-	    $task->setMostRecentEditBy($editedBy);
-	    
-	    $event = new TaskEditedEvent($editedAt, $task, $this->entitySerializer);
-	    
-	    $this->eventStore->appendToStream($event);
-	}
-	
-	/**
-	 * Append new event for DELETE the specified task entity
-	 */
-	public function deleteTask(\Ora\TaskManagement\Task $task)
-	{
-	    $deletedAt = new \DateTime();
-	    
-	    $event = new TaskDeletedEvent($deletedAt, $task, $this->entitySerializer);
-	    
-	    $this->eventStore->appendToStream($event);
+		try {
+			$task = $this->getAggregateRoot($this->aggregateRootType, $id);
+		    return $task;
+        } catch (\RuntimeException $e) {
+        	return null;
+        }
 	}
 	
 	/**
 	 * Get the list of all available tasks 
 	 */
-	public function listAvailableTasks()
+	public function findTasks()
 	{
-	    $json['tasks'] = array();
-	    
-	    $tasks = $this->entityManager->getRepository('Ora\TaskManagement\Task')->findAll();	    
-	    
-	    foreach ($tasks as $task)
-	    {
-	        $json['tasks'][] = $task->serializeToARRAY($this->entitySerializer);
-	    }
-	    
-	    // TODO: Tornare sul client le informazioni riguardanti 
-	    // l'utente loggato recuperandole dalla sessione
-	    $json['loggeduser'] = array();
-	    $json['loggeduser']['id'] = "1";
-	    
-	    return $json;
+		$repository = $this->entityManager->getRepository('Ora\ReadModel\Task');
+	    return $repository->findBy(array(), array('mostRecentEditAt' => 'DESC'));	    
 	}
 	
-	/**
-	 * Add new USER (member) into TEAM of specified TASK
-	 */
-	public function addTaskUser(\Ora\TaskManagement\Task $task, \Ora\User\User $user)
-	{
-	    $joinedAt = new \DateTime();
-	    
-	    // TODO: Controllare che nel caso in cui un utente abbia già effettuato un join
-	    // all'interno del team, viene restituito errore di Integrity Constraint Violation
-	    // Verificare se l'utente già esiste prima di aggiungerlo oppure gestire l'errore       
-        //Check if user it's already part of team for specified task
-        $alreadyJoined = false;
-        
-        foreach ($task->getMembers() as $m) {
-            if ($m === $user) {
-                $alreadyJoined = true;
-            }
-        }
-        
-        if (!$alreadyJoined)
-            $task->addMember($user);
-        
-	    $event = new TaskUserAddedEvent($joinedAt, $task, $this->entitySerializer);
-	     
-	    $this->eventStore->appendToStream($event);
+	public function findTask($id) {
+		return $this->entityManager->find('Ora\ReadModel\Task', $id);
 	}
+	
+	public function findStreamTasks($streamId)
+	{	
+		$repository = $this->entityManager->getRepository('Ora\ReadModel\Task')->findBy(array('stream' => $streamId));
+	    return $repository;
+	}
+	
+// 	public function findTaskShares($id) {
+// 		$dql = "SELECT SUM(s.value) AS total, COUNT(s.evaluator_id) AS evaluators, s.valued_id FROM Ora\ReadModel\Share s " .
+//        "WHERE s.task_id = ?1 GROUP BY s.valued_id";
+// 		$rv = $this->entityManager->createQuery($dql)
+// 			->setParameter(1, $id)
+// 			->getArrayResult();
+// 		return $rv;
+// 	}
+	
 }

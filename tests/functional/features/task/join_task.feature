@@ -1,25 +1,34 @@
-Feature: Testing the RESTfulness of the Task Controller (JOIN USER INTO MEMBERS/TEAM OF EXISTING TASK)
+Feature: Join a task
+	As an organization member
+	I want to join an ongoing task
+	in order to be part of the team that will accomplish the task and estimate it
 
-@task @members @jointeam @POST
-Scenario: Join user into members of existing task
-	Given that I want to make a new "Member"
-	When I request "/task-management/tasks/1/members/1"
+Scenario: Successfully joining an ongoing task as logged user
+	Given that I am authenticated as "phil.toledo@ora.local" 
+	And that I want to make a new "Member"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000000/members"
 	Then the response status code should be 201
 
-@task @members @jointeam @POST
-Scenario: Join user into members of not existing task
-	Given that I want to make a new "Member"
-	When I request "/task-management/tasks/IDNONVALIDO/members/1"
+Scenario: Joining an ongoing task the logged user is already member of is invariant
+	Given that I am authenticated as "phil.toledo@ora.local" 
+	And that I want to make a new "Member"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000000/members"
+	Then the response status code should be 204
+	
+Scenario: Cannot join a non existing task
+	Given that I am authenticated as "mark.rogers@ora.local" 
+	And that I want to make a new "Member"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-0000000000x0/members"
 	Then the response status code should be 404
 	
-@task @members @jointeam @POST
-Scenario: Join not existing user into members of existing task
-	Given that I want to make a new "Member"
-	When I request "/task-management/tasks/1/members/IDNONVALIDO"
-	Then the response status code should be 404
-	
-@task @members @jointeam @POST
-Scenario: Join user into members of existing task withoud specify user id
-	Given that I want to make a new "Member"
-	When I request "/task-management/tasks/1/members/"
-	Then the response status code should be 406
+Scenario: Cannot join a completed task
+	Given that I am authenticated as "phil.toledo@ora.local" 
+	And that I want to make a new "Member"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000001/members"
+	Then the response status code should be 412
+
+Scenario: Cannot join an accepted task
+	Given that I am authenticated as "phil.toledo@ora.local" 
+	And that I want to make a new "Member"
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000002/members"
+	Then the response status code should be 412

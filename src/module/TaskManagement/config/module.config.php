@@ -1,49 +1,64 @@
 <?php
-
 return array(
-
-	'controllers' => array(
-        'invokables' => array(
-            'TaskManagement\Controller\Members' => 'TaskManagement\Controller\MembersController',
-            'TaskManagement\Controller\Tasks' => 'TaskManagement\Controller\TasksController'
-        ),
-    ),
-    
-    'router' => array(
+	'service_manager' => array(
+		'factories' => array(
+			'TaskManagement\Service\Kanbanize' => 'TaskManagement\Service\KanbanizeServiceFactory'
+		),
+	),
+	'router' => array(
         'routes' => array(
-            'members' => array(
-                'type' => 'Segment',
+            'tasks-home' => array(
+                'type' => 'Zend\Mvc\Router\Http\Literal',
                 'options' => array(
-                    'route'    => '/task-management/tasks/:taskid/members/[:id]',
-                    'constraints' => array(
-                        'taskid' => '[a-zA-Z0-9]+',
-                        'id' => '[a-zA-Z0-9]+'
-                    ),
+                    'route'    => '/task-management',
                     'defaults' => array(
-                        'controller' => 'TaskManagement\Controller\Members'
+                        'controller' => 'TaskManagement\Controller\Index',
+                        'action'     => 'index',
                     ),
                 ),
             ),
+        	'streams' => array(
+				'type' => 'Segment',
+				'options' => array(
+					'route'    => '/task-management/streams[/:id]',
+					'constraints' => array(
+						'id' => '[0-9a-z\-]+',
+					),
+					'defaults' => array(
+						'controller' => 'TaskManagement\Controller\Streams'
+					),
+				),
+			),
             'tasks' => array(
                 'type' => 'Segment',
                 'options' => array(
-                    'route'    => '/task-management/tasks[/:id]',
+                    'route'    => '/task-management/tasks[/:id][/:controller]',
                     'constraints' => array(
-                        'id' => '[a-zA-Z0-9]+'
+                        'id' => '[0-9a-z\-]+'
                     ),
                     'defaults' => array(
-                        'controller' => 'TaskManagement\Controller\Tasks'
+        				'__NAMESPACE__' => 'TaskManagement\Controller',
+                    	'controller' => 'Tasks'
                     ),
                 ),
             ),
         ),
     ),
     
-    'service_manager' => array(),
     'translator' => array(),
-    'view_manager' => array(
-        'strategies' => array(
-            'ViewJsonStrategy',
-        ),
-    )
+	'view_manager' => array(
+		'strategies' => array(
+			'ViewJsonStrategy',
+		),
+		'template_path_stack' => array(
+			'task-management' => __DIR__ . '/../view',
+		),
+	),
+	'asset_manager' => array(
+		'resolver_configs' => array(
+			'paths' => array(
+				'TaskManagement' => __DIR__ . '/../public',
+			),
+		),
+	),
 );

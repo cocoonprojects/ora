@@ -2,33 +2,49 @@
 
 namespace Ora\Organization;
 
-use Doctrine\ORM\Mapping AS ORM;
 use Ora\DomainEntity;
+use Rhumsaa\Uuid\Uuid;
+use Ora\User\User;
 
-/**
- * @ORM\Entity @ORM\Table(name="organizations")
- * @author Giannotti Fabio
- */
-class Organization extends DomainEntity 
+
+class Organization extends DomainEntity implements \Serializable
 {	    
 	/**
-	 * @ORM\Column(type="string")
+	 * 
 	 * @var string
 	 */
-	private $subject;
+	private $name;
+		
 	
-	// TODO: Utilizzare Ora\User\User $createdBy se createdBy dev'essere una relazione con lo USER
-	public function __construct($organizationID, \DateTime $createdAt, $createdBy) 
+	public function __construct(Uuid $id, User $createdBy, \DateTime $createdAt = null) 
 	{
-		parent::__construct($organizationID, $createdAt, $createdBy);
+		$this->id = $id;
+		$this->createdAt = $createdAt == null ? new \DateTime() : $createdAt;
+		$this->createdBy = $createdBy;
 	}
 	
-	public function getSubject() {
-		return $this->subject;
+	public function getName() {
+		return $this->name;
 	}
 	
-	public function setSubject($subject) {
-		$this->subject = $subject;
+	public function setName($name) {
+		$this->name = $name;
+	}
+
+	public function serialize()
+	{
+		$data = array(
+			'id' => $this->id->toString(),
+			'name' => $this->name,
+		);
+	    return serialize($data); 
 	}
 	
-} 
+	public function unserialize($encodedData)
+	{
+	    $data = unserialize($encodedData);
+	    $this->id = Uuid::fromString($data['id']);
+	    $this->name = $data['name'];
+	}
+	
+}

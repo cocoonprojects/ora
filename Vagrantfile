@@ -203,5 +203,6 @@ config.vm.provision :shell, :path => "puphpet/shell/testsuite_link.sh"
 #configurazione del modulo di doctrine
 config.vm.provision :shell, :path => "puphpet/shell/doctrine_module_configuration.sh"
 
+config.vm.synced_folder "./src/data/DoctrineORMModule/Proxies/", "/vagrant/src/data/DoctrineORMModule/Proxies/", :mount_options => ["dmode=777,fmode=777"]
 
 end

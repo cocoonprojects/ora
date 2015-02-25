@@ -11,14 +11,28 @@ namespace Application;
 
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
+use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
+use Doctrine\ORM\EntityManager;
+use Application\Controller\AuthController;
+use Zend\Log\Writer\Stream;
+use Zend\Log\Logger;
 
 class Module
 {
+	/**
+	 * 
+	 * @var EntityManager
+	 */
+// 	private $entityManager;
+	
     public function onBootstrap(MvcEvent $e)
     {
-        $eventManager        = $e->getApplication()->getEventManager();
+    	$application = $e->getApplication();
+        $eventManager = $application->getEventManager();
+        $serviceManager = $application->getServiceManager();
+        
         $moduleRouteListener = new ModuleRouteListener();
-        $moduleRouteListener->attach($eventManager);
+        $moduleRouteListener->attach($eventManager);        
     }
     
     public function getConfig()
@@ -30,21 +44,58 @@ class Module
     {
         return array(
             'invokables' => array(
-                'Application\Controller\Index' => 'Application\Controller\IndexController'
+                'Application\Controller\Index' => 'Application\Controller\IndexController',
+            ),
+            'factories' => array(
+            	'Application\Controller\Auth'  => function ($sm) {
+            		$locator = $sm->getServiceLocator();
+					$resolver = $locator->get('Application\Service\AdapterResolver');
+            		$authService = $locator->get('Zend\Authentication\AuthenticationService');
+            		$userService = $locator->get('User\UserService');
+            		$controller = new AuthController($authService, $resolver);
+            		$controller->setUserService($userService);
+            		return $controller;
+            	},
             )
         );        
     } 
     
-    // Service Manager Configuration
+	public function getControllerPluginConfig()
+	{
+	    return array(
+	        'factories' => array(
+	            'transaction' => 'Application\Controller\Plugin\TransactionPluginFactory',
+	        	'loggedIdentity' => 'Application\Controller\Plugin\LoggedIdentityPluginFactory',
+	        ),
+	    );
+	}
+	
     public function getServiceConfig()
     {
         return array(
             'factories' => array(
-                'Application\Service\EventStore' => 'Application\Service\EventStoreFactory'
-            )
+            	'Zend\Authentication\AuthenticationService' => 'Application\Service\AuthenticationServiceFactory',
+	            'Application\Service\AdapterResolver' => 'Application\Service\OAuth2AdapterResolverFactory',
+            	'Zend\Log' => function ($sl) {
+            		$writer = new Stream('/vagrant/src/data/logs/application.log');
+            		$logger = new Logger();
+            		$logger->addWriter($writer);
+            		return $logger;
+            	}
+            ),
         );
     }
 
+    public function getViewHelperConfig()
+    {
+    	return array(
+    		'invokables' => array(
+    			'UserBoxHelper' => 'Application\View\Helper\UserBoxHelper',
+    			'LoginPopupHelper' => 'Application\View\Helper\LoginPopupHelper',
+    		),
+    	);
+    }
+        
     public function getAutoloaderConfig()
     {    	
         return array(

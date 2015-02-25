@@ -2,13 +2,33 @@
 
 namespace TaskManagement;
 
+use Zend\Mvc\MvcEvent;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
-use Zend\Stdlib\InitializableInterface;
+use TaskManagement\Controller\MembersController;
+use TaskManagement\Controller\TasksController;
+use TaskManagement\Controller\TransitionsController;
+use TaskManagement\Controller\EstimationsController;
+use TaskManagement\Service\TaskListener;
+use TaskManagement\Controller\SharesController;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {    
-    public function getConfig()
+	public function onBootstrap(MvcEvent $e)
+	{
+		$application = $e->getApplication();
+		$eventManager = $application->getEventManager();
+		$serviceManager = $application->getServiceManager();
+	
+		$entityManager = $serviceManager->get('doctrine.entitymanager.orm_default');
+		$eventStore = $serviceManager->get('prooph.event_store');
+		$kanbanizeService = $serviceManager->get('TaskManagement\KanbanizeService');
+		$taskListener = new TaskListener($entityManager);
+		$taskListener->setKanbanizeService($kanbanizeService);
+		$taskListener->attach($eventStore);
+	}
+		
+	public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';
     }
@@ -27,26 +47,58 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
         );
     }
     
+    public function getControllerConfig() 
+    {
+        return array(
+            'invokables' => array(
+	            'TaskManagement\Controller\Index' => 'TaskManagement\Controller\IndexController',
+	            'TaskManagement\Controller\Streams' => 'TaskManagement\Controller\StreamsController',
+            ),
+            'factories' => array(
+	            'TaskManagement\Controller\Tasks' => function ($sm) {
+	            	$locator = $sm->getServiceLocator();
+	            	$taskService = $locator->get('TaskManagement\TaskService');
+	            	$streamService = $locator->get('TaskManagement\StreamService');
+	            	$controller = new TasksController($taskService, $streamService);
+	            	return $controller;
+	            },
+	            'TaskManagement\Controller\Members' => function ($sm) {
+            		$locator = $sm->getServiceLocator();
+            		$taskService = $locator->get('TaskManagement\TaskService');
+            		$controller = new MembersController($taskService);
+            		return $controller;
+            	},
+            	'TaskManagement\Controller\Transitions' => function ($sm) {
+            		$locator = $sm->getServiceLocator();
+	            	$taskService = $locator->get('TaskManagement\TaskService');
+            		$kanbanizeService = $locator->get('TaskManagement\KanbanizeService');
+            		$controller = new TransitionsController($taskService, $kanbanizeService);
+            		return $controller;
+            	},
+            	'TaskManagement\Controller\Estimations' => function ($sm) {
+            		$locator = $sm->getServiceLocator();
+            		$taskService = $locator->get('TaskManagement\TaskService');
+            		$controller = new EstimationsController($taskService);
+            		return $controller;
+            	},
+            	'TaskManagement\Controller\Shares' => function ($sm) {
+            		$locator = $sm->getServiceLocator();
+            		$taskService = $locator->get('TaskManagement\TaskService');
+            		$controller = new SharesController($taskService);
+            		return $controller;
+            	}
+            )
+        );        
+    } 
+    
     public function getServiceConfig()
     {
         return array (
             'factories' => array (
-                'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory'
+                'TaskManagement\StreamService' => 'TaskManagement\Service\StreamServiceFactory',
+            	'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',
+				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
             ),
         );
     }
-    
-    public function onBootstrap($e)
-    {
-        $sm = $e->getApplication()->getServiceManager();
-        
-        $controllers = $sm->get('ControllerLoader');
-        
-        $controllers->addInitializer(function($controller, $cl) {
-            if ($controller instanceof InitializableInterface) {
-                $controller->init();
-            }
-        }, false); // false tells the loader to run this initializer after all others
-    }
-
 }

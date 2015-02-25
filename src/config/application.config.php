@@ -2,7 +2,7 @@
 
 $env = getenv('APPLICATION_ENV') ? : "local";
 
-//$env = "test_local";
+//$env = "acceptance";
 
 //TODO: Get APPLICATION_ENV from shell parameters when use ./doctrine-module command 
 /*if ($env == "" || $env == null)
@@ -16,12 +16,13 @@ return array(
     'modules' => array(
 		'DoctrineModule',
         'DoctrineORMModule',
+    	'ProophEventStoreModule',
+        'ZendOAuth2',
+    	'AssetManager',
+    	'Accounting',
+    	'TaskManagement',
+    	'User',
         'Application',
-        'TaskManagement',
-        'ProjectManagement',
-        'User',
-        'Auth',
-        'ZendOAuth2'
     ),
 
     // These are various options for the listeners attached to the ModuleManager
@@ -39,8 +40,7 @@ return array(
         // modules are loaded. These effectively override configuration
         // provided by modules themselves. Paths may use GLOB_BRACE notation.
         'config_glob_paths' => array(
-            __DIR__.'/../config/autoload/{,*.}{'.$env.',global}.php',
+            __DIR__.'/../config/autoload/{,*.}{global,'.$env.',local}.php',
         ),
     ),
 );
-

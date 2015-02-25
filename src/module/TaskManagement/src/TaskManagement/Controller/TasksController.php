@@ -3,116 +3,120 @@
 namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Zend\Stdlib\InitializableInterface;
-use Zend\View\Model\JsonModel;
-use Zend\View\Model\ViewModel;
+use Ora\TaskManagement\TaskService;
+use Ora\StreamManagement\StreamService;
+use Ora\User\User;
+use Ora\StreamManagement\Stream;
+use Ora\IllegalStateException;
+use Zend\Authentication\AuthenticationServiceInterface;
+use TaskManagement\View\TaskJsonModel;
+use Ora\TaskManagement\Task;
 
-class TasksController extends AbstractHATEOASRestfulController implements InitializableInterface
+class TasksController extends AbstractHATEOASRestfulController
 {
-    protected static $collectionOptions = array('GET', 'POST');
-    protected static $resourceOptions = array('DELETE', 'POST', 'GET', 'PUT');
-	protected $taskService;
-	protected $projectService;
+    protected static $collectionOptions = ['GET', 'POST'];
+    protected static $resourceOptions = ['DELETE', 'GET', 'PUT'];
     
-    public function init()
-    {
-        // Executed before any other method
-    }
+	/**
+	 * 
+	 * @var TaskService
+	 */
+    private $taskService;
+    /**
+     * 
+     * @var StreamService
+     */
+	private $streamService;
+		
+	public function __construct(TaskService $taskService, StreamService $streamService)
+	{
+		$this->taskService = $taskService;
+		$this->streamService = $streamService;
+	}
 	
     public function get($id)
     {        
-        // HTTP STATUS CODE 405: Method not allowed
-        $this->response->setStatusCode(405);
-         
-        return $this->response;
+    	$task = $this->taskService->findTask($id);
+        if(is_null($task)) {
+        	$this->response->setStatusCode(404);
+        	return $this->response;
+        }
+    	$this->response->setStatusCode(200);
+        $view = new TaskJsonModel($this->url(), $this->identity()['user']);
+        $view->setVariable('resource', $task);
+        return $view;
     }
 	
     /**
      * Return a list of available tasks
      * @method GET
-     * @link http://oraproject/task-management/tasks
-     * @return \Zend\View\Model\JsonModel
+     * @link http://oraproject/task-management/tasks?streamID=[uuid]
+     * @return TaskJsonModel
      * @author Giannotti Fabio
      */
     public function getList()
-    {
-        // TODO: Verificare che l'utente abbia il permesso per accedere all'elenco dei task disponibili?
-        $availableTasks = $this->getTaskService()->listAvailableTasks();
-       	
-       	$this->response->setStatusCode(200);
-       	
-        return new JsonModel($availableTasks);
+    {    	
+    	$streamID = $this->getRequest()->getQuery('streamID');
+		$availableTasks = is_null($streamID) ? $this->taskService->findTasks() : $this->taskService->findStreamTasks($streamID);
+
+    	$this->response->setStatusCode(200);
+       	$view = new TaskJsonModel($this->url(), $this->identity()['user']);       	
+        $view->setVariable('resource', $availableTasks);
+        return $view;
     }
     
     /**
-     * Create a new task into specified project
+     * Create a new task into specified stream
      * @method POST
      * @link http://oraproject/task-management/tasks
-     * @param array $data['projectID'] Parent project ID of the new task
+     * @param array $data['streamID'] Parent stream ID of the new task
      * @param array $data['subject'] Task subject
      * @return HTTPStatusCode
      * @author Giannotti Fabio
      */
     public function create($data)
-    {        
-        // Definition of used Zend Validators
-        $validator_NotEmpty = new \Zend\Validator\NotEmpty();
-        
-        if (!isset($data['projectID']))
+    {       	
+    	if (!isset($data['streamID']) || !isset($data['subject']))
         {            
             // HTTP STATUS CODE 400: Bad Request
             $this->response->setStatusCode(400);
-            
             return $this->response;
+        }   
+		
+    	$loggedUser = $this->identity()['user'];    	
+    	if(is_null($loggedUser))
+    	{
+    		$this->response->setStatusCode(401);
+    		return $this->response;
+    	}
+    	       
+        $stream = $this->streamService->getStream($data['streamID']);
+                     
+        if(is_null($stream)) {
+        	// Stream Not Found
+        	$this->response->setStatusCode(404);
+        	return $this->response;
         }
-        
-        if (!isset($data['subject']))
-        {           
-            // HTTP STATUS CODE 400: Bad Request
-            $this->response->setStatusCode(400);
-            
-            return $this->response;
-        }
-        
-        $data['projectID'] = trim($data['projectID']);        
-        $data['subject'] = trim($data['subject']);
-        
-        // TODO: Verificare che l'utente abbia il permesso per accedere a tale progetto?
-        
-        // Check if subject is empty
-        if (!$validator_NotEmpty->isValid($data['subject']))
-        {
-            // HTTP STATUS CODE 406: Not Acceptable
-            $this->response->setStatusCode(406);
-        
-            return $this->response;
-        }
-        
-        // Check if projectID value it's empty
-        if (!$validator_NotEmpty->isValid($data['projectID']))
-        {
-            // HTTP STATUS CODE 406: Not Acceptable
-            $this->response->setStatusCode(406);
-            
-            return $this->response;
-        }
-        
-        // Check if project with specific ProjectID exist 
-        $project = $this->getProjectService()->findProject($data['projectID']);
-        if (!($project instanceof \Ora\ProjectManagement\Project))
-        {
-            // HTTP STATUS CODE 404: Not Found
-            $this->response->setStatusCode(404);
-            
-            return $this->response;
-        }
-        
-        // Creation of new task
-       	$this->getTaskService()->createNewTask($project, $data['subject']);
-        
-        // HTTP STATUS CODE 201: Created
-    	$this->response->setStatusCode(201);
-    	
+                
+	    // Definition of used Zend Validators
+	    $validator_NotEmpty = new \Zend\Validator\NotEmpty();
+	        
+	    // Check if subject is empty
+	    if (!$validator_NotEmpty->isValid($data['subject']))
+	    {
+	    	// HTTP STATUS CODE 406: Not Acceptable
+	        $this->response->setStatusCode(406);
+	        return $this->response;
+	    }
+	        
+	    $createdBy = $loggedUser;
+	    $task = $this->taskService->createTask($stream, $data['subject'], $createdBy);
+	    // Task Created
+	     
+	    $this->response->setStatusCode(201);
+	    $url = $this->url()->fromRoute('tasks', array('id' => $task->getId()->toString()));
+	    $this->response->getHeaders()->addHeaderLine('Location', $url);
+	    
     	return $this->response;
     }
 
@@ -121,74 +125,47 @@ class TasksController extends AbstractHATEOASRestfulController implements Initia
      * @method PUT
      * @link http://oraproject/task-management/tasks/[:ID]
      * @param array $id ID of the Task to update 
-     * @param array $data['subject'] Updated Subject for the selected Task
+     * @param array $data['subject'] Update Subject for the selected Task
      * @return HTTPStatusCode
      * @author Giannotti Fabio
      */
     public function update($id, $data)
-    {        
-        // Check if any field must be updated
-      	if (sizeof($data) == 0)
-      	{
-      	    // HTTP STATUS CODE 204: No Content (Nothing to update)
-      	    $this->response->setStatusCode(204);
-      	
+    {
+    	if (!isset($data['subject'])) {
+      	    $this->response->setStatusCode(204);	// HTTP STATUS CODE 204: No Content (Nothing to update)
       	    return $this->response;
       	}
       	
-      	// Check if task with specified ID exist
-      	$task = $this->getTaskService()->findTask($id);
-      	if (is_null($task))
-      	{
-      	    // HTTP STATUS CODE 404: Not Found
-      	    $this->response->setStatusCode(404);
-      	     
-      	    return $this->response;
-      	}
-      	 
-      	// Check if subject exist...
-      	if (isset($data['subject']))
-      	{
-      	    $data['subject'] = trim($data['subject']);
+        $task = $this->taskService->getTask($id);
+        if(is_null($task)) {
+            $this->response->setStatusCode(404);
+            return $this->response;            	
+		}
+    	
+      	// Definition of used Zend Validators
+      	$validator_NotEmpty = new \Zend\Validator\NotEmpty();
       	    
-      	    // Definition of used Zend Validators
-      	    $validator_NotEmpty = new \Zend\Validator\NotEmpty();
-      	    
-      	    // ...if exist check if subject it's empty
-          	if (!$validator_NotEmpty->isValid($data['subject']))
-          	{
-          	    // HTTP STATUS CODE 406: Not Acceptable
-          	    $this->response->setStatusCode(406);
+      	// ...if exist check if subject it's empty
+        if (!$validator_NotEmpty->isValid($data['subject']))
+        {
+            // HTTP STATUS CODE 406: Not Acceptable
+            $this->response->setStatusCode(406);
+            return $this->response;
+        }
           	
-          	    return $this->response;
-          	}
-          	
-          	$task->setSubject($data['subject']);
-      	}
-      	      	      	
-      	// Edit existing task
-      	$this->getTaskService()->editTask($task);
-      	
-      	// HTTP STATUS CODE 202: Element Accepted
-      	$this->response->setStatusCode(202);
+	    $updatedBy = $this->identity()['user'];
+	    $this->transaction()->begin();
+	    try {
+        	$task->setSubject($data['subject'], $updatedBy);
+        	$this->transaction()->commit();
+	      	// HTTP STATUS CODE 202: Element Accepted
+	      	$this->response->setStatusCode(202);
+	    } catch (\Exception $e) {
+	    	$this->transaction()->rollback();
+	    }
       	
         return $this->response;
     }
-    
-    /**
-     * Update all existing tasks
-     * @method PUT
-     * @link http://oraproject/task-management/tasks
-     * @return HTTPStatusCode
-     * @author Giannotti Fabio
-     */
-    public function replaceList($data)
-    {
-        // HTTP STATUS CODE 405: Method not allowed
-        $this->response->setStatusCode(405);
-         
-        return $this->response;
-    }    
     
     /**
      * Delete single existing task with specified ID
@@ -198,22 +175,27 @@ class TasksController extends AbstractHATEOASRestfulController implements Initia
      * @author Giannotti Fabio
      */
     public function delete($id)
-    {
-      	// Check if task with specified ID exist
-      	$task = $this->getTaskService()->findTask($id);
-      	if (!($task instanceof \Ora\TaskManagement\Task))
-      	{
-      	    // HTTP STATUS CODE 404: Not Found
-      	    $this->response->setStatusCode(404);
-      	
-      	    return $this->response;
-      	}
-      	
-      	// Delete existing task
-      	$this->getTaskService()->deleteTask($task);
-      	
-      	// HTTP STATUS CODE 200: Completed
-      	$this->response->setStatusCode(200);
+    {     	
+        $task = $this->taskService->getTask($id);
+        if(is_null($task)) {
+            $this->response->setStatusCode(404);
+            return $this->response;            	
+		}
+    	if($task->getStatus() == Task::STATUS_DELETED) {
+			$this->response->setStatusCode(204);
+			return $this->response;
+		}
+    	
+		$deletedBy = $this->identity()['user'];
+		$this->transaction()->begin();
+    	try {
+    		$task->delete($deletedBy);
+    		$this->transaction()->commit();
+	      	$this->response->setStatusCode(200);
+		} catch (IllegalStateException $e) {
+			$this->transaction()->rollback();
+            $this->response->setStatusCode(412);	// Preconditions failed			
+		}
       	
         return $this->response;
     }
@@ -226,32 +208,6 @@ class TasksController extends AbstractHATEOASRestfulController implements Initia
     protected function getResourceOptions()
     {
         return self::$resourceOptions;
-    }
+    }   
     
-    protected function getJsonModelClass()
-    {
-        return $this->jsonModelClass;
-    }
-    
-    protected function getProjectService()
-    {
-        if (!isset($this->projectService))
-        {
-            $serviceLocator = $this->getServiceLocator();
-            $this->projectService = $serviceLocator->get('ProjectManagement\ProjectService');
-        }
-    
-        return $this->projectService;
-    }
-    
-    protected function getTaskService() 
-    {
-        if (!isset($this->taskService)) 
-        {
-            $serviceLocator = $this->getServiceLocator();
-            $this->taskService = $serviceLocator->get('TaskManagement\TaskService');
-        }
-        
-        return $this->taskService;
-    }
 }

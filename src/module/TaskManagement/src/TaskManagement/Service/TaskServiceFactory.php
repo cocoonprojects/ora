@@ -6,12 +6,12 @@ use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 use Ora\TaskManagement\EventSourcingTaskService;
-use Ora\EntitySerializer;
+use Ora\TaskManagement\TaskService;
 
 class TaskServiceFactory implements FactoryInterface 
 {
     /**
-     * @var EventSourcingTaskService
+     * @var TaskService
      */
     private static $instance;
     
@@ -19,14 +19,10 @@ class TaskServiceFactory implements FactoryInterface
 	{
 	    if(is_null(self::$instance)) 
 	    {
-            $eventStore = $serviceLocator->get('Application\Service\EventStore');
-
-            $entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-            $entitySerializer = new EntitySerializer($entityManager);
-            
-            self::$instance = new EventSourcingTaskService($entityManager, $eventStore, $entitySerializer);            
+			$eventStore = $serviceLocator->get('prooph.event_store');
+			$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
+            self::$instance = new EventSourcingTaskService($eventStore, $entityManager);            
         }
-
 	    return self::$instance;
 	}
 }

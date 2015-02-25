@@ -2,33 +2,45 @@
 
 namespace Ora\Organization;
 
-use Ora\EventStore\EventStore;
-use Ora\EntitySerializer;
+use Doctrine\ORM\EntityManager;
+use Prooph\EventStore\EventStore;
+use Prooph\EventStore\Aggregate\AggregateRepository;
+use Prooph\EventStore\Stream\StreamStrategyInterface;
+use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
+use Prooph\EventStore\Aggregate\AggregateType;
+use Ora\User\User;
+use Ora\ReadModel\Organization as OrganizationReadModel;
 
-
-/**
- * @author Giannotti Fabio
- */
-class EventSourcingOrganizationService implements OrganizationService
+class EventSourcingOrganizationService extends AggregateRepository implements OrganizationService
 {
     private $entityManager;
-    private $eventStore;
-    private $entitySerializer;
     
-    public function __construct($entityManager, EventStore $eventStore, EntitySerializer $entitySerializer)
+    public function __construct(EventStore $eventStore, StreamStrategyInterface $eventStoreStrategy, EntityManager $entityManager)
     {
-        $this->entityManager = $entityManager;
-        $this->eventStore = $eventStore;
-	    $this->entitySerializer = $entitySerializer;
+		parent::__construct($eventStore, new AggregateTranslator(), $eventStoreStrategy, new AggregateType('Ora\TaskManagement\Task'));
+		$this->entityManager = $entityManager;
     }
 	
 	/**
-	 * Retrieve organization entity with specified ID
-	 */
+	*  Retrieve organization entity with specified ID
+	*/
 	public function findOrganization($id)
 	{
-	    $organization = $this->entityManager->getRepository('Ora\Organization\Organization')->findOneBy(array("id"=>$id));
+	    $organization = $this->entityManager
+	                         ->getRepository('Ora\ReadModel\Organization')
+	    					 ->findOneBy(array("id"=>$id));
 	     
 	    return $organization;
 	}
+	
+	public function findUserOrganizationMembership(User $user)
+	{
+		return $this->entityManager->getRepository('Ora\ReadModel\OrganizationMembership')->findBy(array('member' => $user));
+	}	
+	
+	public function findOrganizationMembership(OrganizationReadModel $organization)
+	{
+		return $this->entityManager->getRepository('Ora\ReadModel\OrganizationMembership')->findBy(array('organization' => $organization));
+	}
+	
 }
