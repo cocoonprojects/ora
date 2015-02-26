@@ -36,6 +36,12 @@ class AuthController extends AbstractActionController
 		
 	public function loginAction()
 	{
+		var_dump(getenv('DB_HOSTNAME'));
+		var_dump(getenv('DB_PORT'));
+		var_dump(getenv('DB_USERNAME'));
+		var_dump(getenv('DB_PASSWORD'));
+		var_dump(getenv('DB_NAME'));
+		die();
 		$view = new ViewModel();
 		try {
 			$adapter = $this->adapterResolver->getAdapter($this);
