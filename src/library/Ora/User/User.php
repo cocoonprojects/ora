@@ -2,19 +2,20 @@
 
 namespace Ora\User;
 
+use Zend\Permissions\Acl\Role\RoleInterface;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
 use Ora\ReadModel\OrganizationMembership;
 use Ora\ReadModel\Organization;
 use Ora\ReadModel\EditableEntity;
-use BjyAuthorize\Provider\Role\ProviderInterface;   
+use BjyAuthorize\Provider\Identity\ProviderInterface;   
 
 /**
  * @ORM\Entity @ORM\Table(name="users")
  *
  */
-class User implements ProviderInterface
+class User implements ProviderInterface, RoleInterface
 {	   
 	CONST STATUS_ACTIVE = 1;
     CONST ROLE_ADMIN = 'admin';
@@ -234,7 +235,7 @@ class User implements ProviderInterface
 		return $this->memberships->containsKey($key);
 	}
 
-    public function getRoles(){
+    public function getIdentityRoles(){
         return $this->role;
         //return $this->roles->getValues();
     }
@@ -245,5 +246,9 @@ class User implements ProviderInterface
     
     public static function getRoleCollection(){
     	return self::$roles;
+    }
+    
+    public function getRoleId(){
+    	return $this->getIdentityRoles();
     }
 }
