@@ -1,11 +1,7 @@
 <?php
 
 return array(
-	'service_manager' => array(
-		'factories' => array(
-			'TaskManagement\Service\Kanbanize' => 'TaskManagement\Service\KanbanizeServiceFactory'
-		),
-	),
+	
 	'router' => array(
         'routes' => array(
             'tasks-home' => array(
@@ -79,48 +75,48 @@ return array(
                     array(
                     	array('user'), 
                     	'DoctrineORMModule\Proxy\__CG__\Ora\ReadModel\Stream', 
-                    	array('createTask'), 
-                    	'assertion.CreateTaskAssertion'),
+                    	array('TaskManagement.Task.create'), 
+                    	'MemberOfOrganizationAssertion'),
 					array(
                     	array('user'), 
                     	'Ora\ReadModel\Task', 
-                    	array('joinTask'), 
-                    	'assertion.JoinTaskAssertion'),                    
+                    	array('TaskManagement.Task.join'), 
+                    	'OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion'),                    
                     array(
                     	array('user'), 
                     	'Ora\ReadModel\Task', 
-                    	array('estimateTask'), 
-                    	'assertion.EstimateTaskAssertion'),
+                    	array('TaskManagement.Task.estimate'), 
+                    	'TaskMemberAndOngoingTaskAssertion'),
                     array(
                     	array('user'), 
                     	'Ora\ReadModel\Task', 
-                    	array('unjoinTask'), 
-                    	'assertion.UnjoinTaskAssertion'),                    
+                    	array('TaskManagement.Task.unjoin'), 
+                    	'TaskMemberNotOwnerAndNotCompletedTaskAssertion'),                    
                     array(
                     	array('user'), 
                     	'Ora\ReadModel\Task', 
-                    	array('deleteTask'), 
-                    	'assertion.DeleteTaskAssertion'),                    
+                    	array('TaskManagement.Task.edit', 'TaskManagement.Task.delete'), 
+                    	 'TaskOwnerAndNotCompletedTaskAssertion'),                    
 					array(
                     	array('user'), 
                     	'Ora\ReadModel\Task', 
-                    	array('executeTask'), 
-                    	'assertion.ExecuteTaskAssertion'),                    
+                    	array('TaskManagement.Task.execute'), 
+                    	'TaskMemberNotOwnerAndOpenOrCompletedTaskAssertion'),                    
                    array(
                     	array('user'), 
                     	'Ora\ReadModel\Task', 
-                    	array('completeTask'), 
-                    	'assertion.CompleteTaskAssertion'),
+                    	array('TaskManagement.Task.complete'), 
+                    	'TaskOwnerAndOngoingOrAcceptedTaskAssertion'),
                     array(
                     	array('user'), 
                     	'Ora\ReadModel\Task', 
-                    	array('acceptTask'), 
-                    	'assertion.AcceptTaskAssertion'),
+                    	array('TaskManagement.Task.accept'), 
+                    	'TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion'),
                     array(
                     	array('user'), 
                     	'Ora\ReadModel\Task', 
-                    	array('assignShares'), 
-                    	'assertion.AssignSharesAssertion'),
+                    	array('TaskManagement.Task.assignShares'), 
+                    	'TaskMemberAndAcceptedTaskAssertion'),
                 ),
             ),
         ),

@@ -6,10 +6,10 @@ namespace TaskManagement\Service;
 use Zend\Permissions\Acl\Acl;
 use Zend\Permissions\Acl\Resource\ResourceInterface;
 use Zend\Permissions\Acl\Role\RoleInterface;
-use Zend\Permissions\Acl\Assertion\AssertionInterface;
 use Ora\User\User;
+use Ora\ReadModel\Task;
 
-class UnjoinTaskAssertion implements AssertionInterface
+class TaskMemberNotOwnerAndNotCompletedTaskAssertion extends NotCompletedTaskAssertion
 {
     private $loggedUser;
     
@@ -19,19 +19,18 @@ class UnjoinTaskAssertion implements AssertionInterface
     
 	public function assert(Acl $acl, RoleInterface $role = null, ResourceInterface $resource = null, $privilege = null){
 		
-		if($this->loggedUser instanceof User){
-		
-			if(!$resource->hasMember($this->loggedUser)){
-				return false;
-			}else{
+		if(parent::assert($acl, $role, $resource, $privilege)){
+			
+			if($this->loggedUser instanceof User){
 				
-				$roleMember = $resource->getMemberRole($this->loggedUser->getId());
-								
-				if($roleMember == $resource::ROLE_OWNER || $resource->getStatus() >= $resource::STATUS_COMPLETED){
-					return false;
-				}				
-				return true;
-			}			
+				if($resource->hasMember($this->loggedUser)){
+					
+					$roleMember = $resource->getMemberRole($this->loggedUser->getId());
+					if($roleMember != Task::ROLE_OWNER){
+						return true;
+					}		
+				}
+			}
 		}
 		
 		return false;

@@ -8,8 +8,9 @@ use Zend\Permissions\Acl\Resource\ResourceInterface;
 use Zend\Permissions\Acl\Role\RoleInterface;
 use Zend\Permissions\Acl\Assertion\AssertionInterface;
 use Ora\User\User;
+use Ora\ReadModel\Task;
 
-class ExecuteTaskAssertion implements AssertionInterface
+class TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion implements AssertionInterface
 {
     private $loggedUser;
     
@@ -19,27 +20,24 @@ class ExecuteTaskAssertion implements AssertionInterface
     
 	public function assert(Acl $acl, RoleInterface $role = null, ResourceInterface $resource = null, $privilege = null){
 		
-		if($this->loggedUser instanceof User){
-
-			$roleMember = $resource->getMemberRole($this->loggedUser->getId());
+		if($resource->getStatus() == Task::STATUS_COMPLETED) {
 			
-			if(!in_array($resource->getStatus(), array($resource::STATUS_OPEN, $resource::STATUS_COMPLETED))) {
-    			return false;
-    		}
-    		
-			if(!$resource->hasMember($this->loggedUser)){
-				return false;
-			}
-								
-			if($roleMember == $resource::ROLE_OWNER){
-				return false;
-			}				
+			if($this->loggedUser instanceof User){
 
-			return true;			
+				if(!is_null($resource->getEstimation())){
+				
+					if($resource->hasMember($this->loggedUser)){
 						
-    	}else{    	
-    		return false;
-    	}
+						$roleMember = $resource->getMemberRole($this->loggedUser->getId());
+						if($roleMember == Task::ROLE_OWNER){
+							
+							return true;
+						}						
+					}					
+				}				
+    		}
+    	}    	
+    	return false;
     }
     
 }

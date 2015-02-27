@@ -23,6 +23,10 @@ class TaskJsonModel extends JsonModel
 	 */
 	private $user;
 	
+	/**
+	 * 
+	 * @var BjyAuthorize\Service\Authorize
+	 */
 	private $authorize;
 	
 	public function __construct(Url $url, User $user, Authorize $authorize) {
@@ -39,7 +43,7 @@ class TaskJsonModel extends JsonModel
 			$representation['tasks'] = [];
 			foreach ($resource as $r) {
 				$representation['tasks'][] = $this->serializeOne($r);
-				if ($this->authorize->isAllowed($r->getStream(), 'createTask')) { 
+				if ($this->authorize->isAllowed($r->getStream(), 'TaskManagement.Task.create')) { 
 					$representation['_links']['create'] = $this->url->fromRoute('tasks');
 				}
 			}
@@ -51,37 +55,42 @@ class TaskJsonModel extends JsonModel
 	}
 
 	private function serializeOne(Task $task) {
+		
+		//TODO: assertion
 		$links = ['self' => $this->url->fromRoute('tasks', ['id' => $task->getId()])];
 
 		
-		if($this->authorize->isAllowed($task, 'deleteTask') === true){		
+		if($this->authorize->isAllowed($task, 'TaskManagement.Task.edit') === true){
 			$links['edit'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);
+		}
+		
+		if($this->authorize->isAllowed($task, 'TaskManagement.Task.delete') === true){					
 			$links['delete'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);
 		}		
 		
-		if($this->authorize->isAllowed($task, 'joinTask')){
+		if($this->authorize->isAllowed($task, 'TaskManagement.Task.join')){
 			$links['join'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']);
 		}
 		
-		if ($this->authorize->isAllowed($task, 'unjoinTask')) {      
+		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.unjoin')) {      
     		$links['unjoin'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']); 
     	}		
-		if ($this->authorize->isAllowed($task, 'estimateTask')) {      
+		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.estimate')) {      
     		$links['estimate'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'estimations']); 
     	}
-    	if ($this->authorize->isAllowed($task, 'executeTask')) {
+    	if ($this->authorize->isAllowed($task, 'TaskManagement.Task.execute')) {
     		$links['execute'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
     	}
 
-		if ($this->authorize->isAllowed($task, 'completeTask')) {
+		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.complete')) {
     		$links['complete'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
     	}
     	
-		if ($this->authorize->isAllowed($task, 'acceptTask')) {
+		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.accept')) {
     		$links['accept'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
     	}
     	
-		if ($this->authorize->isAllowed($task, 'assignShares')) {
+		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.assignShares')) {
     		$links['assignShares'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'shares']);
     	}
     	
