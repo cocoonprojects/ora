@@ -439,6 +439,7 @@ class Task extends DomainEntity implements \Serializable, ResourceInterface, Rea
 		return $rv;
 	}
 	
+
 	private function isSharesAssignmentCompleted() {
 		foreach ($this->members as $member) {
 			if(!isset($member['shares'])) {
@@ -447,6 +448,7 @@ class Task extends DomainEntity implements \Serializable, ResourceInterface, Rea
 		}
 		return true;
 	}
+
 
 	public function getResourceId(){			
         return get_class($this);
@@ -458,6 +460,7 @@ class Task extends DomainEntity implements \Serializable, ResourceInterface, Rea
     
     public function getReadableEstimation($memberId){
     	return isset($this->members[$memberId]['estimation']) ? $this->members[$memberId]['estimation'] : NULL;
+
     }    
     
     public function getMemberRole($user){ 
@@ -467,8 +470,10 @@ class Task extends DomainEntity implements \Serializable, ResourceInterface, Rea
     	}
     	return self::NOT_MEMBER;
     } 
+
     
     public function getReadableId(){
     	return $this->id->toString();
     }
+
 }

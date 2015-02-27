@@ -83,15 +83,4 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	    return $repository;
 
 	}
-	
-// 	public function findTaskShares($id) {
-// 		$dql = "SELECT SUM(s.value) AS total, COUNT(s.evaluator_id) AS evaluators, s.valued_id FROM Ora\ReadModel\Share s " .
-//        "WHERE s.task_id = ?1 GROUP BY s.valued_id";
-// 		$rv = $this->entityManager->createQuery($dql)
-// 			->setParameter(1, $id)
-// 			->getArrayResult();
-// 		return $rv;
-// 	}
-
-
 }

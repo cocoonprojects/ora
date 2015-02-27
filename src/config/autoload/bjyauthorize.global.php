@@ -10,6 +10,7 @@ return array(
         'role_providers' => array(
             'BjyAuthorize\Provider\Role\Config' => User::getRoleCollection(), 
         ),
+
     ),	
 )
 ?>

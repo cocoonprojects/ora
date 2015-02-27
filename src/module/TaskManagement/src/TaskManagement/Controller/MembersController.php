@@ -7,6 +7,7 @@ use Ora\IllegalStateException;
 use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
 use Ora\TaskManagement\TaskService;
+use BjyAuthorize\Service\Authorize;
 
 
 class MembersController extends AbstractHATEOASRestfulController
@@ -26,7 +27,8 @@ class MembersController extends AbstractHATEOASRestfulController
     
     public function invoke($id, $data)
     {
-        $task = $this->taskService->getTask($id);
+    	$task = $this->taskService->getTask($id);
+    	
         if (is_null($task)) {
         	$this->response->setStatusCode(404);
 			return $this->response;

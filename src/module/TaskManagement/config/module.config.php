@@ -70,6 +70,7 @@ return array(
     
         'rule_providers' => array(
             'BjyAuthorize\Provider\Rule\Config' => array(
+        
                 'allow' => array(
                                         	
                     array(

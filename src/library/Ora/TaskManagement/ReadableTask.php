@@ -10,6 +10,7 @@ interface ReadableTask {
 	public function getReadableEstimation($memberId);
 	
 	public function getReadableId();
+
 }
 
 

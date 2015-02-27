@@ -1,0 +1,33 @@
+<?php
+
+namespace TaskManagement\Service;
+
+
+use Zend\Permissions\Acl\Acl;
+use Zend\Permissions\Acl\Resource\ResourceInterface;
+use Zend\Permissions\Acl\Role\RoleInterface;
+use Zend\Permissions\Acl\Assertion\AssertionInterface;
+use Ora\User\User;
+
+class EstimateTaskAssertion implements AssertionInterface
+{
+    private $loggedUser;
+    
+    public function __construct(User $loggedUser = null) {
+        $this->loggedUser  = $loggedUser;
+    }
+    
+	public function assert(Acl $acl, RoleInterface $role = null, ResourceInterface $resource = null, $privilege = null){
+		
+		if($this->loggedUser instanceof User){
+
+			if($resource->getStatus() == $resource::STATUS_ONGOING){
+				return $resource->hasMember($this->loggedUser->getId());				
+			}
+		    return false;		    
+    	}else{    	
+    		return false;
+    	}
+    }
+    
+}

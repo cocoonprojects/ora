@@ -69,6 +69,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             		$locator = $sm->getServiceLocator();
             		$taskService = $locator->get('TaskManagement\TaskService');            		
             		$controller = new MembersController($taskService);
+
             		return $controller;
             	},
             	'TaskManagement\Controller\Transitions' => function ($sm) {
@@ -82,6 +83,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             		$locator = $sm->getServiceLocator();
             		$taskService = $locator->get('TaskManagement\TaskService');            		
             		$controller = new EstimationsController($taskService);
+
             		return $controller;
             	},
             	'TaskManagement\Controller\Shares' => function ($sm) {
@@ -152,8 +154,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$loggedUser = $authService->getIdentity()['user'];
 					return $loggedUser;
 	        	},	
-				
-				
             ),
 		);
     }

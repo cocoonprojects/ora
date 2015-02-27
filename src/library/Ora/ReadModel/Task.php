@@ -188,7 +188,7 @@ class Task extends EditableEntity implements ResourceInterface, ReadableTask
     		$member->setShare(null);
     	}
     }
-    
+
 	public function updateMembersShare() {
 		$shares = $this->getMembersShare();
 		foreach ($shares as $key => $value) {
@@ -255,4 +255,5 @@ class Task extends EditableEntity implements ResourceInterface, ReadableTask
     public function getReadableId(){
     	return $this->id;
     }
+
 }

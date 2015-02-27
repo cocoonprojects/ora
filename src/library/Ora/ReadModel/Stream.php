@@ -49,4 +49,5 @@ class Stream extends EditableEntity implements ResourceInterface, ReadableStream
 	public function getResourceId(){
 		return get_class($this);
 	}
+
 }

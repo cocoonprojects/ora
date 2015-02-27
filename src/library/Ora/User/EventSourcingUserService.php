@@ -8,7 +8,6 @@ use Prooph\EventStore\Stream\StreamStrategyInterface;
 use Prooph\EventStore\Aggregate\AggregateRepository;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Prooph\EventStore\Aggregate\AggregateType;
-use Ora\User\Role;
 use Ora\Organization\Organization;
 use Ora\User\User;
 use Ora\Accounting\Account;
@@ -68,7 +67,7 @@ class EventSourcingUserService extends AggregateRepository implements UserServic
 					->findOneBy(array("email" => $email));
 			
 		return $user;		
-	}
+	}	
 	
 	public function setAccountService(AccountService $service) {
 		$this->accountService = $service;

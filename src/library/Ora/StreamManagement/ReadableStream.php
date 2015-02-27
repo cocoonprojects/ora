@@ -1,8 +1,11 @@
-<?php
+<?php 
+
 namespace Ora\StreamManagement;
 
-interface ReadableStream{
+interface ReadableStream
+{
+
+	public function getReadableOrganization(); 
 	
-	public function getReadableOrganization();
 	
 }

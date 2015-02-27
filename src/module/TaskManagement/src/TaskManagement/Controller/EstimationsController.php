@@ -12,6 +12,7 @@ use Zend\Validator\NotEmpty;
 use Zend\I18n\Validator\Float;
 use Zend\Validator\GreaterThan;
 use Zend\Validator\Identical;
+use BjyAuthorize\Service\Authorize;
 
 /**
  * EstimationController
@@ -32,8 +33,15 @@ class EstimationsController extends AbstractHATEOASRestfulController {
 	 */
 	protected $taskService;
 	
-	public function __construct(TaskService $taskService) {
+	/**
+	 * 
+	 * @var BjyAuthorize\Service\Authorize
+	 */
+	protected $authorize;
+	
+	public function __construct(TaskService $taskService, Authorize $authorize) {
 		$this->taskService = $taskService;
+		$this->authorize = $authorize;
 	}
 	
 	public function invoke($id, $data)
@@ -42,6 +50,18 @@ class EstimationsController extends AbstractHATEOASRestfulController {
 			$this->response->setStatusCode(400);
 			return $this->response;
 		}
+		
+		$task = $this->taskService->getTask($id);
+		if (is_null($task)) {
+			$this->response->setStatusCode(404);
+			return $this->response;
+		}
+		
+		if (!$this->authorize->isAllowed($task, 'estimateTask')) {      
+    		$this->response->setStatusCode(403);
+    		return $this->response;
+    	}
+		
 		//TODO check if the value is numeric in a localized way
 		$value = $data['value'];
 		
@@ -56,11 +76,6 @@ class EstimationsController extends AbstractHATEOASRestfulController {
 			return $this->response;
 		}
 			
-		$task = $this->taskService->getTask($id);
-		if (is_null($task)) {
-			$this->response->setStatusCode(404);
-			return $this->response;
-		}
 		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;

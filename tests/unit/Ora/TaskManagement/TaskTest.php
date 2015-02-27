@@ -21,6 +21,12 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	 * @var User
 	 */	
 	protected $taskCreator;
+	/**
+	 * 
+	 * @var Organization
+	 */
+	protected $organization;
+	
 	
 	/**
 	 * 
@@ -36,7 +42,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	
 	protected function setUp() {
 		$this->taskCreator = User::create();
-		$this->organization = new ReadModelOrganization(Uuid::fromString('00000000-1000-0000-0000-000000000022'), new \DateTime(), $this->taskCreator);		
+		$this->organization = new ReadModelOrganization(Uuid::fromString('00000000-1000-0000-0000-000000000022'), new \DateTime(), $this->taskCreator);	
 		$this->stream = new Stream(Uuid::fromString('00000000-1000-0000-0000-000000000002'), $this->taskCreator, $this->organization);
 		$this->task = Task::create($this->stream, 'test', $this->taskCreator);
 
@@ -60,6 +66,10 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals($this->stream->getId()->toString(), $task->getStreamId());
 		$this->assertTrue($task->hasMember($this->taskCreator));
 		$this->assertTrue($task->hasAs(Task::ROLE_OWNER, $this->taskCreator));
+
+		$stream = new Stream(Uuid::fromString('00000000-1000-0000-0000-000000000002'), $this->taskCreator, $this->organization);
+		$this->task = Task::create($stream, 'test', $this->taskCreator);
+
 	}
 	
 	public function testAddEstimation() {

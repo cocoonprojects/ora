@@ -6,10 +6,13 @@ use Zend\Permissions\Acl\Role\RoleInterface;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
+use BjyAuthorize\Provider\Role\ProviderInterface;   
 use Ora\ReadModel\OrganizationMembership;
+
 use Ora\ReadModel\Organization;
 use Ora\ReadModel\EditableEntity;
 use BjyAuthorize\Provider\Identity\ProviderInterface;   
+
 
 /**
  * @ORM\Entity @ORM\Table(name="users")
@@ -116,6 +119,10 @@ class User implements ProviderInterface, RoleInterface
 		$rv->mostRecentEditAt = $rv->createdAt;
 		$rv->mostRecentEditBy = $rv->createdBy;
 		return $rv;
+	}
+	
+	public function addOrganizationMembership($membership){
+		$this->memberships[] = $membership;
 	}
 	
 	public function getId() {
@@ -246,9 +253,13 @@ class User implements ProviderInterface, RoleInterface
     
     public static function getRoleCollection(){
     	return self::$roles;
+
     }
     
     public function getRoleId(){
     	return $this->getIdentityRoles();
     }
-}
+
+} 
+
+

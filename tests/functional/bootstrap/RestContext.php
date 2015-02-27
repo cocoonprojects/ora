@@ -390,6 +390,7 @@ class RestContext extends RawMinkContext implements Context
     		}
        	} elseif (count(get_object_vars($this->json->$propertyName)) != $value) {
 			throw new \Exception('Property size isn\'t equal to ' . $value .'! It is ' . count($this->json->$propertyName));
+
 		}
     }
 

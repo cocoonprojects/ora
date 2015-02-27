@@ -167,7 +167,7 @@ TaskManagement.prototype = {
 	{
 		var url = $(e.target).attr('href');
 		
-		that = this;
+		var that = this;
 		
 		$.ajax({
 			url: url,
@@ -193,7 +193,7 @@ TaskManagement.prototype = {
 	{
 		var url = $(e.target).attr('href');
 		
-		that = this;
+		var that = this;
 		
 		$.ajax({
 			url: url,
@@ -239,7 +239,7 @@ TaskManagement.prototype = {
 		var form = $(e.target);
 		var url = form.attr('action');
 
-		that = this;
+		var that = this;
 		
 		$.ajax({
 			url: url,
@@ -267,7 +267,7 @@ TaskManagement.prototype = {
 
 		var url = $(e.target).attr('href');
 			
-		that = this;
+		var that = this;
 		
 		$.ajax({
 			url: url,
@@ -289,7 +289,7 @@ TaskManagement.prototype = {
 	acceptTask: function(e){
 		var url = $(e.target).data('href');
 		
-		that = this;
+		var that = this;
 		
         $.ajax({
             url: url,
@@ -315,7 +315,7 @@ TaskManagement.prototype = {
 	completeTask: function(e){
 		var url = $(e.target).data('href');
 		
-		that = this;
+		var that = this;
 		
         $.ajax({
             url: url,
@@ -340,7 +340,7 @@ TaskManagement.prototype = {
     executeTask: function(e){
 		var url = $(e.target).data('href');
 		
-		that = this;
+		var that = this;
 		
         $.ajax({
             url: url,
@@ -393,9 +393,22 @@ TaskManagement.prototype = {
 		if ($(this.data.tasks).length == 0) {
 			container.append("<p>No available tasks found</p>");
 		} else {
-			that = this;
+			var that = this;
+
 			$.each(this.data.tasks, function(key, task) {
 				subject = task._links.self == undefined ? task.subject : '<a data-href="' + task._links.self + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
+
+				if(json._links !== undefined && json._links.create !== undefined) {
+					$("#createTaskModal form").attr("action", json._links.create);
+					$("#createTaskBtn").show();
+				} else {
+					$("#createTaskModal form").attr("action", null);
+					$("#createTaskBtn").hide();
+				}
+
+				subject = task._links.self == undefined ? task.subject : '<a href="' + task._links.self + '">' + task.subject + '</a>';
+				createdAt = new Date(Date.parse(task.createdAt));
+
 				var actions = [];
 				if (task._links.complete != undefined) {
 					label = task.status == 40 ? 'Revert to complete' : 'Complete';
@@ -551,7 +564,7 @@ TaskManagement.prototype = {
 	{
 		var url = $(e.target).attr('action');
 
-		that = this;
+		var that = this;
 		
 		$.ajax({
 			url: url,
@@ -574,7 +587,7 @@ TaskManagement.prototype = {
 	estimateTask : function (e){
 		var url = $(e.target).attr('action');
 
-		that = this;
+		var that = this;
 		
 		var credits = $('#estimateTaskSkip').is(':checked') ? -1 : $("#estimateTaskCredits").val();
 				
@@ -606,7 +619,7 @@ TaskManagement.prototype = {
 
 		m = $('#assignSharesModal');
 
-		that = this;
+		var that = this;
 		
 		$.ajax({
 			url: form.attr('action'),
