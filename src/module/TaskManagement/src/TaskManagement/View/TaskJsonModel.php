@@ -63,32 +63,6 @@ class TaskJsonModel extends JsonModel
 		
 		if($this->authorize->isAllowed($task, 'TaskManagement.Task.edit') === true){
 			$links['edit'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);
-
-		if($this->isAllowed('edit', $task)) {
-			$links['edit'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]); 
-		}
-		if($this->authorize->isAllowed($task, 'deleteTask')){		
-			$links['delete'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]); 
-		}
-		if($this->authorize->isAllowed($task, 'joinTask')){
-			$links['join'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']); 
-		}		
-		if ($this->authorize->isAllowed($task, 'unjoinTask')) {      
-    		$links['unjoin'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']); 
-    	}		
-		if ($this->authorize->isAllowed($task, 'estimateTask')) {      
-    		$links['estimate'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'estimations']); 
-    	}
-		
-		if($this->isAllowed('execute', $task)) {
-			$links['execute'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']); 
-		}
-		if($this->isAllowed('complete', $task)) {
-			$links['complete'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']); 
-		}
-		if($this->isAllowed('accept', $task)) {
-			$links['accept'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']); 
-
 		}
 		
 		if($this->authorize->isAllowed($task, 'TaskManagement.Task.delete') === true){					
@@ -101,10 +75,12 @@ class TaskJsonModel extends JsonModel
 		
 		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.unjoin')) {      
     		$links['unjoin'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']); 
-    	}		
+    	}	
+    		
 		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.estimate')) {      
     		$links['estimate'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'estimations']); 
     	}
+    	
     	if ($this->authorize->isAllowed($task, 'TaskManagement.Task.execute')) {
     		$links['execute'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
     	}

@@ -6,12 +6,9 @@ use Zend\Permissions\Acl\Role\RoleInterface;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
-use BjyAuthorize\Provider\Role\ProviderInterface;   
-use Ora\ReadModel\OrganizationMembership;
-
-use Ora\ReadModel\Organization;
-use Ora\ReadModel\EditableEntity;
 use BjyAuthorize\Provider\Identity\ProviderInterface;   
+use Ora\ReadModel\OrganizationMembership;
+use Ora\ReadModel\Organization;
 
 
 /**
@@ -258,7 +255,11 @@ class User implements ProviderInterface, RoleInterface
     
     public function getRoleId(){
     	return $this->getIdentityRoles();
-    }
+	}
+	
+	public function getRoles(){
+		return $this->role;
+	}
 
 } 
 
