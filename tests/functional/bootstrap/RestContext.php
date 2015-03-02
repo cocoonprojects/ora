@@ -47,12 +47,12 @@ class RestContext extends RawMinkContext implements Context
 	
 	private $json = null;
 	
-// 	/**
-//      *  @BeforeSuite
-//      */
-//     public static function setupApplication(BeforeSuiteScope $scope){
-// 		putenv('APPLICATION_ENV=acceptance');
-//     	echo "APPLICATION_ENV=" . getenv('APPLICATION_ENV') . "\n";    	
+	/**
+     *  @BeforeSuite
+     */
+    public static function setupApplication(BeforeSuiteScope $scope){
+		putenv('APPLICATION_ENV=acceptance');
+    	echo "APPLICATION_ENV=" . getenv('APPLICATION_ENV') . "\n";    	
 		
 // 		$path_config = __DIR__.'/../../../src/config/application.config.php';	 	
 // 		$path = __DIR__.'/../../../src/vendor/zendframework/zendframework/library';		
@@ -85,7 +85,7 @@ class RestContext extends RawMinkContext implements Context
 // 		$statement = self::$entityManager->getConnection()->executeUpdate($sql, array(), array());		
 		
 // 		echo "Database initialized\n";
-//     }
+    }
     
 //     /** @AfterSuite */
 // 	public static function teardownApplication(AfterSuiteScope $scope){
