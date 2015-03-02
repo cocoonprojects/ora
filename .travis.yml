@@ -35,6 +35,6 @@ before_script:
   - src/vendor/bin/doctrine-module orm:schema-tool:create
 
 script:
-  - phpunit --configuration tests/phpunit.xml
+#  - phpunit --configuration tests/phpunit.xml
   - cd tests
   - ../src/vendor/bin/behat
