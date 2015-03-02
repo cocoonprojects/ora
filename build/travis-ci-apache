@@ -3,7 +3,7 @@
   ServerName ora.local
   ServerAlias www.ora.local ora oraprojecttest
   DocumentRoot "%TRAVIS_BUILD_DIR%/src/public"
-  SetEnv APPLICATION_ENV "acceptance"
+  PassEnv APPLICATION_ENV
 
   <Directory "%TRAVIS_BUILD_DIR%/src/public">
     Options FollowSymLinks MultiViews ExecCGI
