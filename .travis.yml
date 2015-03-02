@@ -27,12 +27,13 @@ before_script:
   - sudo cp -f build/travis-ci-apache /etc/apache2/sites-available/default
   - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place /etc/apache2/sites-available/default
   - sudo service apache2 restart
-  - mysql -e 'create database oraproject_test;'
     # Set the GitHub OAuth token to make use of the 5000 per hour rate limit
   - "mkdir -p ~/.composer"
   - cp .travis.composer.config.json ~/.composer/config.json
   - composer install -d src --dev
+  - mysql -e 'create database oraproject_test;'
   - src/vendor/bin/doctrine-module orm:schema-tool:create
+  - mysql < tests/sql/init.sql
 
 script:
 #  - phpunit --configuration tests/phpunit.xml
