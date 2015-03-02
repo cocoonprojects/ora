@@ -41,11 +41,11 @@ $adapter = array(
     'options' => array(
         'connection' => array(
             'driver' => 'Pdo_Mysql',
-    		'hostname' => '127.0.0.1',
-    		'port' 	   => '3306',
-    		'username' => 'travis',
-    		'password' => '',
-    		'database' => 'oraproject_test'
+    		'hostname' => getenv('DB_HOSTNAME'),
+    		'port' 	   => getenv('DB_PORT'),
+    		'username' => getenv('DB_USERNAME'),
+    		'password' => getenv('DB_PASSWORD'),
+    		'database' => getenv('DB_NAME')
 		),
         //It's also possible to specify an DI alias for Zend\Db\Adapter\Adapter instead of configure a connection.
         //'zend_db_adapter' => 'Zend\Db\Adapter\Adapter',
