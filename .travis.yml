@@ -11,6 +11,7 @@ addons:
   hosts:
     - ora.local
     - oraprojecttest
+    - localhost
 
 install:
   - composer self-update
