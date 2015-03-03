@@ -26,6 +26,7 @@ before_script:
     # configure apache virtual hosts
   - sudo cp -f build/travis-ci-apache /etc/apache2/sites-available/default
   - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place /etc/apache2/sites-available/default
+  - sudo service apache2 stop
   - sudo service apache2 start
     # Set the GitHub OAuth token to make use of the 5000 per hour rate limit
   - "mkdir -p ~/.composer"
