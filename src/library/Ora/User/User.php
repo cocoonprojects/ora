@@ -77,7 +77,7 @@ class User
 	private $picture;
 	
 	/**
-	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\OrganizationMembership", mappedBy="member", indexBy="organization_id")
+	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\OrganizationMembership", mappedBy="member", indexBy="organization_id", fetch="EAGER")
 	 * @var OrganizationMembership[]
 	 */
 	protected $memberships;
