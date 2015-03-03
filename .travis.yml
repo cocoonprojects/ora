@@ -5,7 +5,7 @@ php:
   - 5.4
 
 env:
-  - APPLICATION_ENV=acceptance
+  - APPLICATION_ENV=acceptance DB_HOSTNAME=127.0.0.1
 
 addons:
   hosts:
