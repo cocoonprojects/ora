@@ -221,7 +221,7 @@ class Task extends DomainEntity implements \Serializable
 		}, ARRAY_FILTER_USE_BOTH);
 		*/
 
-		if(array_sum($membersShares) != 100) {
+		if(array_sum($membersShares) != 1) {
 			throw new InvalidArgumentException('The total amout of shares must be 100. Check the sum of assigned shares');
 		}
 
@@ -237,11 +237,15 @@ class Task extends DomainEntity implements \Serializable
 			'by' => $member->getId(),
 		)));
 		
+		/** TODO: As soon as an event queue is available this piece of code must be part of a component listening to SharesAssigned event */
 		if ($this->isSharesAssignmentCompleted()) {
 			$this->recordThat(TaskClosed::occur($this->id->toString(), array(
 					'by' => $member->getId(),
 			)));
+		/** TODO: As soon as an event queue is available this piece of code must be part of a component listening to TaskCompleted event */
+			
 		}
+
 	}
 	
 	public function skipShares(User $member) {
@@ -257,6 +261,7 @@ class Task extends DomainEntity implements \Serializable
 			'by' => $member->getId(),
 		)));
 
+		/** TODO: As soon as an event queue is available this piece of code must be part of a component listening to SharesAssigned event */
 		if ($this->isSharesAssignmentCompleted()) {
 			$this->recordThat(TaskClosed::occur($this->id->toString(), array(
 					'by' => $member->getId(),
@@ -311,6 +316,10 @@ class Task extends DomainEntity implements \Serializable
 	public function hasAs($role, $user) {
 		$key = $user instanceof User ? $user->getId() : $user;
 		return isset($this->members[$key]) && $this->members[$key]['role'] == $role;
+	}
+	
+	public function getMembersCredits() {
+		
 	}
 	
 	public function serialize()
@@ -430,7 +439,7 @@ class Task extends DomainEntity implements \Serializable
 		}
 		if($evaluators > 0) {
 			array_walk($rv, function(&$value, $key) use ($evaluators) {
-				$value = round($value / $evaluators, 2);
+				$value = round($value / $evaluators, 4);
 			});
 		}
 		return $rv;

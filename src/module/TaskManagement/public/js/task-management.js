@@ -486,17 +486,17 @@ TaskManagement.prototype = {
 			$.map(task.members, function(m) {
 				rv += '<td style="text-align: center">';
 				if(m.shares != undefined) {
-					rv += m.shares[memberId].value != null ? m.shares[memberId].value + '%' : 'Skipped';
+					rv += m.shares[memberId].value != null ? (m.shares[memberId].value * 100).toFixed(2) + '%' : 'Skipped';
 				}
 				rv += '</td>';
 			});
 			rv += '<td style="text-align: center">';
 			if(member.share != undefined && member.share != null) {
-				rv += member.share + '%';
+				rv += (member.share * 100).toFixed(2) + '%';
 			}
 			rv += '</td><td style="text-align: center">'
 			if(member.delta != undefined && member.delta != null) {
-				rv += '' + member.delta + '%';
+				rv += '' + (member.delta * 100).toFixed(2) + '%';
 			}
 			rv += '</td></tr>';
 		});
@@ -534,9 +534,9 @@ TaskManagement.prototype = {
 								rv += ' <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>';
 							}
 							if(object.share != undefined) {
-								rv += ' share: ' + object.share + '%';
+								rv += ' share: ' + (object.share * 100).toFixed(2) + '%';
 								if(object.delta != null) {
-									rv += ' (' + object.delta + ')';
+									rv += ' (' + (object.delta * 100).toFixed(2) + ')';
 								}
 							}
 							return rv + '</span></li>';

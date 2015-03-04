@@ -78,6 +78,11 @@ class SharesController extends AbstractHATEOASRestfulController {
 			$this->response->setStatusCode(400);
 			return $error;
 		}
+		
+		array_walk($data, function(&$value, $key) {
+			$value /= 100;
+		});
+		
 		$this->transaction()->begin();
 		try {
 			$task->assignShares($data, $identity);

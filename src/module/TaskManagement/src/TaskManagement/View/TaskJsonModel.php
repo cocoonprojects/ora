@@ -87,7 +87,7 @@ class TaskJsonModel extends JsonModel
 		];
 		
 		if($task->getStatus() >= Task::STATUS_ONGOING) {
-			$rv['estimation'] = $task->getEstimation();
+			$rv['estimation'] = $task->getAverageEstimation();
 		}
 
 		return $rv;
@@ -215,7 +215,7 @@ class TaskJsonModel extends JsonModel
     			if($task->getStatus() != Task::STATUS_COMPLETED) {
     				return false;
     			}
-    			if(is_null($task->getEstimation())) {
+    			if(is_null($task->getAverageEstimation())) {
     				return false;
     			}
     			$member = $task->getMember($this->user);
