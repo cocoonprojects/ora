@@ -4,7 +4,7 @@ return array(
 		'connection' => array(
 			'orm_default' => array(
 				'params' => array(
-					'host'			=> '127.0.0.1',
+					'host'			=> 'localhost',
 					'port'			=> 3306,
 					'user'			=> 'travis',
 					'password'		=> '',
