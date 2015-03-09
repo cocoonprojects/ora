@@ -2,8 +2,7 @@
 
 namespace Ora\ReadModel;
 
-use Doctrine\ORM\Query\Expr\Select;
-
+use Ora\TaskManagement\TaskInterface;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
@@ -12,7 +11,6 @@ use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
 use Ora\User\User;
 use Zend\Permissions\Acl\Resource\ResourceInterface;
-use Ora\TaskManagement\ReadableTask;
 
 /**
  * @ORM\Entity @ORM\Table(name="tasks")
@@ -24,7 +22,7 @@ use Ora\TaskManagement\ReadableTask;
 
 // If no DiscriminatorMap annotation is specified, doctrine uses lower-case class name as default values
 
-class Task extends EditableEntity implements ResourceInterface, ReadableTask
+class Task extends EditableEntity implements ResourceInterface, TaskInterface
 {	
     CONST STATUS_IDEA = 0;
     CONST STATUS_OPEN = 10;
@@ -36,7 +34,6 @@ class Task extends EditableEntity implements ResourceInterface, ReadableTask
     
     CONST ROLE_MEMBER = 'member';
     CONST ROLE_OWNER  = 'owner';
-    CONST NOT_MEMBER = 'notmember';
 
     CONST TYPE = 'task';
 
@@ -236,20 +233,14 @@ class Task extends EditableEntity implements ResourceInterface, ReadableTask
     	
     	return $membersArray;
     }
-    
-    public function getReadableEstimation($memberId){
-    	
-    	$estimation = $this->members->get($memberId) instanceof TaskMember ? $this->members->get($memberId)->getEstimation() : NULL;
-    	
-    	return $estimation instanceof Estimation ? $estimation->getValue() : NULL;
-    }
 	
     public function getMemberRole($user){    	
-    	$key = $user instanceof User ? $user->getId() : $user;
-    	if($this->hasMember($key)){
+    	
+    	if($this->hasMember($user)){
     		return $this->members->get($key)->getRole();
     	}
-    	return self::NOT_MEMBER;
+    	
+    	return null;
     }
     
     public function getReadableId(){

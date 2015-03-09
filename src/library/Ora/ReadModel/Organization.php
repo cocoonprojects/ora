@@ -16,11 +16,10 @@ class Organization extends EditableEntity
 	 */
 	private $name;
 	
-	public function __construct($organizationID, \DateTime $createdAt, $createdBy) 
+	public function __construct($organizationID) 
 	{
 		parent::__construct($organizationID);
-		parent::setCreatedAt($createdAt);
-		parent::setCreatedBy($createdBy);
+		parent::setCreatedAt(new \DateTime());
 	}
 	
 	public function getName() {

@@ -13,7 +13,7 @@ use Zend\Permissions\Acl\Resource\ResourceInterface;
  * @author Giannotti Fabio
  *
  */
-class Stream extends DomainEntity implements \Serializable, ResourceInterface, ReadableStream
+class Stream extends DomainEntity implements \Serializable, ResourceInterface
 {	    
 	/**
 	 * 
@@ -32,7 +32,7 @@ class Stream extends DomainEntity implements \Serializable, ResourceInterface, R
 		$this->id = $id;
 		$this->createdAt = $createdAt == null ? new \DateTime() : $createdAt;
 		$this->createdBy = $createdBy;
-		$this->updateOrganization($organization, $createdBy);
+		$this->changeOrganization($organization, $createdBy);
 	}
 	
 	public function getSubject() {
@@ -59,7 +59,7 @@ class Stream extends DomainEntity implements \Serializable, ResourceInterface, R
 	    $this->subject = $data['subject'];
 	}
 	
-	public function updateOrganization(Organization $organization, User $updatedBy){
+	public function changeOrganization(Organization $organization, User $updatedBy){
 		
 		$payload = array(
 				'organizationId' => $organization->getId(),
@@ -69,10 +69,10 @@ class Stream extends DomainEntity implements \Serializable, ResourceInterface, R
 			$payload['prevOrganizationId'] = $this->organizationId->toString();
 		}
 		
-		$this->recordThat(OrganizationUpdated::occur($this->id->toString(), $payload));
+		$this->recordThat(OrganizationChanged::occur($this->id->toString(), $payload));
 	}
 	
-	public function whenOrganizationUpdated(OrganizationUpdated $event){
+	public function whenOrganizationChanged(OrganizationUpdated $event){
 		
 		$p = $event->payload();
 		$this->organizationId = Uuid::fromString($p['organizationId']);
@@ -80,10 +80,6 @@ class Stream extends DomainEntity implements \Serializable, ResourceInterface, R
 	
 	public function getOrganizationId(){
     	return $this->organizationId;
-    }
-
-    public function getReadableOrganization(){
-    	return $this->getOrganizationId()->toString();
     }
 
 	public function getResourceId(){			

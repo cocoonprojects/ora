@@ -2,16 +2,17 @@
 
 namespace Ora\ReadModel;
 
+
 use Doctrine\ORM\Mapping AS ORM;
 use Zend\Permissions\Acl\Resource\ResourceInterface;
-use Ora\StreamManagement\ReadableStream;
+use Ora\StreamManagement\StreamInterface;
 
 /**
  * @ORM\Entity @ORM\Table(name="streams")
  * @author Giannotti Fabio
  *
  */
-class Stream extends EditableEntity implements ResourceInterface, ReadableStream
+class Stream extends EditableEntity implements ResourceInterface, StreamInterface
 {	    
 	/**
 	 * @ORM\Column(type="string")

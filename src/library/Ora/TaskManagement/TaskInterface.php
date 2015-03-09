@@ -2,12 +2,10 @@
 
 namespace Ora\TaskManagement;
 
-interface ReadableTask {
+interface TaskInterface {
 	
 	
 	public function getReadableMembers();
-	
-	public function getReadableEstimation($memberId);
 	
 	public function getReadableId();
 

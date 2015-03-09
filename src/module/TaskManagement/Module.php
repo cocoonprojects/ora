@@ -11,7 +11,6 @@ use TaskManagement\Controller\TransitionsController;
 use TaskManagement\Controller\EstimationsController;
 use TaskManagement\Service\TaskListener;
 use TaskManagement\Controller\SharesController;
-use TaskManagement\Service\CreateTaskAssertion;
 
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
@@ -107,7 +106,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 			    'MemberOfOrganizationAssertion' =>  function($sl){			        
         			$authService = $sl->get('Zend\Authentication\AuthenticationService');
 					$loggedUser = $authService->getIdentity()['user'];							
-					return new Service\MemberOfOrganizationAssertion($loggedUser);
+					return new Service\MemberOfOrganizationAssertion($loggedUser);					
 			    },
 				'TaskMemberAndOngoingTaskAssertion' =>  function($sl){			        
         			$authService = $sl->get('Zend\Authentication\AuthenticationService');
@@ -149,7 +148,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$loggedUser = $authService->getIdentity()['user'];							
 					return new Service\TaskMemberAndAcceptedTaskAssertion($loggedUser);
 				},
-				'CurrentUserProvider' => function($locator){
+				'Authorization\CurrentUserProvider' => function($locator){
 					$authService = $locator->get('Zend\Authentication\AuthenticationService');
 					$loggedUser = $authService->getIdentity()['user'];
 					return $loggedUser;

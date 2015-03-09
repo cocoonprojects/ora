@@ -6,6 +6,6 @@ use Prooph\EventSourcing\AggregateChanged;
  *
  * @author Tilli Mario
  */
-class OrganizationUpdated extends AggregateChanged
+class OrganizationChanged extends AggregateChanged
 {
 }

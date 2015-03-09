@@ -158,7 +158,7 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
 
 # stream -> organization
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
-('6e943d09-7a9a-4a2a-a8b5-201bfeb57b63',3,'Ora\\StreamManagement\\OrganizationUpdated','a:3:{s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000110\";}','2014-11-12T19:07:59.000000+0100','Ora\\StreamManagement\\Stream','00000000-1000-0000-0000-000000000000');
+('6e943d09-7a9a-4a2a-a8b5-201bfeb57b63',3,'Ora\\StreamManagement\\OrganizationChanged','a:3:{s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000110\";}','2014-11-12T19:07:59.000000+0100','Ora\\StreamManagement\\Stream','00000000-1000-0000-0000-000000000000');
 
 # organization
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES

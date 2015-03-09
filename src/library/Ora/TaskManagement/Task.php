@@ -19,7 +19,7 @@ use Zend\Permissions\Acl\Resource\ResourceInterface;
  * @author Giannotti Fabio
  *
  */
-class Task extends DomainEntity implements \Serializable, ResourceInterface, ReadableTask
+class Task extends DomainEntity implements \Serializable, ResourceInterface
 {	
     CONST STATUS_IDEA = 0;
     CONST STATUS_OPEN = 10;
@@ -31,7 +31,6 @@ class Task extends DomainEntity implements \Serializable, ResourceInterface, Rea
     
     CONST ROLE_MEMBER = 'member';
     CONST ROLE_OWNER  = 'owner';
-    CONST NOT_MEMBER  = 'notmember';
     
     /**
 	 * 
@@ -452,28 +451,14 @@ class Task extends DomainEntity implements \Serializable, ResourceInterface, Rea
 
 	public function getResourceId(){			
         return get_class($this);
-    }
-    
-    public function getReadableMembers(){
-    	return $this->members;
-    }
-    
-    public function getReadableEstimation($memberId){
-    	return isset($this->members[$memberId]['estimation']) ? $this->members[$memberId]['estimation'] : NULL;
-
-    }    
+    }   
     
     public function getMemberRole($user){ 
     	$key = $user instanceof User ? $user->getId() : $user;
     	if($this->hasMember($key)){
     		return $this->members[$user]['role'];
     	}
-    	return self::NOT_MEMBER;
+    	return null;
     } 
-
-    
-    public function getReadableId(){
-    	return $this->id->toString();
-    }
 
 }

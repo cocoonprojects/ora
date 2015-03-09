@@ -2,7 +2,7 @@
 
 namespace Ora\StreamManagement;
 
-interface ReadableStream
+interface StreamInterface
 {
 
 	public function getReadableOrganization(); 
