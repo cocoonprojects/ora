@@ -12,7 +12,7 @@ interface AccountService {
 	
 	public function getAccount($id);
 	
-	public function transfer(CreditsAccount $source, CreditsAccount $destination, $value, \DateTime $when);
+	public function transfer(Account $source, Account $destination, $value, \DateTime $when);
 	
 	public function findAccounts(User $user);
 	

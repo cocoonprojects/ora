@@ -6,7 +6,7 @@ namespace Ora\Accounting;
  * @author andreabandera
  *
  */
-class Balance  implements \Serializable {
+class Balance {
 	
 	/**
 	 * 
@@ -34,21 +34,5 @@ class Balance  implements \Serializable {
 	public function getDate()
 	{
 		return $this->date;
-	}
-
-	public function serialize()
-	{
-		$data = array(
-			'value' => $this->value,
-			'date' => $this->date,
-		);
-	    return serialize($data); 
-	}
-	
-	public function unserialize($encodedData)
-	{
-	    $data = unserialize($encodedData);
-	    $this->value = $data['value'];
-	    $this->date = $data['date'];
 	}
 }

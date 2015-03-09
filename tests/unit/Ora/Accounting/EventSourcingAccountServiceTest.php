@@ -40,7 +40,7 @@ class EventSourcingAccountServiceTest extends TestCase
 	
 	public function testCreateOrganizationAccount() {
 		$holder = $this->user;
-		$organization = new Organization(Uuid::uuid4(), $holder);
+		$organization = Organization::create('Test', $holder);
 		$account = $this->accountService->createOrganizationAccount($holder, $organization);
 		$this->assertInstanceOf('Ora\Accounting\OrganizationAccount', $account);
 		$this->assertAttributeInstanceOf('Rhumsaa\Uuid\Uuid', 'id', $account);
@@ -50,7 +50,7 @@ class EventSourcingAccountServiceTest extends TestCase
 	
 	public function testDeposit() {
 		$holder = $this->user;
-		$organization = new Organization(Uuid::uuid4(), $holder);
+		$organization = Organization::create('Test', $holder);
 		$account = $this->accountService->createOrganizationAccount($holder, $organization);
 		$balance = $account->getBalance()->getValue();
 		$this->eventStore->beginTransaction();

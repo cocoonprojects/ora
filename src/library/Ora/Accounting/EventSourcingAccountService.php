@@ -48,7 +48,7 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 		return $this->getAggregateRoot($this->aggregateRootType, $id);
 	}
 	
-	public function transfer(CreditsAccount $source, CreditsAccount $destination, $value, \DateTime $when) {
+	public function transfer(Account $source, Account $destination, $value, \DateTime $when) {
 		try {
 			$source->withdraw($value, $when);
 			$destination->deposit($value, $when);

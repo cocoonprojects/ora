@@ -47,19 +47,31 @@ class AccountListener
 	
 	protected function onAccountCreated(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$holders = $event->payload()['holders'];
-		$createdBy = $this->entityManager->find('Ora\User\User', array_keys($holders)[0]);
+		$createdBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
 		if(isset($event->payload()['organization'])) {
 			$orgId = $event->payload()['organization'];
 			$organization = $this->entityManager->find('Ora\ReadModel\Organization', $orgId);
 		}
-		$entity = isset($organization) ? new OrganizationAccount($id, $createdBy, $organization) : new Account($id, $createdBy);
+		$entity = isset($organization) ? new OrganizationAccount($id, $organization) : new Account($id);
 		$entity->setCreatedAt($event->occurredOn());
 		$entity->setCreatedBy($createdBy);
 		$entity->setMostRecentEditAt($event->occurredOn());
 		$entity->setMostRecentEditBy($createdBy);
 		$balance = new Balance($event->payload()['balance'], $event->occurredOn());
 		$entity->setBalance($balance);
+		$this->entityManager->persist($entity);
+	}
+	
+	protected function onHolderAdded(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$entity = $this->entityManager->find('Ora\\ReadModel\\Account', $id);
+		
+		$holder = $this->entityManager->find('Ora\User\User', $event->payload()['id']);
+		$entity->addHolder($holder);
+		$entity->setMostRecentEditAt($event->occurredOn());
+		
+		$createdBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+		$entity->setMostRecentEditBy($createdBy);
 		$this->entityManager->persist($entity);
 	}
 	
