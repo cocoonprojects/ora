@@ -72,7 +72,7 @@ class Stream extends DomainEntity implements \Serializable, ResourceInterface
 		$this->recordThat(OrganizationChanged::occur($this->id->toString(), $payload));
 	}
 	
-	public function whenOrganizationChanged(OrganizationUpdated $event){
+	public function whenOrganizationChanged(OrganizationChanged $event){
 		
 		$p = $event->payload();
 		$this->organizationId = Uuid::fromString($p['organizationId']);
