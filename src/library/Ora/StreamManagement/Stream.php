@@ -83,7 +83,7 @@ class Stream extends DomainEntity implements \Serializable, ResourceInterface
     }
 
 	public function getResourceId(){			
-        return get_class($this);
+        return "Ora\Stream";
     }
 	
 }
