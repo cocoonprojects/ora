@@ -58,8 +58,11 @@ class TaskJsonModel extends JsonModel
 
 	private function serializeOne(Task $task) {
 		
-		//TODO: assertion
-		$links = ['self' => $this->url->fromRoute('tasks', ['id' => $task->getId()])];
+		$links = [];
+		
+		if($this->authorize->isAllowed($task->getStream(), 'TaskManagement.Task.showDetails') === true){
+			$links['self'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);	
+		}
 		
 		if($this->authorize->isAllowed($task, 'TaskManagement.Task.edit') === true){
 			$links['edit'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);

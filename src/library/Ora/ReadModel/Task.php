@@ -216,7 +216,7 @@ class Task extends EditableEntity implements ResourceInterface, TaskInterface
 	}
 
     public function getResourceId(){
-    	return get_class($this);
+    	return "Ora\Task";
     }
 	
     public function getReadableMembers(){
@@ -234,11 +234,11 @@ class Task extends EditableEntity implements ResourceInterface, TaskInterface
     	return $membersArray;
     }
 	
-    public function getMemberRole($user){    	
+    public function getMemberRole($user){
     	
     	$memberFound = $this->getMember($user);
-    	
-    	if($memberFound instanceof User){
+
+    	if($memberFound instanceof TaskMember){
     		return $memberFound->getRole();
     	}
     	

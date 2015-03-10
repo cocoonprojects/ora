@@ -76,7 +76,7 @@ return array(
                     array(
                     	array('user'), 
                     	'DoctrineORMModule\Proxy\__CG__\Ora\ReadModel\Stream', 
-                    	array('TaskManagement.Task.create'), 
+                    	array('TaskManagement.Task.create', 'TaskManagement.Task.showDetails'), 
                     	'TaskManagement\MemberOfOrganizationAssertion'),
 					array(
                     	array('user'), 
