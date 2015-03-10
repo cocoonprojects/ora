@@ -406,9 +406,6 @@ TaskManagement.prototype = {
 					$("#createTaskBtn").hide();
 				}
 
-				subject = task._links.self == undefined ? task.subject : '<a href="' + task._links.self + '">' + task.subject + '</a>';
-				createdAt = new Date(Date.parse(task.createdAt));
-
 				var actions = [];
 				if (task._links.complete != undefined) {
 					label = task.status == 40 ? 'Revert to complete' : 'Complete';
