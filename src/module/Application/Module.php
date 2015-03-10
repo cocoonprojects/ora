@@ -49,9 +49,8 @@ class Module
             ),
             'factories' => array(
             	'Application\Controller\Auth'  => function ($sm) {
-
-                    $locator = $sm->getServiceLocator();
-					$resolver = $locator->get('Application\Service\AdapterResolver');
+                	$locator = $sm->getServiceLocator();
+			$resolver = $locator->get('Application\Service\AdapterResolver');
             		$authService = $locator->get('Zend\Authentication\AuthenticationService');
             		$userService = $locator->get('User\UserService');
             		$controller = new AuthController($authService, $resolver);
@@ -79,19 +78,17 @@ class Module
                 'Zend\Authentication\AuthenticationService' => 'Application\Service\AuthenticationServiceFactory',
                 'Application\Service\AdapterResolver' => 'Application\Service\OAuth2AdapterResolverFactory',
                 'Zend\Log' => function ($sl) {
-                    $writer = new Stream('/vagrant/src/data/logs/application.log');
-                    $logger = new Logger();
-                    $logger->addWriter($writer);
-                    return $logger;
+                	$writer = new Stream('/vagrant/src/data/logs/application.log');
+                	$logger = new Logger();
+                	$logger->addWriter($writer);
+                	return $logger;
                 },
                 
                 'Application\Service\IdentityRolesProvider' =>
                  function($serviceLocator){
-                    
-                    $authService = 
-                        $serviceLocator->get('Zend\Authentication\AuthenticationService');
-                    $provider = new IdentityRolesProvider($authService);
-                    return $provider;
+                	$authService = $serviceLocator->get('Zend\Authentication\AuthenticationService');
+                	$provider = new IdentityRolesProvider($authService);
+                	return $provider;
                 },
             ),
         );
