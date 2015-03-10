@@ -26,7 +26,7 @@ class TaskMemberNotOwnerAndOpenOrCompletedTaskAssertion implements AssertionInte
 	
 	    		if($resource->hasMember($this->loggedUser)){
 					
-					$roleMember = $resource->getMemberRole($this->loggedUser->getId());				
+					$roleMember = $resource->getMemberRole($this->loggedUser);				
 					if($roleMember != Task::ROLE_OWNER){
 						return true;
 					}		

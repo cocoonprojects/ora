@@ -255,10 +255,6 @@ class User implements ProviderInterface, RoleInterface
     public function getRoleId(){
     	return $this->getIdentityRoles();
 	}
-	
-	public function getRoles(){
-		return $this->role;
-	}
 
 } 
 

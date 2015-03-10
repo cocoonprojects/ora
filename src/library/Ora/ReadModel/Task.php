@@ -236,8 +236,10 @@ class Task extends EditableEntity implements ResourceInterface, TaskInterface
 	
     public function getMemberRole($user){    	
     	
-    	if($this->hasMember($user)){
-    		return $this->members->get($key)->getRole();
+    	$memberFound = $this->getMember($user);
+    	
+    	if($memberFound instanceof User){
+    		return $memberFound->getRole();
     	}
     	
     	return null;

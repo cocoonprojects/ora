@@ -103,47 +103,47 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             	'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',
 				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
 
-			    'MemberOfOrganizationAssertion' =>  function($sl){			        
+			    'TaskManagement\MemberOfOrganizationAssertion' =>  function($sl){			        
         			$authService = $sl->get('Zend\Authentication\AuthenticationService');
 					$loggedUser = $authService->getIdentity()['user'];							
 					return new Service\MemberOfOrganizationAssertion($loggedUser);					
 			    },
-				'TaskMemberAndOngoingTaskAssertion' =>  function($sl){			        
+				'TaskManagement\TaskMemberAndOngoingTaskAssertion' =>  function($sl){			        
         			$authService = $sl->get('Zend\Authentication\AuthenticationService');
 					$loggedUser = $authService->getIdentity()['user'];							
 					return new Service\TaskMemberAndOngoingTaskAssertion($loggedUser);
 				},
-				'OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion' =>  function($sl){			        
+				'TaskManagement\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion' =>  function($sl){			        
         			$authService = $sl->get('Zend\Authentication\AuthenticationService');
 					$loggedUser = $authService->getIdentity()['user'];							
 					return new Service\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion($loggedUser);
 				},
-        		'TaskMemberNotOwnerAndNotCompletedTaskAssertion' =>  function($sl){			        
+        		'TaskManagement\TaskMemberNotOwnerAndNotCompletedTaskAssertion' =>  function($sl){			        
         			$authService = $sl->get('Zend\Authentication\AuthenticationService');
 					$loggedUser = $authService->getIdentity()['user'];							
 					return new Service\TaskMemberNotOwnerAndNotCompletedTaskAssertion($loggedUser);
 				},
-				'TaskOwnerAndNotCompletedTaskAssertion' => function($sl){			        
+				'TaskManagement\TaskOwnerAndNotCompletedTaskAssertion' => function($sl){			        
         			$authService = $sl->get('Zend\Authentication\AuthenticationService');
 					$loggedUser = $authService->getIdentity()['user'];							
 					return new Service\TaskOwnerAndNotCompletedTaskAssertion($loggedUser);
 				},
-        		'TaskMemberNotOwnerAndOpenOrCompletedTaskAssertion' =>  function($sl){			        
+        		'TaskManagement\TaskMemberNotOwnerAndOpenOrCompletedTaskAssertion' =>  function($sl){			        
         			$authService = $sl->get('Zend\Authentication\AuthenticationService');
 					$loggedUser = $authService->getIdentity()['user'];							
 					return new Service\TaskMemberNotOwnerAndOpenOrCompletedTaskAssertion($loggedUser);
 				},
-        		'TaskOwnerAndOngoingOrAcceptedTaskAssertion' =>  function($sl){			        
+        		'TaskManagement\TaskOwnerAndOngoingOrAcceptedTaskAssertion' =>  function($sl){			        
         			$authService = $sl->get('Zend\Authentication\AuthenticationService');
 					$loggedUser = $authService->getIdentity()['user'];							
 					return new Service\TaskOwnerAndOngoingOrAcceptedTaskAssertion($loggedUser);
 				},
-        		'TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion' =>  function($sl){			        
+        		'TaskManagement\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion' =>  function($sl){			        
         			$authService = $sl->get('Zend\Authentication\AuthenticationService');
 					$loggedUser = $authService->getIdentity()['user'];							
 					return new Service\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion($loggedUser);
 				},
-        		'TaskMemberAndAcceptedTaskAssertion' =>  function($sl){			        
+        		'TaskManagement\TaskMemberAndAcceptedTaskAssertion' =>  function($sl){			        
         			$authService = $sl->get('Zend\Authentication\AuthenticationService');
 					$loggedUser = $authService->getIdentity()['user'];							
 					return new Service\TaskMemberAndAcceptedTaskAssertion($loggedUser);

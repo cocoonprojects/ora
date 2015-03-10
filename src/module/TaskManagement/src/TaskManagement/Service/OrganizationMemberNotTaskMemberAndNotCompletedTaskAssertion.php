@@ -26,12 +26,7 @@ class OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion extends NotCom
 				
 				if(!$resource->hasMember($this->loggedUser)){
 			    
-					$currentOrganizationId = $resource->getStream()->getReadableOrganization();		    
-			    
-				    if($this->loggedUser->isMemberOf($currentOrganizationId)){
-				    	return true;
-				    }
-					
+					return $this->loggedUser->isMemberOf($resource->getStream()->getReadableOrganization());					
 			    }
 			}
 			
