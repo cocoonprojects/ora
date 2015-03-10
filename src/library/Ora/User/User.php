@@ -119,7 +119,7 @@ class User implements ProviderInterface, RoleInterface
 	}
 	
 	public function addOrganizationMembership($membership){
-		$this->memberships[] = $membership;
+		$this->memberships->add($membership);
 	}
 	
 	public function getId() {
@@ -241,7 +241,6 @@ class User implements ProviderInterface, RoleInterface
 
     public function getIdentityRoles(){
         return $this->role;
-        //return $this->roles->getValues();
     }
 
     public function setRole($role){
