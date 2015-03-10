@@ -63,8 +63,8 @@ return array(
     
     	'resource_providers' => array(
             'BjyAuthorize\Provider\Resource\Config' => array(                
-				'Ora\ReadModel\Task' => array(),
-    			'DoctrineORMModule\Proxy\__CG__\Ora\ReadModel\Stream' => array(),
+				'Ora\Task' => array(),
+    			'Ora\Stream' => array(),
             ),
         ),
     
@@ -75,47 +75,47 @@ return array(
                                         	
                     array(
                     	array('user'), 
-                    	'DoctrineORMModule\Proxy\__CG__\Ora\ReadModel\Stream', 
+                    	'Ora\Stream', 
                     	array('TaskManagement.Task.create', 'TaskManagement.Task.showDetails'), 
                     	'TaskManagement\MemberOfOrganizationAssertion'),
 					array(
                     	array('user'), 
-                    	'Ora\ReadModel\Task', 
+                    	'Ora\Task', 
                     	array('TaskManagement.Task.join'), 
                     	'TaskManagement\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion'),                    
                     array(
                     	array('user'), 
-                    	'Ora\ReadModel\Task', 
+                    	'Ora\Task', 
                     	array('TaskManagement.Task.estimate'), 
                     	'TaskManagement\TaskMemberAndOngoingTaskAssertion'),
                     array(
                     	array('user'), 
-                    	'Ora\ReadModel\Task', 
+                    	'Ora\Task', 
                     	array('TaskManagement.Task.unjoin'), 
                     	'TaskManagement\TaskMemberNotOwnerAndNotCompletedTaskAssertion'),                    
                     array(
                     	array('user'), 
-                    	'Ora\ReadModel\Task', 
+                    	'Ora\Task', 
                     	array('TaskManagement.Task.edit', 'TaskManagement.Task.delete'), 
                     	 'TaskManagement\TaskOwnerAndNotCompletedTaskAssertion'),                    
 					array(
                     	array('user'), 
-                    	'Ora\ReadModel\Task', 
+                    	'Ora\Task', 
                     	array('TaskManagement.Task.execute'), 
                     	'TaskManagement\TaskMemberNotOwnerAndOpenOrCompletedTaskAssertion'),                    
                    array(
                     	array('user'), 
-                    	'Ora\ReadModel\Task', 
+                    	'Ora\Task', 
                     	array('TaskManagement.Task.complete'), 
                     	'TaskManagement\TaskOwnerAndOngoingOrAcceptedTaskAssertion'),
                     array(
                     	array('user'), 
-                    	'Ora\ReadModel\Task', 
+                    	'Ora\Task', 
                     	array('TaskManagement.Task.accept'), 
                     	'TaskManagement\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion'),
                     array(
                     	array('user'), 
-                    	'Ora\ReadModel\Task', 
+                    	'Ora\Task', 
                     	array('TaskManagement.Task.assignShares'), 
                     	'TaskManagement\TaskMemberAndAcceptedTaskAssertion'),
                 ),
