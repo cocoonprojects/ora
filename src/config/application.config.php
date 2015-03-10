@@ -23,8 +23,7 @@ return array(
     	'TaskManagement',
     	'User',
         'Application',
-		'BjyAuthorize'
-
+	'BjyAuthorize'
     ),
 
     // These are various options for the listeners attached to the ModuleManager
