@@ -35,11 +35,12 @@ class SharesController extends AbstractHATEOASRestfulController {
 			return $this->response;
 		}
 		
-		$identity = $this->loggedIdentity();
+		$identity = $this->identity();
 		if(is_null($identity)) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
+		$identity = $identity['user'];
 		$error = new ErrorJsonModel();
 		if(count($data) == 0) {
 			$this->transaction()->begin();
@@ -77,6 +78,11 @@ class SharesController extends AbstractHATEOASRestfulController {
 			$this->response->setStatusCode(400);
 			return $error;
 		}
+		
+		array_walk($data, function(&$value, $key) {
+			$value /= 100;
+		});
+		
 		$this->transaction()->begin();
 		try {
 			$task->assignShares($data, $identity);

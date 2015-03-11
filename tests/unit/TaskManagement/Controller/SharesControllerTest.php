@@ -58,26 +58,26 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
         $this->controller->setEvent($this->event);
         $this->controller->setServiceLocator($serviceManager);
         
-        $identity = $this->getMockBuilder('ZendExtension\Mvc\Controller\Plugin\LoggedIdentity')
+        $identity = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Identity')
 			->disableOriginalConstructor()
         	->getMock();
-    	$identity->method('__invoke')->willReturn($this->member1);
+    	$identity->method('__invoke')->willReturn(['user' => $this->member1]);
     	$transaction = $this->getMockBuilder('ZendExtension\Mvc\Controller\Plugin\EventStoreTransactionPlugin')
     		->disableOriginalConstructor()
     		->setMethods(['begin', 'commit', 'rollback'])
     		->getMock();
     	
-        $this->controller->getPluginManager()->setService('loggedIdentity', $identity);
+        $this->controller->getPluginManager()->setService('identity', $identity);
         $this->controller->getPluginManager()->setService('transaction', $transaction);
     }
     
     public function testAssignSharesAsAnonymous()
     {
-        $identity = $this->getMockBuilder('ZendExtension\Mvc\Controller\Plugin\LoggedIdentity')
+        $identity = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Identity')
 			->disableOriginalConstructor()
         	->getMock();
     	$identity->method('__invoke')->willReturn(null);
-    	$this->controller->getPluginManager()->setService('loggedIdentity', $identity);
+    	$this->controller->getPluginManager()->setService('identity', $identity);
     	
     	$this->task->accept($this->member1);
     	$service = $this->controller->getTaskService();
@@ -235,11 +235,11 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     public function testAssignSharesByNonMember()
     {
     	$this->task->accept($this->member1);
-    	$identity = $this->getMockBuilder('ZendExtension\Mvc\Controller\Plugin\LoggedIdentity')
+    	$identity = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Identity')
 			->disableOriginalConstructor()
         	->getMock();
-    	$identity->method('__invoke')->willReturn(User::create());
-    	$this->controller->getPluginManager()->setService('loggedIdentity', $identity);
+    	$identity->method('__invoke')->willReturn(['user' => User::create()]);
+    	$this->controller->getPluginManager()->setService('identity', $identity);
     	 
     	$service = $this->controller->getTaskService();
     	$service->method('getTask')

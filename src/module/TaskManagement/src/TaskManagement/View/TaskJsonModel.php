@@ -113,7 +113,7 @@ class TaskJsonModel extends JsonModel
 		];
 		
 		if($task->getStatus() >= Task::STATUS_ONGOING) {
-			$rv['estimation'] = $task->getEstimation();
+			$rv['estimation'] = $task->getAverageEstimation();
 		}
 
 		return $rv;

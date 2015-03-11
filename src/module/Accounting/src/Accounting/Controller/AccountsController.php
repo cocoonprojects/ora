@@ -23,12 +23,12 @@ class AccountsController extends AbstractHATEOASRestfulController
 	// Gets my credits accounts list
 	public function getList()
 	{
-		if(!$this->identity()) {
+		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
 		
-		$identity = $this->loggedIdentity();
+		$identity = $this->identity()['user'];
 		$accounts = $this->accountService->findAccounts($identity);
 		
 		$viewModel = new AccountsJsonModel($this->url(), $identity);
@@ -38,7 +38,7 @@ class AccountsController extends AbstractHATEOASRestfulController
 
 	public function get($id)
 	{
-		if(!$this->identity()) {
+		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}

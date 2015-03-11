@@ -152,7 +152,7 @@ class Task extends EditableEntity implements ResourceInterface
      * TODO: da rimuovere, deve leggere un valore già calcolato. Il calcolo sta nel write model
      * @return string|number|NULL
      */
-    public function getEstimation() {
+    public function getAverageEstimation() {
     	$tot = null;
     	$estimationsCount = 0;
     	$notEstimationCount = 0;
@@ -184,11 +184,11 @@ class Task extends EditableEntity implements ResourceInterface
     		$member->setShare(null);
     	}
     }
-
-	public function updateMembersShare() {
+    
+	public function updateMembersShare(\DateTime $when) {
 		$shares = $this->getMembersShare();
 		foreach ($shares as $key => $value) {
-			$this->members->get($key)->setShare($value);
+			$this->members->get($key)->setShare($value, $when);
 		}
 	}
 	
@@ -208,7 +208,7 @@ class Task extends EditableEntity implements ResourceInterface
 		}
 		if($evaluators > 0) {
 			array_walk($rv, function(&$value, $key) use ($evaluators) {
-				$value = round($value / $evaluators, 2);
+				$value = round($value / $evaluators, 4);
 			});
 		}
 		return $rv;

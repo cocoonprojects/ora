@@ -49,13 +49,13 @@ class TaskMember {
     private $shares;
     
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
+     * @ORM\Column(type="decimal", precision=10, scale=4, nullable=true)
      * @var float
      */
 	private $share;
 	
     /**
-     * @ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
+     * @ORM\Column(type="decimal", precision=10, scale=4, nullable=true)
      * @var float
      */
 	private $delta;
@@ -159,7 +159,7 @@ class TaskMember {
     	$share->setValue($value);
     	$share->setCreatedAt($when);
     	$this->shares->set($valued->getMember()->getId(), $share);
-    	$this->task->updateMembersShare();
+    	$this->task->updateMembersShare($when);
     	return $this;
     }
     
@@ -177,11 +177,11 @@ class TaskMember {
     	return $this->shares->toArray();
     }
 
-    public function setShare($value) {
+    public function setShare($value, \DateTime $when) {
     	$this->share = $value;
-    	
     	$share = $this->shares->get($this->member->getId());
      	$this->delta = is_null($share) ? null : $value - $share->getValue();
+     	$this->mostRecentEditAt = $when;
     	return $this;
     }
     

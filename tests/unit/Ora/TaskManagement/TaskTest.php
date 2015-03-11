@@ -100,14 +100,14 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$this->task->accept($this->taskCreator);
 		
 		$this->task->assignShares([
-			$this->taskCreator->getId() => 40,
-			$user1->getId()				=> 40,
-			$user2->getId()				=> 20
+			$this->taskCreator->getId() => 0.4,
+			$user1->getId()				=> 0.4,
+			$user2->getId()				=> 0.2
 		], $this->taskCreator);
 		
-		$this->assertEquals(40, $this->task->getMembers()[$this->taskCreator->getId()]['share']);
-		$this->assertEquals(40, $this->task->getMembers()[$user1->getId()]['share']);
-		$this->assertEquals(20, $this->task->getMembers()[$user2->getId()]['share']);
+		$this->assertEquals(0.4, $this->task->getMembers()[$this->taskCreator->getId()]['share']);
+		$this->assertEquals(0.4, $this->task->getMembers()[$user1->getId()]['share']);
+		$this->assertEquals(0.2, $this->task->getMembers()[$user2->getId()]['share']);
 	}
 	
 	public function testEveryMemberAssignShares() {
@@ -126,26 +126,26 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$this->task->accept($this->taskCreator);
 		
 		$this->task->assignShares([
-			$this->taskCreator->getId() => 40,
-			$user1->getId()				=> 40,
-			$user2->getId()				=> 20
+			$this->taskCreator->getId() => 0.4,
+			$user1->getId()				=> 0.4,
+			$user2->getId()				=> 0.2
 		], $this->taskCreator);
 		
 		$this->task->assignShares([
-			$this->taskCreator->getId() => 33,
-			$user1->getId()				=> 18,
-			$user2->getId()				=> 49
+			$this->taskCreator->getId() => 0.33,
+			$user1->getId()				=> 0.18,
+			$user2->getId()				=> 0.49
 		], $user1);
 		
 		$this->task->assignShares([
-			$this->taskCreator->getId() => 23,
-			$user1->getId()				=> 54,
-			$user2->getId()				=> 23
+			$this->taskCreator->getId() => 0.23,
+			$user1->getId()				=> 0.54,
+			$user2->getId()				=> 0.23
 		], $user2);
 		
-		$this->assertEquals(32, $this->task->getMembers()[$this->taskCreator->getId()]['share']);
-		$this->assertEquals(37.33, $this->task->getMembers()[$user1->getId()]['share']);
-		$this->assertEquals(30.67, $this->task->getMembers()[$user2->getId()]['share']);
+		$this->assertEquals(0.32, $this->task->getMembers()[$this->taskCreator->getId()]['share']);
+		$this->assertEquals(0.3733, $this->task->getMembers()[$user1->getId()]['share']);
+		$this->assertEquals(0.3067, $this->task->getMembers()[$user2->getId()]['share']);
 	}
 
 	public function testEveryMemberAssignSharesWithAMemberTo0() {
@@ -164,25 +164,25 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$this->task->accept($this->taskCreator);
 		
 		$this->task->assignShares([
-			$this->taskCreator->getId() => 40,
-			$user1->getId()				=> 60,
+			$this->taskCreator->getId() => 0.4,
+			$user1->getId()				=> 0.6,
 			$user2->getId()				=> 0
 		], $this->taskCreator);
 		
 		$this->task->assignShares([
-			$this->taskCreator->getId() => 33,
-			$user1->getId()				=> 67,
+			$this->taskCreator->getId() => 0.33,
+			$user1->getId()				=> 0.67,
 			$user2->getId()				=> 0
 		], $user1);
 		
 		$this->task->assignShares([
-			$this->taskCreator->getId() => 23,
-			$user1->getId()				=> 77,
+			$this->taskCreator->getId() => 0.23,
+			$user1->getId()				=> 0.77,
 			$user2->getId()				=> 0
 		], $user2);
 		
-		$this->assertEquals(32, $this->task->getMembers()[$this->taskCreator->getId()]['share']);
-		$this->assertEquals(68, $this->task->getMembers()[$user1->getId()]['share']);
+		$this->assertEquals(0.32, $this->task->getMembers()[$this->taskCreator->getId()]['share']);
+		$this->assertEquals(0.68, $this->task->getMembers()[$user1->getId()]['share']);
 		$this->assertEquals(0, $this->task->getMembers()[$user2->getId()]['share']);
 	}
 
@@ -202,26 +202,26 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$this->task->accept($this->taskCreator);
 		
 		$this->task->assignShares([
-			$this->taskCreator->getId() => 40,
-			$user1->getId()				=> 60,
+			$this->taskCreator->getId() => 0.4,
+			$user1->getId()				=> 0.60,
 			$user2->getId()				=> 0
 		], $this->taskCreator);
 		
 		$this->task->assignShares([
-			$this->taskCreator->getId() => 33,
-			$user1->getId()				=> 43,
-			$user2->getId()				=> 24
+			$this->taskCreator->getId() => 0.33,
+			$user1->getId()				=> 0.43,
+			$user2->getId()				=> 0.24
 		], $user1);
 		
 		$this->task->assignShares([
-			$this->taskCreator->getId() => 23,
-			$user1->getId()				=> 77,
+			$this->taskCreator->getId() => 0.23,
+			$user1->getId()				=> 0.77,
 			$user2->getId()				=> 0
 		], $user2);
 		
-		$this->assertEquals(32, $this->task->getMembers()[$this->taskCreator->getId()]['share']);
-		$this->assertEquals(60, $this->task->getMembers()[$user1->getId()]['share']);
-		$this->assertEquals(8, $this->task->getMembers()[$user2->getId()]['share']);
+		$this->assertEquals(0.32, $this->task->getMembers()[$this->taskCreator->getId()]['share']);
+		$this->assertEquals(0.60, $this->task->getMembers()[$user1->getId()]['share']);
+		$this->assertEquals(0.08, $this->task->getMembers()[$user2->getId()]['share']);
 	}
 	
 	public function testEveryMemberAssignSharesWithASkip() {
@@ -242,20 +242,20 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$this->task->skipShares($this->taskCreator);
 	
 		$this->task->assignShares([
-				$this->taskCreator->getId() => 33,
-				$user1->getId()				=> 39,
-				$user2->getId()				=> 28
+				$this->taskCreator->getId() => 0.33,
+				$user1->getId()				=> 0.39,
+				$user2->getId()				=> 0.28
 		], $user1);
 	
 		$this->task->assignShares([
-				$this->taskCreator->getId() => 23,
-				$user1->getId()				=> 77,
+				$this->taskCreator->getId() => 0.23,
+				$user1->getId()				=> 0.77,
 				$user2->getId()				=> 0
 		], $user2);
 	
-		$this->assertEquals(28, $this->task->getMembers()[$this->taskCreator->getId()]['share']);
-		$this->assertEquals(58, $this->task->getMembers()[$user1->getId()]['share']);
-		$this->assertEquals(14, $this->task->getMembers()[$user2->getId()]['share']);
+		$this->assertEquals(0.28, $this->task->getMembers()[$this->taskCreator->getId()]['share']);
+		$this->assertEquals(0.58, $this->task->getMembers()[$user1->getId()]['share']);
+		$this->assertEquals(0.14, $this->task->getMembers()[$user2->getId()]['share']);
 	}
 	
 	public function testLastUserShareAssignement() {
@@ -276,18 +276,55 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$this->task->skipShares($this->taskCreator);
 		
 		$this->task->assignShares([
-				$this->taskCreator->getId() => 33,
-				$user1->getId()				=> 39,
-				$user2->getId()				=> 28
+				$this->taskCreator->getId() => 0.33,
+				$user1->getId()				=> 0.39,
+				$user2->getId()				=> 0.28
 		], $user1);
 		
 		$this->task->assignShares([
-				$this->taskCreator->getId() => 23,
-				$user1->getId()				=> 77,
+				$this->taskCreator->getId() => 0.23,
+				$user1->getId()				=> 0.77,
 				$user2->getId()				=> 0
 		], $user2);
 		
 		$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
-
 	}
+	
+// 	public function testGetMembersCredits() {
+// 		$user1 = User::create();
+// 		$user2 = User::create();
+		
+// 		$this->task->addMember($user1, $user1);
+// 		$this->task->addMember($user2, $user2);
+		
+// 		$this->task->complete($this->taskCreator);
+		
+// 		$this->task->addEstimation(1000, $user1);
+// 		$this->task->addEstimation(2500, $user2);
+// 		$this->task->addEstimation(3200, $this->taskCreator);
+		
+// 		$this->task->accept($this->taskCreator);
+		
+// 		$this->task->assignShares([
+// 			$this->taskCreator->getId() => 0.4,
+// 			$user1->getId()				=> 0.4,
+// 			$user2->getId()				=> 0.2
+// 		], $this->taskCreator);
+		
+// 		$this->task->assignShares([
+// 			$this->taskCreator->getId() => 0.33,
+// 			$user1->getId()				=> 0.18,
+// 			$user2->getId()				=> 0.49
+// 		], $user1);
+		
+// 		$this->task->assignShares([
+// 			$this->taskCreator->getId() => 0.23,
+// 			$user1->getId()				=> 0.54,
+// 			$user2->getId()				=> 0.23
+// 		], $user2);
+		
+// 		$this->assertEquals(714.67, $this->task->getMembersCredits()[$this->taskCreator->getId()]);
+// 		$this->assertEquals(833,70, $this->task->getMembersCredits()[$user1->getId()]);
+// 		$this->assertEquals(684,96, $this->task->getMembersCredits()[$user2->getId()]);
+// 	}
 }

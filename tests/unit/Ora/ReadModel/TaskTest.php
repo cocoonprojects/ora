@@ -24,21 +24,21 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$member2 = $task->getMember($user2);
 		$member3 = $task->getMember($user3);
 		
-		$member1->assignShare($member1, 34, $datetime);
-		$member1->assignShare($member2, 26, $datetime);
-		$member1->assignShare($member3, 40, $datetime);
+		$member1->assignShare($member1, 0.34, $datetime);
+		$member1->assignShare($member2, 0.26, $datetime);
+		$member1->assignShare($member3, 0.4, $datetime);
 		
-		$member2->assignShare($member1, 62, $datetime);
-		$member2->assignShare($member2, 13, $datetime);
-		$member2->assignShare($member3, 25, $datetime);
+		$member2->assignShare($member1, 0.62, $datetime);
+		$member2->assignShare($member2, 0.13, $datetime);
+		$member2->assignShare($member3, 0.25, $datetime);
 				
-		$member3->assignShare($member1, 44, $datetime);
-		$member3->assignShare($member2, 21, $datetime);
-		$member3->assignShare($member3, 35, $datetime);
+		$member3->assignShare($member1, 0.44, $datetime);
+		$member3->assignShare($member2, 0.21, $datetime);
+		$member3->assignShare($member3, 0.35, $datetime);
 				
-		$this->assertEquals(46.67, $member1->getShare());
-		$this->assertEquals(20, $member2->getShare());
-		$this->assertEquals(33.33, $member3->getShare());
+		$this->assertEquals(0.4667, $member1->getShare());
+		$this->assertEquals(0.2, $member2->getShare());
+		$this->assertEquals(0.3333, $member3->getShare());
 	}
 
 	public function testUpdateMembersShareWith0()
@@ -120,21 +120,21 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$member2 = $task->getMember($user2);
 		$member3 = $task->getMember($user3);
 		
-		$member1->assignShare($member1, 34, $datetime);
-		$member1->assignShare($member2, 26, $datetime);
-		$member1->assignShare($member3, 40, $datetime);
+		$member1->assignShare($member1, 0.34, $datetime);
+		$member1->assignShare($member2, 0.26, $datetime);
+		$member1->assignShare($member3, 0.4, $datetime);
 		
 		$member2->assignShare($member1, null, $datetime);
 		$member2->assignShare($member2, null, $datetime);
 		$member2->assignShare($member3, null, $datetime);
 				
-		$member3->assignShare($member1, 44, $datetime);
-		$member3->assignShare($member2, 21, $datetime);
-		$member3->assignShare($member3, 35, $datetime);
+		$member3->assignShare($member1, 0.44, $datetime);
+		$member3->assignShare($member2, 0.21, $datetime);
+		$member3->assignShare($member3, 0.35, $datetime);
 				
-		$this->assertEquals(39, $member1->getShare());
-		$this->assertEquals(23.5, $member2->getShare());
-		$this->assertEquals(37.5, $member3->getShare());
+		$this->assertEquals(0.39, $member1->getShare());
+		$this->assertEquals(0.235, $member2->getShare());
+		$this->assertEquals(0.375, $member3->getShare());
 	}
 
 	public function testUpdateMembersShareWithAllSkip()
