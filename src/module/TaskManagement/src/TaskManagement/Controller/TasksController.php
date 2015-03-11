@@ -8,7 +8,6 @@ use Ora\InvalidArgumentException;
 use Ora\TaskManagement\TaskService;
 use Ora\TaskManagement\Task;
 use Ora\StreamManagement\StreamService;
-use Zend\Authentication\AuthenticationServiceInterface;
 use TaskManagement\View\TaskJsonModel;
 use BjyAuthorize\Service\Authorize;
 
