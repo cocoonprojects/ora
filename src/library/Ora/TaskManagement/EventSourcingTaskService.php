@@ -11,9 +11,6 @@ use Prooph\EventStore\Aggregate\AggregateType;
 use Ora\User\User;
 use Ora\StreamManagement\Stream;
 
-use Ora\ReadModel\Share;
-
-
 /**
  * @author Giannotti Fabio
  */
