@@ -13,8 +13,6 @@ use Ora\StreamManagement\Stream;
 
 use Ora\ReadModel\Share;
 
-use BjyAuthorize\Service\Authorize;
-
 
 /**
  * @author Giannotti Fabio
@@ -32,14 +30,12 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 */
 	private $aggregateRootType;
 	
-	private $authorize;
 		
-    public function __construct(EventStore $eventStore, EntityManager $entityManager, Authorize $authorize)
+    public function __construct(EventStore $eventStore, EntityManager $entityManager)
     {
     	$this->aggregateRootType = new AggregateType('Ora\\TaskManagement\\Task');
 		parent::__construct($eventStore, new AggregateTranslator(), new MappedSuperclassStreamStrategy($eventStore, $this->aggregateRootType, [$this->aggregateRootType->toString() => 'event_stream']));
-		$this->entityManager = $entityManager;
-		$this->authorize = $authorize;	
+		$this->entityManager = $entityManager;	
 	}
 	
 	public function createTask(Stream $stream, $subject, User $createdBy)

@@ -1,8 +1,6 @@
 <?php
 namespace Ora\TaskManagement;
 
-use DoctrineORMModule\Proxy\__CG__\Ora\ReadModel\Organization;
-
 use Ora\StreamManagement\Stream;
 use Rhumsaa\Uuid\Uuid;
 use Ora\User\User;
@@ -33,12 +31,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	 * @var Stream
 	 */
 	protected $stream;
-	
-	/**
-	 * @var Organization
-	 */
-	protected $organization;
-	
+		
 	
 	protected function setUp() {
 		$this->taskCreator = User::create();

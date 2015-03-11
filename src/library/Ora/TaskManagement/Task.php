@@ -453,11 +453,14 @@ class Task extends DomainEntity implements \Serializable, ResourceInterface
         return "Ora\Task";
     }   
     
-    public function getMemberRole($user){ 
+    public function getMemberRole($user){
+    	
     	$key = $user instanceof User ? $user->getId() : $user;
-    	if($this->hasMember($key)){
-    		return $this->members[$user]['role'];
+
+    	if(isset($this->members[$key])){
+    		return $this->members[$key]['role'];
     	}
+
     	return null;
     } 
 

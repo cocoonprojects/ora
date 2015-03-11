@@ -22,7 +22,7 @@ use Zend\Permissions\Acl\Resource\ResourceInterface;
 
 // If no DiscriminatorMap annotation is specified, doctrine uses lower-case class name as default values
 
-class Task extends EditableEntity implements ResourceInterface, TaskInterface
+class Task extends EditableEntity implements ResourceInterface
 {	
     CONST STATUS_IDEA = 0;
     CONST STATUS_OPEN = 10;
@@ -219,21 +219,6 @@ class Task extends EditableEntity implements ResourceInterface, TaskInterface
     	return "Ora\Task";
     }
 	
-    public function getReadableMembers(){
-    	
-    	$membersArray = array();
-    	
-    	foreach($this->members as $taskMember){
-    		
-    		$memberId = $taskMember->getMember()->getId();
-    		$memberRole = $taskMember->getRole();
-    		
-    		$membersArray[$memberId] = $memberRole;
-    	}
-    	
-    	return $membersArray;
-    }
-	
     public function getMemberRole($user){
     	
     	$memberFound = $this->getMember($user);
@@ -243,10 +228,6 @@ class Task extends EditableEntity implements ResourceInterface, TaskInterface
     	}
     	
     	return null;
-    }
-    
-    public function getReadableId(){
-    	return $this->id;
     }
 
 }

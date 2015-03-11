@@ -15,6 +15,13 @@ Scenario: Cannot delete a not existing task
 	When I request "/task-management/tasks/00000000-0000-0000-0000-0000000000x0"
 	Then the response status code should be 404
 
+# TODO: duplicato, da rimuovere
+Scenario: Cannot delete a not existing task
+	Given that I am authenticated as "mark.rogers@ora.local" 
+	And that I want to delete a "Task"
+	When I request "/task-management/tasks/1"
+	Then the response status code should be 404
+
 Scenario: Cannot delete the entire tasks collection
 	Given that I am authenticated as "mark.rogers@ora.local" 
 	And that I want to delete a "Task"
