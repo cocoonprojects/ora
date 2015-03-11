@@ -32,7 +32,7 @@ before_script:
   - composer install -d src --dev
   - mysql -e 'create database oraproject_test;'
   - src/vendor/bin/doctrine-module orm:schema-tool:create
-  - mysql ${DB_NAME} < tests/sql/init.sql
+  - mysql oraproject_test < tests/sql/init.sql
 
 script:
   - phpunit --configuration tests/phpunit.xml
