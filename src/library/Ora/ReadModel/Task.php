@@ -93,12 +93,12 @@ class Task extends EditableEntity implements ResourceInterface
 		return $this->status;
 	}
 	
-    public function addMember(User $user, $role, User $by, \DateTime $when) {
-        $taskMember = new TaskMember($this, $user, $role);
-        $taskMember->setCreatedAt($when);
-        $taskMember->setCreatedBy($by);
-        $taskMember->setMostRecentEditAt($when);
-        $taskMember->setMostRecentEditBy($by);
+	public function addMember(User $user, $role, User $by, \DateTime $when) {
+        	$taskMember = new TaskMember($this, $user, $role);
+        	$taskMember->setCreatedAt($when);
+        	$taskMember->setCreatedBy($by);
+        	$taskMember->setMostRecentEditAt($when);
+        	$taskMember->setMostRecentEditBy($by);
 		$this->members->set($user->getId(), $taskMember);
 		return $this;
 	}
@@ -110,7 +110,7 @@ class Task extends EditableEntity implements ResourceInterface
 	public function removeMember($member) {
 		if($member instanceof TaskMember) {
 			$this->members->removeElement($member);
-		} else {			
+		} else {
 			$this->members->remove($member);
 		}
 		return $this;
@@ -121,33 +121,32 @@ class Task extends EditableEntity implements ResourceInterface
 	 * @param id|User $user
 	 * @return \Ora\ReadModel\TaskMember|NULL
 	 */
-    public function getMember($user) {
-    	$key = $user instanceof User ? $user->getId() : $user;
-    	return $this->members->get($key);
-    }
+	public function getMember($user) {
+		$key = $user instanceof User ? $user->getId() : $user;
+    		return $this->members->get($key);
+	}
     
-    /**
-     * 
-     * @param id|User $user
-     * @return boolean
-     */
-    public function hasMember($user) {
-    	$key = $user instanceof User ? $user->getId() : $user;
-    	return $this->members->containsKey($key);
-    }
+	/**
+	 * 
+	 * @param id|User $user
+	 * @return boolean
+	 */
+	public function hasMember($user) {
+		$key = $user instanceof User ? $user->getId() : $user;
+		return $this->members->containsKey($key);
+	}
 
-    /**
-     * @return TaskMember[]
-     */
+    	/**
+	 * @return TaskMember[]
+	 */
 	public function getMembers() {
 	    return $this->members->toArray();
 	}
 	
-    public function getType(){
-
-         $c = get_called_class();
-         return $c::TYPE;
-    }
+	public function getType(){
+        	$c = get_called_class();
+        	return $c::TYPE;
+	}
     
     /**
      * TODO: da rimuovere, deve leggere un valore già calcolato. Il calcolo sta nel write model
