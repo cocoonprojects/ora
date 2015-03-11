@@ -8,9 +8,12 @@ use Ora\StreamManagement\StreamService;
 use Ora\User\User;
 use Ora\StreamManagement\Stream;
 use Ora\IllegalStateException;
+use Ora\InvalidArgumentException;
 use Zend\Authentication\AuthenticationServiceInterface;
 use TaskManagement\View\TaskJsonModel;
 use Ora\TaskManagement\Task;
+use BjyAuthorize\Service\Authorize;
+
 
 class TasksController extends AbstractHATEOASRestfulController
 {
@@ -27,11 +30,12 @@ class TasksController extends AbstractHATEOASRestfulController
      * @var StreamService
      */
 	private $streamService;
-		
-	public function __construct(TaskService $taskService, StreamService $streamService)
+	
+	public function __construct(TaskService $taskService, StreamService $streamService, Authorize $authorize)
 	{
 		$this->taskService = $taskService;
-		$this->streamService = $streamService;
+		$this->streamService = $streamService;		
+		$this->authorize = $authorize;
 	}
 	
     public function get($id)
@@ -42,7 +46,7 @@ class TasksController extends AbstractHATEOASRestfulController
         	return $this->response;
         }
     	$this->response->setStatusCode(200);
-        $view = new TaskJsonModel($this->url(), $this->identity()['user']);
+        $view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->authorize);
         $view->setVariable('resource', $task);
         return $view;
     }
@@ -60,7 +64,8 @@ class TasksController extends AbstractHATEOASRestfulController
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks() : $this->taskService->findStreamTasks($streamID);
 
     	$this->response->setStatusCode(200);
-       	$view = new TaskJsonModel($this->url(), $this->identity()['user']);       	
+       	$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->authorize);          	
+
         $view->setVariable('resource', $availableTasks);
         return $view;
     }
@@ -75,7 +80,8 @@ class TasksController extends AbstractHATEOASRestfulController
      * @author Giannotti Fabio
      */
     public function create($data)
-    {       	
+    {   
+    	
     	if (!isset($data['streamID']) || !isset($data['subject']))
         {            
             // HTTP STATUS CODE 400: Bad Request
@@ -89,9 +95,9 @@ class TasksController extends AbstractHATEOASRestfulController
     		$this->response->setStatusCode(401);
     		return $this->response;
     	}
-    	       
-        $stream = $this->streamService->getStream($data['streamID']);
-                     
+
+    	$stream = $this->streamService->getStream($data['streamID']);
+    	
         if(is_null($stream)) {
         	// Stream Not Found
         	$this->response->setStatusCode(404);
@@ -167,7 +173,7 @@ class TasksController extends AbstractHATEOASRestfulController
         return $this->response;
     }
     
-    /**
+	/**
      * Delete single existing task with specified ID
      * @method DELETE
      * @link http://oraproject/task-management/tasks/[:ID]

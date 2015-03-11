@@ -4,6 +4,7 @@ namespace Ora\TaskManagement;
 use Ora\StreamManagement\Stream;
 use Rhumsaa\Uuid\Uuid;
 use Ora\User\User;
+use Ora\ReadModel\Organization as ReadModelOrganization;
 
 class TaskTest extends \PHPUnit_Framework_TestCase {
 	
@@ -12,23 +13,34 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	 * @var Task
 	 */
 	protected $task;
+	
 	/**
 	 * 
 	 * @var User
-	 */
+	 */	
 	protected $taskCreator;
+	/**
+	 * 
+	 * @var Organization
+	 */
+	protected $organization;
+	
+	
 	/**
 	 * 
 	 * @var Stream
 	 */
 	protected $stream;
+		
 	
 	protected function setUp() {
 		$this->taskCreator = User::create();
-		$this->stream = new Stream(Uuid::fromString('00000000-1000-0000-0000-000000000002'), $this->taskCreator);
+		$this->organization = new ReadModelOrganization(Uuid::fromString('00000000-1000-0000-0000-000000000022'), new \DateTime(), $this->taskCreator);	
+		$this->stream = new Stream(Uuid::fromString('00000000-1000-0000-0000-000000000002'), $this->taskCreator, $this->organization);
 		$this->task = Task::create($this->stream, 'test', $this->taskCreator);
+
 	}
-	
+		
 	public function testCreate() {
 		$task = Task::create($this->stream, 'Test subject', $this->taskCreator);
 		$this->assertInstanceOf('Rhumsaa\Uuid\Uuid', $task->getId());
@@ -47,6 +59,10 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals($this->stream->getId()->toString(), $task->getStreamId());
 		$this->assertTrue($task->hasMember($this->taskCreator));
 		$this->assertTrue($task->hasAs(Task::ROLE_OWNER, $this->taskCreator));
+
+		$stream = new Stream(Uuid::fromString('00000000-1000-0000-0000-000000000002'), $this->taskCreator, $this->organization);
+		$this->task = Task::create($stream, 'test', $this->taskCreator);
+
 	}
 	
 	public function testAddEstimation() {

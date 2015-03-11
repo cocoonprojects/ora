@@ -12,7 +12,6 @@ use Rhumsaa\Uuid\Uuid;
 use Ora\ReadModel\Estimation;
 use Ora\ReadModel\TaskMember;
 use Ora\InvalidArgumentException;
-
 /**
  * 
  * @author Giannotti Fabio
@@ -154,14 +153,15 @@ class Task extends DomainEntity implements \Serializable
 	}
 	
 	public function addMember(User $user, User $addedBy, $role = self::ROLE_MEMBER)
-	{
+	{ 
 		if($this->status >= self::STATUS_COMPLETED) {
-			throw new IllegalStateException('Cannot add a member to a task in '.$this->status.' state');
-		}
+                       throw new IllegalStateException('Cannot add a member to a task in '.$this->status.' state');
+               }
         if (array_key_exists($user->getId(), $this->members)) {
-        	throw new DuplicatedDomainEntityException($this, $user); 
+               throw new DuplicatedDomainEntityException($this, $user); 
         }
-        $this->recordThat(MemberAdded::occur($this->id->toString(), array(
+		
+		$this->recordThat(MemberAdded::occur($this->id->toString(), array(
         	'userId' => $user->getId(),
         	'role' => $role,
         	'by' => $addedBy->getId(),
@@ -445,6 +445,7 @@ class Task extends DomainEntity implements \Serializable
 		return $rv;
 	}
 	
+
 	private function isSharesAssignmentCompleted() {
 		foreach ($this->members as $member) {
 			if(!isset($member['shares'])) {
@@ -453,4 +454,16 @@ class Task extends DomainEntity implements \Serializable
 		}
 		return true;
 	}
+    
+    public function getMemberRole($user){
+    	
+    	$key = $user instanceof User ? $user->getId() : $user;
+
+    	if(isset($this->members[$key])){
+    		return $this->members[$key]['role'];
+    	}
+
+    	return null;
+    } 
+
 }

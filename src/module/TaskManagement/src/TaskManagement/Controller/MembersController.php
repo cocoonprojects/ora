@@ -8,6 +8,7 @@ use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
 use Ora\TaskManagement\TaskService;
 
+
 class MembersController extends AbstractHATEOASRestfulController
 {
     protected static $collectionOptions = array();
@@ -18,18 +19,20 @@ class MembersController extends AbstractHATEOASRestfulController
      * @var TaskService
      */
     protected $taskService;
-    
+        
     public function __construct(TaskService $taskService) {
 		$this->taskService = $taskService;	
     }
     
     public function invoke($id, $data)
     {
-        $task = $this->taskService->getTask($id);
+    	$task = $this->taskService->getTask($id);
+    	
         if (is_null($task)) {
         	$this->response->setStatusCode(404);
 			return $this->response;
         }
+    	
     	$loggedUser = $this->identity()['user'];
     	$this->transaction()->begin();
     	try {    		
@@ -54,6 +57,7 @@ class MembersController extends AbstractHATEOASRestfulController
         	$this->response->setStatusCode(404);
 			return $this->response;
         }
+        
        	$loggedUser = $this->identity()['user'];
     	$this->transaction()->begin();
        	try {
@@ -61,7 +65,7 @@ class MembersController extends AbstractHATEOASRestfulController
        		$this->transaction()->commit();
 	    	$this->response->setStatusCode(200);
         } catch (DomainEntityUnavailableException $e) {
-       		$this->transaction()->rollback();
+        	$this->transaction()->rollback();
         	$this->response->setStatusCode(204);	// No content
         } catch (IllegalStateException $e) {
        		$this->transaction()->rollback();

@@ -31,7 +31,7 @@ class EstimationsController extends AbstractHATEOASRestfulController {
 	 * @var TaskService
 	 */
 	protected $taskService;
-	
+		
 	public function __construct(TaskService $taskService) {
 		$this->taskService = $taskService;
 	}
@@ -42,6 +42,13 @@ class EstimationsController extends AbstractHATEOASRestfulController {
 			$this->response->setStatusCode(400);
 			return $this->response;
 		}
+		
+		$task = $this->taskService->getTask($id);
+		if (is_null($task)) {
+			$this->response->setStatusCode(404);
+			return $this->response;
+		}
+		
 		//TODO check if the value is numeric in a localized way
 		$value = $data['value'];
 		
@@ -56,11 +63,6 @@ class EstimationsController extends AbstractHATEOASRestfulController {
 			return $this->response;
 		}
 			
-		$task = $this->taskService->getTask($id);
-		if (is_null($task)) {
-			$this->response->setStatusCode(404);
-			return $this->response;
-		}
 		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;

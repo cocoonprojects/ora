@@ -153,7 +153,7 @@ class TaskMember {
     	$this->mostRecentEditBy = $user;
     	return $this->mostRecentEditBy;
     }
-    
+
     public function assignShare(TaskMember $valued, $value, \DateTime $when) {
     	$share = new Share($this, $valued);
     	$share->setValue($value);

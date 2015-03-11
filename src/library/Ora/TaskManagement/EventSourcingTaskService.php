@@ -10,7 +10,6 @@ use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Prooph\EventStore\Aggregate\AggregateType;
 use Ora\User\User;
 use Ora\StreamManagement\Stream;
-use Ora\ReadModel\Share;
 
 /**
  * @author Giannotti Fabio
@@ -27,16 +26,17 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @var AggregateType
 	 */
 	private $aggregateRootType;
-    
+	
+		
     public function __construct(EventStore $eventStore, EntityManager $entityManager)
     {
     	$this->aggregateRootType = new AggregateType('Ora\\TaskManagement\\Task');
 		parent::__construct($eventStore, new AggregateTranslator(), new MappedSuperclassStreamStrategy($eventStore, $this->aggregateRootType, [$this->aggregateRootType->toString() => 'event_stream']));
-		$this->entityManager = $entityManager;
+		$this->entityManager = $entityManager;	
 	}
 	
 	public function createTask(Stream $stream, $subject, User $createdBy)
-	{		
+	{			
 		$this->eventStore->beginTransaction();
 	    $task = Task::create($stream, $subject, $createdBy);
 	    $this->addAggregateRoot($task);
@@ -74,15 +74,6 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	{	
 		$repository = $this->entityManager->getRepository('Ora\ReadModel\Task')->findBy(array('stream' => $streamId));
 	    return $repository;
+
 	}
-	
-// 	public function findTaskShares($id) {
-// 		$dql = "SELECT SUM(s.value) AS total, COUNT(s.evaluator_id) AS evaluators, s.valued_id FROM Ora\ReadModel\Share s " .
-//        "WHERE s.task_id = ?1 GROUP BY s.valued_id";
-// 		$rv = $this->entityManager->createQuery($dql)
-// 			->setParameter(1, $id)
-// 			->getArrayResult();
-// 		return $rv;
-// 	}
-	
 }

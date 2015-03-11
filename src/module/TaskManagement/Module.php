@@ -12,6 +12,7 @@ use TaskManagement\Controller\EstimationsController;
 use TaskManagement\Service\TaskListener;
 use TaskManagement\Controller\SharesController;
 
+
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {    
 	public function onBootstrap(MvcEvent $e)
@@ -52,33 +53,36 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
         return array(
             'invokables' => array(
 	            'TaskManagement\Controller\Index' => 'TaskManagement\Controller\IndexController',
-	            'TaskManagement\Controller\Streams' => 'TaskManagement\Controller\StreamsController',
+	            'TaskManagement\Controller\Streams' => 'TaskManagement\Controller\StreamsController',        		
             ),
             'factories' => array(
 	            'TaskManagement\Controller\Tasks' => function ($sm) {
 	            	$locator = $sm->getServiceLocator();
 	            	$taskService = $locator->get('TaskManagement\TaskService');
 	            	$streamService = $locator->get('TaskManagement\StreamService');
-	            	$controller = new TasksController($taskService, $streamService);
+	            	$authorize = $locator->get('BjyAuthorize\Service\Authorize');
+	            	$controller = new TasksController($taskService, $streamService, $authorize);
 	            	return $controller;
 	            },
 	            'TaskManagement\Controller\Members' => function ($sm) {
             		$locator = $sm->getServiceLocator();
-            		$taskService = $locator->get('TaskManagement\TaskService');
+            		$taskService = $locator->get('TaskManagement\TaskService');            		
             		$controller = new MembersController($taskService);
+
             		return $controller;
             	},
             	'TaskManagement\Controller\Transitions' => function ($sm) {
             		$locator = $sm->getServiceLocator();
 	            	$taskService = $locator->get('TaskManagement\TaskService');
-            		$kanbanizeService = $locator->get('TaskManagement\KanbanizeService');
+            		$kanbanizeService = $locator->get('TaskManagement\KanbanizeService');            		
             		$controller = new TransitionsController($taskService, $kanbanizeService);
             		return $controller;
             	},
             	'TaskManagement\Controller\Estimations' => function ($sm) {
             		$locator = $sm->getServiceLocator();
-            		$taskService = $locator->get('TaskManagement\TaskService');
+            		$taskService = $locator->get('TaskManagement\TaskService');            		
             		$controller = new EstimationsController($taskService);
+
             		return $controller;
             	},
             	'TaskManagement\Controller\Shares' => function ($sm) {
@@ -98,7 +102,58 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
                 'TaskManagement\StreamService' => 'TaskManagement\Service\StreamServiceFactory',
             	'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',
 				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
+
+			    'TaskManagement\MemberOfOrganizationAssertion' =>  function($sl){			        
+        			$authService = $sl->get('Zend\Authentication\AuthenticationService');
+					$loggedUser = $authService->getIdentity()['user'];							
+					return new Service\MemberOfOrganizationAssertion($loggedUser);					
+			    },
+				'TaskManagement\TaskMemberAndOngoingTaskAssertion' =>  function($sl){			        
+        			$authService = $sl->get('Zend\Authentication\AuthenticationService');
+					$loggedUser = $authService->getIdentity()['user'];							
+					return new Service\TaskMemberAndOngoingTaskAssertion($loggedUser);
+				},
+				'TaskManagement\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion' =>  function($sl){			        
+        			$authService = $sl->get('Zend\Authentication\AuthenticationService');
+					$loggedUser = $authService->getIdentity()['user'];							
+					return new Service\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion($loggedUser);
+				},
+        		'TaskManagement\TaskMemberNotOwnerAndNotCompletedTaskAssertion' =>  function($sl){			        
+        			$authService = $sl->get('Zend\Authentication\AuthenticationService');
+					$loggedUser = $authService->getIdentity()['user'];							
+					return new Service\TaskMemberNotOwnerAndNotCompletedTaskAssertion($loggedUser);
+				},
+				'TaskManagement\TaskOwnerAndNotCompletedTaskAssertion' => function($sl){			        
+        			$authService = $sl->get('Zend\Authentication\AuthenticationService');
+					$loggedUser = $authService->getIdentity()['user'];							
+					return new Service\TaskOwnerAndNotCompletedTaskAssertion($loggedUser);
+				},
+        		'TaskManagement\TaskMemberNotOwnerAndOpenOrCompletedTaskAssertion' =>  function($sl){			        
+        			$authService = $sl->get('Zend\Authentication\AuthenticationService');
+					$loggedUser = $authService->getIdentity()['user'];							
+					return new Service\TaskMemberNotOwnerAndOpenOrCompletedTaskAssertion($loggedUser);
+				},
+        		'TaskManagement\TaskOwnerAndOngoingOrAcceptedTaskAssertion' =>  function($sl){			        
+        			$authService = $sl->get('Zend\Authentication\AuthenticationService');
+					$loggedUser = $authService->getIdentity()['user'];							
+					return new Service\TaskOwnerAndOngoingOrAcceptedTaskAssertion($loggedUser);
+				},
+        		'TaskManagement\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion' =>  function($sl){			        
+        			$authService = $sl->get('Zend\Authentication\AuthenticationService');
+					$loggedUser = $authService->getIdentity()['user'];							
+					return new Service\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion($loggedUser);
+				},
+        		'TaskManagement\TaskMemberAndAcceptedTaskAssertion' =>  function($sl){			        
+        			$authService = $sl->get('Zend\Authentication\AuthenticationService');
+					$loggedUser = $authService->getIdentity()['user'];							
+					return new Service\TaskMemberAndAcceptedTaskAssertion($loggedUser);
+				},
+				'Authorization\CurrentUserProvider' => function($locator){
+					$authService = $locator->get('Zend\Authentication\AuthenticationService');
+					$loggedUser = $authService->getIdentity()['user'];
+					return $loggedUser;
+	        	},	
             ),
-        );
+		);
     }
 }

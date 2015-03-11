@@ -8,7 +8,6 @@ use Prooph\EventStore\Stream\StreamStrategyInterface;
 use Prooph\EventStore\Aggregate\AggregateRepository;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Prooph\EventStore\Aggregate\AggregateType;
-use Ora\User\Role;
 use Ora\Organization\Organization;
 use Ora\User\User;
 use Ora\Accounting\Account;
@@ -32,7 +31,7 @@ class EventSourcingUserService extends AggregateRepository implements UserServic
 	
 	public function subscribeUser($infoOfUser)
 	{
-		$user = $this->create($infoOfUser, Role::instance(Role::ROLE_USER));
+		$user = $this->create($infoOfUser, User::ROLE_USER);
 		$this->entityManager->persist($user);			
 		$this->entityManager->flush($user);
 		if(!is_null($this->accountService)) {
@@ -41,13 +40,14 @@ class EventSourcingUserService extends AggregateRepository implements UserServic
 		return $user;			
 	}
 		
-	public function create($infoOfUser, Role $role, User $createdBy = null)
+	public function create($infoOfUser, $role, User $createdBy = null)
 	{	
 		$user = User::create($createdBy);
 		$user->setEmail($infoOfUser['email']);
 		$user->setLastname($infoOfUser['family_name']);
 		$user->setFirstname($infoOfUser['given_name']);
 		$user->setPicture($infoOfUser['picture']);
+		$user->setRole($role);
 		return $user;
 	}
 
@@ -67,7 +67,7 @@ class EventSourcingUserService extends AggregateRepository implements UserServic
 					->findOneBy(array("email" => $email));
 			
 		return $user;		
-	}
+	}	
 	
 	public function setAccountService(AccountService $service) {
 		$this->accountService = $service;

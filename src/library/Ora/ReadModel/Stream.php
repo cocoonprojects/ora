@@ -2,14 +2,16 @@
 
 namespace Ora\ReadModel;
 
+
 use Doctrine\ORM\Mapping AS ORM;
+use Zend\Permissions\Acl\Resource\ResourceInterface;
 
 /**
  * @ORM\Entity @ORM\Table(name="streams")
  * @author Giannotti Fabio
  *
  */
-class Stream extends EditableEntity
+class Stream extends EditableEntity implements ResourceInterface
 {	    
 	/**
 	 * @ORM\Column(type="string")
@@ -39,4 +41,9 @@ class Stream extends EditableEntity
 		$this->organization = $organization;
 		return $this->organization;
 	}	
+	
+	public function getResourceId(){
+		return "Ora\Stream";
+	}
+
 }

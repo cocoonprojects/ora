@@ -1,10 +1,7 @@
 <?php
+
 return array(
-	'service_manager' => array(
-		'factories' => array(
-			'TaskManagement\Service\Kanbanize' => 'TaskManagement\Service\KanbanizeServiceFactory'
-		),
-	),
+	
 	'router' => array(
         'routes' => array(
             'tasks-home' => array(
@@ -60,5 +57,69 @@ return array(
 				'TaskManagement' => __DIR__ . '/../public',
 			),
 		),
-	),
+    ),
+    
+    'bjyauthorize'=> array(
+    
+    	'resource_providers' => array(
+            'BjyAuthorize\Provider\Resource\Config' => array(                
+				'Ora\Task' => array(),
+    			'Ora\Stream' => array(),
+            ),
+        ),
+    
+        'rule_providers' => array(
+            'BjyAuthorize\Provider\Rule\Config' => array(
+        
+                'allow' => array(
+                                        	
+                    array(
+                    	array('user'), 
+                    	'Ora\Stream', 
+                    	array('TaskManagement.Task.create', 'TaskManagement.Task.showDetails'), 
+                    	'TaskManagement\MemberOfOrganizationAssertion'),
+					array(
+                    	array('user'), 
+                    	'Ora\Task', 
+                    	array('TaskManagement.Task.join'), 
+                    	'TaskManagement\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion'),                    
+                    array(
+                    	array('user'), 
+                    	'Ora\Task', 
+                    	array('TaskManagement.Task.estimate'), 
+                    	'TaskManagement\TaskMemberAndOngoingTaskAssertion'),
+                    array(
+                    	array('user'), 
+                    	'Ora\Task', 
+                    	array('TaskManagement.Task.unjoin'), 
+                    	'TaskManagement\TaskMemberNotOwnerAndNotCompletedTaskAssertion'),                    
+                    array(
+                    	array('user'), 
+                    	'Ora\Task', 
+                    	array('TaskManagement.Task.edit', 'TaskManagement.Task.delete'), 
+                    	 'TaskManagement\TaskOwnerAndNotCompletedTaskAssertion'),                    
+					array(
+                    	array('user'), 
+                    	'Ora\Task', 
+                    	array('TaskManagement.Task.execute'), 
+                    	'TaskManagement\TaskMemberNotOwnerAndOpenOrCompletedTaskAssertion'),                    
+                   array(
+                    	array('user'), 
+                    	'Ora\Task', 
+                    	array('TaskManagement.Task.complete'), 
+                    	'TaskManagement\TaskOwnerAndOngoingOrAcceptedTaskAssertion'),
+                    array(
+                    	array('user'), 
+                    	'Ora\Task', 
+                    	array('TaskManagement.Task.accept'), 
+                    	'TaskManagement\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion'),
+                    array(
+                    	array('user'), 
+                    	'Ora\Task', 
+                    	array('TaskManagement.Task.assignShares'), 
+                    	'TaskManagement\TaskMemberAndAcceptedTaskAssertion'),
+                ),
+            ),
+        ),
+    ),
 );
