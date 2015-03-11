@@ -22,7 +22,7 @@ return array(
     	'Accounting',
     	'TaskManagement',
     	'User',
-        'Application',
+	'Application',
 	'BjyAuthorize'
     ),
 
