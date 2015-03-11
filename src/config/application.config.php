@@ -15,15 +15,15 @@ return array(
     // This should be an array of module namespaces used in the application.
     'modules' => array(
 		'DoctrineModule',
-        'DoctrineORMModule',
-    	'ProophEventStoreModule',
-        'ZendOAuth2',
-    	'AssetManager',
-    	'Accounting',
-    	'TaskManagement',
-    	'User',
-	'Application',
-	'BjyAuthorize'
+		'DoctrineORMModule',
+		'ProophEventStoreModule',
+		'ZendOAuth2',
+		'AssetManager',
+		'Accounting',
+		'TaskManagement',
+		'User',
+		'Application',
+		'BjyAuthorize'
     ),
 
     // These are various options for the listeners attached to the ModuleManager

@@ -24,7 +24,7 @@ class TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion implement
 			
 			if($this->loggedUser instanceof User){
 
-				if(!is_null($resource->getEstimation())){
+				if(!is_null($resource->getAverageEstimation())){
 				
 					if($resource->hasMember($this->loggedUser)){
 						
