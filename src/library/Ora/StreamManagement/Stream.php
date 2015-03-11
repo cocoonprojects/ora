@@ -6,14 +6,13 @@ use Ora\DomainEntity;
 use Ora\User\User;
 use Rhumsaa\Uuid\Uuid;
 use Ora\ReadModel\Organization;
-use Zend\Permissions\Acl\Resource\ResourceInterface;
 
 /**
  * 
  * @author Giannotti Fabio
  *
  */
-class Stream extends DomainEntity implements \Serializable, ResourceInterface
+class Stream extends DomainEntity implements \Serializable
 {	    
 	/**
 	 * 
@@ -81,9 +80,5 @@ class Stream extends DomainEntity implements \Serializable, ResourceInterface
 	public function getOrganizationId(){
     	return $this->organizationId;
     }
-
-	public function getResourceId(){			
-        return "Ora\Stream";
-    }
-	
+    
 }

@@ -16,11 +16,6 @@ class Organization extends EditableEntity
 	 */
 	private $name;
 	
-	public function __construct($organizationID) 
-	{
-		parent::__construct($organizationID);
-	}
-	
 	public function getName() {
 		return $this->name;
 	}

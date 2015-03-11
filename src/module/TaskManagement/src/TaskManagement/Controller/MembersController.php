@@ -7,7 +7,6 @@ use Ora\IllegalStateException;
 use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
 use Ora\TaskManagement\TaskService;
-use BjyAuthorize\Service\Authorize;
 
 
 class MembersController extends AbstractHATEOASRestfulController

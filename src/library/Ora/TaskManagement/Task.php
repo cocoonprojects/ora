@@ -12,14 +12,12 @@ use Rhumsaa\Uuid\Uuid;
 use Ora\ReadModel\Estimation;
 use Ora\ReadModel\TaskMember;
 use Ora\InvalidArgumentException;
-use Zend\Permissions\Acl\Resource\ResourceInterface;
-
 /**
  * 
  * @author Giannotti Fabio
  *
  */
-class Task extends DomainEntity implements \Serializable, ResourceInterface
+class Task extends DomainEntity implements \Serializable
 {	
     CONST STATUS_IDEA = 0;
     CONST STATUS_OPEN = 10;
@@ -447,11 +445,6 @@ class Task extends DomainEntity implements \Serializable, ResourceInterface
 		}
 		return true;
 	}
-
-
-	public function getResourceId(){			
-        return "Ora\Task";
-    }   
     
     public function getMemberRole($user){
     	
