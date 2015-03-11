@@ -1,5 +1,4 @@
 <?php
-
 namespace Ora\ReadModel;
 
 use Ora\TaskManagement\TaskInterface;
@@ -16,7 +15,6 @@ use Zend\Permissions\Acl\Resource\ResourceInterface;
  * @ORM\Entity @ORM\Table(name="tasks")
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="type", type="string")
- * @author Giannotti Fabio
  *
  */
 
@@ -93,12 +91,12 @@ class Task extends EditableEntity implements ResourceInterface
 		return $this->status;
 	}
 	
-	public function addMember(User $user, $role, User $by, \DateTime $when) {
-        	$taskMember = new TaskMember($this, $user, $role);
-        	$taskMember->setCreatedAt($when);
-        	$taskMember->setCreatedBy($by);
-        	$taskMember->setMostRecentEditAt($when);
-        	$taskMember->setMostRecentEditBy($by);
+    public function addMember(User $user, $role, User $by, \DateTime $when) {
+        $taskMember = new TaskMember($this, $user, $role);
+        $taskMember->setCreatedAt($when)
+        	->setCreatedBy($by)
+        	->setMostRecentEditAt($when)
+        	->setMostRecentEditBy($by);
 		$this->members->set($user->getId(), $taskMember);
 		return $this;
 	}

@@ -1,12 +1,6 @@
 <?php
 
 return array(
-	'controllers' => array(
-        'invokables' => array(
-            'User\Controller\Users' => 'User\Controller\UsersController'
-        ),
-    ),
-    
     'router' => array(
         'routes' => array(
             'people-home' => array(
@@ -31,6 +25,19 @@ return array(
                     ),
                 ),
             ),
+			'organizations' => array(
+        		'type' => 'Segment',
+        		'options' => array(
+        			'route'    => '/user/organizations[/:id][/:controller]',
+        			'constraints' => array(
+        				'id' => '[0-9a-z\-]+'
+        			),
+        			'defaults' => array(
+        				'__NAMESPACE__' => 'User\Controller',
+        				'controller' => 'Organizations'
+        			),
+        		),
+        	),	
         ),
     ),
     

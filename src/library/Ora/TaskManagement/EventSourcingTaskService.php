@@ -5,15 +5,13 @@ namespace Ora\TaskManagement;
 use Doctrine\ORM\EntityManager;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Aggregate\AggregateRepository;
+use Prooph\EventStore\Aggregate\AggregateType;
 use Prooph\EventStore\Stream\MappedSuperclassStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
-use Prooph\EventStore\Aggregate\AggregateType;
 use Ora\User\User;
 use Ora\StreamManagement\Stream;
+use Ora\StreamManagement\StreamService;
 
-/**
- * @author Giannotti Fabio
- */
 class EventSourcingTaskService extends AggregateRepository implements TaskService
 {
 	/**
@@ -26,11 +24,15 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @var AggregateType
 	 */
 	private $aggregateRootType;
-	
-		
+	/**
+	 * 
+	 * @var StreamService
+	 */
+	private $streamService;
+    
     public function __construct(EventStore $eventStore, EntityManager $entityManager)
     {
-    	$this->aggregateRootType = new AggregateType('Ora\\TaskManagement\\Task');
+    	$this->aggregateRootType = new AggregateType('Ora\TaskManagement\Task');
 		parent::__construct($eventStore, new AggregateTranslator(), new MappedSuperclassStreamStrategy($eventStore, $this->aggregateRootType, [$this->aggregateRootType->toString() => 'event_stream']));
 		$this->entityManager = $entityManager;	
 	}
@@ -57,6 +59,12 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
         }
 	}
 	
+	public function getTaskOrganization(Task $task) {
+		$streamId = $task->getStreamId();
+		$stream = $this->streamService->getStream($streamId);
+		$organizationId = $stream->getOrganizationId();
+		
+	}
 	/**
 	 * Get the list of all available tasks 
 	 */
@@ -75,5 +83,14 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		$repository = $this->entityManager->getRepository('Ora\ReadModel\Task')->findBy(array('stream' => $streamId));
 	    return $repository;
 
+	}
+	
+	public function setStreamService(StreamService $streamService) {
+		$this->streamService = $streamService;
+		return $this;
+	}
+	
+	public function getStreamService() {
+		return $this->streamService;
 	}
 }

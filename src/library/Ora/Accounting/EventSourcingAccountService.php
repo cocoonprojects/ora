@@ -12,6 +12,9 @@ use Ora\User\User;
 use Doctrine\ORM\EntityManager;
 use Ora\Organization\Organization;
 use Prooph\EventStore\Stream\MappedSuperclassStreamStrategy;
+use Zend\EventManager\EventManagerInterface;
+use Ora\Organization\OrganizationService;
+use Zend\EventManager\Event;
 
 class EventSourcingAccountService extends AggregateRepository implements AccountService
 {
@@ -38,7 +41,7 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	
 	public function createOrganizationAccount(User $holder, Organization $organization) {
 		$this->eventStore->beginTransaction();
-		$account = OrganizationAccount::createOrganizationAccount($holder, $organization);
+		$account = OrganizationAccount::createOrganizationAccount($organization, $holder);
 		$this->addAggregateRoot($account);
 		$this->eventStore->commit();
 		return $account;
@@ -70,5 +73,14 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	
 	public function findAccount($id) {
 		return $this->entityManager->getRepository('Ora\ReadModel\Account')->find($id);
+	}
+	
+	public function observe(OrganizationService $organizationService) {
+		$organizationService->getEventManager()->attach('OrganizationService.OrganizationCreated', array($this, 'onOrganizationCreated'));
+	}
+	
+	public function onOrganizationCreated(Event $e) {
+		$params = $e->getParams();
+		$this->createOrganizationAccount($params[1], $params[0]);
 	}
 }

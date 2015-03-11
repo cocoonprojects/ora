@@ -3,53 +3,23 @@ namespace TaskManagement\Service;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
-use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Stream\StreamEvent;
 use Ora\ReadModel\Task;
 use Ora\ReadModel\Estimation;
+use Ora\ReadModel\Share;
 use Ora\Kanbanize\ReadModel\KanbanizeTask;
 use Ora\Kanbanize\KanbanizeService;
-use Ora\ReadModel\Share;
+use Application\Service\CommandsObserver;
 
-class TaskListener
-{
-	/**
-	 * 
-	 * @var EntityManager
-	 */
-	private $entityManager;
-	
+class TaskCommandsObserver extends CommandsObserver {
 	/**
 	 * 
 	 * @var KanbanizeService
 	 */
 	private $kanbanizeService;
 	
-	public function __construct(EntityManager $entityManager) {
-		$this->entityManager = $entityManager;
-	}
-	
 	public function setKanbanizeService(KanbanizeService $service) {
 		$this->kanbanizeService = $service;
-	}
-	
-	public function attach(EventStore $eventStore) {
-		$eventStore->getPersistenceEvents()->attach('commit.post', array($this, 'postCommit'));
-	}
-	
-	public function postCommit(PostCommitEvent $event) {
-		foreach ($event->getRecordedEvents() as $streamEvent) {
-			$type = $streamEvent->metadata()['aggregate_type'];
-
-			$handler = $this->determineEventHandlerMethodFor($streamEvent);
-			if (! method_exists($this, $handler)) {
-				continue;
-			}
-			
-			$this->{$handler}($streamEvent);				
-		}
- 		$this->entityManager->flush();
 	}
 	
 	protected function onTaskCreated(StreamEvent $event) {
@@ -81,9 +51,10 @@ class TaskListener
 			if(is_null($entity)) {
 				return;
 			}
+			$updatedBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+
 			$entity->setSubject($event->payload()['subject']);
 			$entity->setMostRecentEditAt($event->occurredOn());
-			$updatedBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
 			$entity->setMostRecentEditBy($updatedBy);
 			$this->entityManager->persist($entity);
 		}
@@ -100,9 +71,10 @@ class TaskListener
 		if(is_null($stream)) {
 			return;
 		}
+		$updatedBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+
 		$entity->setStream($stream);
 		$entity->setMostRecentEditAt($event->occurredOn());
-		$updatedBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
 		$entity->setMostRecentEditBy($updatedBy);
 		$this->entityManager->persist($entity);
 	}
@@ -246,9 +218,8 @@ class TaskListener
 		}
 		$this->entityManager->persist($task);
 	}
-	
-	protected function determineEventHandlerMethodFor(StreamEvent $e)
-    {
-        return 'on' . join('', array_slice(explode('\\', $e->eventName()), -1));
-    }
+
+	protected function getPackage() {
+		return 'Ora\\TaskManagement\\';
+	}
 }

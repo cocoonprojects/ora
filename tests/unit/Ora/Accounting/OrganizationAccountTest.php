@@ -18,7 +18,7 @@ class OrganizationAccountTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testCreate() {
-		$account = OrganizationAccount::createOrganizationAccount($this->holder, $this->organization);
+		$account = OrganizationAccount::createOrganizationAccount($this->organization, $this->holder);
 		$this->assertNotEmpty($account->getId());
 		$this->assertEquals(0, $account->getBalance()->getValue());
 		$this->assertArrayHasKey($this->holder->getId(), $account->getHolders());

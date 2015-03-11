@@ -1,49 +1,14 @@
 <?php
 namespace Accounting\Service;
 
-use Doctrine\ORM\EntityManager;
-use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
-use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Stream\StreamEvent;
-use Ora\ReadModel\Task;
 use Ora\ReadModel\Balance;
 use Ora\ReadModel\Account;
+use Ora\ReadModel\OrganizationAccount;
 use Ora\ReadModel\Deposit;
+use Application\Service\CommandsObserver;
 
-class AccountListener
-{
-	/**
-	 * 
-	 * @var EntityManager
-	 */
-	private $entityManager;
-	
-	public function __construct(EntityManager $entityManager) {
-		$this->entityManager = $entityManager;
-	}
-	
-	public function attach(EventStore $eventStore) {
-		$eventStore->getPersistenceEvents()->attach('commit.post', array($this, 'postCommit'));
-	}
-	
-	public function postCommit(PostCommitEvent $event) {
-		foreach ($event->getRecordedEvents() as $streamEvent) {
-			$type = $streamEvent->metadata()['aggregate_type'];
-
-			$handler = $this->determineEventHandlerMethodFor($streamEvent);
-			if (! method_exists($this, $handler)) {
-				continue;
-// 				throw new \RuntimeException(sprintf(
-// 						"Missing event handler method %s for aggregate root %s",
-// 						$handler,
-// 						get_class($this)
-// 				));
-			}
-			
-			$this->{$handler}($streamEvent);				
-		}
- 		$this->entityManager->flush();
-	}
+class AccountCommandsObserver extends CommandsObserver {
 	
 	protected function onAccountCreated(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
@@ -96,9 +61,8 @@ class AccountListener
 		$entity->setMostRecentEditBy($payer);
 		$this->entityManager->persist($entity);
 	}
-	
-	protected function determineEventHandlerMethodFor(StreamEvent $e)
-    {
-        return 'on' . join('', array_slice(explode('\\', $e->eventName()), -1));
-    }
+
+	protected function getPackage() {
+		return 'Ora\\Accounting\\';
+	}
 }

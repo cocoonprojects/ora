@@ -23,24 +23,27 @@ INSERT INTO users (id, status, createdAt, firstname, lastname, email, role) VALU
 INSERT INTO users (id, status, createdAt, firstname, lastname, email, role) VALUES ('80000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Bruce', 'Wayne', 'bruce.wayne@ora.local', 'user');
 INSERT INTO users (id, status, createdAt, firstname, lastname, email, role) VALUES ('90000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Peter', 'Parker', 'spidey.web@dailybugle.local', 'user');
 
+# organization 00000000-0000-0000-1000-000000000000
+INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
+('907dd600-1e37-4e35-8045-7abfc5f60895',1,'Ora\\Organization\\OrganizationCreated','a:2:{s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-1000-000000000000";}', '2015-03-06T19:42:58.000000+0100','Ora\\Organization\\Organization','00000000-0000-0000-1000-000000000000'),
+('dbc7ecb0-63b5-40c9-8ae4-09c06449a4ce',2,'Ora\\Organization\\OrganizationUpdated','a:3:{s:4:"name";s:11:"O.R.A. Team";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-1000-000000000000";}','2015-03-06T19:42:58.000000+0100','Ora\\Organization\\Organization','00000000-0000-0000-1000-000000000000'),
+('74548e90-569c-4e1b-958f-5b644243210c',3,'Ora\\Organization\\MemberAdded','a:4:{s:6:"userId";s:36:"60000000-0000-0000-0000-000000000000";s:4:"role";s:5:"admin";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-1000-000000000000";}','2015-03-11T13:35:32.000000+0100','Ora\\Organization\\Organization','00000000-0000-0000-1000-000000000000');
 INSERT INTO `organizations` (id, name, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id) VALUES
 ('00000000-0000-0000-1000-000000000000', 'O.R.A. Team','2014-11-06 13:11:05','2014-11-06 13:11:05', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000');
-INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
-('907dd600-1e37-4e35-8045-7abfc5f60895',1,'Ora\Organization\OrganizationCreated','a:2:{s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-1000-000000000000";}', '2015-03-06T19:42:58.000000+0100','Ora\Organization\Organization','00000000-0000-0000-1000-000000000000'),
-('dbc7ecb0-63b5-40c9-8ae4-09c06449a4ce',2,'Ora\Organization\OrganizationUpdated','a:3:{s:4:"name";s:11:"O.R.A. Team";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-1000-000000000000";}','2015-03-06T19:42:58.000000+0100','Ora\Organization\Organization','80323f33-92ac-496b-9411-c0e39d581454');
-
-
 INSERT INTO organization_members(member_id, organization_id, role, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id) VALUES
-#('4763751d-9039-44b9-a5ec-b47411b3a805', '00000000-0000-0000-1000-000000000000', 'admin', '2014-10-09 11:33:45', '2014-10-09 11:33:45', '4763751d-9039-44b9-a5ec-b47411b3a805', '4763751d-9039-44b9-a5ec-b47411b3a805');
 ('60000000-0000-0000-0000-000000000000', '00000000-0000-0000-1000-000000000000', 'admin', '2014-10-09 11:33:45', '2014-10-09 11:33:45', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000');
 
-
-insert into accounts(id, organization_id, createdAt, mostRecentEditAt, balance_value, balance_date, createdBy_id, mostRecentEditBy_id, type) values
-('dcde992b-5aa9-4447-98ae-c8115906dcb7', '00000000-0000-0000-1000-000000000000', '2014-12-09 15:25:18', '2014-12-09 15:25:18', 0, '2014-12-09 15:25:18', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000', 'organizationaccount');
+# organization account
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
 ('44f1b89a-156b-4dbf-b5c9-9a0540460a0b',1,'Ora\\Accounting\\AccountCreated','a:4:{s:7:\"balance\";i:0;s:12:"organization";s:36:"00000000-0000-0000-1000-000000000000";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:\"aggregate_id\";s:36:\"dcde992b-5aa9-4447-98ae-c8115906dcb7\";}','2014-12-29T17:32:07.000000+0100','Ora\\Accounting\\OrganizationAccount','dcde992b-5aa9-4447-98ae-c8115906dcb7'),
 ('0b3f93d2-811f-4a54-a72c-dedcce600a4d',2,'Ora\\Accounting\\HolderAdded','a:5:{s:2:"id";s:36:"60000000-0000-0000-0000-000000000000";s:9:"firstname";s:4:"Mark";s:8:"lastname";s:6:"Rogers";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"dcde992b-5aa9-4447-98ae-c8115906dcb7";}','2015-03-09T17:34:52.000000+0100','Ora\\Accounting\\OrganizationAccount','dcde992b-5aa9-4447-98ae-c8115906dcb7');
+insert into accounts(id, organization_id, createdAt, mostRecentEditAt, balance_value, balance_date, createdBy_id, mostRecentEditBy_id, type) values
+('dcde992b-5aa9-4447-98ae-c8115906dcb7', '00000000-0000-0000-1000-000000000000', '2014-12-09 15:25:18', '2014-12-09 15:25:18', 0, '2014-12-09 15:25:18', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000', 'organizationaccount');
 
+# streams 00000000-1000-0000-0000-000000000000
+INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
+('fac7de07-0580-421c-94ca-21842f676a33',1,'Ora\\StreamManagement\\StreamCreated','a:3:{s:14:"organizationId";s:36:"00000000-0000-0000-1000-000000000000";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-1000-0000-0000-000000000000";}','2015-03-11T01:43:03.000000+0100','Ora\\StreamManagement\\Stream','00000000-1000-0000-0000-000000000000'),
+('4a0385c4-780b-46b2-b8be-7fd0118be87d',2,'Ora\\StreamManagement\\StreamUpdated','a:3:{s:7:"subject";N;s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-1000-0000-0000-000000000000";}','2015-03-11T01:43:03.000000+0100','Ora\\StreamManagement\\Stream','00000000-1000-0000-0000-000000000000');
 INSERT INTO streams (id, subject, createdAt, mostRecentEditAt, organization_id, createdBy_id, mostRecentEditBy_id) VALUES ('00000000-1000-0000-0000-000000000000', 'O.R.A.: Organization Resource Aggregator','2014-11-06 13:11:05','2014-11-06 13:11:05', '00000000-0000-0000-1000-000000000000', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000');
 INSERT INTO streams (id, subject, createdAt, mostRecentEditAt, organization_id, createdBy_id, mostRecentEditBy_id) VALUES ('00000000-1100-0000-0000-000000000000', 'Open Goverance','2014-11-06 13:11:05','2014-11-06 13:11:05', '00000000-0000-0000-1000-000000000000', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000');
 

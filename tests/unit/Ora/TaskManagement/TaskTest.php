@@ -4,7 +4,7 @@ namespace Ora\TaskManagement;
 use Ora\StreamManagement\Stream;
 use Rhumsaa\Uuid\Uuid;
 use Ora\User\User;
-use Ora\ReadModel\Organization as ReadModelOrganization;
+use Ora\Organization\Organization;
 
 class TaskTest extends \PHPUnit_Framework_TestCase {
 	
@@ -35,8 +35,8 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	
 	protected function setUp() {
 		$this->taskCreator = User::create();
-		$this->organization = new ReadModelOrganization(Uuid::fromString('00000000-1000-0000-0000-000000000022'), new \DateTime(), $this->taskCreator);	
-		$this->stream = new Stream(Uuid::fromString('00000000-1000-0000-0000-000000000002'), $this->taskCreator, $this->organization);
+		$organization = Organization::create('Pellentesque lorem ligula, auctor ac', $this->taskCreator);
+		$this->stream = Stream::create($organization, 'Curabitur rhoncus mattis massa vel', $this->taskCreator);
 		$this->task = Task::create($this->stream, 'test', $this->taskCreator);
 
 	}
@@ -224,7 +224,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(0.08, $this->task->getMembers()[$user2->getId()]['share']);
 	}
 	
-	public function testEveryMemberAssignSharesWithASkip() {
+	public function testOneMemberSkipSharesAssignment() {
 		$user1 = User::create();
 		$user2 = User::create();
 	
@@ -256,6 +256,30 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(0.28, $this->task->getMembers()[$this->taskCreator->getId()]['share']);
 		$this->assertEquals(0.58, $this->task->getMembers()[$user1->getId()]['share']);
 		$this->assertEquals(0.14, $this->task->getMembers()[$user2->getId()]['share']);
+	}
+	
+	public function testAllMembersSkipSharesAssignment() {
+		$user1 = User::create();
+		$user2 = User::create();
+		
+		$this->task->addMember($user1, $user1);
+		$this->task->addMember($user2, $user2);
+		
+		$this->task->complete($this->taskCreator);
+		
+		$this->task->addEstimation(1000, $user1);
+		$this->task->addEstimation(2500, $user2);
+		$this->task->addEstimation(3200, $this->taskCreator);
+		
+		$this->task->accept($this->taskCreator);
+		
+		$this->task->skipShares($this->taskCreator);
+		$this->task->skipShares($user1);
+		$this->task->skipShares($user2);
+		
+		$this->assertArrayNotHasKey('share', $this->task->getMembers()[$this->taskCreator->getId()]);
+		$this->assertArrayNotHasKey('share', $this->task->getMembers()[$user1->getId()]);
+		$this->assertArrayNotHasKey('share', $this->task->getMembers()[$user2->getId()]);
 	}
 	
 	public function testLastUserShareAssignement() {
@@ -290,41 +314,65 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
 	}
 	
-// 	public function testGetMembersCredits() {
-// 		$user1 = User::create();
-// 		$user2 = User::create();
+	public function testGetMembersCredits() {
+		$user1 = User::create();
+		$user2 = User::create();
 		
-// 		$this->task->addMember($user1, $user1);
-// 		$this->task->addMember($user2, $user2);
+		$this->task->addMember($user1, $user1);
+		$this->task->addMember($user2, $user2);
 		
-// 		$this->task->complete($this->taskCreator);
+		$this->task->complete($this->taskCreator);
 		
-// 		$this->task->addEstimation(1000, $user1);
-// 		$this->task->addEstimation(2500, $user2);
-// 		$this->task->addEstimation(3200, $this->taskCreator);
+		$this->task->addEstimation(1000, $user1);
+		$this->task->addEstimation(2500, $user2);
+		$this->task->addEstimation(3200, $this->taskCreator);
 		
-// 		$this->task->accept($this->taskCreator);
+		$this->task->accept($this->taskCreator);
 		
-// 		$this->task->assignShares([
-// 			$this->taskCreator->getId() => 0.4,
-// 			$user1->getId()				=> 0.4,
-// 			$user2->getId()				=> 0.2
-// 		], $this->taskCreator);
+		$this->task->assignShares([
+			$this->taskCreator->getId() => 0.4,
+			$user1->getId()				=> 0.4,
+			$user2->getId()				=> 0.2
+		], $this->taskCreator);
 		
-// 		$this->task->assignShares([
-// 			$this->taskCreator->getId() => 0.33,
-// 			$user1->getId()				=> 0.18,
-// 			$user2->getId()				=> 0.49
-// 		], $user1);
+		$this->task->assignShares([
+			$this->taskCreator->getId() => 0.33,
+			$user1->getId()				=> 0.18,
+			$user2->getId()				=> 0.49
+		], $user1);
 		
-// 		$this->task->assignShares([
-// 			$this->taskCreator->getId() => 0.23,
-// 			$user1->getId()				=> 0.54,
-// 			$user2->getId()				=> 0.23
-// 		], $user2);
+		$this->task->assignShares([
+			$this->taskCreator->getId() => 0.23,
+			$user1->getId()				=> 0.54,
+			$user2->getId()				=> 0.23
+		], $user2);
 		
-// 		$this->assertEquals(714.67, $this->task->getMembersCredits()[$this->taskCreator->getId()]);
-// 		$this->assertEquals(833,70, $this->task->getMembersCredits()[$user1->getId()]);
-// 		$this->assertEquals(684,96, $this->task->getMembersCredits()[$user2->getId()]);
-// 	}
+		$this->assertEquals(714.67, $this->task->getMembersCredits()[$this->taskCreator->getId()]);
+		$this->assertEquals(833.70, $this->task->getMembersCredits()[$user1->getId()]);
+		$this->assertEquals(684.96, $this->task->getMembersCredits()[$user2->getId()]);
+	}
+
+	public function testGetMembersCreditsWhenEverybodySkip() {
+		$user1 = User::create();
+		$user2 = User::create();
+		
+		$this->task->addMember($user1, $user1);
+		$this->task->addMember($user2, $user2);
+		
+		$this->task->complete($this->taskCreator);
+		
+		$this->task->addEstimation(1000, $user1);
+		$this->task->addEstimation(2500, $user2);
+		$this->task->addEstimation(3200, $this->taskCreator);
+		
+		$this->task->accept($this->taskCreator);
+		
+		$this->task->skipShares($this->taskCreator);
+		$this->task->skipShares($user1);
+		$this->task->skipShares($user2);
+		
+		$this->assertEquals(0, $this->task->getMembersCredits()[$this->taskCreator->getId()]);
+		$this->assertEquals(0, $this->task->getMembersCredits()[$user1->getId()]);
+		$this->assertEquals(0, $this->task->getMembersCredits()[$user2->getId()]);
+	}
 }

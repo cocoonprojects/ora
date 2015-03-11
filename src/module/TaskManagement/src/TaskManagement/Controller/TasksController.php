@@ -1,19 +1,16 @@
 <?php
-
 namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Ora\TaskManagement\TaskService;
-use Ora\StreamManagement\StreamService;
-use Ora\User\User;
-use Ora\StreamManagement\Stream;
+use Zend\Authentication\AuthenticationServiceInterface;
 use Ora\IllegalStateException;
 use Ora\InvalidArgumentException;
+use Ora\TaskManagement\TaskService;
+use Ora\TaskManagement\Task;
+use Ora\StreamManagement\StreamService;
 use Zend\Authentication\AuthenticationServiceInterface;
 use TaskManagement\View\TaskJsonModel;
-use Ora\TaskManagement\Task;
 use BjyAuthorize\Service\Authorize;
-
 
 class TasksController extends AbstractHATEOASRestfulController
 {
@@ -89,15 +86,15 @@ class TasksController extends AbstractHATEOASRestfulController
             return $this->response;
         }   
 		
-    	$loggedUser = $this->identity()['user'];    	
-    	if(is_null($loggedUser))
+    	$identity = $this->identity();    	
+    	if(is_null($identity))
     	{
     		$this->response->setStatusCode(401);
     		return $this->response;
     	}
-
-    	$stream = $this->streamService->getStream($data['streamID']);
-    	
+    	$identity = $this->identity()['user'];
+    	       
+        $stream = $this->streamService->getStream($data['streamID']);
         if(is_null($stream)) {
         	// Stream Not Found
         	$this->response->setStatusCode(404);
@@ -115,13 +112,10 @@ class TasksController extends AbstractHATEOASRestfulController
 	        return $this->response;
 	    }
 	        
-	    $createdBy = $loggedUser;
-	    $task = $this->taskService->createTask($stream, $data['subject'], $createdBy);
-	    // Task Created
-	     
-	    $this->response->setStatusCode(201);
+	    $task = $this->taskService->createTask($stream, $data['subject'], $identity);
 	    $url = $this->url()->fromRoute('tasks', array('id' => $task->getId()->toString()));
 	    $this->response->getHeaders()->addHeaderLine('Location', $url);
+	    $this->response->setStatusCode(201);
 	    
     	return $this->response;
     }

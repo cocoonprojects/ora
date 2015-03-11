@@ -2,15 +2,43 @@
 
 namespace Ora\Organization;
 
+use Zend\EventManager\EventManagerAwareInterface;
 use Ora\User\User;
 use Ora\ReadModel\Organization as OrganizationReadModel;
+use Ora\ReadModel\OrganizationMembership;
 
-interface OrganizationService
+interface OrganizationService extends EventManagerAwareInterface
 {	
+	/**
+	 * 
+	 * @param string $name
+	 * @param User $createdBy
+	 * @return Organization
+	 */
+	public function createOrganization($name, User $createdBy);
+	/**
+	 * 
+	 * @param string $id
+	 * @return Organization
+	 */
+	public function getOrganization($id);
+	/**
+	 * 
+	 * @param string $id
+	 * @return OrganizationReadModel
+	 */
 	public function findOrganization($id);
-	
-	public function findUserOrganizationMembership(User $user);
-
-	public function findOrganizationMembership(OrganizationReadModel $organization);
+	/**
+	 * 
+	 * @param User $user
+	 * @return OrganizationMembership[]
+	 */
+	public function findUserOrganizationMemberships(User $user);
+	/**
+	 * 
+	 * @param OrganizationReadModel $organization
+	 * @return OrganizationMembership[]
+	 */
+	public function findOrganizationMemberships(OrganizationReadModel $organization);
 	
 }

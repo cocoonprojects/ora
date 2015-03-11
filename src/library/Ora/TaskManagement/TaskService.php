@@ -14,6 +14,8 @@ interface TaskService
 	
 	public function getTask($id);
 	
+	public function getTaskOrganization(Task $task);
+	
 	public function findTasks();
 	
 	public function findTask($id);

@@ -13,7 +13,7 @@ class OrganizationAccount extends Account {
 		throw new \Exception('Unsupported creation method. Use \'createOrganizationAccount\'');
 	}
 	
-	public static function createOrganizationAccount(User $createdBy, Organization $organization) {
+	public static function createOrganizationAccount(Organization $organization, User $createdBy) {
 		$rv = new self();
 		// At creation time the balance is 0
 		$rv->recordThat(AccountCreated::occur(Uuid::uuid4()->toString(), array(

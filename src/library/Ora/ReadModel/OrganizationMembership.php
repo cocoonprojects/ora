@@ -58,25 +58,16 @@ class OrganizationMembership
      */
     protected $mostRecentEditBy;
 	
-	public function __construct(User $member, Organization $organization)
+	public function __construct(User $user, Organization $organization)
 	{
-		$this->member = $member;
+		$this->member = $user;
 		$this->organization = $organization;
 	}		
 
 	public function setRole($role)
 	{
 		$this->role = $role;
-	}
-		
-	public function setMember(User $member)
-	{
-		$this->member = $member;
-	}
-	
-	public function setOrganization(Organization $organization)
-	{
-		$this->organization = $organization;
+		return $this;
 	}
 		
 	public function getRole()
@@ -100,7 +91,7 @@ class OrganizationMembership
 	
 	public function setCreatedAt(\DateTime $when) {
 		$this->createdAt = $when;
-		return $this->createdAt;
+		return $this;
 	}
 	
     public function getCreatedBy() {
@@ -109,7 +100,7 @@ class OrganizationMembership
     
     public function setCreatedBy(User $user) {
     	$this->createdBy = $user;
-    	return $this->createdBy;
+    	return $this;
     }
 
     public function getMostRecentEditAt() {
@@ -118,7 +109,7 @@ class OrganizationMembership
     
 	public function setMostRecentEditAt(\DateTime $when) {
 		$this->mostRecentEditAt = $when;
-		return $this->mostRecentEditAt;
+		return $this;
 	}
 	
     public function getMostRecentEditBy() {
@@ -127,7 +118,7 @@ class OrganizationMembership
     
     public function setMostRecentEditBy(User $user) {
     	$this->mostRecentEditBy = $user;
-    	return $this->mostRecentEditBy;
+    	return $this;
     }
 
 }

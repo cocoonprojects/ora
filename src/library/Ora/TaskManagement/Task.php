@@ -1,23 +1,16 @@
 <?php
-
 namespace Ora\TaskManagement;
 
+use Rhumsaa\Uuid\Uuid;
 use Ora\IllegalStateException;
+use Ora\InvalidArgumentException;
 use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
-use Ora\StreamManagement\Stream;
-use Ora\User\User;
 use Ora\DomainEntity;
-use Rhumsaa\Uuid\Uuid;
-use Ora\ReadModel\Estimation;
-use Ora\ReadModel\TaskMember;
-use Ora\InvalidArgumentException;
-/**
- * 
- * @author Giannotti Fabio
- *
- */
-class Task extends DomainEntity implements \Serializable
+use Ora\User\User;
+use Ora\StreamManagement\Stream;
+
+class Task extends DomainEntity
 {	
     CONST STATUS_IDEA = 0;
     CONST STATUS_OPEN = 10;
@@ -29,6 +22,8 @@ class Task extends DomainEntity implements \Serializable
     
     CONST ROLE_MEMBER = 'member';
     CONST ROLE_OWNER  = 'owner';
+    
+    CONST NOT_ESTIMATED = -1;
     
     /**
 	 * 
@@ -54,10 +49,8 @@ class Task extends DomainEntity implements \Serializable
 
 	public static function create(Stream $stream, $subject, User $createdBy, array $options = null) {
 		$rv = new self();
-		$rv->id = Uuid::uuid4();
-		$rv->status = self::STATUS_ONGOING;
-		$rv->recordThat(TaskCreated::occur($rv->id->toString(), array(
-				'status' => $rv->status,
+		$rv->recordThat(TaskCreated::occur(Uuid::uuid4()->toString(), array(
+				'status' => self::STATUS_ONGOING,
 				'by' => $createdBy->getId(),
 		)));
 		$rv->setSubject($subject, $createdBy);
@@ -132,6 +125,7 @@ class Task extends DomainEntity implements \Serializable
 			'subject' => $s,
 			'by' => $updatedBy->getId(),
 		)));
+		return $this;
 	}
 	
 	public function changeStream(Stream $stream, User $updatedBy) {
@@ -146,6 +140,7 @@ class Task extends DomainEntity implements \Serializable
 			$payload['prevStreamId'] = $this->streamId->toString();
 		}
 		$this->recordThat(StreamChanged::occur($this->id->toString(), $payload));
+		return $this;
 	}
 		
 	public function getStreamId() {
@@ -241,9 +236,7 @@ class Task extends DomainEntity implements \Serializable
 		if ($this->isSharesAssignmentCompleted()) {
 			$this->recordThat(TaskClosed::occur($this->id->toString(), array(
 					'by' => $member->getId(),
-			)));
-		/** TODO: As soon as an event queue is available this piece of code must be part of a component listening to TaskCompleted event */
-			
+			)));			
 		}
 
 	}
@@ -282,7 +275,7 @@ class Task extends DomainEntity implements \Serializable
 			switch ($estimation) {
 				case null:
 					break;
-				case Estimation::NOT_ESTIMATED:
+				case self::NOT_ESTIMATED:
 					$notEstimationCount++;
 					break;
 				default:
@@ -292,7 +285,7 @@ class Task extends DomainEntity implements \Serializable
 		}
 		$membersCount = count($this->members);
 		if($notEstimationCount == $membersCount) {
-			return Estimation::NOT_ESTIMATED;
+			return self::NOT_ESTIMATED;
 		}
 		if(($estimationsCount + $notEstimationCount) == $membersCount || $estimationsCount > 2) {
 			return round($tot / $estimationsCount, 2);
@@ -319,27 +312,21 @@ class Task extends DomainEntity implements \Serializable
 	}
 	
 	public function getMembersCredits() {
+		$credits = $this->getAverageEstimation();
+		switch ($credits) {
+			case null :
+				return null;
+			case self::NOT_ESTIMATED :
+				$credits = 0;
+		}
 		
+		$rv = array();
+		foreach ($this->members as $id => $info) {
+			$rv[$id] = isset($info['share']) ? round($credits * $info['share'], 2) : 0;
+		}
+		return $rv;
 	}
 	
-	public function serialize()
-	{
-		$data = array(
-			'id' => $this->id->toString(),
-			'subject' => $this->subject,
-			'status' => $this->status,
-		);
-	    return serialize($data); 
-	}
-	
-	public function unserialize($encodedData)
-	{
-	    $data = unserialize($encodedData);
-	    $this->id = Uuid::fromString($data['id']);
-	    $this->subject = $data['subject'];
-	    $this->status = $data['status'];
-	}
-		
 	protected function whenTaskCreated(TaskCreated $event)
 	{
 		$this->id = Uuid::fromString($event->aggregateId());

@@ -9,9 +9,8 @@ use TaskManagement\Controller\MembersController;
 use TaskManagement\Controller\TasksController;
 use TaskManagement\Controller\TransitionsController;
 use TaskManagement\Controller\EstimationsController;
-use TaskManagement\Service\TaskListener;
 use TaskManagement\Controller\SharesController;
-
+use TaskManagement\Controller\StreamsController;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {    
@@ -21,12 +20,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 		$eventManager = $application->getEventManager();
 		$serviceManager = $application->getServiceManager();
 	
-		$entityManager = $serviceManager->get('doctrine.entitymanager.orm_default');
-		$eventStore = $serviceManager->get('prooph.event_store');
-		$kanbanizeService = $serviceManager->get('TaskManagement\KanbanizeService');
-		$taskListener = new TaskListener($entityManager);
-		$taskListener->setKanbanizeService($kanbanizeService);
-		$taskListener->attach($eventStore);
+		$serviceManager->get('TaskManagement\TaskCommandsOberver');
+		$serviceManager->get('TaskManagement\StreamCommandsOberver');
 	}
 		
 	public function getConfig()
@@ -53,7 +48,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
         return array(
             'invokables' => array(
 	            'TaskManagement\Controller\Index' => 'TaskManagement\Controller\IndexController',
-	            'TaskManagement\Controller\Streams' => 'TaskManagement\Controller\StreamsController',        		
             ),
             'factories' => array(
 	            'TaskManagement\Controller\Tasks' => function ($sm) {
@@ -88,9 +82,18 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             	'TaskManagement\Controller\Shares' => function ($sm) {
             		$locator = $sm->getServiceLocator();
             		$taskService = $locator->get('TaskManagement\TaskService');
+            		$accountService = $locator->get('Accounting\CreditsAccountsService');
             		$controller = new SharesController($taskService);
+            		$controller->setAccountService($accountService);
             		return $controller;
-            	}
+            	},
+            	'TaskManagement\Controller\Streams' => function ($sm) {
+            		$locator = $sm->getServiceLocator();
+            		$streamService = $locator->get('TaskManagement\StreamService');
+            		$organizationService = $locator->get('User\OrganizationService');
+            		$controller = new StreamsController($streamService, $organizationService);
+            		return $controller;
+              	}
             )
         );        
     } 
@@ -153,6 +156,9 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$loggedUser = $authService->getIdentity()['user'];
 					return $loggedUser;
 	        	},	
+				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
+            	'TaskManagement\TaskCommandsOberver' => 'TaskManagement\Service\TaskCommandsObserverFactory',
+            	'TaskManagement\StreamCommandsOberver' => 'TaskManagement\Service\StreamCommandsObserverFactory',
             ),
 		);
     }

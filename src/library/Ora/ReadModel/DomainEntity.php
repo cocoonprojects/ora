@@ -19,7 +19,7 @@ class DomainEntity {
 	
 	/**
 	 * @ORM\Column(type="datetime")
-	 * @var DateTime
+	 * @var \DateTime
 	 */
 	protected $createdAt;
 	
@@ -32,30 +32,50 @@ class DomainEntity {
     public function __construct($id) {
     	$this->id = $id;
     }
-	
+	/**
+	 * @return string
+	 */
 	public function getId() {
 		return $this->id;
 	}
-	
+	/**
+	 * 
+	 * @return \DateTime
+	 */
 	public function getCreatedAt() {
 		return $this->createdAt;
 	}
-	
+	/**
+	 * 
+	 * @param \DateTime $when
+	 * @return \Ora\ReadModel\DomainEntity
+	 */
 	public function setCreatedAt(\DateTime $when) {
 		$this->createdAt = $when;
-		return $this->createdAt;
+		return $this;
 	}
-	
+	/**
+	 * 
+	 * @return User
+	 */
     public function getCreatedBy()
     {
         return $this->createdBy;
     }
-    
+    /**
+     * 
+     * @param User $user
+     * @return \Ora\ReadModel\DomainEntity
+     */
     public function setCreatedBy(User $user) {
     	$this->createdBy = $user;
-    	return $this->createdBy;
+    	return $this;
     }
-
+	/**
+	 * 
+	 * @param DomainEntity $object
+	 * @return boolean
+	 */
     public function equals(DomainEntity $object = null) {
 		if(is_null($object)) {
 			return false;

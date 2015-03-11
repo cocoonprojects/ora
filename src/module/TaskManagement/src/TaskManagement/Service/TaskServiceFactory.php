@@ -1,5 +1,4 @@
 <?php
-
 namespace TaskManagement\Service;
 
 use Zend\ServiceManager\FactoryInterface;
@@ -21,8 +20,10 @@ class TaskServiceFactory implements FactoryInterface
 	    {
 			$eventStore = $serviceLocator->get('prooph.event_store');
 			$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-			
-			self::$instance = new EventSourcingTaskService($eventStore, $entityManager);            
+            $service = new EventSourcingTaskService($eventStore, $entityManager);
+			$streamService = $serviceLocator->get('TaskManagement\StreamService');
+            $service->setStreamService($streamService);
+            self::$instance = $service;
         }
 	    return self::$instance;
 	}

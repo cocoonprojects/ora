@@ -124,7 +124,7 @@ class TaskMember {
 	
 	public function setCreatedAt(\DateTime $when) {
 		$this->createdAt = $when;
-		return $this->createdAt;
+		return $this;
 	}
 	
     public function getCreatedBy() {
@@ -133,7 +133,7 @@ class TaskMember {
     
     public function setCreatedBy(User $user) {
     	$this->createdBy = $user;
-    	return $this->createdBy;
+    	return $this;
     }
 
     public function getMostRecentEditAt() {
@@ -142,7 +142,7 @@ class TaskMember {
     
 	public function setMostRecentEditAt(\DateTime $when) {
 		$this->mostRecentEditAt = $when;
-		return $this->mostRecentEditAt;
+		return $this;
 	}
 	
     public function getMostRecentEditBy() {
@@ -151,7 +151,7 @@ class TaskMember {
     
     public function setMostRecentEditBy(User $user) {
     	$this->mostRecentEditBy = $user;
-    	return $this->mostRecentEditBy;
+    	return $this;
     }
 
     public function assignShare(TaskMember $valued, $value, \DateTime $when) {

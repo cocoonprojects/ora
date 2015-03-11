@@ -19,10 +19,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 		$eventManager = $application->getEventManager();
 		$serviceManager = $application->getServiceManager();
 	
-		$entityManager = $serviceManager->get('doctrine.entitymanager.orm_default');
-		$eventStore = $serviceManager->get('prooph.event_store');
-		$accountListener = new AccountListener($entityManager);
-		$accountListener->attach($eventStore);
+		$serviceManager->get('Accounting\CreditsAccountsService');
+		$serviceManager->get('Accounting\AccountCommandsObserver');
 	}
 		
 	public function getConfig()
@@ -79,7 +77,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 		return array (
 			'factories' => array (
 				'Accounting\CreditsAccountsService' => 'Accounting\Service\AccountServiceFactory',
-     		),
+				'Accounting\AccountCommandsObserver' => 'Accounting\Service\AccountCommandsObserverFactory',
+			),
      	);
 	}
 

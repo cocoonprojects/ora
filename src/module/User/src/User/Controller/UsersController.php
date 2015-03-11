@@ -3,8 +3,6 @@
 namespace User\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Zend\View\Model\JsonModel;
-use Zend\View\Model\ViewModel;
 
 class UsersController extends AbstractHATEOASRestfulController
 {
