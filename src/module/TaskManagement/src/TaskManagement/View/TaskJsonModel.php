@@ -39,20 +39,26 @@ class TaskJsonModel extends JsonModel
 	{
 		$resource = $this->getVariable('resource');
 	
-        if(is_array($resource)) {
+		try{
+			if(is_array($resource)) {
 			$representation['tasks'] = [];
-			foreach ($resource as $r) {
-				$representation['tasks'][] = $this->serializeOne($r);
-
-				if ($this->authorize->isAllowed($r->getStream(), 'TaskManagement.Task.create')) { 
-					$representation['_links']['create'] = $this->url->fromRoute('tasks');
+				foreach ($resource as $r) {
+					$representation['tasks'][] = $this->serializeOne($r);
+	
+					if ($this->authorize->isAllowed($r->getStream(), 'TaskManagement.Task.create')) { 
+						$representation['_links']['create'] = $this->url->fromRoute('tasks');
+					}
+	
 				}
-
+			} else {
+				$representation = $this->serializeOne($resource);
 			}
-		} else {
-			$representation = $this->serializeOne($resource);
+			return Json::encode($representation);
+			
+		}catch(\Exception $ex){
+			var_dump($ex->getMessage());die();
 		}
-		return Json::encode($representation);
+        
 		
 	}
 
