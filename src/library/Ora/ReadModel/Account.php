@@ -20,7 +20,7 @@ class Account extends EditableEntity {
 	 */
 	protected $balance;
 	/**
-	 * @ORM\ManyToMany(targetEntity="Ora\User\User", cascade={"PERSIST", "REMOVE"}, indexBy="user_id")
+	 * @ORM\ManyToMany(targetEntity="Ora\User\User", cascade={"PERSIST", "REMOVE"}, indexBy="id")
 	 * @ORM\JoinTable(name="account_holders", joinColumns={@ORM\JoinColumn(name="account_id", referencedColumnName="id", onDelete="CASCADE")},
 	 * 		inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")}
 	 * )
@@ -75,8 +75,6 @@ class Account extends EditableEntity {
 	}
 	
 	public function isHeldBy(User $user) {
-		return $this->holders->exists(function($key, $value) use ($user) {
-			return $user->equals($value);
-		});
+		return $this->holders->containsKey($user->getId());
 	}
 }
