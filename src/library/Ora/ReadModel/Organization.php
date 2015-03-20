@@ -22,5 +22,6 @@ class Organization extends EditableEntity
 	
 	public function setName($name) {
 		$this->name = $name;
+		return $this;
 	}		
 } 
