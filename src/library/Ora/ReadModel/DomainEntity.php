@@ -9,7 +9,7 @@ use Ora\User\User;
  * @author andreabandera
  *
  */
-class DomainEntity {
+abstract class DomainEntity {
 	
 	/**
 	 * @ORM\Id @ORM\Column(type="string") 
