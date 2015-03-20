@@ -60,7 +60,7 @@ class Stream extends DomainEntity
 	
 	protected function whenStreamCreated(StreamCreated $event) {
 		$this->id = Uuid::fromString($event->aggregateId());
-		$this->organizationId = $event->payload()['organizationId'];
+		$this->organizationId = Uuid::fromString($event->payload()['organizationId']);
 	}
 	
 	protected function whenStreamUpdated(StreamUpdated $event) {
@@ -70,6 +70,6 @@ class Stream extends DomainEntity
 	}
 	
 	protected function whenOrganizationChanged(OrganizationChanged $event) {
-		$this->organizationId = $event->payload()['organizationId'];
+		$this->organizationId = Uuid::fromString($event->payload()['organizationId']);
 	}
 }
