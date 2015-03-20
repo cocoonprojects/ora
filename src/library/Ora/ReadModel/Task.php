@@ -179,7 +179,7 @@ class Task extends EditableEntity implements ResourceInterface
     public function resetShares() {
     	foreach ($this->members as $member) {
     		$member->resetShares();
-    		$member->setShare(null);
+    		$member->setShare(null, new \DateTime());
     	}
     }
     
