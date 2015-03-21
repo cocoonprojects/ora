@@ -3,7 +3,6 @@ namespace TaskManagement\Service;
 
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
-
 use Ora\TaskManagement\EventSourcingTaskService;
 use Ora\TaskManagement\TaskService;
 
@@ -21,8 +20,6 @@ class TaskServiceFactory implements FactoryInterface
 			$eventStore = $serviceLocator->get('prooph.event_store');
 			$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
             $service = new EventSourcingTaskService($eventStore, $entityManager);
-			$streamService = $serviceLocator->get('TaskManagement\StreamService');
-            $service->setStreamService($streamService);
             self::$instance = $service;
         }
 	    return self::$instance;

@@ -21,7 +21,6 @@ class TaskOwnerAndOngoingOrAcceptedTaskAssertion implements AssertionInterface
     }
     
 	public function assert(Acl $acl, RoleInterface $role = null, ResourceInterface $resource = null, $privilege = null){
-		
 		if(in_array($resource->getStatus(), array(Task::STATUS_ONGOING, Task::STATUS_ACCEPTED))) {
 
 			if($this->loggedUser instanceof User){
@@ -35,6 +34,6 @@ class TaskOwnerAndOngoingOrAcceptedTaskAssertion implements AssertionInterface
 				}	
     		}
 		}
-    	return false;    	
+		return false;    	
     }    
 }

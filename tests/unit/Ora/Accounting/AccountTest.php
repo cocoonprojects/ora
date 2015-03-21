@@ -36,4 +36,59 @@ class AccountTest extends \PHPUnit_Framework_TestCase {
 		$account->deposit(100, $this->holder, null);
 		$this->assertEquals(100, $account->getBalance()->getValue());
 	}
+	
+	/**
+	 * @expectedException Ora\Accounting\IllegalAmountException
+	 */
+	public function testDepositWithNegativeAmount() {
+		$account = Account::create($this->holder);
+		$account->deposit(-100, $this->holder, null);
+		$this->assertEquals(0, $account->getBalance()->getValue());
+	}
+	
+	public function testTransferIn() {
+		$payee = Account::create($this->holder);
+		
+		$user = new User();
+		$payer = Account::create($user);
+		
+		$payee->transferIn(100, $payer, 'Bonifico', $user);
+		$this->assertEquals(100, $payee->getBalance()->getValue());
+	}
+	
+	/**
+	 * @expectedException Ora\Accounting\IllegalAmountException
+	 */
+	public function testTransferInWithNegativeAmount() {
+		$payee = Account::create($this->holder);
+		
+		$user = new User();
+		$payer = Account::create($user);
+		
+		$payee->transferIn(-100, $payer, 'Bonifico', $user);
+		$this->assertEquals(0, $payee->getBalance()->getValue());
+	}
+	
+	public function testTransferOut() {
+		$payer = Account::create($this->holder);
+		
+		$user = new User();
+		$payee = Account::create($user);
+		
+		$payer->transferOut(100, $payee, 'Bonifico', $user);
+		$this->assertEquals(-100, $payer->getBalance()->getValue());
+	}
+
+	/**
+	 * @expectedException Ora\Accounting\IllegalAmountException
+	 */
+	public function testTransferOuWithNegativeAmountt() {
+		$payer = Account::create($this->holder);
+		
+		$user = new User();
+		$payee = Account::create($user);
+		
+		$payer->transferOut(-100, $payee, 'Bonifico', $user);
+		$this->assertEquals(0, $payer->getBalance()->getValue());
+	}
 }

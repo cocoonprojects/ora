@@ -12,6 +12,7 @@ use Prooph\EventStore\Stream\SingleStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Ora\User\User;
 use Ora\ReadModel\Organization as OrganizationReadModel;
+use Rhumsaa\Uuid\Uuid;
 
 class EventSourcingOrganizationService extends AggregateRepository implements OrganizationService
 {
@@ -34,16 +35,22 @@ class EventSourcingOrganizationService extends AggregateRepository implements Or
     
 	public function createOrganization($name, User $createdBy) {
 		$this->eventStore->beginTransaction();
-		$org = Organization::create($name, $createdBy);
-		$this->addAggregateRoot($org);
-		$this->eventStore->commit();
+		try {
+			$org = Organization::create($name, $createdBy);
+			$this->addAggregateRoot($org);
+			$this->eventStore->commit();
+		} catch (\Exception $e) {
+			$this->eventStore->rollback();
+			throw $e;
+		}
 		$this->getEventManager()->trigger('OrganizationService.OrganizationCreated', $this, [$org, $createdBy]);
 		return $org;
 	}
 	
     public function getOrganization($id) {
+		$oId = $id instanceof Uuid ? $id->toString() : $id;
     	try {
-    		$rv = $this->getAggregateRoot($this->aggregateType, $id);
+    		$rv = $this->getAggregateRoot($this->aggregateType, $oId);
     		return $rv;
     	} catch (\RuntimeException $e) {
     		return null;

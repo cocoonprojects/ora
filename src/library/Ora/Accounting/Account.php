@@ -6,11 +6,6 @@ use Ora\DomainEntity;
 use Ora\User\User;
 use Ora\DuplicatedDomainEntityException;
 
-/**
- * 
- * @author andreabandera
- *
- */
 class Account extends DomainEntity {
 	
 	/**
@@ -56,6 +51,32 @@ class Account extends DomainEntity {
 		return $this;
 	}
 	
+	public function transferIn($amount, Account $payer, $description, User $by) {
+		if ($amount <= 0) {
+			throw new IllegalAmountException($amount);
+		}
+		$this->recordThat(IncomingCreditsTransferred::occur($this->id->toString(), array(
+				'amount' => $amount,
+				'description' => $description,
+				'payer'	 => $payer->getId()->toString(),
+				'by' => $by->getId(),
+		)));
+		return $this;
+	}
+	
+	public function transferOut($amount, Account $payee, $description, User $by) {
+		if ($amount <= 0) {
+			throw new IllegalAmountException($amount);
+		}
+		$this->recordThat(OutgoingCreditsTransferred::occur($this->id->toString(), array(
+				'amount' => $amount,
+				'description' => $description,
+				'payee'	 => $payee->getId()->toString(),
+				'by' => $by->getId(),
+		)));
+		return $this;
+	}
+	
 	public function addHolder(User $holder, User $by) {
 		if(array_key_exists($holder->getId(), $this->holders)) {
 			throw new DuplicatedDomainEntityException($this, $user);
@@ -85,6 +106,18 @@ class Account extends DomainEntity {
 		$current = $this->getBalance()->getValue();
 		$value = $e->payload()['amount'];
 		$this->balance = new Balance($current + $value, $e->occurredOn());
+	}
+	
+	protected function whenIncomingCreditsTransferred(IncomingCreditsTransferred $e) {
+		$current = $this->getBalance()->getValue();
+		$value = $e->payload()['amount'];
+		$this->balance = new Balance($current + $value, $e->occurredOn());
+	}
+	
+	protected function whenOutgoingCreditsTransferred(OutgoingCreditsTransferred $e) {
+		$current = $this->getBalance()->getValue();
+		$value = $e->payload()['amount'];
+		$this->balance = new Balance($current - $value, $e->occurredOn());
 	}
 	
 }

@@ -10,6 +10,8 @@ use Ora\TaskManagement\Task;
 use Ora\StreamManagement\StreamService;
 use TaskManagement\View\TaskJsonModel;
 use BjyAuthorize\Service\Authorize;
+use Ora\Accounting\AccountService;
+use Ora\User\User;
 
 class TasksController extends AbstractHATEOASRestfulController
 {
@@ -26,6 +28,16 @@ class TasksController extends AbstractHATEOASRestfulController
      * @var StreamService
      */
 	private $streamService;
+	/**
+	 * 
+	 * @var Authorize
+	 */
+	private $authorize;
+	/**
+	 * 
+	 * @var AccountService
+	 */
+	private $accountService;
 	
 	public function __construct(TaskService $taskService, StreamService $streamService, Authorize $authorize)
 	{
@@ -110,13 +122,25 @@ class TasksController extends AbstractHATEOASRestfulController
 	        $this->response->setStatusCode(406);
 	        return $this->response;
 	    }
-	        
-	    $task = $this->taskService->createTask($stream, $data['subject'], $identity);
-	    $url = $this->url()->fromRoute('tasks', array('id' => $task->getId()->toString()));
-	    $this->response->getHeaders()->addHeaderLine('Location', $url);
-	    $this->response->setStatusCode(201);
 	    
-    	return $this->response;
+	    $accountId = $this->getAccountId($identity);
+	     
+	    $this->transaction()->begin();
+	    try {
+	    	$task = Task::create($stream, $data['subject'], $identity);
+	    	$task->addMember($identity, Task::ROLE_OWNER, $accountId);
+	    	$this->taskService->addTask($task);
+	    	$this->transaction()->commit();
+	    	
+		    $url = $this->url()->fromRoute('tasks', array('id' => $task->getId()->toString()));
+		    $this->response->getHeaders()->addHeaderLine('Location', $url);
+		    $this->response->setStatusCode(201);
+	    	return $this->response;
+	    } catch (\Exception $e) {
+	    	$this->transaction()->rollback();
+	        $this->response->setStatusCode(500);
+	        return $this->response;
+	    }
     }
 
     /**
@@ -198,6 +222,15 @@ class TasksController extends AbstractHATEOASRestfulController
       	
         return $this->response;
     }
+    
+    public function setAccountService(AccountService $accountService) {
+    	$this->accountService = $accountService;
+    	return $this;
+    }
+    
+    public function getAccountService() {
+    	return $this->accountService;
+    }
         
     protected function getCollectionOptions()
     {
@@ -209,4 +242,14 @@ class TasksController extends AbstractHATEOASRestfulController
         return self::$resourceOptions;
     }   
     
+    protected function getAccountId(User $user) {
+    	if(is_null($this->accountService)){
+    		return null;
+    	}
+    	$account = $this->accountService->findPersonalAccount($user);
+    	if(is_null($account)) {
+    		return null;
+    	}
+    	return $account->getId();
+    }
 }

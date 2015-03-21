@@ -15,7 +15,7 @@ Scenario: Successfully creating a task into a stream and with a subject
 	And that I want to make a new "Task"
 	And that its "subject" is "My First Task"
 	And that its "streamID" is "00000000-1000-0000-0000-000000000000"
-	When I request "/task-management/tasks"                                     
+	When I request "/task-management/tasks"
 	Then the response status code should be 201
 	And the header "Location" should be "/task-management/tasks/[0-9a-z\-]+"
 	

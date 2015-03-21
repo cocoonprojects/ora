@@ -7,6 +7,8 @@ use Ora\ReadModel\Account;
 use Ora\ReadModel\OrganizationAccount;
 use Ora\ReadModel\Deposit;
 use Application\Service\CommandsObserver;
+use Ora\ReadModel\IncomingTransfer;
+use Ora\ReadModel\OutgoingTransfer;
 
 class AccountCommandsObserver extends CommandsObserver {
 	
@@ -62,6 +64,62 @@ class AccountCommandsObserver extends CommandsObserver {
 		$this->entityManager->persist($entity);
 	}
 
+	protected function onIncomingCreditsTransferred(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$entity = $this->entityManager->find('Ora\\ReadModel\\Account', $id);
+		
+		$payerId = $event->payload()['payer'];
+		$payer = $this->entityManager->find('Ora\\ReadModel\\Account', $payerId);
+		
+		$amount = $event->payload()['amount'];
+
+		$createdBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+
+		$transaction = new IncomingTransfer($event->eventId());
+		$transaction->setAccount($entity)
+			->setPayer($payer)
+			->setAmount($amount)
+			->setBalance($entity->getBalance()->getValue() + $amount)
+			->setDescription($event->payload()['description'])
+			->setCreatedAt($event->occurredOn())
+			->setCreatedBy($createdBy);
+		$entity->addTransaction($transaction);
+		
+		$balance = new Balance($transaction->getBalance(), $event->occurredOn());
+		$entity->setBalance($balance);
+		$entity->setMostRecentEditAt($event->occurredOn());
+		$entity->setMostRecentEditBy($createdBy);
+		$this->entityManager->persist($entity);
+	}
+	
+	protected function onOutgoingCreditsTransferred(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$entity = $this->entityManager->find('Ora\ReadModel\Account', $id);
+		
+		$payeeId = $event->payload()['payee'];
+		$payee = $this->entityManager->find('Ora\ReadModel\Account', $payeeId);
+		
+		$amount = $event->payload()['amount'];
+
+		$createdBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+
+		$transaction = new OutgoingTransfer($event->eventId());
+		$transaction->setAccount($entity)
+			->setPayee($payee)
+			->setAmount($amount)
+			->setBalance($entity->getBalance()->getValue() - $amount)
+			->setDescription($event->payload()['description'])
+			->setCreatedAt($event->occurredOn())
+			->setCreatedBy($createdBy);
+		$entity->addTransaction($transaction);
+		
+		$balance = new Balance($transaction->getBalance(), $event->occurredOn());
+		$entity->setBalance($balance);
+		$entity->setMostRecentEditAt($event->occurredOn());
+		$entity->setMostRecentEditBy($createdBy);
+		$this->entityManager->persist($entity);
+	}
+	
 	protected function getPackage() {
 		return 'Ora\\Accounting\\';
 	}

@@ -33,33 +33,40 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	
 	public function createPersonalAccount(User $holder) {
 		$this->eventStore->beginTransaction();
-		$account = Account::create($holder);
-		$this->addAggregateRoot($account);
-		$this->eventStore->commit();
+		try {
+			$account = Account::create($holder);
+			$this->addAggregateRoot($account);
+			$this->eventStore->commit();
+		} catch (\Exception $e) {
+			$this->eventStore->rollback();
+			throw $e;
+		}
 		return $account;
 	}
 	
 	public function createOrganizationAccount(User $holder, Organization $organization) {
 		$this->eventStore->beginTransaction();
-		$account = OrganizationAccount::createOrganizationAccount($organization, $holder);
-		$this->addAggregateRoot($account);
-		$this->eventStore->commit();
+		try {
+			$account = OrganizationAccount::createOrganizationAccount($organization, $holder);
+			$this->addAggregateRoot($account);
+			$this->eventStore->commit();
+		} catch (\Exception $e) {
+			$this->eventStore->rollback();
+			throw $e;
+		}
 		return $account;
 	}
 	
 	public function getAccount($id) {
-		return $this->getAggregateRoot($this->aggregateRootType, $id);
+		$aId = $id instanceof Uuid ? $id->toString() : $id;
+		try {
+			$rv = $this->getAggregateRoot($this->aggregateRootType, $aId);
+	    	return $rv;
+    	} catch (\RuntimeException $e) {
+    		return null;
+    	}
 	}
 	
-	public function transfer(Account $source, Account $destination, $value, \DateTime $when) {
-		try {
-			$source->withdraw($value, $when);
-			$destination->deposit($value, $when);
-		} catch (Exception $e) {
-			
-		}
-	}
-
 	public function findAccounts(User $holder) {
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('a')
@@ -75,7 +82,18 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 		return $this->entityManager->getRepository('Ora\ReadModel\Account')->find($id);
 	}
 	
+	public function findPersonalAccount(User $user) {
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('a')
+			->from('Ora\ReadModel\Account', 'a')
+			->where($builder->expr()->andX(':user MEMBER OF a.holders', 'a.organization IS NULL'))
+			->setParameter('user', $user)
+			->getQuery();
+		return $query->getSingleResult();
+	}
+	
 	public function observe(OrganizationService $organizationService) {
+		// TODO: usare i Listener di Zend
 		$organizationService->getEventManager()->attach('OrganizationService.OrganizationCreated', array($this, 'onOrganizationCreated'));
 	}
 	

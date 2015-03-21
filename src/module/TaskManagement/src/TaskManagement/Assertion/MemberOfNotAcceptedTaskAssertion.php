@@ -1,7 +1,6 @@
 <?php
 
-namespace TaskManagement\Service;
-
+namespace TaskManagement\Assertion;
 
 use Zend\Permissions\Acl\Acl;
 use Zend\Permissions\Acl\Resource\ResourceInterface;
@@ -10,7 +9,7 @@ use Zend\Permissions\Acl\Assertion\AssertionInterface;
 use Ora\User\User;
 use Ora\ReadModel\Task;
 
-class TaskMemberAndOngoingTaskAssertion implements AssertionInterface
+class MemberOfNotAcceptedTaskAssertion implements AssertionInterface
 {
     private $loggedUser;
     
@@ -20,7 +19,7 @@ class TaskMemberAndOngoingTaskAssertion implements AssertionInterface
     
 	public function assert(Acl $acl, RoleInterface $role = null, ResourceInterface $resource = null, $privilege = null){
 		
-		if($resource->getStatus() == Task::STATUS_ONGOING){
+		if($resource->getStatus() < Task::STATUS_ACCEPTED){
 			
 			if($this->loggedUser instanceof User){
 			

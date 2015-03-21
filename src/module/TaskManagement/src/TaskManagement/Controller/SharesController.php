@@ -9,10 +9,9 @@ use Zend\Validator\Between;
 use ZendExtension\Mvc\View\ErrorJsonModel;
 use Ora\InvalidArgumentException;
 use Ora\IllegalStateException;
-use Ora\TaskManagement\TaskService;
 use Ora\DomainEntityUnavailableException;
+use Ora\TaskManagement\TaskService;
 use Ora\TaskManagement\Task;
-use Ora\Accounting\AccountService;
 use Ora\StreamManagement\StreamService;
 
 class SharesController extends AbstractHATEOASRestfulController {
@@ -25,11 +24,6 @@ class SharesController extends AbstractHATEOASRestfulController {
 	 * @var TaskService
 	 */
 	protected $taskService;
-	/**
-	 * 
-	 * @var AccountService
-	 */
-	protected $accountService;
 	
 	public function __construct(TaskService $taskService) {
 		$this->taskService = $taskService;
@@ -54,7 +48,6 @@ class SharesController extends AbstractHATEOASRestfulController {
 			$this->transaction()->begin();
 			try {
 				$task->skipShares($identity);
-				$this->onTaskClosed($task);
 				$this->transaction()->commit();
 				$this->response->setStatusCode(201);
 				return $this->response;
@@ -63,6 +56,8 @@ class SharesController extends AbstractHATEOASRestfulController {
 				$this->response->setStatusCode(403);
 				return $this->response;
 			} catch (IllegalStateException $e) {
+				$error->setCode(412);
+				$error->setDescription($e->getMessage());
 				$this->transaction()->rollback();
 				$this->response->setStatusCode(412);
 				return $this->response;
@@ -95,7 +90,6 @@ class SharesController extends AbstractHATEOASRestfulController {
 		$this->transaction()->begin();
 		try {
 			$task->assignShares($data, $identity);
-			$this->onTaskClosed($task);
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
 			return $this->response;
@@ -108,6 +102,8 @@ class SharesController extends AbstractHATEOASRestfulController {
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(403);
 		} catch (IllegalStateException $e) {
+			$error->setCode(412);
+			$error->setDescription($e->getMessage());
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(412);
 		}
@@ -118,15 +114,6 @@ class SharesController extends AbstractHATEOASRestfulController {
 		return $this->taskService;
 	}
 	
-	public function setAccountService(AccountService $accountService) {
-		$this->accountService = $accountService;
-		return $this;
-	}
-	
-	public function getAccountService() {
-		return $this->accountService;
-	}
-	
 	protected function getCollectionOptions()
 	{
 		return self::$collectionOptions;
@@ -135,18 +122,5 @@ class SharesController extends AbstractHATEOASRestfulController {
 	protected function getResourceOptions()
 	{
 		return self::$resourceOptions;
-	}
-	/** TODO: As soon as an event queue is available this piece of code must be part of a component listening to TaskClosed event */
-	private function onTaskClosed(Task $task) {
-		if($task->getStatus() != Task::STATUS_CLOSED) {
-			return;
-		}
-		if(is_null($this->accountService)) {
-			return;
-		}
-		$credits = $task->getMembersCredits();
-		$organizationId = $this->taskService->getTaskOrganization($task);
-		
-		$this->accountService->transfer($source, $destination, $value, $when);
 	}
 }

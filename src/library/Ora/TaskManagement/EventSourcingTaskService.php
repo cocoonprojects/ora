@@ -2,6 +2,10 @@
 
 namespace Ora\TaskManagement;
 
+use Zend\EventManager\EventManagerAwareInterface;
+use Zend\EventManager\EventManagerInterface;
+use Zend\EventManager\EventManager;
+use Zend\EventManager\Event;
 use Doctrine\ORM\EntityManager;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Aggregate\AggregateRepository;
@@ -10,9 +14,9 @@ use Prooph\EventStore\Stream\MappedSuperclassStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Ora\User\User;
 use Ora\StreamManagement\Stream;
-use Ora\StreamManagement\StreamService;
+use Rhumsaa\Uuid\Uuid;
 
-class EventSourcingTaskService extends AggregateRepository implements TaskService
+class EventSourcingTaskService extends AggregateRepository implements TaskService, EventManagerAwareInterface
 {
 	/**
 	 * 
@@ -26,9 +30,9 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	private $aggregateRootType;
 	/**
 	 * 
-	 * @var StreamService
+	 * @var EventManagerInterface
 	 */
-	private $streamService;
+	private $events;
     
     public function __construct(EventStore $eventStore, EntityManager $entityManager)
     {
@@ -37,12 +41,10 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		$this->entityManager = $entityManager;	
 	}
 	
-	public function createTask(Stream $stream, $subject, User $createdBy)
+	public function addTask(Task $task)
 	{			
-		$this->eventStore->beginTransaction();
-	    $task = Task::create($stream, $subject, $createdBy);
-	    $this->addAggregateRoot($task);
-		$this->eventStore->commit();
+	    $task->setEventManager($this->getEventManager());
+		$this->addAggregateRoot($task);
 		return $task;
 	}
 	
@@ -51,20 +53,16 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 */
 	public function getTask($id)
 	{
+		$tId = $id instanceof Uuid ? $id->toString() : $id;
 		try {
-			$task = $this->getAggregateRoot($this->aggregateRootType, $id);
+			$task = $this->getAggregateRoot($this->aggregateRootType, $tId);
+			$task->setEventManager($this->getEventManager());
 		    return $task;
         } catch (\RuntimeException $e) {
         	return null;
         }
 	}
 	
-	public function getTaskOrganization(Task $task) {
-		$streamId = $task->getStreamId();
-		$stream = $this->streamService->getStream($streamId);
-		$organizationId = $stream->getOrganizationId();
-		
-	}
 	/**
 	 * Get the list of all available tasks 
 	 */
@@ -78,19 +76,24 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		return $this->entityManager->find('Ora\ReadModel\Task', $id);
 	}
 	
-	public function findStreamTasks($streamId)
-	{	
+	public function findStreamTasks($streamId) {	
 		$repository = $this->entityManager->getRepository('Ora\ReadModel\Task')->findBy(array('stream' => $streamId));
 	    return $repository;
-
 	}
 	
-	public function setStreamService(StreamService $streamService) {
-		$this->streamService = $streamService;
-		return $this;
+	public function setEventManager(EventManagerInterface $events) {
+		$events->setIdentifiers(array(
+			__CLASS__,
+			get_class($this)
+		));
+		$this->events = $events;
 	}
 	
-	public function getStreamService() {
-		return $this->streamService;
+	public function getEventManager()
+	{
+		if (!$this->events) {
+			$this->setEventManager(new EventManager());
+		}
+		return $this->events;
 	}
 }
