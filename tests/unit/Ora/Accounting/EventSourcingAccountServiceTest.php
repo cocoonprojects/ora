@@ -2,13 +2,11 @@
 namespace Ora\Accounting;
 
 use Prooph\EventStoreTest\TestCase;
-use Prooph\EventStore\Stream\SingleStreamStrategy;
-use Ora\User\User;
-use Prooph\EventStoreTest\Stream\SingleStreamStrategyTest;
 use Prooph\EventStore\Stream\Stream;
 use Prooph\EventStore\Stream\StreamName;
-use Ora\Organization\Organization;
 use Rhumsaa\Uuid\Uuid;
+use Ora\User\User;
+use Ora\Organization\Organization;
 
 class EventSourcingAccountServiceTest extends TestCase
 {
@@ -23,7 +21,6 @@ class EventSourcingAccountServiceTest extends TestCase
 	protected function setUp() {
 		parent::setUp();
 		$entityManager = $this->getMock('\Doctrine\ORM\EntityManager', array('getRepository', 'getClassMetadata', 'persist', 'flush'), array(), '', false);
-		$eventStoreStrategy = new SingleStreamStrategy($this->eventStore);
 		$this->eventStore->beginTransaction();
 		$this->eventStore->create(new Stream(new StreamName('event_stream'), array()));
 		$this->eventStore->commit();
@@ -32,15 +29,14 @@ class EventSourcingAccountServiceTest extends TestCase
 	}
 	
 	public function testCreatePersonalAccount() {
-		$holder = $this->user;
-		$account = $this->accountService->createPersonalAccount($holder);
+		$account = $this->accountService->createPersonalAccount($this->user);
 		$this->assertInstanceOf('Ora\Accounting\Account', $account);
 		$this->assertAttributeInstanceOf('Rhumsaa\Uuid\Uuid', 'id', $account);
 	}
 	
 	public function testCreateOrganizationAccount() {
 		$holder = $this->user;
-		$organization = new Organization(Uuid::uuid4(), $holder);
+		$organization = Organization::create('Test', $holder);
 		$account = $this->accountService->createOrganizationAccount($holder, $organization);
 		$this->assertInstanceOf('Ora\Accounting\OrganizationAccount', $account);
 		$this->assertAttributeInstanceOf('Rhumsaa\Uuid\Uuid', 'id', $account);
@@ -50,7 +46,7 @@ class EventSourcingAccountServiceTest extends TestCase
 	
 	public function testDeposit() {
 		$holder = $this->user;
-		$organization = new Organization(Uuid::uuid4(), $holder);
+		$organization = Organization::create('Test', $holder);
 		$account = $this->accountService->createOrganizationAccount($holder, $organization);
 		$balance = $account->getBalance()->getValue();
 		$this->eventStore->beginTransaction();

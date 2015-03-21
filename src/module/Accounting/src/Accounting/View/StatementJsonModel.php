@@ -76,7 +76,6 @@ class StatementJsonModel extends JsonModel
     	}
     	switch ($action) {
     		case 'statement':
-    			$user = $this->user;
     			if($account instanceof OrganizationAccount && $this->user->isMemberOf($account->getOrganization())) {
     				return true;
     			}

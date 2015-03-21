@@ -44,4 +44,9 @@ return array(
             __DIR__.'/../config/autoload/{,*.}{global,'.$env.',local}.php',
         ),
     ),
+		
+	'listeners' => array(
+		'TaskManagement\TransferTaskSharesCreditsListener',
+		'TaskManagement\CloseTaskListener',
+	),
 );

@@ -9,9 +9,9 @@ use Ora\IllegalStateException;
 use Ora\DomainEntityUnavailableException;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\NotEmpty;
-use Zend\I18n\Validator\Float;
 use Zend\Validator\GreaterThan;
 use Zend\Validator\Identical;
+use Zend\I18n\Validator\Float;
 
 /**
  * EstimationController

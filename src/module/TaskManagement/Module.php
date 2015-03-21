@@ -5,13 +5,15 @@ namespace TaskManagement;
 use Zend\Mvc\MvcEvent;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
+use Zend\EventManager\Event;
 use TaskManagement\Controller\MembersController;
 use TaskManagement\Controller\TasksController;
 use TaskManagement\Controller\TransitionsController;
 use TaskManagement\Controller\EstimationsController;
-use TaskManagement\Service\TaskListener;
 use TaskManagement\Controller\SharesController;
-
+use TaskManagement\Controller\StreamsController;
+use TaskManagement\Assertion\MemberOfNotAcceptedTaskAssertion;
+use TaskManagement\Service\TransferTaskSharesCreditsListener;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {    
@@ -20,13 +22,9 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 		$application = $e->getApplication();
 		$eventManager = $application->getEventManager();
 		$serviceManager = $application->getServiceManager();
-	
-		$entityManager = $serviceManager->get('doctrine.entitymanager.orm_default');
-		$eventStore = $serviceManager->get('prooph.event_store');
-		$kanbanizeService = $serviceManager->get('TaskManagement\KanbanizeService');
-		$taskListener = new TaskListener($entityManager);
-		$taskListener->setKanbanizeService($kanbanizeService);
-		$taskListener->attach($eventStore);
+		
+		$serviceManager->get('TaskManagement\TaskCommandsOberver');
+		$serviceManager->get('TaskManagement\StreamCommandsOberver');
 	}
 		
 	public function getConfig()
@@ -53,7 +51,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
         return array(
             'invokables' => array(
 	            'TaskManagement\Controller\Index' => 'TaskManagement\Controller\IndexController',
-	            'TaskManagement\Controller\Streams' => 'TaskManagement\Controller\StreamsController',        		
             ),
             'factories' => array(
 	            'TaskManagement\Controller\Tasks' => function ($sm) {
@@ -61,14 +58,17 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 	            	$taskService = $locator->get('TaskManagement\TaskService');
 	            	$streamService = $locator->get('TaskManagement\StreamService');
 	            	$authorize = $locator->get('BjyAuthorize\Service\Authorize');
+	            	$accountService = $locator->get('Accounting\CreditsAccountsService');
 	            	$controller = new TasksController($taskService, $streamService, $authorize);
+	            	$controller->setAccountService($accountService);
 	            	return $controller;
 	            },
 	            'TaskManagement\Controller\Members' => function ($sm) {
             		$locator = $sm->getServiceLocator();
-            		$taskService = $locator->get('TaskManagement\TaskService');            		
+            		$taskService = $locator->get('TaskManagement\TaskService');
+            		$accountService = $locator->get('Accounting\CreditsAccountsService');
             		$controller = new MembersController($taskService);
-
+					$controller->setAccountService($accountService);
             		return $controller;
             	},
             	'TaskManagement\Controller\Transitions' => function ($sm) {
@@ -90,7 +90,14 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             		$taskService = $locator->get('TaskManagement\TaskService');
             		$controller = new SharesController($taskService);
             		return $controller;
-            	}
+            	},
+            	'TaskManagement\Controller\Streams' => function ($sm) {
+            		$locator = $sm->getServiceLocator();
+            		$streamService = $locator->get('TaskManagement\StreamService');
+            		$organizationService = $locator->get('User\OrganizationService');
+            		$controller = new StreamsController($streamService, $organizationService);
+            		return $controller;
+              	}
             )
         );        
     } 
@@ -98,7 +105,10 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
     public function getServiceConfig()
     {
         return array (
-            'factories' => array (
+            'invokables' => array(
+	            'TaskManagement\CloseTaskListener' => 'TaskManagement\Service\CloseTaskListener',
+            ),
+        	'factories' => array (
                 'TaskManagement\StreamService' => 'TaskManagement\Service\StreamServiceFactory',
             	'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',
 				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
@@ -108,10 +118,10 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$loggedUser = $authService->getIdentity()['user'];							
 					return new Service\MemberOfOrganizationAssertion($loggedUser);					
 			    },
-				'TaskManagement\TaskMemberAndOngoingTaskAssertion' =>  function($sl){			        
+				'TaskManagement\MemberOfNotAcceptedTaskAssertion' =>  function($sl){			        
         			$authService = $sl->get('Zend\Authentication\AuthenticationService');
 					$loggedUser = $authService->getIdentity()['user'];							
-					return new Service\TaskMemberAndOngoingTaskAssertion($loggedUser);
+					return new MemberOfNotAcceptedTaskAssertion($loggedUser);
 				},
 				'TaskManagement\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion' =>  function($sl){			        
         			$authService = $sl->get('Zend\Authentication\AuthenticationService');
@@ -153,6 +163,18 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$loggedUser = $authService->getIdentity()['user'];
 					return $loggedUser;
 	        	},	
+				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
+            	'TaskManagement\TaskCommandsOberver' => 'TaskManagement\Service\TaskCommandsObserverFactory',
+            	'TaskManagement\StreamCommandsOberver' => 'TaskManagement\Service\StreamCommandsObserverFactory',
+            	'TaskManagement\TransferTaskSharesCreditsListener' => function ($locator) {
+            		$taskService = $locator->get('TaskManagement\TaskService');            		
+            		$streamService = $locator->get('TaskManagement\StreamService');
+            		$organizationService = $locator->get('User\OrganizationService');
+            		$accountService = $locator->get('Accounting\CreditsAccountsService');
+            		$eventStore = $locator->get('prooph.event_store');
+            		$rv = new TransferTaskSharesCreditsListener($taskService, $streamService, $organizationService, $accountService, $eventStore);
+            		return $rv;         		
+            	},
             ),
 		);
     }

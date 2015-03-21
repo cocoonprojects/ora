@@ -76,8 +76,11 @@ return array(
                     array(
                     	array('user'), 
                     	'Ora\Stream', 
-                    	array('TaskManagement.Task.create', 'TaskManagement.Task.showDetails'), 
-                    	'TaskManagement\MemberOfOrganizationAssertion'),
+                    	array('TaskManagement.Task.create')),
+                	array(
+                    	array('user'), 
+                    	'Ora\Task', 
+                    	array('TaskManagement.Task.showDetails')), 
 					array(
                     	array('user'), 
                     	'Ora\Task', 
@@ -87,7 +90,7 @@ return array(
                     	array('user'), 
                     	'Ora\Task', 
                     	array('TaskManagement.Task.estimate'), 
-                    	'TaskManagement\TaskMemberAndOngoingTaskAssertion'),
+                    	'TaskManagement\MemberOfNotAcceptedTaskAssertion'),
                     array(
                     	array('user'), 
                     	'Ora\Task', 

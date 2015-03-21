@@ -59,15 +59,15 @@ class TaskJsonModel extends JsonModel
 		
 		$links = [];
 		
-		if($this->authorize->isAllowed($task->getStream(), 'TaskManagement.Task.showDetails') === true){
+		if($this->authorize->isAllowed($task, 'TaskManagement.Task.showDetails')){
 			$links['self'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);	
 		}
 		
-		if($this->authorize->isAllowed($task, 'TaskManagement.Task.edit') === true){
+		if($this->authorize->isAllowed($task, 'TaskManagement.Task.edit')){
 			$links['edit'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);
 		}
 		
-		if($this->authorize->isAllowed($task, 'TaskManagement.Task.delete') === true){					
+		if($this->authorize->isAllowed($task, 'TaskManagement.Task.delete')){					
 			$links['delete'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);
 		}		
 		

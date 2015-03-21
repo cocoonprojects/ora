@@ -24,11 +24,15 @@ class DepositsController extends AbstractHATEOASRestfulController
 	}
 	
 	public function invoke($id, $data) {
+		if(!isset($data['amount'])) {
+			$this->response->setStatusCode(400);
+			return $this->response;
+		}
 		$amount = $data['amount'];
 		$amountValidator = new ValidatorChain();
 		$amountValidator->attach(new NotEmpty())
 						->attach(new Float())
-						->attach(new GreaterThan(['min' => 0, 'inclusive' => true]));
+						->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
 		if(!$amountValidator->isValid($amount)) {
 			$this->response->setStatusCode(400);
 			return $this->response;
@@ -40,7 +44,7 @@ class DepositsController extends AbstractHATEOASRestfulController
 			return $this->response;
 		}
 		
-		$description = isset($data['description']) ? $data['description'] : null;
+		$description = isset($data['description']) ? trim($data['description']) : null;
 		
         $account = $this->accountService->getAccount($id);
         if(is_null($account)) {
@@ -66,6 +70,10 @@ class DepositsController extends AbstractHATEOASRestfulController
 		}
 		
 		return $this->response;
+	}
+	
+	public function getAccountService() {
+		return $this->accountService;
 	}
 
 	protected function getCollectionOptions() {

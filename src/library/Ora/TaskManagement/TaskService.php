@@ -6,11 +6,11 @@ use Ora\StreamManagement\Stream;
 use Ora\User\User;
 
 /**
- * @author Giannotti Fabio
+ * TODO: Rename in TaskRepository?
  */
 interface TaskService
 {
-	public function createTask(Stream $stream, $subject, User $createdBy);
+	public function addTask(Task $task);
 	
 	public function getTask($id);
 	

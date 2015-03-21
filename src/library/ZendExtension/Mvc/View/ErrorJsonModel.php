@@ -20,7 +20,7 @@ class ErrorJsonModel extends JsonModel {
 	 */
 	public function setCode($code) {
 		$this->errors['code'] = $code;
-		$this->errors['message'] = self::$ERROR_MESSAGES[$code];
+		$this->errors['message'] = isset(self::$ERROR_MESSAGES[$code]) ? self::$ERROR_MESSAGES[$code] : null;
 		return $this;
 	}
 	/**

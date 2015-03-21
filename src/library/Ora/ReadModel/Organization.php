@@ -11,7 +11,7 @@ use Ora\ReadModel\DomainEntity;
 class Organization extends EditableEntity
 {	    
 	/**
-	 * @ORM\Column(type="string")
+	 * @ORM\Column(type="string", nullable=true)
 	 * @var string
 	 */
 	private $name;
@@ -22,5 +22,6 @@ class Organization extends EditableEntity
 	
 	public function setName($name) {
 		$this->name = $name;
+		return $this;
 	}		
 } 

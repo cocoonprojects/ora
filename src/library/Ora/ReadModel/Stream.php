@@ -14,7 +14,7 @@ use Zend\Permissions\Acl\Resource\ResourceInterface;
 class Stream extends EditableEntity implements ResourceInterface
 {	    
 	/**
-	 * @ORM\Column(type="string")
+	 * @ORM\Column(type="string", nullable=true)
 	 * @var string
 	 */
 	private $subject;
@@ -39,7 +39,7 @@ class Stream extends EditableEntity implements ResourceInterface
 	
 	public function setOrganization(Organization $organization) {
 		$this->organization = $organization;
-		return $this->organization;
+		return $this;
 	}	
 	
 	public function getResourceId(){

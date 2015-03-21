@@ -34,6 +34,7 @@ class EventSourcingUserService extends AggregateRepository implements UserServic
 		$user = $this->create($infoOfUser, User::ROLE_USER);
 		$this->entityManager->persist($user);			
 		$this->entityManager->flush($user);
+		// TODO: Account creation should fire at UserCreated event
 		if(!is_null($this->accountService)) {
 			$this->accountService->createPersonalAccount($user);
 		}
