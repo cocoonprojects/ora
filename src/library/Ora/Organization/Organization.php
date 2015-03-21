@@ -73,7 +73,7 @@ class Organization extends DomainEntity
 		if (array_key_exists($user->getId(), $this->members)) {
 			throw new DuplicatedDomainEntityException($this, $user);
 		}
-        $this->recordThat(MemberAdded::occur($this->id->toString(), array(
+		$this->recordThat(MemberAdded::occur($this->id->toString(), array(
         	'userId' => $user->getId(),
         	'role' => $role,
         	'by' => $addedBy->getId(),
@@ -83,12 +83,12 @@ class Organization extends DomainEntity
 	public function removeMember(User $member, User $removedBy)
 	{
 		if (!array_key_exists($member->getId(), $this->members)) {
-        	throw new DomainEntityUnavailableException($this, $member); 
+			throw new DomainEntityUnavailableException($this, $member); 
         }
 		$this->recordThat(MemberRemoved::occur($this->id->toString(), array(
 			'userId' => $member->getId(),
         	'by' => $removedBy->getId(),
-        )));
+		)));
 	}
 	
 	public function getMembers() {

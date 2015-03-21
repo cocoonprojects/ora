@@ -14,23 +14,23 @@ use Zend\EventManager\EventManagerInterface;
 
 class Task extends DomainEntity
 {	
-    CONST STATUS_IDEA = 0;
-    CONST STATUS_OPEN = 10;
-    CONST STATUS_ONGOING = 20;
-    CONST STATUS_COMPLETED = 30;
-    CONST STATUS_ACCEPTED = 40;
-    CONST STATUS_CLOSED = 50;
-    CONST STATUS_DELETED = -10;
-    
-    CONST ROLE_MEMBER = 'member';
-    CONST ROLE_OWNER  = 'owner';
-    
-    CONST NOT_ESTIMATED = -1;
-    
-    CONST EVENT_CLOSED = 'Task.Closed';
-    CONST EVENT_SHARES_ASSIGNED = 'Task.SharesAssigned';
-    
-    /**
+	CONST STATUS_IDEA = 0;
+	CONST STATUS_OPEN = 10;
+	CONST STATUS_ONGOING = 20;
+	CONST STATUS_COMPLETED = 30;
+	CONST STATUS_ACCEPTED = 40;
+	CONST STATUS_CLOSED = 50;
+	CONST STATUS_DELETED = -10;
+	
+	CONST ROLE_MEMBER = 'member';
+	CONST ROLE_OWNER  = 'owner';
+	
+	CONST NOT_ESTIMATED = -1;
+	
+	CONST EVENT_CLOSED = 'Task.Closed';
+	CONST EVENT_SHARES_ASSIGNED = 'Task.SharesAssigned';
+	
+	/**
 	 * 
 	 * @var string
 	 */
@@ -74,7 +74,7 @@ class Task extends DomainEntity
 	}
 	
 	public function getStatus() {
-	    return $this->status;
+		return $this->status;
 	}
 	
 	public function execute(User $executedBy) {
@@ -161,7 +161,7 @@ class Task extends DomainEntity
 	}
 		
 	public function getStreamId() {
-	    return $this->streamId;
+		return $this->streamId;
 	}
 	
 	/**
@@ -178,18 +178,18 @@ class Task extends DomainEntity
 		if($this->status >= self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot add a member to a task in '.$this->status.' state');
 		}
-        if (array_key_exists($user->getId(), $this->members)) {
-               throw new DuplicatedDomainEntityException($this, $user); 
-        }
-        
-        $by = is_null($addedBy) ? $user : $addedBy;
+		if (array_key_exists($user->getId(), $this->members)) {
+			   throw new DuplicatedDomainEntityException($this, $user); 
+		}
+		
+		$by = is_null($addedBy) ? $user : $addedBy;
 		
 		$this->recordThat(MemberAdded::occur($this->id->toString(), array(
-        	'userId' => $user->getId(),
+			'userId' => $user->getId(),
 			'accountId' => $accountId,
-        	'role' => $role,
-        	'by' => $by->getId(),
-        )));
+			'role' => $role,
+			'by' => $by->getId(),
+		)));
 		return $this;
 	}
 	
@@ -199,17 +199,17 @@ class Task extends DomainEntity
 			throw new IllegalStateException('Cannot remove a member from a task in '.$this->status.' state');
 		}
 		// TODO: Integrare controllo per cui è possibile effettuare l'UNJOIN
-        // solo nel caso in cui non sia stata ancora effettuata nessuna stima
+		// solo nel caso in cui non sia stata ancora effettuata nessuna stima
 		if (!array_key_exists($member->getId(), $this->members)) {
-        	throw new DomainEntityUnavailableException($this, $member); 
-        }
+			throw new DomainEntityUnavailableException($this, $member); 
+		}
 
-        $by = is_null($removedBy) ? $member : $removedBy;
+		$by = is_null($removedBy) ? $member : $removedBy;
 		
-        $this->recordThat(MemberRemoved::occur($this->id->toString(), array(
+		$this->recordThat(MemberRemoved::occur($this->id->toString(), array(
 			'userId' => $member->getId(),
-        	'by' => $by->getId(),
-        )));
+			'by' => $by->getId(),
+		)));
 	}
 	
 	public function addEstimation($value, User $member) {
@@ -218,13 +218,13 @@ class Task extends DomainEntity
 		}
 		//check if the estimator is a task member
 		if(!array_key_exists($member->getId(), $this->members)) {
-        	throw new DomainEntityUnavailableException($this, $member); 
+			throw new DomainEntityUnavailableException($this, $member); 
 		}
 		// TODO: Estimation need an id?
-        $this->recordThat(EstimationAdded::occur($this->id->toString(), array(
-        	'by' => $member->getId(),
-        	'value'  => $value,
-        )));
+		$this->recordThat(EstimationAdded::occur($this->id->toString(), array(
+			'by' => $member->getId(),
+			'value'	 => $value,
+		)));
 	}
 	/**
 	 * 
@@ -240,7 +240,7 @@ class Task extends DomainEntity
 		}
 		//check if the evaluator is a task member
 		if(!array_key_exists($member->getId(), $this->members)) {
-        	throw new DomainEntityUnavailableException($this, $member); 
+			throw new DomainEntityUnavailableException($this, $member); 
 		}
 		
 		$membersShares = array();
@@ -371,15 +371,15 @@ class Task extends DomainEntity
 		}
 		return true;
 	}
-    
-    public function getMemberRole($user){
-    	$key = $user instanceof User ? $user->getId() : $user;
-    	if(isset($this->members[$key])){
-    		return $this->members[$key]['role'];
-    	}
-    	return null;
-    }
-    
+	
+	public function getMemberRole($user){
+		$key = $user instanceof User ? $user->getId() : $user;
+		if(isset($this->members[$key])){
+			return $this->members[$key]['role'];
+		}
+		return null;
+	}
+	
 	protected function whenTaskCreated(TaskCreated $event)
 	{
 		$this->id = Uuid::fromString($event->aggregateId());
