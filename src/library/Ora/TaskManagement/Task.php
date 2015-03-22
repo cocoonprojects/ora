@@ -288,13 +288,6 @@ class Task extends DomainEntity
 			'by' => $member->getId(),
 		)));
 
-		/** TODO: As soon as an event queue is available this piece of code must be part of a component listening to SharesAssigned event */
-		if ($this->isSharesAssignmentCompleted()) {
-			$this->recordThat(TaskClosed::occur($this->id->toString(), array(
-					'by' => $member->getId(),
-			)));
-		}
-
 		$this->getEventManager()->trigger(Task::EVENT_SHARES_ASSIGNED, $this, ['by' => $member]);
 	}
 	

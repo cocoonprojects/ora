@@ -60,7 +60,7 @@ class SharesController extends AbstractHATEOASRestfulController {
 				$error->setDescription($e->getMessage());
 				$this->transaction()->rollback();
 				$this->response->setStatusCode(412);
-				return $this->response;
+				return $error;
 			}
 		}
 		
