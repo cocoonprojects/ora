@@ -59,10 +59,12 @@ class TransferTaskSharesCreditsListener implements ListenerAggregateInterface {
 // 		$this->transactionManager->beginTransaction();
 		$members = $task->getMembers();
 		foreach ($credits as $memberId => $amount) {
-			$accountId = $members[$memberId]['accountId'];
-			$payee = $this->accountService->getAccount($accountId);
-			$payer->transferOut($amount, $payee, "Item '" . $task->getSubject() . "' (#" . $task->getId() .") credits share", $by);
-			$payee->transferIn($amount, $payer, "Item '" . $task->getSubject() . "' (#" . $task->getId() .") credits share", $by);
+			if($amount > 0) {
+				$accountId = $members[$memberId]['accountId'];
+				$payee = $this->accountService->getAccount($accountId);
+				$payer->transferOut($amount, $payee, "Item '" . $task->getSubject() . "' (#" . $task->getId() .") credits share", $by);
+				$payee->transferIn($amount, $payer, "Item '" . $task->getSubject() . "' (#" . $task->getId() .") credits share", $by);
+			}
 		}
 // 		$this->transactionManager->commit();
 	}
