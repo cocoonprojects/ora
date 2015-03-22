@@ -82,7 +82,7 @@ class Task extends DomainEntity
 			throw new IllegalStateException('Cannot execute a task in '.$this->status.' state');
 		}
 		if(!isset($this->members[$executedBy->getId()]) || $this->members[$executedBy->getId()]['role'] != self::ROLE_OWNER) {
-			throw new InvalidArgumentException('Only the owner of the task can accept it');
+			throw new InvalidArgumentException('Only the owner can put in execution the task');
 		}
 		$this->recordThat(TaskOngoing::occur($this->id->toString(), array(
 				'prevStatus' => $this->getStatus(),
@@ -95,7 +95,7 @@ class Task extends DomainEntity
 			throw new IllegalStateException('Cannot complete a task in '.$this->status.' state');
 		}
 		if(!isset($this->members[$completedBy->getId()]) || $this->members[$completedBy->getId()]['role'] != self::ROLE_OWNER) {
-			throw new InvalidArgumentException('Only the owner of the task can accept it');
+			throw new InvalidArgumentException('Only the owner can mark as completed the task');
 		}
 		$this->recordThat(TaskCompleted::occur($this->id->toString(), array(
 			'prevStatus' => $this->getStatus(),
@@ -111,7 +111,7 @@ class Task extends DomainEntity
 			throw new IllegalStateException('Cannot accept a task with missing estimations by members');
 		}
 		if(!isset($this->members[$acceptedBy->getId()]) || $this->members[$acceptedBy->getId()]['role'] != self::ROLE_OWNER) {
-			throw new InvalidArgumentException('Only the owner of the task can accept it');
+			throw new InvalidArgumentException('Only the owner can accept the task');
 		}
 		$this->recordThat(TaskAccepted::occur($this->id->toString(), array(
 			'prevStatus' => $this->getStatus(),
@@ -123,8 +123,9 @@ class Task extends DomainEntity
 		if($this->status != Task::STATUS_ACCEPTED) {
 			throw new IllegalStateException('Cannot close a task in '.$this->status.' state');
 		}
-		if(!isset($this->members[$closedBy->getId()]) || $this->members[$closedBy->getId()]['role'] != self::ROLE_OWNER) {
-			throw new InvalidArgumentException('Only the owner of the task can accept it');
+		if(!isset($this->members[$closedBy->getId()])) {
+			// Closing isn't restricted to the owner because it is triggered by an event (last share assignement)
+			throw new InvalidArgumentException('Only a member can close the task');
 		}
 		$this->recordThat(TaskClosed::occur($this->id->toString(), array(
 				'by' => $closedBy->getId(),

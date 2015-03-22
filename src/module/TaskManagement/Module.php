@@ -12,8 +12,9 @@ use TaskManagement\Controller\TransitionsController;
 use TaskManagement\Controller\EstimationsController;
 use TaskManagement\Controller\SharesController;
 use TaskManagement\Controller\StreamsController;
-use TaskManagement\Assertion\MemberOfNotAcceptedTaskAssertion;
 use TaskManagement\Service\TransferTaskSharesCreditsListener;
+use TaskManagement\Assertion\MemberOfNotAcceptedTaskAssertion;
+use TaskManagement\Assertion\OwnerOfOpenOrCompletedTaskAssertion;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {    
@@ -138,10 +139,10 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$loggedUser = $authService->getIdentity()['user'];							
 					return new Service\TaskOwnerAndNotCompletedTaskAssertion($loggedUser);
 				},
-        		'TaskManagement\TaskMemberNotOwnerAndOpenOrCompletedTaskAssertion' =>  function($sl){			        
+        		'TaskManagement\OwnerOfOpenOrCompletedTaskAssertion' =>  function($sl){			        
         			$authService = $sl->get('Zend\Authentication\AuthenticationService');
 					$loggedUser = $authService->getIdentity()['user'];							
-					return new Service\TaskMemberNotOwnerAndOpenOrCompletedTaskAssertion($loggedUser);
+					return new OwnerOfOpenOrCompletedTaskAssertion($loggedUser);
 				},
         		'TaskManagement\TaskOwnerAndOngoingOrAcceptedTaskAssertion' =>  function($sl){			        
         			$authService = $sl->get('Zend\Authentication\AuthenticationService');
