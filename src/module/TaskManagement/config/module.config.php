@@ -105,7 +105,7 @@ return array(
                     	array('user'), 
                     	'Ora\Task', 
                     	array('TaskManagement.Task.execute'), 
-                    	'TaskManagement\TaskMemberNotOwnerAndOpenOrCompletedTaskAssertion'),                    
+                    	'TaskManagement\OwnerOfOpenOrCompletedTaskAssertion'),                    
                    array(
                     	array('user'), 
                     	'Ora\Task', 
