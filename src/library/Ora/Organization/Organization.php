@@ -14,6 +14,8 @@ class Organization extends DomainEntity
 {	    
     CONST ROLE_MEMBER = 'member';
     CONST ROLE_ADMIN  = 'admin';
+    
+    CONST EVENT_CREATED = 'Organization.Created';
 	/**
 	 * 
 	 * @var string

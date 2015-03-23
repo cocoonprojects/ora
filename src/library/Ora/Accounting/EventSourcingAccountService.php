@@ -44,7 +44,7 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 		return $account;
 	}
 	
-	public function createOrganizationAccount(User $holder, Organization $organization) {
+	public function createOrganizationAccount(Organization $organization, User $holder) {
 		$this->eventStore->beginTransaction();
 		try {
 			$account = OrganizationAccount::createOrganizationAccount($organization, $holder);
@@ -61,10 +61,10 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 		$aId = $id instanceof Uuid ? $id->toString() : $id;
 		try {
 			$rv = $this->getAggregateRoot($this->aggregateRootType, $aId);
-	    	return $rv;
-    	} catch (\RuntimeException $e) {
-    		return null;
-    	}
+			return $rv;
+		} catch (\RuntimeException $e) {
+			return null;
+		}
 	}
 	
 	public function findAccounts(User $holder) {
@@ -90,15 +90,5 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 			->setParameter('user', $user)
 			->getQuery();
 		return $query->getSingleResult();
-	}
-	
-	public function observe(OrganizationService $organizationService) {
-		// TODO: usare i Listener di Zend
-		$organizationService->getEventManager()->attach('OrganizationService.OrganizationCreated', array($this, 'onOrganizationCreated'));
-	}
-	
-	public function onOrganizationCreated(Event $e) {
-		$params = $e->getParams();
-		$this->createOrganizationAccount($params[1], $params[0]);
 	}
 }

@@ -37,7 +37,7 @@ class EventSourcingAccountServiceTest extends TestCase
 	public function testCreateOrganizationAccount() {
 		$holder = $this->user;
 		$organization = Organization::create('Test', $holder);
-		$account = $this->accountService->createOrganizationAccount($holder, $organization);
+		$account = $this->accountService->createOrganizationAccount($organization, $holder);
 		$this->assertInstanceOf('Ora\Accounting\OrganizationAccount', $account);
 		$this->assertAttributeInstanceOf('Rhumsaa\Uuid\Uuid', 'id', $account);
 		$a = $this->accountService->getAccount($account->getId()->toString());
@@ -47,7 +47,7 @@ class EventSourcingAccountServiceTest extends TestCase
 	public function testDeposit() {
 		$holder = $this->user;
 		$organization = Organization::create('Test', $holder);
-		$account = $this->accountService->createOrganizationAccount($holder, $organization);
+		$account = $this->accountService->createOrganizationAccount($organization, $holder);
 		$balance = $account->getBalance()->getValue();
 		$this->eventStore->beginTransaction();
 		$account->deposit(150, $holder, "My first deposit");
