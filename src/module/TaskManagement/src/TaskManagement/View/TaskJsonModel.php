@@ -40,14 +40,12 @@ class TaskJsonModel extends JsonModel
 		$resource = $this->getVariable('resource');
 	
 		if(is_array($resource)) {
-		$representation['tasks'] = [];
+			$representation['tasks'] = [];
+			if ($this->authorize->isAllowed($r->getStream(), 'TaskManagement.Task.create')) { 
+				$representation['_links']['create'] = $this->url->fromRoute('tasks');
+			}
 			foreach ($resource as $r) {
 				$representation['tasks'][] = $this->serializeOne($r);
-
-				if ($this->authorize->isAllowed($r->getStream(), 'TaskManagement.Task.create')) { 
-					$representation['_links']['create'] = $this->url->fromRoute('tasks');
-				}
-
 			}
 		} else {
 			$representation = $this->serializeOne($resource);
@@ -75,30 +73,30 @@ class TaskJsonModel extends JsonModel
 			$links['join'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']);
 		}
 		
-		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.unjoin')) {      
-    		$links['unjoin'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']); 
-    	}	
-    		
-		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.estimate')) {      
-    		$links['estimate'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'estimations']); 
-    	}
-    	
-    	if ($this->authorize->isAllowed($task, 'TaskManagement.Task.execute')) {
-    		$links['execute'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
-    	}
+		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.unjoin')) {		 
+			$links['unjoin'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']); 
+		}	
+			
+		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.estimate')) {	   
+			$links['estimate'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'estimations']); 
+		}
+		
+		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.execute')) {
+			$links['execute'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
+		}
 
 		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.complete')) {
-    		$links['complete'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
-    	}
-    	
+			$links['complete'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
+		}
+		
 		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.accept')) {
-    		$links['accept'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
-    	}
-    	
+			$links['accept'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
+		}
+		
 		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.assignShares')) {
-    		$links['assignShares'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'shares']);
-    	}
-    	
+			$links['assignShares'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'shares']);
+		}
+		
 		$rv = [
 			'id' => $task->getId (),
 			'subject' => $task->getSubject (),
@@ -125,51 +123,51 @@ class TaskJsonModel extends JsonModel
 		return $rv;
 	}
 	
-    private function getMembersArray(Task $task){
+	private function getMembersArray(Task $task){
 		$members = array();
 		foreach ($task->getMembers() as $tm) {
 			$m = $this->serializeOneMember($tm);
 			$members[$tm->getMember()->getId()] = $m;
 		}
 		return $members;
-    }
-    
-    private function serializeOneMember(TaskMember $tm) {
-    	$member = $tm->getMember();
-    	$rv = [
-    			'firstname' => $member->getFirstname(),
-    			'lastname' => $member->getLastname(),
-    			'picture' => $member->getPicture(),
-    			'role' => $tm->getRole(),
-    			'_links' => [
-    					'self' => $this->url->fromRoute('users', ['id' => $member->getId()]),
-    			],
-    	];
-    	
-    	$rv['estimation'] = $this->getEstimation($tm);
-    	if($this->user->getId() != $member->getId() && isset($rv['estimation'])) {
-    		// others member estimation aren't exposed outside the system
-    		$rv['estimation']['value'] = -2;
-    	}
-    	
-    	if($tm->getShare() != null && $tm->getTask()->getStatus() >= Task::STATUS_CLOSED) {
-    		$rv['share'] = $tm->getShare();
-    		$rv['delta'] = $tm->getDelta();
-    	}
-    	foreach ($tm->getShares() as $key => $share) {
-    		$rv['shares'][$key] = array(
-    			'value' => $share->getValue(),
-    			'createdAt' => date_format($share->getCreatedAt(), 'c'),
-    		);
-    	}
-    	return $rv;
-    }
-    
-    private function getEstimation(TaskMember $tm) {
-    	$estimation = $tm->getEstimation();
-    	return is_null($estimation->getValue()) ? null : [
+	}
+	
+	private function serializeOneMember(TaskMember $tm) {
+		$member = $tm->getMember();
+		$rv = [
+				'firstname' => $member->getFirstname(),
+				'lastname' => $member->getLastname(),
+				'picture' => $member->getPicture(),
+				'role' => $tm->getRole(),
+				'_links' => [
+						'self' => $this->url->fromRoute('users', ['id' => $member->getId()]),
+				],
+		];
+		
+		$rv['estimation'] = $this->getEstimation($tm);
+		if($this->user->getId() != $member->getId() && isset($rv['estimation'])) {
+			// others member estimation aren't exposed outside the system
+			$rv['estimation']['value'] = -2;
+		}
+		
+		if($tm->getShare() != null && $tm->getTask()->getStatus() >= Task::STATUS_CLOSED) {
+			$rv['share'] = $tm->getShare();
+			$rv['delta'] = $tm->getDelta();
+		}
+		foreach ($tm->getShares() as $key => $share) {
+			$rv['shares'][$key] = array(
+				'value' => $share->getValue(),
+				'createdAt' => date_format($share->getCreatedAt(), 'c'),
+			);
+		}
+		return $rv;
+	}
+	
+	private function getEstimation(TaskMember $tm) {
+		$estimation = $tm->getEstimation();
+		return is_null($estimation->getValue()) ? null : [
 			'value' => $estimation->getValue(),
-    		'createdAt' => date_format($estimation->getCreatedAt(), 'c'),
-    	];
-    }    
+			'createdAt' => date_format($estimation->getCreatedAt(), 'c'),
+		];
+	}	 
 }
