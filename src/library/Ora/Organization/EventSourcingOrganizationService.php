@@ -4,6 +4,7 @@ namespace Ora\Organization;
 
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerInterface;
+use Zend\EventManager\EventManagerAwareInterface;
 use Doctrine\ORM\EntityManager;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Aggregate\AggregateRepository;
@@ -14,7 +15,7 @@ use Ora\User\User;
 use Ora\ReadModel\Organization as OrganizationReadModel;
 use Rhumsaa\Uuid\Uuid;
 
-class EventSourcingOrganizationService extends AggregateRepository implements OrganizationService
+class EventSourcingOrganizationService extends AggregateRepository implements OrganizationService, EventManagerAwareInterface
 {
 	/**
 	 * 
@@ -43,7 +44,7 @@ class EventSourcingOrganizationService extends AggregateRepository implements Or
 			$this->eventStore->rollback();
 			throw $e;
 		}
-		$this->getEventManager()->trigger('OrganizationService.OrganizationCreated', $this, [$org, $createdBy]);
+		$this->getEventManager()->trigger(Organization::EVENT_CREATED, $org, ['by' => $createdBy]);
 		return $org;
 	}
 	

@@ -2,12 +2,11 @@
 
 namespace Ora\Organization;
 
-use Zend\EventManager\EventManagerAwareInterface;
 use Ora\User\User;
 use Ora\ReadModel\Organization as OrganizationReadModel;
 use Ora\ReadModel\OrganizationMembership;
 
-interface OrganizationService extends EventManagerAwareInterface
+interface OrganizationService
 {	
 	/**
 	 * 

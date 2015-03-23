@@ -8,7 +8,7 @@ interface AccountService {
 	
 	public function createPersonalAccount(User $holder);
 	
-	public function createOrganizationAccount(User $holder, Organization $organization);	
+	public function createOrganizationAccount(Organization $organization, User $holder);	
 	
 	public function getAccount($id);
 	

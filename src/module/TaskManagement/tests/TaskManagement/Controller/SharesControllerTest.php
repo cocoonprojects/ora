@@ -357,4 +357,22 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     	$this->assertEquals(201, $response->getStatusCode());
     	$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
     }
+
+    public function testSkipSharesAsLast() {
+    	$this->task->accept($this->owner);
+    	$this->task->assignShares([ $this->owner->getId() => 0.4, $this->member->getId() => 0.6 ], $this->member);
+    	$service = $this->controller->getTaskService();
+    	$service->method('getTask')
+    		->willReturn($this->task);
+
+    	$this->routeMatch->setParam('id', $this->task->getId()->toString());
+    	 
+    	$this->request->setMethod('post');
+    	
+    	$result   = $this->controller->dispatch($this->request);
+    	$response = $this->controller->getResponse();
+    	
+    	$this->assertEquals(201, $response->getStatusCode());
+    	$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
+    }
 }
