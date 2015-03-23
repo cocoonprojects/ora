@@ -75,20 +75,20 @@ class AccountTest extends \PHPUnit_Framework_TestCase {
 		$user = new User();
 		$payee = Account::create($user);
 		
-		$payer->transferOut(100, $payee, 'Bonifico', $user);
+		$payer->transferOut(-100, $payee, 'Bonifico', $user);
 		$this->assertEquals(-100, $payer->getBalance()->getValue());
 	}
 
 	/**
 	 * @expectedException Ora\Accounting\IllegalAmountException
 	 */
-	public function testTransferOuWithNegativeAmountt() {
+	public function testTransferOuWithNegativeAmount() {
 		$payer = Account::create($this->holder);
 		
 		$user = new User();
 		$payee = Account::create($user);
 		
-		$payer->transferOut(-100, $payee, 'Bonifico', $user);
+		$payer->transferOut(100, $payee, 'Bonifico', $user);
 		$this->assertEquals(0, $payer->getBalance()->getValue());
 	}
 }

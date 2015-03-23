@@ -21,4 +21,7 @@ class OrganizationAccount extends Account {
 		return $this->organization;
 	}
 	
+	public function getName() {
+		return $this->getOrganization()->getName();
+	}
 }

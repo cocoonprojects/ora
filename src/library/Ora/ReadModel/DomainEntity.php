@@ -25,13 +25,14 @@ abstract class DomainEntity {
 	
 	/**
 	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
-     * @ORM\JoinColumn(name="createdBy_id", referencedColumnName="id", nullable=TRUE)
+	 * @ORM\JoinColumn(name="createdBy_id", referencedColumnName="id", nullable=TRUE)
+	 * @var User
 	 */
 	protected $createdBy;
 	
-    public function __construct($id) {
-    	$this->id = $id;
-    }
+	public function __construct($id) {
+		$this->id = $id;
+	}
 	/**
 	 * @return string
 	 */
@@ -58,25 +59,25 @@ abstract class DomainEntity {
 	 * 
 	 * @return User
 	 */
-    public function getCreatedBy()
-    {
-        return $this->createdBy;
-    }
-    /**
-     * 
-     * @param User $user
-     * @return \Ora\ReadModel\DomainEntity
-     */
-    public function setCreatedBy(User $user) {
-    	$this->createdBy = $user;
-    	return $this;
-    }
+	public function getCreatedBy()
+	{
+		return $this->createdBy;
+	}
+	/**
+	 * 
+	 * @param User $user
+	 * @return \Ora\ReadModel\DomainEntity
+	 */
+	public function setCreatedBy(User $user) {
+		$this->createdBy = $user;
+		return $this;
+	}
 	/**
 	 * 
 	 * @param DomainEntity $object
 	 * @return boolean
 	 */
-    public function equals(DomainEntity $object = null) {
+	public function equals(DomainEntity $object = null) {
 		if(is_null($object)) {
 			return false;
 		}

@@ -22,18 +22,18 @@ use Zend\Permissions\Acl\Resource\ResourceInterface;
 
 class Task extends EditableEntity implements ResourceInterface
 {	
-    CONST STATUS_IDEA = 0;
-    CONST STATUS_OPEN = 10;
-    CONST STATUS_ONGOING = 20;
-    CONST STATUS_COMPLETED = 30;
-    CONST STATUS_ACCEPTED = 40;
-    CONST STATUS_CLOSED = 50;
-    CONST STATUS_DELETED = -10;
-    
-    CONST ROLE_MEMBER = 'member';
-    CONST ROLE_OWNER  = 'owner';
+	CONST STATUS_IDEA = 0;
+	CONST STATUS_OPEN = 10;
+	CONST STATUS_ONGOING = 20;
+	CONST STATUS_COMPLETED = 30;
+	CONST STATUS_ACCEPTED = 40;
+	CONST STATUS_CLOSED = 50;
+	CONST STATUS_DELETED = -10;
+	
+	CONST ROLE_MEMBER = 'member';
+	CONST ROLE_OWNER  = 'owner';
 
-    CONST TYPE = 'task';
+	CONST TYPE = 'task';
 
 	/**
 	 * @ORM\Column(type="string")
@@ -66,7 +66,7 @@ class Task extends EditableEntity implements ResourceInterface
 	}
 	
 	public function getStatus() {
-	    return $this->status;
+		return $this->status;
 	}
 	
 	public function getSubject() {
@@ -78,7 +78,7 @@ class Task extends EditableEntity implements ResourceInterface
 	}
 	
 	public function getStream() {
-	    return $this->stream;
+		return $this->stream;
 	}
 	
 	public function setStream(Stream $stream) {
@@ -91,12 +91,12 @@ class Task extends EditableEntity implements ResourceInterface
 		return $this->status;
 	}
 	
-    public function addMember(User $user, $role, User $by, \DateTime $when) {
-        $taskMember = new TaskMember($this, $user, $role);
-        $taskMember->setCreatedAt($when)
-        	->setCreatedBy($by)
-        	->setMostRecentEditAt($when)
-        	->setMostRecentEditBy($by);
+	public function addMember(User $user, $role, User $by, \DateTime $when) {
+		$taskMember = new TaskMember($this, $user, $role);
+		$taskMember->setCreatedAt($when)
+			->setCreatedBy($by)
+			->setMostRecentEditAt($when)
+			->setMostRecentEditBy($by);
 		$this->members->set($user->getId(), $taskMember);
 		return $this;
 	}
@@ -113,7 +113,7 @@ class Task extends EditableEntity implements ResourceInterface
 		}
 		return $this;
 	}
-    
+	
 	/**
 	 * 
 	 * @param id|User $user
@@ -121,9 +121,9 @@ class Task extends EditableEntity implements ResourceInterface
 	 */
 	public function getMember($user) {
 		$key = $user instanceof User ? $user->getId() : $user;
-    		return $this->members->get($key);
+			return $this->members->get($key);
 	}
-    
+	
 	/**
 	 * 
 	 * @param id|User $user
@@ -134,55 +134,55 @@ class Task extends EditableEntity implements ResourceInterface
 		return $this->members->containsKey($key);
 	}
 
-    	/**
+		/**
 	 * @return TaskMember[]
 	 */
 	public function getMembers() {
-	    return $this->members->toArray();
+		return $this->members->toArray();
 	}
 	
 	public function getType(){
-        	$c = get_called_class();
-        	return $c::TYPE;
+			$c = get_called_class();
+			return $c::TYPE;
 	}
-    
-    /**
-     * TODO: da rimuovere, deve leggere un valore già calcolato. Il calcolo sta nel write model
-     * @return string|number|NULL
-     */
-    public function getAverageEstimation() {
-    	$tot = null;
-    	$estimationsCount = 0;
-    	$notEstimationCount = 0;
-    	foreach ($this->members as $member) {
-    		$estimation = $member->getEstimation()->getValue();
-    		switch ($estimation) {
-    		case null:
-    			break;
-    		case Estimation::NOT_ESTIMATED:
-    			$notEstimationCount++;
-    			break;
-    		default:
-    			$tot += $estimation;
-    			$estimationsCount++;
-    		}
-    	}
-    	if($notEstimationCount == count($this->members)) {
-    		return Estimation::NOT_ESTIMATED;
-    	}
-    	if(($estimationsCount + $notEstimationCount) == count($this->members) || $estimationsCount > 2) {
-    		return round($tot / $estimationsCount, 2);
-    	}
-    	return null;
-    }
-    
-    public function resetShares() {
-    	foreach ($this->members as $member) {
-    		$member->resetShares();
-    		$member->setShare(null, new \DateTime());
-    	}
-    }
-    
+	
+	/**
+	 * TODO: da rimuovere, deve leggere un valore già calcolato. Il calcolo sta nel write model
+	 * @return string|number|NULL
+	 */
+	public function getAverageEstimation() {
+		$tot = null;
+		$estimationsCount = 0;
+		$notEstimationCount = 0;
+		foreach ($this->members as $member) {
+			$estimation = $member->getEstimation()->getValue();
+			switch ($estimation) {
+			case null:
+				break;
+			case Estimation::NOT_ESTIMATED:
+				$notEstimationCount++;
+				break;
+			default:
+				$tot += $estimation;
+				$estimationsCount++;
+			}
+		}
+		if($notEstimationCount == count($this->members)) {
+			return Estimation::NOT_ESTIMATED;
+		}
+		if(($estimationsCount + $notEstimationCount) == count($this->members) || $estimationsCount > 2) {
+			return round($tot / $estimationsCount, 2);
+		}
+		return null;
+	}
+	
+	public function resetShares() {
+		foreach ($this->members as $member) {
+			$member->resetShares();
+			$member->setShare(null, new \DateTime());
+		}
+	}
+	
 	public function updateMembersShare(\DateTime $when) {
 		$shares = $this->getMembersShare();
 		foreach ($shares as $key => $value) {
@@ -212,19 +212,18 @@ class Task extends EditableEntity implements ResourceInterface
 		return $rv;
 	}
 
-    public function getResourceId(){
-    	return "Ora\Task";
-    }
+	public function getResourceId(){
+		return "Ora\Task";
+	}
 	
-    public function getMemberRole($user){
-    	
-    	$memberFound = $this->getMember($user);
+	public function getMemberRole($user){
+		
+		$memberFound = $this->getMember($user);
 
-    	if($memberFound instanceof TaskMember){
-    		return $memberFound->getRole();
-    	}
-    	
-    	return null;
-    }
-
+		if($memberFound instanceof TaskMember){
+			return $memberFound->getRole();
+		}
+		
+		return null;
+	}
 }

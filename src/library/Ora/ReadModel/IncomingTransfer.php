@@ -25,4 +25,8 @@ class IncomingTransfer extends AccountTransaction
 	public function getPayer() {
 		return $this->payer;
 	}
+
+	public function getPayerName() {
+		return $this->payer->getName();
+	}
 }

@@ -36,7 +36,7 @@ class Account extends EditableEntity {
 	
 	/**
 	 * @ORM\OneToOne(targetEntity="Organization")
-	 * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", nullable=true)
+	 * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", nullable=true, onDelete="CASCADE")
 	 * @var Organization
 	 */
 	protected $organization;
@@ -76,5 +76,13 @@ class Account extends EditableEntity {
 	
 	public function isHeldBy(User $user) {
 		return $this->holders->containsKey($user->getId());
+	}
+	
+	public function getName() {
+		if($this->holders->count() > 0) {
+			$holder = $this->holders->first();
+			return $holder->getFirstname() . ' ' . $holder->getLastname(); 
+		}
+		return null;
 	}
 }

@@ -19,20 +19,20 @@ class Estimation {
 	 */
 	protected $createdAt;
 	
-    /**
-     *  @ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
+	/**
+	 *	@ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
 	 */
-    private $value;
-    
-    public function __construct($value, \DateTime $createdAt) {
-    	$this->value = $value;
-    	$this->createdAt = $createdAt;
-    }
-    
-    public function getValue() {
-    	return $this->value;
-    }
-    
+	private $value;
+	
+	public function __construct($value, \DateTime $createdAt) {
+		$this->value = $value;
+		$this->createdAt = $createdAt;
+	}
+	
+	public function getValue() {
+		return $this->value;
+	}
+	
 	public function getCreatedAt() {
 		return $this->createdAt;
 	}
