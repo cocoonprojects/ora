@@ -65,7 +65,7 @@ class Account extends DomainEntity {
 	}
 	
 	public function transferOut($amount, Account $payee, $description, User $by) {
-		if ($amount <= 0) {
+		if ($amount >= 0) {
 			throw new IllegalAmountException($amount);
 		}
 		$this->recordThat(OutgoingCreditsTransferred::occur($this->id->toString(), array(
@@ -117,7 +117,7 @@ class Account extends DomainEntity {
 	protected function whenOutgoingCreditsTransferred(OutgoingCreditsTransferred $e) {
 		$current = $this->getBalance()->getValue();
 		$value = $e->payload()['amount'];
-		$this->balance = new Balance($current - $value, $e->occurredOn());
+		$this->balance = new Balance($current + $value, $e->occurredOn());
 	}
 	
 }

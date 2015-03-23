@@ -8,6 +8,7 @@ use Ora\ReadModel\OrganizationAccount;
 use Zend\Mvc\Controller\Plugin\Url;
 use Ora\ReadModel\AccountTransaction;
 use Ora\User\User;
+use Ora\ReadModel\Deposit;
 
 class StatementJsonModel extends JsonModel
 {
@@ -61,12 +62,17 @@ class StatementJsonModel extends JsonModel
 		$className = get_class($transaction);
 		$rv = array(
 			'date' => date_format($transaction->getCreatedAt(), 'c'),
-			'payer' => $transaction->getCreatedBy()->getFirstname() . ' '. $transaction->getCreatedBy()->getLastname(),
 			'type' => substr($className, strrpos($className, '\\') + 1),
 			'amount' => $transaction->getAmount(),
 			'description' => $transaction->getDescription(),
 			'balance' => $transaction->getBalance(),
 		);
+		if($transaction->getPayeeName() != null) {
+			$rv['payee'] = $transaction->getPayeeName();
+		}
+		if($transaction->getPayerName() != null) {
+			$rv['payer'] = $transaction->getPayerName();
+		}
 		return $rv;
 	}
 	

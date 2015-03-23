@@ -25,4 +25,8 @@ class OutgoingTransfer extends AccountTransaction
 	public function getPayee() {
 		return $this->payee;
 	}
+
+	public function getPayeeName() {
+		return $this->payee->getName();
+	}
 }

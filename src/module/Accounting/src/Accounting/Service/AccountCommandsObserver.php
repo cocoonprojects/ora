@@ -107,7 +107,7 @@ class AccountCommandsObserver extends CommandsObserver {
 		$transaction->setAccount($entity)
 			->setPayee($payee)
 			->setAmount($amount)
-			->setBalance($entity->getBalance()->getValue() - $amount)
+			->setBalance($entity->getBalance()->getValue() + $amount)
 			->setDescription($event->payload()['description'])
 			->setCreatedAt($event->occurredOn())
 			->setCreatedBy($createdBy);

@@ -10,5 +10,7 @@ use Doctrine\ORM\Mapping AS ORM;
  */
 class Deposit extends AccountTransaction
 {
-	
+	public function getPayerName() {
+		return $this->createdBy->getFirstname() . ' ' . $this->createdBy->getLastname();
+	}
 }

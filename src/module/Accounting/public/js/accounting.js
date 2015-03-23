@@ -98,12 +98,6 @@ Accounting.prototype = {
 		{
 			var container = $('#account');
 
-//			if(json.organization != undefined) {
-//				container.find('h2').text(json.organization + ' account');
-//			} else {
-//				container.find('h2').text('My account');
-//			}
-			
 			balanceDate = new Date(Date.parse(json.balance.date));
 			p = container.find('p');
 			p.html('<span class="text-primary">' + json.balance.value + ' credits</span> at ' + balanceDate.toLocaleString());
@@ -122,8 +116,15 @@ Accounting.prototype = {
 			$.each(json.transactions, function(key, transaction) {
 				transactionDate = new Date(Date.parse(transaction.date));
 				if(key == 0) { top.text(transaction.balance); }
-				cssClass = transaction.type == 'Deposit' ? 'text-success' : '';
-				c.append('<tr><td>' + transactionDate.toLocaleString() + '</td><td>' + transaction.description + '</td><td>' + transaction.type + '</td><td class=' + cssClass + '>' + transaction.amount + '</td></tr>');
+				cssClass = transaction.amount < 0 ? 'text-danger' : '';
+				source = '';
+				if(transaction.payer != undefined) {
+					source = 'from ' + transaction.payer;
+				}
+				if(transaction.payee != undefined) {
+					source = 'to ' + transaction.payee;
+				}
+				c.append('<tr><td>' + transactionDate.toLocaleString() + '</td><td>' + transaction.type + ' ' + source + '</td><td>' + transaction.description + '</td><td class=' + cssClass + '>' + transaction.amount + '</td></tr>');
 				bottom.empty();
 				bottom.text(transaction.balance);
 			});

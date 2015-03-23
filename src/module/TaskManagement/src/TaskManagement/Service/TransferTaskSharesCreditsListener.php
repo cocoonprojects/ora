@@ -62,7 +62,7 @@ class TransferTaskSharesCreditsListener implements ListenerAggregateInterface {
 			if($amount > 0) {
 				$accountId = $members[$memberId]['accountId'];
 				$payee = $this->accountService->getAccount($accountId);
-				$payer->transferOut($amount, $payee, "Item '" . $task->getSubject() . "' (#" . $task->getId() .") credits share", $by);
+				$payer->transferOut(-$amount, $payee, "Item '" . $task->getSubject() . "' (#" . $task->getId() .") credits share", $by);
 				$payee->transferIn($amount, $payer, "Item '" . $task->getSubject() . "' (#" . $task->getId() .") credits share", $by);
 			}
 		}
