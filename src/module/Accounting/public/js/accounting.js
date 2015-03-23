@@ -101,11 +101,11 @@ Accounting.prototype = {
 			balanceDate = new Date(Date.parse(json.balance.date));
 			p = container.find('p');
 			p.html('<span class="text-primary">' + json.balance.value + ' credits</span> at ' + balanceDate.toLocaleString());
-			p.append('<ul role="menu" style="margin-left:0; padding-left:0; list-style: none">');
+			var features = '';
 			if(json._links.deposits != undefined) {
-				p.append('<li><a href="#" data-href="' + json._links.deposits + '" class="btn btn-default" data-toggle="modal" data-target="#depositModal">Deposit</a></li>');
+				features += '<li><a href="#" data-href="' + json._links.deposits + '" class="btn btn-default" data-toggle="modal" data-target="#depositModal">Deposit</a></li>';
 			}
-			p.append('</ul>');
+			p.append('<ul role="menu" style="margin-left:0; padding-left:0; list-style: none">' + features + '</ul>');
 
 			c = container.find('tbody').empty();
 			var top = $('#actual-balance');
