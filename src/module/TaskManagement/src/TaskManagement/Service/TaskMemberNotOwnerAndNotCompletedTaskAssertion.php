@@ -13,8 +13,8 @@ class TaskMemberNotOwnerAndNotCompletedTaskAssertion extends NotCompletedTaskAss
 {
     private $loggedUser;
     
-    public function __construct(User $loggedUser = null) {
-        $this->loggedUser  = $loggedUser;
+	public function setLoggedUser($loggedUser = null) {
+    	$this->loggedUser = $loggedUser;
     }
     
 	public function assert(Acl $acl, RoleInterface $role = null, ResourceInterface $resource = null, $privilege = null){
@@ -22,9 +22,9 @@ class TaskMemberNotOwnerAndNotCompletedTaskAssertion extends NotCompletedTaskAss
 		if(parent::assert($acl, $role, $resource, $privilege)){
 			
 			if($this->loggedUser instanceof User){
-				
+
 				if($resource->hasMember($this->loggedUser)){
-					
+
 					$roleMember = $resource->getMemberRole($this->loggedUser);
 					if($roleMember != Task::ROLE_OWNER){
 						return true;

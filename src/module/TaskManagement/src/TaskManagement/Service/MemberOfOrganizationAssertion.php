@@ -13,9 +13,8 @@ class MemberOfOrganizationAssertion implements AssertionInterface
 {
     private $loggedUser;
     
-    //imposto il default a null su $loggedUser se la richiesta arriva senza che l'utente sia loggato
-    public function __construct(User $loggedUser = null) {
-        $this->loggedUser  = $loggedUser;             
+	public function setLoggedUser($loggedUser = null) {
+    	$this->loggedUser = $loggedUser;
     }
     
 	public function assert(Acl $acl, RoleInterface $role = null, ResourceInterface $resource = null, $privilege = null){
