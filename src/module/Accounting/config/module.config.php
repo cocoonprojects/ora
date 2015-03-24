@@ -42,4 +42,9 @@ return array(
 			),
 		),
 	),
+	'listeners' => array(
+		'Accounting\AccountCommandsListener',
+		'Accounting\CreatePersonalAccountListener',
+		'Accounting\CreateOrganizationAccountListener'
+	),
 );

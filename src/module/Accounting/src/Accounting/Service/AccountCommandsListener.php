@@ -2,15 +2,15 @@
 namespace Accounting\Service;
 
 use Prooph\EventStore\Stream\StreamEvent;
+use Ora\Service\SyncReadModelListener;
 use Ora\ReadModel\Balance;
 use Ora\ReadModel\Account;
 use Ora\ReadModel\OrganizationAccount;
 use Ora\ReadModel\Deposit;
-use Application\Service\CommandsObserver;
 use Ora\ReadModel\IncomingTransfer;
 use Ora\ReadModel\OutgoingTransfer;
 
-class AccountCommandsObserver extends CommandsObserver {
+class AccountCommandsListener extends SyncReadModelListener {
 	
 	protected function onAccountCreated(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];

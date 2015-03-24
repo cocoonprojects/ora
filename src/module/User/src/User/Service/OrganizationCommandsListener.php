@@ -2,12 +2,12 @@
 namespace User\Service;
 
 use Prooph\EventStore\Stream\StreamEvent;
+use Ora\Service\SyncReadModelListener;
 use Ora\ReadModel\Account;
 use Ora\ReadModel\Organization;
 use Ora\ReadModel\OrganizationMembership;
-use Application\Service\CommandsObserver;
 
-class OrganizationCommandsObserver extends CommandsObserver {
+class OrganizationCommandsListener extends SyncReadModelListener {
 	
 	protected function onOrganizationCreated(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];

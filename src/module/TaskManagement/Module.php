@@ -2,52 +2,23 @@
 
 namespace TaskManagement;
 
-use Zend\Mvc\MvcEvent;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
-use Zend\EventManager\Event;
 use TaskManagement\Controller\MembersController;
 use TaskManagement\Controller\TasksController;
 use TaskManagement\Controller\TransitionsController;
 use TaskManagement\Controller\EstimationsController;
 use TaskManagement\Controller\SharesController;
 use TaskManagement\Controller\StreamsController;
-use TaskManagement\Service\TransferTaskSharesCreditsListener;
 use TaskManagement\Assertion\MemberOfNotAcceptedTaskAssertion;
 use TaskManagement\Assertion\OwnerOfOpenOrCompletedTaskAssertion;
+use TaskManagement\Service\TransferTaskSharesCreditsListener;
+use TaskManagement\Service\StreamCommandsListener;
+use TaskManagement\Service\TaskCommandsListener;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
-{    
-	public function onBootstrap(MvcEvent $e)
-	{
-		$application = $e->getApplication();
-		$eventManager = $application->getEventManager();
-		$serviceManager = $application->getServiceManager();
-		
-		$serviceManager->get('TaskManagement\TaskCommandsOberver');
-		$serviceManager->get('TaskManagement\StreamCommandsOberver');
-	}
-		
-	public function getConfig()
-    {
-        return include __DIR__ . '/config/module.config.php';
-    }
-
-    public function getAutoloaderConfig()
-    {
-        return array(
-                'Zend\Loader\ClassMapAutoloader' => array(
-                        __DIR__ . '/autoload_classmap.php',
-                ),
-                'Zend\Loader\StandardAutoloader' => array(
-                        'namespaces' => array(
-                                __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
-                        )
-                )
-        );
-    }
-    
-    public function getControllerConfig() 
+{        
+	public function getControllerConfig() 
     {
         return array(
             'invokables' => array(
@@ -113,7 +84,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
                 'TaskManagement\StreamService' => 'TaskManagement\Service\StreamServiceFactory',
             	'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',
 				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
-
 			    'TaskManagement\MemberOfOrganizationAssertion' =>  function($sl){			        
         			$authService = $sl->get('Zend\Authentication\AuthenticationService');
 					$loggedUser = $authService->getIdentity()['user'];							
@@ -159,14 +129,17 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$loggedUser = $authService->getIdentity()['user'];							
 					return new Service\TaskMemberAndAcceptedTaskAssertion($loggedUser);
 				},
-				'Authorization\CurrentUserProvider' => function($locator){
-					$authService = $locator->get('Zend\Authentication\AuthenticationService');
-					$loggedUser = $authService->getIdentity()['user'];
-					return $loggedUser;
-	        	},	
-				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
-            	'TaskManagement\TaskCommandsOberver' => 'TaskManagement\Service\TaskCommandsObserverFactory',
-            	'TaskManagement\StreamCommandsOberver' => 'TaskManagement\Service\StreamCommandsObserverFactory',
+            	'TaskManagement\TaskCommandsListener' => function ($locator) {
+            		$entityManager = $locator->get('doctrine.entitymanager.orm_default');
+            		$rv = new TaskCommandsListener($entityManager);
+            		$kanbanizeService = $locator->get('TaskManagement\KanbanizeService');
+            		$rv->setKanbanizeService($kanbanizeService);
+            		return $rv;
+            	},
+            	'TaskManagement\StreamCommandsListener' => function ($locator) {
+            		$entityManager = $locator->get('doctrine.entitymanager.orm_default');
+            		return new StreamCommandsListener($entityManager);
+            	},
             	'TaskManagement\TransferTaskSharesCreditsListener' => function ($locator) {
             		$taskService = $locator->get('TaskManagement\TaskService');            		
             		$streamService = $locator->get('TaskManagement\StreamService');
@@ -178,5 +151,24 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             	},
             ),
 		);
+    }
+    
+	public function getConfig()
+    {
+        return include __DIR__ . '/config/module.config.php';
+    }
+
+    public function getAutoloaderConfig()
+    {
+        return array(
+                'Zend\Loader\ClassMapAutoloader' => array(
+                        __DIR__ . '/autoload_classmap.php',
+                ),
+                'Zend\Loader\StandardAutoloader' => array(
+                        'namespaces' => array(
+                                __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
+                        )
+                )
+        );
     }
 }

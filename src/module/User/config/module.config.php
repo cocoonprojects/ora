@@ -57,4 +57,7 @@ return array(
 			),
 		),
 	),
+	'listeners' => array(
+		'User\OrganizationCommandsListener'
+	),
 );

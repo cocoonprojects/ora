@@ -4,14 +4,14 @@ namespace TaskManagement\Service;
 use Doctrine\ORM\EntityManager;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Prooph\EventStore\Stream\StreamEvent;
+use Ora\Service\SyncReadModelListener;
 use Ora\ReadModel\Task;
 use Ora\ReadModel\Estimation;
 use Ora\ReadModel\Share;
 use Ora\Kanbanize\ReadModel\KanbanizeTask;
 use Ora\Kanbanize\KanbanizeService;
-use Application\Service\CommandsObserver;
 
-class TaskCommandsObserver extends CommandsObserver {
+class TaskCommandsListener extends SyncReadModelListener {
 	/**
 	 * 
 	 * @var KanbanizeService
