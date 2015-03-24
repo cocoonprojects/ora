@@ -16,6 +16,7 @@ use TaskManagement\Service\TaskCommandsListener;
 use TaskManagement\Service\TransferTaskSharesCreditsListener;
 use Zend\Permissions\Acl\Assertion\AssertionInterface;
 
+
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {        
 	public function getControllerConfig() 
@@ -93,7 +94,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
                 'TaskManagement\StreamService' => 'TaskManagement\Service\StreamServiceFactory',
             	'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',
 				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
-            
 				'Authorization\CurrentUserProvider' => function($locator){
 					$authService = $locator->get('Zend\Authentication\AuthenticationService');
 					$loggedUser = $authService->getIdentity()['user'];
