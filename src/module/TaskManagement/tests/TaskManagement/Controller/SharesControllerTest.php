@@ -75,7 +75,7 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
         $stream->method('getId')
         	->willReturn(Uuid::fromString('00000000-1000-0000-0000-000000000000'));
         
-        $eventManager = new EventManager('Ora\TaskManagement\EventSourcingTaskService');
+        $eventManager = new EventManager('TaskManagement\TaskService');
         $eventManager->setSharedManager(Bootstrap::getEventManager()->getSharedManager());
         $this->task = Task::create($stream, 'Cras placerat libero non tempor', $this->owner);
         $this->task->setEventManager($eventManager);

@@ -82,7 +82,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	}
 	
 	public function setEventManager(EventManagerInterface $events) {
-		$events->setIdentifiers(array(
+		$events->setIdentifiers(array(			'TaskManagement\TaskService',
 			__CLASS__,
 			get_class($this)
 		));

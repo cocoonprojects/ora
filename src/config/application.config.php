@@ -43,11 +43,5 @@ return array(
 		'config_glob_paths' => array(
 			__DIR__.'/../config/autoload/{,*.}{global,'.$env.',local}.php',
 		),
-	),
-		
-	'listeners' => array(
-		'Accounting\CreateOrganizationAccountListener',
-		'TaskManagement\TransferTaskSharesCreditsListener',
-		'TaskManagement\CloseTaskListener',
-	),
+	),		
 );

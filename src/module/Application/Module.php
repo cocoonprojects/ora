@@ -1,21 +1,13 @@
 <?php
-/**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link	  http://github.com/zendframework/ZendSkeletonApplication for the canonical source repository
- * @copyright Copyright (c) 2005-2014 Zend Technologies USA Inc. (http://www.zend.com)
- * @license	  http://framework.zend.com/license/new-bsd New BSD License
- */
-
 namespace Application;
 
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
+use Zend\Log\Writer\Stream;
+use Zend\Log\Logger;
 use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
 use Doctrine\ORM\EntityManager;
 use Application\Controller\AuthController;
-use Zend\Log\Writer\Stream;
-use Zend\Log\Logger;
 use Application\Service\IdentityRolesProvider;
 
 class Module
@@ -28,11 +20,6 @@ class Module
 		
 		$moduleRouteListener = new ModuleRouteListener();
 		$moduleRouteListener->attach($eventManager);		
-	}
-	
-	public function getConfig()
-	{
-		return include __DIR__ . '/config/module.config.php';
 	}
 	
 	public function getControllerConfig() 
@@ -76,13 +63,16 @@ class Module
 					$logger->addWriter($writer);
 					return $logger;
 				},
-				
-				'Application\Service\IdentityRolesProvider' =>
-				 function($serviceLocator){
+				'Application\Service\IdentityRolesProvider' => function($serviceLocator){
 					$authService = $serviceLocator->get('Zend\Authentication\AuthenticationService');
 					$provider = new IdentityRolesProvider($authService);
 					return $provider;
 				},
+				'Authorization\CurrentUserProvider' => function($serviceLocator){
+					$authService = $serviceLocator->get('Zend\Authentication\AuthenticationService');
+					$loggedUser = $authService->getIdentity()['user'];
+					return $loggedUser;
+	        	},	
 			),
 		);
 	}
@@ -96,6 +86,11 @@ class Module
 		);
 	}
 		
+	public function getConfig()
+	{
+		return include __DIR__ . '/config/module.config.php';
+	}
+	
 	public function getAutoloaderConfig()
 	{		
 		return array(

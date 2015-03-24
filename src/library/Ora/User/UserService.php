@@ -1,5 +1,4 @@
 <?php 
-
 namespace Ora\User;
 
 interface UserService
@@ -31,6 +30,6 @@ interface UserService
 	 *
 	 * @param string $email
 	 */
-	public function findUserByEmail($email);	
+	public function findUserByEmail($email);
 	
 }

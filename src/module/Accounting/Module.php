@@ -3,46 +3,16 @@ namespace Accounting;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
-use Zend\Mvc\MvcEvent;
 use Accounting\Controller\IndexController;
-use Accounting\Service\AccountListener;
 use Accounting\Controller\AccountsController;
 use Accounting\Controller\DepositsController;
 use Accounting\Controller\StatementsController;
 use Accounting\Service\CreateOrganizationAccountListener;
+use Accounting\Service\CreatePersonalAccountListener;
+use Accounting\Service\AccountCommandsListener;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {
-
-	public function onBootstrap(MvcEvent $e)
-	{
-		$application = $e->getApplication();
-		$eventManager = $application->getEventManager();
-		$serviceManager = $application->getServiceManager();
-	
-		$serviceManager->get('Accounting\CreditsAccountsService');
-		$serviceManager->get('Accounting\AccountCommandsObserver');
-	}
-
-	public function getConfig()
-	{
-		return include __DIR__ . '/config/module.config.php';
-	}
-
-	public function getAutoloaderConfig()
-	{
-		return array(
-			'Zend\Loader\ClassMapAutoloader' => array(
-				__DIR__ . '/autoload_classmap.php',
-			),
-			'Zend\Loader\StandardAutoloader' => array(
-				'namespaces' => array(
-					__NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
-				)
-			)
-		);
-	}
-	
 	public function getControllerConfig() 
 	{
 		return array(
@@ -77,12 +47,38 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 		return array (
 			'factories' => array (
 				'Accounting\CreditsAccountsService' => 'Accounting\Service\AccountServiceFactory',
-				'Accounting\AccountCommandsObserver' => 'Accounting\Service\AccountCommandsObserverFactory',
+				'Accounting\AccountCommandsListener' => function ($locator) {
+					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
+					return new AccountCommandsListener($entityManager);
+				},
 				'Accounting\CreateOrganizationAccountListener' => function ($locator) {
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
 					return new CreateOrganizationAccountListener($accountService);
 				},
+				'Accounting\CreatePersonalAccountListener' => function ($locator) {
+					$accountService = $locator->get('Accounting\CreditsAccountsService');
+					return new CreatePersonalAccountListener($accountService);
+				},
 			),
+		);
+	}
+
+	public function getConfig()
+	{
+		return include __DIR__ . '/config/module.config.php';
+	}
+
+	public function getAutoloaderConfig()
+	{
+		return array(
+			'Zend\Loader\ClassMapAutoloader' => array(
+				__DIR__ . '/autoload_classmap.php',
+			),
+			'Zend\Loader\StandardAutoloader' => array(
+				'namespaces' => array(
+					__NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
+				)
+			)
 		);
 	}
 }

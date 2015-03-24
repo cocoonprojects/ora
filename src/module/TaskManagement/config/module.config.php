@@ -117,4 +117,10 @@ return array(
 			),
 		),
 	),
+	'listeners' => array(
+		'TaskManagement\StreamCommandsListener',
+		'TaskManagement\TaskCommandsListener',
+		'TaskManagement\TransferTaskSharesCreditsListener',
+		'TaskManagement\CloseTaskListener',
+	),
 );

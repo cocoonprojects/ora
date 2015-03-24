@@ -11,7 +11,7 @@ class CloseTaskListener implements ListenerAggregateInterface {
 	protected $listeners = array();
 	
 	public function attach(EventManagerInterface $events) {
-		$this->listeners[] = $events->getSharedManager()->attach('Ora\TaskManagement\EventSourcingTaskService', Task::EVENT_SHARES_ASSIGNED, function(Event $event) {
+		$this->listeners[] = $events->getSharedManager()->attach('TaskManagement\TaskService', Task::EVENT_SHARES_ASSIGNED, function(Event $event) {
 			$task = $event->getTarget();
 			$by = $event->getParam('by');
 			if ($task->isSharesAssignmentCompleted()) {

@@ -2,10 +2,10 @@
 namespace TaskManagement\Service;
 
 use Prooph\EventStore\Stream\StreamEvent;
+use Ora\Service\SyncReadModelListener;
 use Ora\ReadModel\Stream;
-use Application\Service\CommandsObserver;
 
-class StreamCommandsObserver extends CommandsObserver {
+class StreamCommandsListener extends SyncReadModelListener {
 	
 	protected function onStreamCreated(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
