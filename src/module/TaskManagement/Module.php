@@ -93,12 +93,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
                 'TaskManagement\StreamService' => 'TaskManagement\Service\StreamServiceFactory',
             	'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',
 				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
-				'Authorization\CurrentUserProvider' => function($locator){
-					$authService = $locator->get('Zend\Authentication\AuthenticationService');
-					$loggedUser = $authService->getIdentity()['user'];
-					return $loggedUser;
-	        	},	
-				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',            	
+					
             	'TaskManagement\TaskCommandsListener' => function ($locator) {
             		$entityManager = $locator->get('doctrine.entitymanager.orm_default');
             		$rv = new TaskCommandsListener($entityManager);
