@@ -83,60 +83,8 @@
 		</div>
 	</div>
 </div>
-
-<div class="modal fade" id="estimateTaskModal" tabindex="-1" role="dialog" aria-labelledby="estimateTaskModalLabel" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<form action="">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class='sr-only'>Close</span></button>
-					<h4 class="modal-title">Estimate the task</h4>
-				</div>
-				<div class="modal-body">
-					<div class="alert" role="alert">
-						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-						  <span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="form-group">
-						<label for="estimation">Credits</label>
-						<input type="number" id="estimateTaskCredits" pattern="/^[+]?([0-9]+(?:[\.][0-9]*)?|\.[0-9]+)$/" class="form-control">
-					</div>
-					<div class="checkbox"><label><input type="checkbox" id="estimateTaskSkip">Skip</label></div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-					<button type="submit" class="btn btn-primary">Submit</button>
-				</div>
-			</form>
-		</div>
-	</div>
-</div>
-<div class="modal fade" id="assignSharesModal" tabindex="-1" role="dialog" aria-labelledby="assignSharesModalLabel" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<form action="" class="form-horizontal" onsubmit="return confirm('Are you sure?')">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class='sr-only'>Close</span></button>
-					<h4 class="modal-title">Assign shares</h4>
-				</div>
-				<div class="modal-body">
-					<div class="alert" role="alert">
-						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-						  <span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div id="assignSharesMembers"></div>
-					<div class="checkbox"><label><input type="checkbox" id="assignShareSkip">Skip</label></div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-					<button type="submit" class="btn btn-primary">Submit</button>
-				</div>
-			</form>
-		</div>
-	</div>
-</div>
+<?php echo $this->partial('task-management/index/estimate-task-modal.phtml') ?>
+<?php echo $this->partial('task-management/index/assign-shares-modal.phtml') ?>
 <div class="modal fade" id="taskDetailModal" tabindex="-1" role="dialog" aria-labelledby="taskDetailModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">

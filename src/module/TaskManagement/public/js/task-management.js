@@ -90,33 +90,28 @@ TaskManagement.prototype = {
 			that.executeTask(e);
 		});
 
-		$("body").on("click", "#estimateTaskSkip", function(e) {
-			if($(this).prop('checked')) {
-			    $("#estimateTaskCredits").prop('disabled', true);
-			} else {
-				$("#estimateTaskCredits").prop('disabled', false);
+		$("#estimateTaskModal").on("click", "#skipEstimateTask", function(e) {
+			if(confirm('You aren\'t estimating the task, are you sure? This overwrite any previous estimation')) {
+				that.skipEstimateTask(e);
 			}
 		});
-
+		
 		$("#estimateTaskModal").on("show.bs.modal", function(e) {
-			var button = $(e.relatedTarget) // Button that triggered the modal
-			var url = button.data('href');
-			$("#estimateTaskModal form").attr("action", url);
-			var credits = button.data('task');
-			if(credits == undefined) {
+			var modal = $(this);
+			modal.find('div.alert').hide();			
+
+			var button = $(e.relatedTarget);
+			var url = button.data('href'); // Button that triggered the modal
+			
+			var form = modal.find("form").first();
+			form.attr("action", url);
+			
+			var credits = button.data('credits');
+			if(credits == undefined || credits == -1) {
 				$('#estimateTaskCredits').val(null);
-			    $("#estimateTaskCredits").prop('disabled', false);
-			    $("#estimateTaskSkip").prop('checked', false);
-			} else if (credits == -1) {
-				$('#estimateTaskCredits').val(null);
-				$("#estimateTaskCredits").prop('disabled', true);
-				$("#estimateTaskSkip").prop('checked', true);
 			} else {
 				$('#estimateTaskCredits').val(credits);
-			    $("#estimateTaskCredits").prop('disabled', false);
-			    $("#estimateTaskSkip").prop('checked', false);
 			}
-			$(this).find('div.alert').hide();			
 		});
 		
 		//INSERT ESTIMATION
@@ -125,26 +120,34 @@ TaskManagement.prototype = {
 			that.estimateTask(e);
 		});
 
+		$("#assignSharesModal").on("click", "#skipAssignShares", function(e) {
+			if(confirm('You aren\'t assigning your shares to members, are you sure? This overwrite any previous share')) {
+				that.skipAssignShares(e);
+			}
+		});
+		
 		$("#assignSharesModal").on("show.bs.modal", function(e) {
+			var modal = $(this);
+			modal.find('div.alert').hide();			
+
 			var button = $(e.relatedTarget) // Button that triggered the modal
 			var url = button.data('href');
-			$("#assignSharesModal form").attr("action", url);
 			
-		    $("#assignShareSkip").prop('checked', false);
-
+			var form = modal.find("form").first();
+			form.attr("action", url);
+			
 			var container = $('#assignSharesMembers');
 			container.empty();
 
 			var key = button.data("task");
 			$.each(that.data.tasks[key].members, function(i, object) {
 				container.append('<div class="form-group">'
-						+ '<label for="' + i + '" class="col-sm-4 control-label">' + object.firstname + ' ' + object.lastname + '</label>'
+						+ '<label for="' + i + '" class="col-sm-4 control-label"><img src="' + object.picture + '" style="max-width: 16px; max-height: 16px;" class="img-circle"> ' + object.firstname + ' ' + object.lastname + '</label>'
 						+ '<div class="col-sm-8">'
 						+ '<input type="number" class="form-control" id="' + i + '" name="' + i + '" min="0" max="100">'
 						+ '</div>'	
 						+ '</div>');
 			});
-			$(this).find('div.alert').hide();
 		});
 
 		$("#assignSharesModal").on("submit", "form", function(e){
@@ -482,17 +485,27 @@ TaskManagement.prototype = {
 			'</ul>';
 		
 		rv += '<table class="table table-striped"><caption>Members</caption>' +
-				'<thead><tr><th></th>';
+				'<thead><tr><th></th><th style="text-align: right">Estimate</th>';
 		$.map(task.members, function(member, memberId) {
 			rv += '<th style="text-align: center">' + member.firstname.charAt(0) + member.lastname.charAt(0) + '</th>';
 		});
 		rv += '<th style="text-align: center">Avg</th><th style="text-align: center">&Delta;</th></tr></thead><tbody>';
 		$.map(task.members, function(member, memberId) {
-			rv += '<tr><th><img src="' + member.picture + '" style="max-width: 16px; max-height: 16px;" class="img-circle"> ' + member.firstname + ' ' + member.lastname;
-			if(member.estimation != null){
-				rv += ' <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>';
+			rv += '<tr><th><img src="' + member.picture + '" style="max-width: 16px; max-height: 16px;" class="img-circle"> ' + member.firstname + ' ' + member.lastname + '</th>';
+			rv += '<td style="text-align: right">'
+			if(member.estimation != null) {
+				switch(member.estimation.value) {
+					case -2 : 
+						rv += '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>';
+						break;
+					case -1 :
+						rv += 'Skipped';
+						break;
+					default :
+						rv += member.estimation.value.toString();
+				}
 			}
-			rv += '</th>';
+			rv += '</td>';
 			$.map(task.members, function(m) {
 				rv += '<td style="text-align: center">';
 				if(m.shares != undefined) {
@@ -581,64 +594,126 @@ TaskManagement.prototype = {
 		});
 	},
 	
-	estimateTask : function (e){
-		var url = $(e.target).attr('action');
-
-		var that = this;
-		
-		var credits = $('#estimateTaskSkip').is(':checked') ? -1 : $("#estimateTaskCredits").val();
-				
-		$.ajax({
-			url: url,
-			method: 'POST',
-			data: {value:credits},
-			dataType: 'json',
-			complete: function(xhr, textStatus) {
-				m = $('#estimateTaskModal');
-				switch (xhr.status) {
-				case 201:
-					m.modal('hide');
-					that.listTasks();
-					break;
-				case 400:
-					that.show(m, 'danger', 'You have to estimate the task or skip it');
-					break;
-				default:
-					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to estimate the task');
-				}
-			}
-		});
-	},
-	
-	assignShares : function (e){
-		var form = $(e.target);
-		var data = $('#assignShareSkip').is(':checked') ? { } : form.serialize();
-
-		m = $('#assignSharesModal');
+	skipEstimateTask : function (e){
+		var modal = $(e.delegateTarget);
+		var form = modal.find("form").first();
 
 		var that = this;
 		
 		$.ajax({
 			url: form.attr('action'),
 			method: 'POST',
-			data: data,
+			data: {value:-1},
 			success: function() {
-				m.modal('hide');
+				modal.modal('hide');
 				that.listTasks();
 			},
 			statusCode: {
 				400 : function(jqHXR, textStatus, errorThrown){
 					json = $.parseJSON(jqHXR.responseText);
 					if(json.description != undefined) {
-						that.show(m, 'danger', json.description);
+						that.show(modal, 'danger', json.description);
 					}
 					if(json.errors != undefined) {
-						that.show(m, 'danger', json.errors[0].message);
+						that.show(modal, 'danger', json.errors[0].message);
 					}
 				}
 			},
 			error: function(jqHXR, textStatus, errorThrown) {
-				that.show(m, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to assign shares');
+				that.show(m, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to skip the estimation');
+			}
+		});
+	},
+	
+	estimateTask : function (e){
+		var modal = $(e.delegateTarget);
+		var form = $(e.target)
+
+		var that = this;
+		
+		$.ajax({
+			url: form.attr('action'),
+			method: 'POST',
+			data: form.serialize(),
+			success: function() {
+				modal.modal('hide');
+				that.listTasks();
+			},
+			statusCode: {
+				400 : function(jqHXR, textStatus, errorThrown){
+					json = $.parseJSON(jqHXR.responseText);
+					if(json.description != undefined) {
+						that.show(modal, 'danger', json.description);
+					}
+					if(json.errors != undefined) {
+						that.show(modal, 'danger', json.errors[0].message);
+					}
+				}
+			},
+			error: function(jqHXR, textStatus, errorThrown) {
+				that.show(m, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to estimate the task');
+			}
+		});
+	},
+	
+	skipAssignShares : function (e){
+		var modal = $(e.delegateTarget);
+		var form = modal.find("form").first();
+
+		var that = this;
+		
+		$.ajax({
+			url: form.attr('action'),
+			method: 'POST',
+			data: {},
+			success: function() {
+				modal.modal('hide');
+				that.listTasks();
+			},
+			statusCode: {
+				400 : function(jqHXR, textStatus, errorThrown){
+					json = $.parseJSON(jqHXR.responseText);
+					if(json.description != undefined) {
+						that.show(modal, 'danger', json.description);
+					}
+					if(json.errors != undefined) {
+						that.show(modal, 'danger', json.errors[0].message);
+					}
+				}
+			},
+			error: function(jqHXR, textStatus, errorThrown) {
+				that.show(modal, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to assign shares');
+			}
+		});
+	},
+	
+	assignShares : function (e){
+		var modal = $(e.delegateTarget);
+		var form = $(e.target)
+
+		var that = this;
+		
+		$.ajax({
+			url: form.attr('action'),
+			method: 'POST',
+			data: form.serialize(),
+			success: function() {
+				modal.modal('hide');
+				that.listTasks();
+			},
+			statusCode: {
+				400 : function(jqHXR, textStatus, errorThrown){
+					json = $.parseJSON(jqHXR.responseText);
+					if(json.description != undefined) {
+						that.show(modal, 'danger', json.description);
+					}
+					if(json.errors != undefined) {
+						that.show(modal, 'danger', json.errors[0].message);
+					}
+				}
+			},
+			error: function(jqHXR, textStatus, errorThrown) {
+				that.show(modal, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to assign shares');
 			}
 		});
 	},

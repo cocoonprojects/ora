@@ -15,7 +15,7 @@ Organizations.prototype = {
 		var that = this;
         
 		$("#createOrganizationModal").on("show.bs.modal", function(e) {
-			modal = $(this);
+			var modal = $(this);
 			modal.find('div.alert').hide();			
 			modal.find("form")[0].reset();
 		});
