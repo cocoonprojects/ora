@@ -13,7 +13,6 @@ use TaskManagement\Controller\StreamsController;
 use TaskManagement\Service\TransferTaskSharesCreditsListener;
 use TaskManagement\Service\StreamCommandsListener;
 use TaskManagement\Service\TaskCommandsListener;
-use TaskManagement\Service\TransferTaskSharesCreditsListener;
 use Zend\Permissions\Acl\Assertion\AssertionInterface;
 
 
@@ -80,15 +79,15 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
         return array (
             'invokables' => array(
 	            'TaskManagement\CloseTaskListener' => 'TaskManagement\Service\CloseTaskListener',
-        		'TaskManagement\MemberOfOrganizationAssertion' => 'TaskManagement\Service\MemberOfOrganizationAssertion',
+        		'TaskManagement\MemberOfOrganizationAssertion' => 'TaskManagement\Assertion\MemberOfOrganizationAssertion',
         		'TaskManagement\MemberOfNotAcceptedTaskAssertion' => 'TaskManagement\Assertion\MemberOfNotAcceptedTaskAssertion',
-        		'TaskManagement\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion' => 'TaskManagement\Service\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion',
-        		'TaskManagement\TaskMemberNotOwnerAndNotCompletedTaskAssertion' => 'TaskManagement\Service\TaskMemberNotOwnerAndNotCompletedTaskAssertion',
-        		'TaskManagement\TaskOwnerAndNotCompletedTaskAssertion' => 'TaskManagement\Service\TaskOwnerAndNotCompletedTaskAssertion',
+        		'TaskManagement\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion' => 'TaskManagement\Assertion\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion',
+        		'TaskManagement\TaskMemberNotOwnerAndNotCompletedTaskAssertion' => 'TaskManagement\Assertion\TaskMemberNotOwnerAndNotCompletedTaskAssertion',
+        		'TaskManagement\TaskOwnerAndNotCompletedTaskAssertion' => 'TaskManagement\Assertion\TaskOwnerAndNotCompletedTaskAssertion',
         		'TaskManagement\OwnerOfOpenOrCompletedTaskAssertion' => 'TaskManagement\Assertion\OwnerOfOpenOrCompletedTaskAssertion',
-        		'TaskManagement\TaskOwnerAndOngoingOrAcceptedTaskAssertion' => 'TaskManagement\Service\TaskOwnerAndOngoingOrAcceptedTaskAssertion',
-        		'TaskManagement\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion' => 'TaskManagement\Service\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion',
-        		'TaskManagement\TaskMemberAndAcceptedTaskAssertion' => 'TaskManagement\Service\TaskMemberAndAcceptedTaskAssertion'
+        		'TaskManagement\TaskOwnerAndOngoingOrAcceptedTaskAssertion' => 'TaskManagement\Assertion\TaskOwnerAndOngoingOrAcceptedTaskAssertion',
+        		'TaskManagement\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion' => 'TaskManagement\Assertion\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion',
+        		'TaskManagement\TaskMemberAndAcceptedTaskAssertion' => 'TaskManagement\Assertion\TaskMemberAndAcceptedTaskAssertion'
             ),
         	'factories' => array (
                 'TaskManagement\StreamService' => 'TaskManagement\Service\StreamServiceFactory',
@@ -99,9 +98,19 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$loggedUser = $authService->getIdentity()['user'];
 					return $loggedUser;
 	        	},	
-				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
-            	'TaskManagement\TaskCommandsOberver' => 'TaskManagement\Service\TaskCommandsObserverFactory',
-            	'TaskManagement\StreamCommandsOberver' => 'TaskManagement\Service\StreamCommandsObserverFactory',
+				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',            	
+            	'TaskManagement\TaskCommandsListener' => function ($locator) {
+            		$entityManager = $locator->get('doctrine.entitymanager.orm_default');
+            		$rv = new TaskCommandsListener($entityManager);
+            		$kanbanizeService = $locator->get('TaskManagement\KanbanizeService');
+            		$rv->setKanbanizeService($kanbanizeService);
+            		return $rv;
+            	},
+            	'TaskManagement\StreamCommandsListener' => function ($locator) {
+            		$entityManager = $locator->get('doctrine.entitymanager.orm_default');
+            		return new StreamCommandsListener($entityManager);
+            	},
+            	
             	'TaskManagement\TransferTaskSharesCreditsListener' => function ($locator) {
             		$taskService = $locator->get('TaskManagement\TaskService');            		
             		$streamService = $locator->get('TaskManagement\StreamService');
