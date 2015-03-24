@@ -23,7 +23,7 @@ class CreateOrganizationAccountListener implements ListenerAggregateInterface {
 	
 	public function attach(EventManagerInterface $events) {
 		$accountService = $this->accountService;
-		$this->listeners[] = $events->getSharedManager()->attach('Ora\Organization\EventSourcingOrganizationService', Organization::EVENT_CREATED, function(Event $event) use ($accountService) {
+		$this->listeners[] = $events->getSharedManager()->attach('User\OrganizationService', Organization::EVENT_CREATED, function(Event $event) use ($accountService) {
 			$organization = $event->getTarget();
 			$holder = $event->getParam('by');
 			$accountService->createOrganizationAccount($organization, $holder);

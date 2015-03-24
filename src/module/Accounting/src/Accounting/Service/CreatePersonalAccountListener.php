@@ -23,7 +23,7 @@ class CreatePersonalAccountListener implements ListenerAggregateInterface {
 	
 	public function attach(EventManagerInterface $events) {
 		$accountService = $this->accountService;
-		$this->listeners[] = $events->getSharedManager()->attach('Ora\User\EventSourcingUserService', User::EVENT_CREATED, function(Event $event) use ($accountService) {
+		$this->listeners[] = $events->getSharedManager()->attach('User\UserService', User::EVENT_CREATED, function(Event $event) use ($accountService) {
 			$user = $event->getTarget();
 			$this->accountService->createPersonalAccount($user);
 		});

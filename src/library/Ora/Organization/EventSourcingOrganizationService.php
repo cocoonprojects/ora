@@ -79,6 +79,7 @@ class EventSourcingOrganizationService extends AggregateRepository implements Or
     public function setEventManager(EventManagerInterface $events)
     {
         $events->setIdentifiers(array(
+        	'User\OrganizationService',
             __CLASS__,
             get_class($this)
         ));

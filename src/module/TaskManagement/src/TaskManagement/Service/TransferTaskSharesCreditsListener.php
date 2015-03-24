@@ -71,7 +71,7 @@ class TransferTaskSharesCreditsListener implements ListenerAggregateInterface {
 
 	public function attach(EventManagerInterface $events) {
 		$that = $this;
-		$this->listeners[] = $events->getSharedManager()->attach('Ora\TaskManagement\EventSourcingTaskService', Task::EVENT_CLOSED, function(Event $event) use ($that) {
+		$this->listeners[] = $events->getSharedManager()->attach('TaskManagement\TaskService', Task::EVENT_CLOSED, function(Event $event) use ($that) {
 			$task = $event->getTarget();
 			$by = $event->getParam('by');
 			$that->execute($task, $by);
