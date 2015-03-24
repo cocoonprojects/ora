@@ -8,6 +8,7 @@ use Zend\Permissions\Acl\Resource\ResourceInterface;
 use Zend\Permissions\Acl\Role\RoleInterface;
 use Zend\Permissions\Acl\Assertion\AssertionInterface;
 use Ora\User\User;
+use Ora\ReadModel\Stream;
 
 class MemberOfOrganizationAssertion implements AssertionInterface
 {
@@ -21,8 +22,12 @@ class MemberOfOrganizationAssertion implements AssertionInterface
 
 		if($this->loggedUser instanceof User){			
 
-			//controllo se lo stream nel quale creare il task e' associato all'organizzazione dell'utente loggato
-			return $this->loggedUser->isMemberOf($resource->getOrganization());			
+			//controllo se il task per il quale visualizzare il dettaglio 
+			//appartiene ad uno stream gestito dalla stessa organizzazione dell'utente loggato
+			$stream = $resource->getStream();			
+			if($stream instanceof Stream){
+				return $this->loggedUser->isMemberOf($stream->getOrganization());	
+			}			
     	}    	
     	return false;
     }

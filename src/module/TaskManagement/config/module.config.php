@@ -72,7 +72,8 @@ return array(
 					array(
 						array('user'), 
 						'Ora\Task', 
-						array('TaskManagement.Task.showDetails')), 
+						array('TaskManagement.Task.showDetails'),
+						'TaskManagement\MemberOfOrganizationAssertion'), 
 					array(
 						array('user'), 
 						'Ora\Task', 
