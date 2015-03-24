@@ -165,7 +165,10 @@ class TaskJsonModel extends JsonModel
 	
 	private function getEstimation(TaskMember $tm) {
 		$estimation = $tm->getEstimation();
-		return is_null($estimation->getValue()) ? null : [
+		if(is_null($estimation) || is_null($estimation->getValue())) {
+			return null;
+		}
+		return [
 			'value' => $estimation->getValue(),
 			'createdAt' => date_format($estimation->getCreatedAt(), 'c'),
 		];

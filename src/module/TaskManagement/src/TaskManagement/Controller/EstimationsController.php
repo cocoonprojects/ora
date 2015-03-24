@@ -12,6 +12,7 @@ use Zend\Validator\NotEmpty;
 use Zend\Validator\GreaterThan;
 use Zend\Validator\Identical;
 use Zend\I18n\Validator\Float;
+use ZendExtension\Mvc\View\ErrorJsonModel;
 
 /**
  * EstimationController
@@ -38,15 +39,13 @@ class EstimationsController extends AbstractHATEOASRestfulController {
 	
 	public function invoke($id, $data)
 	{
+		$error = new ErrorJsonModel();
 		if(!isset($data['value'])) {
+			$error->setCode(400);
+			$error->addSecondaryErrors('value', ['Value cannot be empty']);
+			$error->setDescription('Specified values are not valid');
 			$this->response->setStatusCode(400);
-			return $this->response;
-		}
-		
-		$task = $this->taskService->getTask($id);
-		if (is_null($task)) {
-			$this->response->setStatusCode(404);
-			return $this->response;
+			return $error;
 		}
 		
 		//TODO check if the value is numeric in a localized way
@@ -58,16 +57,25 @@ class EstimationsController extends AbstractHATEOASRestfulController {
 				  ->attach(new GreaterThan(['min' => 0, 'inclusive' => true]), true);
 		
 		if (! ($validator->isValid ( $value ) || $value == -1)) {
-			// request not correct
+			$error->setCode(400);
+			$error->addSecondaryErrors('value', $validator->getMessages());
+			$error->setDescription('Specified values are not valid');
 			$this->response->setStatusCode ( 400 );
+			return $error;
+		}
+		
+		$task = $this->taskService->getTask($id);
+		if (is_null($task)) {
+			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-			
+		
 		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
 		$loggedUser = $this->identity()['user'];
+		
 		$this->transaction()->begin();
 		try {
 			$task->addEstimation($value, $loggedUser);
