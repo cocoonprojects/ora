@@ -1,6 +1,6 @@
 <?php if($this->identity) {?>
 	<ul class="nav navbar-nav navbar-right">
-		<li><a href="<?php echo $this->basePath.'/auth/logout'?>">Logout</a></li>
+		<li><a href="<?php echo $this->basePath().'/auth/logout'?>">Logout</a></li>
 	</ul>
 	<div class="pull-right navbar-text" style="margin-top: 13px; margin-bottom: 10px">
 		<img src="<?php echo $this->identity->getPicture()?>" alt="Avatar" style="max-width: 36px; max-height: 36px;" class="img-circle">
