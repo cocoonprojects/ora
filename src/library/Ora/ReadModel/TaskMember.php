@@ -49,7 +49,7 @@ class TaskMember {
 	private $shares;
 
 	/**
-	 * @ORM\Column(type="decimal", precision=10, scale=4, nullable=true)
+	 * @ORM\Column(type="float", precision=10, scale=4, nullable=true)
 	 * @var float
 	 */
 	private $share;
