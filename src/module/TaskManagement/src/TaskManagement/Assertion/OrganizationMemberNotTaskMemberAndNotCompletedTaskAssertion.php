@@ -1,6 +1,6 @@
 <?php
 
-namespace TaskManagement\Service;
+namespace TaskManagement\Assertion;
 
 
 use Zend\Permissions\Acl\Acl;
