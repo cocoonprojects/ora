@@ -58,8 +58,7 @@ return array(
 	'bjyauthorize'=> array(
 		'resource_providers' => array(
 			'BjyAuthorize\Provider\Resource\Config' => array(
-				'Ora\Task' => array(),
-				'Ora\Stream' => array(),
+				'Ora\Task' => array(),				
 			),
 		),
 		'rule_providers' => array(
@@ -67,12 +66,13 @@ return array(
 				'allow' => array(
 					array(
 						array('user'), 
-						'Ora\Stream', 
+						NULL, 
 						array('TaskManagement.Task.create')),
 					array(
 						array('user'), 
 						'Ora\Task', 
-						array('TaskManagement.Task.showDetails')), 
+						array('TaskManagement.Task.showDetails'),
+						'TaskManagement\MemberOfOrganizationAssertion'), 
 					array(
 						array('user'), 
 						'Ora\Task', 

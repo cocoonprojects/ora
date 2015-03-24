@@ -1,6 +1,6 @@
 <?php
 
-namespace TaskManagement\Service;
+namespace TaskManagement\Assertion;
 
 
 use Zend\Permissions\Acl\Acl;
@@ -14,8 +14,8 @@ class TaskMemberAndAcceptedTaskAssertion implements AssertionInterface
 {
     private $loggedUser;
     
-    public function __construct(User $loggedUser = null) {
-        $this->loggedUser  = $loggedUser;                       
+    public function setLoggedUser($loggedUser = null) {
+    	$this->loggedUser = $loggedUser;
     }
     
 	public function assert(Acl $acl, RoleInterface $role = null, ResourceInterface $resource = null, $privilege = null){
