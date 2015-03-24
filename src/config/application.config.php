@@ -46,6 +46,7 @@ return array(
 	),
 		
 	'listeners' => array(
+		'Accounting\CreatePersonalAccountListener',
 		'Accounting\CreateOrganizationAccountListener',
 		'TaskManagement\TransferTaskSharesCreditsListener',
 		'TaskManagement\CloseTaskListener',

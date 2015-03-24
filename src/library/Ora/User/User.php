@@ -6,7 +6,7 @@ use Zend\Permissions\Acl\Role\RoleInterface;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
-use BjyAuthorize\Provider\Identity\ProviderInterface;   
+use BjyAuthorize\Provider\Identity\ProviderInterface;	
 use Ora\ReadModel\OrganizationMembership;
 use Ora\ReadModel\Organization;
 
@@ -18,19 +18,21 @@ use Ora\ReadModel\Organization;
 class User implements ProviderInterface, RoleInterface
 {	   
 	CONST STATUS_ACTIVE = 1;
-    CONST ROLE_ADMIN = 'admin';
-    CONST ROLE_GUEST = 'guest';
-    CONST ROLE_USER = 'user';
+	CONST ROLE_ADMIN = 'admin';
+	CONST ROLE_GUEST = 'guest';
+	CONST ROLE_USER = 'user';
+	
+	CONST EVENT_CREATED = "User.Created";
 
-    private static $roles=[ 
-    	self::ROLE_GUEST => [], 
-        self::ROLE_USER => [
-        	'children' => [
-            	self::ROLE_ADMIN => [],
-             ], 
+	private static $roles=[ 
+		self::ROLE_GUEST => [], 
+		self::ROLE_USER => [
+			'children' => [
+				self::ROLE_ADMIN => [],
+			 ], 
 		]
-    ];
-    
+	];
+	
 	/**
 	 * @ORM\Id @ORM\Column(type="string") 
 	 * @var string
@@ -45,22 +47,22 @@ class User implements ProviderInterface, RoleInterface
 	
 	/**
 	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
-     * @ORM\JoinColumn(name="createdBy_id", referencedColumnName="id", nullable=TRUE)
+	 * @ORM\JoinColumn(name="createdBy_id", referencedColumnName="id", nullable=TRUE)
 	 */
 	protected $createdBy;
 	
-    /**
-     * @ORM\Column(type="datetime")
-     * @var datetime
-     */
-    protected $mostRecentEditAt;
-    
-    /**
-     * @ORM\ManyToOne(targetEntity="Ora\User\User")
-     * @ORM\JoinColumn(name="mostRecentEditBy_id", referencedColumnName="id", nullable=TRUE)
-     */
-    protected $mostRecentEditBy;
-    
+	/**
+	 * @ORM\Column(type="datetime")
+	 * @var datetime
+	 */
+	protected $mostRecentEditAt;
+	
+	/**
+	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+	 * @ORM\JoinColumn(name="mostRecentEditBy_id", referencedColumnName="id", nullable=TRUE)
+	 */
+	protected $mostRecentEditBy;
+	
 	/**
 	 * @ORM\Column(type="string", length=100, nullable=TRUE)
 	 * @var string
@@ -78,7 +80,7 @@ class User implements ProviderInterface, RoleInterface
 	 * @var string
 	 */
 	private $email;
-    
+	
 	/**
 	 * @ORM\Column(type="integer")
 	 * @var int
@@ -97,14 +99,14 @@ class User implements ProviderInterface, RoleInterface
 	 */
 	private $memberships;
 
-    /**
-     * @ORM\Column(type="string")
-     * @var string 
-     */
-    private $role;
+	/**
+	 * @ORM\Column(type="string")
+	 * @var string 
+	 */
+	private $role;
 
-    public function __construct(){
-        $this->memberships = new ArrayCollection();       
+	public function __construct(){
+		$this->memberships = new ArrayCollection();		  
 	}
 	
 	public static function create(User $createdBy = null) {
@@ -135,35 +137,35 @@ class User implements ProviderInterface, RoleInterface
 		return $this->createdAt;
 	}
 	
-    public function getCreatedBy()
-    {
-        return $this->createdBy;
-    }
-    
-    public function setCreatedBy(User $user) {
-    	$this->createdBy = $user;
-    	return $this->createdBy;
-    }
+	public function getCreatedBy()
+	{
+		return $this->createdBy;
+	}
+	
+	public function setCreatedBy(User $user) {
+		$this->createdBy = $user;
+		return $this->createdBy;
+	}
 
-    public function getMostRecentEditAt() {
-        return $this->mostRecentEditAt;
-    }
-    
+	public function getMostRecentEditAt() {
+		return $this->mostRecentEditAt;
+	}
+	
 	public function setMostRecentEditAt(\DateTime $when) {
 		$this->mostRecentEditAt = $when;
 		return $this->mostRecentEditAt;
 	}
 	
-    public function getMostRecentEditBy() {
-        return $this->mostRecentEditBy;
-    }
-    
-    public function setMostRecentEditBy(User $user) {
-    	$this->mostRecentEditBy = $user;
-    	return $this->mostRecentEditBy;
-    }
+	public function getMostRecentEditBy() {
+		return $this->mostRecentEditBy;
+	}
+	
+	public function setMostRecentEditBy(User $user) {
+		$this->mostRecentEditBy = $user;
+		return $this->mostRecentEditBy;
+	}
 
-    public function equals(User $object = null) {
+	public function equals(User $object = null) {
 		if(is_null($object)) {
 			return false;
 		}
@@ -239,23 +241,20 @@ class User implements ProviderInterface, RoleInterface
 		return $this->memberships->containsKey($key);
 	}
 
-    public function getIdentityRoles(){
-        return $this->role;
-    }
-
-    public function setRole($role){
-        $this->role = $role;
-    }
-    
-    public static function getRoleCollection(){
-    	return self::$roles;
-
-    }
-    
-    public function getRoleId(){
-    	return $this->getIdentityRoles();
+	public function getIdentityRoles(){
+		return $this->role;
 	}
 
-} 
+	public function setRole($role){
+		$this->role = $role;
+	}
+	
+	public static function getRoleCollection(){
+		return self::$roles;
 
-
+	}
+	
+	public function getRoleId(){
+		return $this->getIdentityRoles();
+	}
+}

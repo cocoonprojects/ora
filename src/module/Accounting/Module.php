@@ -5,11 +5,11 @@ use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use Zend\Mvc\MvcEvent;
 use Accounting\Controller\IndexController;
-use Accounting\Service\AccountListener;
 use Accounting\Controller\AccountsController;
 use Accounting\Controller\DepositsController;
 use Accounting\Controller\StatementsController;
 use Accounting\Service\CreateOrganizationAccountListener;
+use Accounting\Service\CreatePersonalAccountListener;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {
@@ -20,7 +20,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 		$eventManager = $application->getEventManager();
 		$serviceManager = $application->getServiceManager();
 	
-		$serviceManager->get('Accounting\CreditsAccountsService');
 		$serviceManager->get('Accounting\AccountCommandsObserver');
 	}
 
@@ -81,6 +80,10 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				'Accounting\CreateOrganizationAccountListener' => function ($locator) {
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
 					return new CreateOrganizationAccountListener($accountService);
+				},
+				'Accounting\CreatePersonalAccountListener' => function ($locator) {
+					$accountService = $locator->get('Accounting\CreditsAccountsService');
+					return new CreatePersonalAccountListener($accountService);
 				},
 			),
 		);
