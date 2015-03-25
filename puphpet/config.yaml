@@ -49,7 +49,7 @@ server:
             bash_aliases: null
     _prevent_empty: ''
 mailcatcher:
-    install: 0
+    install: '0'
     settings:
         smtp_ip: 0.0.0.0
         smtp_port: 1025
@@ -119,6 +119,7 @@ php:
         display_errors: On
         error_reporting: '-1'
         session.save_path: /var/lib/php/session
+        sendmail_path: '/usr/sbin/sendmail -t -i'
     timezone: Europe/Rome
 xdebug:
     install: 0

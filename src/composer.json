@@ -20,6 +20,7 @@
 		"prooph/event-store": "~1.0",
 		"prooph/prooph-event-store-module": "~1.0",
 		"rwoverdijk/assetmanager": "*",
+		"acelaya/zf2-acmailer": "~4.0",
 		"bjyoungblood/bjy-authorize": "1.4.*"
 	},
 	"require-dev": {

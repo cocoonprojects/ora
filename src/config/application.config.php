@@ -23,7 +23,9 @@ return array(
 		'TaskManagement',
 		'User',
 		'Application',
-		'BjyAuthorize'
+		'BjyAuthorize',
+    	'MailNotification',	
+    	'AcMailer'
 	),
 
 	// These are various options for the listeners attached to the ModuleManager
