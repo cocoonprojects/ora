@@ -82,24 +82,4 @@ class StatementJsonModel extends JsonModel
 		}
 		return $rv;
 	}
-	
-	protected function isAllowed($action, Account $account = null) {
-    	if(is_null($account)) {
-    		return true; // placeholder
-    	}
-    	switch ($action) {
-    		case 'statement':
-    			if($account instanceof OrganizationAccount && $this->user->isMemberOf($account->getOrganization())) {
-    				return true;
-    			}
-    			return $account->isHeldBy($this->user);
-    		case 'deposit':
-    			if(!($account instanceof OrganizationAccount)) {
-    				return false;
-    			}
-    			return $account->isHeldBy($this->user);
-    		default:
-    			return false;
-    	}
-	}
 }
