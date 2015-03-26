@@ -29,6 +29,8 @@ class Task extends DomainEntity
 	
 	CONST EVENT_CLOSED = 'Task.Closed';
 	CONST EVENT_SHARES_ASSIGNED = 'Task.SharesAssigned';
+	CONST EVENT_ADD_ESTIMATION_NOTIFICATION = 'Task.AddEstimationNotification';
+	CONST EVENT_SHARES_ASSIGNED_NOTIFICATION = 'Task.SharesAssignedNotification';
 	
 	/**
 	 * 
@@ -217,15 +219,24 @@ class Task extends DomainEntity
 		if(!in_array($this->status, [self::STATUS_ONGOING, self::STATUS_COMPLETED])) {
 			throw new IllegalStateException('Cannot estimate a task in the state '.$this->status.'.');
 		}
-		//check if the estimator is a task member
-		if(!array_key_exists($member->getId(), $this->members)) {
-			throw new DomainEntityUnavailableException($this, $member); 
+			// check if the estimator is a task member
+		if (! array_key_exists ( $member->getId (), $this->members )) {
+			throw new DomainEntityUnavailableException ( $this, $member ); 
 		}
 		// TODO: Estimation need an id?
 		$this->recordThat(EstimationAdded::occur($this->id->toString(), array(
 			'by' => $member->getId(),
 			'value'	 => $value,
 		)));
+		
+		//check  if($member!=owner)-> mail notification
+		if($this->getMemberRole($member) != self::ROLE_OWNER){
+			$owner = $this->getOwner();
+			$owner_name = $owner->getFirstname();
+			$owner_mail = $owner->getEmail();
+			$member_mail = $member->getEmail();
+			$this->getEventManager()->trigger(Task::EVENT_ADD_ESTIMATION_NOTIFICATION, $this, ['taskId'=>$this->getId(), 'owner_name'=>$owner_name, 'owner_mail'=>$owner_mail,'member_mail'=>$member_mail]);		
+		}		
 	}
 	/**
 	 * 
@@ -358,8 +369,8 @@ class Task extends DomainEntity
 	}
 	
 	public function isSharesAssignmentCompleted() {
-		foreach ($this->members as $member) {
-			if(!isset($member['shares'])) {
+		foreach ($this->members as $member ) {
+			if (! isset ( $member ['shares'])) {
 				return false;
 			}
 		}
@@ -370,6 +381,14 @@ class Task extends DomainEntity
 		$key = $user instanceof User ? $user->getId() : $user;
 		if(isset($this->members[$key])){
 			return $this->members[$key]['role'];
+		}
+		return null;
+	}
+	
+	public function getOwner(){
+		foreach ($this->members as $key=>$value){
+			if($this->members[$key]['role']==self::ROLE_OWNER)
+				return $this->members[$key];
 		}
 		return null;
 	}
