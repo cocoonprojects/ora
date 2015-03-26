@@ -20,7 +20,7 @@ class MailController extends AbstractActionController {
 		
 		$message = $mailService->getMessage ();
 		//$message->setFrom ( 'prova@oraproject.org', 'Test' );
-		//$message->setTo ( 'serianniabdon@gmail.com' );
+		$message->setTo ( 'serianniabdon@gmail.com' );
 		
 		$mailService->setSubject ( 'Plain Text Mail' );
 		$mailService->setBody('This is plain text mail.');
@@ -41,7 +41,7 @@ class MailController extends AbstractActionController {
 		
 		$message = $mailService->getMessage ();
 		//$message->setFrom ( 'prova@oraproject.org', 'Test' );
-		//$message->setTo ( 'serianniabdon@gmail.com' );
+		$message->setTo ( 'serianniabdon@gmail.com' );
 		
 		$mailService->setSubject ( 'Login Notification Mail' );
 		$mailService->setTemplate ( 'mail-notification/mail/login-template', array (
@@ -63,7 +63,7 @@ class MailController extends AbstractActionController {
 		$mailService = $this->getServiceLocator ()->get ( 'AcMailer\Service\MailService' );
 		$message = $mailService->getMessage ();
 		//$message->setFrom ( 'prova@oraproject.org', 'Test' );
-		//$message->setTo ( 'serianniabdon@gmail.com' );
+		$message->setTo ( 'serianniabdon@gmail.com' );
 		
 		$mailService->setSubject ( 'Task Notification Mail' );
 		$mailService->setTemplate ( 'mail-notification/mail/task-template', array (

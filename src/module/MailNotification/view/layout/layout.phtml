@@ -12,13 +12,16 @@
         <!-- Le styles -->
         <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))
                         ->prependStylesheet($this->basePath() . '/css/style.css')
+                        ->prependStylesheet($this->basePath() . '/css/bootstrap-social.css')
                         ->prependStylesheet($this->basePath() . '/css/material-wfont.min.css')
                         ->prependStylesheet($this->basePath() . '/css/ripples.min.css')
-                        ->prependStylesheet('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css') ?>
+                        ->prependStylesheet('//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css')
+                        ->prependStylesheet('//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css') ?>
 
         <!-- Scripts -->
         <?php echo $this->headScript()
-            ->prependFile($this->basePath() . '/js/material.min.js')
+        	->prependFile($this->basePath() . '/js/organizations.js')
+        	->prependFile($this->basePath() . '/js/material.min.js')
             ->prependFile($this->basePath() . '/js/ripples.min.js')
             ->prependFile('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js')
             ->prependFile('https://code.jquery.com/jquery-2.1.3.min.js')
@@ -52,12 +55,17 @@
                         <li><a href=""><?php echo $this->translate('Decisions') ?></a></li>
                         <li><a href="<?php echo $this->url('people-home') ?>"><?php echo $this->translate('People') ?></a></li>
 					</ul>
-					<?php echo $this->UserBoxHelper(); ?>
+					<?php echo $this->partial('layout/user-box.phtml', array(
+						'identity' => is_null($this->identity()) ? null : $this->identity()['user'],
+					)) ?>
                 </div><!--/.nav-collapse -->
             </div>
         </nav>
 		<?php echo $this->content; ?>
 		<?php echo $this->LoginPopupHelper(); ?>
+		<?php echo $this->partial('create-organization/create-organization-modal.phtml', array(
+			'identity' => is_null($this->identity()) ? null : $this->identity()['user'],
+		)) ?>
 		<?php echo $this->inlineScript() ?>
     </body>        
 </html>

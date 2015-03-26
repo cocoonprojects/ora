@@ -14,6 +14,8 @@ use TaskManagement\Service\TransferTaskSharesCreditsListener;
 use TaskManagement\Service\StreamCommandsListener;
 use TaskManagement\Service\TaskCommandsListener;
 use Zend\Permissions\Acl\Assertion\AssertionInterface;
+use AcMailer\Service\MailService;
+use TaskManagement\Service\AddEstimationListener;
 
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
@@ -78,6 +80,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
     {
         return array (
             'invokables' => array(
+            	'TaskManagement\AddEstimationListener' => 'TaskManagement\Service\AddEstimationListener',
+            	'TaskManagement\SharesAssignedListener' => 'TaskManagement\Service\SharesAssignedListener',
 	            'TaskManagement\CloseTaskListener' => 'TaskManagement\Service\CloseTaskListener',
         		'TaskManagement\MemberOfOrganizationAssertion' => 'TaskManagement\Assertion\MemberOfOrganizationAssertion',
         		'TaskManagement\MemberOfNotAcceptedTaskAssertion' => 'TaskManagement\Assertion\MemberOfNotAcceptedTaskAssertion',
@@ -93,7 +97,17 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
                 'TaskManagement\StreamService' => 'TaskManagement\Service\StreamServiceFactory',
             	'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',
 				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
-					
+        			
+        		'TaskManagement\Service\AddEstimationListener' => function($locator){
+        			$mailService = $locator->get('AcMailer\Service\MailService');
+        			$rv = new AddEstimationListener($mailService);
+        			return $rv;
+        		},	
+        		'TaskManagement\Service\SharesAssignedListener' => function($locator){
+        			$mailService = $locator->get('AcMailer\Service\MailService');
+        			$rv = new AddEstimationListener($mailService);
+        			return $rv;
+        		},
             	'TaskManagement\TaskCommandsListener' => function ($locator) {
             		$entityManager = $locator->get('doctrine.entitymanager.orm_default');
             		$rv = new TaskCommandsListener($entityManager);
