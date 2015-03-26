@@ -5,6 +5,7 @@ use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Zend\Authentication\AuthenticationServiceInterface;
 use Ora\Accounting\AccountService;
 use Accounting\View\AccountsJsonModel;
+use BjyAuthorize\Service\Authorize;
 
 class AccountsController extends AbstractHATEOASRestfulController
 {
@@ -15,9 +16,15 @@ class AccountsController extends AbstractHATEOASRestfulController
 	 * @var AccountService
 	 */
 	protected $accountService;
+	/**
+	 * 
+	 * @var Authorize
+	 */
+	private $authorize;
 	
-	public function __construct(AccountService $accountService) {
+	public function __construct(AccountService $accountService, Authorize $authorize) {
 		$this->accountService = $accountService;
+		$this->authorize = $authorize;
 	}
 	
 	// Gets my credits accounts list
@@ -31,7 +38,7 @@ class AccountsController extends AbstractHATEOASRestfulController
 		$identity = $this->identity()['user'];
 		$accounts = $this->accountService->findAccounts($identity);
 		
-		$viewModel = new AccountsJsonModel($this->url(), $identity);
+		$viewModel = new AccountsJsonModel($this->url(), $identity, $this->authorize);
 		$viewModel->setVariable('resource', $accounts);
 		return $viewModel;
 	}
@@ -49,7 +56,7 @@ class AccountsController extends AbstractHATEOASRestfulController
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-		$viewModel = new AccountsJsonModel($this->url(), $identity);
+		$viewModel = new AccountsJsonModel($this->url(), $identity, $this->authorize);
 		$viewModel->setVariable('resource', $rv);
 		return $viewModel;
 	}

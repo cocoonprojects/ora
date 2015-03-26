@@ -9,6 +9,7 @@ use Zend\Mvc\Controller\Plugin\Url;
 use Ora\ReadModel\AccountTransaction;
 use Ora\User\User;
 use Ora\ReadModel\Deposit;
+use BjyAuthorize\Service\Authorize;
 
 class StatementJsonModel extends JsonModel
 {
@@ -16,9 +17,15 @@ class StatementJsonModel extends JsonModel
 	
 	protected $user;
 	
-	public function __construct(Url $url, User $user) {
+	/**
+	 * @var BjyAuthorize\Service\Authorize
+	 */
+	protected $authorize;
+	
+	public function __construct(Url $url, User $user, Authorize $authorize) {
 		$this->url = $url;
 		$this->user = $user;
+		$this->authorize = $authorize;
 	} 
 	
 	public function serialize()
@@ -52,7 +59,7 @@ class StatementJsonModel extends JsonModel
 	
 	protected function serializeLinks($account) {
 		$rv['_links']['self'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'statement']);
-		if($this->isAllowed('deposit', $account)) {
+		if($this->authorize->isAllowed($account, 'Accounting.Account.deposit')){
 			$rv['_links']['deposits'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'deposits']);
 		}
 		return $rv;
