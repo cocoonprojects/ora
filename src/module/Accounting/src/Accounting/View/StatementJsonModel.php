@@ -58,8 +58,9 @@ class StatementJsonModel extends JsonModel
 	}
 	
 	protected function serializeLinks($account) {
+		
 		$rv['_links']['self'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'statement']);
-		if($this->authorize->isAllowed($account, 'Accounting.Account.deposit')){
+		if($this->authorize->isAllowed($account, 'Accounting.OrganizationAccount.deposit')){
 			$rv['_links']['deposits'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'deposits']);
 		}
 		return $rv;

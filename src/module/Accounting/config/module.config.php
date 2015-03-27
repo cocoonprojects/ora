@@ -46,7 +46,7 @@ return array(
 	'bjyauthorize'=> array(
 		'resource_providers' => array(
 			'BjyAuthorize\Provider\Resource\Config' => array(
-				'Ora\Account' => array(),				
+				'Ora\Account' => array()		
 			),
 		),
 		'rule_providers' => array(
@@ -62,6 +62,11 @@ return array(
 						'Ora\Account', 
 						array('Accounting.Account.statement'), 
 						'Accounting\MemberOfOrganizationOrAccountHolder'), 
+					array(
+						array('user'), 
+						'Ora\Account',
+						array('Accounting.OrganizationAccount.deposit'),
+						'Accounting\AccountHolderOfOrganizationAccountAssertion'),
 				)
 			)
 		)

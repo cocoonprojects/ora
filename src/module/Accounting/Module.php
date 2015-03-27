@@ -49,7 +49,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 		return array (
 			'invokables' => array(
 				'Accounting\AccountHolderAssertion' => 'Accounting\Assertion\AccountHolderAssertion',
-				'Accounting\MemberOfOrganizationOrAccountHolder' => 'Accounting\Assertion\MemberOfOrganizationOrAccountHolderAssertion'
+				'Accounting\MemberOfOrganizationOrAccountHolder' => 'Accounting\Assertion\MemberOfOrganizationOrAccountHolderAssertion',
+				'Accounting\AccountHolderOfOrganizationAccountAssertion' => 'Accounting\Assertion\AccountHolderOfOrganizationAccountAssertion',
 			),
 			
 			'factories' => array (
