@@ -231,6 +231,12 @@ class TasksController extends AbstractHATEOASRestfulController
     public function getAccountService() {
     	return $this->accountService;
     }
+    
+	public function getTaskService() 
+    {
+        return $this->taskService;
+    }
+    
         
     protected function getCollectionOptions()
     {
