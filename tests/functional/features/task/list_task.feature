@@ -50,9 +50,9 @@ Scenario: Requesting a task estimated by only one member
 Scenario: Checking functionality on an ongoing tasks of a stream
     Given that I am authenticated as "mark.rogers@ora.local" 
     And that I want to find a "Task"
-	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000000"
-	Then the response status code should be 200
-	And the response should be JSON
+	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000004"
+	And the response status code should be 200
+	Then the response should be JSON	
 	And the response should have a "_links" property
 	Then the "_links" property contains "complete" key
 	Then the "_links" property contains "delete" key

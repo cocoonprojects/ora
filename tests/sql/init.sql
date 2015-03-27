@@ -81,6 +81,7 @@ INSERT INTO task_members(task_id, member_id,role) VALUES
 INSERT INTO task_members(task_id, member_id,role) VALUES
 ('00000000-0000-0000-0000-000000000000','20000000-0000-0000-0000-000000000000','member');
 
+
 # task 00000000-0000-0000-0000-000000000001, completed, Mark Rogers (owner), Paul Smith (member)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
 ('6126d983-20ad-47f2-9636-085395aa3b5b',1,'Ora\\TaskManagement\\TaskCreated','a:3:{s:6:\"status\";i:20;s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000001\";}','2014-11-12T19:07:59.000000+0100','Ora\\TaskManagement\\Task','00000000-0000-0000-0000-000000000001'),
@@ -116,6 +117,7 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
 ('6e943d08-7a9a-4a2a-a8b5-201bfeb57b92',3,'Ora\\TaskManagement\\StreamChanged','a:3:{s:8:\"streamId\";s:36:\"00000000-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000003\";}','2014-11-12T19:07:59.000000+0100','Ora\\TaskManagement\\Task','00000000-0000-0000-0000-000000000003'),
 ('c033eb32-2ad4-49d5-b25c-3c0b600b7d10',4,'Ora\\TaskManagement\\MemberAdded','a:4:{s:6:\"userId\";s:36:\"60000000-0000-0000-0000-000000000000\";s:4:\"role\";s:5:\"owner\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000003\";}','2014-11-12T19:07:59.000000+0100','Ora\\TaskManagement\\Task','00000000-0000-0000-0000-000000000003'),
 ('6b73772b-efa9-475d-b3d8-abbcf3a84889',5,'Ora\\TaskManagement\\TaskDeleted','a:3:{s:10:\"prevStatus\";i:20;s:2:\"by\";s:36:\"266616a1-3160-4caa-ae56-35f884324a5a\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000003\";}','2014-12-31T09:33:15.000000+0100','Ora\\TaskManagement\\Task','00000000-0000-0000-0000-000000000003');
+
 
 # kanbanizeTask 00000000-0000-0000-0000-000000000106, accepted, Mark Rogers (owner)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
@@ -182,3 +184,19 @@ INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, 
 ('00000000-0000-0000-0000-000000000111','00000000-1000-0000-0000-000000000000','completedTask',40,'2014-11-06 15:48:17','2014-11-06 15:48:17','kanbanizetask',3,120);
 INSERT INTO task_members(task_id, member_id,role) VALUES
 ('00000000-0000-0000-0000-000000000111','60000000-0000-0000-0000-000000000000','owner');
+
+
+# task 00000000-0000-0000-0000-000000000004, ongoing, Mark Rogers (owner), Paul Smith (member)
+INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
+('6126d983-20ad-47f2-9636-085395aa3b4c',1,'Ora\\TaskManagement\\TaskCreated','a:3:{s:6:\"status\";i:20;s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000004\";}','2014-11-12T19:07:59.000000+0100','Ora\\TaskManagement\\Task','00000000-0000-0000-0000-000000000004'),
+('334fa91f-62c9-4b34-827b-3e01bd7efe5d',2,'Ora\\TaskManagement\\TaskUpdated','a:3:{s:7:\"subject\";s:29:\"Development environment setup\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000004\";}','2014-11-12T19:07:59.000000+0100','Ora\\TaskManagement\\Task','00000000-0000-0000-0000-000000000004'),
+('6e943d08-7a9a-4a2a-a8b5-201bfeb57b66',3,'Ora\\TaskManagement\\StreamChanged','a:3:{s:8:\"streamId\";s:36:\"00000000-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000004\";}','2014-11-12T19:07:59.000000+0100','Ora\\TaskManagement\\Task','00000000-0000-0000-0000-000000000004'),
+('c033eb32-2ad4-49d5-b25c-3c0b600b7dez',4,'Ora\\TaskManagement\\MemberAdded','a:4:{s:6:\"userId\";s:36:\"60000000-0000-0000-0000-000000000000\";s:4:\"role\";s:5:\"owner\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000004\";}','2014-11-12T19:07:59.000000+0100','Ora\\TaskManagement\\Task','00000000-0000-0000-0000-000000000004'),
+('c133eb32-2ad4-49d5-b25c-3c0b600b7dey',5,'Ora\\TaskManagement\\MemberAdded','a:4:{s:6:\"userId\";s:36:\"20000000-0000-0000-0000-000000000000\";s:4:\"role\";s:6:\"member\";s:2:\"by\";s:36:\"20000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000004\";}','2014-11-12T19:07:59.000000+0100','Ora\\TaskManagement\\Task','00000000-0000-0000-0000-000000000004');
+INSERT INTO `tasks` (id, stream_id, subject, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type) VALUES
+('00000000-0000-0000-0000-000000000004','00000000-1000-0000-0000-000000000000','Development environment setup',20,'2014-11-12 19:07:59','2014-11-12 19:07:59','60000000-0000-0000-0000-000000000000','60000000-0000-0000-0000-000000000000','task');
+INSERT INTO task_members(task_id, member_id,role) VALUES
+('00000000-0000-0000-0000-000000000004','60000000-0000-0000-0000-000000000000','owner');
+INSERT INTO task_members(task_id, member_id,role) VALUES
+('00000000-0000-0000-0000-000000000004','20000000-0000-0000-0000-000000000000','member');
+
