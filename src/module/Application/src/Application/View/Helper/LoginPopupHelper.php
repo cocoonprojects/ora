@@ -19,7 +19,7 @@ class LoginPopupHelper extends AbstractHelper implements ServiceLocatorAwareInte
 		if(!$authService->hasIdentity())
 		{
 			$output = '<div id="loginModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-					<div class="modal-dialog">
+					<div class="modal-dialog" style="width: 20%; margin-left: 40%">
 						<div class="modal-content">
 							<div class="modal-header">
 								<button type="button" class="close" data-dismiss="modal">
@@ -34,8 +34,21 @@ class LoginPopupHelper extends AbstractHelper implements ServiceLocatorAwareInte
 			$signin = array();
 			foreach($adapterResolver->getProviders() as $provider => $instance)
 			{
+				switch ($provider) {
+				case 'google' :
+					$btn = ' btn-google-plus" style="background-color: #DD4B39; color: white; text-transform: none';
+					$icon = ' fa-google-plus';
+				break;
+				case 'linkedin' :
+					$btn = ' btn-linkedin" style="background-color: #007BB6; color: white; text-transform: none';
+					$icon = ' fa-linkedin';
+					break;
+				default:
+					$btn = '';
+					$icon = '';
+				}
 				$url = $instance->getUrl();
-				$signin[] = '<a class="btn btn-primary btn-lg" href="' . $url . '">' . $provider . '</a>';
+				$signin[] = '<a class="btn btn-block btn-social' . $btn . '" href="' . $url . '"><i class="fa' . $icon . '"></i>Sign in with ' . ucfirst($provider) . '</a>';
 			}
 			$output .= empty($signin) ? '' : implode(' ', $signin);
 			$output .="</div>

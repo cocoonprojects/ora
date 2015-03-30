@@ -18,7 +18,8 @@ class AccountServiceFactory implements FactoryInterface {
 		if(is_null(self::$instance)) {
 			$eventStore = $serviceLocator->get('prooph.event_store');
 			$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-			self::$instance = new EventSourcingAccountService($eventStore, $entityManager);
+			$service = new EventSourcingAccountService($eventStore, $entityManager);
+			self::$instance = $service;
 		}
 		return self::$instance;
 	}

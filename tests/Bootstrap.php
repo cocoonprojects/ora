@@ -54,6 +54,11 @@ class Bootstrap
     {
         return static::$serviceManager;
     }
+    
+    public static function getEventManager()
+    {
+    	return static::$zendApp->getEventManager();
+    }
 
     public static function getConfig()
     {

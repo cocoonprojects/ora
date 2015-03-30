@@ -4,6 +4,7 @@ namespace Ora\ReadModel;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Ora\User\User;
+use Zend\Permissions\Acl\Resource\ResourceInterface;
 
 /**
  * @ORM\Entity @ORM\Table(name="accounts")
@@ -12,7 +13,7 @@ use Ora\User\User;
  * @author andreabandera
  *
  */
-class Account extends EditableEntity {
+class Account extends EditableEntity implements ResourceInterface {
 	
 	/**
 	 * @ORM\Embedded(class="Ora\ReadModel\Balance")
@@ -20,31 +21,30 @@ class Account extends EditableEntity {
 	 */
 	protected $balance;
 	/**
-	 * @ORM\ManyToMany(targetEntity="Ora\User\User")
+	 * @ORM\ManyToMany(targetEntity="Ora\User\User", cascade={"PERSIST", "REMOVE"}, indexBy="id")
 	 * @ORM\JoinTable(name="account_holders", joinColumns={@ORM\JoinColumn(name="account_id", referencedColumnName="id", onDelete="CASCADE")},
 	 * 		inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")}
 	 * )
-	 * @var ArrayCollection
+	 * @var User[]
 	 */
 	protected $holders;
 	/**
 	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\AccountTransaction", mappedBy="account", cascade="persist", fetch="LAZY")
-	 * @ORM\OrderBy({"createdAt" = "DESC"})
-	 * @var ArrayCollection
+	 * @ORM\OrderBy({"number" = "DESC"})
+	 * @var AccountTransaction[]
 	 */
 	protected $transactions;
 	
 	/**
 	 * @ORM\OneToOne(targetEntity="Organization")
-	 * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", nullable=true)
+	 * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", nullable=true, onDelete="CASCADE")
 	 * @var Organization
 	 */
 	protected $organization;
 	
-	public function __construct($id, User $holder) {
+	public function __construct($id) {
 		parent::__construct($id);
 		$this->holders = new ArrayCollection();
-		$this->holders->add($holder);
 		$this->transactions = new ArrayCollection();
 	}
 	
@@ -61,6 +61,11 @@ class Account extends EditableEntity {
 		return $this->holders;
 	}
 	
+	public function addHolder(User $holder) {
+		$this->holders->set($holder->getId(), $holder);
+		return $this;
+	}
+	
 	public function getTransactions() {
 		return $this->transactions;
 	}
@@ -71,8 +76,18 @@ class Account extends EditableEntity {
 	}
 	
 	public function isHeldBy(User $user) {
-		return $this->holders->exists(function($key, $value) use ($user) {
-			return $user->equals($value);
-		});
+		return $this->holders->containsKey($user->getId());
+	}
+	
+	public function getName() {
+		if($this->holders->count() > 0) {
+			$holder = $this->holders->first();
+			return $holder->getFirstname() . ' ' . $holder->getLastname(); 
+		}
+		return null;
+	}
+	
+	public function getResourceId(){
+		return "Ora\Account";
 	}
 }

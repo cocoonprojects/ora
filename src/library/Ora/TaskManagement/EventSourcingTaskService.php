@@ -2,20 +2,21 @@
 
 namespace Ora\TaskManagement;
 
+use Zend\EventManager\EventManagerAwareInterface;
+use Zend\EventManager\EventManagerInterface;
+use Zend\EventManager\EventManager;
+use Zend\EventManager\Event;
 use Doctrine\ORM\EntityManager;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Aggregate\AggregateRepository;
+use Prooph\EventStore\Aggregate\AggregateType;
 use Prooph\EventStore\Stream\MappedSuperclassStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
-use Prooph\EventStore\Aggregate\AggregateType;
 use Ora\User\User;
 use Ora\StreamManagement\Stream;
-use Ora\ReadModel\Share;
+use Rhumsaa\Uuid\Uuid;
 
-/**
- * @author Giannotti Fabio
- */
-class EventSourcingTaskService extends AggregateRepository implements TaskService
+class EventSourcingTaskService extends AggregateRepository implements TaskService, EventManagerAwareInterface
 {
 	/**
 	 * 
@@ -27,20 +28,23 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @var AggregateType
 	 */
 	private $aggregateRootType;
+	/**
+	 * 
+	 * @var EventManagerInterface
+	 */
+	private $events;
     
     public function __construct(EventStore $eventStore, EntityManager $entityManager)
     {
-    	$this->aggregateRootType = new AggregateType('Ora\\TaskManagement\\Task');
+    	$this->aggregateRootType = new AggregateType('Ora\TaskManagement\Task');
 		parent::__construct($eventStore, new AggregateTranslator(), new MappedSuperclassStreamStrategy($eventStore, $this->aggregateRootType, [$this->aggregateRootType->toString() => 'event_stream']));
-		$this->entityManager = $entityManager;
+		$this->entityManager = $entityManager;	
 	}
 	
-	public function createTask(Stream $stream, $subject, User $createdBy)
-	{		
-		$this->eventStore->beginTransaction();
-	    $task = Task::create($stream, $subject, $createdBy);
-	    $this->addAggregateRoot($task);
-		$this->eventStore->commit();
+	public function addTask(Task $task)
+	{			
+	    $task->setEventManager($this->getEventManager());
+		$this->addAggregateRoot($task);
 		return $task;
 	}
 	
@@ -49,8 +53,10 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 */
 	public function getTask($id)
 	{
+		$tId = $id instanceof Uuid ? $id->toString() : $id;
 		try {
-			$task = $this->getAggregateRoot($this->aggregateRootType, $id);
+			$task = $this->getAggregateRoot($this->aggregateRootType, $tId);
+			$task->setEventManager($this->getEventManager());
 		    return $task;
         } catch (\RuntimeException $e) {
         	return null;
@@ -70,19 +76,24 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		return $this->entityManager->find('Ora\ReadModel\Task', $id);
 	}
 	
-	public function findStreamTasks($streamId)
-	{	
+	public function findStreamTasks($streamId) {	
 		$repository = $this->entityManager->getRepository('Ora\ReadModel\Task')->findBy(array('stream' => $streamId));
 	    return $repository;
 	}
 	
-// 	public function findTaskShares($id) {
-// 		$dql = "SELECT SUM(s.value) AS total, COUNT(s.evaluator_id) AS evaluators, s.valued_id FROM Ora\ReadModel\Share s " .
-//        "WHERE s.task_id = ?1 GROUP BY s.valued_id";
-// 		$rv = $this->entityManager->createQuery($dql)
-// 			->setParameter(1, $id)
-// 			->getArrayResult();
-// 		return $rv;
-// 	}
+	public function setEventManager(EventManagerInterface $events) {
+		$events->setIdentifiers(array(			'TaskManagement\TaskService',
+			__CLASS__,
+			get_class($this)
+		));
+		$this->events = $events;
+	}
 	
+	public function getEventManager()
+	{
+		if (!$this->events) {
+			$this->setEventManager(new EventManager());
+		}
+		return $this->events;
+	}
 }

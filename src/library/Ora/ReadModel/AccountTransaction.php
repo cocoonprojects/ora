@@ -14,7 +14,7 @@ class AccountTransaction extends DomainEntity {
 	
 	/**
 	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\Account", inversedBy="transactions")
-	 * @ORM\JoinColumn(name="account_id", referencedColumnName="id", onDelete="CASCADE")
+	 * @ORM\JoinColumn(name="account_id", referencedColumnName="id")
 	 * @var Account
 	 */
 	protected $account;
@@ -33,6 +33,11 @@ class AccountTransaction extends DomainEntity {
 	 * @var float
 	 */
 	protected $balance;
+	/**
+	 * @ORM\Column(type="integer")
+	 * @var integer
+	 */
+	private $number = 1;
 	
 	public function setAccount(Account $account) {
 		$this->account = $account;
@@ -68,5 +73,22 @@ class AccountTransaction extends DomainEntity {
 	
 	public function getBalance() {
 		return $this->balance;
+	}
+	
+	public function getPayerName() {
+		return null;
+	}
+
+	public function getPayeeName() {
+		return null;
+	}
+	
+	public function setNumber($number) {
+		$this->number = $number;
+		return $this;
+	}
+	
+	public function getNumber() {
+		return $this->number;
 	}
 }

@@ -12,8 +12,8 @@ use Ora\ReadModel\Account;
  */
 class OrganizationAccount extends Account {
 	
-	public function __construct($id, User $user, Organization $organization) {
-		parent::__construct($id, $holder);
+	public function __construct($id, Organization $organization) {
+		parent::__construct($id);
 		$this->organization = $organization;
 	}
 	
@@ -21,4 +21,7 @@ class OrganizationAccount extends Account {
 		return $this->organization;
 	}
 	
+	public function getName() {
+		return $this->getOrganization()->getName();
+	}
 }

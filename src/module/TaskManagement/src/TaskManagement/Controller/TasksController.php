@@ -1,16 +1,17 @@
 <?php
-
 namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Ora\TaskManagement\TaskService;
-use Ora\StreamManagement\StreamService;
-use Ora\User\User;
-use Ora\StreamManagement\Stream;
-use Ora\IllegalStateException;
 use Zend\Authentication\AuthenticationServiceInterface;
-use TaskManagement\View\TaskJsonModel;
+use Ora\IllegalStateException;
+use Ora\InvalidArgumentException;
+use Ora\TaskManagement\TaskService;
 use Ora\TaskManagement\Task;
+use Ora\StreamManagement\StreamService;
+use TaskManagement\View\TaskJsonModel;
+use BjyAuthorize\Service\Authorize;
+use Ora\Accounting\AccountService;
+use Ora\User\User;
 
 class TasksController extends AbstractHATEOASRestfulController
 {
@@ -27,11 +28,22 @@ class TasksController extends AbstractHATEOASRestfulController
      * @var StreamService
      */
 	private $streamService;
-		
-	public function __construct(TaskService $taskService, StreamService $streamService)
+	/**
+	 * 
+	 * @var Authorize
+	 */
+	private $authorize;
+	/**
+	 * 
+	 * @var AccountService
+	 */
+	private $accountService;
+	
+	public function __construct(TaskService $taskService, StreamService $streamService, Authorize $authorize)
 	{
 		$this->taskService = $taskService;
-		$this->streamService = $streamService;
+		$this->streamService = $streamService;		
+		$this->authorize = $authorize;
 	}
 	
     public function get($id)
@@ -42,7 +54,7 @@ class TasksController extends AbstractHATEOASRestfulController
         	return $this->response;
         }
     	$this->response->setStatusCode(200);
-        $view = new TaskJsonModel($this->url(), $this->identity()['user']);
+        $view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->authorize);
         $view->setVariable('resource', $task);
         return $view;
     }
@@ -60,7 +72,8 @@ class TasksController extends AbstractHATEOASRestfulController
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks() : $this->taskService->findStreamTasks($streamID);
 
     	$this->response->setStatusCode(200);
-       	$view = new TaskJsonModel($this->url(), $this->identity()['user']);       	
+       	$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->authorize);          	
+
         $view->setVariable('resource', $availableTasks);
         return $view;
     }
@@ -75,7 +88,8 @@ class TasksController extends AbstractHATEOASRestfulController
      * @author Giannotti Fabio
      */
     public function create($data)
-    {       	
+    {   
+    	
     	if (!isset($data['streamID']) || !isset($data['subject']))
         {            
             // HTTP STATUS CODE 400: Bad Request
@@ -83,15 +97,15 @@ class TasksController extends AbstractHATEOASRestfulController
             return $this->response;
         }   
 		
-    	$loggedUser = $this->identity()['user'];    	
-    	if(is_null($loggedUser))
+    	$identity = $this->identity();    	
+    	if(is_null($identity))
     	{
     		$this->response->setStatusCode(401);
     		return $this->response;
     	}
+    	$identity = $this->identity()['user'];
     	       
         $stream = $this->streamService->getStream($data['streamID']);
-                     
         if(is_null($stream)) {
         	// Stream Not Found
         	$this->response->setStatusCode(404);
@@ -108,16 +122,25 @@ class TasksController extends AbstractHATEOASRestfulController
 	        $this->response->setStatusCode(406);
 	        return $this->response;
 	    }
-	        
-	    $createdBy = $loggedUser;
-	    $task = $this->taskService->createTask($stream, $data['subject'], $createdBy);
-	    // Task Created
-	     
-	    $this->response->setStatusCode(201);
-	    $url = $this->url()->fromRoute('tasks', array('id' => $task->getId()->toString()));
-	    $this->response->getHeaders()->addHeaderLine('Location', $url);
 	    
-    	return $this->response;
+	    $accountId = $this->getAccountId($identity);
+	     
+	    $this->transaction()->begin();
+	    try {
+	    	$task = Task::create($stream, $data['subject'], $identity);
+	    	$task->addMember($identity, Task::ROLE_OWNER, $accountId);
+	    	$this->taskService->addTask($task);
+	    	$this->transaction()->commit();
+	    	
+		    $url = $this->url()->fromRoute('tasks', array('id' => $task->getId()->toString()));
+		    $this->response->getHeaders()->addHeaderLine('Location', $url);
+		    $this->response->setStatusCode(201);
+	    	return $this->response;
+	    } catch (\Exception $e) {
+	    	$this->transaction()->rollback();
+	        $this->response->setStatusCode(500);
+	        return $this->response;
+	    }
     }
 
     /**
@@ -167,7 +190,7 @@ class TasksController extends AbstractHATEOASRestfulController
         return $this->response;
     }
     
-    /**
+	/**
      * Delete single existing task with specified ID
      * @method DELETE
      * @link http://oraproject/task-management/tasks/[:ID]
@@ -199,6 +222,21 @@ class TasksController extends AbstractHATEOASRestfulController
       	
         return $this->response;
     }
+    
+    public function setAccountService(AccountService $accountService) {
+    	$this->accountService = $accountService;
+    	return $this;
+    }
+    
+    public function getAccountService() {
+    	return $this->accountService;
+    }
+    
+	public function getTaskService() 
+    {
+        return $this->taskService;
+    }
+    
         
     protected function getCollectionOptions()
     {
@@ -210,4 +248,14 @@ class TasksController extends AbstractHATEOASRestfulController
         return self::$resourceOptions;
     }   
     
+    protected function getAccountId(User $user) {
+    	if(is_null($this->accountService)){
+    		return null;
+    	}
+    	$account = $this->accountService->findPersonalAccount($user);
+    	if(is_null($account)) {
+    		return null;
+    	}
+    	return $account->getId();
+    }
 }

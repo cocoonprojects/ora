@@ -90,7 +90,9 @@ Accounting.prototype = {
 						
 			$.each(json.accounts, function(key, account) {
 				s = account.organization == undefined ? 'My account' : account.organization + ' account';
-				container.append('<li role="presentation"><a href="' + account._links.statement + '">' + s + '</a></li>');
+				if(account._links.statement){
+					container.append('<li role="presentation"><a href="' + account._links.statement + '">' + s + '</a></li>');	
+				}
 			});
 		},
 		
@@ -98,35 +100,36 @@ Accounting.prototype = {
 		{
 			var container = $('#account');
 
-//			if(json.organization != undefined) {
-//				container.find('h2').text(json.organization + ' account');
-//			} else {
-//				container.find('h2').text('My account');
-//			}
-			
 			balanceDate = new Date(Date.parse(json.balance.date));
 			p = container.find('p');
 			p.html('<span class="text-primary">' + json.balance.value + ' credits</span> at ' + balanceDate.toLocaleString());
-			p.append('<ul role="menu">');
+			var features = '';
 			if(json._links.deposits != undefined) {
-				p.append('<li><a href="#" data-href="' + json._links.deposits + '" class="btn btn-default" data-toggle="modal" data-target="#depositModal">Deposit</a></li>');
+				features += '<li><a href="#" data-href="' + json._links.deposits + '" class="btn btn-default" data-toggle="modal" data-target="#depositModal">Deposit</a></li>';
 			}
-			p.append('</ul>');
+			p.append('<ul role="menu" style="margin-left:0; padding-left:0; list-style: none">' + features + '</ul>');
 
 			c = container.find('tbody').empty();
 			var top = $('#actual-balance');
 			top.text(0);
 			var bottom = $('#starting-balance');
-			bottom.text(0);
+			balance = 0;
 			
 			$.each(json.transactions, function(key, transaction) {
 				transactionDate = new Date(Date.parse(transaction.date));
 				if(key == 0) { top.text(transaction.balance); }
-				cssClass = transaction.type == 'Deposit' ? 'text-success' : '';
-				c.append('<tr><td>' + transactionDate.toLocaleString() + '</td><td>' + transaction.description + '</td><td>' + transaction.type + '</td><td class=' + cssClass + '>' + transaction.amount + '</td></tr>');
-				bottom.empty();
-				bottom.text(transaction.balance);
+				cssClass = transaction.amount < 0 ? 'text-danger' : '';
+				source = '';
+				if(transaction.payer != undefined) {
+					source = 'from ' + transaction.payer;
+				}
+				if(transaction.payee != undefined) {
+					source = 'to ' + transaction.payee;
+				}
+				c.append('<tr><td>' + transactionDate.toLocaleString() + '</td><td>' + transaction.type + ' ' + source + '</td><td>' + transaction.description + '</td><td class=' + cssClass + '>' + transaction.amount + '</td></tr>');
+				balance = transaction.balance - transaction.amount;
 			});
+			bottom.text(balance);
 			if(json.transactions.length == 0) {
 				c.append('<tr><td colspan="4">No transactions in your history</td></tr>');
 			}
@@ -140,7 +143,7 @@ Accounting.prototype = {
 			alertDiv.addClass('alert alert-' + level);
 			alertDiv.text(message);
 			alertDiv.show();
-		},
+		}
 }
 
 $().ready(function(e){

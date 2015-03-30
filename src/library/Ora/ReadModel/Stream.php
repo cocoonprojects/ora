@@ -2,6 +2,7 @@
 
 namespace Ora\ReadModel;
 
+
 use Doctrine\ORM\Mapping AS ORM;
 
 /**
@@ -12,7 +13,7 @@ use Doctrine\ORM\Mapping AS ORM;
 class Stream extends EditableEntity
 {	    
 	/**
-	 * @ORM\Column(type="string")
+	 * @ORM\Column(type="string", nullable=true)
 	 * @var string
 	 */
 	private $subject;
@@ -37,6 +38,6 @@ class Stream extends EditableEntity
 	
 	public function setOrganization(Organization $organization) {
 		$this->organization = $organization;
-		return $this->organization;
+		return $this;
 	}	
 }

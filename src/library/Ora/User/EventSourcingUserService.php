@@ -1,62 +1,56 @@
 <?php
-
 namespace Ora\User;
 
+use Zend\EventManager\EventManagerAwareInterface;
+use Zend\EventManager\EventManagerInterface;
+use Zend\EventManager\EventManager;
 use Doctrine\ORM\EntityManager;
-use Prooph\EventStore\EventStore;
-use Prooph\EventStore\Stream\StreamStrategyInterface;
-use Prooph\EventStore\Aggregate\AggregateRepository;
-use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
-use Prooph\EventStore\Aggregate\AggregateType;
-use Ora\User\Role;
 use Ora\Organization\Organization;
 use Ora\User\User;
-use Ora\Accounting\Account;
-use Ora\Accounting\AccountService;
 
-class EventSourcingUserService extends AggregateRepository implements UserService
+class EventSourcingUserService implements UserService, EventManagerAwareInterface
 {
-	private $entityManager;
-	
 	/**
 	 * 
-	 * @var AccountService
+	 * @var EventManagerInterface
 	 */
-	private $accountService;
+	protected $events;
+	/**
+	 * 
+	 * @var EntityManager
+	 */
+	private $entityManager;
 	
-	public function __construct(EventStore $eventStore, StreamStrategyInterface $eventStoreStrategy, EntityManager $entityManager)
+	public function __construct(EntityManager $entityManager)
 	{
-		parent::__construct($eventStore, new AggregateTranslator(), $eventStoreStrategy, new AggregateType('Ora\User\User'));
 		$this->entityManager = $entityManager;
 	}
 	
 	public function subscribeUser($infoOfUser)
 	{
-		$user = $this->create($infoOfUser, Role::instance(Role::ROLE_USER));
+		$user = $this->create($infoOfUser, User::ROLE_USER);
 		$this->entityManager->persist($user);			
 		$this->entityManager->flush($user);
-		if(!is_null($this->accountService)) {
-			$this->accountService->createPersonalAccount($user);
-		}
+		$this->getEventManager()->trigger(User::EVENT_CREATED, $user);
 		return $user;			
 	}
 		
-	public function create($infoOfUser, Role $role, User $createdBy = null)
+	public function create($infoOfUser, $role, User $createdBy = null)
 	{	
 		$user = User::create($createdBy);
 		$user->setEmail($infoOfUser['email']);
 		$user->setLastname($infoOfUser['family_name']);
 		$user->setFirstname($infoOfUser['given_name']);
 		$user->setPicture($infoOfUser['picture']);
+		$user->setRole($role);
 		return $user;
 	}
 
 	public function findUser($id)
 	{
 		$user = $this->entityManager
-				     ->getRepository('Ora\User\User')
-		             ->findOneBy(array("id" => $id));
-		 
+					 ->getRepository('Ora\User\User')
+					 ->findOneBy(array("id" => $id));
 		return $user;		
 	}
 	
@@ -65,12 +59,24 @@ class EventSourcingUserService extends AggregateRepository implements UserServic
 		$user = $this->entityManager
 					->getRepository('Ora\User\User')
 					->findOneBy(array("email" => $email));
-			
 		return $user;		
+	}	
+
+	public function setEventManager(EventManagerInterface $events)
+	{
+		$events->setIdentifiers(array(
+			'User\UserService',
+			__CLASS__,
+			get_class($this)
+		));
+		$this->events = $events;
 	}
-	
-	public function setAccountService(AccountService $service) {
-		$this->accountService = $service;
+
+	public function getEventManager()
+	{
+		if (!$this->events) {
+			$this->setEventManager(new EventManager());
+		}
+		return $this->events;
 	}
 }
-?>

@@ -1,5 +1,4 @@
 <?php 
-
 namespace Ora\User;
 
 interface UserService
@@ -15,9 +14,9 @@ interface UserService
 	 * Create a User
 	 *
 	 * @param array [email, lastname, firstname]
-	 * @param Role $role
+	 * @param string $role	 
 	 */	
-	public function create($infoOfUser, Role $role);
+	public function create($infoOfUser, $role);
 	
 	/**
 	 * Find a User by id
@@ -31,6 +30,6 @@ interface UserService
 	 *
 	 * @param string $email
 	 */
-	public function findUserByEmail($email);	
+	public function findUserByEmail($email);
 	
 }

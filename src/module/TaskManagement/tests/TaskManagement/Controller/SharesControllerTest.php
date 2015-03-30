@@ -7,10 +7,10 @@ use Zend\Http\Request;
 use Zend\Http\Response;
 use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\RouteMatch;
+use Zend\EventManager\EventManager;
 use PHPUnit_Framework_TestCase;
-use Ora\TaskManagement\Task;
-use Ora\StreamManagement\Stream;
 use Rhumsaa\Uuid\Uuid;
+use Ora\TaskManagement\Task;
 use Ora\User\User;
 
 class SharesControllerTest extends \PHPUnit_Framework_TestCase {
@@ -22,23 +22,24 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     protected $event;
     
     protected $task;
-    protected $member1;
-    protected $member2;
+    protected $owner;
+    protected $member;
+    protected $organization;
 
     protected function setUp()
     {
-        $taskServiceStub = $this->getMockBuilder('Ora\TaskManagement\TaskService')->getMock();
+        $this->owner = $this->getMockBuilder('Ora\User\User')
+        	->getMock();
+        $this->owner->method('getId')
+        	->willReturn('60000000-0000-0000-0000-000000000000');
+    	
+        $this->member = $this->getMockBuilder('Ora\User\User')
+        	->getMock();
+        $this->member->method('getId')
+        	->willReturn('70000000-0000-0000-0000-000000000000');
         
-        $this->member1 = User::create();
-        $this->task = Task::create(new Stream(Uuid::uuid4(), $this->member1), 'test', $this->member1);
-        
-        $this->member2 = User::create();
-        $this->task->addMember($this->member2, $this->member2, Task::ROLE_MEMBER);
-        
-        $this->task->addEstimation(1500, $this->member1);
-        $this->task->addEstimation(3100, $this->member2);
-        
-        $this->task->complete($this->member1);
+        $taskServiceStub = $this->getMockBuilder('Ora\TaskManagement\TaskService')
+        	->getMock();
         
         $serviceManager = Bootstrap::getServiceManager();
         $this->controller = new SharesController($taskServiceStub);
@@ -54,28 +55,49 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
         $this->controller->setEvent($this->event);
         $this->controller->setServiceLocator($serviceManager);
         
-        $identity = $this->getMockBuilder('ZendExtension\Mvc\Controller\Plugin\LoggedIdentity')
-			->disableOriginalConstructor()
-        	->getMock();
-    	$identity->method('__invoke')->willReturn($this->member1);
     	$transaction = $this->getMockBuilder('ZendExtension\Mvc\Controller\Plugin\EventStoreTransactionPlugin')
     		->disableOriginalConstructor()
     		->setMethods(['begin', 'commit', 'rollback'])
     		->getMock();
-    	
-        $this->controller->getPluginManager()->setService('loggedIdentity', $identity);
         $this->controller->getPluginManager()->setService('transaction', $transaction);
+
+        $identity = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Identity')
+			->disableOriginalConstructor()
+        	->getMock();
+    	$identity->method('__invoke')->willReturn(['user' => $this->owner]);
+        $this->controller->getPluginManager()->setService('identity', $identity);
+
+        $this->owner = $this->controller->identity()['user'];
+        
+        $stream = $this->getMockBuilder('Ora\StreamManagement\Stream')
+        	->disableOriginalConstructor()
+        	->getMock();
+        $stream->method('getId')
+        	->willReturn(Uuid::fromString('00000000-1000-0000-0000-000000000000'));
+        
+        $eventManager = new EventManager('TaskManagement\TaskService');
+        $eventManager->setSharedManager(Bootstrap::getEventManager()->getSharedManager());
+        $this->task = Task::create($stream, 'Cras placerat libero non tempor', $this->owner);
+        $this->task->setEventManager($eventManager);
+        $this->task->addMember($this->owner, Task::ROLE_OWNER, 'ccde992b-5aa9-4447-98ae-c8115906dcb7');
+        $this->task->addMember($this->member, Task::ROLE_MEMBER, 'cdde992b-5aa9-4447-98ae-c8115906dcb7');
+        
+        $this->task->addEstimation(1500, $this->owner);
+        $this->task->addEstimation(3100, $this->member);
+        
+        $this->task->complete($this->owner);
+        
     }
     
     public function testAssignSharesAsAnonymous()
     {
-        $identity = $this->getMockBuilder('ZendExtension\Mvc\Controller\Plugin\LoggedIdentity')
+        $identity = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Identity')
 			->disableOriginalConstructor()
         	->getMock();
     	$identity->method('__invoke')->willReturn(null);
-    	$this->controller->getPluginManager()->setService('loggedIdentity', $identity);
+    	$this->controller->getPluginManager()->setService('identity', $identity);
     	
-    	$this->task->accept($this->member1);
+    	$this->task->accept($this->owner);
     	$service = $this->controller->getTaskService();
     	$service->method('getTask')
     			->willReturn($this->task);
@@ -84,8 +106,8 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     	
     	$this->request->setMethod('post');
     	$params = $this->request->getPost();
-    	$params->set($this->member1->getId(), 40);
-    	$params->set($this->member2->getId(), 60);
+    	$params->set($this->owner->getId(), 40);
+    	$params->set($this->member->getId(), 60);
     	 
     	$result   = $this->controller->dispatch($this->request);
     	$response = $this->controller->getResponse();
@@ -95,7 +117,7 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     
     public function testAssignShares()
     {
-    	$this->task->accept($this->member1);
+    	$this->task->accept($this->owner);
     	$service = $this->controller->getTaskService();
     	$service->method('getTask')
     			->willReturn($this->task);
@@ -104,8 +126,8 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     	
     	$this->request->setMethod('post');
     	$params = $this->request->getPost();
-    	$params->set($this->member1->getId(), 40);
-    	$params->set($this->member2->getId(), 60);
+    	$params->set($this->owner->getId(), 40);
+    	$params->set($this->member->getId(), 60);
     	 
     	$result   = $this->controller->dispatch($this->request);
     	$response = $this->controller->getResponse();
@@ -115,7 +137,7 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     
     public function testSkipAssignShares()
     {
-    	$this->task->accept($this->member1);
+    	$this->task->accept($this->owner);
     	$service = $this->controller->getTaskService();
     	$service->method('getTask')
     			->willReturn($this->task);
@@ -132,7 +154,7 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     
     public function testAssignSharesWithMoreThan100Share()
     {
-    	$this->task->accept($this->member1);
+    	$this->task->accept($this->owner);
     	$service = $this->controller->getTaskService();
     	$service->method('getTask')
     			->willReturn($this->task);
@@ -141,8 +163,8 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     	
     	$this->request->setMethod('post');
     	$params = $this->request->getPost();
-    	$params->set($this->member1->getId(), 101);
-    	$params->set($this->member2->getId(), 60);
+    	$params->set($this->owner->getId(), 101);
+    	$params->set($this->member->getId(), 60);
     	 
     	$result   = $this->controller->dispatch($this->request);
     	$response = $this->controller->getResponse();
@@ -152,7 +174,7 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     
     public function testAssignSharesWithLessThan0Share()
     {
-    	$this->task->accept($this->member1);
+    	$this->task->accept($this->owner);
     	$service = $this->controller->getTaskService();
     	$service->method('getTask')
     			->willReturn($this->task);
@@ -161,8 +183,8 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     	
     	$this->request->setMethod('post');
     	$params = $this->request->getPost();
-    	$params->set($this->member1->getId(), 40);
-    	$params->set($this->member2->getId(), -1);
+    	$params->set($this->owner->getId(), 40);
+    	$params->set($this->member->getId(), -1);
     	 
     	$result   = $this->controller->dispatch($this->request);
     	$response = $this->controller->getResponse();
@@ -172,7 +194,7 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     
     public function testAssignSharesWithMoreThan100TotalShares()
     {
-    	$this->task->accept($this->member1);
+    	$this->task->accept($this->owner);
     	$service = $this->controller->getTaskService();
     	$service->method('getTask')
     			->willReturn($this->task);
@@ -181,8 +203,8 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     	
     	$this->request->setMethod('post');
     	$params = $this->request->getPost();
-    	$params->set($this->member1->getId(), 40);
-    	$params->set($this->member2->getId(), 70);
+    	$params->set($this->owner->getId(), 40);
+    	$params->set($this->member->getId(), 70);
     	 
     	$result   = $this->controller->dispatch($this->request);
     	$response = $this->controller->getResponse();
@@ -200,8 +222,8 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     	
     	$this->request->setMethod('post');
     	$params = $this->request->getPost();
-    	$params->set($this->member1->getId(), 40);
-    	$params->set($this->member2->getId(), 60);
+    	$params->set($this->owner->getId(), 40);
+    	$params->set($this->member->getId(), 60);
     	 
     	$result   = $this->controller->dispatch($this->request);
     	$response = $this->controller->getResponse();
@@ -211,7 +233,7 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     
     public function testAssignSharesWithMissingMember()
     {
-    	$this->task->accept($this->member1);
+    	$this->task->accept($this->owner);
     	$service = $this->controller->getTaskService();
     	$service->method('getTask')
     			->willReturn($this->task);
@@ -220,7 +242,7 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     	
     	$this->request->setMethod('post');
     	$params = $this->request->getPost();
-    	$params->set($this->member1->getId(), 100);
+    	$params->set($this->owner->getId(), 100);
     	 
     	$result   = $this->controller->dispatch($this->request);
     	$response = $this->controller->getResponse();
@@ -230,12 +252,12 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     
     public function testAssignSharesByNonMember()
     {
-    	$this->task->accept($this->member1);
-    	$identity = $this->getMockBuilder('ZendExtension\Mvc\Controller\Plugin\LoggedIdentity')
+    	$this->task->accept($this->owner);
+    	$identity = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Identity')
 			->disableOriginalConstructor()
         	->getMock();
-    	$identity->method('__invoke')->willReturn(User::create());
-    	$this->controller->getPluginManager()->setService('loggedIdentity', $identity);
+    	$identity->method('__invoke')->willReturn(['user' => User::create()]);
+    	$this->controller->getPluginManager()->setService('identity', $identity);
     	 
     	$service = $this->controller->getTaskService();
     	$service->method('getTask')
@@ -245,8 +267,8 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     	 
     	$this->request->setMethod('post');
     	$params = $this->request->getPost();
-    	$params->set($this->member1->getId(), 40);
-    	$params->set($this->member2->getId(), 60);
+    	$params->set($this->owner->getId(), 40);
+    	$params->set($this->member->getId(), 60);
     	
     	$result   = $this->controller->dispatch($this->request);
     	$response = $this->controller->getResponse();
@@ -264,8 +286,8 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     	
     	$this->request->setMethod('post');
     	$params = $this->request->getPost();
-    	$params->set($this->member1->getId(), 40);
-    	$params->set($this->member2->getId(), 60);
+    	$params->set($this->owner->getId(), 40);
+    	$params->set($this->member->getId(), 60);
     	 
     	$result   = $this->controller->dispatch($this->request);
     	$response = $this->controller->getResponse();
@@ -275,7 +297,7 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     
     public function testAssignSharesToANonMembers()
     {
-    	$this->task->accept($this->member1);
+    	$this->task->accept($this->owner);
     	$service = $this->controller->getTaskService();
     	$service->method('getTask')
     		->willReturn($this->task);
@@ -285,8 +307,8 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     	$this->request->setMethod('post');
     	$params = $this->request->getPost();
     	$params->set(User::create()->getId(), 20);
-    	$params->set($this->member1->getId(), 20);
-    	$params->set($this->member2->getId(), 60);
+    	$params->set($this->owner->getId(), 20);
+    	$params->set($this->member->getId(), 60);
     	
     	$result   = $this->controller->dispatch($this->request);
     	$response = $this->controller->getResponse();
@@ -296,7 +318,7 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
 
     public function testAssignSharesToANonMembersExtraShares()
     {
-    	$this->task->accept($this->member1);
+    	$this->task->accept($this->owner);
     	$service = $this->controller->getTaskService();
     	$service->method('getTask')
     		->willReturn($this->task);
@@ -306,12 +328,51 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     	$this->request->setMethod('post');
     	$params = $this->request->getPost();
     	$params->set(User::create()->getId(), 20);
-    	$params->set($this->member1->getId(), 40);
-    	$params->set($this->member2->getId(), 60);
+    	$params->set($this->owner->getId(), 40);
+    	$params->set($this->member->getId(), 60);
     	
     	$result   = $this->controller->dispatch($this->request);
     	$response = $this->controller->getResponse();
     	
     	$this->assertEquals(201, $response->getStatusCode());
+    }
+    
+    public function testAssignSharesAsLast() {
+    	$this->task->accept($this->owner);
+    	$this->task->assignShares([ $this->owner->getId() => 0.4, $this->member->getId() => 0.6 ], $this->member);
+    	$service = $this->controller->getTaskService();
+    	$service->method('getTask')
+    		->willReturn($this->task);
+
+    	$this->routeMatch->setParam('id', $this->task->getId()->toString());
+    	 
+    	$this->request->setMethod('post');
+    	$params = $this->request->getPost();
+    	$params->set($this->owner->getId(), 50);
+    	$params->set($this->member->getId(), 50);
+    	
+    	$result   = $this->controller->dispatch($this->request);
+    	$response = $this->controller->getResponse();
+    	
+    	$this->assertEquals(201, $response->getStatusCode());
+    	$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
+    }
+
+    public function testSkipSharesAsLast() {
+    	$this->task->accept($this->owner);
+    	$this->task->assignShares([ $this->owner->getId() => 0.4, $this->member->getId() => 0.6 ], $this->member);
+    	$service = $this->controller->getTaskService();
+    	$service->method('getTask')
+    		->willReturn($this->task);
+
+    	$this->routeMatch->setParam('id', $this->task->getId()->toString());
+    	 
+    	$this->request->setMethod('post');
+    	
+    	$result   = $this->controller->dispatch($this->request);
+    	$response = $this->controller->getResponse();
+    	
+    	$this->assertEquals(201, $response->getStatusCode());
+    	$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
     }
 }

@@ -7,6 +7,10 @@ use Ora\IllegalStateException;
 use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
 use Ora\TaskManagement\TaskService;
+use Ora\Accounting\AccountService;
+use Ora\User\User;
+use Ora\TaskManagement\Task;
+
 
 class MembersController extends AbstractHATEOASRestfulController
 {
@@ -18,22 +22,30 @@ class MembersController extends AbstractHATEOASRestfulController
      * @var TaskService
      */
     protected $taskService;
-    
+    /**
+     * 
+     * @var AccountService
+     */
+    protected $accountService;
+        
     public function __construct(TaskService $taskService) {
 		$this->taskService = $taskService;	
     }
     
     public function invoke($id, $data)
     {
-        $task = $this->taskService->getTask($id);
+    	$task = $this->taskService->getTask($id);
+    	
         if (is_null($task)) {
         	$this->response->setStatusCode(404);
 			return $this->response;
         }
-    	$loggedUser = $this->identity()['user'];
+    	
+    	$identity = $this->identity()['user'];
+    	$accountId = $this->getAccountId($identity);
     	$this->transaction()->begin();
     	try {    		
-       		$task->addMember($loggedUser, $loggedUser);
+       		$task->addMember($identity, Task::ROLE_MEMBER, $accountId);
        		$this->transaction()->commit();
 	    	$this->response->setStatusCode(201);
     	} catch (DuplicatedDomainEntityException $e) {    		
@@ -43,7 +55,6 @@ class MembersController extends AbstractHATEOASRestfulController
        		$this->transaction()->rollback();
         	$this->response->setStatusCode(412);	// Preconditions failed
     	}
-    	
     	return $this->response;
     }
 
@@ -54,20 +65,29 @@ class MembersController extends AbstractHATEOASRestfulController
         	$this->response->setStatusCode(404);
 			return $this->response;
         }
-       	$loggedUser = $this->identity()['user'];
+        
+       	$identity = $this->identity()['user'];
     	$this->transaction()->begin();
        	try {
-       		$task->removeMember($loggedUser, $loggedUser);
+       		$task->removeMember($identity, $identity);
        		$this->transaction()->commit();
 	    	$this->response->setStatusCode(200);
         } catch (DomainEntityUnavailableException $e) {
-       		$this->transaction()->rollback();
-        	$this->response->setStatusCode(204);	// No content
+        	$this->transaction()->rollback();
+        	$this->response->setStatusCode(204);	// No content = nothing changed
         } catch (IllegalStateException $e) {
        		$this->transaction()->rollback();
         	$this->response->setStatusCode(412);	// Preconditions failed
         }
     	return $this->response;
+    }
+    
+    public function setAccountService(AccountService $accountService) {
+    	$this->accountService = $accountService;
+    }
+    
+    public function getAccountService() {
+    	return $this->accountService;
     }
     
     protected function getCollectionOptions()
@@ -80,4 +100,14 @@ class MembersController extends AbstractHATEOASRestfulController
         return self::$resourceOptions;
     }
     
+    protected function getAccountId(User $user) {
+    	if(is_null($this->accountService)){
+    		return null;
+    	}
+    	$account = $this->accountService->findPersonalAccount($user);
+    	if(is_null($account)) {
+    		return null;
+    	}
+    	return $account->getId();
+    }
 }

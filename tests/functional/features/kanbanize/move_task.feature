@@ -38,14 +38,14 @@ Scenario: Cannot accept an ongoing Kanbanize Task
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000108/transitions"
 	Then the response status code should be 412
 
-Scenario: Succesfully moving a completed Kanbanize Task to ongoing
+Scenario: Succesfully moving back a completed Kanbanize Task to ongoing (107)
 	Given that I am authenticated as "mark.rogers@ora.local" 
 	And that I want to make a new "Transaction"
 	And that its "action" is "execute"
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000110/transitions"
 	Then the response status code should be 200
 
-Scenario: Succesfully moving a accepted Kanbanize Task to completed
+Scenario: Succesfully moving back an accepted Kanbanize Task to completed (106)
 	Given that I am authenticated as "mark.rogers@ora.local" 
 	And that I want to make a new "Transaction"
 	And that its "action" is "complete"
@@ -87,7 +87,7 @@ Scenario: Cannot accept a completed task with incomplete estimation
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000001/transitions"
 	Then the response status code should be 412
 
-Scenario: Cannot accept a completed task if you are a member but not the owner
+Scenario: Cannot accept a completed task if you are a member but not the owner (106)
 	Given that I am authenticated as "paul.smith@ora.local"
 	And that I want to make a new "Transaction"
 	And that its "action" is "accept"
@@ -115,7 +115,7 @@ Scenario: Cannot complete an accepted task if you are a member but not the owner
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000002/transitions"
 	Then the response status code should be 403
 
-Scenario: Successfully accepting a completed Kanbanize Task
+Scenario: Successfully accepting a completed Kanbanize Task (106)
 	Given that I am authenticated as "mark.rogers@ora.local" 
 	And that I want to make a new "Transaction"
 	And that its "action" is "accept"

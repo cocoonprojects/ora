@@ -9,7 +9,7 @@ use Ora\User\User;
  * @author andreabandera
  *
  */
-class DomainEntity {
+abstract class DomainEntity {
 	
 	/**
 	 * @ORM\Id @ORM\Column(type="string") 
@@ -19,44 +19,65 @@ class DomainEntity {
 	
 	/**
 	 * @ORM\Column(type="datetime")
-	 * @var DateTime
+	 * @var \DateTime
 	 */
 	protected $createdAt;
 	
 	/**
 	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
-     * @ORM\JoinColumn(name="createdBy_id", referencedColumnName="id", nullable=TRUE)
+	 * @ORM\JoinColumn(name="createdBy_id", referencedColumnName="id", nullable=TRUE)
+	 * @var User
 	 */
 	protected $createdBy;
 	
-    public function __construct($id) {
-    	$this->id = $id;
-    }
-	
+	public function __construct($id) {
+		$this->id = $id;
+	}
+	/**
+	 * @return string
+	 */
 	public function getId() {
 		return $this->id;
 	}
-	
+	/**
+	 * 
+	 * @return \DateTime
+	 */
 	public function getCreatedAt() {
 		return $this->createdAt;
 	}
-	
+	/**
+	 * 
+	 * @param \DateTime $when
+	 * @return \Ora\ReadModel\DomainEntity
+	 */
 	public function setCreatedAt(\DateTime $when) {
 		$this->createdAt = $when;
-		return $this->createdAt;
+		return $this;
 	}
-	
-    public function getCreatedBy()
-    {
-        return $this->createdBy;
-    }
-    
-    public function setCreatedBy(User $user) {
-    	$this->createdBy = $user;
-    	return $this->createdBy;
-    }
-
-    public function equals(DomainEntity $object = null) {
+	/**
+	 * 
+	 * @return User
+	 */
+	public function getCreatedBy()
+	{
+		return $this->createdBy;
+	}
+	/**
+	 * 
+	 * @param User $user
+	 * @return \Ora\ReadModel\DomainEntity
+	 */
+	public function setCreatedBy(User $user) {
+		$this->createdBy = $user;
+		return $this;
+	}
+	/**
+	 * 
+	 * @param DomainEntity $object
+	 * @return boolean
+	 */
+	public function equals(DomainEntity $object = null) {
 		if(is_null($object)) {
 			return false;
 		}

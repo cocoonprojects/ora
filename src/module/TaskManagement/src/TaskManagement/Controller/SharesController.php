@@ -8,9 +8,11 @@ use Zend\I18n\Validator\Float;
 use Zend\Validator\Between;
 use ZendExtension\Mvc\View\ErrorJsonModel;
 use Ora\InvalidArgumentException;
-use Ora\TaskManagement\TaskService;
-use Ora\DomainEntityUnavailableException;
 use Ora\IllegalStateException;
+use Ora\DomainEntityUnavailableException;
+use Ora\TaskManagement\TaskService;
+use Ora\TaskManagement\Task;
+use Ora\StreamManagement\StreamService;
 
 class SharesController extends AbstractHATEOASRestfulController {
 	
@@ -35,11 +37,12 @@ class SharesController extends AbstractHATEOASRestfulController {
 			return $this->response;
 		}
 		
-		$identity = $this->loggedIdentity();
+		$identity = $this->identity();
 		if(is_null($identity)) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
+		$identity = $identity['user'];
 		$error = new ErrorJsonModel();
 		if(count($data) == 0) {
 			$this->transaction()->begin();
@@ -53,9 +56,11 @@ class SharesController extends AbstractHATEOASRestfulController {
 				$this->response->setStatusCode(403);
 				return $this->response;
 			} catch (IllegalStateException $e) {
+				$error->setCode(412);
+				$error->setDescription($e->getMessage());
 				$this->transaction()->rollback();
 				$this->response->setStatusCode(412);
-				return $this->response;
+				return $error;
 			}
 		}
 		
@@ -77,6 +82,11 @@ class SharesController extends AbstractHATEOASRestfulController {
 			$this->response->setStatusCode(400);
 			return $error;
 		}
+		
+		array_walk($data, function(&$value, $key) {
+			$value /= 100;
+		});
+		
 		$this->transaction()->begin();
 		try {
 			$task->assignShares($data, $identity);
@@ -92,6 +102,8 @@ class SharesController extends AbstractHATEOASRestfulController {
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(403);
 		} catch (IllegalStateException $e) {
+			$error->setCode(412);
+			$error->setDescription($e->getMessage());
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(412);
 		}
@@ -101,7 +113,7 @@ class SharesController extends AbstractHATEOASRestfulController {
 	public function getTaskService() {
 		return $this->taskService;
 	}
-
+	
 	protected function getCollectionOptions()
 	{
 		return self::$collectionOptions;
@@ -111,5 +123,4 @@ class SharesController extends AbstractHATEOASRestfulController {
 	{
 		return self::$resourceOptions;
 	}
-	
 }

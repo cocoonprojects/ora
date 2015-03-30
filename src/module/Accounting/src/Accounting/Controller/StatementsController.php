@@ -1,9 +1,12 @@
 <?php
 namespace Accounting\Controller;
 
+use Application\Controller\AuthController;
+
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Ora\Accounting\AccountService;
 use Accounting\View\StatementJsonModel;
+use BjyAuthorize\Service\Authorize;
 
 class StatementsController extends AbstractHATEOASRestfulController
 {
@@ -14,9 +17,15 @@ class StatementsController extends AbstractHATEOASRestfulController
 	 * @var AccountService
 	*/
 	protected $accountService;
-
-	public function __construct(AccountService $accountService) {
+	/**
+	 * 
+	 * @var Authorize
+	 */
+	private $authorize;
+	
+	public function __construct(AccountService $accountService, Authorize $authorize) {
 		$this->accountService = $accountService;
+		$this->authorize = $authorize;
 	}
 
 	public function get($id)
@@ -27,7 +36,7 @@ class StatementsController extends AbstractHATEOASRestfulController
 			return $this->response;
 		}
 		$identity = $this->identity()['user'];
-		$viewModel = new StatementJsonModel($this->url(), $identity);
+		$viewModel = new StatementJsonModel($this->url(), $identity, $this->authorize);
 		$viewModel->setVariable('resource', $account);
 		return $viewModel;
 	}

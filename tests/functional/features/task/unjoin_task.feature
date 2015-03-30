@@ -4,7 +4,7 @@ Feature: Unjoin a task
 	in order to not be involved any more in task related activities
 
 Scenario: Successfully unjoining an ongoing task the logged user is member of
-	Given that I am authenticated as "mark.rogers@ora.local" 
+	Given that I am authenticated as "mark.rogers@ora.local"  
 	And that I want to delete a "Member"
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000000/members"
 	Then the response status code should be 200
@@ -22,13 +22,13 @@ Scenario: Cannot unjoin a not existing task
 	Then the response status code should be 404
 	
 Scenario: Cannot unjoin a completed task
-	Given that I am authenticated as "mark.rogers@ora.local" 
+	Given that I am authenticated as "paul.smith@ora.local" 
 	And that I want to delete a "Member"
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000001/members"
 	Then the response status code should be 412
 
 Scenario: Cannot unjoin an accepted task
-	Given that I am authenticated as "mark.rogers@ora.local" 
+	Given that I am authenticated as "paul.smith@ora.local" 
 	And that I want to delete a "Member"
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000002/members"
 	Then the response status code should be 412
