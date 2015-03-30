@@ -54,11 +54,11 @@ Scenario: Checking functionality on an ongoing tasks of a stream
 	And the response status code should be 200
 	Then the response should be JSON	
 	And the response should have a "_links" property
-	Then the "_links" property contains "complete" key
-	Then the "_links" property contains "delete" key
-	Then the "_links" property contains "estimate" key
-	Then the "_links" property contains "self" key
-	Then the "_links" property contains "edit" key
+	Then the "_links" property contains "ora:complete" key
+	Then the "_links" property contains "ora:delete" key
+	Then the "_links" property contains "ora:estimate" key
+	Then the "_links" property contains "ora:self" key
+	Then the "_links" property contains "ora:edit" key
 
 Scenario: Checking functionality on a completed tasks of a stream
     Given that I am authenticated as "mark.rogers@ora.local" 
@@ -67,9 +67,9 @@ Scenario: Checking functionality on a completed tasks of a stream
 	Then the response status code should be 200
 	And the response should be JSON
 	And the response should have a "_links" property
-	Then the "_links" property contains "estimate" key
-	Then the "_links" property contains "self" key
-	Then the "_links" property contains "execute" key
+	Then the "_links" property contains "ora:estimate" key
+	Then the "_links" property contains "ora:self" key
+	Then the "_links" property contains "ora:execute" key
 
 Scenario: Checking functionality on an accepted tasks of a stream
     Given that I am authenticated as "mark.rogers@ora.local" 
@@ -78,7 +78,7 @@ Scenario: Checking functionality on an accepted tasks of a stream
 	Then the response status code should be 200
 	And the response should be JSON
 	And the response should have a "_links" property
-	Then the "_links" property contains "assignShares" key
-	Then the "_links" property contains "self" key
-	Then the "_links" property contains "complete" key
+	Then the "_links" property contains "ora:assignShares" key
+	Then the "_links" property contains "ora:self" key
+	Then the "_links" property contains "ora:complete" key
 	
