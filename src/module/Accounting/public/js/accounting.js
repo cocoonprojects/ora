@@ -113,7 +113,7 @@ Accounting.prototype = {
 			var top = $('#actual-balance');
 			top.text(0);
 			var bottom = $('#starting-balance');
-			bottom.text(0);
+			balance = 0;
 			
 			$.each(json.transactions, function(key, transaction) {
 				transactionDate = new Date(Date.parse(transaction.date));
@@ -127,9 +127,9 @@ Accounting.prototype = {
 					source = 'to ' + transaction.payee;
 				}
 				c.append('<tr><td>' + transactionDate.toLocaleString() + '</td><td>' + transaction.type + ' ' + source + '</td><td>' + transaction.description + '</td><td class=' + cssClass + '>' + transaction.amount + '</td></tr>');
-				bottom.empty();
-				bottom.text(transaction.balance);
+				balance = transaction.balance - transaction.amount;
 			});
+			bottom.text(balance);
 			if(json.transactions.length == 0) {
 				c.append('<tr><td colspan="4">No transactions in your history</td></tr>');
 			}

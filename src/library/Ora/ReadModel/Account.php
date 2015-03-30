@@ -30,7 +30,7 @@ class Account extends EditableEntity implements ResourceInterface {
 	protected $holders;
 	/**
 	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\AccountTransaction", mappedBy="account", cascade="persist", fetch="LAZY")
-	 * @ORM\OrderBy({"createdAt" = "DESC"})
+	 * @ORM\OrderBy({"number" = "DESC"})
 	 * @var AccountTransaction[]
 	 */
 	protected $transactions;
