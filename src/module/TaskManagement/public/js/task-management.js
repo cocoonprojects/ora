@@ -67,12 +67,12 @@ TaskManagement.prototype = {
 		});
 
         //ACCEPT TASK FOR KAMBANIZE       
-		$("body").on("click", "button[data-action='acceptTask']", function(e){
+		$("body").on("click", "a[data-action='acceptTask']", function(e){
 			e.preventDefault();
 			that.acceptTask(e);
 		});
 
-		$("body").on("click", "button[data-action='completeTask']", function(e){
+		$("body").on("click", "a[data-action='completeTask']", function(e){
 			e.preventDefault();
 			var button = $(e.target) // Button that triggered the modal
 			var key = button.data("task");
@@ -85,12 +85,13 @@ TaskManagement.prototype = {
 		});
 
         //BACK TO ONGOING             
-		$("body").on("click", "button[data-action='executeTask']", function(e){
+		$("body").on("click", "a[data-action='executeTask']", function(e){
 			e.preventDefault();
 			that.executeTask(e);
 		});
 
-		$("#estimateTaskModal").on("click", "#skipEstimateTask", function(e) {
+		$("#estimateTaskModal").on("click", "button[data-action='skipEstimateTask']", function(e) {
+			e.preventDefault();
 			if(confirm('You aren\'t estimating the task, are you sure? This overwrite any previous estimation')) {
 				that.skipEstimateTask(e);
 			}
@@ -120,7 +121,8 @@ TaskManagement.prototype = {
 			that.estimateTask(e);
 		});
 
-		$("#assignSharesModal").on("click", "#skipAssignShares", function(e) {
+		$("#assignSharesModal").on("click", "button[data-action='skipAssignShares']", function(e) {
+			e.preventDefault();
 			if(confirm('You aren\'t assigning your shares to members, are you sure? This overwrite any previous share')) {
 				that.skipAssignShares(e);
 			}
@@ -290,7 +292,7 @@ TaskManagement.prototype = {
 	},
 	
 	acceptTask: function(e){
-		var url = $(e.target).data('href');
+		var url = $(e.target).attr('href');
 		
 		var that = this;
 		
@@ -316,7 +318,7 @@ TaskManagement.prototype = {
     },
 
 	completeTask: function(e){
-		var url = $(e.target).data('href');
+		var url = $(e.target).attr('href');
 		
 		var that = this;
 		
@@ -341,7 +343,7 @@ TaskManagement.prototype = {
     },
 
     executeTask: function(e){
-		var url = $(e.target).data('href');
+		var url = $(e.target).attr('href');
 		
 		var that = this;
 		
@@ -401,8 +403,8 @@ TaskManagement.prototype = {
 			$.each(this.data.tasks, function(key, task) {
 				subject = task._links.self == undefined ? task.subject : '<a data-href="' + task._links.self + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
 
-				if(json._links !== undefined && json._links.create !== undefined) {
-					$("#createTaskModal form").attr("action", json._links.create);
+				if(json._links !== undefined && json._links['ora:create'] !== undefined) {
+					$("#createTaskModal form").attr("action", json._links['ora:create']);
 					$("#createTaskBtn").show();
 				} else {
 					$("#createTaskModal form").attr("action", null);
@@ -410,17 +412,19 @@ TaskManagement.prototype = {
 				}
 
 				var actions = [];
-				if (task._links.complete != undefined) {
-					label = task.status == 40 ? 'Revert to complete' : 'Complete';
-					actions.push('<button data-href="' + task._links.complete + '" data-task="' + key + '" data-action="completeTask" class="btn btn-default">' + label + '</button>');
+				if (task._links['ora:complete'] != undefined) {
+					label = task.status > TASK_STATUS.get('COMPLETED') ? "Revert to complete" : 'Complete';
+					actions.push('<a href="' + task._links['ora:complete'] + '" data-task="' + key + '" data-action="completeTask" class="btn btn-default">' + label + '</a>');
 				}
-				if (task._links.accept != undefined) {
-					actions.push('<button data-href="' + task._links.accept + '" data-action="acceptTask" class="btn btn-default">Accept</button>');
+				if (task._links['ora:accept'] != undefined) {
+					label = task.status > TASK_STATUS.get('ACCEPTED') ? 'Revert to accepted' : 'Accept';
+					actions.push('<a href="' + task._links['ora:accept'] + '" data-action="acceptTask" class="btn btn-default">' + label + '</a>');
 				}
-				if (task._links.execute != undefined) {
-					actions.push('<button data-href="' + task._links.execute + '" data-action="executeTask" class="btn btn-default">Ongoing</button>');
+				if (task._links['ora:execute'] != undefined) {
+					label = task.status > TASK_STATUS.get('ONGOING') ? 'Revert to ongoing' : 'Start';
+					actions.push('<a href="' + task._links['ora:execute'] + '" data-action="executeTask" class="btn btn-default">' + label + '</a>');
 				}
-				if (task._links.estimate != undefined) {
+				if (task._links['ora:estimate'] != undefined) {
 					$e = '';
 					for(var memberId in task.members) {
 						var info = task.members[memberId];
@@ -428,22 +432,22 @@ TaskManagement.prototype = {
 							$e = ' data-credits="' + info.estimation.value + '"';
 						}
 					};
-					actions.push('<a data-href="' + task._links.estimate  + '"' + $e + ' data-toggle="modal" data-target="#estimateTaskModal" class="btn btn-default">Estimate</a>');
+					actions.push('<a data-href="' + task._links['ora:estimate']  + '"' + $e + ' data-toggle="modal" data-target="#estimateTaskModal" class="btn btn-default">Estimate</a>');
 				}
-				if (task._links.join != undefined) {
-					actions.push('<a href="' + task._links.join + '" class="btn btn-default" data-action="joinTask">Join</a>');
+				if (task._links['ora:join'] != undefined) {
+					actions.push('<a href="' + task._links['ora:join'] + '" class="btn btn-default" data-action="joinTask">Join</a>');
 				}
-				if (task._links.unjoin != undefined) {
-					actions.push('<a href="' + task._links.unjoin + '" data-action="unjoinTask" class="btn btn-default">Unjoin</a>');
+				if (task._links['ora:unjoin'] != undefined) {
+					actions.push('<a href="' + task._links['ora:unjoin'] + '" data-action="unjoinTask" class="btn btn-default">Unjoin</a>');
 				}
-				if (task._links.assignShares != undefined) {
-					actions.push('<a data-href="' + task._links.assignShares + '" data-task="' + key + '" data-toggle="modal" data-target="#assignSharesModal" class="btn btn-default">Assign share</a>');
+				if (task._links['ora:assignShares'] != undefined) {
+					actions.push('<a data-href="' + task._links['ora:assignShares'] + '" data-task="' + key + '" data-toggle="modal" data-target="#assignSharesModal" class="btn btn-default">Assign share</a>');
 				}
-				if (task._links.edit != undefined) {
-					actions.push('<a data-href="' + task._links.edit + '" data-subject="' + task.subject + '" data-toggle="modal" data-target="#editTaskModal" class="btn btn-default mdi-content-create"></a>');
+				if (task._links['ora:edit'] != undefined) {
+					actions.push('<a data-href="' + task._links['ora:edit'] + '" data-subject="' + task.subject + '" data-toggle="modal" data-target="#editTaskModal" class="btn btn-default mdi-content-create"></a>');
 				}
-				if (task._links['delete'] != undefined) {
-					actions.push('<a href="' + task._links['delete'] + '" data-action="deleteTask" class="btn btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>');
+				if (task._links['ora:delete'] != undefined) {
+					actions.push('<a href="' + task._links['ora:delete'] + '" data-action="deleteTask" class="btn btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>');
 				}
 				
 				rv = that.renderTask(task);
@@ -727,6 +731,31 @@ TaskManagement.prototype = {
 	}
 	
 };
+
+var TASK_STATUS = (function() {
+	var labels = {
+		0: 'Idea',
+		10:	'Open',
+		20: 'Ongoing',
+		30: 'Completed',
+		40: 'Accepted (shares assignment in progress)',
+		50:	'Closed'
+	};
+	
+	var values = {
+		'IDEA':			0,
+		'OPEN':			10,
+		'ONGOING':		20,
+		'COMPLETED':	30,
+		'ACCEPTED':		40,
+		'CLOSED':		50
+	}
+	
+	return {
+		get: function(name) { return values[name]; },
+		label: function(name) { return labels[name]; }
+	};
+})();
 
 $().ready(function(e){
 	$('#content div.alert').hide();
