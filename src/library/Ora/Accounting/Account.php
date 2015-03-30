@@ -47,6 +47,8 @@ class Account extends DomainEntity {
 				'amount' => $amount,
 				'description' => $description,
 				'payer'	 => $holder->getId(),
+				'balance' => $this->balance->getValue() + $amount,
+				'prevBalance' => $this->balance->getValue(),
 		)));
 		return $this;
 	}
@@ -59,6 +61,8 @@ class Account extends DomainEntity {
 				'amount' => $amount,
 				'description' => $description,
 				'payer'	 => $payer->getId()->toString(),
+				'balance' => $this->balance->getValue() + $amount,
+				'prevBalance' => $this->balance->getValue(),
 				'by' => $by->getId(),
 		)));
 		return $this;
@@ -72,6 +76,8 @@ class Account extends DomainEntity {
 				'amount' => $amount,
 				'description' => $description,
 				'payee'	 => $payee->getId()->toString(),
+				'balance' => $this->balance->getValue() + $amount,
+				'prevBalance' => $this->balance->getValue(),
 				'by' => $by->getId(),
 		)));
 		return $this;
