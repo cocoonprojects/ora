@@ -90,7 +90,9 @@ Accounting.prototype = {
 						
 			$.each(json.accounts, function(key, account) {
 				s = account.organization == undefined ? 'My account' : account.organization + ' account';
-				container.append('<li role="presentation"><a href="' + account._links.statement + '">' + s + '</a></li>');
+				if(account._links.statement){
+					container.append('<li role="presentation"><a href="' + account._links.statement + '">' + s + '</a></li>');	
+				}
 			});
 		},
 		
@@ -141,7 +143,7 @@ Accounting.prototype = {
 			alertDiv.addClass('alert alert-' + level);
 			alertDiv.text(message);
 			alertDiv.show();
-		},
+		}
 }
 
 $().ready(function(e){

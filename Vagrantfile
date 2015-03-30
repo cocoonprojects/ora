@@ -200,9 +200,11 @@ config.vm.provision :shell, :path => "puphpet/shell/testsuite_link.sh"
 #config.vm.provision :shell, :path => "puphpet/shell/vim.sh"
 
 
-#configurazione del modulo di doctrine
-config.vm.provision :shell, :path => "puphpet/shell/doctrine_module_configuration.sh"
-
-config.vm.synced_folder "./src/data/DoctrineORMModule/Proxies/", "/vagrant/src/data/DoctrineORMModule/Proxies/", :mount_options => ["dmode=777,fmode=777"]
-
+config.vm.synced_folder "./src/data/DoctrineORMModule/Proxies/", "/vagrant/src/data/DoctrineORMModule/Proxies/", 
+	:owner => "vagrant",
+	:group => "www-data",
+	:mount_options => ["dmode=730","fmode=660"], 
+	:create => "true"
+	
+	
 end

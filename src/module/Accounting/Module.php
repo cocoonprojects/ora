@@ -23,7 +23,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				'Accounting\Controller\Accounts' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
-					$controller = new AccountsController($accountService);
+					$authorize = $locator->get('BjyAuthorize\Service\Authorize');
+					$controller = new AccountsController($accountService, $authorize);
 					return $controller;
 				},
 				'Accounting\Controller\Deposits' => function ($sm) {
@@ -35,7 +36,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				'Accounting\Controller\Statement' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
-					$controller = new StatementsController($accountService);
+					$authorize = $locator->get('BjyAuthorize\Service\Authorize');
+					$controller = new StatementsController($accountService, $authorize);
 					return $controller;
 				},
 			)
@@ -45,6 +47,12 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 	public function getServiceConfig()
 	{
 		return array (
+			'invokables' => array(
+				'Accounting\AccountHolderAssertion' => 'Accounting\Assertion\AccountHolderAssertion',
+				'Accounting\MemberOfOrganizationOrAccountHolder' => 'Accounting\Assertion\MemberOfOrganizationOrAccountHolderAssertion',
+				'Accounting\AccountHolderOfOrganizationAccountAssertion' => 'Accounting\Assertion\AccountHolderOfOrganizationAccountAssertion',
+			),
+			
 			'factories' => array (
 				'Accounting\CreditsAccountsService' => 'Accounting\Service\AccountServiceFactory',
 				'Accounting\AccountCommandsListener' => function ($locator) {
@@ -60,6 +68,16 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					return new CreatePersonalAccountListener($accountService);
 				},
 			),
+			
+			'initializers' => array(
+			    function ($instance, $locator) {
+			        if ($instance instanceof AssertionInterface) {
+			        	$authService = $locator->get('Zend\Authentication\AuthenticationService');
+						$loggedUser = $authService->getIdentity()['user'];	
+			            $instance->setLoggedUser($loggedUser);
+			        }
+			    }
+			)
 		);
 	}
 
