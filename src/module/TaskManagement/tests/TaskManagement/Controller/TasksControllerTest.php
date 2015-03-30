@@ -88,7 +88,7 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
     	$this->assertEquals(200, $response->getStatusCode());
     	$this->assertArrayHasKey('tasks', $arrayResult);
     	$this->assertArrayHasKey('_links', $arrayResult);
-        $this->assertArrayHasKey('create', $arrayResult['_links']);
+        $this->assertArrayHasKey('ora:create', $arrayResult['_links']);
     }
     
 	public function testCannotCreateTaskInEmptyStream() {
@@ -146,7 +146,7 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
     	$this->assertEquals(200, $response->getStatusCode());
     	$this->assertArrayHasKey('tasks', $arrayResult);
     	$this->assertArrayHasKey('_links', $arrayResult);
-    	$this->assertArrayHasKey('create', $arrayResult['_links']);
+    	$this->assertArrayHasKey('ora:create', $arrayResult['_links']);
 		
     }
     
