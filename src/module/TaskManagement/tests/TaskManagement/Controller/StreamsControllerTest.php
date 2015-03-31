@@ -89,6 +89,34 @@ class StreamsControllerTest extends \PHPUnit_Framework_TestCase {
     	$this->assertNotEmpty($response->getHeaders()->get('Location'));
     }
     
+    public function testCreateStreamWithHtmlTagsInSubject() {
+        $organization = Organization::create('Cum sociis natoque penatibus et', $this->getLoggedUser());
+        $stream = Stream::create($organization, 'Vestibulum sedalert("A big problem") magna vitae velit', $this->getLoggedUser());
+        
+        $this->controller->getOrganizationService()
+        	->expects($this->once())
+        	->method('getOrganization')
+        	->with($organization->getId()->toString())
+        	->willReturn($organization);
+        
+        $this->controller->getStreamService()
+        	->expects($this->once())
+        	->method('createStream')
+        	->with($organization, $this->equalTo('Vestibulum sedalert("A big problem") magna vitae velit'), $this->getLoggedUser())
+        	->willReturn($stream);
+        
+        $this->request->setMethod('post');
+    	$params = $this->request->getPost();
+    	$params->set('organizationId', $organization->getId()->toString());
+    	$params->set('subject', 'Vestibulum sed<script>alert("A big problem")</script> magna vitae velit');
+    	
+    	$result   = $this->controller->dispatch($this->request);
+    	$response = $this->controller->getResponse();
+    	 
+    	$this->assertEquals(201, $response->getStatusCode());
+    	$this->assertNotEmpty($response->getHeaders()->get('Location'));
+    }
+    
     public function testCreateStreamInNotExistingOrganization() {
         $this->controller->getOrganizationService()
         	->expects($this->once())

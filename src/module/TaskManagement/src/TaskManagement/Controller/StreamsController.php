@@ -7,6 +7,10 @@ use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 use Ora\StreamManagement\StreamService;
 use Ora\Organization\OrganizationService;
+use Zend\Filter\FilterChain;
+use Zend\Filter\StringTrim;
+use Zend\Filter\StripNewlines;
+use Zend\Filter\StripTags;
 
 class StreamsController extends AbstractHATEOASRestfulController
 {
@@ -62,7 +66,12 @@ class StreamsController extends AbstractHATEOASRestfulController
     		$this->response->setStatusCode(404);
     		return $this->response;
        	}
-       	$subject = isset($data['subject']) ? $data['subject'] : null;
+    	$filters = new FilterChain();
+    	$filters->attach(new StringTrim())
+    			->attach(new StripNewlines())
+    			->attach(new StripTags());
+    	
+       	$subject = isset($data['subject']) ? $filters->filter($data['subject']) : null;
 	    $stream = $this->streamService->createStream($organization, $subject, $identity);
 	    $url = $this->url()->fromRoute('streams', array('id' => $stream->getId()->toString()));
 	    $this->response->getHeaders()->addHeaderLine('Location', $url);

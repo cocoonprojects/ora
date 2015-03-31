@@ -5,6 +5,10 @@ namespace User\Controller;
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Ora\Organization\OrganizationService;
 use Ora\Organization\Organization;
+use Zend\Filter\FilterChain;
+use Zend\Filter\StringTrim;
+use Zend\Filter\StripNewlines;
+use Zend\Filter\StripTags;
 
 class OrganizationsController extends AbstractHATEOASRestfulController
 {
@@ -46,7 +50,12 @@ class OrganizationsController extends AbstractHATEOASRestfulController
     	}
     	$identity = $identity['user'];
     	
-    	$name = isset($data['name']) ? $data['name'] : null;
+    	$filters = new FilterChain();
+    	$filters->attach(new StringTrim())
+    			->attach(new StripNewlines())
+    			->attach(new StripTags());
+    	
+    	$name = isset($data['name']) ? $filters->filter($data['name']) : null;
     	$organization = $this->orgService->createOrganization($name, $identity);
 	    $url = $this->url()->fromRoute('organizations', array('id' => $organization->getId()->toString()));
 	    $this->response->getHeaders()->addHeaderLine('Location', $url);

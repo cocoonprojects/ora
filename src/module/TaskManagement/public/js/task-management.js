@@ -34,6 +34,17 @@ TaskManagement.prototype = {
 			that.createNewTask(e);
 		});
 		
+		$("#createStreamModal").on("show.bs.modal", function(e) {
+			form = $(this).find("form");
+			form[0].reset();
+			$(this).find('div.alert').hide();			
+		});
+		
+		$("#createStreamModal").on("submit", "form", function(e){
+			e.preventDefault();
+			that.createNewStream(e);
+		});
+		
 		$("#editTaskModal").on("show.bs.modal", function(e) {
 			var button = $(e.relatedTarget) // Button that triggered the modal
 			var url = button.data('href');
@@ -594,6 +605,26 @@ TaskManagement.prototype = {
 				else {
 					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to create the task');
 				}
+			}
+		});
+	},
+	
+	createNewStream: function(e)
+	{
+		var modal = $(e.delegateTarget);
+		var form = $(e.target)
+
+		var that = this;
+		
+		$.ajax({
+			url: form.attr('action'),
+			method: 'POST',
+			data: form.serialize(),
+			success: function() {
+				modal.modal('hide');
+			},
+			error: function(jqHXR, textStatus, errorThrown) {
+				that.show(m, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to create the stream');
 			}
 		});
 	},

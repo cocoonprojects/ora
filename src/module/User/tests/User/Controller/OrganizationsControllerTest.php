@@ -97,6 +97,28 @@ class OrganizationsControllerTest extends \PHPUnit_Framework_TestCase
     	$this->assertNotEmpty($response->getHeaders()->get('Location'));
     }
 
+    public function testCreateWithHtmlTagName() {
+    	$user = User::create();
+    	$this->setupLoggedUser($user);
+    	
+    	$this->controller->getOrganizationService()
+    		->expects($this->once())
+    		->method('createOrganization')
+    		->with($this->equalTo('alert("Say hi!")Fusce nec ullamcorper'))
+    		->willReturn(Organization::create('alert("Say hi!")Fusce nec ullamcorper', $user));
+    	
+    	$this->request->setMethod('post');
+    	
+    	$params = $this->request->getPost();
+    	$params->set('name', '<script>alert("Say hi!")</script>Fusce nec ullamcorper');
+
+    	$result   = $this->controller->dispatch($this->request);
+    	$response = $this->controller->getResponse();
+    	
+    	$this->assertEquals(201, $response->getStatusCode());
+    	$this->assertNotEmpty($response->getHeaders()->get('Location'));
+    }
+
     public function testCreateAsAnonymous() {
 		$this->setupAnonymous();
         $this->request->setMethod('post');
