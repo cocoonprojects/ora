@@ -25,7 +25,7 @@ class TaskJsonModel extends JsonModel
 	
 	/**
 	 * 
-	 * @var BjyAuthorize\Service\Authorize
+	 * @var Authorize
 	 */
 	private $authorize;
 	
@@ -40,13 +40,10 @@ class TaskJsonModel extends JsonModel
 		$resource = $this->getVariable('resource');
 	
 		if(is_array($resource)) {
-			$representation['tasks'] = [];
+			$representation['tasks'] = array_map(array($this, 'serializeOne'), $resource);
  			if ($this->authorize->isAllowed(NULL, 'TaskManagement.Task.create')) { 
 				$representation['_links']['ora:create'] = $this->url->fromRoute('tasks');
  			}
-			foreach ($resource as $r) {
-				$representation['tasks'][] = $this->serializeOne($r);
-			}
 		} else {
 			$representation = $this->serializeOne($resource);
 		}

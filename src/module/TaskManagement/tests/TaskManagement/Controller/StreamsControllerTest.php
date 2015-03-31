@@ -89,6 +89,34 @@ class StreamsControllerTest extends \PHPUnit_Framework_TestCase {
     	$this->assertNotEmpty($response->getHeaders()->get('Location'));
     }
     
+    public function testCreateStreamWithHtmlTagsInSubject() {
+        $organization = Organization::create('Cum sociis natoque penatibus et', $this->getLoggedUser());
+        $stream = Stream::create($organization, 'Vestibulum sedalert("A big problem") magna vitae velit', $this->getLoggedUser());
+        
+        $this->controller->getOrganizationService()
+        	->expects($this->once())
+        	->method('getOrganization')
+        	->with($organization->getId()->toString())
+        	->willReturn($organization);
+        
+        $this->controller->getStreamService()
+        	->expects($this->once())
+        	->method('createStream')
+        	->with($organization, $this->equalTo('Vestibulum sedalert("A big problem") magna vitae velit'), $this->getLoggedUser())
+        	->willReturn($stream);
+        
+        $this->request->setMethod('post');
+    	$params = $this->request->getPost();
+    	$params->set('organizationId', $organization->getId()->toString());
+    	$params->set('subject', 'Vestibulum sed<script>alert("A big problem")</script> magna vitae velit');
+    	
+    	$result   = $this->controller->dispatch($this->request);
+    	$response = $this->controller->getResponse();
+    	 
+    	$this->assertEquals(201, $response->getStatusCode());
+    	$this->assertNotEmpty($response->getHeaders()->get('Location'));
+    }
+    
     public function testCreateStreamInNotExistingOrganization() {
         $this->controller->getOrganizationService()
         	->expects($this->once())
@@ -122,12 +150,41 @@ class StreamsControllerTest extends \PHPUnit_Framework_TestCase {
     	$this->setupAnonymous();
     	
     	$this->request->setMethod('post');
-    	$params = $this->request->getPost();
     	
     	$result   = $this->controller->dispatch($this->request);
     	$response = $this->controller->getResponse();
     	 
     	$this->assertEquals(401, $response->getStatusCode());
+    }
+    
+    public function testGetList() {
+    	$this->setupAnonymous();
+    	 
+    	$this->request->setMethod('get');
+    	 
+    	$result   = $this->controller->dispatch($this->request);
+    	$response = $this->controller->getResponse();
+    	
+    	$this->assertEquals(401, $response->getStatusCode());
+    }
+    
+    public function testGetEmptyList() {
+    	$this->controller->getStreamService()
+    		->expects($this->once())
+    		->method('findStreams')
+    		->willReturn(array());
+    	
+    	$this->request->setMethod('get');
+    	 
+    	$result   = $this->controller->dispatch($this->request);
+    	$response = $this->controller->getResponse();
+    	
+    	$arrayResult = json_decode($result->serialize(), true);
+    	
+    	$this->assertEquals(200, $response->getStatusCode());
+    	$this->assertArrayHasKey('_embedded', $arrayResult);
+    	$this->assertArrayHasKey('ora:stream', $arrayResult['_embedded']);
+    	$this->assertCount(0, $arrayResult['_embedded']['ora:stream']);
     }
     
     protected function setupAnonymous() {
