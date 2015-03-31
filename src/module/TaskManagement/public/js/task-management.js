@@ -19,6 +19,8 @@ TaskManagement.prototype = {
 	
 	data: [],
 	
+	streamsData: [],
+	
 	bindEventsOn: function()
 	{
 		var that = this;
@@ -628,6 +630,7 @@ TaskManagement.prototype = {
 			data: form.serialize(),
 			success: function() {
 				modal.modal('hide');
+				that.listStreams();
 			},
 			error: function(jqHXR, textStatus, errorThrown) {
 				that.show(m, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to create the stream');
