@@ -20,84 +20,9 @@
 	<ul id="tasks" style="list-style: none; padding: 0; margin: 0">
 	</ul>
 </div>
-<div class="modal fade" id="createTaskModal" tabindex="-1" role="dialog" aria-labelledby="createTaskModalLabel" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<form action="">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title">Create new task</h4>
-				</div>
-				<div class="modal-body">
-					<div class="alert" role="alert">
-						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-						  <span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="form-group"> 
-						<label for="streamID">Stream</label>
-						<select name="streamID" class="form-control" required="required">
-							<option value=""></option>
-							<option value="00000000-1000-0000-0000-000000000000">O.R.A.</option>
-							<option value="00000000-1100-0000-0000-000000000000">Open Governance<option>
-						</select>
-					</div>
-					<div>
-						<label for="subject">Subject</label>
-						<input type="text" name="subject" class="form-control" required="required">
-					</div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-					<button type="submit" class="btn btn-primary">Create</button>
-				</div>
-			</form>
-		</div><!-- /.modal-content -->
-	</div><!-- /.modal-dialog -->
-</div>
-
-<div class="modal fade" id="editTaskModal" tabindex="-1" role="dialog" aria-labelledby="editTaskModalLabel" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<form action="">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title">Edit the task</h4>
-				</div>
-				<div class="modal-body">
-					<div class="alert" role="alert">
-						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-						  <span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="form-group">
-						<label for="subject">Subject</label>
-						<input id="editTaskSubject" type="text" name="subject" class="form-control" required="required">
-					</div>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-					<button type="submit" class="btn btn-primary">Submit</button>
-				</div>
-			</form>
-		</div>
-	</div>
-</div>
+<?php echo $this->partial('task-management/index/create-task-modal.phtml') ?>
+<?php echo $this->partial('task-management/index/edit-task-modal.phtml') ?>
 <?php echo $this->partial('task-management/index/estimate-task-modal.phtml') ?>
 <?php echo $this->partial('task-management/index/assign-shares-modal.phtml') ?>
-<div class="modal fade" id="taskDetailModal" tabindex="-1" role="dialog" aria-labelledby="taskDetailModalLabel" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class='sr-only'>Close</span></button>
-				<h4 class="modal-title"></h4>
-			</div>
-			<div class="modal-body">
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-			</div>
-		</div>
-	</div>
-</div>
+<?php echo $this->partial('task-management/index/task-detail-modal.phtml') ?>
 <?php echo $this->partial('task-management/index/create-stream-modal.phtml') ?>

@@ -57,4 +57,15 @@ class EventSourcingStreamService extends AggregateRepository implements StreamSe
 	{
 		return $this->entityManager->find('Ora\ReadModel\Stream', $id);
 	}
+	
+	public function findStreams(User $user) {
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('s')
+			->from('Ora\ReadModel\Stream', 's')
+			->leftJoin('Ora\ReadModel\OrganizationMembership', 'm', 'WITH', 'm.organization = s.organization')
+			->where('m.member = :user')
+			->setParameter('user', $user)
+			->getQuery();
+		return $query->getResult();
+	}
 } 

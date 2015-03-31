@@ -71,9 +71,7 @@ class TasksController extends AbstractHATEOASRestfulController
     	$streamID = $this->getRequest()->getQuery('streamID');
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks() : $this->taskService->findStreamTasks($streamID);
 
-    	$this->response->setStatusCode(200);
-       	$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->authorize);          	
-
+       	$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->authorize);
         $view->setVariable('resource', $availableTasks);
         return $view;
     }
