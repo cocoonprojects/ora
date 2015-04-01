@@ -2,7 +2,7 @@
 namespace Ora\Accounting;
 
 use Ora\User\User;
-use Ora\Organization\Organization;
+use Application\Organization;
 
 interface AccountService {
 	

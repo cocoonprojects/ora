@@ -6,7 +6,7 @@ use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 use Ora\StreamManagement\StreamService;
-use Ora\Organization\OrganizationService;
+use Application\Service\OrganizationService;
 use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;

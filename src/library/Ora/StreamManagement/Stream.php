@@ -5,7 +5,7 @@ namespace Ora\StreamManagement;
 use Rhumsaa\Uuid\Uuid;
 use Ora\DomainEntity;
 use Ora\User\User;
-use Ora\Organization\Organization;
+use Application\Organization;
 
 /**
  * 

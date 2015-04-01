@@ -3,8 +3,6 @@ namespace User;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
-use User\Controller\OrganizationsController;
-use User\Service\OrganizationCommandsListener;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {	 
@@ -14,14 +12,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 			'invokables' => array(
 				'User\Controller\Users' => 'User\Controller\UsersController'
 			),
-			'factories' => array(
-				'User\Controller\Organizations' => function ($sm) {
-					$locator = $sm->getServiceLocator();
-					$orgService = $locator->get('User\OrganizationService');
-					$controller = new OrganizationsController($orgService);
-					return $controller;
-				}
-			)
 		);
 	} 
 	
@@ -30,11 +20,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 		return array (
 			'factories' => array (
 				'User\UserService' => 'User\Service\UserServiceFactory',
-				'User\OrganizationService' => 'User\Service\OrganizationServiceFactory',
-				'User\OrganizationCommandsListener' => function ($serviceLocator) {
-					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-					return new OrganizationCommandsListener($entityManager);
-				},
 			),
 		);
 	}

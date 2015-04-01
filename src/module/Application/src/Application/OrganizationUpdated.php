@@ -1,6 +1,6 @@
 <?php
 
-namespace Ora\Organization;
+namespace Application;
 
 use Prooph\EventSourcing\AggregateChanged;
 

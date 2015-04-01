@@ -1,6 +1,6 @@
 <?php
 
-namespace Ora\Organization;
+namespace Application;
 
 use Rhumsaa\Uuid\Uuid;
 use Ora\DomainEntity;
@@ -9,13 +9,12 @@ use Ora\Accounting\Account;
 use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
 
-
 class Organization extends DomainEntity
-{	    
-    CONST ROLE_MEMBER = 'member';
-    CONST ROLE_ADMIN  = 'admin';
-    
-    CONST EVENT_CREATED = 'Organization.Created';
+{
+	CONST ROLE_MEMBER = 'member';
+	CONST ROLE_ADMIN  = 'admin';
+	
+	CONST EVENT_CREATED = 'Organization.Created';
 	/**
 	 * 
 	 * @var string
@@ -63,7 +62,7 @@ class Organization extends DomainEntity
 		if(!is_null($this->accountId)) {
 			$payload['prevAccountId'] = $this->accountId->toString();
 		}
-		$this->recordThat(AccountChanged::occur($this->id->toString(), $payload));
+		$this->recordThat(OrganizationAccountChanged::occur($this->id->toString(), $payload));
 		return $this;
 	}
 	
@@ -75,21 +74,21 @@ class Organization extends DomainEntity
 		if (array_key_exists($user->getId(), $this->members)) {
 			throw new DuplicatedDomainEntityException($this, $user);
 		}
-		$this->recordThat(MemberAdded::occur($this->id->toString(), array(
-        	'userId' => $user->getId(),
-        	'role' => $role,
-        	'by' => $addedBy->getId(),
-        )));
+		$this->recordThat(OrganizationMemberAdded::occur($this->id->toString(), array(
+			'userId' => $user->getId(),
+			'role' => $role,
+			'by' => $addedBy->getId(),
+		)));
 	}
 
 	public function removeMember(User $member, User $removedBy)
 	{
 		if (!array_key_exists($member->getId(), $this->members)) {
 			throw new DomainEntityUnavailableException($this, $member); 
-        }
-		$this->recordThat(MemberRemoved::occur($this->id->toString(), array(
+		}
+		$this->recordThat(OrganizationMemberRemoved::occur($this->id->toString(), array(
 			'userId' => $member->getId(),
-        	'by' => $removedBy->getId(),
+			'by' => $removedBy->getId(),
 		)));
 	}
 	
@@ -109,18 +108,18 @@ class Organization extends DomainEntity
 		}
 	}
 	
-	protected function whenAccountChanged(AccountChanged $event) {
+	protected function whenOrganizationAccountChanged(OrganizationAccountChanged $event) {
 		$p = $event->payload();
 		$this->accountId = Uuid::fromString($p['accountId']);
 	}
 	
-	protected function whenMemberAdded(MemberAdded $event) {
+	protected function whenOrganizationMemberAdded(OrganizationMemberAdded $event) {
 		$p = $event->payload();
 		$id = $p['userId'];
 		$this->members[$id]['role'] = $p['role'];
 	}
 
-	protected function whenMemberRemoved(MemberRemoved $event) {
+	protected function whenOrganizationMemberRemoved(OrganizationMemberRemoved $event) {
 		$p = $event->payload();
 		$id = $p['userId'];
 		unset($this->members[$id]);

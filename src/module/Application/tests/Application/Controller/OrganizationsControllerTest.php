@@ -1,5 +1,5 @@
 <?php
-namespace User\Controller;
+namespace Application\Controller;
 
 use Test\Bootstrap;
 use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
@@ -7,7 +7,7 @@ use Zend\Http\Request;
 use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\RouteMatch;
 use PHPUnit_Framework_TestCase;
-use Ora\Organization\Organization;
+use Application\Organization;
 use Ora\User\User;
 use Ora\Accounting\OrganizationAccount;
 
@@ -36,7 +36,7 @@ class OrganizationsControllerTest extends \PHPUnit_Framework_TestCase
     
     protected function setUp()
     {
-    	$orgService = $this->getMockBuilder('Ora\Organization\OrganizationService')
+    	$orgService = $this->getMockBuilder('Application\Service\OrganizationService')
     		->getMock();
     	
         $serviceManager = Bootstrap::getServiceManager();

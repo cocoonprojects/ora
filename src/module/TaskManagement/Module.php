@@ -66,7 +66,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             	'TaskManagement\Controller\Streams' => function ($sm) {
             		$locator = $sm->getServiceLocator();
             		$streamService = $locator->get('TaskManagement\StreamService');
-            		$organizationService = $locator->get('User\OrganizationService');
+            		$organizationService = $locator->get('Application\OrganizationService');
             		$controller = new StreamsController($streamService, $organizationService);
             		return $controller;
               	}
@@ -109,7 +109,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             	'TaskManagement\TransferTaskSharesCreditsListener' => function ($locator) {
             		$taskService = $locator->get('TaskManagement\TaskService');            		
             		$streamService = $locator->get('TaskManagement\StreamService');
-            		$organizationService = $locator->get('User\OrganizationService');
+            		$organizationService = $locator->get('Application\OrganizationService');
             		$accountService = $locator->get('Accounting\CreditsAccountsService');
             		$eventStore = $locator->get('prooph.event_store');
             		$rv = new TransferTaskSharesCreditsListener($taskService, $streamService, $organizationService, $accountService, $eventStore);

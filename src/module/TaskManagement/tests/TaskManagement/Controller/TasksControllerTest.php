@@ -11,7 +11,7 @@ use PHPUnit_Framework_TestCase;
 use Rhumsaa\Uuid\Uuid;
 use Ora\StreamManagement\Stream;
 use Ora\User\User;
-use Ora\Organization\Organization;
+use Application\Organization;
 use Ora\ReadModel\Task as ReadModelTask;
 use Ora\ReadModel\Stream as ReadModelStream;
 

@@ -2,7 +2,7 @@
 
 namespace Ora\StreamManagement;
 
-use Ora\Organization\Organization;
+use Application\Organization;
 use Ora\User\User;
 use Ora\ReadModel\Stream as ReadModelStream;
 

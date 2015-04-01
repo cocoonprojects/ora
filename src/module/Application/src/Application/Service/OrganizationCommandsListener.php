@@ -1,5 +1,5 @@
 <?php
-namespace User\Service;
+namespace Application\Service;
 
 use Prooph\EventStore\Stream\StreamEvent;
 use Ora\Service\SyncReadModelListener;
@@ -34,7 +34,7 @@ class OrganizationCommandsListener extends SyncReadModelListener {
 		}
 	}
 	
-	protected function onMemberAdded(StreamEvent $event) {
+	protected function onOrganizationMemberAdded(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$organization = $this->entityManager->find('Ora\ReadModel\Organization', $id);
 		
@@ -50,7 +50,7 @@ class OrganizationCommandsListener extends SyncReadModelListener {
 		$this->entityManager->persist($m);
 	}
 	
-	protected function onMemberRemoved(StreamEvent $event) {
+	protected function onOrganizationMemberRemoved(StreamEvent $event) {
 		
 		$membership = $this->entityManager
 			 			   ->getRepository('Ora\ReadModel\OrganizationMembership')

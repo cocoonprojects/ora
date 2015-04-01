@@ -2,7 +2,7 @@
 namespace Ora\Accounting;
 
 use Rhumsaa\Uuid\Uuid;
-use Ora\Organization\Organization;
+use Application\Organization;
 use Ora\User\User;
 
 class OrganizationAccount extends Account {

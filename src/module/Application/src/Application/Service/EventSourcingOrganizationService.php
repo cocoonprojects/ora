@@ -1,6 +1,6 @@
 <?php
 
-namespace Ora\Organization;
+namespace Application\Service;
 
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerInterface;
@@ -12,6 +12,7 @@ use Prooph\EventStore\Aggregate\AggregateType;
 use Prooph\EventStore\Stream\SingleStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Ora\User\User;
+use Application\Organization;
 use Ora\ReadModel\Organization as OrganizationReadModel;
 use Rhumsaa\Uuid\Uuid;
 
@@ -30,7 +31,7 @@ class EventSourcingOrganizationService extends AggregateRepository implements Or
     
     public function __construct(EventStore $eventStore, EntityManager $entityManager)
     {
-		parent::__construct($eventStore, new AggregateTranslator(), new SingleStreamStrategy($eventStore), new AggregateType('Ora\Organization\Organization'));
+		parent::__construct($eventStore, new AggregateTranslator(), new SingleStreamStrategy($eventStore), new AggregateType('Application\Organization'));
 		$this->entityManager = $entityManager;
     }
     
@@ -79,7 +80,7 @@ class EventSourcingOrganizationService extends AggregateRepository implements Or
     public function setEventManager(EventManagerInterface $events)
     {
         $events->setIdentifiers(array(
-        	'User\OrganizationService',
+        	'Application\OrganizationService',
             __CLASS__,
             get_class($this)
         ));

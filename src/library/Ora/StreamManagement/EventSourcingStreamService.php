@@ -8,9 +8,9 @@ use Prooph\EventStore\Aggregate\AggregateType;
 use Prooph\EventStore\Stream\SingleStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Doctrine\ORM\EntityManager;
-use Ora\User\User;
-use Ora\Organization\Organization;
 use Rhumsaa\Uuid\Uuid;
+use Ora\User\User;
+use Application\Organization;
 
 /**
  * @author Giannotti Fabio
@@ -23,17 +23,18 @@ class EventSourcingStreamService extends AggregateRepository implements StreamSe
 	 */
 	private $entityManager;
 	
-	public function __construct(EventStore $eventStore, EntityManager $entityManager) {
+	public function __construct(EventStore $eventStore, EntityManager $entityManager)
+	{
 		parent::__construct($eventStore, new AggregateTranslator(), new SingleStreamStrategy($eventStore), new AggregateType('Ora\StreamManagement\Stream'));
 		$this->entityManager = $entityManager;
 	}
-    	
+	
 	public function createStream(Organization $organization, $subject, User $createdBy)
-	{		
+	{
 		$this->eventStore->beginTransaction();
 		try {
-		    $rv = Stream::create($organization, $subject, $createdBy);
-		    $this->addAggregateRoot($rv);
+			$rv = Stream::create($organization, $subject, $createdBy);
+			$this->addAggregateRoot($rv);
 			$this->eventStore->commit();
 		} catch (\Exception $e) {
 			$this->eventStore->rollback();
@@ -46,8 +47,8 @@ class EventSourcingStreamService extends AggregateRepository implements StreamSe
 	{
 		$sId = $id instanceof Uuid ? $id->toString() : $id;
 		try {
-		    $stream = $this->getAggregateRoot($this->aggregateType, $sId);
-		    return $stream;
+			$stream = $this->getAggregateRoot($this->aggregateType, $sId);
+			return $stream;
 		} catch (\RuntimeException $e) {
 			return null;
 		}

@@ -2,7 +2,7 @@
 namespace Ora\StreamManagement;
 
 use Ora\User\User;
-use Ora\Organization\Organization;
+use Application\Organization;
 
 class StreamTest extends \PHPUnit_Framework_TestCase {
 	

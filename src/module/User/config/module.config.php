@@ -25,19 +25,6 @@ return array(
 					),
 				),
 			),
-			'organizations' => array(
-				'type' => 'Segment',
-				'options' => array(
-					'route'	   => '/user/organizations[/:id][/:controller]',
-					'constraints' => array(
-						'id' => '[0-9a-z\-]+'
-					),
-					'defaults' => array(
-						'__NAMESPACE__' => 'User\Controller',
-						'controller' => 'Organizations'
-					),
-				),
-			),	
 		),
 	),
 	'service_manager' => array(),
@@ -56,8 +43,5 @@ return array(
 				'User' => __DIR__ . '/../public',
 			),
 		),
-	),
-	'listeners' => array(
-		'User\OrganizationCommandsListener'
 	),
 );

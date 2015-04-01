@@ -1,12 +1,4 @@
 <?php
-/**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link	  http://github.com/zendframework/ZendSkeletonApplication for the canonical source repository
- * @copyright Copyright (c) 2005-2014 Zend Technologies USA Inc. (http://www.zend.com)
- * @license	  http://framework.zend.com/license/new-bsd New BSD License
- */
-
 return array(
 	'router' => array(
 		'routes' => array(
@@ -30,6 +22,19 @@ return array(
 						),
 				),
 			),
+			'organizations' => array(
+				'type' => 'Segment',
+				'options' => array(
+					'route'	   => '/organizations[/:id][/:controller]',
+					'constraints' => array(
+						'id' => '[0-9a-z\-]+'
+					),
+					'defaults' => array(
+						'__NAMESPACE__' => 'Application\Controller',
+						'controller' => 'Organizations'
+					),
+				),
+			),	
 			// The following is a route to simplify getting started creating
 			// new controllers and actions without needing to create a new
 			// module. Simply drop new controllers in, and you can access them
@@ -126,5 +131,8 @@ return array(
 				)
 			)
 		)
-	)
+	),
+	'listeners' => array(
+		'Application\OrganizationCommandsListener'
+	),	
 );

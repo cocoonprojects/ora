@@ -1,20 +1,16 @@
 <?php
 namespace Ora\Accounting;
 
-use \DateTime;
 use Prooph\EventStore\EventStore;
-use Prooph\EventStore\Stream\StreamStrategyInterface;
 use Prooph\EventStore\Aggregate\AggregateRepository;
 use Prooph\EventStore\Aggregate\AggregateType;
+use Prooph\EventStore\Stream\MappedSuperclassStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
+use Doctrine\ORM\EntityManager;
 use Rhumsaa\Uuid\Uuid;
 use Ora\User\User;
-use Doctrine\ORM\EntityManager;
-use Ora\Organization\Organization;
-use Prooph\EventStore\Stream\MappedSuperclassStreamStrategy;
-use Zend\EventManager\EventManagerInterface;
-use Ora\Organization\OrganizationService;
-use Zend\EventManager\Event;
+use Application\Organization;
+use Application\OrganizationService;
 
 class EventSourcingAccountService extends AggregateRepository implements AccountService
 {

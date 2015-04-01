@@ -1,5 +1,5 @@
 <?php
-namespace Ora\Organization;
+namespace Application\Service;
 
 use Prooph\EventStoreTest\TestCase;
 use Ora\User\User;

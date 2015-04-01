@@ -12,7 +12,7 @@ use Rhumsaa\Uuid\Uuid;
 use Ora\TaskManagement\Task;
 use Ora\StreamManagement\Stream;
 use Ora\User\User;
-use Ora\Organization\Organization;
+use Application\Organization;
 
 class StreamsControllerTest extends \PHPUnit_Framework_TestCase {
 	
@@ -35,7 +35,7 @@ class StreamsControllerTest extends \PHPUnit_Framework_TestCase {
         $streamServiceStub = $this->getMockBuilder('Ora\StreamManagement\StreamService')
         	->getMock();
         
-        $organizationServiceStub = $this->getMockBuilder('Ora\Organization\OrganizationService')
+        $organizationServiceStub = $this->getMockBuilder('Application\Service\OrganizationService')
         	->getMock();
         
         $serviceManager = Bootstrap::getServiceManager();

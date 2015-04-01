@@ -1,8 +1,9 @@
 <?php
 
-namespace Ora\Organization;
+namespace Application\Service;
 
 use Ora\User\User;
+use Application\Organization;
 use Ora\ReadModel\Organization as OrganizationReadModel;
 use Ora\ReadModel\OrganizationMembership;
 

@@ -4,7 +4,7 @@ namespace Ora\TaskManagement;
 use Ora\StreamManagement\Stream;
 use Rhumsaa\Uuid\Uuid;
 use Ora\User\User;
-use Ora\Organization\Organization;
+use Application\Organization;
 
 class TaskTest extends \PHPUnit_Framework_TestCase {
 	

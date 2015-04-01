@@ -1,10 +1,9 @@
 <?php
 
-namespace User\Service;
+namespace Application\Service;
 
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
-use Ora\Organization\EventSourcingOrganizationService;
 
 class OrganizationServiceFactory implements FactoryInterface 
 {

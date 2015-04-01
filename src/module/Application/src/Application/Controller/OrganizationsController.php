@@ -1,14 +1,14 @@
 <?php
 
-namespace User\Controller;
+namespace Application\Controller;
 
-use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Ora\Organization\OrganizationService;
-use Ora\Organization\Organization;
 use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
+use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
+use Application\Organization;
+use Application\Service\OrganizationService;
 
 class OrganizationsController extends AbstractHATEOASRestfulController
 {

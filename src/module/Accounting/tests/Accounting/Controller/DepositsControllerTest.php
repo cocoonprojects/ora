@@ -15,7 +15,7 @@ class DepositsControllerTest extends \PHPUnit_Framework_TestCase
 {
 	/**
 	 * 
-	 * @var OrganizationsController
+	 * @var DepositsController
 	 */
     protected $controller;
     /**

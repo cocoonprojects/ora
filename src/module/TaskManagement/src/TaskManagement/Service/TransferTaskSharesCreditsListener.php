@@ -8,7 +8,7 @@ use Zend\EventManager\Event;
 use Prooph\EventStore\EventStore;
 use Ora\Accounting\AccountService;
 use Ora\StreamManagement\StreamService;
-use Ora\Organization\OrganizationService;
+use Application\Service\OrganizationService;
 use Ora\User\User;
 use Ora\TaskManagement\TaskService;
 use Ora\TaskManagement\Task;
