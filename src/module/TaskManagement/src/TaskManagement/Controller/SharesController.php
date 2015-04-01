@@ -12,7 +12,7 @@ use Ora\IllegalStateException;
 use Ora\DomainEntityUnavailableException;
 use Ora\TaskManagement\TaskService;
 use Ora\TaskManagement\Task;
-use Ora\StreamManagement\StreamService;
+use TaskManagement\StreamService;
 
 class SharesController extends AbstractHATEOASRestfulController {
 	

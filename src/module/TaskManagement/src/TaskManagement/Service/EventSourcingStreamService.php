@@ -1,6 +1,6 @@
 <?php
 
-namespace Ora\StreamManagement;
+namespace TaskManagement\Service;
 
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Aggregate\AggregateRepository;
@@ -11,6 +11,7 @@ use Doctrine\ORM\EntityManager;
 use Rhumsaa\Uuid\Uuid;
 use Ora\User\User;
 use Application\Organization;
+use TaskManagement\Stream;
 
 /**
  * @author Giannotti Fabio
@@ -25,7 +26,7 @@ class EventSourcingStreamService extends AggregateRepository implements StreamSe
 	
 	public function __construct(EventStore $eventStore, EntityManager $entityManager)
 	{
-		parent::__construct($eventStore, new AggregateTranslator(), new SingleStreamStrategy($eventStore), new AggregateType('Ora\StreamManagement\Stream'));
+		parent::__construct($eventStore, new AggregateTranslator(), new SingleStreamStrategy($eventStore), new AggregateType('TaskManagement\Stream'));
 		$this->entityManager = $entityManager;
 	}
 	

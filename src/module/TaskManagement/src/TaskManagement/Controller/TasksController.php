@@ -3,20 +3,20 @@ namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Zend\Authentication\AuthenticationServiceInterface;
-use Ora\IllegalStateException;
-use Ora\InvalidArgumentException;
-use Ora\TaskManagement\TaskService;
-use Ora\TaskManagement\Task;
-use Ora\StreamManagement\StreamService;
-use TaskManagement\View\TaskJsonModel;
-use BjyAuthorize\Service\Authorize;
-use Ora\Accounting\AccountService;
-use Ora\User\User;
 use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
 use Zend\Validator\NotEmpty;
+use Ora\IllegalStateException;
+use Ora\InvalidArgumentException;
+use Ora\TaskManagement\TaskService;
+use Ora\TaskManagement\Task;
+use BjyAuthorize\Service\Authorize;
+use Ora\Accounting\AccountService;
+use Ora\User\User;
+use TaskManagement\View\TaskJsonModel;
+use TaskManagement\Service\StreamService;
 
 class TasksController extends AbstractHATEOASRestfulController
 {

@@ -1,5 +1,5 @@
 <?php
-namespace Ora\StreamManagement;
+namespace TaskManagement;
 
 use Prooph\EventSourcing\AggregateChanged;
 

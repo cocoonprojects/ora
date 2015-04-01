@@ -41,7 +41,7 @@ class StreamCommandsListener extends SyncReadModelListener {
 		}
 	}
 
-	protected function onOrganizationChanged(StreamEvent $event) {
+	protected function onStreamOrganizationChanged(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$entity = $this->entityManager->find('Ora\ReadModel\Task', $id);
 		if(is_null($entity)) {

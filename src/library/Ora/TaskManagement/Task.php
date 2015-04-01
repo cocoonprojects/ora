@@ -8,7 +8,7 @@ use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
 use Ora\DomainEntity;
 use Ora\User\User;
-use Ora\StreamManagement\Stream;
+use TaskManagement\Stream;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
 

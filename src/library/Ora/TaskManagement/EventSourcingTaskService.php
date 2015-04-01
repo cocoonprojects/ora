@@ -13,7 +13,7 @@ use Prooph\EventStore\Aggregate\AggregateType;
 use Prooph\EventStore\Stream\MappedSuperclassStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Ora\User\User;
-use Ora\StreamManagement\Stream;
+use TaskManagement\Stream;
 use Rhumsaa\Uuid\Uuid;
 
 class EventSourcingTaskService extends AggregateRepository implements TaskService, EventManagerAwareInterface

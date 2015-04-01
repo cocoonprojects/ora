@@ -1,10 +1,11 @@
 <?php
 
-namespace Ora\StreamManagement;
+namespace TaskManagement\Service;
 
 use Application\Organization;
 use Ora\User\User;
 use Ora\ReadModel\Stream as ReadModelStream;
+use TaskManagement\Stream;
 
 interface StreamService
 {

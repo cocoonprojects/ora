@@ -4,14 +4,9 @@ namespace TaskManagement\Service;
 
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
-use Ora\StreamManagement\EventSourcingStreamService;
-use Ora\StreamManagement\StreamService;
 
 class StreamServiceFactory implements FactoryInterface 
 {
-    /**
-     * @var StreamService
-     */
     private static $instance;
     
 	public function createService(ServiceLocatorInterface $serviceLocator)

@@ -2,11 +2,11 @@
 namespace TaskManagement\Controller;
 
 use Test\Bootstrap;
-use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
 use Zend\Http\Request;
 use Zend\Http\Response;
 use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\RouteMatch;
+use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
 use Zend\EventManager\EventManager;
 use PHPUnit_Framework_TestCase;
 use Rhumsaa\Uuid\Uuid;
@@ -66,10 +66,8 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
         	->getMock();
     	$identity->method('__invoke')->willReturn(['user' => $this->owner]);
         $this->controller->getPluginManager()->setService('identity', $identity);
-
-        $this->owner = $this->controller->identity()['user'];
         
-        $stream = $this->getMockBuilder('Ora\StreamManagement\Stream')
+        $stream = $this->getMockBuilder('TaskManagement\Stream')
         	->disableOriginalConstructor()
         	->getMock();
         $stream->method('getId')
@@ -335,44 +333,5 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     	$response = $this->controller->getResponse();
     	
     	$this->assertEquals(201, $response->getStatusCode());
-    }
-    
-    public function testAssignSharesAsLast() {
-    	$this->task->accept($this->owner);
-    	$this->task->assignShares([ $this->owner->getId() => 0.4, $this->member->getId() => 0.6 ], $this->member);
-    	$service = $this->controller->getTaskService();
-    	$service->method('getTask')
-    		->willReturn($this->task);
-
-    	$this->routeMatch->setParam('id', $this->task->getId()->toString());
-    	 
-    	$this->request->setMethod('post');
-    	$params = $this->request->getPost();
-    	$params->set($this->owner->getId(), 50);
-    	$params->set($this->member->getId(), 50);
-    	
-    	$result   = $this->controller->dispatch($this->request);
-    	$response = $this->controller->getResponse();
-    	
-    	$this->assertEquals(201, $response->getStatusCode());
-    	$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
-    }
-
-    public function testSkipSharesAsLast() {
-    	$this->task->accept($this->owner);
-    	$this->task->assignShares([ $this->owner->getId() => 0.4, $this->member->getId() => 0.6 ], $this->member);
-    	$service = $this->controller->getTaskService();
-    	$service->method('getTask')
-    		->willReturn($this->task);
-
-    	$this->routeMatch->setParam('id', $this->task->getId()->toString());
-    	 
-    	$this->request->setMethod('post');
-    	
-    	$result   = $this->controller->dispatch($this->request);
-    	$response = $this->controller->getResponse();
-    	
-    	$this->assertEquals(201, $response->getStatusCode());
-    	$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
     }
 }

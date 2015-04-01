@@ -1,5 +1,5 @@
 <?php
-namespace Ora\StreamManagement;
+namespace TaskManagement\Service;
 
 use Prooph\EventStoreTest\TestCase;
 use Prooph\EventStore\Stream\Stream as ProophStream;

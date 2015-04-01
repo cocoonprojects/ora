@@ -1,6 +1,6 @@
 <?php
 
-namespace Ora\StreamManagement;
+namespace TaskManagement;
 
 use Rhumsaa\Uuid\Uuid;
 use Ora\DomainEntity;
@@ -48,7 +48,7 @@ class Stream extends DomainEntity
 	}
 
 	public function changeOrganization(Organization $organization, User $by) {
-		$this->recordThat(OrganizationChanged::occur($this->id->toString(), [
+		$this->recordThat(StreamOrganizationChanged::occur($this->id->toString(), [
 			'organizationId' => $organization->getId()->toString(),
 			'by' => $by->getId()
 		]));
@@ -69,7 +69,7 @@ class Stream extends DomainEntity
 		}
 	}
 	
-	protected function whenOrganizationChanged(OrganizationChanged $event) {
+	protected function whenStreamOrganizationChanged(StreamOrganizationChanged $event) {
 		$this->organizationId = Uuid::fromString($event->payload()['organizationId']);
 	}
 }

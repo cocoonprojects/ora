@@ -1,5 +1,5 @@
 <?php
-namespace Ora\StreamManagement;
+namespace TaskManagement;
 
 use Ora\User\User;
 use Application\Organization;

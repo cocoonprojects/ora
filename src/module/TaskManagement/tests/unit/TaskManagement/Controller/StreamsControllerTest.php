@@ -10,7 +10,7 @@ use Zend\Mvc\Router\RouteMatch;
 use PHPUnit_Framework_TestCase;
 use Rhumsaa\Uuid\Uuid;
 use Ora\TaskManagement\Task;
-use Ora\StreamManagement\Stream;
+use TaskManagement\Stream;
 use Ora\User\User;
 use Application\Organization;
 
@@ -32,7 +32,7 @@ class StreamsControllerTest extends \PHPUnit_Framework_TestCase {
 
     protected function setUp()
     {
-        $streamServiceStub = $this->getMockBuilder('Ora\StreamManagement\StreamService')
+        $streamServiceStub = $this->getMockBuilder('TaskManagement\Service\StreamService')
         	->getMock();
         
         $organizationServiceStub = $this->getMockBuilder('Application\Service\OrganizationService')

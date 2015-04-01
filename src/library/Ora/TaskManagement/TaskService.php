@@ -2,7 +2,7 @@
 
 namespace Ora\TaskManagement;
 
-use Ora\StreamManagement\Stream;
+use TaskManagement\Stream;
 use Ora\User\User;
 
 /**

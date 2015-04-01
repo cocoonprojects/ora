@@ -9,7 +9,7 @@ use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\RouteMatch;
 use PHPUnit_Framework_TestCase;
 use Rhumsaa\Uuid\Uuid;
-use Ora\StreamManagement\Stream;
+use TaskManagement\Stream;
 use Ora\User\User;
 use Application\Organization;
 use Ora\ReadModel\Task as ReadModelTask;
@@ -31,7 +31,7 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
     	$taskServiceStub = $this->getMockBuilder('Ora\TaskManagement\TaskService')
         	->getMock();
     	
-    	 $streamServiceStub = $this->getMockBuilder('Ora\StreamManagement\StreamService')
+    	 $streamServiceStub = $this->getMockBuilder('TaskManagement\Service\StreamService')
         	->getMock();
         
         $this->authorizeServiceStub = $this->getMockBuilder('BjyAuthorize\Service\Authorize')

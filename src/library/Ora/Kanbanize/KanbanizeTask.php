@@ -3,7 +3,7 @@ namespace Ora\Kanbanize;
 
 use Ora\TaskManagement\Task;
 use Ora\InvalidArgumentException;
-use Ora\StreamManagement\Stream;
+use TaskManagement\Stream;
 use Ora\User\User;
 use Ora\TaskManagement\TaskCreated;
 

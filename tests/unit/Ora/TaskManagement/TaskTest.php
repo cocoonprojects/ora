@@ -1,7 +1,7 @@
 <?php
 namespace Ora\TaskManagement;
 
-use Ora\StreamManagement\Stream;
+use TaskManagement\Stream;
 use Rhumsaa\Uuid\Uuid;
 use Ora\User\User;
 use Application\Organization;
