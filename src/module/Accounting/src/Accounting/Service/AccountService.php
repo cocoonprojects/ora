@@ -1,5 +1,6 @@
 <?php
-namespace Ora\Accounting;
+
+namespace Accounting\Service;
 
 use Ora\User\User;
 use Application\Organization;

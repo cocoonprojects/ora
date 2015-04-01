@@ -1,5 +1,5 @@
 <?php
-namespace Ora\Accounting;
+namespace Accounting;
 
 use Rhumsaa\Uuid\Uuid;
 use Application\Organization;

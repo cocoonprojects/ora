@@ -3,7 +3,7 @@ namespace Accounting\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Zend\Authentication\AuthenticationServiceInterface;
-use Ora\Accounting\AccountService;
+use Accounting\Service\AccountService;
 use Accounting\View\AccountsJsonModel;
 use BjyAuthorize\Service\Authorize;
 

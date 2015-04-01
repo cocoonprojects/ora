@@ -2,7 +2,7 @@
 namespace Accounting\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Ora\Accounting\AccountService;
+use Accounting\Service\AccountService;
 use Ora\Accounting\IllegalAmountException;
 use Zend\Validator\ValidatorChain;
 use Zend\I18n\Validator\Float;

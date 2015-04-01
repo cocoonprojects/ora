@@ -1,5 +1,5 @@
 <?php
-namespace Ora\Accounting;
+namespace Accounting\Service;
 
 use Prooph\EventStoreTest\TestCase;
 use Prooph\EventStore\Stream\Stream;
@@ -30,7 +30,7 @@ class EventSourcingAccountServiceTest extends TestCase
 	
 	public function testCreatePersonalAccount() {
 		$account = $this->accountService->createPersonalAccount($this->user);
-		$this->assertInstanceOf('Ora\Accounting\Account', $account);
+		$this->assertInstanceOf('Accounting\Account', $account);
 		$this->assertAttributeInstanceOf('Rhumsaa\Uuid\Uuid', 'id', $account);
 	}
 	
@@ -38,10 +38,10 @@ class EventSourcingAccountServiceTest extends TestCase
 		$holder = $this->user;
 		$organization = Organization::create('Test', $holder);
 		$account = $this->accountService->createOrganizationAccount($organization, $holder);
-		$this->assertInstanceOf('Ora\Accounting\OrganizationAccount', $account);
+		$this->assertInstanceOf('Accounting\OrganizationAccount', $account);
 		$this->assertAttributeInstanceOf('Rhumsaa\Uuid\Uuid', 'id', $account);
 		$a = $this->accountService->getAccount($account->getId()->toString());
-		$this->assertInstanceOf('Ora\Accounting\OrganizationAccount', $a);
+		$this->assertInstanceOf('Accounting\OrganizationAccount', $a);
 	}
 	
 	public function testDeposit() {

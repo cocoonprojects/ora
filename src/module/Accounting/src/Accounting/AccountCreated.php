@@ -1,5 +1,5 @@
 <?php
-namespace Ora\Accounting;
+namespace Accounting;
 
 use Prooph\EventSourcing\AggregateChanged;
 
@@ -8,6 +8,6 @@ use Prooph\EventSourcing\AggregateChanged;
  * @author andreabandera
  *
  */
-class HolderAdded extends AggregateChanged {
+class AccountCreated extends AggregateChanged {
 	
 }

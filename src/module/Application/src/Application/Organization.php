@@ -5,7 +5,7 @@ namespace Application;
 use Rhumsaa\Uuid\Uuid;
 use Ora\DomainEntity;
 use Ora\User\User;
-use Ora\Accounting\Account;
+use Accounting\Account;
 use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
 

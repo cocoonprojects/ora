@@ -61,6 +61,6 @@ class StreamCommandsListener extends SyncReadModelListener {
 	}
 
 	protected function getPackage() {
-		return 'Ora\\StreamManagement\\';
+		return 'TaskManagement';
 	}
 }

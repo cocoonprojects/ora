@@ -9,7 +9,7 @@ use Zend\Mvc\Router\RouteMatch;
 use PHPUnit_Framework_TestCase;
 use Ora\User\User;
 use Rhumsaa\Uuid\Uuid;
-use Ora\Accounting\Account;
+use Accounting\Account;
 
 class DepositsControllerTest extends \PHPUnit_Framework_TestCase
 {
@@ -38,7 +38,7 @@ class DepositsControllerTest extends \PHPUnit_Framework_TestCase
     
     protected function setUp()
     {
-    	$accountService = $this->getMockBuilder('Ora\Accounting\AccountService')
+    	$accountService = $this->getMockBuilder('Accounting\Service\AccountService')
     		->getMock();
     	
         $serviceManager = Bootstrap::getServiceManager();

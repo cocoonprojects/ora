@@ -2,7 +2,7 @@
 namespace Application;
 
 use Ora\User\User;
-use Ora\Accounting\OrganizationAccount;
+use Accounting\OrganizationAccount;
 
 class OrganizationTest extends \PHPUnit_Framework_TestCase {
 	

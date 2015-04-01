@@ -1,5 +1,5 @@
 <?php
-namespace Ora\Accounting;
+namespace Accounting;
 
 class IllegalAmountException extends \DomainException {
 

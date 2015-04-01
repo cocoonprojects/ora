@@ -9,7 +9,7 @@ use Zend\Mvc\Router\RouteMatch;
 use PHPUnit_Framework_TestCase;
 use Application\Organization;
 use Ora\User\User;
-use Ora\Accounting\OrganizationAccount;
+use Accounting\OrganizationAccount;
 
 class OrganizationsControllerTest extends \PHPUnit_Framework_TestCase
 {

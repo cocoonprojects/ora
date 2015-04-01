@@ -127,6 +127,6 @@ class AccountCommandsListener extends SyncReadModelListener {
 	}
 	
 	protected function getPackage() {
-		return 'Ora\\Accounting\\';
+		return 'Accounting';
 	}
 }

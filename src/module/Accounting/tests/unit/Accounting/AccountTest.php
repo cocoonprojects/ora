@@ -1,5 +1,5 @@
 <?php
-namespace Ora\Accounting;
+namespace Accounting;
 
 use Ora\User\User;
 
@@ -38,7 +38,7 @@ class AccountTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * @expectedException Ora\Accounting\IllegalAmountException
+	 * @expectedException Accounting\IllegalAmountException
 	 */
 	public function testDepositWithNegativeAmount() {
 		$account = Account::create($this->holder);
@@ -57,7 +57,7 @@ class AccountTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * @expectedException Ora\Accounting\IllegalAmountException
+	 * @expectedException Accounting\IllegalAmountException
 	 */
 	public function testTransferInWithNegativeAmount() {
 		$payee = Account::create($this->holder);
@@ -80,7 +80,7 @@ class AccountTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @expectedException Ora\Accounting\IllegalAmountException
+	 * @expectedException Accounting\IllegalAmountException
 	 */
 	public function testTransferOuWithNegativeAmount() {
 		$payer = Account::create($this->holder);

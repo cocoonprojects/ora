@@ -4,7 +4,7 @@ namespace Accounting\Service;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\Event;
-use Ora\Accounting\AccountService;
+use Accounting\Service\AccountService;
 use Application\Organization;
 
 class CreateOrganizationAccountListener implements ListenerAggregateInterface {

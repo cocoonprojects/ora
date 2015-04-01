@@ -62,6 +62,6 @@ class OrganizationCommandsListener extends SyncReadModelListener {
 	}
 	
 	protected function getPackage() {
-		return 'Ora\\Organization\\';
+		return 'Application';
 	}
 }

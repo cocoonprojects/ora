@@ -1,5 +1,6 @@
 <?php
-namespace Ora\Accounting;
+
+namespace Accounting\Service;
 
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Aggregate\AggregateRepository;
@@ -10,7 +11,8 @@ use Doctrine\ORM\EntityManager;
 use Rhumsaa\Uuid\Uuid;
 use Ora\User\User;
 use Application\Organization;
-use Application\OrganizationService;
+use Accounting\Account;
+use Accounting\OrganizationAccount;
 
 class EventSourcingAccountService extends AggregateRepository implements AccountService
 {
@@ -22,7 +24,7 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	private $entityManager;
 	
 	public function __construct(EventStore $eventStore, EntityManager $entityManager) {
-		$this->aggregateRootType = new AggregateType('Ora\Accounting\Account');
+		$this->aggregateRootType = new AggregateType('Accounting\Account');
 		parent::__construct($eventStore, new AggregateTranslator(), new MappedSuperclassStreamStrategy($eventStore, $this->aggregateRootType, [$this->aggregateRootType->toString() => 'event_stream']));
 		$this->entityManager = $entityManager;
 	}

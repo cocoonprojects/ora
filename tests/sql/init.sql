@@ -22,7 +22,7 @@ delete from users;
 INSERT INTO users (id, status, createdAt, firstname, lastname, email, role) VALUES ('60000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Mark', 'Rogers', 'mark.rogers@ora.local', 'user');
 # account
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
-('45f1b89a-156b-4dbf-b5c9-9a0540460a0b',1,'Ora\\Accounting\\AccountCreated','a:3:{s:7:\"balance\";i:0;s:7:\"holders\";a:1:{s:36:\"60000000-0000-0000-0000-000000000000\";s:11:\"Mark Rogers\";}s:12:\"aggregate_id\";s:36:\"ccde992b-5aa9-4447-98ae-c8115906dcb7\";}','2014-12-29T17:32:07.000000+0100','Ora\\Accounting\\Account','ccde992b-5aa9-4447-98ae-c8115906dcb7');
+('45f1b89a-156b-4dbf-b5c9-9a0540460a0b',1,'Accounting\\AccountCreated','a:3:{s:7:\"balance\";i:0;s:7:\"holders\";a:1:{s:36:\"60000000-0000-0000-0000-000000000000\";s:11:\"Mark Rogers\";}s:12:\"aggregate_id\";s:36:\"ccde992b-5aa9-4447-98ae-c8115906dcb7\";}','2014-12-29T17:32:07.000000+0100','Accounting\\Account','ccde992b-5aa9-4447-98ae-c8115906dcb7');
 insert into accounts(id, createdAt, mostRecentEditAt, balance_value, balance_date, createdBy_id, mostRecentEditBy_id, type) values
 ('ccde992b-5aa9-4447-98ae-c8115906dcb7','2014-12-29T17:32:07.000000+0100','2014-12-29T17:32:07.000000+0100',0,'2014-12-29T17:32:07.000000+0100','60000000-0000-0000-0000-000000000000','60000000-0000-0000-0000-000000000000','account');
 INSERT INTO account_holders(account_id, user_id) VALUES
@@ -31,7 +31,7 @@ INSERT INTO account_holders(account_id, user_id) VALUES
 # user 70000000-0000-0000-0000-000000000000 Phil Toledo
 INSERT INTO users (id, status, createdAt, firstname, lastname, email, role) VALUES ('70000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Phil', 'Toledo', 'phil.toledo@ora.local', 'user');
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
-('45f1b89b-156b-4dbf-b5c9-9a0540460a0b',1,'Ora\\Accounting\\AccountCreated','a:3:{s:7:\"balance\";i:0;s:7:\"holders\";a:1:{s:36:\"70000000-0000-0000-0000-000000000000\";s:11:\"Phil Toledo\";}s:12:\"aggregate_id\";s:36:\"cdde992b-5aa9-4447-98ae-c8115906dcb7\";}','2014-12-29T17:32:07.000000+0100','Ora\\Accounting\\Account','cdde992b-5aa9-4447-98ae-c8115906dcb7');
+('45f1b89b-156b-4dbf-b5c9-9a0540460a0b',1,'Accounting\\AccountCreated','a:3:{s:7:\"balance\";i:0;s:7:\"holders\";a:1:{s:36:\"70000000-0000-0000-0000-000000000000\";s:11:\"Phil Toledo\";}s:12:\"aggregate_id\";s:36:\"cdde992b-5aa9-4447-98ae-c8115906dcb7\";}','2014-12-29T17:32:07.000000+0100','Accounting\\Account','cdde992b-5aa9-4447-98ae-c8115906dcb7');
 insert into accounts(id, createdAt, mostRecentEditAt, balance_value, balance_date, createdBy_id, mostRecentEditBy_id, type) values
 ('cdde992b-5aa9-4447-98ae-c8115906dcb7','2014-12-29T17:32:07.000000+0100','2014-12-29T17:32:07.000000+0100',0,'2014-12-29T17:32:07.000000+0100','70000000-0000-0000-0000-000000000000','70000000-0000-0000-0000-000000000000','account');
 INSERT INTO account_holders(account_id, user_id) VALUES
@@ -54,8 +54,8 @@ INSERT INTO organization_members(member_id, organization_id, role, createdAt, mo
 
 # organization account
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
-('44f1b89a-156b-4dbf-b5c9-9a0540460a0b',1,'Ora\\Accounting\\AccountCreated','a:4:{s:7:\"balance\";i:0;s:12:"organization";s:36:"00000000-0000-0000-1000-000000000000";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:\"aggregate_id\";s:36:\"dcde992b-5aa9-4447-98ae-c8115906dcb7\";}','2014-12-29T17:32:07.000000+0100','Ora\\Accounting\\OrganizationAccount','dcde992b-5aa9-4447-98ae-c8115906dcb7'),
-('0b3f93d2-811f-4a54-a72c-dedcce600a4d',2,'Ora\\Accounting\\HolderAdded','a:5:{s:2:"id";s:36:"60000000-0000-0000-0000-000000000000";s:9:"firstname";s:4:"Mark";s:8:"lastname";s:6:"Rogers";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"dcde992b-5aa9-4447-98ae-c8115906dcb7";}','2015-03-09T17:34:52.000000+0100','Ora\\Accounting\\OrganizationAccount','dcde992b-5aa9-4447-98ae-c8115906dcb7');
+('44f1b89a-156b-4dbf-b5c9-9a0540460a0b',1,'Accounting\\AccountCreated','a:4:{s:7:\"balance\";i:0;s:12:"organization";s:36:"00000000-0000-0000-1000-000000000000";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:\"aggregate_id\";s:36:\"dcde992b-5aa9-4447-98ae-c8115906dcb7\";}','2014-12-29T17:32:07.000000+0100','Accounting\\OrganizationAccount','dcde992b-5aa9-4447-98ae-c8115906dcb7'),
+('0b3f93d2-811f-4a54-a72c-dedcce600a4d',2,'Accounting\\HolderAdded','a:5:{s:2:"id";s:36:"60000000-0000-0000-0000-000000000000";s:9:"firstname";s:4:"Mark";s:8:"lastname";s:6:"Rogers";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"dcde992b-5aa9-4447-98ae-c8115906dcb7";}','2015-03-09T17:34:52.000000+0100','Accounting\\OrganizationAccount','dcde992b-5aa9-4447-98ae-c8115906dcb7');
 insert into accounts(id, organization_id, createdAt, mostRecentEditAt, balance_value, balance_date, createdBy_id, mostRecentEditBy_id, type) values
 ('dcde992b-5aa9-4447-98ae-c8115906dcb7', '00000000-0000-0000-1000-000000000000', '2014-12-09 15:25:18', '2014-12-09 15:25:18', 0, '2014-12-09 15:25:18', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000', 'organizationaccount');
 

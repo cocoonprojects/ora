@@ -7,7 +7,7 @@ use Ora\IllegalStateException;
 use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
 use Ora\TaskManagement\TaskService;
-use Ora\Accounting\AccountService;
+use Accounting\Service\AccountService;
 use Ora\User\User;
 use Ora\TaskManagement\Task;
 
