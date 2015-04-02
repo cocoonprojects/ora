@@ -1,13 +1,13 @@
 <?php
 namespace Ora\Service;
 
+use Zend\EventManager\ListenerAggregateInterface;
+use Zend\EventManager\EventManagerInterface;
 use Doctrine\ORM\EntityManager;
 use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
 use Prooph\EventStore\Stream\StreamEvent;
-use Zend\EventManager\ListenerAggregateInterface;
-use Zend\EventManager\EventManagerInterface;
 
-abstract class SyncReadModelListener  implements ListenerAggregateInterface
+abstract class SyncReadModelListener implements ListenerAggregateInterface
 {
 	protected $listeners = array();
 	
@@ -33,16 +33,13 @@ abstract class SyncReadModelListener  implements ListenerAggregateInterface
 			}
 	 		$that->entityManager->flush();
 		});
-		$this->events = $events;
 	}
 	
     public function detach(EventManagerInterface $events)
     {
-        foreach ($this->listeners as $index => $listener) {
-            if ($events->detach($listener)) {
-                unset($this->listeners[$index]);
-            }
-        }
+		if ($events->getSharedManager()->detach('prooph_event_store', $this->listeners[0])) {
+			unset($this->listeners[0]);
+		}
     }
 	
 	public function getHandler(StreamEvent $event) {

@@ -31,14 +31,14 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	
 	public function createPersonalAccount(User $holder) {
 		$this->eventStore->beginTransaction();
-		try {
+// 		try {
 			$account = Account::create($holder);
 			$this->addAggregateRoot($account);
 			$this->eventStore->commit();
-		} catch (\Exception $e) {
-			$this->eventStore->rollback();
-			throw $e;
-		}
+// 		} catch (\Exception $e) {
+// 			$this->eventStore->rollback();
+// 			throw $e;
+// 		}
 		return $account;
 	}
 	

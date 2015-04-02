@@ -1,7 +1,6 @@
 <?php
 namespace TaskManagement\Controller;
 
-use Test\Bootstrap;
 use Zend\Http\Request;
 use Zend\Http\Response;
 use Zend\Mvc\MvcEvent;
@@ -12,6 +11,7 @@ use PHPUnit_Framework_TestCase;
 use Rhumsaa\Uuid\Uuid;
 use Ora\TaskManagement\Task;
 use Ora\User\User;
+use Integration\Bootstrap;
 
 class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase {
 	
@@ -28,7 +28,6 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase {
 
     protected function setUp()
     {
-        
         $serviceManager = Bootstrap::getServiceManager();
         $userService = $serviceManager->get('User\UserService');
         $this->owner = $userService->findUser('60000000-0000-0000-0000-000000000000');
@@ -64,8 +63,10 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase {
     	$identity->method('__invoke')->willReturn(['user' => $this->owner]);
         $this->controller->getPluginManager()->setService('identity', $identity);
         
+        $sharedManager = $serviceManager->get('SharedEventManager');
         $eventManager = new EventManager('TaskManagement\TaskService');
-        $eventManager->setSharedManager(Bootstrap::getEventManager()->getSharedManager());
+        $eventManager->setSharedManager($sharedManager);
+        
         $this->task = Task::create($stream, 'Cras placerat libero non tempor', $this->owner);
         $this->task->setEventManager($eventManager);
         $this->task->addMember($this->owner, Task::ROLE_OWNER, 'ccde992b-5aa9-4447-98ae-c8115906dcb7');

@@ -12,17 +12,14 @@
          syntaxCheck="true"
 >
 	<testsuites>
-	    <testsuite name="All tests">
-	        <directory>./unit/</directory>
+	    <testsuite name="Application integration tests">
+	        <directory>../../module/Application/tests/integration</directory>
 	    </testsuite>
-	    <testsuite name="Application unit tests">
-	        <directory>../src/module/Application/tests/unit</directory>
+	    <testsuite name="Task Management integration tests">
+	        <directory>../../module/TaskManagement/tests/integration</directory>
 	    </testsuite>
-	    <testsuite name="Task Management unit tests">
-	        <directory>../src/module/TaskManagement/tests/unit</directory>
-	    </testsuite>
-	    <testsuite name="Accounting unit tests">
-	        <directory>../src/module/Accounting/tests/unit</directory>
+	    <testsuite name="Accounting integration tests">
+	        <directory>../../module/Accounting/tests/integration</directory>
 	    </testsuite>
 	</testsuites>
 	<php>

@@ -88,7 +88,7 @@ class User implements ProviderInterface, RoleInterface
 	private $status;
 	
 	/**
-	 * @ORM\Column(type="string")
+	 * @ORM\Column(type="string", nullable=TRUE)
 	 * @var string
 	 */
 	private $picture;

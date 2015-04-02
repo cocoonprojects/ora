@@ -33,10 +33,8 @@ class CreateOrganizationAccountListener implements ListenerAggregateInterface {
 	
     public function detach(EventManagerInterface $events)
     {
-        foreach ($this->listeners as $index => $listener) {
-            if ($events->detach($listener)) {
-                unset($this->listeners[$index]);
-            }
-        }
+        if($events->getSharedManager()->detach('Application\OrganizationService', $this->listeners[0])) {
+    		unset($this->listeners[0]);
+    	}
     }
 }

@@ -8,12 +8,12 @@ interface UserService
 	 *
 	 * @param array [email, lastname, firstname]
 	 */	
-	public function subscribeUser($infoOfUser);
+	public function subscribeUser($userInfo);
 	
 	/**
 	 * Create a User
 	 *
-	 * @param array [email, lastname, firstname]
+	 * @param array [email, family_name, given_name, picture]
 	 * @param string $role	 
 	 */	
 	public function create($infoOfUser, $role);
