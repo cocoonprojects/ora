@@ -12,6 +12,11 @@ use TaskManagement\View\TaskJsonModel;
 use BjyAuthorize\Service\Authorize;
 use Ora\Accounting\AccountService;
 use Ora\User\User;
+use Zend\Filter\FilterChain;
+use Zend\Filter\StringTrim;
+use Zend\Filter\StripNewlines;
+use Zend\Filter\StripTags;
+use Zend\Validator\NotEmpty;
 
 class TasksController extends AbstractHATEOASRestfulController
 {
@@ -71,9 +76,7 @@ class TasksController extends AbstractHATEOASRestfulController
     	$streamID = $this->getRequest()->getQuery('streamID');
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks() : $this->taskService->findStreamTasks($streamID);
 
-    	$this->response->setStatusCode(200);
-       	$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->authorize);          	
-
+       	$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->authorize);
         $view->setVariable('resource', $availableTasks);
         return $view;
     }
@@ -112,13 +115,15 @@ class TasksController extends AbstractHATEOASRestfulController
         	return $this->response;
         }
                 
-	    // Definition of used Zend Validators
-	    $validator_NotEmpty = new \Zend\Validator\NotEmpty();
-	        
-	    // Check if subject is empty
-	    if (!$validator_NotEmpty->isValid($data['subject']))
+    	$filters = new FilterChain();
+    	$filters->attach(new StringTrim())
+    			->attach(new StripNewlines())
+    			->attach(new StripTags());
+        $subject = $filters->filter($data['subject']);
+    	
+	    $validator = new NotEmpty();
+	    if (!$validator->isValid($subject))
 	    {
-	    	// HTTP STATUS CODE 406: Not Acceptable
 	        $this->response->setStatusCode(406);
 	        return $this->response;
 	    }
@@ -127,7 +132,7 @@ class TasksController extends AbstractHATEOASRestfulController
 	     
 	    $this->transaction()->begin();
 	    try {
-	    	$task = Task::create($stream, $data['subject'], $identity);
+	    	$task = Task::create($stream, $subject, $identity);
 	    	$task->addMember($identity, Task::ROLE_OWNER, $accountId);
 	    	$this->taskService->addTask($task);
 	    	$this->transaction()->commit();
@@ -231,6 +236,12 @@ class TasksController extends AbstractHATEOASRestfulController
     public function getAccountService() {
     	return $this->accountService;
     }
+    
+	public function getTaskService() 
+    {
+        return $this->taskService;
+    }
+    
         
     protected function getCollectionOptions()
     {

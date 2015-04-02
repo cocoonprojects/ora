@@ -33,6 +33,11 @@ class AccountTransaction extends DomainEntity {
 	 * @var float
 	 */
 	protected $balance;
+	/**
+	 * @ORM\Column(type="integer")
+	 * @var integer
+	 */
+	private $number = 1;
 	
 	public function setAccount(Account $account) {
 		$this->account = $account;
@@ -76,5 +81,14 @@ class AccountTransaction extends DomainEntity {
 
 	public function getPayeeName() {
 		return null;
+	}
+	
+	public function setNumber($number) {
+		$this->number = $number;
+		return $this;
+	}
+	
+	public function getNumber() {
+		return $this->number;
 	}
 }

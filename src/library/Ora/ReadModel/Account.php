@@ -4,6 +4,7 @@ namespace Ora\ReadModel;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Ora\User\User;
+use Zend\Permissions\Acl\Resource\ResourceInterface;
 
 /**
  * @ORM\Entity @ORM\Table(name="accounts")
@@ -12,7 +13,7 @@ use Ora\User\User;
  * @author andreabandera
  *
  */
-class Account extends EditableEntity {
+class Account extends EditableEntity implements ResourceInterface {
 	
 	/**
 	 * @ORM\Embedded(class="Ora\ReadModel\Balance")
@@ -29,7 +30,7 @@ class Account extends EditableEntity {
 	protected $holders;
 	/**
 	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\AccountTransaction", mappedBy="account", cascade="persist", fetch="LAZY")
-	 * @ORM\OrderBy({"createdAt" = "DESC"})
+	 * @ORM\OrderBy({"number" = "DESC"})
 	 * @var AccountTransaction[]
 	 */
 	protected $transactions;
@@ -84,5 +85,9 @@ class Account extends EditableEntity {
 			return $holder->getFirstname() . ' ' . $holder->getLastname(); 
 		}
 		return null;
+	}
+	
+	public function getResourceId(){
+		return "Ora\Account";
 	}
 }

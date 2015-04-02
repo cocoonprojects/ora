@@ -46,15 +46,19 @@ class AccountCommandsListener extends SyncReadModelListener {
 		$id = $event->metadata()['aggregate_id'];
 		$entity = $this->entityManager->find('Ora\\ReadModel\\Account', $id);
 		
-		$transaction = new Deposit($event->eventId());
-		$transaction->setAccount($entity);
 		$amount = $event->payload()['amount'];
-		$transaction->setAmount($amount);
-		$transaction->setBalance($entity->getBalance()->getValue() + $amount);
-		$transaction->setDescription($event->payload()['description']);
-		$transaction->setCreatedAt($event->occurredOn());
+		$balance = $event->payload()['balance'];
+		
 		$payer = $this->entityManager->find('Ora\User\User', $event->payload()['payer']);
-		$transaction->setCreatedBy($payer);
+
+		$transaction = new Deposit($event->eventId());
+		$transaction->setAccount($entity)
+			->setAmount($amount)
+			->setBalance($balance)
+			->setDescription($event->payload()['description'])
+			->setCreatedAt($event->occurredOn())
+			->setCreatedBy($payer)
+			->setNumber($event->version());
 		$entity->addTransaction($transaction);
 		
 		$balance = new Balance($transaction->getBalance(), $event->occurredOn());
@@ -82,7 +86,8 @@ class AccountCommandsListener extends SyncReadModelListener {
 			->setBalance($entity->getBalance()->getValue() + $amount)
 			->setDescription($event->payload()['description'])
 			->setCreatedAt($event->occurredOn())
-			->setCreatedBy($createdBy);
+			->setCreatedBy($createdBy)
+			->setNumber($event->version());
 		$entity->addTransaction($transaction);
 		
 		$balance = new Balance($transaction->getBalance(), $event->occurredOn());
@@ -110,7 +115,8 @@ class AccountCommandsListener extends SyncReadModelListener {
 			->setBalance($entity->getBalance()->getValue() + $amount)
 			->setDescription($event->payload()['description'])
 			->setCreatedAt($event->occurredOn())
-			->setCreatedBy($createdBy);
+			->setCreatedBy($createdBy)
+			->setNumber($event->version());
 		$entity->addTransaction($transaction);
 		
 		$balance = new Balance($transaction->getBalance(), $event->occurredOn());

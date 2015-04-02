@@ -9,6 +9,7 @@ use Zend\Mvc\Controller\Plugin\Url;
 use Ora\ReadModel\AccountTransaction;
 use Ora\User\User;
 use Ora\ReadModel\Deposit;
+use BjyAuthorize\Service\Authorize;
 
 class StatementJsonModel extends JsonModel
 {
@@ -16,9 +17,15 @@ class StatementJsonModel extends JsonModel
 	
 	protected $user;
 	
-	public function __construct(Url $url, User $user) {
+	/**
+	 * @var BjyAuthorize\Service\Authorize
+	 */
+	protected $authorize;
+	
+	public function __construct(Url $url, User $user, Authorize $authorize) {
 		$this->url = $url;
 		$this->user = $user;
+		$this->authorize = $authorize;
 	} 
 	
 	public function serialize()
@@ -51,8 +58,9 @@ class StatementJsonModel extends JsonModel
 	}
 	
 	protected function serializeLinks($account) {
+		
 		$rv['_links']['self'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'statement']);
-		if($this->isAllowed('deposit', $account)) {
+		if($this->authorize->isAllowed($account, 'Accounting.OrganizationAccount.deposit')){
 			$rv['_links']['deposits'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'deposits']);
 		}
 		return $rv;
@@ -74,25 +82,5 @@ class StatementJsonModel extends JsonModel
 			$rv['payer'] = $transaction->getPayerName();
 		}
 		return $rv;
-	}
-	
-	protected function isAllowed($action, Account $account = null) {
-    	if(is_null($account)) {
-    		return true; // placeholder
-    	}
-    	switch ($action) {
-    		case 'statement':
-    			if($account instanceof OrganizationAccount && $this->user->isMemberOf($account->getOrganization())) {
-    				return true;
-    			}
-    			return $account->isHeldBy($this->user);
-    		case 'deposit':
-    			if(!($account instanceof OrganizationAccount)) {
-    				return false;
-    			}
-    			return $account->isHeldBy($this->user);
-    		default:
-    			return false;
-    	}
 	}
 }

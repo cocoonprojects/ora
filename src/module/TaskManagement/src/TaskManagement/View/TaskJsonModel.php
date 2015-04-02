@@ -25,7 +25,7 @@ class TaskJsonModel extends JsonModel
 	
 	/**
 	 * 
-	 * @var BjyAuthorize\Service\Authorize
+	 * @var Authorize
 	 */
 	private $authorize;
 	
@@ -40,13 +40,10 @@ class TaskJsonModel extends JsonModel
 		$resource = $this->getVariable('resource');
 	
 		if(is_array($resource)) {
-			$representation['tasks'] = [];
+			$representation['tasks'] = array_map(array($this, 'serializeOne'), $resource);
  			if ($this->authorize->isAllowed(NULL, 'TaskManagement.Task.create')) { 
-				$representation['_links']['create'] = $this->url->fromRoute('tasks');
+				$representation['_links']['ora:create'] = $this->url->fromRoute('tasks');
  			}
-			foreach ($resource as $r) {
-				$representation['tasks'][] = $this->serializeOne($r);
-			}
 		} else {
 			$representation = $this->serializeOne($resource);
 		}
@@ -62,39 +59,39 @@ class TaskJsonModel extends JsonModel
 		}
 		
 		if($this->authorize->isAllowed($task, 'TaskManagement.Task.edit')){
-			$links['edit'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);
+			$links['ora:edit'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);
 		}
 		
 		if($this->authorize->isAllowed($task, 'TaskManagement.Task.delete')){					
-			$links['delete'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);
+			$links['ora:delete'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);
 		}		
 		
 		if($this->authorize->isAllowed($task, 'TaskManagement.Task.join')){
-			$links['join'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']);
+			$links['ora:join'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']);
 		}
 		
 		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.unjoin')) {		 
-			$links['unjoin'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']); 
+			$links['ora:unjoin'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']); 
 		}	
 			
 		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.estimate')) {	   
-			$links['estimate'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'estimations']); 
+			$links['ora:estimate'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'estimations']); 
 		}
 		
 		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.execute')) {
-			$links['execute'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
+			$links['ora:execute'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
 		}
 
 		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.complete')) {
-			$links['complete'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
+			$links['ora:complete'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
 		}
 		
 		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.accept')) {
-			$links['accept'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
+			$links['ora:accept'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
 		}
 		
 		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.assignShares')) {
-			$links['assignShares'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'shares']);
+			$links['ora:assignShares'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'shares']);
 		}
 		
 		$rv = [

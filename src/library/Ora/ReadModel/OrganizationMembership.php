@@ -29,7 +29,7 @@ class OrganizationMembership
 
 	/**
 	 * @ORM\Id
-	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\Organization")
+	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\Organization", fetch="EAGER")
 	 * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", onDelete="CASCADE")
 	 */
 	protected $organization;

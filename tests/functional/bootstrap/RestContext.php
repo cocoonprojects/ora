@@ -494,6 +494,26 @@ class RestContext extends RawMinkContext implements Context
     	}
     }    
     
+    
+    
+    /**
+     * @Then /^the "([^"]*)" property contains "([^"]*)" key$/
+     */
+    public function thePropertyContainsKey($property, $key){
+
+    	$tasks = json_decode($this->_response->getBody(true));
+        
+    	if (empty($tasks)) {
+            throw new Exception("Response was not JSON\n" . $this->_response->getBody(true));
+        }
+        if (!isset($tasks->$property)) {
+			throw new Exception("Property '" . $property ."' is not set!\n");
+		}
+		if(!array_key_exists($key, $tasks->$property)){
+			throw new Exception("Key '" . $key ."' is not set in ".$property." property!\n");
+		}
+    }  
+    
 	protected function getResponse(){
     	return $this->_response;
     }

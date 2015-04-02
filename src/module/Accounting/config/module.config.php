@@ -42,9 +42,42 @@ return array(
 			),
 		),
 	),
+	
+	'bjyauthorize'=> array(
+		'resource_providers' => array(
+			'BjyAuthorize\Provider\Resource\Config' => array(
+				'Ora\Account' => array()		
+			),
+		),
+		'rule_providers' => array(
+			'BjyAuthorize\Provider\Rule\Config' => array(
+				'allow' => array(
+					array(
+						array('user'), 
+						'Ora\Account', 
+						array('Accounting.Account.deposit'),
+						'Accounting\AccountHolderAssertion'), 
+					array(
+						array('user'), 
+						'Ora\Account', 
+						array('Accounting.Account.statement'), 
+						'Accounting\MemberOfOrganizationOrAccountHolder'), 
+					array(
+						array('user'), 
+						'Ora\Account',
+						array('Accounting.OrganizationAccount.deposit'),
+						'Accounting\AccountHolderOfOrganizationAccountAssertion'),
+				)
+			)
+		)
+	),
+	
 	'listeners' => array(
 		'Accounting\AccountCommandsListener',
 		'Accounting\CreatePersonalAccountListener',
 		'Accounting\CreateOrganizationAccountListener'
-	),
+	)
+	
+	
+	
 );
