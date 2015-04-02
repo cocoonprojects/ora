@@ -232,10 +232,12 @@ class Task extends DomainEntity
 		//check  if($member!=owner)-> mail notification
 		if($this->getMemberRole($member) != self::ROLE_OWNER){
 			$owner = $this->getOwner();
-			$owner_name = $owner->getFirstname();
-			$owner_mail = $owner->getEmail();
-			$member_mail = $member->getEmail();
-			$this->getEventManager()->trigger(Task::EVENT_ADD_ESTIMATION_NOTIFICATION, $this, ['taskId'=>$this->getId(), 'owner_name'=>$owner_name, 'owner_mail'=>$owner_mail,'member_mail'=>$member_mail]);		
+			$ownerName = $owner->getFirstname();
+			$ownerMail = $owner->getEmail();
+			//$member_mail = $member->getEmail();
+			$memberFirstName = $member->getFirstname();
+			$memberLastName = $member->getLastname();
+			$this->getEventManager()->trigger(Task::EVENT_ADD_ESTIMATION_NOTIFICATION, $this, ['taskSubject'=>$this->getSubject(), 'ownerName'=>$ownerName, 'ownerMail'=>$ownerMail,'memberFirstName'=>$memberFirstName, 'memberLastName'=>$memberLastName]);		
 		}		
 	}
 	/**
@@ -285,6 +287,17 @@ class Task extends DomainEntity
 		)));	
 
 		$this->getEventManager()->trigger(Task::EVENT_SHARES_ASSIGNED, $this, ['by' => $member]);
+		
+		//check  if($member!=owner)-> mail notification
+		if($this->getMemberRole($member) != self::ROLE_OWNER){
+			$owner = $this->getOwner();
+			$owner_name = $owner->getFirstname();
+			$owner_mail = $owner->getEmail();
+			//$member_mail = $member->getEmail();
+			$member_firstName = $member->getFirstname();
+			$member_lastName = $member->getLastname();
+			$this->getEventManager()->trigger(Task::EVENT_SHARES_ASSIGNED_NOTIFICATION, $this, ['taskSubject'=>$this->getSubject(), 'owner_name'=>$owner_name, 'owner_mail'=>$owner_mail,'member_firstName'=>$member_firstName, 'member_lastName'=>$member_lastName]);
+		}
 	}
 	
 	public function skipShares(User $member) {

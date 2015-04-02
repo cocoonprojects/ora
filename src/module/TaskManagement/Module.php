@@ -16,6 +16,7 @@ use TaskManagement\Service\TaskCommandsListener;
 use Zend\Permissions\Acl\Assertion\AssertionInterface;
 use AcMailer\Service\MailService;
 use TaskManagement\Service\AddEstimationListener;
+use TaskManagement\Service\NotifyMailListener;
 
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
@@ -80,8 +81,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
     {
         return array (
             'invokables' => array(
-            	'TaskManagement\AddEstimationListener' => 'TaskManagement\Service\AddEstimationListener',
-            	'TaskManagement\SharesAssignedListener' => 'TaskManagement\Service\SharesAssignedListener',
+            	'TaskManagement\NotifyMailListener' => 'TaskManagement\Service\NotifyMailListener',
 	            'TaskManagement\CloseTaskListener' => 'TaskManagement\Service\CloseTaskListener',
         		'TaskManagement\MemberOfOrganizationAssertion' => 'TaskManagement\Assertion\MemberOfOrganizationAssertion',
         		'TaskManagement\MemberOfNotAcceptedTaskAssertion' => 'TaskManagement\Assertion\MemberOfNotAcceptedTaskAssertion',
@@ -97,15 +97,10 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
                 'TaskManagement\StreamService' => 'TaskManagement\Service\StreamServiceFactory',
             	'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',
 				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
-        			
-        		'TaskManagement\Service\AddEstimationListener' => function($locator){
+        				
+        		'TaskManagement\Service\NotifyMailListener' => function($locator){
         			$mailService = $locator->get('AcMailer\Service\MailService');
-        			$rv = new AddEstimationListener($mailService);
-        			return $rv;
-        		},	
-        		'TaskManagement\Service\SharesAssignedListener' => function($locator){
-        			$mailService = $locator->get('AcMailer\Service\MailService');
-        			$rv = new AddEstimationListener($mailService);
+        			$rv = new NotifyMailListener($mailService);
         			return $rv;
         		},
             	'TaskManagement\TaskCommandsListener' => function ($locator) {

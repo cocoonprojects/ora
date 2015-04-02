@@ -4,8 +4,8 @@ return array(
     'mail_options' => array(
     		
     		'mail_adapter' => 'Zend\Mail\Transport\Sendmail',
-    		'from' => 'test@oraproject.org',
-    		'from_name' => 'O.R.A. Test Mail',
+    		'from' => 'mailsender@oraproject.org',
+    		'from_name' => 'O.R.A. Mail Sender',
 
         /***********
          * ADAPTER *
