@@ -2,9 +2,9 @@
 namespace Application\Service;
 
 use Prooph\EventStoreTest\TestCase;
-use Ora\User\User;
 use Prooph\EventStore\Stream\Stream;
 use Prooph\EventStore\Stream\StreamName;
+use Ora\User\User;
 
 class EventSourcingOrganizationServiceTest extends TestCase {
 	

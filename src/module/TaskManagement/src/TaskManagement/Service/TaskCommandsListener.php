@@ -60,7 +60,7 @@ class TaskCommandsListener extends SyncReadModelListener {
 		}
 	}
 	
-	protected function onStreamChanged(StreamEvent $event) {
+	protected function onTaskStreamChanged(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$entity = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
 		if(is_null($entity)) {
@@ -79,7 +79,7 @@ class TaskCommandsListener extends SyncReadModelListener {
 		$this->entityManager->persist($entity);
 	}
 
-	protected function onMemberAdded(StreamEvent $event) {
+	protected function onTaskMemberAdded(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$entity = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
 		if(is_null($entity)) {
@@ -99,7 +99,7 @@ class TaskCommandsListener extends SyncReadModelListener {
 		$this->entityManager->persist($entity);
 	}
 	
-    protected function onMemberRemoved(StreamEvent $event) {
+    protected function onTaskMemberRemoved(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$entity = $this->entityManager->find('Ora\ReadModel\Task', $id);
 		if(is_null($entity)) {

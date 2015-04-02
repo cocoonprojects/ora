@@ -9,9 +9,9 @@ use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
 use Zend\EventManager\EventManager;
 use PHPUnit_Framework_TestCase;
 use Rhumsaa\Uuid\Uuid;
-use Ora\TaskManagement\Task;
+use TaskManagement\Task;
 use Ora\User\User;
-use Integration\Bootstrap;
+use IntegrationTest\Bootstrap;
 
 class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase {
 	
@@ -36,7 +36,7 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase {
         $streamService = $serviceManager->get('TaskManagement\StreamService');
         $stream = $streamService->getStream('00000000-1000-0000-0000-000000000000');
         
-        $taskServiceStub = $this->getMockBuilder('Ora\TaskManagement\TaskService')
+        $taskServiceStub = $this->getMockBuilder('TaskManagement\Service\TaskService')
         	->getMock();
         $this->controller = new SharesController($taskServiceStub);
         $this->request    = new Request();

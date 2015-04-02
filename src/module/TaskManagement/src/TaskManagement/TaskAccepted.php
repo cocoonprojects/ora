@@ -1,12 +1,12 @@
 <?php
 
-namespace Ora\TaskManagement;
+namespace TaskManagement;
 
 use Prooph\EventSourcing\AggregateChanged;
 /**
 * 
 * @author Giannotti Fabio
 */
-class TaskClosed extends AggregateChanged
+class TaskAccepted extends AggregateChanged
 {
 }

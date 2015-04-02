@@ -1,6 +1,6 @@
 <?php
 
-namespace Ora\TaskManagement;
+namespace TaskManagement\Service;
 
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
@@ -12,9 +12,10 @@ use Prooph\EventStore\Aggregate\AggregateRepository;
 use Prooph\EventStore\Aggregate\AggregateType;
 use Prooph\EventStore\Stream\MappedSuperclassStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
+use Rhumsaa\Uuid\Uuid;
 use Ora\User\User;
 use TaskManagement\Stream;
-use Rhumsaa\Uuid\Uuid;
+use TaskManagement\Task;
 
 class EventSourcingTaskService extends AggregateRepository implements TaskService, EventManagerAwareInterface
 {

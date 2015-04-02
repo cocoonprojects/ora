@@ -1,5 +1,5 @@
 <?php
-namespace Ora\TaskManagement;
+namespace TaskManagement;
 
 use Rhumsaa\Uuid\Uuid;
 use Ora\IllegalStateException;
@@ -8,9 +8,6 @@ use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
 use Ora\DomainEntity;
 use Ora\User\User;
-use TaskManagement\Stream;
-use Zend\EventManager\EventManagerAwareInterface;
-use Zend\EventManager\EventManagerInterface;
 
 class Task extends DomainEntity
 {	
@@ -157,7 +154,7 @@ class Task extends DomainEntity
 		if(!is_null($this->streamId)) {
 			$payload['prevStreamId'] = $this->streamId->toString();
 		}
-		$this->recordThat(StreamChanged::occur($this->id->toString(), $payload));
+		$this->recordThat(TaskStreamChanged::occur($this->id->toString(), $payload));
 		return $this;
 	}
 		
@@ -185,7 +182,7 @@ class Task extends DomainEntity
 		
 		$by = is_null($addedBy) ? $user : $addedBy;
 		
-		$this->recordThat(MemberAdded::occur($this->id->toString(), array(
+		$this->recordThat(TaskMemberAdded::occur($this->id->toString(), array(
 			'userId' => $user->getId(),
 			'accountId' => $accountId,
 			'role' => $role,
@@ -207,7 +204,7 @@ class Task extends DomainEntity
 
 		$by = is_null($removedBy) ? $member : $removedBy;
 		
-		$this->recordThat(MemberRemoved::occur($this->id->toString(), array(
+		$this->recordThat(TaskMemberRemoved::occur($this->id->toString(), array(
 			'userId' => $member->getId(),
 			'by' => $by->getId(),
 		)));
@@ -411,7 +408,7 @@ class Task extends DomainEntity
 		}
 	}
 	
-	protected function whenMemberAdded(MemberAdded $event) {
+	protected function whenTaskMemberAdded(TaskMemberAdded $event) {
 		$p = $event->payload();
 		$id = $p['userId'];
 		$this->members[$id]['role'] = $p['role'];
@@ -420,13 +417,13 @@ class Task extends DomainEntity
 		}
 	}
 
-	protected function whenMemberRemoved(MemberRemoved $event) {
+	protected function whenTaskMemberRemoved(TaskMemberRemoved $event) {
 		$p = $event->payload();
 		$id = $p['userId'];
 		unset($this->members[$id]);
 	}
 	
-	protected function whenStreamChanged(StreamChanged $event) {
+	protected function whenTaskStreamChanged(TaskStreamChanged $event) {
 		$p = $event->payload();
 		$this->streamId = Uuid::fromString($p['streamId']);
 	}

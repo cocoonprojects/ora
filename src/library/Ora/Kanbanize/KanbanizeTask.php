@@ -1,11 +1,11 @@
 <?php
 namespace Ora\Kanbanize;
 
-use Ora\TaskManagement\Task;
 use Ora\InvalidArgumentException;
-use TaskManagement\Stream;
 use Ora\User\User;
-use Ora\TaskManagement\TaskCreated;
+use TaskManagement\Task;
+use TaskManagement\Stream;
+use TaskManagement\TaskCreated;
 
 class KanbanizeTask extends Task {
 	

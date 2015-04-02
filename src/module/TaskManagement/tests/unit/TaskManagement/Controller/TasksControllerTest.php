@@ -1,7 +1,7 @@
 <?php
 namespace TaskManagement\Controller;
 
-use Test\Bootstrap;
+use UnitTest\Bootstrap;
 use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
 use Zend\Http\Request;
 use Zend\Http\Response;
@@ -28,7 +28,7 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
     	
     	$serviceManager = Bootstrap::getServiceManager();
     	
-    	$taskServiceStub = $this->getMockBuilder('Ora\TaskManagement\TaskService')
+    	$taskServiceStub = $this->getMockBuilder('TaskManagement\Service\TaskService')
         	->getMock();
     	
     	 $streamServiceStub = $this->getMockBuilder('TaskManagement\Service\StreamService')

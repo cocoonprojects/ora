@@ -8,8 +8,8 @@ use Ora\Kanbanize\Exception\IllegalRemoteStateException;
 use Ora\Kanbanize\Exception\KanbanizeApiException;
 use Ora\Kanbanize\Exception\AlreadyInDestinationException;
 use Zend\View\Model\ViewModel;
-use Ora\TaskManagement\TaskService;
-use Ora\TaskManagement\Task;
+use TaskManagement\Service\TaskService;
+use TaskManagement\Task;
 use Ora\IllegalStateException;
 use Ora\InvalidArgumentException;
 

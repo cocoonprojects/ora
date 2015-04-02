@@ -1,7 +1,7 @@
 <?php
 namespace Application\Controller;
 
-use Test\Bootstrap;
+use UnitTest\Bootstrap;
 use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
 use Zend\Http\Request;
 use Zend\Mvc\MvcEvent;

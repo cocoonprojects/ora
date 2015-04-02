@@ -3,7 +3,7 @@
 namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Ora\TaskManagement\TaskService;
+use TaskManagement\Service\TaskService;
 use Ora\DuplicatedDomainEntityException;
 use Ora\IllegalStateException;
 use Ora\DomainEntityUnavailableException;

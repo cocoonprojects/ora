@@ -1,5 +1,5 @@
 <?php
-namespace Ora\TaskManagement;
+namespace TaskManagement;
 
 use Prooph\EventSourcing\AggregateChanged;
 /**

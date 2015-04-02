@@ -1,7 +1,6 @@
 <?php
 namespace Accounting\Controller;
 
-use Test\Bootstrap;
 use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
 use Zend\Http\Request;
 use Zend\Mvc\MvcEvent;
@@ -10,6 +9,7 @@ use PHPUnit_Framework_TestCase;
 use Ora\User\User;
 use Rhumsaa\Uuid\Uuid;
 use Accounting\Account;
+use UnitTest\Bootstrap;
 
 class DepositsControllerTest extends \PHPUnit_Framework_TestCase
 {

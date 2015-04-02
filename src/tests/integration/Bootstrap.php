@@ -1,6 +1,6 @@
 <?php
 
-namespace Integration;
+namespace IntegrationTest;
 
 use Zend\Loader\AutoloaderFactory;
 use Zend\Mvc\Service\ServiceManagerConfig;

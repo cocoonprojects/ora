@@ -54,7 +54,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             		$locator = $sm->getServiceLocator();
             		$taskService = $locator->get('TaskManagement\TaskService');            		
             		$controller = new EstimationsController($taskService);
-
             		return $controller;
             	},
             	'TaskManagement\Controller\Shares' => function ($sm) {

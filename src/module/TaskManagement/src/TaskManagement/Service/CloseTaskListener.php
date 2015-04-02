@@ -4,7 +4,7 @@ namespace TaskManagement\Service;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\Event;
 use Zend\EventManager\ListenerAggregateInterface;
-use Ora\TaskManagement\Task;
+use TaskManagement\Task;
 
 class CloseTaskListener implements ListenerAggregateInterface {
 

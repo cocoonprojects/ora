@@ -10,8 +10,8 @@ use ZendExtension\Mvc\View\ErrorJsonModel;
 use Ora\InvalidArgumentException;
 use Ora\IllegalStateException;
 use Ora\DomainEntityUnavailableException;
-use Ora\TaskManagement\TaskService;
-use Ora\TaskManagement\Task;
+use TaskManagement\Service\TaskService;
+use TaskManagement\Task;
 use TaskManagement\StreamService;
 
 class SharesController extends AbstractHATEOASRestfulController {

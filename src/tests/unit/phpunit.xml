@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit bootstrap="../src/tests/unit/Bootstrap.php"
+<phpunit bootstrap="Bootstrap.php"
          colors="true"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
@@ -13,16 +13,16 @@
 >
 	<testsuites>
 	    <testsuite name="All tests">
-	        <directory>./unit/</directory>
+	        <directory>../../../tests/unit/</directory>
 	    </testsuite>
 	    <testsuite name="Application unit tests">
-	        <directory>../src/module/Application/tests/unit</directory>
+	        <directory>../../module/Application/tests/unit</directory>
 	    </testsuite>
 	    <testsuite name="Task Management unit tests">
-	        <directory>../src/module/TaskManagement/tests/unit</directory>
+	        <directory>../../module/TaskManagement/tests/unit</directory>
 	    </testsuite>
 	    <testsuite name="Accounting unit tests">
-	        <directory>../src/module/Accounting/tests/unit</directory>
+	        <directory>../../module/Accounting/tests/unit</directory>
 	    </testsuite>
 	</testsuites>
 	<php>

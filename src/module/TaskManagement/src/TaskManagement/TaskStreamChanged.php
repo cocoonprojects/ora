@@ -1,11 +1,11 @@
 <?php
-namespace Ora\TaskManagement;
+namespace TaskManagement;
 
 use Prooph\EventSourcing\AggregateChanged;
 /**
  *
  * @author Giannotti Fabio
  */
-class StreamChanged extends AggregateChanged
+class TaskStreamChanged extends AggregateChanged
 {
 }

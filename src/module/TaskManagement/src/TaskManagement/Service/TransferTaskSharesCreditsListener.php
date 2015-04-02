@@ -9,8 +9,8 @@ use Prooph\EventStore\EventStore;
 use Application\Service\OrganizationService;
 use Accounting\Service\AccountService;
 use Ora\User\User;
-use Ora\TaskManagement\TaskService;
-use Ora\TaskManagement\Task;
+use TaskManagement\Service\TaskService;
+use TaskManagement\Task;
 
 class TransferTaskSharesCreditsListener implements ListenerAggregateInterface {
 	/**

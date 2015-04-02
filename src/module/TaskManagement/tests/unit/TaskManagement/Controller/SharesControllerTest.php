@@ -1,7 +1,7 @@
 <?php
 namespace TaskManagement\Controller;
 
-use Test\Bootstrap;
+use UnitTest\Bootstrap;
 use Zend\Http\Request;
 use Zend\Http\Response;
 use Zend\Mvc\MvcEvent;
@@ -10,7 +10,7 @@ use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
 use Zend\EventManager\EventManager;
 use PHPUnit_Framework_TestCase;
 use Rhumsaa\Uuid\Uuid;
-use Ora\TaskManagement\Task;
+use TaskManagement\Task;
 use Ora\User\User;
 
 class SharesControllerTest extends \PHPUnit_Framework_TestCase {
@@ -38,7 +38,7 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
         $this->member->method('getId')
         	->willReturn('70000000-0000-0000-0000-000000000000');
         
-        $taskServiceStub = $this->getMockBuilder('Ora\TaskManagement\TaskService')
+        $taskServiceStub = $this->getMockBuilder('TaskManagement\Service\TaskService')
         	->getMock();
         
         $serviceManager = Bootstrap::getServiceManager();

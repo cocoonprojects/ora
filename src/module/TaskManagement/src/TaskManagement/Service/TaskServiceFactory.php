@@ -3,14 +3,9 @@ namespace TaskManagement\Service;
 
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
-use Ora\TaskManagement\EventSourcingTaskService;
-use Ora\TaskManagement\TaskService;
 
 class TaskServiceFactory implements FactoryInterface 
 {
-    /**
-     * @var TaskService
-     */
     private static $instance;
     
 	public function createService(ServiceLocatorInterface $serviceLocator) 
