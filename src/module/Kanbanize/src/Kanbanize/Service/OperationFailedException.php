@@ -1,6 +1,6 @@
 <?php
 
-namespace Ora\Kanbanize\Exception;
+namespace Kanbanize\Service;
 
 class OperationFailedException extends \Exception{
 	

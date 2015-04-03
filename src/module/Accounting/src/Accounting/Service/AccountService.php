@@ -4,9 +4,11 @@ namespace Accounting\Service;
 
 use Ora\User\User;
 use Application\Organization;
+use Ora\ReadModel\OrganizationAccount;
+use Ora\ReadModel\Account;
 
-interface AccountService {
-	
+interface AccountService
+{
 	public function createPersonalAccount(User $holder);
 	
 	public function createOrganizationAccount(Organization $organization, User $holder);	
@@ -16,7 +18,16 @@ interface AccountService {
 	public function findAccounts(User $user);
 	
 	public function findAccount($id);
-	
+	/**
+	 * 
+	 * @param User $user
+	 * @return Account
+	 */
 	public function findPersonalAccount(User $user);
-
+	/**
+	 * 
+	 * @param string|Uuid $organizationId
+	 * @return OrganizationAccount
+	 */
+	public function findOrganizationAccount($organizationId);
 }

@@ -24,8 +24,11 @@ class Task extends DomainEntity
 	
 	CONST NOT_ESTIMATED = -1;
 	
-	CONST EVENT_CLOSED = 'Task.Closed';
-	CONST EVENT_SHARES_ASSIGNED = 'Task.SharesAssigned';
+	CONST EVENT_ONGOING			= 'Task.Ongoing';
+	CONST EVENT_COMPLETED		= 'Task.Completed';
+	CONST EVENT_ACCEPTED		= 'Task.Accepted';
+	CONST EVENT_CLOSED			= 'Task.Closed';
+	CONST EVENT_SHARES_ASSIGNED	= 'Task.SharesAssigned';
 	
 	/**
 	 * 
@@ -85,6 +88,8 @@ class Task extends DomainEntity
 				'prevStatus' => $this->getStatus(),
 				'by' => $executedBy->getId(),
 		)));
+		$this->getEventManager()->trigger(Task::EVENT_ONGOING, $this, ['by' => $executedBy]);
+		return $this;
 	}
 	
 	public function complete(User $completedBy) {
@@ -98,6 +103,8 @@ class Task extends DomainEntity
 			'prevStatus' => $this->getStatus(),
 			'by' => $completedBy->getId(),
 		)));
+		$this->getEventManager()->trigger(Task::EVENT_COMPLETED, $this, ['by' => $completedBy]);
+		return $this;
 	}
 	
 	public function accept(User $acceptedBy) {
@@ -114,6 +121,8 @@ class Task extends DomainEntity
 			'prevStatus' => $this->getStatus(),
 			'by' => $acceptedBy->getId(),
 		)));
+		$this->getEventManager()->trigger(Task::EVENT_ACCEPTED, $this, ['by' => $acceptedBy]);
+		return $this;
 	}
 	
 	public function close(User $closedBy) {
@@ -128,6 +137,7 @@ class Task extends DomainEntity
 				'by' => $closedBy->getId(),
 		)));
 		$this->getEventManager()->trigger(Task::EVENT_CLOSED, $this, ['by' => $closedBy]);
+		return $this;
 	}
 	
 	public function getSubject() {

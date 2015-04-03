@@ -1,11 +1,7 @@
 <?php
 
-namespace Ora\Kanbanize;
+namespace Kanbanize\Service;
 
-use Ora\Kanbanize\KanbanizeAPI;
-use Ora\Kanbanize\KanbanizeService;
-use Ora\Kanbanize\Exception\OperationFailedException;
-use Ora\Kanbanize\Exception\IllegalRemoteStateException;
 use Ora\Kanbanize\ReadModel\KanbanizeTask;
 
 /**

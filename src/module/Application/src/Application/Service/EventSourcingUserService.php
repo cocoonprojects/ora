@@ -1,5 +1,5 @@
 <?php
-namespace Ora\User;
+namespace Application\Service;
 
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
@@ -67,7 +67,7 @@ class EventSourcingUserService implements UserService, EventManagerAwareInterfac
 	public function setEventManager(EventManagerInterface $events)
 	{
 		$events->setIdentifiers(array(
-			'User\UserService',
+			'Application\UserService',
 			__CLASS__,
 			get_class($this)
 		));

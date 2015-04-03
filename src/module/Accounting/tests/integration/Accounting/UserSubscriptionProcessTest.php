@@ -3,13 +3,13 @@
 namespace Accounting;
 
 use Zend\EventManager\ListenerAggregateInterface;
-use Ora\User\UserService;
+use Application\Service\UserService;
 use Accounting\Service\AccountService;
 use Accounting\Service\CreatePersonalAccountListener;
 use Accounting\Service\AccountCommandsListener;
 use IntegrationTest\Bootstrap;
 
-class SubscriptionProcessTest extends \PHPUnit_Framework_TestCase
+class UserSubscriptionProcessTest extends \PHPUnit_Framework_TestCase
 {
 	/**
 	 * 
@@ -25,7 +25,7 @@ class SubscriptionProcessTest extends \PHPUnit_Framework_TestCase
 	protected function setUp()
 	{
 		$serviceManager = Bootstrap::getServiceManager();
-		$this->userService = $serviceManager->get('User\UserService');
+		$this->userService = $serviceManager->get('Application\UserService');
 		$this->accountService = $serviceManager->get('Accounting\CreditsAccountsService');
 	}
 	

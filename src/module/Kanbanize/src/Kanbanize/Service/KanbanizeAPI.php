@@ -1,8 +1,7 @@
 <?php
 
-namespace Ora\Kanbanize;
+namespace Kanbanize\Service;
 
-use Ora\Kanbanize\Exception\KanbanizeApiException;
 class KanbanizeAPI {
 	/**
 	 *

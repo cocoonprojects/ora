@@ -29,7 +29,7 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase {
     protected function setUp()
     {
         $serviceManager = Bootstrap::getServiceManager();
-        $userService = $serviceManager->get('User\UserService');
+        $userService = $serviceManager->get('Application\UserService');
         $this->owner = $userService->findUser('60000000-0000-0000-0000-000000000000');
         $this->member = $userService->findUser('70000000-0000-0000-0000-000000000000');
         

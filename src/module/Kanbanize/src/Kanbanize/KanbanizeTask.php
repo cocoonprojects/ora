@@ -1,5 +1,5 @@
 <?php
-namespace Ora\Kanbanize;
+namespace Kanbanize;
 
 use Ora\InvalidArgumentException;
 use Ora\User\User;

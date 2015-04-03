@@ -8,7 +8,7 @@ use Zend\Authentication\Result;
 use Zend\Authentication\AuthenticationServiceInterface;
 use ZendExtension\Authentication\AdapterResolver;
 use ZendExtension\Authentication\OAuth2\InvalidTokenException;
-use Ora\User\UserService;
+use Application\Service\UserService;
 use Zend\Session\Container;
 
 class AuthController extends AbstractActionController

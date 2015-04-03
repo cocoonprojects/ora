@@ -12,7 +12,7 @@ class MockOAuth2AdapterResolverFactory implements FactoryInterface
 	public function createService(ServiceLocatorInterface $serviceLocator)
 	{
 		if(is_null(self::$instance)) {
-			$userService = $serviceLocator->get('User\UserService');
+			$userService = $serviceLocator->get('Application\UserService');
 			self::$instance = new MockOAuth2Adapter($userService);
 		}
 	    return self::$instance;

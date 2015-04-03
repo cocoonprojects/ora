@@ -240,7 +240,6 @@ class TasksController extends AbstractHATEOASRestfulController
     {
         return $this->taskService;
     }
-    
         
     protected function getCollectionOptions()
     {

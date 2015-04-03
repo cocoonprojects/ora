@@ -12,7 +12,6 @@ return array(
 					),
 				),
 			),
-				
 			'login' => array(
 				'type' => 'Zend\Mvc\Router\Http\Segment',
 				'options' => array(
@@ -131,6 +130,13 @@ return array(
 				)
 			)
 		)
+	),
+	'asset_manager' => array(
+		'resolver_configs' => array(
+			'paths' => array(
+				'Application' => __DIR__ . '/../public',
+			),
+		),
 	),
 	'listeners' => array(
 		'Application\OrganizationCommandsListener'

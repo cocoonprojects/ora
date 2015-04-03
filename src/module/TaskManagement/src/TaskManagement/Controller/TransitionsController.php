@@ -2,11 +2,6 @@
 namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Ora\Kanbanize\KanbanizeService;
-use Ora\Kanbanize\ReadModel\KanbanizeTask;
-use Ora\Kanbanize\Exception\IllegalRemoteStateException;
-use Ora\Kanbanize\Exception\KanbanizeApiException;
-use Ora\Kanbanize\Exception\AlreadyInDestinationException;
 use Zend\View\Model\ViewModel;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Task;
@@ -19,19 +14,12 @@ class TransitionsController extends AbstractHATEOASRestfulController
 	protected static $collectionOptions= array ();
 	
 	/**
-	 *
-	 * @var KanbanizeService
-	 */
-	protected $kanbanizeService;
-
-	/**
 	 * @var TaskService
 	 */
 	private $taskService;
 	
-	public function __construct(TaskService $taskService, KanbanizeService $kanbanizeService) {
+	public function __construct(TaskService $taskService) {
 		$this->taskService = $taskService;
-		$this->kanbanizeService = $kanbanizeService;
 	}
 	
 	public function invoke($id, $data) {

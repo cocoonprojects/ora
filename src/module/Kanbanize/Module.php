@@ -3,7 +3,9 @@ namespace Kanbanize;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
-use Ora\Kanbanize\KanbanizeServiceImpl;
+use Kanbanize\Service\KanbanizeAPI;
+use Kanbanize\Service\KanbanizeServiceImpl;
+use Kanbanize\Service\SyncTaskListener;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {
@@ -23,7 +25,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 			'invokables' => array(
 			),
 			'factories' => array (
-				'Kanbanize\SyncService' => function ($locator) {
+				'Kanbanize\KanbanizeService' => function ($locator) {
 					$config = $locator->get('Config');
 					$apiKey	= $config['kanbanize']['apikey'];
 					$url	= $config['kanbanize']['url'];
@@ -33,6 +35,10 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$api->setUrl($url);
 					
 					return new KanbanizeServiceImpl($api);
+				},
+				'Kanbanize\SyncTaskListener' => function ($locator) {
+					$kanbanizeService = $locator->get('Kanbanize\KanbanizeService');
+					return new SyncTaskListener($kanbanizeService);
 				},
 			),
 			'initializers' => array(

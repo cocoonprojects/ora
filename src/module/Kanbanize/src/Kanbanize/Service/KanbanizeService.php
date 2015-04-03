@@ -1,6 +1,6 @@
 <?php
 
-namespace Ora\Kanbanize;
+namespace Kanbanize\Service;
 
 use Ora\Kanbanize\ReadModel\KanbanizeTask;
 

@@ -11,6 +11,8 @@ use Application\Controller\AuthController;
 use Application\Controller\OrganizationsController;
 use Application\Service\IdentityRolesProvider;
 use Application\Service\OrganizationCommandsListener;
+use Application\Service\EventSourcingUserService;
+use Application\Service\EventSourcingOrganizationService;
 
 class Module
 {
@@ -35,7 +37,7 @@ class Module
 					$locator = $sm->getServiceLocator();
 					$resolver = $locator->get('Application\Service\AdapterResolver');
 					$authService = $locator->get('Zend\Authentication\AuthenticationService');
-					$userService = $locator->get('User\UserService');
+					$userService = $locator->get('Application\UserService');
 					$controller = new AuthController($authService, $resolver);
 					$controller->setUserService($userService);
 					return $controller;
@@ -81,7 +83,15 @@ class Module
 					$loggedUser = $authService->getIdentity()['user'];
 					return $loggedUser;
 	        	},	
-				'Application\OrganizationService' => 'Application\Service\OrganizationServiceFactory',
+				'Application\OrganizationService' => function ($serviceLocator) {
+					$eventStore = $serviceLocator->get('prooph.event_store');
+					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
+					return new EventSourcingOrganizationService($eventStore, $entityManager);
+				},
+				'Application\UserService' => function ($serviceLocator) {
+					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
+					return new EventSourcingUserService($entityManager);
+				},
 				'Application\OrganizationCommandsListener' => function ($serviceLocator) {
 					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
 					return new OrganizationCommandsListener($entityManager);

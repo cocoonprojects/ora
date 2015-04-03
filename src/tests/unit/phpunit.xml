@@ -24,6 +24,9 @@
 	    <testsuite name="Accounting unit tests">
 	        <directory>../../module/Accounting/tests/unit</directory>
 	    </testsuite>
+	    <testsuite name="Kanbanize unit tests">
+	        <directory>../../module/Kanbanize/tests/unit</directory>
+	    </testsuite>
 	</testsuites>
 	<php>
 		<env name="APPLICATION_ENV" value="acceptance"/>

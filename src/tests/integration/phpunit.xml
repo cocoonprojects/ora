@@ -21,6 +21,9 @@
 	    <testsuite name="Accounting integration tests">
 	        <directory>../../module/Accounting/tests/integration</directory>
 	    </testsuite>
+	    <testsuite name="Kanbanize integration tests">
+	        <directory>../../module/Kanbanize/tests/integration</directory>
+	    </testsuite>
 	</testsuites>
 	<php>
 		<env name="APPLICATION_ENV" value="acceptance"/>

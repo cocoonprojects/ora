@@ -1,5 +1,5 @@
 <?php
-namespace Ora\Kanbanize;
+namespace Kanbanize\Service;
 
 class KanbanizeAPICall
 {

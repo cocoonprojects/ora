@@ -5,7 +5,6 @@ use Zend\EventManager\ListenerAggregateInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\Event;
-use Prooph\EventStore\EventStore;
 use Application\Service\OrganizationService;
 use Accounting\Service\AccountService;
 use Ora\User\User;
@@ -33,20 +32,14 @@ class TransferTaskSharesCreditsListener implements ListenerAggregateInterface {
 	 * @var AccountService
 	 */
 	private $accountService;
-	/**
-	 * 
-	 * @var EventStore
-	 */
-	private $transactionManager;
 
 	protected $listeners = array();
 	
-	public function __construct(TaskService $taskService, StreamService $streamService, OrganizationService $organizationService, AccountService $accountService, EventStore $transactionManager) {
+	public function __construct(TaskService $taskService, StreamService $streamService, OrganizationService $organizationService, AccountService $accountService) {
 		$this->taskService = $taskService;
 		$this->streamService = $streamService;
 		$this->organizationService = $organizationService;
 		$this->accountService = $accountService;
-		$this->transactionManager = $transactionManager;
 	}
 	
 	public function execute(Task $task, User $by) {
@@ -75,7 +68,6 @@ class TransferTaskSharesCreditsListener implements ListenerAggregateInterface {
 			$by = $event->getParam('by');
 			$that->execute($task, $by);
 		});
-		$this->events = $events;
 	}
 	
     public function detach(EventManagerInterface $events)

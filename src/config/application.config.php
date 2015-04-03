@@ -21,9 +21,9 @@ return array(
 		'AssetManager',
 		'Accounting',
 		'TaskManagement',
-		'User',
 		'Application',
-		'BjyAuthorize'
+		'BjyAuthorize',
+		'Kanbanize'
 	),
 
 	// These are various options for the listeners attached to the ModuleManager

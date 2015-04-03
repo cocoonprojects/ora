@@ -1,5 +1,5 @@
 <?php
-use Ora\Kanbanize\KanbanizeAPI;
+use Kanbanize\Service\KanbanizeAPI;
 use Ora\Kanbanize\ReadModel\KanbanizeTask;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 

@@ -53,7 +53,7 @@
                         <li><a href="<?php echo $this->url('tasks-home') ?>"><?php echo $this->translate('Items') ?></a></li>
                         <li><a href="<?php echo $this->url('accounting-home') ?>"><?php echo $this->translate('Credits') ?></a></li>
                         <li><a href=""><?php echo $this->translate('Decisions') ?></a></li>
-                        <li><a href="<?php echo $this->url('people-home') ?>"><?php echo $this->translate('People') ?></a></li>
+                        <li><a href="<?php echo $this->url('home') ?>"><?php echo $this->translate('People') ?></a></li>
 					</ul>
 					<?php echo $this->partial('layout/user-box.phtml', array(
 						'identity' => is_null($this->identity()) ? null : $this->identity()['user'],
@@ -63,7 +63,7 @@
         </nav>
 		<?php echo $this->content; ?>
 		<?php echo $this->LoginPopupHelper(); ?>
-		<?php echo $this->partial('create-organization/create-organization-modal.phtml', array(
+		<?php echo $this->partial('layout/create-organization-modal.phtml', array(
 			'identity' => is_null($this->identity()) ? null : $this->identity()['user'],
 		)) ?>
 		<?php echo $this->inlineScript() ?>
