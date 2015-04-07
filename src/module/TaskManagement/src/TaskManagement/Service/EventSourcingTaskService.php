@@ -10,7 +10,7 @@ use Doctrine\ORM\EntityManager;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Aggregate\AggregateRepository;
 use Prooph\EventStore\Aggregate\AggregateType;
-use Prooph\EventStore\Stream\MappedSuperclassStreamStrategy;
+use Prooph\EventStore\Stream\SingleStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Rhumsaa\Uuid\Uuid;
 use Ora\User\User;
@@ -26,19 +26,13 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	private $entityManager;
 	/**
 	 * 
-	 * @var AggregateType
-	 */
-	private $aggregateRootType;
-	/**
-	 * 
 	 * @var EventManagerInterface
 	 */
 	private $events;
     
     public function __construct(EventStore $eventStore, EntityManager $entityManager)
     {
-    	$this->aggregateRootType = new AggregateType('Ora\TaskManagement\Task');
-		parent::__construct($eventStore, new AggregateTranslator(), new MappedSuperclassStreamStrategy($eventStore, $this->aggregateRootType, [$this->aggregateRootType->toString() => 'event_stream']));
+		parent::__construct($eventStore, new AggregateTranslator(), new SingleStreamStrategy($eventStore), AggregateType::fromAggregateRootClass(Task::class));
 		$this->entityManager = $entityManager;	
 	}
 	
@@ -55,13 +49,11 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	public function getTask($id)
 	{
 		$tId = $id instanceof Uuid ? $id->toString() : $id;
-		try {
-			$task = $this->getAggregateRoot($this->aggregateRootType, $tId);
+		$task = $this->getAggregateRoot($tId);
+		if($task != null) {
 			$task->setEventManager($this->getEventManager());
-		    return $task;
-        } catch (\RuntimeException $e) {
-        	return null;
-        }
+		}
+		return $task;
 	}
 	
 	/**

@@ -26,7 +26,7 @@ class EventSourcingStreamService extends AggregateRepository implements StreamSe
 	
 	public function __construct(EventStore $eventStore, EntityManager $entityManager)
 	{
-		parent::__construct($eventStore, new AggregateTranslator(), new SingleStreamStrategy($eventStore), new AggregateType('TaskManagement\Stream'));
+		parent::__construct($eventStore, new AggregateTranslator(), new SingleStreamStrategy($eventStore), AggregateType::fromAggregateRootClass(Stream::class));
 		$this->entityManager = $entityManager;
 	}
 	
@@ -47,12 +47,7 @@ class EventSourcingStreamService extends AggregateRepository implements StreamSe
 	public function getStream($id)
 	{
 		$sId = $id instanceof Uuid ? $id->toString() : $id;
-		try {
-			$stream = $this->getAggregateRoot($this->aggregateType, $sId);
-			return $stream;
-		} catch (\RuntimeException $e) {
-			return null;
-		}
+		return $this->getAggregateRoot($sId);
 	}
 		
 	public function findStream($id)

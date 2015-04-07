@@ -5,7 +5,7 @@ namespace Accounting\Service;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Aggregate\AggregateRepository;
 use Prooph\EventStore\Aggregate\AggregateType;
-use Prooph\EventStore\Stream\MappedSuperclassStreamStrategy;
+use Prooph\EventStore\Stream\SingleStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Doctrine\ORM\EntityManager;
 use Rhumsaa\Uuid\Uuid;
@@ -16,7 +16,6 @@ use Accounting\OrganizationAccount;
 
 class EventSourcingAccountService extends AggregateRepository implements AccountService
 {
-	private $aggregateRootType;
 	/**
 	 * 
 	 * @var EntityManager
@@ -24,8 +23,7 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	private $entityManager;
 	
 	public function __construct(EventStore $eventStore, EntityManager $entityManager) {
-		$this->aggregateRootType = new AggregateType('Accounting\Account');
-		parent::__construct($eventStore, new AggregateTranslator(), new MappedSuperclassStreamStrategy($eventStore, $this->aggregateRootType, [$this->aggregateRootType->toString() => 'event_stream']));
+		parent::__construct($eventStore, new AggregateTranslator(), new SingleStreamStrategy($eventStore), AggregateType::fromAggregateRootClass(Account::class));
 		$this->entityManager = $entityManager;
 	}
 	
@@ -57,12 +55,7 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	
 	public function getAccount($id) {
 		$aId = $id instanceof Uuid ? $id->toString() : $id;
-		try {
-			$rv = $this->getAggregateRoot($this->aggregateRootType, $aId);
-			return $rv;
-		} catch (\RuntimeException $e) {
-			return null;
-		}
+		return $this->getAggregateRoot($aId);
 	}
 	
 	public function findAccounts(User $holder) {

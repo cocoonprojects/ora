@@ -29,7 +29,6 @@ class TransitionsController extends AbstractHATEOASRestfulController
 		}
 		$task = $this->taskService->getTask($id);
 		if (is_null($task)) {
-			var_dump('non è');
 			$this->response->setStatusCode ( 404 );
 			return $this->response;
 		}

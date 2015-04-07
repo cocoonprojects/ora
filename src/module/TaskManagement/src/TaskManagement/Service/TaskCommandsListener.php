@@ -198,6 +198,6 @@ class TaskCommandsListener extends SyncReadModelListener
 	}
 
 	protected function getPackage() {
-		return 'Ora\\TaskManagement\\';
+		return 'TaskManagement';
 	}
 }

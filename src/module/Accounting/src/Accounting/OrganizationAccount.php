@@ -19,7 +19,7 @@ class OrganizationAccount extends Account {
 		$rv->recordThat(AccountCreated::occur(Uuid::uuid4()->toString(), array(
 				'balance' => 0,
 				'by' => $createdBy->getId(),
-				'organization' => $organization->getId(),
+				'organization' => $organization->getId()->toString(),
 		)));
 		$rv->addHolder($createdBy, $createdBy);
 		$organization->changeAccount($rv, $createdBy);
@@ -32,7 +32,7 @@ class OrganizationAccount extends Account {
 
 	protected function whenAccountCreated(AccountCreated $event) {
 		parent::whenAccountCreated($event);
-		$this->organizationId = $event->payload()['organization'];
+		$this->organizationId = Uuid::fromString($event->payload()['organization']);
 	}
 	
 }

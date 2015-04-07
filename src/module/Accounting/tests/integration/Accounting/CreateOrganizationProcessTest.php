@@ -40,8 +40,14 @@ class CreateOrganizationProcessTest extends \PHPUnit_Framework_TestCase
 	public function testSubscriptionProcess()
 	{
 		$organization = $this->organizationService->createOrganization('Lorem ipsum', $this->user);
+		$this->assertNotNull($organization->getAccountId());
+		
+		$org = $this->organizationService->getOrganization($organization->getId());
+		$this->assertNotNull($org->getAccountId(), 'The newly created organization has no account (into the read model) after creation process completed');
+		
 		$account = $this->accountService->findOrganizationAccount($organization->getId());
 		$this->assertNotNull($account);
+		$this->assertEquals($org->getAccountId()->toString(), $account->getId());
 		$this->assertCount(1, $account->getHolders());
 		$this->assertEquals($this->user, $account->getHolders()->first());
 		$this->assertEquals(0, $account->getBalance()->getValue());

@@ -31,7 +31,7 @@ class EventSourcingOrganizationService extends AggregateRepository implements Or
     
     public function __construct(EventStore $eventStore, EntityManager $entityManager)
     {
-		parent::__construct($eventStore, new AggregateTranslator(), new SingleStreamStrategy($eventStore), new AggregateType('Application\Organization'));
+		parent::__construct($eventStore, new AggregateTranslator(), new SingleStreamStrategy($eventStore), AggregateType::fromAggregateRootClass(Organization::class));
 		$this->entityManager = $entityManager;
     }
     
@@ -51,12 +51,7 @@ class EventSourcingOrganizationService extends AggregateRepository implements Or
 	
     public function getOrganization($id) {
 		$oId = $id instanceof Uuid ? $id->toString() : $id;
-    	try {
-    		$rv = $this->getAggregateRoot($this->aggregateType, $oId);
-    		return $rv;
-    	} catch (\RuntimeException $e) {
-    		return null;
-    	}
+		return $this->getAggregateRoot($oId);
     }
 	
 	/**
