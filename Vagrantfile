@@ -206,5 +206,8 @@ config.vm.synced_folder "./src/data/DoctrineORMModule/Proxies/", "/vagrant/src/d
 	:mount_options => ["dmode=730","fmode=660"], 
 	:create => "true"
 	
+
+#configurazione del servizio mail
+config.vm.provision :shell, :path => "puphpet/shell/configure_mail_service.sh"
 	
 end
