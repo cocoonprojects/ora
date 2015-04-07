@@ -1,11 +1,11 @@
 <?php
 namespace Accounting\Controller;
 
-use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Zend\Authentication\AuthenticationServiceInterface;
+use BjyAuthorize\Service\Authorize;
+use Application\Controller\AbstractHATEOASRestfulController;
 use Accounting\Service\AccountService;
 use Accounting\View\AccountsJsonModel;
-use BjyAuthorize\Service\Authorize;
 
 class AccountsController extends AbstractHATEOASRestfulController
 {

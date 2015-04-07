@@ -1,7 +1,7 @@
 <?php
 namespace Kanbanize;
 
-use Ora\InvalidArgumentException;
+use Application\InvalidArgumentException;
 use Application\Entity\User;
 use TaskManagement\Task;
 use TaskManagement\Stream;

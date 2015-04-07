@@ -2,9 +2,9 @@
 namespace Accounting;
 
 use Rhumsaa\Uuid\Uuid;
-use Ora\DomainEntity;
+use Application\DomainEntity;
 use Application\Entity\User;
-use Ora\DuplicatedDomainEntityException;
+use Application\DuplicatedDomainEntityException;
 
 class Account extends DomainEntity {
 	

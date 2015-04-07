@@ -1,5 +1,5 @@
 <?php
-namespace ZendExtension\Mvc\Controller;
+namespace Application\Controller;
 
 use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\EventManager\EventManagerInterface;

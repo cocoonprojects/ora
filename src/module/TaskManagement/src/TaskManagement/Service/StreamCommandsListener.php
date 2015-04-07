@@ -2,13 +2,13 @@
 namespace TaskManagement\Service;
 
 use Prooph\EventStore\Stream\StreamEvent;
-use Ora\Service\SyncReadModelListener;
 use Application\Entity\Organization;
 use Application\Entity\User;
+use Application\Service\ReadModelProjector;
 use TaskManagement\Entity\Stream;
 use TaskManagement\Entity\Task;
 
-class StreamCommandsListener extends SyncReadModelListener {
+class StreamCommandsListener extends ReadModelProjector {
 	
 	protected function onStreamCreated(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];

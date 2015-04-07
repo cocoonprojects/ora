@@ -3,11 +3,8 @@
 namespace Application;
 
 use Rhumsaa\Uuid\Uuid;
-use Ora\DomainEntity;
 use Application\Entity\User;
 use Accounting\Account;
-use Ora\DuplicatedDomainEntityException;
-use Ora\DomainEntityUnavailableException;
 
 class Organization extends DomainEntity
 {

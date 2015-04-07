@@ -31,10 +31,9 @@ class StatementJsonModel extends JsonModel
 	public function serialize()
 	{
 		$account = $this->getVariable('resource');
-		$rv = $this->serializeBalance($account);
-		$rv = array_merge($rv,
-					$this->serializeTransactions($account),
-					$this->serializeLinks($account));
+		$rv['balance']		= $this->serializeBalance($account);
+		$rv['transactions']	= array_map(array($this, 'serializeTransaction'), $account->getTransactions());
+		$rv['_links']		= $this->serializeLinks($account);
 		if($account instanceof OrganizationAccount) {
 			$rv['organization'] = $account->getOrganization()->getName();
 		}
@@ -42,31 +41,22 @@ class StatementJsonModel extends JsonModel
 	}
 	
 	protected function serializeBalance($account) {
-		$rv['balance'] = array(
+		return array(
 			'value' => $account->getBalance()->getValue(),
 			'date' => date_format($account->getBalance()->getDate(), 'c'),
 		);
-		return $rv;
-	}
-	
-	protected function serializeTransactions($account) {
-		$rv['transactions'] = array();
-		foreach ($account->getTransactions() as $transaction) {
-			$rv['transactions'][] = $this->serializeTransaction($transaction);
-		}
-		return $rv;
 	}
 	
 	protected function serializeLinks($account) {
 		
-		$rv['_links']['self'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'statement']);
+		$rv['self'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'statement']);
 		if($this->authorize->isAllowed($account, 'Accounting.OrganizationAccount.deposit')){
-			$rv['_links']['deposits'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'deposits']);
+			$rv['deposits'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'deposits']);
 		}
 		return $rv;
 	}
 	
-	private function serializeTransaction(AccountTransaction $transaction) {
+	protected function serializeTransaction(AccountTransaction $transaction) {
 		$className = get_class($transaction);
 		$rv = array(
 			'date' => date_format($transaction->getCreatedAt(), 'c'),

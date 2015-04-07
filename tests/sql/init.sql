@@ -199,21 +199,3 @@ INSERT INTO task_members(task_id, member_id,role) VALUES
 ('00000000-0000-0000-0000-000000000004','60000000-0000-0000-0000-000000000000','owner');
 INSERT INTO task_members(task_id, member_id,role) VALUES
 ('00000000-0000-0000-0000-000000000004','20000000-0000-0000-0000-000000000000','member');
-
-UPDATE event_stream SET eventName = "TaskManagement\\TaskCreated" WHERE eventName = "Ora\\TaskManagement\\TaskCreated";
-UPDATE event_stream SET eventName = "TaskManagement\\TaskUpdated" WHERE eventName = "Ora\\TaskManagement\\TaskUpdated";
-UPDATE event_stream SET eventName = "TaskManagement\\TaskStreamChanged" WHERE eventName = "Ora\\TaskManagement\\StreamChanged";
-UPDATE event_stream SET eventName = "TaskManagement\\TaskMemberAdded" WHERE eventName = "Ora\\TaskManagement\\MemberAdded";
-UPDATE event_stream SET eventName = "TaskManagement\\TaskCompleted" WHERE eventName = "Ora\\TaskManagement\\TaskCompleted";
-UPDATE event_stream SET eventName = "TaskManagement\\TaskAccepted" WHERE eventName = "Ora\\TaskManagement\\TaskAccepted";
-UPDATE event_stream SET eventName = "TaskManagement\\EstimationAdded" WHERE eventName = "Ora\\TaskManagement\\EstimationAdded";
-UPDATE event_stream SET eventName = "TaskManagement\\StreamCreated" WHERE eventName = "Ora\\StreamManagement\\StreamCreated";
-UPDATE event_stream SET eventName = "TaskManagement\\StreamUpdated" WHERE eventName = "Ora\\StreamManagement\\StreamUpdated";
-UPDATE event_stream SET eventName = "TaskManagement\\StreamOrganizationChanged" WHERE eventName = "Ora\\StreamManagement\\OrganizationChanged";
-UPDATE event_stream SET eventName = "Accounting\\AccountCreated" WHERE eventName = "Ora\\Accounting\\AccountCreated";
-UPDATE event_stream SET eventName = "Accounting\\HolderAdded" WHERE eventName = "Ora\\Accounting\\HolderAdded";
-UPDATE event_stream SET eventName = "Application\\OrganizationCreated" WHERE eventName = "Ora\\Organization\\OrganizationCreated";
-UPDATE event_stream SET eventName = "Application\\OrganizationUpdated" WHERE eventName = "Ora\\Organization\\OrganizationUpdated";
-UPDATE event_stream SET eventName = "Application\\OrganizationUpdated" WHERE eventName = "Ora\\Organization\\OrganizationUpdated";
-UPDATE event_stream SET eventName = "Application\\OrganizationMemberAdded" WHERE eventName = "Ora\\Organization\\MemberAdded";
-UPDATE event_stream SET eventName = "Application\\OrganizationAccountChanged" WHERE eventName = "Ora\\Organization\\AccountChanged";

@@ -1,5 +1,5 @@
 <?php
-namespace Ora;
+namespace Application;
 
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;

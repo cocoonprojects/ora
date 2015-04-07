@@ -12,10 +12,10 @@ use Doctrine\ORM\Tools\SchemaTool;
 error_reporting(E_ALL | E_STRICT);
 chdir(dirname(__DIR__));
 
-$path = __DIR__ . '/../../vendor/zendframework/zendframework/library';
+$path = __DIR__ . '/../../src/vendor/zendframework/zendframework/library';
 putenv("ZF2_PATH=".$path);
 
-include __DIR__ . '/../../init_autoloader.php';
+include __DIR__ . '/../../src/init_autoloader.php';
 
 /**
  * Test bootstrap, for setting up autoloading
@@ -37,7 +37,7 @@ class Bootstrap
 		$metadata = $entityManager->getMetadataFactory()->getAllMetadata();
 		$schemaTool->dropSchema($metadata);
     	$schemaTool->updateSchema($metadata);
-		$entityManager->getConnection()->executeUpdate(file_get_contents(__DIR__."/../../../tests/sql/init.sql"), array(), array());
+		$entityManager->getConnection()->executeUpdate(file_get_contents(__DIR__."/../sql/init.sql"), array(), array());
     }
 
     public static function getServiceManager()
@@ -51,4 +51,4 @@ class Bootstrap
     }
 }
 
-Bootstrap::init(include __DIR__.'/../../config/application.config.php');
+Bootstrap::init(include __DIR__.'/../../src/config/application.config.php');

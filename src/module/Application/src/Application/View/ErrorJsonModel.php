@@ -1,5 +1,5 @@
 <?php
-namespace ZendExtension\Mvc\View;
+namespace Application\View;
 
 use Zend\View\Model\JsonModel;
 use Zend\Json\Json;

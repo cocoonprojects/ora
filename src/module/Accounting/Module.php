@@ -10,6 +10,7 @@ use Accounting\Controller\StatementsController;
 use Accounting\Service\CreateOrganizationAccountListener;
 use Accounting\Service\CreatePersonalAccountListener;
 use Accounting\Service\AccountCommandsListener;
+use Accounting\Service\EventSourcingAccountService;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {
@@ -54,7 +55,11 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 			),
 			
 			'factories' => array (
-				'Accounting\CreditsAccountsService' => 'Accounting\Service\AccountServiceFactory',
+				'Accounting\CreditsAccountsService' => function ($locator) {
+					$eventStore = $locator->get('prooph.event_store');
+					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
+					return new EventSourcingAccountService($eventStore, $entityManager);
+				},
 				'Accounting\AccountCommandsListener' => function ($locator) {
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
 					return new AccountCommandsListener($entityManager);

@@ -8,8 +8,8 @@ use Zend\Permissions\Acl\Resource\ResourceInterface;
 use Zend\Permissions\Acl\Role\RoleInterface;
 use Zend\Permissions\Acl\Assertion\AssertionInterface;
 use Application\Entity\User;
-use Ora\IllegalStateException;
-use Ora\InvalidArgumentException;
+use Application\IllegalStateException;
+use Application\InvalidArgumentException;
 use TaskManagement\Entity\Task;
 
 class TaskOwnerAndOngoingOrAcceptedTaskAssertion implements AssertionInterface

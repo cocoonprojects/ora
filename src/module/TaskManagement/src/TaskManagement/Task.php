@@ -2,11 +2,11 @@
 namespace TaskManagement;
 
 use Rhumsaa\Uuid\Uuid;
-use Ora\IllegalStateException;
-use Ora\InvalidArgumentException;
-use Ora\DuplicatedDomainEntityException;
-use Ora\DomainEntityUnavailableException;
-use Ora\DomainEntity;
+use Application\IllegalStateException;
+use Application\InvalidArgumentException;
+use Application\DuplicatedDomainEntityException;
+use Application\DomainEntityUnavailableException;
+use Application\DomainEntity;
 use Application\Entity\User;
 
 class Task extends DomainEntity

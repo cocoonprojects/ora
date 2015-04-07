@@ -1,5 +1,5 @@
 <?php
-namespace Ora;
+namespace Application;
 
 class IllegalStateException extends \DomainException {
 	

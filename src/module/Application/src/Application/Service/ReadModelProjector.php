@@ -1,5 +1,5 @@
 <?php
-namespace Ora\Service;
+namespace Application\Service;
 
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\EventManager\EventManagerInterface;
@@ -7,7 +7,7 @@ use Doctrine\ORM\EntityManager;
 use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
 use Prooph\EventStore\Stream\StreamEvent;
 
-abstract class SyncReadModelListener implements ListenerAggregateInterface
+abstract class ReadModelProjector implements ListenerAggregateInterface
 {
 	protected $listeners = array();
 	

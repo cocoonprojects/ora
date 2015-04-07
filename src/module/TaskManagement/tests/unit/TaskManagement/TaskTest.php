@@ -42,7 +42,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * @expectedException Ora\IllegalStateException
+	 * @expectedException Application\IllegalStateException
 	 */
 	public function testDeleteOngoingTask() {
 		$task = Task::create($this->stream, null, $this->owner);
@@ -53,7 +53,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * @expectedException Ora\IllegalStateException
+	 * @expectedException Application\IllegalStateException
 	 */
 	public function testDeleteCompletedTask() {
 		$task = Task::create($this->stream, null, $this->owner);

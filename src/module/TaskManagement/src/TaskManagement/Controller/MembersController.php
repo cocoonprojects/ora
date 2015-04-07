@@ -2,13 +2,13 @@
 
 namespace TaskManagement\Controller;
 
-use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Ora\IllegalStateException;
-use Ora\DuplicatedDomainEntityException;
-use Ora\DomainEntityUnavailableException;
-use TaskManagement\Service\TaskService;
-use Accounting\Service\AccountService;
+use Application\Controller\AbstractHATEOASRestfulController;
+use Application\IllegalStateException;
+use Application\DuplicatedDomainEntityException;
+use Application\DomainEntityUnavailableException;
 use Application\Entity\User;
+use Accounting\Service\AccountService;
+use TaskManagement\Service\TaskService;
 use TaskManagement\Task;
 
 

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit bootstrap="Bootstrap.php"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         verbose="true"
+         stopOnFailure="false"
+         processIsolation="false"
+         backupGlobals="false"
+         syntaxCheck="true"
+>
+	<testsuites>
+	    <testsuite name="Application integration tests">
+            <directory>../../src/module/Application/tests/integration</directory>
+	    </testsuite>
+	    <testsuite name="Task Management integration tests">
+            <directory>../../src/module/TaskManagement/tests/integration</directory>
+	    </testsuite>
+	    <testsuite name="Accounting integration tests">
+            <directory>../../src/module/Accounting/tests/integration</directory>
+	    </testsuite>
+	    <testsuite name="Kanbanize integration tests">
+            <directory>../../src/module/Kanbanize/tests/integration</directory>
+	    </testsuite>
+	</testsuites>
+	<php>
+		<env name="APPLICATION_ENV" value="acceptance"/>
+	</php>
+</phpunit>

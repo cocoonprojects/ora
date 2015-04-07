@@ -5,9 +5,9 @@ use Zend\Permissions\Acl\Resource\ResourceInterface;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
-use Ora\IllegalStateException;
-use Ora\DuplicatedDomainEntityException;
-use Ora\DomainEntityUnavailableException;
+use Application\IllegalStateException;
+use Application\DuplicatedDomainEntityException;
+use Application\DomainEntityUnavailableException;
 use Application\Entity\User;
 use Application\Entity\EditableEntity;
 
@@ -214,7 +214,7 @@ class Task extends EditableEntity implements ResourceInterface
 	}
 
 	public function getResourceId(){
-		return "Ora\Task";
+		return "Application\Task";
 	}
 	
 	public function getMemberRole($user){

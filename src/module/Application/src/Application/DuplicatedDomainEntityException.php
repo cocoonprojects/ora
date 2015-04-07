@@ -1,7 +1,6 @@
 <?php
-namespace Ora;
+namespace Application;
 
-use Ora\DomainEntity;
 use Rhumsaa\Uuid\Uuid;
 
 class DuplicatedDomainEntityException extends \DomainException {

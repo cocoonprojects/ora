@@ -13,17 +13,14 @@ class AccountsJsonModel extends StatementJsonModel
 	{
 		$resource = $this->getVariable('resource');
 		if(is_array($resource)) {
-			$representation['accounts'] = [];
-			foreach ($resource as $account) {
-				$representation['accounts'][] = $this->serializeOne($account);
-			}
+			$representation['accounts'] = array_map(array($this, 'serializeOne'), $resource);
 		} else {
 			$representation = $this->serializeOne($resource);
 		}
 		return Json::encode($representation);
 	}
 	
-	private function serializeOne(Account $account) {
+	protected function serializeOne(Account $account) {
 		$rv = $this->serializeBalance($account);
 		$rv['createdAt'] = date_format($account->getCreatedAt(), 'c');
 		if($account instanceof OrganizationAccount) {

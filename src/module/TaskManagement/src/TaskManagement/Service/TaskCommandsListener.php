@@ -4,16 +4,16 @@ namespace TaskManagement\Service;
 use Doctrine\ORM\EntityManager;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Prooph\EventStore\Stream\StreamEvent;
-use Ora\Service\SyncReadModelListener;
 use Kanbanize\Entity\KanbanizeTask;
 use Application\Entity\User;
+use Application\Service\ReadModelProjector;
 use TaskManagement\Entity\Task;
 use TaskManagement\Entity\Estimation;
 use TaskManagement\Entity\Share;
 use TaskManagement\Entity\Stream;
 use TaskManagement\Entity\TaskMember;
 
-class TaskCommandsListener extends SyncReadModelListener
+class TaskCommandsListener extends ReadModelProjector
 {
 	protected function onTaskCreated(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
@@ -21,7 +21,7 @@ class TaskCommandsListener extends SyncReadModelListener
 		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
 		
 		switch($event->metadata()['aggregate_type']) {
-			case 'Ora\\Kanbanize\\KanbanizeTask' :
+			case KanbanizeTask::class :
 				$entity = new KanbanizeTask($id);
 				$entity->setBoardId($event->payload()['kanbanizeBoardId']);
 				$entity->setTaskId($event->payload()['kanbanizeTaskId']);

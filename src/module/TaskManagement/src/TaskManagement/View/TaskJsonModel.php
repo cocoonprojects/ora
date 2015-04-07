@@ -41,11 +41,11 @@ class TaskJsonModel extends JsonModel
 	
 		if(is_array($resource)) {
 			$representation['tasks'] = array_map(array($this, 'serializeOne'), $resource);
- 			if ($this->authorize->isAllowed(NULL, 'TaskManagement.Task.create')) { 
-				$representation['_links']['ora:create'] = $this->url->fromRoute('tasks');
- 			}
 		} else {
 			$representation = $this->serializeOne($resource);
+		}
+ 		if ($this->authorize->isAllowed(NULL, 'TaskManagement.Task.create')) {
+			$representation['_links']['ora:create'] = $this->url->fromRoute('tasks');
 		}
 		return Json::encode($representation);		
 	}

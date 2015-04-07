@@ -28,7 +28,6 @@ class StreamJsonModel extends JsonModel
 	public function serialize()
 	{
 		$resource = $this->getVariable('resource');
-	
 		if(is_array($resource)) {
 			$hal['_embedded']['ora:stream'] = array_map(array($this, 'serializeOne'), $resource);
 		} else {
