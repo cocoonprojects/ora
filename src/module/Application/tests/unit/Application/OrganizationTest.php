@@ -1,7 +1,7 @@
 <?php
 namespace Application;
 
-use Ora\User\User;
+use Application\Entity\User;
 use Accounting\OrganizationAccount;
 
 class OrganizationTest extends \PHPUnit_Framework_TestCase {
@@ -65,7 +65,7 @@ class OrganizationTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * @expectedException Ora\DuplicatedDomainEntityException
+	 * @expectedException Application\DuplicatedDomainEntityException
 	 */
 	public function testReaddMember() {
 		$organization = Organization::create(null, $this->user);
@@ -82,7 +82,7 @@ class OrganizationTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * @expectedException Ora\DomainEntityUnavailableException
+	 * @expectedException Application\DomainEntityUnavailableException
 	 */
 	public function testRemoveANonMember() {
 		$organization = Organization::create(null, $this->user);

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit bootstrap="../src/tests/unit/Bootstrap.php"
+<phpunit bootstrap="unit/Bootstrap.php"
          colors="true"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
@@ -12,9 +12,6 @@
          syntaxCheck="true"
 >
 	<testsuites>
-	    <testsuite name="All tests">
-	        <directory>./unit/</directory>
-	    </testsuite>
 	    <testsuite name="Application unit tests">
 	        <directory>../src/module/Application/tests/unit</directory>
 	    </testsuite>

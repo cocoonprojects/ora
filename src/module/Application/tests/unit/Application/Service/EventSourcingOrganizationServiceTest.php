@@ -4,7 +4,7 @@ namespace Application\Service;
 use Prooph\EventStoreTest\TestCase;
 use Prooph\EventStore\Stream\Stream;
 use Prooph\EventStore\Stream\StreamName;
-use Ora\User\User;
+use Application\Entity\User;
 
 class EventSourcingOrganizationServiceTest extends TestCase {
 	

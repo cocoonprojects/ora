@@ -8,7 +8,9 @@ use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\RouteMatch;
 use PHPUnit_Framework_TestCase;
 use Application\Organization;
-use Ora\User\User;
+use Application\Entity\User;
+use Application\Service\OrganizationService;
+use Application\Controller\Plugin\EventStoreTransactionPlugin;
 use Accounting\OrganizationAccount;
 
 class OrganizationsControllerTest extends \PHPUnit_Framework_TestCase
@@ -36,7 +38,7 @@ class OrganizationsControllerTest extends \PHPUnit_Framework_TestCase
     
     protected function setUp()
     {
-    	$orgService = $this->getMockBuilder('Application\Service\OrganizationService')
+    	$orgService = $this->getMockBuilder(OrganizationService::class)
     		->getMock();
     	
         $serviceManager = Bootstrap::getServiceManager();
@@ -53,7 +55,7 @@ class OrganizationsControllerTest extends \PHPUnit_Framework_TestCase
         $this->controller->setEvent($this->event);
         $this->controller->setServiceLocator($serviceManager);
 
-    	$transaction = $this->getMockBuilder('ZendExtension\Mvc\Controller\Plugin\EventStoreTransactionPlugin')
+    	$transaction = $this->getMockBuilder(EventStoreTransactionPlugin::class)
     		->disableOriginalConstructor()
     		->setMethods(['begin', 'commit', 'rollback'])
     		->getMock();

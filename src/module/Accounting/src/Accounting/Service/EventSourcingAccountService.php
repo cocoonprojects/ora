@@ -9,10 +9,13 @@ use Prooph\EventStore\Stream\SingleStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Doctrine\ORM\EntityManager;
 use Rhumsaa\Uuid\Uuid;
-use Ora\User\User;
+use Application\Entity\User;
 use Application\Organization;
+use Application\Entity\OrganizationMembership;
 use Accounting\Account;
 use Accounting\OrganizationAccount;
+use Accounting\Entity\Account as ReadModelAccount;
+use Accounting\Entity\OrganizationAccount as ReadModelOrgAccount;
 
 class EventSourcingAccountService extends AggregateRepository implements AccountService
 {
@@ -61,8 +64,8 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	public function findAccounts(User $holder) {
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('a')
-			->from('Ora\ReadModel\Account', 'a')
-			->leftJoin('Ora\ReadModel\OrganizationMembership', 'm', 'WITH', 'm.organization = a.organization')
+			->from(ReadModelAccount::class, 'a')
+			->leftJoin(OrganizationMembership::class, 'm', 'WITH', 'm.organization = a.organization')
 			->where($builder->expr()->orX(':user = m.member', ':user MEMBER OF a.holders'))
 			->setParameter('user', $holder)
 			->getQuery();
@@ -70,13 +73,13 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	}
 	
 	public function findAccount($id) {
-		return $this->entityManager->getRepository('Ora\ReadModel\Account')->find($id);
+		return $this->entityManager->getRepository(ReadModelAccount::class)->find($id);
 	}
 	
 	public function findPersonalAccount(User $user) {
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('a')
-			->from('Ora\ReadModel\Account', 'a')
+			->from(ReadModelAccount::class, 'a')
 			->where($builder->expr()->andX(':user MEMBER OF a.holders', 'a.organization IS NULL'))
 			->setParameter('user', $user)
 			->getQuery();
@@ -85,6 +88,6 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	
 	public function findOrganizationAccount($organizationId) {
 		$oId = $organizationId instanceof Uuid ? $organizationId->toString() : $organizationId;
-		return $this->entityManager->getRepository('Ora\ReadModel\OrganizationAccount')->findOneBy(array('organization' => $oId));
+		return $this->entityManager->getRepository(ReadModelOrgAccount::class)->findOneBy(array('organization' => $oId));
 	}
 }

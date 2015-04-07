@@ -1,7 +1,7 @@
 <?php
 namespace Accounting;
 
-use Ora\User\User;
+use Application\Entity\User;
 
 class AccountTest extends \PHPUnit_Framework_TestCase {
 	

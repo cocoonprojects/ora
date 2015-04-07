@@ -4,8 +4,8 @@ namespace Accounting\Service;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\Event;
-use Accounting\Service\AccountService;
 use Application\Organization;
+use Accounting\Service\AccountService;
 
 class CreateOrganizationAccountListener implements ListenerAggregateInterface {
 	

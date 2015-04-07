@@ -2,10 +2,10 @@
 
 namespace Application\Service;
 
-use Ora\User\User;
+use Application\Entity\User;
 use Application\Organization;
-use Ora\ReadModel\Organization as OrganizationReadModel;
-use Ora\ReadModel\OrganizationMembership;
+use Application\Entity\Organization as OrganizationReadModel;
+use Application\Entity\OrganizationMembership;
 
 interface OrganizationService
 {	

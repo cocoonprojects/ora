@@ -5,7 +5,7 @@ use Prooph\EventStoreTest\TestCase;
 use Prooph\EventStore\Stream\Stream;
 use Prooph\EventStore\Stream\StreamName;
 use Rhumsaa\Uuid\Uuid;
-use Ora\User\User;
+use Application\Entity\User;
 use Application\Organization;
 
 class EventSourcingAccountServiceTest extends TestCase

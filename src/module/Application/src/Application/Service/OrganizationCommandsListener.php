@@ -2,16 +2,15 @@
 namespace Application\Service;
 
 use Prooph\EventStore\Stream\StreamEvent;
-use Ora\Service\SyncReadModelListener;
-use Ora\ReadModel\Account;
-use Ora\ReadModel\Organization;
-use Ora\ReadModel\OrganizationMembership;
+use Application\Entity\User;
+use Application\Entity\Organization;
+use Application\Entity\OrganizationMembership;
 
-class OrganizationCommandsListener extends SyncReadModelListener {
+class OrganizationCommandsListener extends ReadModelProjector {
 	
 	protected function onOrganizationCreated(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$createdBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
 
 		$entity = new Organization($id);
 		$entity->setCreatedAt($event->occurredOn());
@@ -24,8 +23,8 @@ class OrganizationCommandsListener extends SyncReadModelListener {
 	protected function onOrganizationUpdated(StreamEvent $event) {
 		if(isset($event->payload()['name'])) {
 			$id = $event->metadata()['aggregate_id'];
-			$entity = $this->entityManager->find('Ora\ReadModel\Organization', $id);
-			$updatedBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+			$entity = $this->entityManager->find(Organization::class, $id);
+			$updatedBy = $this->entityManager->find(User::class, $event->payload()['by']);
 				
 			$entity->setName($event->payload()['name']);
 			$entity->setMostRecentEditAt($event->occurredOn());
@@ -36,10 +35,10 @@ class OrganizationCommandsListener extends SyncReadModelListener {
 	
 	protected function onOrganizationMemberAdded(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$organization = $this->entityManager->find('Ora\ReadModel\Organization', $id);
+		$organization = $this->entityManager->find(Organization::class, $id);
 		
-		$user = $this->entityManager->find('Ora\User\User', $event->payload()['userId']);
-		$createdBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+		$user = $this->entityManager->find(User::class, $event->payload()['userId']);
+		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
 
 		$m = new OrganizationMembership($user, $organization);
 		$m->setRole($event->payload()['role'])
@@ -53,7 +52,7 @@ class OrganizationCommandsListener extends SyncReadModelListener {
 	protected function onOrganizationMemberRemoved(StreamEvent $event) {
 		
 		$membership = $this->entityManager
-			 			   ->getRepository('Ora\ReadModel\OrganizationMembership')
+			 			   ->getRepository(OrganizationMembership::class)
 						   ->findBy(array(
 						   		'member' => $event->payload()['userId'],
 						   		'organization' => $event->metadata()['aggregate_id']

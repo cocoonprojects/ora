@@ -7,7 +7,7 @@ use Zend\EventManager\EventManager;
 use Zend\EventManager\Event;
 use Application\Service\OrganizationService;
 use Accounting\Service\AccountService;
-use Ora\User\User;
+use Application\Entity\User;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Task;
 

@@ -4,8 +4,8 @@ namespace TaskManagement\View;
 use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
 use Zend\Mvc\Controller\Plugin\Url;
-use Ora\User\User;
-use Ora\ReadModel\Stream;
+use Application\Entity\User;
+use TaskManagement\Entity\Stream;
 
 class StreamJsonModel extends JsonModel
 {
@@ -28,7 +28,6 @@ class StreamJsonModel extends JsonModel
 	public function serialize()
 	{
 		$resource = $this->getVariable('resource');
-	
 		if(is_array($resource)) {
 			$hal['_embedded']['ora:stream'] = array_map(array($this, 'serializeOne'), $resource);
 		} else {

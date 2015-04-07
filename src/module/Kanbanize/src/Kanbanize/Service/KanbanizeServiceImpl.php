@@ -2,7 +2,7 @@
 
 namespace Kanbanize\Service;
 
-use Ora\Kanbanize\ReadModel\KanbanizeTask;
+use Kanbanize\Entity\KanbanizeTask;
 
 /**
  * Service Kanbanize

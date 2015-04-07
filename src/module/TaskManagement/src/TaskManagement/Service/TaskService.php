@@ -4,7 +4,7 @@ namespace TaskManagement\Service;
 
 use TaskManagement\Stream;
 use TaskManagement\Task;
-use Ora\User\User;
+use Application\Entity\User;
 
 /**
  * TODO: Rename in TaskRepository?

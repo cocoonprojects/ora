@@ -13,9 +13,10 @@ use Prooph\EventStore\Aggregate\AggregateType;
 use Prooph\EventStore\Stream\SingleStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Rhumsaa\Uuid\Uuid;
-use Ora\User\User;
+use Application\Entity\User;
 use TaskManagement\Stream;
 use TaskManagement\Task;
+use TaskManagement\Entity\Task as ReadModelTask;
 
 class EventSourcingTaskService extends AggregateRepository implements TaskService, EventManagerAwareInterface
 {
@@ -61,16 +62,16 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 */
 	public function findTasks()
 	{
-		$repository = $this->entityManager->getRepository('Ora\ReadModel\Task');
+		$repository = $this->entityManager->getRepository(ReadModelTask::class);
 	    return $repository->findBy(array(), array('mostRecentEditAt' => 'DESC'));	    
 	}
 	
 	public function findTask($id) {
-		return $this->entityManager->find('Ora\ReadModel\Task', $id);
+		return $this->entityManager->find(ReadModelTask::class, $id);
 	}
 	
 	public function findStreamTasks($streamId) {	
-		$repository = $this->entityManager->getRepository('Ora\ReadModel\Task')->findBy(array('stream' => $streamId));
+		$repository = $this->entityManager->getRepository(ReadModelTask::class)->findBy(array('stream' => $streamId));
 	    return $repository;
 	}
 	

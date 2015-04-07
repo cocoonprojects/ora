@@ -2,10 +2,10 @@
 
 namespace Accounting\Service;
 
-use Ora\User\User;
+use Application\Entity\User;
 use Application\Organization;
-use Ora\ReadModel\OrganizationAccount;
-use Ora\ReadModel\Account;
+use Accounting\Entity\OrganizationAccount;
+use Accounting\Entity\Account;
 
 interface AccountService
 {

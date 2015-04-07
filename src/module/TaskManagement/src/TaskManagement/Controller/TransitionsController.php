@@ -1,12 +1,11 @@
 <?php
 namespace TaskManagement\Controller;
 
-use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Zend\View\Model\ViewModel;
+use Application\Controller\AbstractHATEOASRestfulController;
+use Application\IllegalStateException;
+use Application\InvalidArgumentException;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Task;
-use Ora\IllegalStateException;
-use Ora\InvalidArgumentException;
 
 class TransitionsController extends AbstractHATEOASRestfulController
 {

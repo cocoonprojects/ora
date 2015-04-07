@@ -10,8 +10,11 @@ use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
 use Zend\EventManager\EventManager;
 use PHPUnit_Framework_TestCase;
 use Rhumsaa\Uuid\Uuid;
+use Application\Entity\User;
+use Application\Controller\Plugin\EventStoreTransactionPlugin;
+use TaskManagement\Service\TaskService;
 use TaskManagement\Task;
-use Ora\User\User;
+use TaskManagement\Stream;
 
 class SharesControllerTest extends \PHPUnit_Framework_TestCase {
 	
@@ -28,17 +31,17 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
 
     protected function setUp()
     {
-        $this->owner = $this->getMockBuilder('Ora\User\User')
+        $this->owner = $this->getMockBuilder(User::class)
         	->getMock();
         $this->owner->method('getId')
         	->willReturn('60000000-0000-0000-0000-000000000000');
     	
-        $this->member = $this->getMockBuilder('Ora\User\User')
+        $this->member = $this->getMockBuilder(User::class)
         	->getMock();
         $this->member->method('getId')
         	->willReturn('70000000-0000-0000-0000-000000000000');
         
-        $taskServiceStub = $this->getMockBuilder('TaskManagement\Service\TaskService')
+        $taskServiceStub = $this->getMockBuilder(TaskService::class)
         	->getMock();
         
         $serviceManager = Bootstrap::getServiceManager();
@@ -55,7 +58,7 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
         $this->controller->setEvent($this->event);
         $this->controller->setServiceLocator($serviceManager);
         
-    	$transaction = $this->getMockBuilder('ZendExtension\Mvc\Controller\Plugin\EventStoreTransactionPlugin')
+    	$transaction = $this->getMockBuilder(EventStoreTransactionPlugin::class)
     		->disableOriginalConstructor()
     		->setMethods(['begin', 'commit', 'rollback'])
     		->getMock();
@@ -67,7 +70,7 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
     	$identity->method('__invoke')->willReturn(['user' => $this->owner]);
         $this->controller->getPluginManager()->setService('identity', $identity);
         
-        $stream = $this->getMockBuilder('TaskManagement\Stream')
+        $stream = $this->getMockBuilder(Stream::class)
         	->disableOriginalConstructor()
         	->getMock();
         $stream->method('getId')

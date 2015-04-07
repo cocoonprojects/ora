@@ -9,11 +9,15 @@ use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\RouteMatch;
 use PHPUnit_Framework_TestCase;
 use Rhumsaa\Uuid\Uuid;
-use TaskManagement\Stream;
-use Ora\User\User;
+use BjyAuthorize\Service\Authorize;
+use Application\Entity\User;
 use Application\Organization;
-use Ora\ReadModel\Task as ReadModelTask;
-use Ora\ReadModel\Stream as ReadModelStream;
+use Application\Controller\Plugin\EventStoreTransactionPlugin;
+use TaskManagement\Stream;
+use TaskManagement\Entity\Task as ReadModelTask;
+use TaskManagement\Entity\Stream as ReadModelStream;
+use TaskManagement\Service\TaskService;
+use TaskManagement\Service\StreamService;
 
 class TasksControllerTest extends \PHPUnit_Framework_TestCase {
 	
@@ -28,13 +32,13 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
     	
     	$serviceManager = Bootstrap::getServiceManager();
     	
-    	$taskServiceStub = $this->getMockBuilder('TaskManagement\Service\TaskService')
+    	$taskServiceStub = $this->getMockBuilder(TaskService::class)
         	->getMock();
     	
-    	 $streamServiceStub = $this->getMockBuilder('TaskManagement\Service\StreamService')
+    	 $streamServiceStub = $this->getMockBuilder(StreamService::class)
         	->getMock();
         
-        $this->authorizeServiceStub = $this->getMockBuilder('BjyAuthorize\Service\Authorize')
+        $this->authorizeServiceStub = $this->getMockBuilder(Authorize::class)
         	->disableOriginalConstructor()
         	->getMock();
         
@@ -51,7 +55,7 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
         $this->controller->setEvent($this->event);
         $this->controller->setServiceLocator($serviceManager);
         
-    	$transaction = $this->getMockBuilder('ZendExtension\Mvc\Controller\Plugin\EventStoreTransactionPlugin')
+    	$transaction = $this->getMockBuilder(EventStoreTransactionPlugin::class)
     		->disableOriginalConstructor()
     		->setMethods(['begin', 'commit', 'rollback'])
     		->getMock();

@@ -2,24 +2,20 @@
 
 namespace TaskManagement\Controller;
 
-use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use TaskManagement\Service\TaskService;
-use Ora\DuplicatedDomainEntityException;
-use Ora\IllegalStateException;
-use Ora\DomainEntityUnavailableException;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\NotEmpty;
 use Zend\Validator\GreaterThan;
 use Zend\Validator\Identical;
 use Zend\I18n\Validator\Float;
-use ZendExtension\Mvc\View\ErrorJsonModel;
+use Application\Controller\AbstractHATEOASRestfulController;
+use Application\DuplicatedDomainEntityException;
+use Application\IllegalStateException;
+use Application\DomainEntityUnavailableException;
+use Application\View\ErrorJsonModel;
+use TaskManagement\Service\TaskService;
 
 /**
- * EstimationController
- *
- * @author Andrea Lupia
- *
- * @version
+ * EstimationsController
  *
  */
 class EstimationsController extends AbstractHATEOASRestfulController {

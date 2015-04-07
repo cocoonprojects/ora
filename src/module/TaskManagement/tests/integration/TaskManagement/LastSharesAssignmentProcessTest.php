@@ -9,9 +9,11 @@ use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
 use Zend\EventManager\EventManager;
 use PHPUnit_Framework_TestCase;
 use Rhumsaa\Uuid\Uuid;
-use TaskManagement\Task;
-use Ora\User\User;
 use IntegrationTest\Bootstrap;
+use Application\Entity\User;
+use Application\Controller\Plugin\EventStoreTransactionPlugin;
+use TaskManagement\Task;
+use TaskManagement\Service\TaskService;
 
 class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase {
 	
@@ -36,7 +38,7 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase {
         $streamService = $serviceManager->get('TaskManagement\StreamService');
         $stream = $streamService->getStream('00000000-1000-0000-0000-000000000000');
         
-        $taskServiceStub = $this->getMockBuilder('TaskManagement\Service\TaskService')
+        $taskServiceStub = $this->getMockBuilder(TaskService::class)
         	->getMock();
         $this->controller = new SharesController($taskServiceStub);
         $this->request    = new Request();
@@ -51,7 +53,7 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase {
         $this->controller->setEvent($this->event);
         $this->controller->setServiceLocator($serviceManager);
         
-    	$transaction = $this->getMockBuilder('ZendExtension\Mvc\Controller\Plugin\EventStoreTransactionPlugin')
+    	$transaction = $this->getMockBuilder(EventStoreTransactionPlugin::class)
     		->disableOriginalConstructor()
     		->setMethods(['begin', 'commit', 'rollback'])
     		->getMock();

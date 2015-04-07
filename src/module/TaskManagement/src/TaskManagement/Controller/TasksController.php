@@ -1,18 +1,18 @@
 <?php
 namespace TaskManagement\Controller;
 
-use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Zend\Authentication\AuthenticationServiceInterface;
 use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
 use Zend\Validator\NotEmpty;
-use Ora\IllegalStateException;
-use Ora\InvalidArgumentException;
 use BjyAuthorize\Service\Authorize;
+use Application\Controller\AbstractHATEOASRestfulController;
+use Application\IllegalStateException;
+use Application\InvalidArgumentException;
+use Application\Entity\User;
 use Accounting\Service\AccountService;
-use Ora\User\User;
 use TaskManagement\Task;
 use TaskManagement\View\TaskJsonModel;
 use TaskManagement\Service\TaskService;
@@ -53,11 +53,17 @@ class TasksController extends AbstractHATEOASRestfulController
 	
     public function get($id)
     {        
+        if(is_null($this->identity())) {
+    		$this->response->setStatusCode(401);
+    		return $this->response;
+    	}
+    	
     	$task = $this->taskService->findTask($id);
         if(is_null($task)) {
         	$this->response->setStatusCode(404);
         	return $this->response;
         }
+        
     	$this->response->setStatusCode(200);
         $view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->authorize);
         $view->setVariable('resource', $task);
@@ -72,7 +78,12 @@ class TasksController extends AbstractHATEOASRestfulController
      * @author Giannotti Fabio
      */
     public function getList()
-    {    	
+    {
+    	if(is_null($this->identity())) {
+    		$this->response->setStatusCode(401);
+    		return $this->response;
+    	}
+    	
     	$streamID = $this->getRequest()->getQuery('streamID');
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks() : $this->taskService->findStreamTasks($streamID);
 

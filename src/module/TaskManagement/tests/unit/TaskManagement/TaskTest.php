@@ -2,7 +2,7 @@
 namespace TaskManagement;
 
 use Rhumsaa\Uuid\Uuid;
-use Ora\User\User;
+use Application\Entity\User;
 use Application\Organization;
 
 class TaskTest extends \PHPUnit_Framework_TestCase {
@@ -27,7 +27,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		
 	public function testCreate() {
 		$task = Task::create($this->stream, 'Test subject', $this->owner);
-		$this->assertInstanceOf('Rhumsaa\Uuid\Uuid', $task->getId());
+		$this->assertInstanceOf(Uuid::class, $task->getId());
 		$this->assertEquals('Test subject', $task->getSubject());
 		$this->assertEquals(Task::STATUS_ONGOING, $task->getStatus());
 		$this->assertEquals($this->stream->getId()->toString(), $task->getStreamId());
@@ -35,14 +35,14 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testCreateWithNoSubject() {
 		$task = Task::create($this->stream, null, $this->owner);
-		$this->assertInstanceOf('Rhumsaa\Uuid\Uuid', $task->getId());
+		$this->assertInstanceOf(Uuid::class, $task->getId());
 		$this->assertNull($task->getSubject());
 		$this->assertEquals(Task::STATUS_ONGOING, $task->getStatus());
 		$this->assertEquals($this->stream->getId()->toString(), $task->getStreamId());
 	}
 	
 	/**
-	 * @expectedException Ora\IllegalStateException
+	 * @expectedException Application\IllegalStateException
 	 */
 	public function testDeleteOngoingTask() {
 		$task = Task::create($this->stream, null, $this->owner);
@@ -53,7 +53,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * @expectedException Ora\IllegalStateException
+	 * @expectedException Application\IllegalStateException
 	 */
 	public function testDeleteCompletedTask() {
 		$task = Task::create($this->stream, null, $this->owner);
