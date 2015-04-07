@@ -3,20 +3,20 @@ namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Zend\Authentication\AuthenticationServiceInterface;
-use Ora\IllegalStateException;
-use Ora\InvalidArgumentException;
-use Ora\TaskManagement\TaskService;
-use Ora\TaskManagement\Task;
-use Ora\StreamManagement\StreamService;
-use TaskManagement\View\TaskJsonModel;
-use BjyAuthorize\Service\Authorize;
-use Ora\Accounting\AccountService;
-use Ora\User\User;
 use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
 use Zend\Validator\NotEmpty;
+use Ora\IllegalStateException;
+use Ora\InvalidArgumentException;
+use BjyAuthorize\Service\Authorize;
+use Accounting\Service\AccountService;
+use Ora\User\User;
+use TaskManagement\Task;
+use TaskManagement\View\TaskJsonModel;
+use TaskManagement\Service\TaskService;
+use TaskManagement\Service\StreamService;
 
 class TasksController extends AbstractHATEOASRestfulController
 {
@@ -92,7 +92,6 @@ class TasksController extends AbstractHATEOASRestfulController
      */
     public function create($data)
     {   
-    	
     	if (!isset($data['streamID']) || !isset($data['subject']))
         {            
             // HTTP STATUS CODE 400: Bad Request
@@ -241,7 +240,6 @@ class TasksController extends AbstractHATEOASRestfulController
     {
         return $this->taskService;
     }
-    
         
     protected function getCollectionOptions()
     {

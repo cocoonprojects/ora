@@ -3,15 +3,9 @@ namespace Accounting\Service;
 
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
-use Ora\Accounting\EventSourcingAccountService;
-use Ora\Accounting\AccountService;
 
-class AccountServiceFactory implements FactoryInterface {
-	
-	/**
-	 * 
-	 * @var AccountService
-	 */
+class AccountServiceFactory implements FactoryInterface
+{
 	private static $instance;
 	
 	public function createService(ServiceLocatorInterface $serviceLocator) {

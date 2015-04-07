@@ -50,7 +50,7 @@ class TaskJsonModel extends JsonModel
 		return Json::encode($representation);		
 	}
 
-	private function serializeOne(Task $task) {
+	protected function serializeOne(Task $task) {
 		
 		$links = [];
 		
@@ -136,9 +136,9 @@ class TaskJsonModel extends JsonModel
 				'lastname' => $member->getLastname(),
 				'picture' => $member->getPicture(),
 				'role' => $tm->getRole(),
-				'_links' => [
-						'self' => $this->url->fromRoute('users', ['id' => $member->getId()]),
-				],
+// 				'_links' => [
+// 						'self' => $this->url->fromRoute('users', ['id' => $member->getId()]),
+// 				],
 		];
 		
 		$rv['estimation'] = $this->getEstimation($tm);

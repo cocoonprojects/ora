@@ -6,10 +6,10 @@ use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Ora\IllegalStateException;
 use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
-use Ora\TaskManagement\TaskService;
-use Ora\Accounting\AccountService;
+use TaskManagement\Service\TaskService;
+use Accounting\Service\AccountService;
 use Ora\User\User;
-use Ora\TaskManagement\Task;
+use TaskManagement\Task;
 
 
 class MembersController extends AbstractHATEOASRestfulController

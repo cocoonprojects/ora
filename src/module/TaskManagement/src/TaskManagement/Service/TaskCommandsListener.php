@@ -9,19 +9,9 @@ use Ora\ReadModel\Task;
 use Ora\ReadModel\Estimation;
 use Ora\ReadModel\Share;
 use Ora\Kanbanize\ReadModel\KanbanizeTask;
-use Ora\Kanbanize\KanbanizeService;
 
-class TaskCommandsListener extends SyncReadModelListener {
-	/**
-	 * 
-	 * @var KanbanizeService
-	 */
-	private $kanbanizeService;
-	
-	public function setKanbanizeService(KanbanizeService $service) {
-		$this->kanbanizeService = $service;
-	}
-	
+class TaskCommandsListener extends SyncReadModelListener
+{
 	protected function onTaskCreated(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$status = $event->payload()['status'];
@@ -60,7 +50,7 @@ class TaskCommandsListener extends SyncReadModelListener {
 		}
 	}
 	
-	protected function onStreamChanged(StreamEvent $event) {
+	protected function onTaskStreamChanged(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$entity = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
 		if(is_null($entity)) {
@@ -79,7 +69,7 @@ class TaskCommandsListener extends SyncReadModelListener {
 		$this->entityManager->persist($entity);
 	}
 
-	protected function onMemberAdded(StreamEvent $event) {
+	protected function onTaskMemberAdded(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$entity = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
 		if(is_null($entity)) {
@@ -99,7 +89,7 @@ class TaskCommandsListener extends SyncReadModelListener {
 		$this->entityManager->persist($entity);
 	}
 	
-    protected function onMemberRemoved(StreamEvent $event) {
+    protected function onTaskMemberRemoved(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$entity = $this->entityManager->find('Ora\ReadModel\Task', $id);
 		if(is_null($entity)) {
@@ -145,9 +135,6 @@ class TaskCommandsListener extends SyncReadModelListener {
 	protected function onTaskCompleted(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
-		if(is_null($this->kanbanizeService) == false && $task instanceof KanbanizeTask) {
-			$this->kanbanizeService->completeTask($task);
-		}
 		$task->setStatus(Task::STATUS_COMPLETED);
 		$task->resetShares();
         $user = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
@@ -159,9 +146,6 @@ class TaskCommandsListener extends SyncReadModelListener {
 	protected function onTaskAccepted(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
-		if(is_null($this->kanbanizeService) == false && $task instanceof KanbanizeTask) {
-			$this->kanbanizeService->acceptTask($task);
-		}
 		$task->setStatus(Task::STATUS_ACCEPTED);
 		$user = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
 		$task->setMostRecentEditBy($user);
@@ -172,9 +156,6 @@ class TaskCommandsListener extends SyncReadModelListener {
 	protected function onTaskClosed(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
-		if(is_null($this->kanbanizeService) == false && $task instanceof KanbanizeTask) {
-			$this->kanbanizeService->closeTask($task);
-		}
 		$task->setStatus(Task::STATUS_CLOSED);
 		$user = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
 		$task->setMostRecentEditBy($user);
@@ -185,9 +166,6 @@ class TaskCommandsListener extends SyncReadModelListener {
 	protected function onTaskOngoing(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
-		if(is_null($this->kanbanizeService) == false && $task instanceof KanbanizeTask) {
-			$this->kanbanizeService->executeTask($task);
-		}
 		$task->setStatus(Task::STATUS_ONGOING);
 		$user = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
 		$task->setMostRecentEditBy($user);
@@ -220,6 +198,6 @@ class TaskCommandsListener extends SyncReadModelListener {
 	}
 
 	protected function getPackage() {
-		return 'Ora\\TaskManagement\\';
+		return 'TaskManagement';
 	}
 }

@@ -4,7 +4,7 @@ namespace TaskManagement\Service;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\Event;
 use Zend\EventManager\ListenerAggregateInterface;
-use Ora\TaskManagement\Task;
+use TaskManagement\Task;
 
 class CloseTaskListener implements ListenerAggregateInterface {
 
@@ -22,10 +22,8 @@ class CloseTaskListener implements ListenerAggregateInterface {
 	
     public function detach(EventManagerInterface $events)
     {
-        foreach ($this->listeners as $index => $listener) {
-            if ($events->detach($listener)) {
-                unset($this->listeners[$index]);
-            }
-        }
+		if($events->getSharedManager()->detach('TaskManagement\TaskService', $this->listeners[0])) {
+			unset($this->listeners[0]);
+		}
     }
 }

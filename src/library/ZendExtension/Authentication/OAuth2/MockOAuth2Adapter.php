@@ -9,7 +9,7 @@ use Zend\EventManager\EventManager;
 use Zend\Mvc\Controller\AbstractController;
 use ZendOAuth2\AbstractOAuth2Client;
 use ZendExtension\Authentication\AdapterResolver;
-use Ora\User\UserService;
+use Application\Service\UserService;
 
 class MockOAuth2Adapter implements AdapterInterface, EventManagerAwareInterface, AdapterResolver
 {

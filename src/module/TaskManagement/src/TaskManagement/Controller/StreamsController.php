@@ -3,15 +3,13 @@
 namespace TaskManagement\Controller;
 
 use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Zend\View\Model\JsonModel;
-use Zend\View\Model\ViewModel;
-use Ora\StreamManagement\StreamService;
-use Ora\Organization\OrganizationService;
 use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
+use Application\Service\OrganizationService;
 use TaskManagement\View\StreamJsonModel;
+use TaskManagement\Service\StreamService;
 
 class StreamsController extends AbstractHATEOASRestfulController
 {

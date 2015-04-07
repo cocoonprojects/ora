@@ -24,7 +24,7 @@ TaskManagement.prototype = {
 	bindEventsOn: function()
 	{
 		var that = this;
-			
+		
 		$("#createTaskModal").on("show.bs.modal", function(e) {
 			form = $(this).find("form");
 			form[0].reset();
@@ -426,7 +426,6 @@ TaskManagement.prototype = {
 			container.append("<p>No available tasks found</p>");
 		} else {
 			var that = this;
-
 			$.each(this.data.tasks, function(key, task) {
 				subject = task._links.self == undefined ? task.subject : '<a data-href="' + task._links.self + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
 

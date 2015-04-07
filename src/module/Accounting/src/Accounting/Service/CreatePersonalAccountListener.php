@@ -4,7 +4,7 @@ namespace Accounting\Service;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\Event;
-use Ora\Accounting\AccountService;
+use Accounting\Service\AccountService;
 use Ora\User\User;
 
 class CreatePersonalAccountListener implements ListenerAggregateInterface {
@@ -23,7 +23,7 @@ class CreatePersonalAccountListener implements ListenerAggregateInterface {
 	
 	public function attach(EventManagerInterface $events) {
 		$accountService = $this->accountService;
-		$this->listeners[] = $events->getSharedManager()->attach('User\UserService', User::EVENT_CREATED, function(Event $event) use ($accountService) {
+		$this->listeners[] = $events->getSharedManager()->attach('Application\UserService', User::EVENT_CREATED, function(Event $event) use ($accountService) {
 			$user = $event->getTarget();
 			$this->accountService->createPersonalAccount($user);
 		});
@@ -32,10 +32,8 @@ class CreatePersonalAccountListener implements ListenerAggregateInterface {
 	
     public function detach(EventManagerInterface $events)
     {
-        foreach ($this->listeners as $index => $listener) {
-            if ($events->detach($listener)) {
-                unset($this->listeners[$index]);
-            }
-        }
+    	if($events->getSharedManager()->detach('Application\UserService', $this->listeners[0])) {
+    		unset($this->listeners[0]);
+    	}
     }
 }

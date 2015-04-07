@@ -5,13 +5,11 @@ use Zend\EventManager\ListenerAggregateInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\Event;
-use Prooph\EventStore\EventStore;
-use Ora\Accounting\AccountService;
-use Ora\StreamManagement\StreamService;
-use Ora\Organization\OrganizationService;
+use Application\Service\OrganizationService;
+use Accounting\Service\AccountService;
 use Ora\User\User;
-use Ora\TaskManagement\TaskService;
-use Ora\TaskManagement\Task;
+use TaskManagement\Service\TaskService;
+use TaskManagement\Task;
 
 class TransferTaskSharesCreditsListener implements ListenerAggregateInterface {
 	/**
@@ -34,20 +32,14 @@ class TransferTaskSharesCreditsListener implements ListenerAggregateInterface {
 	 * @var AccountService
 	 */
 	private $accountService;
-	/**
-	 * 
-	 * @var EventStore
-	 */
-	private $transactionManager;
 
 	protected $listeners = array();
 	
-	public function __construct(TaskService $taskService, StreamService $streamService, OrganizationService $organizationService, AccountService $accountService, EventStore $transactionManager) {
+	public function __construct(TaskService $taskService, StreamService $streamService, OrganizationService $organizationService, AccountService $accountService) {
 		$this->taskService = $taskService;
 		$this->streamService = $streamService;
 		$this->organizationService = $organizationService;
 		$this->accountService = $accountService;
-		$this->transactionManager = $transactionManager;
 	}
 	
 	public function execute(Task $task, User $by) {
@@ -76,15 +68,12 @@ class TransferTaskSharesCreditsListener implements ListenerAggregateInterface {
 			$by = $event->getParam('by');
 			$that->execute($task, $by);
 		});
-		$this->events = $events;
 	}
 	
     public function detach(EventManagerInterface $events)
     {
-        foreach ($this->listeners as $index => $listener) {
-            if ($events->detach($listener)) {
-                unset($this->listeners[$index]);
-            }
-        }
+		if($events->getSharedManager()->detach('TaskManagement\TaskService', $this->listeners[0])) {
+			unset($this->listeners[0]);
+		}
     }
 }

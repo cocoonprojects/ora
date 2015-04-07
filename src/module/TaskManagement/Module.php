@@ -4,6 +4,7 @@ namespace TaskManagement;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
+use Zend\Permissions\Acl\Assertion\AssertionInterface;
 use TaskManagement\Controller\MembersController;
 use TaskManagement\Controller\TasksController;
 use TaskManagement\Controller\TransitionsController;
@@ -13,8 +14,6 @@ use TaskManagement\Controller\StreamsController;
 use TaskManagement\Service\TransferTaskSharesCreditsListener;
 use TaskManagement\Service\StreamCommandsListener;
 use TaskManagement\Service\TaskCommandsListener;
-use Zend\Permissions\Acl\Assertion\AssertionInterface;
-
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {        
@@ -30,8 +29,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 	            	$taskService = $locator->get('TaskManagement\TaskService');
 	            	$streamService = $locator->get('TaskManagement\StreamService');
 	            	$authorize = $locator->get('BjyAuthorize\Service\Authorize');
-	            	$accountService = $locator->get('Accounting\CreditsAccountsService');
 	            	$controller = new TasksController($taskService, $streamService, $authorize);
+	            	$accountService = $locator->get('Accounting\CreditsAccountsService');
 	            	$controller->setAccountService($accountService);
 	            	return $controller;
 	            },
@@ -46,15 +45,13 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             	'TaskManagement\Controller\Transitions' => function ($sm) {
             		$locator = $sm->getServiceLocator();
 	            	$taskService = $locator->get('TaskManagement\TaskService');
-            		$kanbanizeService = $locator->get('TaskManagement\KanbanizeService');            		
-            		$controller = new TransitionsController($taskService, $kanbanizeService);
+            		$controller = new TransitionsController($taskService);
             		return $controller;
             	},
             	'TaskManagement\Controller\Estimations' => function ($sm) {
             		$locator = $sm->getServiceLocator();
             		$taskService = $locator->get('TaskManagement\TaskService');            		
             		$controller = new EstimationsController($taskService);
-
             		return $controller;
             	},
             	'TaskManagement\Controller\Shares' => function ($sm) {
@@ -66,7 +63,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             	'TaskManagement\Controller\Streams' => function ($sm) {
             		$locator = $sm->getServiceLocator();
             		$streamService = $locator->get('TaskManagement\StreamService');
-            		$organizationService = $locator->get('User\OrganizationService');
+            		$organizationService = $locator->get('Application\OrganizationService');
             		$controller = new StreamsController($streamService, $organizationService);
             		return $controller;
               	}
@@ -91,28 +88,22 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             ),
         	'factories' => array (
                 'TaskManagement\StreamService' => 'TaskManagement\Service\StreamServiceFactory',
-            	'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',
-				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
-					
+            	'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',					
             	'TaskManagement\TaskCommandsListener' => function ($locator) {
             		$entityManager = $locator->get('doctrine.entitymanager.orm_default');
             		$rv = new TaskCommandsListener($entityManager);
-            		$kanbanizeService = $locator->get('TaskManagement\KanbanizeService');
-            		$rv->setKanbanizeService($kanbanizeService);
             		return $rv;
             	},
             	'TaskManagement\StreamCommandsListener' => function ($locator) {
             		$entityManager = $locator->get('doctrine.entitymanager.orm_default');
             		return new StreamCommandsListener($entityManager);
             	},
-            	
             	'TaskManagement\TransferTaskSharesCreditsListener' => function ($locator) {
             		$taskService = $locator->get('TaskManagement\TaskService');            		
             		$streamService = $locator->get('TaskManagement\StreamService');
-            		$organizationService = $locator->get('User\OrganizationService');
+            		$organizationService = $locator->get('Application\OrganizationService');
             		$accountService = $locator->get('Accounting\CreditsAccountsService');
-            		$eventStore = $locator->get('prooph.event_store');
-            		$rv = new TransferTaskSharesCreditsListener($taskService, $streamService, $organizationService, $accountService, $eventStore);
+            		$rv = new TransferTaskSharesCreditsListener($taskService, $streamService, $organizationService, $accountService);
             		return $rv;         		
             	},
             ),
