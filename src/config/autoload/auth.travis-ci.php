@@ -1,9 +1,14 @@
 <?php
 
+use Application\Authentication\OAuth2\MockOAuth2Adapter;
+
 return array(
-		'service_manager' => array(
-				'factories' => array(
-						'Application\Service\AdapterResolver' => 'Application\Service\MockOAuth2AdapterResolverFactory',
-				),
+	'service_manager' => array(
+		'factories' => array(
+			'Application\Service\AdapterResolver' => function ($locator) {
+				$userService = $locator->get('Application\UserService');
+				return new MockOAuth2Adapter($userService);
+			},
 		),
+	),
 );
