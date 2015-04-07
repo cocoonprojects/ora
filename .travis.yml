@@ -7,10 +7,16 @@ php:
 env:
   - APPLICATION_ENV=acceptance
 
+addons:
+  hosts:
+    - ora.local
+    - oraprojecttest
+
 install:
   - composer self-update
 
 before_script:
+  - sudo apt-get update -qq
   - sudo apt-get install apache2 libapache2-mod-fastcgi
   # enable php-fpm
   - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
@@ -21,13 +27,16 @@ before_script:
   - sudo cp -f build/travis-ci-apache /etc/apache2/sites-available/default
   - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place /etc/apache2/sites-available/default
   - sudo service apache2 restart
-  - mysql -e 'create database oraproject_test;'
     # Set the GitHub OAuth token to make use of the 5000 per hour rate limit
   - "mkdir -p ~/.composer"
   - cp .travis.composer.config.json ~/.composer/config.json
   - composer install -d src --dev
+  - mysql -e 'create database oraproject_test;'
+  - src/vendor/bin/doctrine-module orm:schema-tool:create
+  - mysql oraproject_test < tests/sql/init.sql
 
 script:
-  - phpunit --configuration tests/phpunit.xml
-  - cd tests
-  - ../src/vendor/bin/behat --profile travis-ci
+  - phpunit --configuration tests/unit/phpunit.xml
+  - phpunit --configuration tests/integration/phpunit.xml
+  # - cd tests
+  # - ../src/vendor/bin/behat
