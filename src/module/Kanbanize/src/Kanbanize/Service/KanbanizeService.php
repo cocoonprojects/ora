@@ -10,15 +10,15 @@ interface KanbanizeService {
 	
 	public function createNewTask($projectId, $taskSubject, $boardId);
 	
-	public function deleteTask(KTask $kanbanizeTask);
+	public function deleteTask(KanbanizeTask $kanbanizeTask);
 	
 	public function getTasks($boardId, $status = null);
 	
-	public function acceptTask(KTask $task);
+	public function acceptTask(KanbanizeTask $task);
 	
-	public function executeTask(KTask $kanbanizeTask);
+	public function executeTask(KanbanizeTask $kanbanizeTask);
 		
-	public function completeTask(KTask $task);
+	public function completeTask(KanbanizeTask $task);
 	
-	public function closeTask(KTask $task);
+	public function closeTask(KanbanizeTask $task);
 }

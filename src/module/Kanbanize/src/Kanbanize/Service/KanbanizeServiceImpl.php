@@ -26,7 +26,7 @@ class KanbanizeServiceImpl implements KanbanizeService
 		$this->kanbanize = $api;
 	}
 
-	private function moveTask(KTask $kanbanizeTask, $status) {
+	private function moveTask(KanbanizeTask $kanbanizeTask, $status) {
   		$boardId = $kanbanizeTask->getBoardId();
   		$taskId = $kanbanizeTask->getTaskId();
   		$response = $this->kanbanize->moveTask($boardId, $taskId, $status);
@@ -55,12 +55,12 @@ class KanbanizeServiceImpl implements KanbanizeService
 		if (is_null ( $id )) {
 			throw OperationFailedException("Cannot create task on Kanbanize");
 		} else {
-			$kanbanizeTask = new KTask ( uniqid (), $boardId, $id, $createdAt, $createdBy );
+			$kanbanizeTask = new KanbanizeTask ( uniqid (), $boardId, $id, $createdAt, $createdBy );
 			return 1;
 		}
 	}
 	
-	public function deleteTask(KTask $kanbanizeTask) {
+	public function deleteTask(KanbanizeTask $kanbanizeTask) {
 		$boardId = $kanbanizeTask->getBoardId();
 		$taskId = $kanbanizeTask->getTaskId();
 		$ans = $this->kanbanize->deleteTask($boardId, $taskId);
@@ -94,53 +94,53 @@ class KanbanizeServiceImpl implements KanbanizeService
 		}
 	}
 
-	public function acceptTask(KTask $task) {
+	public function acceptTask(KanbanizeTask $task) {
 		$info = $this->kanbanize->getTaskDetails($task->getBoardId(), $task->getTaskId());
   		if(isset($info['Error'])) {
   			throw new OperationFailedException($info["Error"]);
   		}
-		if ( $info['columnname'] == KTask::COLUMN_ACCEPTED){
+		if ( $info['columnname'] == KanbanizeTask::COLUMN_ACCEPTED){
 			return;
 		}
-		if($info['columnname'] == KTask::COLUMN_COMPLETED){
-			$this::moveTask($task, KTask::COLUMN_ACCEPTED);
+		if($info['columnname'] == KanbanizeTask::COLUMN_COMPLETED){
+			$this::moveTask($task, KanbanizeTask::COLUMN_ACCEPTED);
 		}else{
 			throw new IllegalRemoteStateException("Cannot accpet a task which is " + $info["columnname"]);
 		}
 	}
 
-	public function executeTask(KTask $task) {
+	public function executeTask(KanbanizeTask $task) {
 		$info = $this->kanbanize->getTaskDetails($task->getBoardId(), $task->getTaskId());
   		if(isset($info['Error'])) {
   			throw new OperationFailedException($info["Error"]);
   		}
-  		if($info["columnname"] == KTask::COLUMN_ONGOING){
+  		if($info["columnname"] == KanbanizeTask::COLUMN_ONGOING){
   			return;
   		}
   		
-		if($info['columnname'] == KTask::COLUMN_COMPLETED || $info['columnname'] == KTask::COLUMN_OPEN){
-			$this::moveTask($task, KTask::COLUMN_ONGOING);
+		if($info['columnname'] == KanbanizeTask::COLUMN_COMPLETED || $info['columnname'] == KanbanizeTask::COLUMN_OPEN){
+			$this::moveTask($task, KanbanizeTask::COLUMN_ONGOING);
 		}else{
 			throw new IllegalRemoteStateException("Cannot move task in ongoing from "+$info["columnname"]);
 		}
 	}
 	
-	public function completeTask(KTask $task) {
+	public function completeTask(KanbanizeTask $task) {
 		$info = $this->kanbanize->getTaskDetails($task->getBoardId(), $task->getTaskId());
 		if(isset($info['Error'])) {
 			throw new OperationFailedException($info["Error"]);
 		}
-		if($info["columnname"] == KTask::COLUMN_COMPLETED){
+		if($info["columnname"] == KanbanizeTask::COLUMN_COMPLETED){
 			return;
 		}
-		if (in_array($info['columnname'], [KTask::COLUMN_ONGOING, KTask::COLUMN_ACCEPTED])) {
-			$this->moveTask($task, KTask::COLUMN_COMPLETED);
+		if (in_array($info['columnname'], [KanbanizeTask::COLUMN_ONGOING, KanbanizeTask::COLUMN_ACCEPTED])) {
+			$this->moveTask($task, KanbanizeTask::COLUMN_COMPLETED);
 		} else {
 			throw new IllegalRemoteStateException("Cannot move task in completed from "+$info["columnname"]);
 		}
 	}
 	
-	public function closeTask(KTask $task) {
+	public function closeTask(KanbanizeTask $task) {
 		// TODO: To be implemented
 	}
 }
