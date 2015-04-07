@@ -12,7 +12,6 @@ Scenario: Cannot create a task anonymously
 
 Scenario: Successfully creating a task into a stream and with a subject
 	Given that I am authenticated as "mark.rogers@ora.local"
-	And echo last response
 	And that I want to make a new "Task"
 	And that its "subject" is "My First Task"
 	And that its "streamID" is "00000000-1000-0000-0000-000000000000"
