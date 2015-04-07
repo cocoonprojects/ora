@@ -1,5 +1,5 @@
 <?php
-namespace ZendExtension\Authentication\OAuth2;
+namespace Application\Authentication\OAuth2;
 
 use Zend\Authentication\Result;
 use Zend\Authentication\Adapter\AdapterInterface;
@@ -8,7 +8,7 @@ use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
 use Zend\Mvc\Controller\AbstractController;
 use ZendOAuth2\AbstractOAuth2Client;
-use ZendExtension\Authentication\AdapterResolver;
+use Application\Authentication\AdapterResolver;
 use Application\Service\UserService;
 
 class MockOAuth2Adapter implements AdapterInterface, EventManagerAwareInterface, AdapterResolver

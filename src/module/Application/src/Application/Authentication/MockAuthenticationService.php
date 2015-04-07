@@ -1,5 +1,5 @@
 <?php
-namespace ZendExtension\Authentication;
+namespace Application\Authentication;
 
 use Zend\Authentication\AuthenticationServiceInterface;
 use Application\Entity\User;
@@ -7,7 +7,7 @@ use Zend\Authentication\Result;
 use Zend\Authentication\AuthenticationService;
 
 /**
- * This Mock should estend AuthenticationServiceInterface, but due to a bug of ZF2 in identity controller plugin it must exted AuthenticationService
+ * This Mock should estend AuthenticationServiceInterface, but due to a bug of ZF2 in identity controller plugin it must extend AuthenticationService
  * @author andreabandera
  *
  */

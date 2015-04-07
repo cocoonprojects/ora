@@ -6,10 +6,12 @@ use Zend\Http\Request;
 use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\RouteMatch;
 use PHPUnit_Framework_TestCase;
-use Application\Entity\User;
-use Rhumsaa\Uuid\Uuid;
-use Accounting\Account;
 use UnitTest\Bootstrap;
+use Rhumsaa\Uuid\Uuid;
+use Application\Entity\User;
+use Application\Controller\Plugin\EventStoreTransactionPlugin;
+use Accounting\Account;
+use Accounting\Service\AccountService;
 
 class DepositsControllerTest extends \PHPUnit_Framework_TestCase
 {
@@ -38,7 +40,7 @@ class DepositsControllerTest extends \PHPUnit_Framework_TestCase
     
     protected function setUp()
     {
-    	$accountService = $this->getMockBuilder('Accounting\Service\AccountService')
+    	$accountService = $this->getMockBuilder(AccountService::class)
     		->getMock();
     	
         $serviceManager = Bootstrap::getServiceManager();
@@ -55,7 +57,7 @@ class DepositsControllerTest extends \PHPUnit_Framework_TestCase
         $this->controller->setEvent($this->event);
         $this->controller->setServiceLocator($serviceManager);
 
-    	$transaction = $this->getMockBuilder('ZendExtension\Mvc\Controller\Plugin\EventStoreTransactionPlugin')
+    	$transaction = $this->getMockBuilder(EventStoreTransactionPlugin::class)
     		->disableOriginalConstructor()
     		->setMethods(['begin', 'commit', 'rollback'])
     		->getMock();

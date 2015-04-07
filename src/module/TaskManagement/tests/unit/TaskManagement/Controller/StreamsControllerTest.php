@@ -9,10 +9,13 @@ use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\RouteMatch;
 use PHPUnit_Framework_TestCase;
 use Rhumsaa\Uuid\Uuid;
-use TaskManagement\Task;
-use TaskManagement\Stream;
 use Application\Entity\User;
 use Application\Organization;
+use Application\Controller\Plugin\EventStoreTransactionPlugin;
+use Application\Service\OrganizationService;
+use TaskManagement\Service\StreamService;
+use TaskManagement\Task;
+use TaskManagement\Stream;
 
 class StreamsControllerTest extends \PHPUnit_Framework_TestCase {
 	
@@ -32,10 +35,10 @@ class StreamsControllerTest extends \PHPUnit_Framework_TestCase {
 
     protected function setUp()
     {
-        $streamServiceStub = $this->getMockBuilder('TaskManagement\Service\StreamService')
+        $streamServiceStub = $this->getMockBuilder(StreamService::class)
         	->getMock();
         
-        $organizationServiceStub = $this->getMockBuilder('Application\Service\OrganizationService')
+        $organizationServiceStub = $this->getMockBuilder(OrganizationService::class)
         	->getMock();
         
         $serviceManager = Bootstrap::getServiceManager();
@@ -52,7 +55,7 @@ class StreamsControllerTest extends \PHPUnit_Framework_TestCase {
         $this->controller->setEvent($this->event);
         $this->controller->setServiceLocator($serviceManager);
         
-    	$transaction = $this->getMockBuilder('ZendExtension\Mvc\Controller\Plugin\EventStoreTransactionPlugin')
+    	$transaction = $this->getMockBuilder(EventStoreTransactionPlugin::class)
     		->disableOriginalConstructor()
     		->setMethods(['begin', 'commit', 'rollback'])
     		->getMock();

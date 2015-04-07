@@ -53,11 +53,10 @@ class TaskJsonModel extends JsonModel
 	protected function serializeOne(Task $task) {
 		
 		$links = [];
-		
 		if($this->authorize->isAllowed($task, 'TaskManagement.Task.showDetails')){
 			$links['self'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);	
 		}
-		
+
 		if($this->authorize->isAllowed($task, 'TaskManagement.Task.edit')){
 			$links['ora:edit'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);
 		}

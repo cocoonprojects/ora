@@ -1,6 +1,6 @@
 <?php
 
-use ZendExtension\Authentication\OAuth2\MockOAuth2Adapter;
+use Application\Authentication\OAuth2\MockOAuth2Adapter;
 
 return array(
 	'service_manager' => array(

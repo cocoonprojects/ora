@@ -2,7 +2,6 @@
 
 namespace TaskManagement\Assertion;
 
-
 use Zend\Permissions\Acl\Acl;
 use Zend\Permissions\Acl\Resource\ResourceInterface;
 use Zend\Permissions\Acl\Role\RoleInterface;
@@ -19,8 +18,7 @@ class MemberOfOrganizationAssertion implements AssertionInterface
     }
     
 	public function assert(Acl $acl, RoleInterface $role = null, ResourceInterface $resource = null, $privilege = null){
-
-		if($this->loggedUser instanceof User){			
+		if($this->loggedUser instanceof User){
 
 			//controllo se il task per il quale visualizzare il dettaglio 
 			//appartiene ad uno stream gestito dalla stessa organizzazione dell'utente loggato

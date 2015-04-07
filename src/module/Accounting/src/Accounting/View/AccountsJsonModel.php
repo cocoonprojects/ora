@@ -21,22 +21,22 @@ class AccountsJsonModel extends StatementJsonModel
 	}
 	
 	protected function serializeOne(Account $account) {
-		$rv = $this->serializeBalance($account);
+		$rv['balance'] = $this->serializeBalance($account);
 		$rv['createdAt'] = date_format($account->getCreatedAt(), 'c');
 		if($account instanceof OrganizationAccount) {
 			$rv['organization'] = $account->getOrganization()->getName();
 		}
-		$rv = array_merge($rv, $this->serializeLinks($account));
+		$rv['_links'] = $this->serializeLinks($account);
 		return $rv;
 	}
 	
 	protected function serializeLinks($account) {
-		$rv['_links']['self'] = $this->url->fromRoute('accounts', ['id' => $account->getId()]);
+		$rv['self'] = $this->url->fromRoute('accounts', ['id' => $account->getId()]);
 		if($this->authorize->isAllowed($account, 'Accounting.Account.statement')){		 
-			$rv['_links']['statement'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'statement']);
+			$rv['statement'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'statement']);
 		}
 		if($this->authorize->isAllowed($account, 'Accounting.Account.deposit')){
-			$rv['_links']['deposits'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'deposits']);
+			$rv['deposits'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'deposits']);
 		}
 		return $rv;
 	}

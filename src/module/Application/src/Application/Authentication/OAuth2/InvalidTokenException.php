@@ -1,5 +1,5 @@
 <?php
-namespace ZendExtension\Authentication\OAuth2;
+namespace Application\Authentication\OAuth2;
 
 class InvalidTokenException extends \Exception {
 	

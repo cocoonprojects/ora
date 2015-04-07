@@ -16,6 +16,7 @@ use TaskManagement\Service\StreamCommandsListener;
 use TaskManagement\Service\TaskCommandsListener;
 use TaskManagement\Service\EventSourcingStreamService;
 use TaskManagement\Service\EventSourcingTaskService;
+use TaskManagement\Assertion\MemberOfOrganizationAssertion;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {        
@@ -78,7 +79,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
         return array (
             'invokables' => array(
 	            'TaskManagement\CloseTaskListener' => 'TaskManagement\Service\CloseTaskListener',
-        		'TaskManagement\MemberOfOrganizationAssertion' => 'TaskManagement\Assertion\MemberOfOrganizationAssertion',
+        		'TaskManagement\MemberOfOrganizationAssertion' => MemberOfOrganizationAssertion::class,
         		'TaskManagement\MemberOfNotAcceptedTaskAssertion' => 'TaskManagement\Assertion\MemberOfNotAcceptedTaskAssertion',
         		'TaskManagement\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion' => 'TaskManagement\Assertion\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion',
         		'TaskManagement\TaskMemberNotOwnerAndNotCompletedTaskAssertion' => 'TaskManagement\Assertion\TaskMemberNotOwnerAndNotCompletedTaskAssertion',
@@ -101,8 +102,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             	},					
             	'TaskManagement\TaskCommandsListener' => function ($locator) {
             		$entityManager = $locator->get('doctrine.entitymanager.orm_default');
-            		$rv = new TaskCommandsListener($entityManager);
-            		return $rv;
+            		return new TaskCommandsListener($entityManager);
             	},
             	'TaskManagement\StreamCommandsListener' => function ($locator) {
             		$entityManager = $locator->get('doctrine.entitymanager.orm_default');
@@ -113,8 +113,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             		$streamService = $locator->get('TaskManagement\StreamService');
             		$organizationService = $locator->get('Application\OrganizationService');
             		$accountService = $locator->get('Accounting\CreditsAccountsService');
-            		$rv = new TransferTaskSharesCreditsListener($taskService, $streamService, $organizationService, $accountService);
-            		return $rv;         		
+            		return new TransferTaskSharesCreditsListener($taskService, $streamService, $organizationService, $accountService);
             	},
             ),
             'initializers' => array(

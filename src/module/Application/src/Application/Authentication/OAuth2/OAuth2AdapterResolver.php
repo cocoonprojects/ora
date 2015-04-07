@@ -1,7 +1,7 @@
 <?php
-namespace ZendExtension\Authentication\OAuth2;
+namespace Application\Authentication\OAuth2;
 
-use ZendExtension\Authentication\AdapterResolver;
+use Application\Authentication\AdapterResolver;
 use ZendOAuth2\Authentication\Adapter\ZendOAuth2;
 use Zend\Mvc\Controller\AbstractController;
 

@@ -69,7 +69,7 @@ class Account extends EditableEntity implements ResourceInterface {
 	}
 	
 	public function getTransactions() {
-		return $this->transactions;
+		return $this->transactions->toArray();
 	}
 	
 	public function addTransaction(AccountTransaction $transaction) {

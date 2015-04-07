@@ -1,5 +1,5 @@
 <?php
-namespace ZendExtension\Authentication;
+namespace Application\Authentication;
 
 use Zend\Mvc\Controller\AbstractController;
 

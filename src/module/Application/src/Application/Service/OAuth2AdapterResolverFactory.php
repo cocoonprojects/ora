@@ -3,7 +3,7 @@ namespace Application\Service;
 
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
-use ZendExtension\Authentication\OAuth2\OAuth2AdapterResolver;
+use Application\Authentication\OAuth2\OAuth2AdapterResolver;
 
 class OAuth2AdapterResolverFactory implements FactoryInterface
 {
