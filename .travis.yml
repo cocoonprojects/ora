@@ -36,7 +36,8 @@ before_script:
   - mysql oraproject_test < tests/sql/init.sql
 
 script:
-  - phpunit --configuration tests/unit/phpunit.xml
-  - phpunit --configuration tests/integration/phpunit.xml
+  - cd tests/unit
+  - phpunit
+  # - phpunit --configuration tests/integration/phpunit.xml
   # - cd tests
   # - ../src/vendor/bin/behat
