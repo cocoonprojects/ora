@@ -8,7 +8,7 @@ use Accounting\Service\AccountService;
 use Accounting\Service\CreatePersonalAccountListener;
 use Accounting\Service\AccountCommandsListener;
 use Application\Service\OrganizationService;
-use Ora\User\User;
+use Application\Entity\User;
 
 class CreateOrganizationProcessTest extends \PHPUnit_Framework_TestCase
 {

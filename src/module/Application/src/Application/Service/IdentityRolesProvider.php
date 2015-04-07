@@ -5,7 +5,7 @@ namespace Application\Service;
 use BjyAuthorize\Provider\Identity\ProviderInterface;
 use Zend\Authentication\AuthenticationService;
 use Doctrine\ORM\EntityManager;
-use Ora\User\User;
+use Application\Entity\User;
 
 class IdentityRolesProvider implements ProviderInterface
 {

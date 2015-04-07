@@ -5,7 +5,7 @@ use Zend\EventManager\ListenerAggregateInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\Event;
 use Accounting\Service\AccountService;
-use Ora\User\User;
+use Application\Entity\User;
 
 class CreatePersonalAccountListener implements ListenerAggregateInterface {
 	

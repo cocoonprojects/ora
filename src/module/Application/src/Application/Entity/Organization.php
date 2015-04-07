@@ -1,9 +1,8 @@
 <?php
 
-namespace Ora\ReadModel;
+namespace Application\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
-use Ora\ReadModel\DomainEntity;
 
 /**
  * @ORM\Entity @ORM\Table(name="organizations")

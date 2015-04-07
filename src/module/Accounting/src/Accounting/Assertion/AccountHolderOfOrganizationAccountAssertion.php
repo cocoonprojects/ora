@@ -6,8 +6,8 @@ use Zend\Permissions\Acl\Acl;
 use Zend\Permissions\Acl\Resource\ResourceInterface;
 use Zend\Permissions\Acl\Role\RoleInterface;
 use Zend\Permissions\Acl\Assertion\AssertionInterface;
-use Ora\User\User;
-use Ora\ReadModel\OrganizationAccount;
+use Application\Entity\User;
+use Accounting\Entity\OrganizationAccount;
 
 class AccountHolderOfOrganizationAccountAssertion implements AssertionInterface{
 

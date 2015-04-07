@@ -1,10 +1,10 @@
 <?php
-namespace Ora\ReadModel;
+namespace TaskManagement\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
-use Ora\User\User;
-use Ora\ReadModel\Estimation;
+use Application\Entity\User;
+use TaskManagement\Entity\Estimation;
 
 /**
  * @ORM\Entity @ORM\Table(name="task_members")
@@ -18,14 +18,14 @@ class TaskMember {
 	
 	/** 
 	 * @ORM\Id 
-	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\Task") 
+	 * @ORM\ManyToOne(targetEntity="TaskManagement\Entity\Task") 
 	 * @ORM\JoinColumn(name="task_id", referencedColumnName="id", onDelete="CASCADE")
 	 */
 	private $task;
 
 	/** 
 	 * @ORM\Id 
-	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+	 * @ORM\ManyToOne(targetEntity="Application\Entity\User")
 	 * @ORM\JoinColumn(name="member_id", referencedColumnName="id", onDelete="CASCADE")
 	 */
 	private $member;
@@ -37,13 +37,13 @@ class TaskMember {
 	private $role;
 
 	/** 
-	 * @ORM\Embedded(class="Ora\ReadModel\Estimation")
+	 * @ORM\Embedded(class="TaskManagement\Entity\Estimation")
 	 * @var Estimation
 	 */
 	private $estimation;
 
 	/**
-	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\Share", mappedBy="evaluator", cascade="persist", orphanRemoval=TRUE, indexBy="valued_id");
+	 * @ORM\OneToMany(targetEntity="TaskManagement\Entity\Share", mappedBy="evaluator", cascade="persist", orphanRemoval=TRUE, indexBy="valued_id");
 	 * @var Share[]
 	 */
 	private $shares;
@@ -67,7 +67,7 @@ class TaskMember {
 	protected $createdAt;
 
 	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+	 * @ORM\ManyToOne(targetEntity="Application\Entity\User")
 	 * @ORM\JoinColumn(name="createdBy_id", referencedColumnName="id")
 	 */
 	protected $createdBy;
@@ -79,7 +79,7 @@ class TaskMember {
 	protected $mostRecentEditAt;
 
 	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+	 * @ORM\ManyToOne(targetEntity="Application\Entity\User")
 	 * @ORM\JoinColumn(name="mostRecentEditBy_id", referencedColumnName="id")
 	 */
 	protected $mostRecentEditBy;

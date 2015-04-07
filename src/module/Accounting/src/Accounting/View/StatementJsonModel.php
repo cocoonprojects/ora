@@ -3,13 +3,13 @@ namespace Accounting\View;
 
 use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
-use Ora\ReadModel\Account;
-use Ora\ReadModel\OrganizationAccount;
 use Zend\Mvc\Controller\Plugin\Url;
-use Ora\ReadModel\AccountTransaction;
-use Ora\User\User;
-use Ora\ReadModel\Deposit;
+use Application\Entity\User;
 use BjyAuthorize\Service\Authorize;
+use Accounting\Entity\Account;
+use Accounting\Entity\OrganizationAccount;
+use Accounting\Entity\AccountTransaction;
+use Accounting\Entity\Deposit;
 
 class StatementJsonModel extends JsonModel
 {

@@ -9,9 +9,11 @@ use Prooph\EventStore\Stream\SingleStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Doctrine\ORM\EntityManager;
 use Rhumsaa\Uuid\Uuid;
-use Ora\User\User;
+use Application\Entity\User;
 use Application\Organization;
+use Application\Entity\OrganizationMembership;
 use TaskManagement\Stream;
+use TaskManagement\Entity\Stream as ReadModelStream;
 
 /**
  * @author Giannotti Fabio
@@ -52,14 +54,14 @@ class EventSourcingStreamService extends AggregateRepository implements StreamSe
 		
 	public function findStream($id)
 	{
-		return $this->entityManager->find('Ora\ReadModel\Stream', $id);
+		return $this->entityManager->find(ReadModelStream::class, $id);
 	}
 	
 	public function findStreams(User $user) {
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('s')
-			->from('Ora\ReadModel\Stream', 's')
-			->leftJoin('Ora\ReadModel\OrganizationMembership', 'm', 'WITH', 'm.organization = s.organization')
+			->from(ReadModelStream::class, 's')
+			->leftJoin(OrganizationMembership::class, 'm', 'WITH', 'm.organization = s.organization')
 			->where('m.member = :user')
 			->setParameter('user', $user)
 			->getQuery();

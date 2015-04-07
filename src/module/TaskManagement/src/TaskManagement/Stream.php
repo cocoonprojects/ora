@@ -4,7 +4,7 @@ namespace TaskManagement;
 
 use Rhumsaa\Uuid\Uuid;
 use Ora\DomainEntity;
-use Ora\User\User;
+use Application\Entity\User;
 use Application\Organization;
 
 /**

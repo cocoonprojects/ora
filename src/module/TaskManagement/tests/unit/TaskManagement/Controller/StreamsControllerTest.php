@@ -11,7 +11,7 @@ use PHPUnit_Framework_TestCase;
 use Rhumsaa\Uuid\Uuid;
 use TaskManagement\Task;
 use TaskManagement\Stream;
-use Ora\User\User;
+use Application\Entity\User;
 use Application\Organization;
 
 class StreamsControllerTest extends \PHPUnit_Framework_TestCase {

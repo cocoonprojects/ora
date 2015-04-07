@@ -1,17 +1,16 @@
 <?php
-namespace Ora\ReadModel;
+namespace Accounting\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
 
 /**
  * @ORM\Entity
- * @author andreabandera
  *
  */
 class IncomingTransfer extends AccountTransaction
 {
 	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\Account")
+	 * @ORM\ManyToOne(targetEntity="Account")
 	 * @ORM\JoinColumn(name="payer_id", referencedColumnName="id", onDelete="SET NULL")
 	 * @var Account
 	 */

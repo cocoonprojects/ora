@@ -6,7 +6,7 @@ use Zend\Http\Request;
 use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\RouteMatch;
 use PHPUnit_Framework_TestCase;
-use Ora\User\User;
+use Application\Entity\User;
 use Rhumsaa\Uuid\Uuid;
 use Accounting\Account;
 use UnitTest\Bootstrap;

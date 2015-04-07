@@ -1,9 +1,8 @@
 <?php
 
-namespace Ora\ReadModel;
+namespace Application\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
-use Ora\User\User;
 
 /**
  * @ORM\Entity @ORM\Table(name="organization_members")
@@ -22,39 +21,43 @@ class OrganizationMembership
 			
 	/**
 	 * @ORM\Id
-	 * @ORM\ManyToOne(targetEntity="Ora\User\User", inversedBy="memberships")
+	 * @ORM\ManyToOne(targetEntity="User", inversedBy="memberships")
 	 * @ORM\JoinColumn(name="member_id", referencedColumnName="id", onDelete="CASCADE")
+	 * @var User
 	 */
 	protected $member;
 
 	/**
 	 * @ORM\Id
-	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\Organization", fetch="EAGER")
+	 * @ORM\ManyToOne(targetEntity="Organization", fetch="EAGER")
 	 * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", onDelete="CASCADE")
+	 * @var Organization
 	 */
 	protected $organization;
 
 	/**
 	 * @ORM\Column(type="datetime")
-	 * @var DateTime
+	 * @var \DateTime
 	 */
 	protected $createdAt;
 
 	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+	 * @ORM\ManyToOne(targetEntity="User")
 	 * @ORM\JoinColumn(name="createdBy_id", referencedColumnName="id")
+	 * @var User
 	 */
 	protected $createdBy;
 
 	/**
 	 * @ORM\Column(type="datetime")
-	 * @var datetime
+	 * @var \DateTime
 	 */
 	protected $mostRecentEditAt;
 
 	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+	 * @ORM\ManyToOne(targetEntity="User")
 	 * @ORM\JoinColumn(name="mostRecentEditBy_id", referencedColumnName="id")
+	 * @var User
 	 */
 	protected $mostRecentEditBy;
 

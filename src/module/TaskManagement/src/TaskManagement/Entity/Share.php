@@ -1,8 +1,8 @@
 <?php
-namespace Ora\ReadModel;
+namespace TaskManagement\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
-use Ora\User\User;
+use Application\Entity\User;
 use Zend\Crypt\PublicKey\Rsa\PublicKey;
 
 /**
@@ -20,7 +20,7 @@ class Share {
 	
 	/**
 	 * 
-	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\TaskMember", inversedBy="$shares")
+	 * @ORM\ManyToOne(targetEntity="TaskMember", inversedBy="$shares")
 	 * @ORM\JoinColumns({
 	 * 		@ORM\JoinColumn(name="evaluator_id", referencedColumnName="member_id", onDelete="CASCADE", nullable=FALSE),
 	 * 		@ORM\JoinColumn(name="task_id", referencedColumnName="task_id", onDelete="CASCADE", nullable=FALSE)
@@ -30,7 +30,7 @@ class Share {
 	private $evaluator;
 	/**
 	 * 
-	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\TaskMember")
+	 * @ORM\ManyToOne(targetEntity="TaskMember")
 	 * @ORM\JoinColumns({
 	 * 		@ORM\JoinColumn(name="valued_id", referencedColumnName="member_id", onDelete="CASCADE", nullable=FALSE),
 	 * 		@ORM\JoinColumn(name="task_id", referencedColumnName="task_id", onDelete="CASCADE", nullable=FALSE)

@@ -6,7 +6,7 @@ use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Authentication\AuthenticationService;
 use ZendExtension\Authentication\MockAuthenticationService;
-use Ora\User\User;
+use Application\Entity\User;
 use Rhumsaa\Uuid\Uuid;
 
 class AuthenticationServiceFactory implements FactoryInterface 

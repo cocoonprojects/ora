@@ -3,8 +3,8 @@ namespace Accounting\View;
 
 use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
-use Ora\ReadModel\Account;
-use Ora\ReadModel\OrganizationAccount;
+use Accounting\Entity\Account;
+use Accounting\Entity\OrganizationAccount;
 use Zend\Mvc\Controller\Plugin\Url;
 
 class AccountsJsonModel extends StatementJsonModel

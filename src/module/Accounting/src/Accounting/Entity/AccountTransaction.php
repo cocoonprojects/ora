@@ -1,19 +1,19 @@
 <?php
-namespace Ora\ReadModel;
+namespace Accounting\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
+use Application\Entity\DomainEntity;
 
 /**
  * @ORM\Entity @ORM\Table(name="account_transactions")
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="type", type="string")
- * @author andreabandera
  *
  */
 class AccountTransaction extends DomainEntity {
 	
 	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\Account", inversedBy="transactions")
+	 * @ORM\ManyToOne(targetEntity="Account", inversedBy="transactions")
 	 * @ORM\JoinColumn(name="account_id", referencedColumnName="id")
 	 * @var Account
 	 */

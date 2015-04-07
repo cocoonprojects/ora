@@ -1,6 +1,6 @@
 <?php
 
-namespace Ora\ReadModel;
+namespace TaskManagement\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
 

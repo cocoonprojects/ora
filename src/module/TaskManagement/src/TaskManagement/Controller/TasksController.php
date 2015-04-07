@@ -12,7 +12,7 @@ use Ora\IllegalStateException;
 use Ora\InvalidArgumentException;
 use BjyAuthorize\Service\Authorize;
 use Accounting\Service\AccountService;
-use Ora\User\User;
+use Application\Entity\User;
 use TaskManagement\Task;
 use TaskManagement\View\TaskJsonModel;
 use TaskManagement\Service\TaskService;

@@ -1,8 +1,7 @@
 <?php
-namespace Ora\ReadModel;
+namespace Application\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
-use Ora\User\User;
 
 abstract class EditableEntity extends DomainEntity {
 	
@@ -13,7 +12,7 @@ abstract class EditableEntity extends DomainEntity {
 	protected $mostRecentEditAt;
 	
 	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+	 * @ORM\ManyToOne(targetEntity="Application\Entity\User")
 	 * @ORM\JoinColumn(name="mostRecentEditBy_id", referencedColumnName="id", nullable=TRUE)
 	 */
 	protected $mostRecentEditBy;
@@ -27,7 +26,7 @@ abstract class EditableEntity extends DomainEntity {
 	/**
 	 * 
 	 * @param \DateTime $when
-	 * @return \Ora\ReadModel\EditableEntity
+	 * @return EditableEntity
 	 */
 	public function setMostRecentEditAt(\DateTime $when) {
 		$this->mostRecentEditAt = $when;
@@ -43,7 +42,7 @@ abstract class EditableEntity extends DomainEntity {
 	/**
 	 * 
 	 * @param User $user
-	 * @return \Ora\ReadModel\EditableEntity
+	 * @return EditableEntity
 	 */
 	public function setMostRecentEditBy(User $user) {
 		$this->mostRecentEditBy = $user;

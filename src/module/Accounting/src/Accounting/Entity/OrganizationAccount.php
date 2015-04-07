@@ -1,13 +1,12 @@
 <?php
-namespace Ora\ReadModel;
+namespace Accounting\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
-use Ora\User\User;
-use Ora\ReadModel\Account;
+use Application\Entity\User;
+use Application\Entity\Organization;
 
 /**
  * @ORM\Entity
- * @author andreabandera
  *
  */
 class OrganizationAccount extends Account {

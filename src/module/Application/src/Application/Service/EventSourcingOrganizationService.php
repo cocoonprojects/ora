@@ -11,10 +11,11 @@ use Prooph\EventStore\Aggregate\AggregateRepository;
 use Prooph\EventStore\Aggregate\AggregateType;
 use Prooph\EventStore\Stream\SingleStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
-use Ora\User\User;
-use Application\Organization;
-use Ora\ReadModel\Organization as OrganizationReadModel;
 use Rhumsaa\Uuid\Uuid;
+use Application\Entity\User;
+use Application\Organization;
+use Application\Entity\Organization as ReadModelOrg;
+use Application\Entity\OrganizationMembership;
 
 class EventSourcingOrganizationService extends AggregateRepository implements OrganizationService, EventManagerAwareInterface
 {
@@ -59,17 +60,17 @@ class EventSourcingOrganizationService extends AggregateRepository implements Or
 	*/
 	public function findOrganization($id)
 	{
-	    return $this->entityManager->find('Ora\ReadModel\Organization', $id);
+	    return $this->entityManager->find(ReadModelOrg::class, $id);
 	}
 	
 	public function findUserOrganizationMemberships(User $user)
 	{
-		return $this->entityManager->getRepository('Ora\ReadModel\OrganizationMembership')->findBy(array('member' => $user));
+		return $this->entityManager->getRepository(OrganizationMembership::class)->findBy(array('member' => $user));
 	}	
 	
-	public function findOrganizationMemberships(OrganizationReadModel $organization)
+	public function findOrganizationMemberships(ReadModelOrg $organization)
 	{
-		return $this->entityManager->getRepository('Ora\ReadModel\OrganizationMembership')->findBy(array('organization' => $organization));
+		return $this->entityManager->getRepository(OrganizationMembership::class)->findBy(array('organization' => $organization));
 	}
 	
     public function setEventManager(EventManagerInterface $events)

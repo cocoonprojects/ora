@@ -10,7 +10,7 @@ use Zend\EventManager\EventManager;
 use PHPUnit_Framework_TestCase;
 use Rhumsaa\Uuid\Uuid;
 use TaskManagement\Task;
-use Ora\User\User;
+use Application\Entity\User;
 use IntegrationTest\Bootstrap;
 
 class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase {

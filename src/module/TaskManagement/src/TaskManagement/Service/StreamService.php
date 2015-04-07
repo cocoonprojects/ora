@@ -3,8 +3,8 @@
 namespace TaskManagement\Service;
 
 use Application\Organization;
-use Ora\User\User;
-use Ora\ReadModel\Stream as ReadModelStream;
+use Application\Entity\User;
+use TaskManagement\Entity\Stream as ReadModelStream;
 use TaskManagement\Stream;
 
 interface StreamService

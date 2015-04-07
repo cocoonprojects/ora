@@ -8,7 +8,7 @@ use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
 use TaskManagement\Service\TaskService;
 use Accounting\Service\AccountService;
-use Ora\User\User;
+use Application\Entity\User;
 use TaskManagement\Task;
 
 

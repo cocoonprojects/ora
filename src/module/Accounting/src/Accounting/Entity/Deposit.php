@@ -1,11 +1,10 @@
 <?php
-namespace Ora\ReadModel;
+namespace Accounting\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
 
 /**
  * @ORM\Entity
- * @author andreabandera
  *
  */
 class Deposit extends AccountTransaction

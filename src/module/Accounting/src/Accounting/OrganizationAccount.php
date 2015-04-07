@@ -3,7 +3,7 @@ namespace Accounting;
 
 use Rhumsaa\Uuid\Uuid;
 use Application\Organization;
-use Ora\User\User;
+use Application\Entity\User;
 
 class OrganizationAccount extends Account {
 	

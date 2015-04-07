@@ -2,7 +2,7 @@
 namespace ZendExtension\Authentication;
 
 use Zend\Authentication\AuthenticationServiceInterface;
-use Ora\User\User;
+use Application\Entity\User;
 use Zend\Authentication\Result;
 use Zend\Authentication\AuthenticationService;
 

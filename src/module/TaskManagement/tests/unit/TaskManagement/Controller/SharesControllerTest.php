@@ -11,7 +11,7 @@ use Zend\EventManager\EventManager;
 use PHPUnit_Framework_TestCase;
 use Rhumsaa\Uuid\Uuid;
 use TaskManagement\Task;
-use Ora\User\User;
+use Application\Entity\User;
 
 class SharesControllerTest extends \PHPUnit_Framework_TestCase {
 	
@@ -28,12 +28,12 @@ class SharesControllerTest extends \PHPUnit_Framework_TestCase {
 
     protected function setUp()
     {
-        $this->owner = $this->getMockBuilder('Ora\User\User')
+        $this->owner = $this->getMockBuilder('Application\Entity\User')
         	->getMock();
         $this->owner->method('getId')
         	->willReturn('60000000-0000-0000-0000-000000000000');
     	
-        $this->member = $this->getMockBuilder('Ora\User\User')
+        $this->member = $this->getMockBuilder('Application\Entity\User')
         	->getMock();
         $this->member->method('getId')
         	->willReturn('70000000-0000-0000-0000-000000000000');

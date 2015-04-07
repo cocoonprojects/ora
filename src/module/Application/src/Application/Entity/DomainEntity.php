@@ -1,8 +1,7 @@
 <?php
-namespace Ora\ReadModel;
+namespace Application\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
-use Ora\User\User;
 
 /**
  * @ORM\MappedSuperclass
@@ -24,7 +23,7 @@ abstract class DomainEntity {
 	protected $createdAt;
 	
 	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+	 * @ORM\ManyToOne(targetEntity="Application\Entity\User")
 	 * @ORM\JoinColumn(name="createdBy_id", referencedColumnName="id", nullable=TRUE)
 	 * @var User
 	 */
@@ -49,7 +48,7 @@ abstract class DomainEntity {
 	/**
 	 * 
 	 * @param \DateTime $when
-	 * @return \Ora\ReadModel\DomainEntity
+	 * @return DomainEntity
 	 */
 	public function setCreatedAt(\DateTime $when) {
 		$this->createdAt = $when;
@@ -66,7 +65,7 @@ abstract class DomainEntity {
 	/**
 	 * 
 	 * @param User $user
-	 * @return \Ora\ReadModel\DomainEntity
+	 * @return DomainEntity
 	 */
 	public function setCreatedBy(User $user) {
 		$this->createdBy = $user;

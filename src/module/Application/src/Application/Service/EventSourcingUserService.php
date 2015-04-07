@@ -6,7 +6,7 @@ use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
 use Doctrine\ORM\EntityManager;
 use Application\Organization;
-use Ora\User\User;
+use Application\Entity\User;
 
 class EventSourcingUserService implements UserService, EventManagerAwareInterface
 {
@@ -51,7 +51,7 @@ class EventSourcingUserService implements UserService, EventManagerAwareInterfac
 	public function findUser($id)
 	{
 		$user = $this->entityManager
-					 ->getRepository('Ora\User\User')
+					 ->getRepository(User::class)
 					 ->findOneBy(array("id" => $id));
 		return $user;		
 	}
@@ -59,7 +59,7 @@ class EventSourcingUserService implements UserService, EventManagerAwareInterfac
 	public function findUserByEmail($email)
 	{
 		$user = $this->entityManager
-					->getRepository('Ora\User\User')
+					->getRepository(User::class)
 					->findOneBy(array("email" => $email));
 		return $user;		
 	}	

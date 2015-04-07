@@ -1,5 +1,5 @@
 <?php
-namespace Ora\ReadModel;
+namespace Accounting\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
 

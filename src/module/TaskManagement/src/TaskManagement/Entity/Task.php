@@ -1,15 +1,15 @@
 <?php
-namespace Ora\ReadModel;
+namespace TaskManagement\Entity;
 
-use Ora\TaskManagement\TaskInterface;
+use Zend\Permissions\Acl\Resource\ResourceInterface;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
 use Ora\IllegalStateException;
 use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
-use Ora\User\User;
-use Zend\Permissions\Acl\Resource\ResourceInterface;
+use Application\Entity\User;
+use Application\Entity\EditableEntity;
 
 /**
  * @ORM\Entity @ORM\Table(name="tasks")
@@ -48,13 +48,14 @@ class Task extends EditableEntity implements ResourceInterface
 	private $status;
 	
 	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\Stream")
+	 * @ORM\ManyToOne(targetEntity="Stream")
 	 * @ORM\JoinColumn(name="stream_id", referencedColumnName="id", nullable=false)
+	 * @var Stream
 	 */
 	private $stream;
 
 	/**
-	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\TaskMember", mappedBy="task", cascade={"PERSIST", "REMOVE"}, indexBy="member_id")
+	 * @ORM\OneToMany(targetEntity="TaskMember", mappedBy="task", cascade={"PERSIST", "REMOVE"}, indexBy="member_id")
 	 * @var TaskMember[]
 	 */
 	private $members;
@@ -117,7 +118,7 @@ class Task extends EditableEntity implements ResourceInterface
 	/**
 	 * 
 	 * @param id|User $user
-	 * @return \Ora\ReadModel\TaskMember|NULL
+	 * @return TaskMember|NULL
 	 */
 	public function getMember($user) {
 		$key = $user instanceof User ? $user->getId() : $user;

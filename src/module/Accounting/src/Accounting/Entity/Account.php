@@ -1,10 +1,12 @@
 <?php
-namespace Ora\ReadModel;
+namespace Accounting\Entity;
 
+use Zend\Permissions\Acl\Resource\ResourceInterface;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
-use Ora\User\User;
-use Zend\Permissions\Acl\Resource\ResourceInterface;
+use Application\Entity\EditableEntity;
+use Application\Entity\User;
+use Application\Entity\Organization;
 
 /**
  * @ORM\Entity @ORM\Table(name="accounts")
@@ -16,12 +18,12 @@ use Zend\Permissions\Acl\Resource\ResourceInterface;
 class Account extends EditableEntity implements ResourceInterface {
 	
 	/**
-	 * @ORM\Embedded(class="Ora\ReadModel\Balance")
+	 * @ORM\Embedded(class="Accounting\Entity\Balance")
 	 * @var Balance
 	 */
 	protected $balance;
 	/**
-	 * @ORM\ManyToMany(targetEntity="Ora\User\User", cascade={"PERSIST", "REMOVE"}, indexBy="id")
+	 * @ORM\ManyToMany(targetEntity="Application\Entity\User", cascade={"PERSIST", "REMOVE"}, indexBy="id")
 	 * @ORM\JoinTable(name="account_holders", joinColumns={@ORM\JoinColumn(name="account_id", referencedColumnName="id", onDelete="CASCADE")},
 	 * 		inverseJoinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")}
 	 * )
@@ -29,14 +31,14 @@ class Account extends EditableEntity implements ResourceInterface {
 	 */
 	protected $holders;
 	/**
-	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\AccountTransaction", mappedBy="account", cascade="persist", fetch="LAZY")
+	 * @ORM\OneToMany(targetEntity="AccountTransaction", mappedBy="account", cascade="persist", fetch="LAZY")
 	 * @ORM\OrderBy({"number" = "DESC"})
 	 * @var AccountTransaction[]
 	 */
 	protected $transactions;
 	
 	/**
-	 * @ORM\OneToOne(targetEntity="Organization")
+	 * @ORM\OneToOne(targetEntity="Application\Entity\Organization")
 	 * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", nullable=true, onDelete="CASCADE")
 	 * @var Organization
 	 */

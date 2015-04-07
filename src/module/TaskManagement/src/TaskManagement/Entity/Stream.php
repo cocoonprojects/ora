@@ -1,9 +1,10 @@
 <?php
 
-namespace Ora\ReadModel;
-
+namespace TaskManagement\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
+use Application\Entity\EditableEntity;
+use Application\Entity\Organization;
 
 /**
  * @ORM\Entity @ORM\Table(name="streams")
@@ -19,8 +20,9 @@ class Stream extends EditableEntity
 	private $subject;
 	
 	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\ReadModel\Organization")
+	 * @ORM\ManyToOne(targetEntity="Application\Entity\Organization")
 	 * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", nullable=false)
+	 * @var Organization
 	 */
 	private $organization;	
 	

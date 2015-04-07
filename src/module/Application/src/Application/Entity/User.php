@@ -1,14 +1,12 @@
 <?php
 
-namespace Ora\User;
+namespace Application\Entity;
 
 use Zend\Permissions\Acl\Role\RoleInterface;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
 use BjyAuthorize\Provider\Identity\ProviderInterface;	
-use Ora\ReadModel\OrganizationMembership;
-use Ora\ReadModel\Organization;
 
 
 /**
@@ -46,7 +44,7 @@ class User implements ProviderInterface, RoleInterface
 	protected $createdAt;
 	
 	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+	 * @ORM\ManyToOne(targetEntity="User")
 	 * @ORM\JoinColumn(name="createdBy_id", referencedColumnName="id", nullable=TRUE)
 	 */
 	protected $createdBy;
@@ -58,7 +56,7 @@ class User implements ProviderInterface, RoleInterface
 	protected $mostRecentEditAt;
 	
 	/**
-	 * @ORM\ManyToOne(targetEntity="Ora\User\User")
+	 * @ORM\ManyToOne(targetEntity="User")
 	 * @ORM\JoinColumn(name="mostRecentEditBy_id", referencedColumnName="id", nullable=TRUE)
 	 */
 	protected $mostRecentEditBy;
@@ -94,7 +92,7 @@ class User implements ProviderInterface, RoleInterface
 	private $picture;
 	
 	/**
-	 * @ORM\OneToMany(targetEntity="Ora\ReadModel\OrganizationMembership", mappedBy="member", indexBy="organization_id", fetch="EAGER")
+	 * @ORM\OneToMany(targetEntity="OrganizationMembership", mappedBy="member", indexBy="organization_id", fetch="EAGER")
 	 * @var OrganizationMembership[]
 	 */
 	private $memberships;

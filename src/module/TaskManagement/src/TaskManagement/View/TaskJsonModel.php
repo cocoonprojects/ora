@@ -3,11 +3,11 @@ namespace TaskManagement\View;
 
 use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
-use Ora\ReadModel\Task;
-use Ora\ReadModel\Estimation;
-use Ora\ReadModel\TaskMember;
+use TaskManagement\Entity\Task;
+use TaskManagement\Entity\Estimation;
+use TaskManagement\Entity\TaskMember;
 use Zend\Mvc\Controller\Plugin\Url;
-use Ora\User\User;
+use Application\Entity\User;
 use BjyAuthorize\Service\Authorize;
 
 class TaskJsonModel extends JsonModel

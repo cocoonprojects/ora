@@ -1,15 +1,11 @@
 <?php
-namespace Ora\Kanbanize\ReadModel;
+namespace Kanbanize\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
-use Ora\ReadModel\Task;
-
+use TaskManagement\Entity\Task;
 
 /**
- * @author Andrea Lupia <alupia@dimes.unical.it>
  * @ORM\Entity
- *
- *
  */
 class KanbanizeTask extends Task {
 

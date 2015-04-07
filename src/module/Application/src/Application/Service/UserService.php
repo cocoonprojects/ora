@@ -1,7 +1,7 @@
 <?php 
 namespace Application\Service;
 
-use Ora\User\User;
+use Application\Entity\User;
 
 interface UserService
 {

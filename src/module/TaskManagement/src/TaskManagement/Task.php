@@ -7,7 +7,7 @@ use Ora\InvalidArgumentException;
 use Ora\DuplicatedDomainEntityException;
 use Ora\DomainEntityUnavailableException;
 use Ora\DomainEntity;
-use Ora\User\User;
+use Application\Entity\User;
 
 class Task extends DomainEntity
 {	

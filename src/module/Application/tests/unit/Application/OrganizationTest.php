@@ -1,7 +1,7 @@
 <?php
 namespace Application;
 
-use Ora\User\User;
+use Application\Entity\User;
 use Accounting\OrganizationAccount;
 
 class OrganizationTest extends \PHPUnit_Framework_TestCase {

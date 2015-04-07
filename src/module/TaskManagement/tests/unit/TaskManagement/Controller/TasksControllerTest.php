@@ -9,11 +9,11 @@ use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\RouteMatch;
 use PHPUnit_Framework_TestCase;
 use Rhumsaa\Uuid\Uuid;
-use TaskManagement\Stream;
-use Ora\User\User;
+use Application\Entity\User;
 use Application\Organization;
-use Ora\ReadModel\Task as ReadModelTask;
-use Ora\ReadModel\Stream as ReadModelStream;
+use TaskManagement\Stream;
+use TaskManagement\Entity\Task as ReadModelTask;
+use TaskManagement\Entity\Stream as ReadModelStream;
 
 class TasksControllerTest extends \PHPUnit_Framework_TestCase {
 	

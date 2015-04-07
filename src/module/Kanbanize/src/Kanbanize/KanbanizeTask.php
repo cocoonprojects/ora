@@ -2,7 +2,7 @@
 namespace Kanbanize;
 
 use Ora\InvalidArgumentException;
-use Ora\User\User;
+use Application\Entity\User;
 use TaskManagement\Task;
 use TaskManagement\Stream;
 use TaskManagement\TaskCreated;
