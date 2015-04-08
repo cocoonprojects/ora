@@ -33,7 +33,7 @@ TaskManagement.prototype = {
 			select = form.find("#createTaskStreamID");
 			select.empty();
 			select.append('<option></option>');
-			$.each(that.streamsData, function(i, object) {
+			$.each(that.streamsData._embedded['ora:stream'], function(i, object) {
 				select.append('<option value="' + object.id + '">' + object.subject + '</option>');
 			});
 		});
@@ -402,17 +402,6 @@ TaskManagement.prototype = {
 		that = this;
 		$.getJSON('/task-management/streams', function(data) {
 			that.streamsData = data;
-			that.onStreamsUpdated();
-		});
-	},
-	
-	onStreamsUpdated: function() {
-		var container = $("#createTaskModal select");
-		container.empty();
-		container.append('<option></option>');
-		
-		$.each(this.streamsData._embedded['ora:stream'], function(key, stream) {
-			container.append('<option value="' + stream.id + '">' + stream.subject + '</option>');
 		});
 	},
 	
