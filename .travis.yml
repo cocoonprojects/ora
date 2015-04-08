@@ -40,5 +40,5 @@ script:
   - phpunit
   - cd ../integration
   - phpunit
-  # - cd ..
-  # - ../src/vendor/bin/behat
+  - cd ..
+  - ../src/vendor/bin/behat
