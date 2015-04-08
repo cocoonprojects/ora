@@ -190,22 +190,16 @@ config.vm.provision :shell, :path => "puphpet/shell/copy_virtualhost.sh"
 #aggiornamento delle librerie di progetto con composer
 config.vm.provision :shell, :path => "puphpet/shell/nodejs_npm_bower_install.sh"
 
-#aggiornamento delle librerie di progetto con composer
-config.vm.provision :shell, :path => "puphpet/shell/composer_update.sh"
-
 #creazione del link per phpunit e behat
 config.vm.provision :shell, :path => "puphpet/shell/testsuite_link.sh"
 
 #installazione di vim
 #config.vm.provision :shell, :path => "puphpet/shell/vim.sh"
 
-
-config.vm.synced_folder "./src/data/DoctrineORMModule/Proxies/", "/vagrant/src/data/DoctrineORMModule/Proxies/", 
-	:owner => "vagrant",
-	:group => "www-data",
-	:mount_options => ["dmode=730","fmode=660"], 
-	:create => "true"
-	
+config.vm.synced_folder "./", "/var/www", 
+	owner: "vagrant",
+	group: "www-data",
+	mount_options: ["dmode=776,fmode=776"]
 
 #configurazione del servizio mail
 config.vm.provision :shell, :path => "puphpet/shell/configure_mail_service.sh"
