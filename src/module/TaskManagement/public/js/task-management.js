@@ -28,7 +28,14 @@ TaskManagement.prototype = {
 		$("#createTaskModal").on("show.bs.modal", function(e) {
 			form = $(this).find("form");
 			form[0].reset();
-			$(this).find('div.alert').hide();			
+			$(this).find('div.alert').hide();
+			
+			select = form.find("#createTaskStreamID");
+			select.empty();
+			select.append('<option></option>');
+			$.each(that.streamsData, function(i, object) {
+				select.append('<option value="' + object.id + '">' + object.subject + '</option>');
+			});
 		});
 		
 		$("#createTaskModal").on("submit", "form", function(e){
