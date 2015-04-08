@@ -24,7 +24,12 @@
 	    <testsuite name="Kanbanize unit tests">
             <directory>../../src/module/Kanbanize/tests/unit</directory>
 	    </testsuite>
-	</testsuites>
+    </testsuites>
+    <filter>
+        <blacklist>
+            <directory>../../src/vendor</directory>
+        </blacklist>
+    </filter>
 	<php>
 		<env name="APPLICATION_ENV" value="acceptance"/>
 	</php>
