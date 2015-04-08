@@ -187,7 +187,7 @@ Vagrant.configure("2") do |config|
 #copio il virtualhost di progetto
 config.vm.provision :shell, :path => "puphpet/shell/copy_virtualhost.sh"
 
-#aggiornamento delle librerie di progetto con composer
+#installazione delle librerie node, npm, bower
 config.vm.provision :shell, :path => "puphpet/shell/nodejs_npm_bower_install.sh"
 
 #creazione del link per phpunit e behat
