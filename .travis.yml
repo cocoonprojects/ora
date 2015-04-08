@@ -2,7 +2,6 @@ language: php
 
 php:
   - 5.5
-#  - 5.4
 
 env:
   - APPLICATION_ENV=acceptance
@@ -38,6 +37,7 @@ before_script:
 script:
   - cd tests/unit
   - phpunit
-  # - phpunit --configuration tests/integration/phpunit.xml
+  - cd ../integration
+  - phpunit
   # - cd tests
   # - ../src/vendor/bin/behat
