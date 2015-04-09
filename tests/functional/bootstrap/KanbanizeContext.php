@@ -1,7 +1,7 @@
 <?php
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use Kanbanize\Service\KanbanizeAPI;
-use Kanbanize\Entity\KanbanizeTask;
+use Kanbanize\KanbanizeTask;
 
 class KanbanizeContext extends RestContext {
 
