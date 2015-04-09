@@ -32,7 +32,6 @@ before_script:
   - sudo sed -e 's/${DB_PASSWORD}/'"$DB_PASSWORD"'/g' --in-place /etc/apache2/sites-available/default
   - sudo sed -e 's/${DB_NAME}/'"$DB_NAME"'/g' --in-place /etc/apache2/sites-available/default
   - sudo sed -e 's/${KANBANIZE_APIKEY}/'"$KANBANIZE_APIKEY"'/g' --in-place /etc/apache2/sites-available/default
-  - sudo sed -e 's/${KANBANIZE_URL}/'"$KANBANIZE_URL"'/g' /etc/apache2/sites-available/default
   - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place /etc/apache2/sites-available/default
   - sudo service apache2 restart
     # Set the GitHub OAuth token to make use of the 5000 per hour rate limit
