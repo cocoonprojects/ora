@@ -25,20 +25,28 @@ before_script:
   - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
     # configure apache virtual hosts
   - sudo cp -f build/travis-ci-apache /etc/apache2/sites-available/default
+  - sudo sed -e 's/${APPLICATION_ENV}/'"$APPLICATION_ENV"'/g' --in-place /etc/apache2/sites-available/default
+  - sudo sed -e 's/${DB_HOSTNAME}/'"$DB_HOSTNAME"'/g' --in-place /etc/apache2/sites-available/default
+  - sudo sed -e 's/${DB_PORT}/'"$DB_PORT"'/g' --in-place /etc/apache2/sites-available/default
+  - sudo sed -e 's/${DB_USERNAME}/'"$DB_USERNAME"'/g' --in-place /etc/apache2/sites-available/default
+  - sudo sed -e 's/${DB_PASSWORD}/'"$DB_PASSWORD"'/g' --in-place /etc/apache2/sites-available/default
+  - sudo sed -e 's/${DB_NAME}/'"$DB_NAME"'/g' --in-place /etc/apache2/sites-available/default
+  - sudo sed -e 's/${KANBANIZE_APIKEY}/'"$KANBANIZE_APIKEY"'/g' --in-place /etc/apache2/sites-available/default
+  - sudo sed -e 's?${KANBANIZE_URL}?'"$KANBANIZE_URL"'?g' --in-place /etc/apache2/sites-available/default
   - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place /etc/apache2/sites-available/default
   - sudo service apache2 restart
     # Set the GitHub OAuth token to make use of the 5000 per hour rate limit
   - "mkdir -p ~/.composer"
   - cp .travis.composer.config.json ~/.composer/config.json
-  - composer install -d src --dev
-  - mysql -e 'create database oraproject_test;'
+  - composer install -d src
+  - mysql -e 'create database '"$DB_NAME"';'
   - src/vendor/bin/doctrine-module orm:schema-tool:create
-  - mysql oraproject_test < tests/sql/init.sql
+  - mysql $DB_NAME < tests/sql/init.sql
 
 script:
   - cd tests/unit
-  - phpunit
+  - phpunit --coverage-text
   - cd ../integration
   - phpunit
-  # - cd ..
-  # - ../src/vendor/bin/behat
+  - cd ..
+  - ../src/vendor/bin/behat
