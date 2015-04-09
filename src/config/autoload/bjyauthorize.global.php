@@ -1,5 +1,5 @@
 <?php 
-use Ora\User\User;
+use Application\Entity\User;
 
 return array(
  

@@ -1,4 +1,4 @@
-Feature: Create organization
+Feature: Stream Creation
 	As an organization member
 	I want to create a new stream
 	in order to collect related tasks

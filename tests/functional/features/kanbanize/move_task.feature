@@ -1,7 +1,7 @@
 Feature: Move Task 
-As a task owner when I accept a Kanbanize defined task
-I want my acceptance to be reflected on Kanbanize itself 
-in order to advance the card processing
+	As a task owner when I accept a Kanbanize defined task
+	I want my acceptance to be reflected on Kanbanize itself 
+	in order to advance the card processing
 
 Scenario: Successfully accepting an already accepted Kanbanize Task
 	Given that I am authenticated as "mark.rogers@ora.local" 

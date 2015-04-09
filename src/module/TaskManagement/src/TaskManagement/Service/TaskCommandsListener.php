@@ -4,31 +4,24 @@ namespace TaskManagement\Service;
 use Doctrine\ORM\EntityManager;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Prooph\EventStore\Stream\StreamEvent;
-use Ora\Service\SyncReadModelListener;
-use Ora\ReadModel\Task;
-use Ora\ReadModel\Estimation;
-use Ora\ReadModel\Share;
-use Ora\Kanbanize\ReadModel\KanbanizeTask;
-use Ora\Kanbanize\KanbanizeService;
+use Kanbanize\Entity\KanbanizeTask;
+use Application\Entity\User;
+use Application\Service\ReadModelProjector;
+use TaskManagement\Entity\Task;
+use TaskManagement\Entity\Estimation;
+use TaskManagement\Entity\Share;
+use TaskManagement\Entity\Stream;
+use TaskManagement\Entity\TaskMember;
 
-class TaskCommandsListener extends SyncReadModelListener {
-	/**
-	 * 
-	 * @var KanbanizeService
-	 */
-	private $kanbanizeService;
-	
-	public function setKanbanizeService(KanbanizeService $service) {
-		$this->kanbanizeService = $service;
-	}
-	
+class TaskCommandsListener extends ReadModelProjector
+{
 	protected function onTaskCreated(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$status = $event->payload()['status'];
-		$createdBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
 		
 		switch($event->metadata()['aggregate_type']) {
-			case 'Ora\\Kanbanize\\KanbanizeTask' :
+			case KanbanizeTask::class :
 				$entity = new KanbanizeTask($id);
 				$entity->setBoardId($event->payload()['kanbanizeBoardId']);
 				$entity->setTaskId($event->payload()['kanbanizeTaskId']);
@@ -47,11 +40,11 @@ class TaskCommandsListener extends SyncReadModelListener {
 	protected function onTaskUpdated(StreamEvent $event) {
 		if(isset($event->payload()['subject'])) {
 			$id = $event->metadata()['aggregate_id'];
-			$entity = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
+			$entity = $this->entityManager->find(Task::class, $id);
 			if(is_null($entity)) {
 				return;
 			}
-			$updatedBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+			$updatedBy = $this->entityManager->find(User::class, $event->payload()['by']);
 
 			$entity->setSubject($event->payload()['subject']);
 			$entity->setMostRecentEditAt($event->occurredOn());
@@ -60,18 +53,18 @@ class TaskCommandsListener extends SyncReadModelListener {
 		}
 	}
 	
-	protected function onStreamChanged(StreamEvent $event) {
+	protected function onTaskStreamChanged(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$entity = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
+		$entity = $this->entityManager->find(Task::class, $id);
 		if(is_null($entity)) {
 			return;
 		}
 		$streamId = $event->payload()['streamId'];
-		$stream = $this->entityManager->find('Ora\ReadModel\Stream', $streamId);
+		$stream = $this->entityManager->find(Stream::class, $streamId);
 		if(is_null($stream)) {
 			return;
 		}
-		$updatedBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+		$updatedBy = $this->entityManager->find(User::class, $event->payload()['by']);
 
 		$entity->setStream($stream);
 		$entity->setMostRecentEditAt($event->occurredOn());
@@ -79,48 +72,48 @@ class TaskCommandsListener extends SyncReadModelListener {
 		$this->entityManager->persist($entity);
 	}
 
-	protected function onMemberAdded(StreamEvent $event) {
+	protected function onTaskMemberAdded(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$entity = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
+		$entity = $this->entityManager->find(Task::class, $id);
 		if(is_null($entity)) {
 			return;
         }
 
 		$memberId = $event->payload()['userId'];
-		$user = $this->entityManager->find('Ora\User\User', $memberId);
+		$user = $this->entityManager->find(User::class, $memberId);
 		if(is_null($user)) {
 			return;
         }        
         $role = $event->payload()['role'];
-		$addedBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+		$addedBy = $this->entityManager->find(User::class, $event->payload()['by']);
 		$entity->addMember($user, $role, $addedBy, $event->occurredOn());
 		$entity->setMostRecentEditAt($event->occurredOn());
 		$entity->setMostRecentEditBy($addedBy);
 		$this->entityManager->persist($entity);
 	}
 	
-    protected function onMemberRemoved(StreamEvent $event) {
+    protected function onTaskMemberRemoved(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$entity = $this->entityManager->find('Ora\ReadModel\Task', $id);
+		$entity = $this->entityManager->find(Task::class, $id);
 		if(is_null($entity)) {
 			return;
         }               
 
-        $member = $this->entityManager->find('Ora\User\User', $event->payload()['userId']);
-        $taskMember = $this->entityManager->getRepository('Ora\ReadModel\TaskMember')->findOneBy(array('member' => $member, 'task'=> $entity)); 
+        $member = $this->entityManager->find('Application\Entity\User', $event->payload()['userId']);
+        $taskMember = $this->entityManager->getRepository(TaskMember::class)->findOneBy(array('member' => $member, 'task'=> $entity)); 
         
         $entity->removeMember($taskMember);
         $this->entityManager->remove($taskMember); 
         
 		$entity->setMostRecentEditAt($event->occurredOn());
-		$removedBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+		$removedBy = $this->entityManager->find(User::class, $event->payload()['by']);
 		$entity->setMostRecentEditBy($removedBy);
 		$this->entityManager->persist($entity);
 	}
 	
 	protected function onTaskDeleted(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$entity = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
+		$entity = $this->entityManager->find(Task::class, $id);
 		if(is_null($entity)) {
 			return;
 		}
@@ -129,12 +122,12 @@ class TaskCommandsListener extends SyncReadModelListener {
 	
 	protected function onEstimationAdded(StreamEvent $event) {
 		$memberId = $event->payload()['by'];
-		$user = $this->entityManager->find('Ora\\User\\User', $memberId);
+		$user = $this->entityManager->find(User::class, $memberId);
 		if(is_null($user)) {
 			return;
 		}
 		$id = $event->metadata()['aggregate_id'];
-		$taskMember = $this->entityManager->find('Ora\ReadModel\TaskMember', array('task' => $id, 'member' => $user));
+		$taskMember = $this->entityManager->find(TaskMember::class, array('task' => $id, 'member' => $user));
 		
 		$value = $event->payload()['value'];
 
@@ -144,13 +137,10 @@ class TaskCommandsListener extends SyncReadModelListener {
 	
 	protected function onTaskCompleted(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
-		if(is_null($this->kanbanizeService) == false && $task instanceof KanbanizeTask) {
-			$this->kanbanizeService->completeTask($task);
-		}
+		$task = $this->entityManager->find(Task::class, $id);
 		$task->setStatus(Task::STATUS_COMPLETED);
 		$task->resetShares();
-        $user = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+        $user = $this->entityManager->find(User::class, $event->payload()['by']);
 		$task->setMostRecentEditBy($user);
 		$task->setMostRecentEditAt($event->occurredOn());
 		$this->entityManager->persist($task);
@@ -158,12 +148,9 @@ class TaskCommandsListener extends SyncReadModelListener {
 	
 	protected function onTaskAccepted(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
-		if(is_null($this->kanbanizeService) == false && $task instanceof KanbanizeTask) {
-			$this->kanbanizeService->acceptTask($task);
-		}
+		$task = $this->entityManager->find(Task::class, $id);
 		$task->setStatus(Task::STATUS_ACCEPTED);
-		$user = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+		$user = $this->entityManager->find(User::class, $event->payload()['by']);
 		$task->setMostRecentEditBy($user);
 		$task->setMostRecentEditAt($event->occurredOn());
 		$this->entityManager->persist($task);
@@ -171,12 +158,9 @@ class TaskCommandsListener extends SyncReadModelListener {
 	
 	protected function onTaskClosed(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
-		if(is_null($this->kanbanizeService) == false && $task instanceof KanbanizeTask) {
-			$this->kanbanizeService->closeTask($task);
-		}
+		$task = $this->entityManager->find(Task::class, $id);
 		$task->setStatus(Task::STATUS_CLOSED);
-		$user = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+		$user = $this->entityManager->find(User::class, $event->payload()['by']);
 		$task->setMostRecentEditBy($user);
 		$task->setMostRecentEditAt($event->occurredOn());
 		$this->entityManager->persist($task);
@@ -184,12 +168,9 @@ class TaskCommandsListener extends SyncReadModelListener {
 	
 	protected function onTaskOngoing(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
-		if(is_null($this->kanbanizeService) == false && $task instanceof KanbanizeTask) {
-			$this->kanbanizeService->executeTask($task);
-		}
+		$task = $this->entityManager->find(Task::class, $id);
 		$task->setStatus(Task::STATUS_ONGOING);
-		$user = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+		$user = $this->entityManager->find(User::class, $event->payload()['by']);
 		$task->setMostRecentEditBy($user);
 		$task->setMostRecentEditAt($event->occurredOn());
 		$this->entityManager->persist($task);
@@ -197,7 +178,7 @@ class TaskCommandsListener extends SyncReadModelListener {
 	
 	protected function onSharesAssigned(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
+		$task = $this->entityManager->find(Task::class, $id);
 		$evaluator = $task->getMember($event->payload()['by']);
 		$evaluator->resetShares();
 		$shares = $event->payload()['shares'];
@@ -210,7 +191,7 @@ class TaskCommandsListener extends SyncReadModelListener {
 	
 	protected function onSharesSkipped(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$task = $this->entityManager->find('Ora\\ReadModel\\Task', $id);
+		$task = $this->entityManager->find(Task::class, $id);
 		$evaluator = $task->getMember($event->payload()['by']);
 		$evaluator->resetShares();
 		foreach($task->getMembers() as $valued) {
@@ -220,6 +201,6 @@ class TaskCommandsListener extends SyncReadModelListener {
 	}
 
 	protected function getPackage() {
-		return 'Ora\\TaskManagement\\';
+		return 'TaskManagement';
 	}
 }

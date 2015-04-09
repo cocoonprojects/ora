@@ -1,7 +1,7 @@
 <?php
-use Ora\Kanbanize\KanbanizeAPI;
-use Ora\Kanbanize\ReadModel\KanbanizeTask;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
+use Kanbanize\Service\KanbanizeAPI;
+use Kanbanize\KanbanizeTask;
 
 class KanbanizeContext extends RestContext {
 

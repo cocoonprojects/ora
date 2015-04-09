@@ -1,8 +1,0 @@
-<?php
-namespace Ora\StreamManagement;
-
-use Prooph\EventSourcing\AggregateChanged;
-
-class StreamCreated extends AggregateChanged
-{
-}

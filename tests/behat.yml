@@ -36,18 +36,3 @@ default:
             base_url:  http://oraprojecttest
             goutte:    ~
             selenium2: ~
-
-travis-ci:
-    suites:
-        task_features:
-            contexts:
-                - RestContext:
-                    - http://localhost
-        estimations_features:
-            contexts:
-                - TaskContext:
-                    - http://localhost
-        kanbanize_features:
-            contexts:
-                - KanbanizeContext:
-                    - http://localhost

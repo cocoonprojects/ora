@@ -3,8 +3,8 @@ namespace Accounting\View;
 
 use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
-use Ora\ReadModel\Account;
-use Ora\ReadModel\OrganizationAccount;
+use Accounting\Entity\Account;
+use Accounting\Entity\OrganizationAccount;
 use Zend\Mvc\Controller\Plugin\Url;
 
 class AccountsJsonModel extends StatementJsonModel
@@ -13,33 +13,30 @@ class AccountsJsonModel extends StatementJsonModel
 	{
 		$resource = $this->getVariable('resource');
 		if(is_array($resource)) {
-			$representation['accounts'] = [];
-			foreach ($resource as $account) {
-				$representation['accounts'][] = $this->serializeOne($account);
-			}
+			$representation['accounts'] = array_map(array($this, 'serializeOne'), $resource);
 		} else {
 			$representation = $this->serializeOne($resource);
 		}
 		return Json::encode($representation);
 	}
 	
-	private function serializeOne(Account $account) {
-		$rv = $this->serializeBalance($account);
+	protected function serializeOne(Account $account) {
+		$rv['balance'] = $this->serializeBalance($account);
 		$rv['createdAt'] = date_format($account->getCreatedAt(), 'c');
 		if($account instanceof OrganizationAccount) {
 			$rv['organization'] = $account->getOrganization()->getName();
 		}
-		$rv = array_merge($rv, $this->serializeLinks($account));
+		$rv['_links'] = $this->serializeLinks($account);
 		return $rv;
 	}
 	
 	protected function serializeLinks($account) {
-		$rv['_links']['self'] = $this->url->fromRoute('accounts', ['id' => $account->getId()]);
+		$rv['self'] = $this->url->fromRoute('accounts', ['id' => $account->getId()]);
 		if($this->authorize->isAllowed($account, 'Accounting.Account.statement')){		 
-			$rv['_links']['statement'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'statement']);
+			$rv['statement'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'statement']);
 		}
 		if($this->authorize->isAllowed($account, 'Accounting.Account.deposit')){
-			$rv['_links']['deposits'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'deposits']);
+			$rv['deposits'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'deposits']);
 		}
 		return $rv;
 	}

@@ -10,28 +10,48 @@ TaskManagement.prototype = {
 	
 	statuses: {
 			0: 'Idea',
-			10:	'Open',
+			10: 'Open',
 			20: 'Ongoing',
 			30: 'Completed',
 			40: 'Accepted (shares assignment in progress)',
-			50:	'Closed'
+			50: 'Closed'
 	},
 	
 	data: [],
 	
+	streamsData: [],
+	
 	bindEventsOn: function()
 	{
 		var that = this;
-	        
+		
 		$("#createTaskModal").on("show.bs.modal", function(e) {
 			form = $(this).find("form");
 			form[0].reset();
-			$(this).find('div.alert').hide();			
+			$(this).find('div.alert').hide();
+			
+			select = form.find("#createTaskStreamID");
+			select.empty();
+			select.append('<option></option>');
+			$.each(that.streamsData._embedded['ora:stream'], function(i, object) {
+				select.append('<option value="' + object.id + '">' + object.subject + '</option>');
+			});
 		});
 		
 		$("#createTaskModal").on("submit", "form", function(e){
 			e.preventDefault();
 			that.createNewTask(e);
+		});
+		
+		$("#createStreamModal").on("show.bs.modal", function(e) {
+			form = $(this).find("form");
+			form[0].reset();
+			$(this).find('div.alert').hide();			
+		});
+		
+		$("#createStreamModal").on("submit", "form", function(e){
+			e.preventDefault();
+			that.createNewStream(e);
 		});
 		
 		$("#editTaskModal").on("show.bs.modal", function(e) {
@@ -66,7 +86,7 @@ TaskManagement.prototype = {
 			that.unjoinTask(e);
 		});
 
-        //ACCEPT TASK FOR KAMBANIZE       
+		//ACCEPT TASK FOR KAMBANIZE		  
 		$("body").on("click", "a[data-action='acceptTask']", function(e){
 			e.preventDefault();
 			that.acceptTask(e);
@@ -84,7 +104,7 @@ TaskManagement.prototype = {
 			that.completeTask(e);
 		});
 
-        //BACK TO ONGOING             
+		//BACK TO ONGOING			  
 		$("body").on("click", "a[data-action='executeTask']", function(e){
 			e.preventDefault();
 			that.executeTask(e);
@@ -296,12 +316,12 @@ TaskManagement.prototype = {
 		
 		var that = this;
 		
-        $.ajax({
-            url: url,
-            method: 'POST',
-            data:{action:'accept'},
-            dataType: 'json',
-            complete: function(xhr, textStatus) {
+		$.ajax({
+			url: url,
+			method: 'POST',
+			data:{action:'accept'},
+			dataType: 'json',
+			complete: function(xhr, textStatus) {
 				m = $('#content');
 				if (xhr.status === 200) {
 					that.show(m, 'success', 'You have successfully accepted the task');
@@ -313,20 +333,20 @@ TaskManagement.prototype = {
 				else {
 					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to acceot the task');
 				}
-            }
-        });
-    },
+			}
+		});
+	},
 
 	completeTask: function(e){
 		var url = $(e.target).attr('href');
 		
 		var that = this;
 		
-        $.ajax({
-            url: url,
-            method: 'POST',
-            data:{action:'complete'},
-            complete: function(xhr, textStatus) {
+		$.ajax({
+			url: url,
+			method: 'POST',
+			data:{action:'complete'},
+			complete: function(xhr, textStatus) {
 				m = $('#content');
 				if (xhr.status === 200) {
 					that.show(m, 'success', 'You have successfully completed the task');
@@ -338,21 +358,21 @@ TaskManagement.prototype = {
 				else {
 					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to complete the task');
 				}
-            }
-        });
-    },
+			}
+		});
+	},
 
-    executeTask: function(e){
+	executeTask: function(e){
 		var url = $(e.target).attr('href');
 		
 		var that = this;
 		
-        $.ajax({
-            url: url,
-            method: 'POST',
-            data:{action:'execute'},
-            dataType: 'json',
-            complete: function(xhr, textStatus) {
+		$.ajax({
+			url: url,
+			method: 'POST',
+			data:{action:'execute'},
+			dataType: 'json',
+			complete: function(xhr, textStatus) {
 				m = $('#content');
 				if (xhr.status === 200) {
 					that.show(m, 'success', 'You have successfully put in execution the task');
@@ -364,28 +384,31 @@ TaskManagement.prototype = {
 				else {
 					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to execute the task');
 				}
-            }
-        });
-    },
+			}
+		});
+	},
 
-    listTasks: function()
-	{   
-    	$('#content div.alert').hide();
-    	
-		$.ajax({
-			url: '/task-management/tasks',
-			method: 'GET',
-			dataType: 'json'
-		})
-		.done(this.onListTasksCompleted.bind(this));
+	listTasks: function()
+	{
+		that = this;
+		$.getJSON('/task-management/tasks', function(data) {
+			that.data = data;
+			that.onListTasksCompleted();
+		});
 	},
 	
-	onListTasksCompleted: function(json)
+	listStreams: function()
 	{
-		this.data = json;
-		
-		if(this.data._links !== undefined && this.data._links.create !== undefined) {
-			$("#createTaskModal form").attr("action", this.data._links.create);
+		that = this;
+		$.getJSON('/task-management/streams', function(data) {
+			that.streamsData = data;
+		});
+	},
+	
+	onListTasksCompleted: function()
+	{
+		if(this.data._links !== undefined && this.data._links['ora:create'] !== undefined) {
+			$("#createTaskModal form").attr("action", this.data._links['ora:create']);
 			$("#createTaskBtn").show();
 		} else {
 			$("#createTaskModal form").attr("action", null);
@@ -399,17 +422,8 @@ TaskManagement.prototype = {
 			container.append("<p>No available tasks found</p>");
 		} else {
 			var that = this;
-
 			$.each(this.data.tasks, function(key, task) {
 				subject = task._links.self == undefined ? task.subject : '<a data-href="' + task._links.self + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
-
-				if(json._links !== undefined && json._links['ora:create'] !== undefined) {
-					$("#createTaskModal form").attr("action", json._links['ora:create']);
-					$("#createTaskBtn").show();
-				} else {
-					$("#createTaskModal form").attr("action", null);
-					$("#createTaskBtn").hide();
-				}
 
 				var actions = [];
 				if (task._links['ora:complete'] != undefined) {
@@ -432,7 +446,7 @@ TaskManagement.prototype = {
 							$e = ' data-credits="' + info.estimation.value + '"';
 						}
 					};
-					actions.push('<a data-href="' + task._links['ora:estimate']  + '"' + $e + ' data-toggle="modal" data-target="#estimateTaskModal" class="btn btn-default">Estimate</a>');
+					actions.push('<a data-href="' + task._links['ora:estimate']	 + '"' + $e + ' data-toggle="modal" data-target="#estimateTaskModal" class="btn btn-default">Estimate</a>');
 				}
 				if (task._links['ora:join'] != undefined) {
 					actions.push('<a href="' + task._links['ora:join'] + '" class="btn btn-default" data-action="joinTask">Join</a>');
@@ -456,7 +470,7 @@ TaskManagement.prototype = {
 				}
 
 				container.append(
-                    '<li class="panel panel-default">' +
+					'<li class="panel panel-default">' +
 						'<div class="panel-heading">' + subject + '</div>' +
 						'<div class="panel-body">' + rv + '</div>' +
 					'</li>');
@@ -598,6 +612,27 @@ TaskManagement.prototype = {
 		});
 	},
 	
+	createNewStream: function(e)
+	{
+		var modal = $(e.delegateTarget);
+		var form = $(e.target)
+
+		var that = this;
+		
+		$.ajax({
+			url: form.attr('action'),
+			method: 'POST',
+			data: form.serialize(),
+			success: function() {
+				modal.modal('hide');
+				that.listStreams();
+			},
+			error: function(jqHXR, textStatus, errorThrown) {
+				that.show(m, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to create the stream');
+			}
+		});
+	},
+	
 	skipEstimateTask : function (e){
 		var modal = $(e.delegateTarget);
 		var form = modal.find("form").first();
@@ -735,11 +770,11 @@ TaskManagement.prototype = {
 var TASK_STATUS = (function() {
 	var labels = {
 		0: 'Idea',
-		10:	'Open',
+		10: 'Open',
 		20: 'Ongoing',
 		30: 'Completed',
 		40: 'Accepted (shares assignment in progress)',
-		50:	'Closed'
+		50: 'Closed'
 	};
 	
 	var values = {
@@ -762,4 +797,5 @@ $().ready(function(e){
 	$('#firstLevelMenu li').eq(0).addClass('active');
 	collaboration = new TaskManagement();
 	collaboration.listTasks();
+	collaboration.listStreams();
 });

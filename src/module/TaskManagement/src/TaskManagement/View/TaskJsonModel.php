@@ -3,11 +3,11 @@ namespace TaskManagement\View;
 
 use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
-use Ora\ReadModel\Task;
-use Ora\ReadModel\Estimation;
-use Ora\ReadModel\TaskMember;
+use TaskManagement\Entity\Task;
+use TaskManagement\Entity\Estimation;
+use TaskManagement\Entity\TaskMember;
 use Zend\Mvc\Controller\Plugin\Url;
-use Ora\User\User;
+use Application\Entity\User;
 use BjyAuthorize\Service\Authorize;
 
 class TaskJsonModel extends JsonModel
@@ -25,7 +25,7 @@ class TaskJsonModel extends JsonModel
 	
 	/**
 	 * 
-	 * @var BjyAuthorize\Service\Authorize
+	 * @var Authorize
 	 */
 	private $authorize;
 	
@@ -40,27 +40,23 @@ class TaskJsonModel extends JsonModel
 		$resource = $this->getVariable('resource');
 	
 		if(is_array($resource)) {
-			$representation['tasks'] = [];
- 			if ($this->authorize->isAllowed(NULL, 'TaskManagement.Task.create')) { 
-				$representation['_links']['ora:create'] = $this->url->fromRoute('tasks');
- 			}
-			foreach ($resource as $r) {
-				$representation['tasks'][] = $this->serializeOne($r);
-			}
+			$representation['tasks'] = array_map(array($this, 'serializeOne'), $resource);
 		} else {
 			$representation = $this->serializeOne($resource);
+		}
+ 		if ($this->authorize->isAllowed(NULL, 'TaskManagement.Task.create')) {
+			$representation['_links']['ora:create'] = $this->url->fromRoute('tasks');
 		}
 		return Json::encode($representation);		
 	}
 
-	private function serializeOne(Task $task) {
+	protected function serializeOne(Task $task) {
 		
 		$links = [];
-		
 		if($this->authorize->isAllowed($task, 'TaskManagement.Task.showDetails')){
 			$links['self'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);	
 		}
-		
+
 		if($this->authorize->isAllowed($task, 'TaskManagement.Task.edit')){
 			$links['ora:edit'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);
 		}
@@ -139,9 +135,9 @@ class TaskJsonModel extends JsonModel
 				'lastname' => $member->getLastname(),
 				'picture' => $member->getPicture(),
 				'role' => $tm->getRole(),
-				'_links' => [
-						'self' => $this->url->fromRoute('users', ['id' => $member->getId()]),
-				],
+// 				'_links' => [
+// 						'self' => $this->url->fromRoute('users', ['id' => $member->getId()]),
+// 				],
 		];
 		
 		$rv['estimation'] = $this->getEstimation($tm);

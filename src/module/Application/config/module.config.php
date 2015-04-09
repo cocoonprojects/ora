@@ -1,11 +1,5 @@
 <?php
-/**
- * Zend Framework (http://framework.zend.com/)
- *
- * @link	  http://github.com/zendframework/ZendSkeletonApplication for the canonical source repository
- * @copyright Copyright (c) 2005-2014 Zend Technologies USA Inc. (http://www.zend.com)
- * @license	  http://framework.zend.com/license/new-bsd New BSD License
- */
+namespace Application;
 
 return array(
 	'router' => array(
@@ -20,7 +14,6 @@ return array(
 					),
 				),
 			),
-				
 			'login' => array(
 				'type' => 'Zend\Mvc\Router\Http\Segment',
 				'options' => array(
@@ -30,6 +23,19 @@ return array(
 						),
 				),
 			),
+			'organizations' => array(
+				'type' => 'Segment',
+				'options' => array(
+					'route'	   => '/organizations[/:id][/:controller]',
+					'constraints' => array(
+						'id' => '[0-9a-z\-]+'
+					),
+					'defaults' => array(
+						'__NAMESPACE__' => 'Application\Controller',
+						'controller' => 'Organizations'
+					),
+				),
+			),	
 			// The following is a route to simplify getting started creating
 			// new controllers and actions without needing to create a new
 			// module. Simply drop new controllers in, and you can access them
@@ -106,25 +112,33 @@ return array(
 		),
 	),
 	'doctrine' => array(
-				 
 		'configuration' => array(
 			'orm_default' => array(
 				'generate_proxies'	=> true,
 				'proxy_dir'			=> __DIR__ . '/../../../data/DoctrineORMModule/Proxies/'
 			)
 		),
-	
 		'driver' => array(
 			 __NAMESPACE__ . '_driver' => array(
 				'class' => 'Doctrine\ORM\Mapping\Driver\AnnotationDriver',
 				'cache' => 'array',
-				'paths' => array(__DIR__ . '/../../../library/Ora')
+				'paths' => array(__DIR__ . '/../src/'. __NAMESPACE__ . '/Entity')
 			),
 			'orm_default' => array(
 				'drivers' => array(
-					'Ora' =>  __NAMESPACE__ . '_driver'
+					__NAMESPACE__ . '\Entity' =>  __NAMESPACE__ . '_driver'
 				)
 			)
 		)
-	)
+	),
+	'asset_manager' => array(
+		'resolver_configs' => array(
+			'paths' => array(
+				'Application' => __DIR__ . '/../public',
+			),
+		),
+	),
+	'listeners' => array(
+		'Application\OrganizationCommandsListener'
+	),	
 );

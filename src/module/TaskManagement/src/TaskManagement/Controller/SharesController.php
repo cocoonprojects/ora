@@ -1,18 +1,18 @@
 <?php
 namespace TaskManagement\Controller;
 
-use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\NotEmpty;
 use Zend\I18n\Validator\Float;
 use Zend\Validator\Between;
-use ZendExtension\Mvc\View\ErrorJsonModel;
-use Ora\InvalidArgumentException;
-use Ora\IllegalStateException;
-use Ora\DomainEntityUnavailableException;
-use Ora\TaskManagement\TaskService;
-use Ora\TaskManagement\Task;
-use Ora\StreamManagement\StreamService;
+use Application\Controller\AbstractHATEOASRestfulController;
+use Application\View\ErrorJsonModel;
+use Application\InvalidArgumentException;
+use Application\IllegalStateException;
+use Application\DomainEntityUnavailableException;
+use TaskManagement\Service\TaskService;
+use TaskManagement\Task;
+use TaskManagement\StreamService;
 
 class SharesController extends AbstractHATEOASRestfulController {
 	

@@ -2,11 +2,14 @@
 
 namespace TaskManagement\Controller;
 
-use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Zend\View\Model\JsonModel;
-use Zend\View\Model\ViewModel;
-use Ora\StreamManagement\StreamService;
-use Ora\Organization\OrganizationService;
+use Zend\Filter\FilterChain;
+use Zend\Filter\StringTrim;
+use Zend\Filter\StripNewlines;
+use Zend\Filter\StripTags;
+use Application\Controller\AbstractHATEOASRestfulController;
+use Application\Service\OrganizationService;
+use TaskManagement\View\StreamJsonModel;
+use TaskManagement\Service\StreamService;
 
 class StreamsController extends AbstractHATEOASRestfulController
 {
@@ -38,10 +41,17 @@ class StreamsController extends AbstractHATEOASRestfulController
     
     public function getList()
     {
-        // HTTP STATUS CODE 405: Method not allowed
-        $this->response->setStatusCode(405);
-         
-        return $this->response;
+    	$identity = $this->identity();
+    	if(is_null($identity)) {
+    		$this->response->setStatusCode(401);
+    		return $this->response;
+       	}
+       	$identity = $identity['user'];
+
+       	$streams = $this->streamService->findStreams($identity);
+       	$view = new StreamJsonModel($this->url(), $identity);
+       	$view->setVariable('resource', $streams);
+        return $view;
     }
     
     public function create($data)
@@ -62,7 +72,12 @@ class StreamsController extends AbstractHATEOASRestfulController
     		$this->response->setStatusCode(404);
     		return $this->response;
        	}
-       	$subject = isset($data['subject']) ? $data['subject'] : null;
+    	$filters = new FilterChain();
+    	$filters->attach(new StringTrim())
+    			->attach(new StripNewlines())
+    			->attach(new StripTags());
+    	
+       	$subject = isset($data['subject']) ? $filters->filter($data['subject']) : null;
 	    $stream = $this->streamService->createStream($organization, $subject, $identity);
 	    $url = $this->url()->fromRoute('streams', array('id' => $stream->getId()->toString()));
 	    $this->response->getHeaders()->addHeaderLine('Location', $url);

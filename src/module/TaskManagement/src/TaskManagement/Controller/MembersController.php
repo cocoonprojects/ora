@@ -2,14 +2,14 @@
 
 namespace TaskManagement\Controller;
 
-use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Ora\IllegalStateException;
-use Ora\DuplicatedDomainEntityException;
-use Ora\DomainEntityUnavailableException;
-use Ora\TaskManagement\TaskService;
-use Ora\Accounting\AccountService;
-use Ora\User\User;
-use Ora\TaskManagement\Task;
+use Application\Controller\AbstractHATEOASRestfulController;
+use Application\IllegalStateException;
+use Application\DuplicatedDomainEntityException;
+use Application\DomainEntityUnavailableException;
+use Application\Entity\User;
+use Accounting\Service\AccountService;
+use TaskManagement\Service\TaskService;
+use TaskManagement\Task;
 
 
 class MembersController extends AbstractHATEOASRestfulController

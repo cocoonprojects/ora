@@ -1,12 +1,10 @@
 <?php
 namespace Accounting\Controller;
 
-use Application\Controller\AuthController;
-
-use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Ora\Accounting\AccountService;
-use Accounting\View\StatementJsonModel;
 use BjyAuthorize\Service\Authorize;
+use Application\Controller\AbstractHATEOASRestfulController;
+use Accounting\Service\AccountService;
+use Accounting\View\StatementJsonModel;
 
 class StatementsController extends AbstractHATEOASRestfulController
 {

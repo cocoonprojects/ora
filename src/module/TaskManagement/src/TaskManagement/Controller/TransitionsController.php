@@ -1,17 +1,11 @@
 <?php
 namespace TaskManagement\Controller;
 
-use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Ora\Kanbanize\KanbanizeService;
-use Ora\Kanbanize\ReadModel\KanbanizeTask;
-use Ora\Kanbanize\Exception\IllegalRemoteStateException;
-use Ora\Kanbanize\Exception\KanbanizeApiException;
-use Ora\Kanbanize\Exception\AlreadyInDestinationException;
-use Zend\View\Model\ViewModel;
-use Ora\TaskManagement\TaskService;
-use Ora\TaskManagement\Task;
-use Ora\IllegalStateException;
-use Ora\InvalidArgumentException;
+use Application\Controller\AbstractHATEOASRestfulController;
+use Application\IllegalStateException;
+use Application\InvalidArgumentException;
+use TaskManagement\Service\TaskService;
+use TaskManagement\Task;
 
 class TransitionsController extends AbstractHATEOASRestfulController
 {
@@ -19,19 +13,12 @@ class TransitionsController extends AbstractHATEOASRestfulController
 	protected static $collectionOptions= array ();
 	
 	/**
-	 *
-	 * @var KanbanizeService
-	 */
-	protected $kanbanizeService;
-
-	/**
 	 * @var TaskService
 	 */
 	private $taskService;
 	
-	public function __construct(TaskService $taskService, KanbanizeService $kanbanizeService) {
+	public function __construct(TaskService $taskService) {
 		$this->taskService = $taskService;
-		$this->kanbanizeService = $kanbanizeService;
 	}
 	
 	public function invoke($id, $data) {
@@ -41,7 +28,6 @@ class TransitionsController extends AbstractHATEOASRestfulController
 		}
 		$task = $this->taskService->getTask($id);
 		if (is_null($task)) {
-			var_dump('non è');
 			$this->response->setStatusCode ( 404 );
 			return $this->response;
 		}

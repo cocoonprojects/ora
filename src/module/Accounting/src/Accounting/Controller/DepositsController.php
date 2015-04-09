@@ -1,13 +1,13 @@
 <?php
 namespace Accounting\Controller;
 
-use ZendExtension\Mvc\Controller\AbstractHATEOASRestfulController;
-use Ora\Accounting\AccountService;
-use Ora\Accounting\IllegalAmountException;
-use Zend\Validator\ValidatorChain;
 use Zend\I18n\Validator\Float;
+use Zend\Validator\ValidatorChain;
 use Zend\Validator\NotEmpty;
 use Zend\Validator\GreaterThan;
+use Application\Controller\AbstractHATEOASRestfulController;
+use Accounting\Service\AccountService;
+use Accounting\IllegalAmountException;
 
 class DepositsController extends AbstractHATEOASRestfulController
 {

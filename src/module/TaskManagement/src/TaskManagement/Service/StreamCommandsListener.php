@@ -2,19 +2,22 @@
 namespace TaskManagement\Service;
 
 use Prooph\EventStore\Stream\StreamEvent;
-use Ora\Service\SyncReadModelListener;
-use Ora\ReadModel\Stream;
+use Application\Entity\Organization;
+use Application\Entity\User;
+use Application\Service\ReadModelProjector;
+use TaskManagement\Entity\Stream;
+use TaskManagement\Entity\Task;
 
-class StreamCommandsListener extends SyncReadModelListener {
+class StreamCommandsListener extends ReadModelProjector {
 	
 	protected function onStreamCreated(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$organizationId = $event->payload()['organizationId'];
-		$organization = $this->entityManager->find('Ora\ReadModel\Organization', $organizationId);
+		$organization = $this->entityManager->find(Organization::class, $organizationId);
 		if(is_null($organization)) {
 			return;
 		}
-		$createdBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
 		
 		$stream = new Stream($id);
 		$stream->setOrganization($organization)
@@ -28,11 +31,11 @@ class StreamCommandsListener extends SyncReadModelListener {
 	protected function onStreamUpdated(StreamEvent $event) {
 		if(isset($event->payload()['subject'])) {
 			$id = $event->metadata()['aggregate_id'];
-			$stream = $this->entityManager->find('Ora\ReadModel\Stream', $id);
+			$stream = $this->entityManager->find(Stream::class, $id);
 			if(is_null($stream)) {
 				return;
 			}
-			$updatedBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+			$updatedBy = $this->entityManager->find(User::class, $event->payload()['by']);
 
 			$stream->setSubject($event->payload()['subject']);
 			$stream->setMostRecentEditAt($event->occurredOn());
@@ -41,18 +44,18 @@ class StreamCommandsListener extends SyncReadModelListener {
 		}
 	}
 
-	protected function onOrganizationChanged(StreamEvent $event) {
+	protected function onStreamOrganizationChanged(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$entity = $this->entityManager->find('Ora\ReadModel\Task', $id);
+		$entity = $this->entityManager->find(Task::class, $id);
 		if(is_null($entity)) {
 			return;
 		}
 		$organizationId = $event->payload()['organizationId'];
-		$organization = $this->entityManager->find('Ora\ReadModel\Organization', $organizationId);
+		$organization = $this->entityManager->find(Organization::class, $organizationId);
 		if(is_null($organization)) {
 			return;
 		}
-		$updatedBy = $this->entityManager->find('Ora\User\User', $event->payload()['by']);
+		$updatedBy = $this->entityManager->find(User::class, $event->payload()['by']);
 		
 		$entity->setOrganization($organization);
 		$entity->setMostRecentEditAt($event->occurredOn());
@@ -61,6 +64,6 @@ class StreamCommandsListener extends SyncReadModelListener {
 	}
 
 	protected function getPackage() {
-		return 'Ora\\StreamManagement\\';
+		return 'TaskManagement';
 	}
 }
