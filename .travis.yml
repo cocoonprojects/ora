@@ -25,12 +25,12 @@ before_script:
   - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
     # configure apache virtual hosts
   - sudo cp -f build/travis-ci-apache /etc/apache2/sites-available/default
-  - sudo sed -e 's/${APPLICATION_ENV}/'"$APPLICATION_ENV"'/g' /etc/apache2/sites-available/default
-  - sudo sed -e 's/${DB_HOSTNAME}/'"$DB_HOSTNAME"'/g' /etc/apache2/sites-available/default
-  - sudo sed -e 's/${DB_PORT}/'"$DB_PORT"'/g' /etc/apache2/sites-available/default
-  - sudo sed -e 's/${DB_USERNAME}/'"$DB_USERNAME"'/g' /etc/apache2/sites-available/default
-  - sudo sed -e 's/${DB_PASSWORD}/'"$DB_PASSWORD"'/g' /etc/apache2/sites-available/default
-  - sudo sed -e 's/${DB_NAME}/'"$DB_NAME"'/g' /etc/apache2/sites-available/default
+  - sudo sed -e 's/${APPLICATION_ENV}/'"$APPLICATION_ENV"'/g' --in-place /etc/apache2/sites-available/default
+  - sudo sed -e 's/${DB_HOSTNAME}/'"$DB_HOSTNAME"'/g' --in-place /etc/apache2/sites-available/default
+  - sudo sed -e 's/${DB_PORT}/'"$DB_PORT"'/g' --in-place /etc/apache2/sites-available/default
+  - sudo sed -e 's/${DB_USERNAME}/'"$DB_USERNAME"'/g' --in-place /etc/apache2/sites-available/default
+  - sudo sed -e 's/${DB_PASSWORD}/'"$DB_PASSWORD"'/g' --in-place /etc/apache2/sites-available/default
+  - sudo sed -e 's/${DB_NAME}/'"$DB_NAME"'/g' --in-place /etc/apache2/sites-available/default
   - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place /etc/apache2/sites-available/default
   - sudo service apache2 restart
     # Set the GitHub OAuth token to make use of the 5000 per hour rate limit
