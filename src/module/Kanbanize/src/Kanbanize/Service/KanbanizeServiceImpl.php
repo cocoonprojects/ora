@@ -2,7 +2,7 @@
 
 namespace Kanbanize\Service;
 
-use Kanbanize\Entity\KanbanizeTask;
+use Kanbanize\KanbanizeTask;
 
 /**
  * Service Kanbanize
@@ -26,9 +26,9 @@ class KanbanizeServiceImpl implements KanbanizeService
 		$this->kanbanize = $api;
 	}
 
-	private function moveTask(KanbanizeTask $kanbanizeTask, $status) {
-  		$boardId = $kanbanizeTask->getBoardId();
-  		$taskId = $kanbanizeTask->getTaskId();
+	private function moveTask(KanbanizeTask $task, $status) {
+  		$boardId = $task->getKanbanizeBoardId();
+  		$taskId = $task->getKanbanizeTaskId();
   		$response = $this->kanbanize->moveTask($boardId, $taskId, $status);
   		if($response != 1) {
   			throw new OperationFailedException('Unable to move the task ' + $taskId + ' in board ' + $boardId + 'to the column ' + $status + ' because of ' + $response);
@@ -55,20 +55,15 @@ class KanbanizeServiceImpl implements KanbanizeService
 		if (is_null ( $id )) {
 			throw OperationFailedException("Cannot create task on Kanbanize");
 		} else {
-			$kanbanizeTask = new KanbanizeTask ( uniqid (), $boardId, $id, $createdAt, $createdBy );
+			$task = new KanbanizeTask ( uniqid (), $boardId, $id, $createdAt, $createdBy );
 			return 1;
 		}
 	}
 	
-	public function deleteTask(KanbanizeTask $kanbanizeTask) {
-		$boardId = $kanbanizeTask->getBoardId();
-		$taskId = $kanbanizeTask->getTaskId();
-		$ans = $this->kanbanize->deleteTask($boardId, $taskId);
-		//return isset($ans['Error']) ? $ans['Error'] : $ans;
+	public function deleteTask(KanbanizeTask $task) {
+		$ans = $this->kanbanize->deleteTask($task->getKanbanizeBoardId(), $task->getKanbanizeTaskId());
 		if (isset($ans["Error"]))
 			throw new OperationFailedException($ans["Error"]);
-		
-		
 		return $ans;
 	}
 	
@@ -95,7 +90,7 @@ class KanbanizeServiceImpl implements KanbanizeService
 	}
 
 	public function acceptTask(KanbanizeTask $task) {
-		$info = $this->kanbanize->getTaskDetails($task->getBoardId(), $task->getTaskId());
+		$info = $this->kanbanize->getTaskDetails($task->getKanbanizeBoardId(), $task->getKanbanizeTaskId());
   		if(isset($info['Error'])) {
   			throw new OperationFailedException($info["Error"]);
   		}
@@ -110,7 +105,7 @@ class KanbanizeServiceImpl implements KanbanizeService
 	}
 
 	public function executeTask(KanbanizeTask $task) {
-		$info = $this->kanbanize->getTaskDetails($task->getBoardId(), $task->getTaskId());
+		$info = $this->kanbanize->getTaskDetails($task->getKanbanizeBoardId(), $task->getKanbanizeTaskId());
   		if(isset($info['Error'])) {
   			throw new OperationFailedException($info["Error"]);
   		}
@@ -126,7 +121,7 @@ class KanbanizeServiceImpl implements KanbanizeService
 	}
 	
 	public function completeTask(KanbanizeTask $task) {
-		$info = $this->kanbanize->getTaskDetails($task->getBoardId(), $task->getTaskId());
+		$info = $this->kanbanize->getTaskDetails($task->getKanbanizeBoardId(), $task->getKanbanizeTaskId());
 		if(isset($info['Error'])) {
 			throw new OperationFailedException($info["Error"]);
 		}

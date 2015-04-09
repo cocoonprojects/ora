@@ -2,7 +2,7 @@
 
 namespace Kanbanize\Service;
 
-use Kanbanize\Entity\KanbanizeTask;
+use Kanbanize\KanbanizeTask;
 
 interface KanbanizeService {
 

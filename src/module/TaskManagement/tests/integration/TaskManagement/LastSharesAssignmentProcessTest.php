@@ -1,5 +1,5 @@
 <?php
-namespace TaskManagement\Controller;
+namespace TaskManagement;
 
 use Zend\Http\Request;
 use Zend\Http\Response;
@@ -14,6 +14,7 @@ use Application\Entity\User;
 use Application\Controller\Plugin\EventStoreTransactionPlugin;
 use TaskManagement\Task;
 use TaskManagement\Service\TaskService;
+use TaskManagement\Controller\SharesController;
 
 class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase {
 	

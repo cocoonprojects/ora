@@ -7,34 +7,8 @@ use TaskManagement\Entity\Task;
 /**
  * @ORM\Entity
  */
-class KanbanizeTask extends Task {
-
-	//FIXME how to map backlog?
-	CONST BACKLOG = 'Backlog';
-	CONST COLUMN_IDEA = 'Idea';
-	CONST COLUMN_OPEN = 'Open';
-	CONST COLUMN_ONGOING = "OnGoing";
-	CONST COLUMN_COMPLETED = 'Completed';
-	CONST COLUMN_ACCEPTED = 'Accepted';
-
-    CONST TYPE = 'kanbanizetask';
-
-	private static $mapping = array(
-			self::COLUMN_IDEA		=> Task::STATUS_IDEA,
-			self::COLUMN_OPEN		=> Task::STATUS_OPEN,
-			self::COLUMN_ONGOING	=> Task::STATUS_ONGOING,
-			self::COLUMN_COMPLETED	=> Task::STATUS_COMPLETED,
-			self::COLUMN_ACCEPTED	=> Task::STATUS_ACCEPTED,
-			Task::STATUS_IDEA		=> self::COLUMN_IDEA, 
-			Task::STATUS_OPEN		=> self::COLUMN_OPEN,
-			Task::STATUS_ONGOING	=> self::COLUMN_ONGOING,
-			Task::STATUS_COMPLETED	=> self::COLUMN_COMPLETED,
-			Task::STATUS_ACCEPTED	=> self::COLUMN_ACCEPTED,
-			//FIXME backlog?
-			self::BACKLOG			=> -1,
-			-1						=> self::BACKLOG
-	);
-	
+class KanbanizeTask extends Task
+{
 	/**
 	 * @ORM\Column(type="string")
 	 * @var string
@@ -58,11 +32,4 @@ class KanbanizeTask extends Task {
 	public function getTaskId() {
 		return $this->taskId;
 	}
-	
-	public static function getMappedStatus($status) {
-		return self::$mapping[$status];
-	}
-	
 }
-
-?>

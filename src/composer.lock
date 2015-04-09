@@ -528,12 +528,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/DoctrineModule.git",
-                "reference": "856e1efe08f8ff562f9c7b916dc361e900e8126e"
+                "reference": "8f13acf015d826e744056bcfb887b5293be4e71e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/DoctrineModule/zipball/856e1efe08f8ff562f9c7b916dc361e900e8126e",
-                "reference": "856e1efe08f8ff562f9c7b916dc361e900e8126e",
+                "url": "https://api.github.com/repos/doctrine/DoctrineModule/zipball/8f13acf015d826e744056bcfb887b5293be4e71e",
+                "reference": "8f13acf015d826e744056bcfb887b5293be4e71e",
                 "shasum": ""
             },
             "require": {
@@ -549,8 +549,9 @@
                 "zendframework/zend-validator": "~2.3"
             },
             "require-dev": {
+                "doctrine/coding-standard": "dev-master",
                 "phpunit/phpunit": "~3.7",
-                "squizlabs/php_codesniffer": "1.5.*",
+                "squizlabs/php_codesniffer": "~2",
                 "zendframework/zendframework": "~2.3"
             },
             "suggest": {
@@ -602,7 +603,7 @@
                 "module",
                 "zf2"
             ],
-            "time": "2015-04-06 18:57:46"
+            "time": "2015-04-09 07:55:19"
         },
         {
             "name": "doctrine/doctrine-orm-module",
@@ -3316,16 +3317,16 @@
         },
         {
             "name": "phpunit/php-token-stream",
-            "version": "1.4.0",
+            "version": "1.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-token-stream.git",
-                "reference": "db32c18eba00b121c145575fcbcd4d4d24e6db74"
+                "reference": "eab81d02569310739373308137284e0158424330"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-token-stream/zipball/db32c18eba00b121c145575fcbcd4d4d24e6db74",
-                "reference": "db32c18eba00b121c145575fcbcd4d4d24e6db74",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-token-stream/zipball/eab81d02569310739373308137284e0158424330",
+                "reference": "eab81d02569310739373308137284e0158424330",
                 "shasum": ""
             },
             "require": {
@@ -3361,7 +3362,7 @@
             "keywords": [
                 "tokenizer"
             ],
-            "time": "2015-01-17 09:51:32"
+            "time": "2015-04-08 04:46:07"
         },
         {
             "name": "phpunit/phpunit",
