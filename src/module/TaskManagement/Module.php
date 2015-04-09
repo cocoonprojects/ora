@@ -81,7 +81,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
     {
         return array (
             'invokables' => array(
-            	'TaskManagement\NotifyMailListener' => 'TaskManagement\Service\NotifyMailListener',
 	            'TaskManagement\CloseTaskListener' => 'TaskManagement\Service\CloseTaskListener',
         		'TaskManagement\MemberOfOrganizationAssertion' => 'TaskManagement\Assertion\MemberOfOrganizationAssertion',
         		'TaskManagement\MemberOfNotAcceptedTaskAssertion' => 'TaskManagement\Assertion\MemberOfNotAcceptedTaskAssertion',
@@ -98,9 +97,10 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
             	'TaskManagement\TaskService' => 'TaskManagement\Service\TaskServiceFactory',
 				'TaskManagement\KanbanizeService' => 'TaskManagement\Service\KanbanizeServiceFactory',
         				
-        		'TaskManagement\Service\NotifyMailListener' => function($locator){
+        		'TaskManagement\NotifyMailListener' => function($locator){
         			$mailService = $locator->get('AcMailer\Service\MailService');
-        			$rv = new NotifyMailListener($mailService);
+        			$userService = $locator->get('User\UserService');
+        			$rv = new NotifyMailListener($mailService, $userService);
         			return $rv;
         		},
             	'TaskManagement\TaskCommandsListener' => function ($locator) {

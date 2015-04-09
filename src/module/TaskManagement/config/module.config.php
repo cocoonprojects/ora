@@ -47,6 +47,9 @@ return array(
 		'template_path_stack' => array(
 			'task-management' => __DIR__ . '/../view',
 		),
+		'template_map' => array (
+				'mail-notification/mail-notification-template' => __DIR__ . '/../view/mail-notification/mail-notification-template.phtml'
+		),
 	),
 	'asset_manager' => array(
 		'resolver_configs' => array(
@@ -118,6 +121,7 @@ return array(
 		),
 	),
 	'listeners' => array(
+		'TaskManagement\NotifyMailListener',	
 		'TaskManagement\StreamCommandsListener',
 		'TaskManagement\TaskCommandsListener',
 		'TaskManagement\TransferTaskSharesCreditsListener',
