@@ -45,7 +45,7 @@ before_script:
 
 script:
   - cd tests/unit
-  - phpunit
+  - phpunit --coverage-text
   - cd ../integration
   - phpunit
   - cd ..
