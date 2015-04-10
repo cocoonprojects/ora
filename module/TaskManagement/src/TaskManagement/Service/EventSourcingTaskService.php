@@ -120,48 +120,49 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		return $query->getArrayResult();		
 
 	}
-	
-	public function notifyMembersForShareAssignment(Task $task, RendererInterface $renderer, $taskMembersWithEmptyShares){
 
+	public function notifyMembersForShareAssignment(Task $task, RendererInterface $renderer, $taskMembersWithEmptyShares){
+	
 		$result = false;
-		
+	
 		foreach ($taskMembersWithEmptyShares as $taskMember){
-			
+				
 			//invio mail
 			$params = array(
-				'name' => $taskMember->getFirstname()." ".$taskMember->getLastname(),
-				'taskSubject' => $task->getSubject(),
-				'taskId' => $task->getId(),
-				'emailSubject' => "O.R.A. - your contribution is required!"
+					'name' => $taskMember->getFirstname()." ".$taskMember->getLastname(),
+					'taskSubject' => $task->getSubject(),
+					'taskId' => $task->getId(),
+					'emailSubject' => "O.R.A. - your contribution is required!"
 			);
-			
+				
 			$content = $renderer->render('task-management/email_templates/hurryup-taskmember', $params);
-
+	
 			$headers  = 'MIME-Version: 1.0' . "\r\n";
 			$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
 			$headers .= 'From: O.R.A. Team<orateam@ora.com>' . "\r\n";
-			
+				
 			$result = mail($taskMember->getEmail(), $params['emailSubject'], $content, $headers, 'orateam@ora.com');
-			
+				
 		}
-		
+	
 		return $result;
 	}
 
 	/**
 	 * Retrieve an array of members (Application\Entity\User) of $task that haven't assigned any share
-	 * 
+	 *
 	 * @param Task $task
 	 * @return array of Application\Entity\User or empty array
 	 */
 	public function findMembersWithEmptyShares(Task $task){
-		
+	
 		$members = array();
-		
+	
 		$readModelTask = $this->findTask($task->getId());
+
 		$taskMembers = $readModelTask->getMembers();
 		foreach($taskMembers as $taskMember){
-			
+
 			if(count($taskMember->getShare() == 0)){
 				$members[] = $taskMember->getMember();
 			}
@@ -170,4 +171,6 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		return $members;
 
 	}
+	
+
 }
