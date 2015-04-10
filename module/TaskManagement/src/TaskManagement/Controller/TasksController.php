@@ -278,7 +278,7 @@ class TasksController extends HATEOASRestfulController
 			}
 		}else{
 			$this->response->setStatusCode(404);
-		}
+		}	
 		
 		return $this->response;
 	}
@@ -327,38 +327,40 @@ class TasksController extends HATEOASRestfulController
     	return $this->userService;
     }
     
- /**
-     * Chiamata al metodo di taskService per inviare una notifica 
+
+    /**
+     * Chiamata al metodo di taskService per inviare una notifica
      * ai membri del task che non hanno ancora stimato
-     *  
+     *
      * @param array $taskRetrieved
      */
     private function notifySingleTaskForShareAssignment($taskRetrieved, $renderer){
-    	
+    	 
     	if(isset($taskRetrieved['TASK_ID'])){
-	    	//$taskToNotify = $this->taskService->findTask($taskRetrieved['TASK_ID']);			
+    		//$taskToNotify = $this->taskService->findTask($taskRetrieved['TASK_ID']);
     		$taskToNotify = $this->taskService->getTask($taskRetrieved['TASK_ID']);
-    		$taskMembersWithEmptyShares = $this->taskService->findMembersWithEmptyShares($taskToNotify);    		
-			$result = $this->taskService->notifyMembersForShareAssignment($taskToNotify, $renderer, $taskMembersWithEmptyShares);
-			return $result;
-    	}    
-    	return false;	
+    		$taskMembersWithEmptyShares = $this->taskService->findMembersWithEmptyShares($taskToNotify);
+    		$result = $this->taskService->notifyMembersForShareAssignment($taskToNotify, $renderer, $taskMembersWithEmptyShares);
+    		return $result;
+    	}
+    	return false;
     }
     
     /**
-     * Forza la chiusura di un singolo task solo per l'utente SYSTEM 
-     * 
-     * @param array $taskRetrieved 
+     * Forza la chiusura di un singolo task solo per l'utente SYSTEM
+     *
+     * @param array $taskRetrieved
      * @param User $closedBy
      */
     private function forceToCloseSingleTask($taskRetrieved, User $closedBy){
-    	
+    	 
     	if(isset($taskRetrieved['TASK_ID'])){
-    		
+    
     		$taskToClose = $this->taskService->getTask($taskRetrieved['TASK_ID']);
     		$taskToClose->close($closedBy);
 			return true;
     	}    	
     	return false;    
+
     }
 }
