@@ -42,9 +42,11 @@ return array(
 			'timebox-shares' => array(
 				'type' => 'Literal',
 				'options' => array(
+
 					'route'	   => '/task-management/tasks/applytimeboxforshares',
 					
 					'defaults' => array(
+					
 						'controller' => 'TaskManagement\Controller\Tasks',
 						'action' => 'applytimeboxforshares'
 					),
