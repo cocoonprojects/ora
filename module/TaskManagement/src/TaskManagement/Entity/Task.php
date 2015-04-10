@@ -60,6 +60,13 @@ class Task extends EditableEntity implements ResourceInterface
 	 */
 	private $members;
 	
+	/**
+	 * @ORM\Column(type="datetime")
+	 * @var \DateTime
+	 */
+	protected $acceptedAt;
+	
+	
 	public function __construct($id) 
 	{
 		$this->id = $id;
@@ -136,7 +143,7 @@ class Task extends EditableEntity implements ResourceInterface
 		return $this->members->containsKey($key);
 	}
 
-		/**
+	/**
 	 * @return TaskMember[]
 	 */
 	public function getMembers() {
@@ -228,4 +235,14 @@ class Task extends EditableEntity implements ResourceInterface
 		
 		return null;
 	}
+	
+	
+	public function getAcceptedAt() {
+		return $this->acceptedAt;
+	}
+	
+	public function setAcceptedAt(\DateTime $date) {
+		$this->acceptedAt = $date;
+	}
+	
 }

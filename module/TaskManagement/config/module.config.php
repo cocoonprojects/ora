@@ -39,6 +39,18 @@ return array(
 					),
 				),
 			),
+			'timebox-shares' => array(
+					'type' => 'Literal',
+					'options' => array(
+							'route'	   => '/task-management/tasks/timebox',
+								
+							'defaults' => array(
+									//'__NAMESPACE__' => 'TaskManagement\Controller',
+									'controller' => 'TaskManagement\Controller\Tasks',
+									'action' => 'applytimeboxforshares'
+							),
+					),
+			),
 		),
 	),
 	'translator' => array(),

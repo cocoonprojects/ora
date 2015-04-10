@@ -85,6 +85,7 @@ class TasksController extends HATEOASRestfulController
 		}
 
 		$streamID = $this->getRequest()->getQuery('streamID');
+
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks() : $this->taskService->findStreamTasks($streamID);
 
 		$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl);
@@ -271,5 +272,57 @@ class TasksController extends HATEOASRestfulController
 			return null;
 		}
 		return $account->getId();
+
+    }
+    
+	public function applytimeboxforsharesAction(){
+		
+		$timeboxForAcceptedTask = $this->getServiceLocator()->get('Config')['share_assignment_timebox'];
+		
+		$acceptedTaskIdsToNotify = $this->taskService->getAcceptedTaskIdsToNotify($timeboxForAcceptedTask);
+		$acceptedTaskIdsToClose = $this->taskService->getAcceptedTaskIdsToClose($timeboxForAcceptedTask);
+						
+		if(is_array($acceptedTaskIdsToNotify)){
+			array_map(array($this, 'notifySingleTaskForShareAssignment'),  $acceptedTaskIdsToNotify);
+		}
+		
+		if(is_array($acceptedTaskIdsToClose)){
+			array_map(array($this, 'closeSingleTask'),  $acceptedTaskIdsToClose);
+		}
+				
+		$this->response->setStatusCode(200);
+		return $this->response;
 	}
+    
+    /**
+     * Chiamata al metodo di taskService per inviare una notifica 
+     * ai membri del task che non hanno ancora stimato
+     *  
+     * @param array $taskRetrieved
+     */
+    private function notifySingleTaskForShareAssignment($taskRetrieved){
+    	
+    	if(isset($taskRetrieved['TASK_ID'])){
+	    	$taskToNotify = $this->taskService->getTask($taskRetrieved['TASK_ID']);			
+			if($taskToNotify instanceof Task){				
+				$this->taskService->notifyMembersForShareAssignment($taskToNotify);	
+			}	
+    	}    	
+    }
+    
+    /**
+     * Chiude un singolo task 
+     * 
+     * @param $taskRetrieved
+     */
+    private function closeSingleTask($taskRetrieved){
+    	
+    	if(isset($taskRetrieved['TASK_ID'])){
+    		$closedBy = $this->identity()['user'];
+    		$taskToClose = $this->taskService->getTask($taskRetrieved['TASK_ID']);			
+			if($taskToClose instanceof Task){
+				$taskToClose->close($closedBy);	
+			}
+    	}
+    }
 }
