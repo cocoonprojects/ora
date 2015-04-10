@@ -12,4 +12,7 @@
  */
 
 return array(
+
+	'share_assignment_timebox' => new \DateInterval('P7D')
+
 );

@@ -127,7 +127,63 @@ class TasksControllerTest extends ControllerTest
 		$this->assertArrayHasKey('ora:create', $arrayResult['_links']);
 	}
 	
-	protected function getLoggedUser() {
-		return $this->controller->identity()['user'];
+public function testApplyTimeboxToCloseAnAcceptedTasks(){
+		
+		$taskToClose = $this->setupTask();
+		$taskToClose->addMember($this->getLoggedUser(), Task::ROLE_OWNER);
+		$taskToClose->addEstimation(1, $this->getLoggedUser());
+		$taskToClose->complete($this->getLoggedUser());
+		$taskToClose->accept($this->getLoggedUser());
+		
+		$this->taskServiceStub
+        	->expects($this->once())
+        	->method('getAcceptedTaskIdsToNotify')        	
+        	->willReturn(array());
+		
+		$this->taskServiceStub
+        	->expects($this->once())
+        	->method('getAcceptedTaskIdsToClose')        	
+        	->willReturn(array($taskToClose->getId()));
+        	
+        $this->taskServiceStub
+        	->expects($this->once())
+        	->method('getTask')        	
+        	->willReturn($taskToClose);	
+        	
+        //dispatch
+        $this->request->setMethod('GET'); 
+        $this->routeMatch->setParam('action', 'applytimeboxforshares');      
+        $result = $this->controller->dispatch($this->request);	
+        $response = $this->controller->getResponse();
+        	
+        //controllo che il task abbia lo stato corretto
+		$this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Task::STATUS_CLOSED, $taskToClose->getStatus());
+        
 	}
+		
+	protected function setupStream(){
+		
+		$organization = Organization::create('My brand new Orga', $this->getLoggedUser());
+        return Stream::create($organization, 'Really useful stream', $this->getLoggedUser());
+	}
+	
+	protected function setupTask(){
+		
+		$stream = $this->setupStream();
+		return Task::create($stream, 'task subject', $this->getLoggedUser());		
+	}
+	    
+	protected function setupLoggedUser(User $user) {
+    	$identity = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Identity')
+    		->disableOriginalConstructor()
+    		->getMock();
+    	$identity->method('__invoke')->willReturn(['user' => $user]);
+    	
+    	$this->controller->getPluginManager()->setService('identity', $identity);
+    }
+    
+    protected function getLoggedUser() {
+    	return $this->controller->identity()['user'];
+    }
 }

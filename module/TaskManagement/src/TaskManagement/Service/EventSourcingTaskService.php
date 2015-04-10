@@ -90,4 +90,47 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		}
 		return $this->events;
 	}
+	
+	public function getAcceptedTaskIdsToNotify(\DateInterval $timeboxForAcceptedTask){
+		
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('t.id as TASK_ID')
+			->from(ReadModelTask::class, 't')			
+			->where('DATE_DIFF(CURRENT_DATE(), t.acceptedAt) = '.$timeboxForAcceptedTask->format('%d') . '-1')			
+			->andWhere('t.status = :taskStatus')			
+			->setParameter('taskStatus', Task::STATUS_ACCEPTED)			
+			->getQuery();			
+			
+		return $query->getArrayResult();		
+	}
+	
+	
+	public function getAcceptedTaskIdsToClose(\DateInterval $timeboxForAcceptedTask){
+		
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('t.id as TASK_ID')
+			->from(ReadModelTask::class, 't')			
+			->where('DATE_DIFF(CURRENT_DATE(), t.acceptedAt) >= :interval')
+			->andWhere('t.status = :taskStatus')			
+			->setParameter('interval', $timeboxForAcceptedTask->format('%d'))
+			->setParameter('taskStatus', Task::STATUS_ACCEPTED)
+			->getQuery();			
+			
+		return $query->getArrayResult();		
+	}
+	
+	
+	public function notifyMembersForShareAssignment(Task $task){
+		
+		var_dump($task->getMembers());die();
+		
+		foreach ($task->getMembers() as $memberId=>$memberFields){
+			
+			if(!isset($memberFields['share'])){
+				//invio mail ( agli utenti attivi ? ) 
+				echo($memberFields['email']." ASSEGNA GLI SHARE!!\n"); 
+			}
+		}
+		die();		
+	}
 }

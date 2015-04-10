@@ -29,4 +29,10 @@ interface TaskService
 	public function findTask($id);
 	
 	public function findStreamTasks($streamId);
+	
+	public function getAcceptedTaskIdsToNotify(\DateInterval $interval);
+	
+	public function getAcceptedTaskIdsToClose(\DateInterval $interval);
+	
+	public function notifyMembersForShareAssignment(Task $task);
 }

@@ -136,6 +136,7 @@ class Task extends DomainEntity
 		$this->recordThat(TaskClosed::occur($this->id->toString(), array(
 				'by' => $closedBy->getId(),
 		)));
+		
 		$this->getEventManager()->trigger(Task::EVENT_CLOSED, $this, ['by' => $closedBy]);
 		return $this;
 	}
@@ -196,6 +197,7 @@ class Task extends DomainEntity
 			'userId' => $user->getId(),
 			'accountId' => $accountId,
 			'role' => $role,
+			'email' => $user->getEmail(),
 			'by' => $by->getId(),
 		)));
 		return $this;
@@ -424,6 +426,9 @@ class Task extends DomainEntity
 		$this->members[$id]['role'] = $p['role'];
 		if(isset($p['accountId'])) {
 			$this->members[$id]['accountId'] = $p['accountId'];
+		}
+		if(isset($p['email'])) {
+			$this->members[$id]['email'] = $p['email'];
 		}
 	}
 
