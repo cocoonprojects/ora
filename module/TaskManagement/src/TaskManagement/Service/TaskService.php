@@ -38,4 +38,5 @@ interface TaskService
 	public function notifyMembersForShareAssignment(Task $task, RendererInterface $renderer, $taskMembersWithEmptyShares);
 	
 	public function findMembersWithEmptyShares(Task $task);
+
 }

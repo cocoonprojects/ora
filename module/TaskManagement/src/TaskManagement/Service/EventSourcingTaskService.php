@@ -120,7 +120,6 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		return $query->getArrayResult();		
 	}
 	
-	
 	public function notifyMembersForShareAssignment(Task $task, RendererInterface $renderer, $taskMembersWithEmptyShares){
 
 		$result = false;
