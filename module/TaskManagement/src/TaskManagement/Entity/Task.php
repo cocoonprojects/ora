@@ -65,6 +65,7 @@ class Task extends EditableEntity implements ResourceInterface
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> created timebox for share assignment
 	 * @ORM\Column(type="datetime", nullable=true)
@@ -80,6 +81,9 @@ class Task extends EditableEntity implements ResourceInterface
 >>>>>>> adding system user
 =======
 >>>>>>> created timebox for share assignment
+=======
+ 	 * @ORM\Column(type="datetime", nullable=true)
+>>>>>>> adding system user
 	 * @var \DateTime
 	 */
 	protected $acceptedAt;
