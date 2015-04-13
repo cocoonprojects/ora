@@ -16,10 +16,12 @@ use Accounting\Service\AccountService;
 use TaskManagement\Task;
 use TaskManagement\View\TaskJsonModel;
 use TaskManagement\Service\TaskService;
+
 use TaskManagement\Service\StreamService;
 use Application\Service\UserService;
 use Zend\Console\Request as ConsoleRequest;
 use Zend\Console\Exception\RuntimeException as ConsoleRuntimeException;
+
 
 class TasksController extends HATEOASRestfulController
 {
@@ -248,7 +250,7 @@ class TasksController extends HATEOASRestfulController
     }
     
 	public function applytimeboxforsharesAction(){
-
+		
 		if(isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] == 'localhost'){
 			$request = $this->getRequest();
 				
@@ -280,8 +282,8 @@ class TasksController extends HATEOASRestfulController
 			$this->response->setStatusCode(404);
 		}
 		
-		return $this->response;	
-	
+		return $this->response;
+		
 	}
 	    
     public function setAccountService(AccountService $accountService) {
@@ -319,12 +321,7 @@ class TasksController extends HATEOASRestfulController
     	return $account->getId();
     }
     
-    public function setUserService(UserService $userService){
-    	$this->userService = $userService;
-    	return $this;
-    }
-
-    public function setUserService(UserService $userService){
+	public function setUserService(UserService $userService){
     	$this->userService = $userService;
     	return $this;
     }
@@ -346,9 +343,7 @@ class TasksController extends HATEOASRestfulController
     		$taskToNotify = $this->taskService->getTask($taskRetrieved['TASK_ID']);
     		$taskMembersWithEmptyShares = $this->taskService->findMembersWithEmptyShares($taskToNotify);    		
 			$result = $this->taskService->notifyMembersForShareAssignment($taskToNotify, $renderer, $taskMembersWithEmptyShares);
-
 			return $result;
-
     	}    
     	return false;	
     }
@@ -360,16 +355,13 @@ class TasksController extends HATEOASRestfulController
      * @param User $closedBy
      */
     private function forceToCloseSingleTask($taskRetrieved, User $closedBy){
-
-    	if($closedBy->getId() == User::SYSTEM_USER){
+    	
+    	if(isset($taskRetrieved['TASK_ID'])){
     		
-    		if(isset($taskRetrieved['TASK_ID'])){
-    		
-    			$taskToClose = $this->taskService->getTask($taskRetrieved['TASK_ID']);
-    			$taskToClose->close($closedBy);
-    			return true;
-    		}
-    		return false;
-    	}
+    		$taskToClose = $this->taskService->getTask($taskRetrieved['TASK_ID']);
+    		$taskToClose->close($closedBy);
+			return true;
+    	}    	
+    	return false;    
     }
 }

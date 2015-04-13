@@ -19,6 +19,7 @@ use TaskManagement\Service\EventSourcingTaskService;
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
 	public function getControllerConfig() 
+<<<<<<< HEAD
 
 	{
 		return array(
@@ -33,6 +34,31 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$acl = $locator->get('Application\Service\Acl');
 					$controller = new TasksController($taskService, $streamService, $acl);
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
+=======
+    {
+        return array(
+            'invokables' => array(
+	            'TaskManagement\Controller\Index' => 'TaskManagement\Controller\IndexController',
+            ),
+            'factories' => array(
+	            'TaskManagement\Controller\Tasks' => function ($sm) {
+	            	$locator = $sm->getServiceLocator();
+	            	$taskService = $locator->get('TaskManagement\TaskService');
+	            	$streamService = $locator->get('TaskManagement\StreamService');
+	            	$authorize = $locator->get('BjyAuthorize\Service\Authorize');
+	            	$controller = new TasksController($taskService, $streamService, $authorize);
+	            	$accountService = $locator->get('Accounting\CreditsAccountsService');
+	            	$controller->setAccountService($accountService);
+	            	$userService = $locator->get('Application\UserService');
+	            	$controller->setUserService($userService);
+	            	return $controller;
+	            },
+	            'TaskManagement\Controller\Members' => function ($sm) {
+            		$locator = $sm->getServiceLocator();
+            		$taskService = $locator->get('TaskManagement\TaskService');
+            		$accountService = $locator->get('Accounting\CreditsAccountsService');
+            		$controller = new MembersController($taskService);
+>>>>>>> adding system user
 					$controller->setAccountService($accountService);
 					return $controller;
 				},
