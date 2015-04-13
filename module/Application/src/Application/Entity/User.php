@@ -21,6 +21,8 @@ class User implements RoleInterface
 	CONST ROLE_GUEST = 'guest';
 	CONST ROLE_USER = 'user';
 	
+	CONST SYSTEM_USER = '00000000-0000-0000-0000-000000000000';
+	
 	CONST EVENT_CREATED = "User.Created";
 
 	/**

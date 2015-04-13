@@ -17,6 +17,7 @@ use TaskManagement\Task;
 use TaskManagement\View\TaskJsonModel;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
+use Application\Service\UserService;
 
 class TasksController extends HATEOASRestfulController
 {
@@ -43,6 +44,12 @@ class TasksController extends HATEOASRestfulController
 	 * @var AccountService
 	 */
 	private $accountService;
+	/**
+	 * 
+	 * 
+	 * @var UserService
+	 */
+	private $userService;
 	
 	public function __construct(TaskService $taskService, StreamService $streamService, Acl $acl)
 	{
@@ -239,61 +246,71 @@ class TasksController extends HATEOASRestfulController
 		return $this->response;
 	}
 
-	public function setAccountService(AccountService $accountService) {
-		$this->accountService = $accountService;
-		return $this;
-	}
-
-	public function getAccountService() {
-		return $this->accountService;
-	}
-
-	public function getTaskService() 
-	{
-		return $this->taskService;
-	}
-
-	protected function getCollectionOptions()
-	{
-		return self::$collectionOptions;
-	}
-
-	protected function getResourceOptions()
-	{
-		return self::$resourceOptions;
-	}
-
-	protected function getAccountId(User $user) {
-		if(is_null($this->accountService)){
-			return null;
-		}
-		$account = $this->accountService->findPersonalAccount($user);
-		if(is_null($account)) {
-			return null;
-		}
-		return $account->getId();
-
-    }
-    
+	
 	public function applytimeboxforsharesAction(){
 		
 		$timeboxForAcceptedTask = $this->getServiceLocator()->get('Config')['share_assignment_timebox'];
 		
 		$acceptedTaskIdsToNotify = $this->taskService->getAcceptedTaskIdsToNotify($timeboxForAcceptedTask);
 		$acceptedTaskIdsToClose = $this->taskService->getAcceptedTaskIdsToClose($timeboxForAcceptedTask);
-						
+								
 		if(is_array($acceptedTaskIdsToNotify)){
 			array_map(array($this, 'notifySingleTaskForShareAssignment'),  $acceptedTaskIdsToNotify);
 		}
 		
 		if(is_array($acceptedTaskIdsToClose)){
-			array_map(array($this, 'closeSingleTask'),  $acceptedTaskIdsToClose);
+			$closedBy = $this->userService->findUser(User::SYSTEM_USER);
+			array_map(array($this, 'closeSingleTask'),  $acceptedTaskIdsToClose, array($closedBy));
 		}
 				
 		$this->response->setStatusCode(200);
 		return $this->response;
 	}
     
+    public function setAccountService(AccountService $accountService) {
+    	$this->accountService = $accountService;
+    	return $this;
+    }
+    
+    public function getAccountService() {
+    	return $this->accountService;
+    }
+    
+	public function getTaskService() 
+    {
+        return $this->taskService;
+    }
+        
+    protected function getCollectionOptions()
+    {
+        return self::$collectionOptions;
+    }
+    
+    protected function getResourceOptions()
+    {
+        return self::$resourceOptions;
+    }   
+    
+    protected function getAccountId(User $user) {
+    	if(is_null($this->accountService)){
+    		return null;
+    	}
+    	$account = $this->accountService->findPersonalAccount($user);
+    	if(is_null($account)) {
+    		return null;
+    	}
+    	return $account->getId();
+    }
+    
+    public function setUserService(UserService $userService){
+    	$this->userService = $userService;
+    	return $this;
+    }
+    
+    public function getUserService(){
+    	return $this->userService;
+    }
+
     /**
      * Chiamata al metodo di taskService per inviare una notifica 
      * ai membri del task che non hanno ancora stimato
@@ -305,24 +322,31 @@ class TasksController extends HATEOASRestfulController
     	if(isset($taskRetrieved['TASK_ID'])){
 	    	$taskToNotify = $this->taskService->getTask($taskRetrieved['TASK_ID']);			
 			if($taskToNotify instanceof Task){				
-				$this->taskService->notifyMembersForShareAssignment($taskToNotify);	
+				$this->taskService->notifyMembersForShareAssignment($taskToNotify);
+				return true;	
 			}	
-    	}    	
+    	}    
+    	return false;	
     }
     
     /**
-     * Chiude un singolo task 
+     * Forza la chiusura di un singolo task solo per l'utente SYSTEM 
      * 
-     * @param $taskRetrieved
+     * @param array $taskRetrieved
+     * @param User $closedBy
      */
-    private function closeSingleTask($taskRetrieved){
-    	
-    	if(isset($taskRetrieved['TASK_ID'])){
-    		$closedBy = $this->identity()['user'];
-    		$taskToClose = $this->taskService->getTask($taskRetrieved['TASK_ID']);			
-			if($taskToClose instanceof Task){
-				$taskToClose->close($closedBy);	
-			}
-    	}
+    private function closeSingleTask($taskRetrieved, User $closedBy){
+    	    	
+    	if($closedBy->getId() == User::SYSTEM_USER){
+    		
+	    	if(isset($taskRetrieved['TASK_ID'])){
+	    		$taskToClose = $this->taskService->getTask($taskRetrieved['TASK_ID']);			
+				if($taskToClose instanceof Task){
+					$taskToClose->close($closedBy);
+					return true;	
+				}
+	    	}	
+    	}    	
+    	return false;
     }
 }
