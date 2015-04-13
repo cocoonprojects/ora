@@ -22,22 +22,28 @@ use TaskManagement\Service\EventSourcingTaskService;
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
 	public function getControllerConfig() 
-
-	{
-		return array(
-			'invokables' => array(
-				'TaskManagement\Controller\Index' => 'TaskManagement\Controller\IndexController',
-			),
-			'factories' => array(
-				'TaskManagement\Controller\Tasks' => function ($sm) {
-					$locator = $sm->getServiceLocator();
+    {
+        return array(
+            'invokables' => array(
+	            'TaskManagement\Controller\Index' => 'TaskManagement\Controller\IndexController',
+            ),
+            'factories' => array(
+	            'TaskManagement\Controller\Tasks' => function ($sm) {
+	            	$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$streamService = $locator->get('TaskManagement\StreamService');
 					$acl = $locator->get('Application\Service\Acl');
 					$controller = new TasksController($taskService, $streamService, $acl);
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
 					$controller->setAccountService($accountService);
-
+					return $controller;
+	            },
+	            'TaskManagement\Controller\Members' => function ($sm) {
+            		$locator = $sm->getServiceLocator();
+            		$taskService = $locator->get('TaskManagement\TaskService');
+            		$accountService = $locator->get('Accounting\CreditsAccountsService');
+            		$controller = new MembersController($taskService);
+					$controller->setAccountService($accountService);
 					return $controller;
 				},
 				'TaskManagement\Controller\Members' => function ($sm) {
