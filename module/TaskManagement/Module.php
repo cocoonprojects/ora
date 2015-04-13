@@ -19,6 +19,7 @@ use TaskManagement\Service\EventSourcingTaskService;
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
 	public function getControllerConfig() 
+
 	{
 		return array(
 			'invokables' => array(

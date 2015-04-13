@@ -21,6 +21,7 @@ use Application\Service\UserService;
 use Zend\Console\Request as ConsoleRequest;
 use Zend\Console\Exception\RuntimeException as ConsoleRuntimeException;
 
+
 class TasksController extends HATEOASRestfulController
 {
     protected static $collectionOptions = ['GET', 'POST'];
@@ -324,6 +325,11 @@ class TasksController extends HATEOASRestfulController
     	$this->userService = $userService;
     	return $this;
     }
+
+    public function setUserService(UserService $userService){
+    	$this->userService = $userService;
+    	return $this;
+    }
     
     public function getUserService(){
     	return $this->userService;
@@ -355,13 +361,16 @@ class TasksController extends HATEOASRestfulController
      */
     private function forceToCloseSingleTask($taskRetrieved, User $closedBy){
     	
-    	if(isset($taskRetrieved['TASK_ID'])){
+    	if($closedBy->getId() == User::SYSTEM_USER){
     		
-    		$taskToClose = $this->taskService->getTask($taskRetrieved['TASK_ID']);
-    		$taskToClose->close($closedBy);
-			return true;
-    	}    	
-    	return false;    
+    		if(isset($taskRetrieved['TASK_ID'])){
+    		
+    			$taskToClose = $this->taskService->getTask($taskRetrieved['TASK_ID']);
+    			$taskToClose->close($closedBy);
+    			return true;
+    		}
+    		return false;
+    	}
     }
  
 }
