@@ -16,6 +16,7 @@ use Accounting\Service\AccountService;
 use TaskManagement\Task;
 use TaskManagement\View\TaskJsonModel;
 use TaskManagement\Service\TaskService;
+
 use TaskManagement\Service\StreamService;
 use Application\Service\UserService;
 use Zend\Console\Request as ConsoleRequest;
@@ -280,8 +281,8 @@ class TasksController extends HATEOASRestfulController
 		}else{
 			$this->response->setStatusCode(404);
 		}	
-		
 		return $this->response;
+
 	}
 
     public function setAccountService(AccountService $accountService) {
@@ -339,30 +340,33 @@ class TasksController extends HATEOASRestfulController
     private function notifySingleTaskForShareAssignment($taskRetrieved, $renderer){
     	 
     	if(isset($taskRetrieved['TASK_ID'])){
-    		//$taskToNotify = $this->taskService->findTask($taskRetrieved['TASK_ID']);
-    		$taskToNotify = $this->taskService->getTask($taskRetrieved['TASK_ID']);
-    		$taskMembersWithEmptyShares = $this->taskService->findMembersWithEmptyShares($taskToNotify);
-    		$result = $this->taskService->notifyMembersForShareAssignment($taskToNotify, $renderer, $taskMembersWithEmptyShares);
-    		return $result;
-    	}
-    	return false;
+
+	    	$taskToNotify = $this->taskService->getTask($taskRetrieved['TASK_ID']);			
+			if($taskToNotify instanceof Task){				
+				$this->taskService->notifyMembersForShareAssignment($taskToNotify);
+				return true;	
+			}	
+    	}    
+    	return false;	
     }
     
     /**
-     * Forza la chiusura di un singolo task solo per l'utente SYSTEM
-     *
+     * Forza la chiusura di un singolo task solo per l'utente SYSTEM 
+     * 
      * @param array $taskRetrieved
      * @param User $closedBy
      */
+
     private function forceToCloseSingleTask($taskRetrieved, User $closedBy){
     	 
-    	if(isset($taskRetrieved['TASK_ID'])){
-    
-    		$taskToClose = $this->taskService->getTask($taskRetrieved['TASK_ID']);
-    		$taskToClose->close($closedBy);
-			return true;
-    	}    	
-    	return false;    
-
+	    if($closedBy->getId() == User::SYSTEM_USER){
+	    	if(isset($taskRetrieved['TASK_ID'])){
+	    
+	    		$taskToClose = $this->taskService->getTask($taskRetrieved['TASK_ID']);
+	    		$taskToClose->close($closedBy);
+				return true;
+	    	}    	
+	    	return false;    
+	    }
     }
 }

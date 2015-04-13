@@ -61,7 +61,7 @@ class Task extends EditableEntity implements ResourceInterface
 	private $members;
 	
 	/**
-	 * @ORM\Column(type="datetime", nullable=true)
+ 	 * @ORM\Column(type="datetime", nullable=true)
 	 * @var \DateTime
 	 */
 	protected $acceptedAt;
