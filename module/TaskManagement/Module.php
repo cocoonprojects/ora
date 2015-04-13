@@ -22,6 +22,7 @@ use TaskManagement\Service\EventSourcingTaskService;
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
 	public function getControllerConfig() 
+
 	{
 		return array(
 			'invokables' => array(
@@ -36,6 +37,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$controller = new TasksController($taskService, $streamService, $acl);
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
 					$controller->setAccountService($accountService);
+
 					return $controller;
 				},
 				'TaskManagement\Controller\Members' => function ($sm) {
