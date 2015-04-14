@@ -24,10 +24,8 @@ class User implements RoleInterface
 	
 	CONST SYSTEM_USER = '00000000-0000-0000-0000-000000000000';
 	
-	CONST SYSTEM_USER = '00000000-0000-0000-0000-000000000000';
-	
 	CONST EVENT_CREATED = "User.Created";
-	
+
 	/**
 	 * @ORM\Id @ORM\Column(type="string") 
 	 * @var string
