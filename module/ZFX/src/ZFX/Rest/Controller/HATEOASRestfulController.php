@@ -57,7 +57,6 @@ abstract class HATEOASRestfulController extends AbstractRestfulController
 		// Register a listener at high priority
 		$events->attach('dispatch', array($this, 'checkOptions'), 10);
 	}
-
 	//Supporting POST with id set
 	public function onDispatch(MvcEvent $e)
 	{

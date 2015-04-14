@@ -42,7 +42,6 @@ return array(
 			'timebox-shares' => array(
 				'type' => 'Literal',
 				'options' => array(
-
 					'route'	   => '/task-management/tasks/applytimeboxforshares',
 					'defaults' => array(
 						'controller' => 'TaskManagement\Controller\Tasks',
@@ -50,7 +49,6 @@ return array(
 					),
 				),
 			),
-
 		),
 	),
 	'translator' => array(),
@@ -90,6 +88,5 @@ return array(
 		'TaskManagement\TransferTaskSharesCreditsListener',
 		'TaskManagement\CloseTaskListener',
 	)
-	
 	
 );
