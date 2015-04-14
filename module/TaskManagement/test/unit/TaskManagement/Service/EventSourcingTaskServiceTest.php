@@ -45,6 +45,8 @@ class EventSourcingTaskServiceTest extends TestCase {
 		
 		$this->taskService->notifyMembersForShareAssignment($taskToNotify);
 		
+		//TODO: completare il test con le assertions
+		
 	}
 	
 	protected function setupStream(){
