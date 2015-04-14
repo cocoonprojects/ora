@@ -54,6 +54,8 @@ class EventSourcingTaskServiceTest extends TestCase {
 // 		//$this->assertContains($needle, $response->recipients, $description);
 // 		//$this->assertNotEmpty($this->getMessages());
 		
+		//TODO: completare il test con le assertions
+		
 	}
 	
 	protected function setupStream(){
