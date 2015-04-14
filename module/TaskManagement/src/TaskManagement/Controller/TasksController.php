@@ -18,6 +18,7 @@ use TaskManagement\View\TaskJsonModel;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
 use Application\Service\UserService;
+use Zend\Console\Request as ConsoleRequest;
 
 class TasksController extends HATEOASRestfulController
 {
