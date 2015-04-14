@@ -243,13 +243,12 @@ class TasksController extends HATEOASRestfulController
 			$this->response->setStatusCode(200);
 		} catch (IllegalStateException $e) {
 			$this->transaction()->rollback();
-			$this->response->setStatusCode(412);	// Preconditions failed
+            $this->response->setStatusCode(412);	// Preconditions failed			
 		}
-
-		return $this->response;
-	}
-
-	
+      	
+        return $this->response;
+    }
+    
 	public function applytimeboxforsharesAction(){
 		
 		if(isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] == 'localhost'){
@@ -284,6 +283,7 @@ class TasksController extends HATEOASRestfulController
 		}
 		
 		return $this->response;
+		
 		
 	}
 

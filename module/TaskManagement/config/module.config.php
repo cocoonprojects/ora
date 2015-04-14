@@ -44,14 +44,13 @@ return array(
 				'options' => array(
 
 					'route'	   => '/task-management/tasks/applytimeboxforshares',
-					
 					'defaults' => array(
-					
 						'controller' => 'TaskManagement\Controller\Tasks',
 						'action' => 'applytimeboxforshares'
 					),
 				),
 			),
+
 		),
 	),
 	'translator' => array(),
@@ -91,4 +90,21 @@ return array(
 		'TaskManagement\TransferTaskSharesCreditsListener',
 		'TaskManagement\CloseTaskListener',
 	),
+	'console' => array(
+        'router' => array(
+            'routes' => array(
+                'scheduled-timebox-shares' => array(					
+					'options' => array(
+						'route'	   => 'apply timebox',						
+						'defaults' => array(
+							'controller' => 'TaskManagement\Controller\Tasks',
+							'action' => 'applytimeboxforshares'
+						),
+					),
+				),
+            )
+        )
+    ),
+	
+	
 );
