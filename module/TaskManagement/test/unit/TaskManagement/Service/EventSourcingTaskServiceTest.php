@@ -44,14 +44,15 @@ class EventSourcingTaskServiceTest extends TestCase {
 	
 	public function testNotifyMembersForShareAssigment() {
 
-// 		$renderer = new RendererInterface();
-// 		$noMembersWithEmptyShares = array();		
-// 		$this->assertFalse($this->taskService->notifyMembersForShareAssignment($taskMembersWithEmptyShares, $renderer, ''));
-// 		//$response = $this->getLastEmailMessage();
-// 		//$this->assertContains($needle, (string)$response->getBody(), $description);
-// 		//$this->assertEquals($expected, $response->sender, $description);
-// 		//$this->assertContains($needle, $response->recipients, $description);
-// 		//$this->assertNotEmpty($this->getMessages());
+		$taskToNotify = $this->setupTask();
+		$this->user->setEmail('user@email.com');
+		
+		$taskToNotify->addMember($this->user, Task::ROLE_OWNER);
+		$taskToNotify->addEstimation(1, $this->user);
+		$taskToNotify->complete($this->user);
+		$taskToNotify->accept($this->user);		
+		
+		$this->taskService->notifyMembersForShareAssignment($taskToNotify);
 		
 		//TODO: completare il test con le assertions
 

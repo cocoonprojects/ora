@@ -28,6 +28,7 @@ use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
 use TaskManagement\Task;
 use Application\Service\UserService;
+use Zend\Console\Request as ConsoleRequest;
 
 
 class TasksControllerTest extends ControllerTest
@@ -299,8 +300,7 @@ class TasksControllerTest extends ControllerTest
         //dispatch
         $this->routeMatch->setParam('action', 'applytimeboxforshares');
         $result = $this->controller->dispatch($this->request);
-        
-        $response = $this->controller->getResponse();
+		$response = $this->controller->getResponse();
         
         //controllo che il task abbia lo stato corretto
 		$this->assertEquals(200, $response->getStatusCode());
