@@ -283,6 +283,7 @@ class TasksController extends HATEOASRestfulController
 		
 		return $this->response;
 		
+		
 	}
 	    
     public function setAccountService(AccountService $accountService) {
