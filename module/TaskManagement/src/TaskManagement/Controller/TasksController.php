@@ -247,32 +247,40 @@ class TasksController extends HATEOASRestfulController
     
 	public function applytimeboxforsharesAction(){
 		
-		$timeboxForAcceptedTask = $this->getServiceLocator()->get('Config')['share_assignment_timebox'];
+		$request = $this->getRequest();
 		
-		$acceptedTaskIdsToNotify = $this->taskService->getAcceptedTaskIdsToNotify($timeboxForAcceptedTask);
-		$acceptedTaskIdsToClose = $this->taskService->getAcceptedTaskIdsToClose($timeboxForAcceptedTask);
-										
-		if(is_array($acceptedTaskIdsToNotify)){
-			array_map(array($this, 'notifySingleTaskForShareAssignment'),  $acceptedTaskIdsToNotify);
-		}
-		
-		if(is_array($acceptedTaskIdsToClose)){
+		if ($request instanceof ConsoleRequest) {
+			$timeboxForAcceptedTask = $this->getServiceLocator()->get('Config')['share_assignment_timebox'];
 			
-			$this->transaction()->begin();
-			try{
-				$closedBy = $this->userService->findUser(User::SYSTEM_USER);
-				array_map(array($this, 'forceToCloseSingleTask'),  $acceptedTaskIdsToClose, array($closedBy));
-				$this->transaction()->commit();
-	      		$this->response->setStatusCode(200);	
-			}catch(IllegalStateException $ex){
-				$this->transaction()->rollback();
-           		$this->response->setStatusCode(412);	// Preconditions failed	
-			}catch(InvalidArgumentException $ex){
-				$this->transaction()->rollback();
-				$this->response->setStatusCode(400);
+			$acceptedTaskIdsToNotify = $this->taskService->getAcceptedTaskIdsToNotify($timeboxForAcceptedTask);
+			$acceptedTaskIdsToClose = $this->taskService->getAcceptedTaskIdsToClose($timeboxForAcceptedTask);
+											
+			if(is_array($acceptedTaskIdsToNotify)){
+				array_map(array($this, 'notifySingleTaskForShareAssignment'),  $acceptedTaskIdsToNotify);
+			}
+			
+			if(is_array($acceptedTaskIdsToClose)){
+				
+				$this->transaction()->begin();
+				try{
+					$closedBy = $this->userService->findUser(User::SYSTEM_USER);
+					array_map(array($this, 'forceToCloseSingleTask'),  $acceptedTaskIdsToClose, array($closedBy));
+					$this->transaction()->commit();
+		      		$this->response->setStatusCode(200);	
+				}catch(IllegalStateException $ex){
+					$this->transaction()->rollback();
+	           		$this->response->setStatusCode(412);	// Preconditions failed	
+				}catch(InvalidArgumentException $ex){
+					$this->transaction()->rollback();
+					$this->response->setStatusCode(400);
+				}			
 			}			
+		}else{
+			$this->response->setStatusCode(403);
 		}
-		return $this->response;
+		
+		return $this->response;	
+		
 	}
     
     public function setAccountService(AccountService $accountService) {
