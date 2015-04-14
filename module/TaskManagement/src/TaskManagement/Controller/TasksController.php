@@ -251,7 +251,7 @@ class TasksController extends HATEOASRestfulController
     }
     
 	public function applytimeboxforsharesAction(){
-	
+		
 		if(isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] == 'localhost'){
 
 			$request = $this->getRequest();
@@ -285,7 +285,6 @@ class TasksController extends HATEOASRestfulController
 			$this->response->setStatusCode(404);
 		}	
 		return $this->response;
-
 	}
 
     public function setAccountService(AccountService $accountService) {

@@ -48,8 +48,8 @@ return array(
 						'action' => 'applytimeboxforshares'
 					),
 				),
-
 			),
+
 		),
 	),
 	'translator' => array(),
