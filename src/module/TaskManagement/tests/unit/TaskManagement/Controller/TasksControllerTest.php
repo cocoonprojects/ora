@@ -20,6 +20,7 @@ use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
 use TaskManagement\Task;
 use Application\Service\UserService;
+use Zend\Console\Request as ConsoleRequest;
 
 class TasksControllerTest extends \PHPUnit_Framework_TestCase {
 	
@@ -194,11 +195,12 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
         	->willReturn($taskToClose);	
         	
         //dispatch
-        $this->request->setMethod('GET'); 
-        $this->routeMatch->setParam('action', 'applytimeboxforshares');      
-        $result = $this->controller->dispatch($this->request);	
+        $consoleRequest = new ConsoleRequest();
+        $this->routeMatch->setParam('action', 'applytimeboxforshares');
+        $result = $this->controller->dispatch($consoleRequest);
+        
         $response = $this->controller->getResponse();
-        	
+        
         //controllo che il task abbia lo stato corretto
 		$this->assertEquals(200, $response->getStatusCode());
         $this->assertEquals(Task::STATUS_CLOSED, $taskToClose->getStatus());
