@@ -20,11 +20,12 @@ class User implements RoleInterface
 	CONST ROLE_ADMIN = 'admin';
 	CONST ROLE_GUEST = 'guest';
 	CONST ROLE_USER = 'user';
+	CONST ROLE_SYSTEM = 'system';
 	
 	CONST SYSTEM_USER = '00000000-0000-0000-0000-000000000000';
 	
 	CONST EVENT_CREATED = "User.Created";
-
+	
 	/**
 	 * @ORM\Id @ORM\Column(type="string") 
 	 * @var string
