@@ -121,9 +121,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	
 	
 	public function notifyMembersForShareAssignment(Task $task){
-		
-		var_dump($task->getMembers());die();
-		
+				
 		foreach ($task->getMembers() as $memberId=>$memberFields){
 			
 			if(!isset($memberFields['share'])){
@@ -131,6 +129,6 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 				echo($memberFields['email']." ASSEGNA GLI SHARE!!\n"); 
 			}
 		}
-		die();		
+				
 	}
 }
