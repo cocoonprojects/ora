@@ -127,8 +127,24 @@ class TasksControllerTest extends ControllerTest
 		$this->assertArrayHasKey('ora:create', $arrayResult['_links']);
 	}
 	
-public function testApplyTimeboxToCloseAnAcceptedTasks(){
+	public function testApplyTimeboxToCloseAnAcceptedTasks(){
 		
+		$userStub = $this->getMockBuilder(User::class)
+        	->disableOriginalConstructor()
+        	->getMock();        	
+		 $userStub->expects($this->any())
+        	->method('getId')        	
+        	->willReturn(User::SYSTEM_USER); 		
+		
+		$userServiceStub = $this->getMockBuilder(UserService::class)
+        	->disableOriginalConstructor()
+        	->getMock();		 	
+        $userServiceStub->expects($this->once())
+        	->method('findUser')        	
+        	->willReturn($userStub);  
+       	
+        $this->controller->setUserService($userServiceStub); 	
+        	
 		$taskToClose = $this->setupTask();
 		$taskToClose->addMember($this->getLoggedUser(), Task::ROLE_OWNER);
 		$taskToClose->addEstimation(1, $this->getLoggedUser());
@@ -143,7 +159,7 @@ public function testApplyTimeboxToCloseAnAcceptedTasks(){
 		$this->taskServiceStub
         	->expects($this->once())
         	->method('getAcceptedTaskIdsToClose')        	
-        	->willReturn(array($taskToClose->getId()));
+        	->willReturn(array(array('TASK_ID'=>$taskToClose->getId())));
         	
         $this->taskServiceStub
         	->expects($this->once())
