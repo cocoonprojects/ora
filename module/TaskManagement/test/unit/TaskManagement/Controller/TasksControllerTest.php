@@ -138,72 +138,15 @@ class TasksControllerTest extends ControllerTest
 		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-
-    	$arrayResult = json_decode($result->serialize(), true);
-    	
-    	$this->assertEquals(200, $response->getStatusCode());
-    	$this->assertArrayHasKey('tasks', $arrayResult);
-    	$this->assertArrayHasKey('_links', $arrayResult);
-        $this->assertArrayHasKey('ora:create', $arrayResult['_links']);
+        $user = User::create();
+        $user->setEmail('fake@email.com');
+        
+        $this->setupLoggedUser($user);
+        
     }
     
-	public function testCannotCreateTaskInEmptyStream() {
-    	
-    	$stream = $this->setupStream();
-    	
-       $this->taskServiceStub
-        	->expects($this->once())
-        	->method('findStreamTasks')
-        	->with($stream->getId()->toString())
-        	->willReturn(array());
-        
-        $this->authorizeServiceStub->method('isAllowed')->willReturn(false);	
-        	
-        $this->request->setMethod('get');
-    	$params = $this->request->getQuery();
-    	$params->set('streamID', $stream->getId()->toString());
-    	
-    	$result   = $this->controller->dispatch($this->request);
-    	$response = $this->controller->getResponse();
-
-    	$arrayResult = json_decode($result->serialize(), true);
-    	
-    	$this->assertEquals(200, $response->getStatusCode());
-    	$this->assertArrayHasKey('tasks', $arrayResult);
-    	$this->assertArrayNotHasKey('_links', $arrayResult);        
-    }
     
-	public function testCanCreateTaskInPopulatedStream() {
-    	
-        $stream = new ReadModelStream('00000');
-    	$task = new ReadModelTask('00001');
-    	$task->setCreatedAt(new \DateTime());
-    	$task->setStream($stream);
-        
-       $this->taskServiceStub
-        	->expects($this->once())
-        	->method('findStreamTasks')
-        	->with($stream->getId())
-        	->willReturn(array($task));
-        
-        $this->authorizeServiceStub->method('isAllowed')->willReturn(true);	
-        	
-        $this->request->setMethod('get');
-    	$params = $this->request->getQuery();
-    	$params->set('streamID', $stream->getId());
-    	
-    	$result   = $this->controller->dispatch($this->request);
-    	$response = $this->controller->getResponse();
-
-    	$arrayResult = json_decode($result->serialize(), true);
-    	
-    	$this->assertEquals(200, $response->getStatusCode());
-		$this->assertArrayHasKey('_embedded', $arrayResult);
-		$this->assertArrayHasKey('ora:task', $arrayResult['_embedded']);
-		$this->assertArrayHasKey('_links', $arrayResult);
-		$this->assertArrayHasKey('ora:create', $arrayResult['_links']);
-	}
-
+	
 	public function testGetListAsAnonymous()
 	{
 		$this->setupAnonymous();
@@ -316,7 +259,7 @@ class TasksControllerTest extends ControllerTest
 	public function testApplyTimeboxToCloseAnAcceptedTasks(){
 		
 		$_SERVER['HTTP_HOST'] = 'localhost';
-		
+
 		$userStub = $this->getMockBuilder(User::class)
         	->disableOriginalConstructor()
         	->getMock();        	
@@ -365,7 +308,6 @@ class TasksControllerTest extends ControllerTest
         $this->assertEquals(Task::STATUS_CLOSED, $taskToClose->getStatus());
         
 	}
-
 	protected function setupStream(){
 		
 		$organization = Organization::create('My brand new Orga', $this->getLoggedUser());

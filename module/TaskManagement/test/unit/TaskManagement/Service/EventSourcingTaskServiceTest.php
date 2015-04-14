@@ -11,6 +11,7 @@ use TaskManagement\Stream;
 use TaskManagement\Task;
 use Zend\View\Renderer\RendererInterface;
 
+
 class EventSourcingTaskServiceTest extends TestCase {
 	
 	/**
@@ -27,6 +28,7 @@ class EventSourcingTaskServiceTest extends TestCase {
 	 * @var \Guzzle\Http\Client
 	 */
 	private $mailcatcher;
+
 	
 	protected function setUp() {
 		parent::setUp();
@@ -36,6 +38,7 @@ class EventSourcingTaskServiceTest extends TestCase {
 		$this->eventStore->commit();
 		$this->taskService = new EventSourcingTaskService($this->eventStore, $entityManager);
 		$this->user = User::create();
+
 		$this->mailcatcher = new \Guzzle\Http\Client('http://127.0.0.1:1080');
 		$this->cleanEmailMessages();
 	}
