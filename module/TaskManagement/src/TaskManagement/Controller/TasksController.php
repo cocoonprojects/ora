@@ -252,17 +252,16 @@ class TasksController extends HATEOASRestfulController
 		
 		if(isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] == 'localhost'){
 			$request = $this->getRequest();
-			
+				
 			$timeboxForAcceptedTask = $this->getServiceLocator()->get('Config')['share_assignment_timebox'];
-			
+				
 			$acceptedTaskIdsToNotify = $this->taskService->getAcceptedTaskIdsToNotify($timeboxForAcceptedTask);
 			$acceptedTaskIdsToClose = $this->taskService->getAcceptedTaskIdsToClose($timeboxForAcceptedTask);
-			
+				
 			if(is_array($acceptedTaskIdsToNotify) && count($acceptedTaskIdsToNotify) > 0){
 					
 				array_map(array($this, 'notifySingleTaskForShareAssignment'),  $acceptedTaskIdsToNotify, array($this->getServiceLocator()->get('ViewRenderer')));
 			}
-			
 			if(is_array($acceptedTaskIdsToClose) && count($acceptedTaskIdsToClose) > 0){
 					
 				$this->transaction()->begin();
@@ -277,15 +276,15 @@ class TasksController extends HATEOASRestfulController
 					$this->transaction()->rollback();
 					$this->response->setStatusCode(403);
 				}
-			}			
+			}
 		}else{
 			$this->response->setStatusCode(404);
-		}	
+		}
 		
 		return $this->response;
 		
 	}
-    
+	    
     public function setAccountService(AccountService $accountService) {
     	$this->accountService = $accountService;
     	return $this;
@@ -372,5 +371,4 @@ class TasksController extends HATEOASRestfulController
     		return false;
     	}
     }
- 
 }
