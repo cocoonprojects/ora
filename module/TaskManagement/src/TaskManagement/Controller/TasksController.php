@@ -251,18 +251,21 @@ class TasksController extends HATEOASRestfulController
     }
     
 	public function applytimeboxforsharesAction(){
-		
+	
 		if(isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] == 'localhost'){
+
 			$request = $this->getRequest();
+
 			$timeboxForAcceptedTask = $this->getServiceLocator()->get('Config')['share_assignment_timebox'];
 				
 			$acceptedTaskIdsToNotify = $this->taskService->getAcceptedTaskIdsToNotify($timeboxForAcceptedTask);
 			$acceptedTaskIdsToClose = $this->taskService->getAcceptedTaskIdsToClose($timeboxForAcceptedTask);
-			
+
 			if(is_array($acceptedTaskIdsToNotify) && count($acceptedTaskIdsToNotify) > 0){
 					
 				array_map(array($this, 'notifySingleTaskForShareAssignment'),  $acceptedTaskIdsToNotify, array($this->getServiceLocator()->get('ViewRenderer')));
 			}
+
 			if(is_array($acceptedTaskIdsToClose) && count($acceptedTaskIdsToClose) > 0){
 					
 				$this->transaction()->begin();
@@ -342,10 +345,8 @@ class TasksController extends HATEOASRestfulController
     	if(isset($taskRetrieved['TASK_ID'])){
 
 	    	$taskToNotify = $this->taskService->getTask($taskRetrieved['TASK_ID']);			
-			if($taskToNotify instanceof Task){				
-				$this->taskService->notifyMembersForShareAssignment($taskToNotify);
-				return true;	
-			}	
+			$this->taskService->notifyMembersForShareAssignment($taskToNotify);
+			return true;
     	}    
     	return false;	
     }
@@ -353,10 +354,9 @@ class TasksController extends HATEOASRestfulController
     /**
      * Forza la chiusura di un singolo task solo per l'utente SYSTEM 
      * 
-     * @param array $taskRetrieved
+     * @param array $taskRetrieved 
      * @param User $closedBy
      */
-
     private function forceToCloseSingleTask($taskRetrieved, User $closedBy){
     	 
 	    if($closedBy->getId() == User::SYSTEM_USER){
@@ -369,4 +369,5 @@ class TasksController extends HATEOASRestfulController
 	    	return false;    
 	    }
     }
+
 }
