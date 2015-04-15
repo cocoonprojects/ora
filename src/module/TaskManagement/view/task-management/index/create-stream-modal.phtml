@@ -21,11 +21,9 @@
 					<input type="text" class="form-control" id="subject" name="subject">
 				</div>
 				<div class="form-group">
-					<label for="organizationId">Organization</label>
-					<select class="form-control" id="organizationId" name="organizationId">
+					<label for="createStreamOrganizationId">Organization</label>
+					<select class="form-control" id="createStreamOrganizationId" name="organizationId">
 						<option></option>
-<?php foreach ($identity->getOrganizationMemberships() as $orgId => $membership) { ?>
-						<option value="<?php echo $orgId ?>"><?php echo $this->escapehtml($membership->getOrganization()->getName()) ?></option><?php } ?>
 					</select>
 				</div>
 			</div>

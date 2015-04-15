@@ -10,6 +10,7 @@ use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
 use Doctrine\ORM\EntityManager;
 use Application\Controller\AuthController;
 use Application\Controller\OrganizationsController;
+use Application\Controller\MembershipsController;
 use Application\Controller\Plugin\EventStoreTransactionPlugin;
 use Application\Service\IdentityRolesProvider;
 use Application\Service\OrganizationCommandsListener;
@@ -48,6 +49,12 @@ class Module
 					$locator = $sm->getServiceLocator();
 					$orgService = $locator->get('Application\OrganizationService');
 					$controller = new OrganizationsController($orgService);
+					return $controller;
+				},
+				'Application\Controller\Memberships' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$orgService = $locator->get('Application\OrganizationService');
+					$controller = new MembershipsController($orgService);
 					return $controller;
 				}
 			)

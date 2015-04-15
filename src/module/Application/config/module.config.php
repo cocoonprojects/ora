@@ -36,6 +36,19 @@ return array(
 					),
 				),
 			),	
+			'memberships' => array(
+				'type' => 'Segment',
+				'options' => array(
+					'route'	   => '/memberships',
+					'constraints' => array(
+						'id' => '[0-9a-z\-]+'
+					),
+					'defaults' => array(
+						'__NAMESPACE__' => 'Application\Controller',
+						'controller' => 'Memberships'
+					),
+				),
+			),	
 			// The following is a route to simplify getting started creating
 			// new controllers and actions without needing to create a new
 			// module. Simply drop new controllers in, and you can access them

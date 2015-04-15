@@ -46,7 +46,14 @@ TaskManagement.prototype = {
 		$("#createStreamModal").on("show.bs.modal", function(e) {
 			form = $(this).find("form");
 			form[0].reset();
-			$(this).find('div.alert').hide();			
+			$(this).find('div.alert').hide();
+			
+			select = form.find("#createStreamOrganizationId");
+			select.empty();
+			select.append('<option></option>');
+			$.each(organizations.membershipsData._embedded['ora:organization-membership'], function(i, object) {
+				select.append('<option value="' + object.organization.id + '">' + object.organization.name + '</option>');
+			});
 		});
 		
 		$("#createStreamModal").on("submit", "form", function(e){
@@ -397,7 +404,7 @@ TaskManagement.prototype = {
 		});
 	},
 	
-	listStreams: function()
+	updateStreams: function()
 	{
 		that = this;
 		$.getJSON('/task-management/streams', function(data) {
@@ -625,7 +632,7 @@ TaskManagement.prototype = {
 			data: form.serialize(),
 			success: function() {
 				modal.modal('hide');
-				that.listStreams();
+				that.updateStreams();
 			},
 			error: function(jqHXR, textStatus, errorThrown) {
 				that.show(m, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to create the stream');
@@ -797,5 +804,5 @@ $().ready(function(e){
 	$('#firstLevelMenu li').eq(0).addClass('active');
 	collaboration = new TaskManagement();
 	collaboration.listTasks();
-	collaboration.listStreams();
+	collaboration.updateStreams();
 });
