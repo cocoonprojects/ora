@@ -10,10 +10,24 @@ Organizations.prototype = {
 	
 	data: [],
 	
+	membershipsData: [],
+	
 	bindEventsOn: function()
 	{
 		var that = this;
-        
+		
+		$('#userMenu').on('show.bs.dropdown', function(e) {
+			container = $(e.target);
+			$('li.membership').remove();
+			if(that.membershipsData.length == 0) {
+				$('<li class="membership"><a href="#">Loading...</a></li>').insertBefore('#userMenu li.divider');
+			} else {
+				$.each(that.membershipsData._embedded['ora:organization-membership'], function(i, object) {
+					$('<li class="membership"><a href="#">' + object.organization.name + '</a></li>').insertBefore('#userMenu li.divider');
+				});
+			}
+		});
+		
 		$("#createOrganizationModal").on("show.bs.modal", function(e) {
 			var modal = $(this);
 			modal.find('div.alert').hide();			
@@ -40,6 +54,7 @@ Organizations.prototype = {
 			data: form.serialize(),
 			success: function() {
 				modal.modal('hide');
+				that.updateMemberships();
 			},
 			error: function(jqHXR, textStatus, errorThrown) {
 				json = $.parseJSON(jqHXR.responseText);
@@ -50,6 +65,14 @@ Organizations.prototype = {
 					that.show(m, 'danger', json.errors[0].message);
 				}
 			}
+		});
+	},
+	
+	updateMemberships: function()
+	{
+		that = this;
+		$.getJSON('/memberships', function(data) {
+			that.membershipsData = data;
 		});
 	},
 	
@@ -64,4 +87,5 @@ Organizations.prototype = {
 
 $().ready(function(e){
 	organizations = new Organizations();
+	organizations.updateMemberships();
 });

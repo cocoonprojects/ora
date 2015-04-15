@@ -2,19 +2,20 @@
 	<ul class="nav navbar-nav navbar-right">
 		<li><a href="<?php echo $this->basePath().'/auth/logout'?>">Logout</a></li>
 	</ul>
+	<ul class="nav navbar-nav navbar-right">
+		<li id="userMenu" class="dropdown">
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-plus"></span></a>
+			<ul class="dropdown-menu" role="menu">
+				<li class="divider"></li>
+				<li><a href="#" data-toggle="modal" data-target="#createOrganizationModal">New Organization...</a></li>
+				<li><a href="#" data-toggle="modal" data-target="#createStreamModal">New Stream...</a></li>
+			</ul>
+		</li>
+	</ul>
 	<div class="pull-right navbar-text" style="margin-top: 13px; margin-bottom: 10px">
 		<img src="<?php echo $this->identity->getPicture()?>" alt="Avatar" style="max-width: 36px; max-height: 36px;" class="img-circle">
 		<?php echo $this->identity->getEmail()?>
 	</div>
-	<ul class="nav navbar-nav navbar-right">
-		<li class="dropdown">
-			<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-plus"></span></a>
-			<ul class="dropdown-menu" role="menu">
-				<li><a href="#" data-toggle="modal" data-target="#createStreamModal">New Stream...</a></li>
-				<li><a href="#" data-toggle="modal" data-target="#createOrganizationModal">New Organization...</a></li>
-			</ul>
-        </li>
-	</ul>
 <?php } else { ?>
 	<ul class="nav navbar-nav navbar-right"><li><a href="#" data-toggle="modal" data-target="#loginModal">Sign in</a></li></ul>
 <?php } ?>
