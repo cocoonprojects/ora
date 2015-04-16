@@ -103,7 +103,7 @@ TaskManagement.prototype = {
 			e.preventDefault();
 			var button = $(e.target) // Button that triggered the modal
 			var key = button.data("task");
-			if(that.data.tasks[key].status == 40) {
+			if(that.data._embedded['ora:task'][key].status == 40) {
 				if(!confirm('Are you sure? Shares will be erased')) {
 					return false;
 				}
@@ -169,7 +169,7 @@ TaskManagement.prototype = {
 			container.empty();
 
 			var key = button.data("task");
-			$.each(that.data.tasks[key].members, function(i, object) {
+			$.each(that.data._embedded['ora:task'][key].members, function(i, object) {
 				container.append('<div class="form-group">'
 						+ '<label for="' + i + '" class="col-sm-4 control-label"><img src="' + object.picture + '" style="max-width: 16px; max-height: 16px;" class="img-circle"> ' + object.firstname + ' ' + object.lastname + '</label>'
 						+ '<div class="col-sm-8">'
@@ -415,7 +415,7 @@ TaskManagement.prototype = {
 	onListTasksCompleted: function()
 	{
 		if(this.data._links !== undefined && this.data._links['ora:create'] !== undefined) {
-			$("#createTaskModal form").attr("action", this.data._links['ora:create']);
+			$("#createTaskModal form").attr("action", this.data._links['ora:create']['href']);
 			$("#createTaskBtn").show();
 		} else {
 			$("#createTaskModal form").attr("action", null);
@@ -425,12 +425,12 @@ TaskManagement.prototype = {
 		var container = $('#tasks');
 		container.empty();
 		
-		if ($(this.data.tasks).length == 0) {
+		if ($(this.data._embedded['ora:task']).length == 0) {
 			container.append("<p>No available tasks found</p>");
 		} else {
 			var that = this;
-			$.each(this.data.tasks, function(key, task) {
-				subject = task._links.self == undefined ? task.subject : '<a data-href="' + task._links.self + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
+			$.each(this.data._embedded['ora:task'], function(key, task) {
+				subject = task._links.self == undefined ? task.subject : '<a data-href="' + task._links.self.href + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
 
 				var actions = [];
 				if (task._links['ora:complete'] != undefined) {

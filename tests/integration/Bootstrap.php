@@ -22,33 +22,33 @@ include __DIR__ . '/../../src/init_autoloader.php';
  */
 class Bootstrap
 {
-    protected static $serviceManager;
+	protected static $serviceManager;
 	protected static $config;
 	protected static $zendApp;
 
-    public static function init($config)
-    {
-        self::$zendApp = Application::init($config);
-        self::$serviceManager = self::$zendApp->getServiceManager();		
-        static::$config = $config;
-        
+	public static function init($config)
+	{
+		self::$zendApp = Application::init($config);
+		self::$serviceManager = self::$zendApp->getServiceManager();		
+		static::$config = $config;
+		
 		$entityManager = self::$serviceManager->get('doctrine.entitymanager.orm_default');
 		$schemaTool = new SchemaTool($entityManager);
 		$metadata = $entityManager->getMetadataFactory()->getAllMetadata();
 		$schemaTool->dropSchema($metadata);
-    	$schemaTool->updateSchema($metadata);
+		$schemaTool->updateSchema($metadata);
 		$entityManager->getConnection()->executeUpdate(file_get_contents(__DIR__."/../sql/init.sql"), array(), array());
-    }
+	}
 
-    public static function getServiceManager()
-    {
-        return static::$serviceManager;
-    }
-    
-    public static function getConfig()
-    {
-        return static::$config;
-    }
+	public static function getServiceManager()
+	{
+		return static::$serviceManager;
+	}
+	
+	public static function getConfig()
+	{
+		return static::$config;
+	}
 }
 
 Bootstrap::init(include __DIR__.'/../../src/config/application.config.php');

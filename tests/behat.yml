@@ -5,19 +5,14 @@ default:
     suites:
         task_features:
             paths: 
-                - functional/features/streams
-                - functional/features/task
-                - functional/features/accounts
-                - functional/features/shares
                 - functional/features/organizations
+                - functional/features/accounts
+                - functional/features/streams
+                - functional/features/estimations
+                - functional/features/shares
+                - functional/features/task
             contexts:
                 - RestContext:
-                    - http://oraprojecttest
-        estimations_features:
-            paths: 
-                - functional/features/estimations
-            contexts:
-                - TaskContext:
                     - http://oraprojecttest
         login_features:
             paths: 
