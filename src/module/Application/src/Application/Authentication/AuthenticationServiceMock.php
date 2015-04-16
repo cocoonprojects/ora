@@ -11,7 +11,7 @@ use Zend\Authentication\AuthenticationService;
  * @author andreabandera
  *
  */
-class MockAuthenticationService extends AuthenticationService {
+class AuthenticationServiceMock extends AuthenticationService {
 	
 	private $identity = array();
 	

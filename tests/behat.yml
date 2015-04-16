@@ -8,6 +8,7 @@ default:
                 - functional/features/organizations
                 - functional/features/accounts
                 - functional/features/streams
+                - functional/features/kanbanize
                 - functional/features/estimations
                 - functional/features/shares
                 - functional/features/task
@@ -19,13 +20,6 @@ default:
                 - functional/features/login
             contexts: 
                 - LoginContext
-        kanbanize_features:
-            paths: 
-                - functional/features/kanbanize
-            contexts:
-                - KanbanizeContext:
-                    - http://oraprojecttest
-
     extensions:
         Behat\MinkExtension:
             base_url:  http://oraprojecttest

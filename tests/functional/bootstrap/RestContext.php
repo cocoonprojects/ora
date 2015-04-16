@@ -32,7 +32,7 @@ class RestContext extends RawMinkContext
 	 */
 	public static function setupApplication(BeforeSuiteScope $scope){
 		if(putenv('APPLICATION_ENV=acceptance')) {
-			echo "APPLICATION_ENV=" . getenv('APPLICATION_ENV') . " set successfully!\n";
+			echo "APPLICATION_ENV=" . getenv('APPLICATION_ENV') . " set successfully!\n\n";
 		} else {
 			echo 'Setting APPLICATION_ENV=acceptance failed!';
 			die();
