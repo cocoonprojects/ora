@@ -40,21 +40,24 @@ class TaskJsonModel extends JsonModel
 		$resource = $this->getVariable('resource');
 	
 		if(is_array($resource)) {
-			$representation['tasks'] = array_map(array($this, 'serializeOne'), $resource);
+			$hal['_links']['self']['href'] = $this->url->fromRoute('tasks');
+			$hal['_embedded']['ora:task'] = array_map(array($this, 'serializeOne'), $resource);
+			$hal['count'] = count($resource);
+			$hal['total'] = count($resource);
 		} else {
-			$representation = $this->serializeOne($resource);
+			$hal = $this->serializeOne($resource);
 		}
- 		if ($this->authorize->isAllowed(NULL, 'TaskManagement.Task.create')) {
-			$representation['_links']['ora:create'] = $this->url->fromRoute('tasks');
+		if ($this->authorize->isAllowed(NULL, 'TaskManagement.Task.create')) {
+			$hal['_links']['ora:create']['href'] = $this->url->fromRoute('tasks');
 		}
-		return Json::encode($representation);		
+		return Json::encode($hal);		
 	}
 
 	protected function serializeOne(Task $task) {
 		
 		$links = [];
 		if($this->authorize->isAllowed($task, 'TaskManagement.Task.showDetails')){
-			$links['self'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);	
+			$links['self']['href'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);	
 		}
 
 		if($this->authorize->isAllowed($task, 'TaskManagement.Task.edit')){
@@ -101,7 +104,7 @@ class TaskJsonModel extends JsonModel
 			'type' => $task->getType (),
 			'status' => $task->getStatus(),
 			'stream' => $this->getStream($task),
-			'members' => $this->getMembersArray($task),
+			'members' => array_map(array($this, 'serializeOneMember'), $task->getMembers()),
 			'_links' => $links,
 		];
 		
@@ -115,20 +118,11 @@ class TaskJsonModel extends JsonModel
 	private function getStream(Task $task) {
 		$stream = $task->getStream();
 		$rv['subject'] = $stream->getSubject();
-		$rv['_links']['self'] = $this->url->fromRoute('streams', ['id' => $stream->getId()]);
+		$rv['_links']['self']['href'] = $this->url->fromRoute('streams', ['id' => $stream->getId()]);
 		return $rv;
 	}
 	
-	private function getMembersArray(Task $task){
-		$members = array();
-		foreach ($task->getMembers() as $tm) {
-			$m = $this->serializeOneMember($tm);
-			$members[$tm->getMember()->getId()] = $m;
-		}
-		return $members;
-	}
-	
-	private function serializeOneMember(TaskMember $tm) {
+	protected function serializeOneMember(TaskMember $tm) {
 		$member = $tm->getMember();
 		$rv = [
 				'firstname' => $member->getFirstname(),

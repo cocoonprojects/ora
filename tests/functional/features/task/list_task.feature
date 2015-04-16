@@ -4,25 +4,23 @@ Feature: List tasks
 	in order to understand their current status, members count and how I can contribute
 
 Scenario: Successfully getting the list of available tasks without any parameters
-    Given that I am authenticated as "mark.rogers@ora.local" 
-    And that I want to find a "Task"
+	Given that I am authenticated as "mark.rogers@ora.local" 
+	And that I want to find a "Task"
 	When I request "/task-management/tasks"
 	Then the response status code should be 200
-	And the response should be JSON
-	And the response should have a "tasks" property
+	And the response should have a "_embedded.ora:task" property
 
 Scenario: Successfully getting the list of tasks of a stream
-    Given that I am authenticated as "mark.rogers@ora.local" 
-    And that I want to find a "Task"
+	Given that I am authenticated as "mark.rogers@ora.local" 
+	And that I want to find a "Task"
 	And that its "streamID" is "00000000-1000-0000-0000-000000000000"
 	When I request "/task-management/tasks"
 	Then the response status code should be 200
-	And the response should be JSON
-	And the response should have a "tasks" property
+	And the response should have a "_embedded.ora:task" property
 
 Scenario: Successfully getting a task that the first member evaluated 1500 credits and the second skipped
-    Given that I am authenticated as "mark.rogers@ora.local" 
-    And that I want to find a "Task"
+	Given that I am authenticated as "mark.rogers@ora.local" 
+	And that I want to find a "Task"
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000107"
 	Then the response status code should be 200
 	And the response should be JSON
@@ -30,8 +28,8 @@ Scenario: Successfully getting a task that the first member evaluated 1500 credi
 	And the "members" property size should be "2"
 
 Scenario: Successfully getting a task with skipped estimation by the only member 
-    Given that I am authenticated as "mark.rogers@ora.local" 
-    And that I want to find a "Task"
+	Given that I am authenticated as "mark.rogers@ora.local" 
+	And that I want to find a "Task"
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000106"
 	Then the response status code should be 200
 	And the response should be JSON
@@ -39,45 +37,41 @@ Scenario: Successfully getting a task with skipped estimation by the only member
 	And the "members" property size should be "1"
 
 Scenario: Successfully getting a task estimated by only one member 
-    Given that I am authenticated as "mark.rogers@ora.local" 
-    And that I want to find a "Task"
+	Given that I am authenticated as "mark.rogers@ora.local" 
+	And that I want to find a "Task"
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000108"
 	Then the response status code should be 200
-	And the response should be JSON
-	And the response shouldn't have a "estimation" property
+	And the response shouldn't have a "_embedded.ora:task.estimation" property
 	And the "members" property size should be "2"
 
 Scenario: Successfully getting command list on an ongoing tasks of a stream
-    Given that I am authenticated as "mark.rogers@ora.local" 
-    And that I want to find a "Task"
+	Given that I am authenticated as "mark.rogers@ora.local" 
+	And that I want to find a "Task"
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000004"
-	And the response status code should be 200
-	Then the response should be JSON	
+	Then the response status code should be 200
 	And the response should have a "_links" property
-	And the "_links" property contains "self" key
-	And the "_links" property contains "ora:complete" key
-	And the "_links" property contains "ora:delete" key
-	And the "_links" property contains "ora:estimate" key
-	And the "_links" property contains "ora:edit" key
+	And the response should have a "_links.self" property
+	And the response should have a "_links.ora:complete" property
+	And the response should have a "_links.ora:delete" property
+	And the response should have a "_links.ora:estimate" property
+	And the response should have a "_links.ora:edit" property
 
 Scenario: Successfully getting command list on a completed tasks of a stream
-    Given that I am authenticated as "mark.rogers@ora.local" 
-    And that I want to find a "Task"
+	Given that I am authenticated as "mark.rogers@ora.local" 
+	And that I want to find a "Task"
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000001"
 	Then the response status code should be 200
-	And the response should be JSON
 	And the response should have a "_links" property
-	And the "_links" property contains "self" key
-	And the "_links" property contains "ora:estimate" key
-	And the "_links" property contains "ora:execute" key
+	And the response should have a "_links.self" property
+	And the response should have a "_links.ora:estimate" property
+	And the response should have a "_links.ora:execute" property
 
 Scenario: Successfully getting command list on an accepted tasks of a stream
-    Given that I am authenticated as "mark.rogers@ora.local" 
-    And that I want to find a "Task"
+	Given that I am authenticated as "mark.rogers@ora.local" 
+	And that I want to find a "Task"
 	When I request "/task-management/tasks/00000000-0000-0000-0000-000000000002"
 	Then the response status code should be 200
-	And the response should be JSON
 	And the response should have a "_links" property
-	And the "_links" property contains "self" key
-	And the "_links" property contains "ora:assignShares" key
-	And the "_links" property contains "ora:complete" key
+	And the response should have a "_links.self" property
+	And the response should have a "_links.ora:assignShares" property
+	And the response should have a "_links.ora:complete" property

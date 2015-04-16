@@ -7,3 +7,4 @@ src/data
 *.old
 .settings/
 .DS_Store
+*.log

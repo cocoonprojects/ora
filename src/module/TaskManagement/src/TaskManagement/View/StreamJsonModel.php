@@ -29,7 +29,10 @@ class StreamJsonModel extends JsonModel
 	{
 		$resource = $this->getVariable('resource');
 		if(is_array($resource)) {
+			$hal['_links']['self']['href'] = $this->url->fromRoute('streams');
 			$hal['_embedded']['ora:stream'] = array_map(array($this, 'serializeOne'), $resource);
+			$hal['count'] = count($resource);
+			$hal['total'] = count($resource);
 		} else {
 			$hal = $this->serializeOne($resource);
 		}
