@@ -6,6 +6,7 @@ use Application\IllegalStateException;
 use Application\InvalidArgumentException;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Task;
+use Zend\Validator\InArray;
 
 class TransitionsController extends AbstractHATEOASRestfulController
 {
@@ -22,10 +23,14 @@ class TransitionsController extends AbstractHATEOASRestfulController
 	}
 	
 	public function invoke($id, $data) {
-		if (! isset ( $data ['action'] )) {
+		$validator = new InArray(
+			['haystack' => array('complete', 'accept','execute')]
+		);
+		if (!isset ($data['action']) || !$validator->isValid($data['action'])) {
 			$this->response->setStatusCode ( 400 );
 			return $this->response;
 		}
+		
 		$task = $this->taskService->getTask($id);
 		if (is_null($task)) {
 			$this->response->setStatusCode ( 404 );

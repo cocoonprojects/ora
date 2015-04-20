@@ -19,7 +19,7 @@ delete from event_stream;
 delete from users;
 
 # user 60000000-0000-0000-0000-000000000000 Mark Rogers
-INSERT INTO users (id, status, createdAt, firstname, lastname, email, role) VALUES ('60000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Mark', 'Rogers', 'mark.rogers@ora.local', 'user');
+INSERT INTO users (id, status, createdAt, mostRecentEditAt, firstname, lastname, email, role) VALUES ('60000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', '2014-10-09 11:33:45', 'Mark', 'Rogers', 'mark.rogers@ora.local', 'user');
 # account
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
 ('45f1b89a-156b-4dbf-b5c9-9a0540460a0b',1,'Accounting\\AccountCreated','a:3:{s:7:\"balance\";i:0;s:7:\"holders\";a:1:{s:36:\"60000000-0000-0000-0000-000000000000\";s:11:\"Mark Rogers\";}s:12:\"aggregate_id\";s:36:\"ccde992b-5aa9-4447-98ae-c8115906dcb7\";}','2014-12-29T17:32:07.000000+0100','Accounting\\Account','ccde992b-5aa9-4447-98ae-c8115906dcb7');
@@ -29,7 +29,7 @@ INSERT INTO account_holders(account_id, user_id) VALUES
 ('ccde992b-5aa9-4447-98ae-c8115906dcb7', '60000000-0000-0000-0000-000000000000');
 
 # user 70000000-0000-0000-0000-000000000000 Phil Toledo
-INSERT INTO users (id, status, createdAt, firstname, lastname, email, role) VALUES ('70000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Phil', 'Toledo', 'phil.toledo@ora.local', 'user');
+INSERT INTO users (id, status, createdAt, mostRecentEditAt, firstname, lastname, email, role) VALUES ('70000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', '2014-10-09 11:33:45', 'Phil', 'Toledo', 'phil.toledo@ora.local', 'user');
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
 ('45f1b89b-156b-4dbf-b5c9-9a0540460a0b',1,'Accounting\\AccountCreated','a:3:{s:7:\"balance\";i:0;s:7:\"holders\";a:1:{s:36:\"70000000-0000-0000-0000-000000000000\";s:11:\"Phil Toledo\";}s:12:\"aggregate_id\";s:36:\"cdde992b-5aa9-4447-98ae-c8115906dcb7\";}','2014-12-29T17:32:07.000000+0100','Accounting\\Account','cdde992b-5aa9-4447-98ae-c8115906dcb7');
 insert into accounts(id, createdAt, mostRecentEditAt, balance_value, balance_date, createdBy_id, mostRecentEditBy_id, type) values
@@ -37,9 +37,9 @@ insert into accounts(id, createdAt, mostRecentEditAt, balance_value, balance_dat
 INSERT INTO account_holders(account_id, user_id) VALUES
 ('cdde992b-5aa9-4447-98ae-c8115906dcb7', '70000000-0000-0000-0000-000000000000');
 
-INSERT INTO users (id, status, createdAt, firstname, lastname, email, role) VALUES ('20000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Paul', 'Smith', 'paul.smith@ora.local', 'user');
-INSERT INTO users (id, status, createdAt, firstname, lastname, email, role) VALUES ('80000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Bruce', 'Wayne', 'bruce.wayne@ora.local', 'user');
-INSERT INTO users (id, status, createdAt, firstname, lastname, email, role) VALUES ('90000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', 'Peter', 'Parker', 'spidey.web@dailybugle.local', 'user');
+INSERT INTO users (id, status, createdAt, mostRecentEditAt, firstname, lastname, email, role) VALUES ('20000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', '2014-10-09 11:33:45', 'Paul', 'Smith', 'paul.smith@ora.local', 'user');
+INSERT INTO users (id, status, createdAt, mostRecentEditAt, firstname, lastname, email, role) VALUES ('80000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', '2014-10-09 11:33:45', 'Bruce', 'Wayne', 'bruce.wayne@ora.local', 'user');
+INSERT INTO users (id, status, createdAt, mostRecentEditAt, firstname, lastname, email, role) VALUES ('90000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', '2014-10-09 11:33:45', 'Peter', 'Parker', 'spidey.web@dailybugle.local', 'user');
 
 # organization 00000000-0000-0000-1000-000000000000
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
@@ -76,9 +76,9 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
 ('c133eb32-2ad4-49d5-b25c-3c0b600b7dec',5,'TaskManagement\\TaskMemberAdded','a:4:{s:6:\"userId\";s:36:\"20000000-0000-0000-0000-000000000000\";s:4:\"role\";s:6:\"member\";s:2:\"by\";s:36:\"20000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000000\";}','2014-11-12T19:07:59.000000+0100','TaskManagement\\Task','00000000-0000-0000-0000-000000000000');
 INSERT INTO `tasks` (id, stream_id, subject, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type) VALUES
 ('00000000-0000-0000-0000-000000000000','00000000-1000-0000-0000-000000000000','Development environment setup',20,'2014-11-12 19:07:59','2014-11-12 19:07:59','60000000-0000-0000-0000-000000000000','60000000-0000-0000-0000-000000000000','task');
-INSERT INTO task_members(task_id, member_id,role) VALUES
-('00000000-0000-0000-0000-000000000000','60000000-0000-0000-0000-000000000000','owner'),
-('00000000-0000-0000-0000-000000000000','20000000-0000-0000-0000-000000000000','member');
+INSERT INTO task_members(task_id, member_id, role, createdAt, mostRecentEditAt) VALUES
+('00000000-0000-0000-0000-000000000000','60000000-0000-0000-0000-000000000000','owner','2014-11-12 19:07:59','2014-11-12 19:07:59'),
+('00000000-0000-0000-0000-000000000000','20000000-0000-0000-0000-000000000000','member','2014-11-12 19:07:59','2014-11-12 19:07:59');
 
 # task 00000000-0000-0000-0000-000000000001, completed, Mark Rogers (owner), Paul Smith (member)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
@@ -90,9 +90,9 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
 ('fbdfdd17-61ef-4f80-bcd4-7e6eb6990713',6,'TaskManagement\\TaskCompleted','a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000001\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}','2014-10-31T10:44:30.000000+0100','TaskManagement\\Task','00000000-0000-0000-0000-000000000001');
 INSERT INTO `tasks` (id, stream_id, subject, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type) VALUES
 ('00000000-0000-0000-0000-000000000001','00000000-1000-0000-0000-000000000000','Continous integration setup',30,'2014-11-12 19:07:59','2014-11-12 19:07:59','60000000-0000-0000-0000-000000000000','60000000-0000-0000-0000-000000000000','task');
-INSERT INTO task_members(task_id, member_id,role) VALUES
-('00000000-0000-0000-0000-000000000001','60000000-0000-0000-0000-000000000000','owner'),
-('00000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000000','member');
+INSERT INTO task_members(task_id, member_id, role, createdAt, mostRecentEditAt) VALUES
+('00000000-0000-0000-0000-000000000001','60000000-0000-0000-0000-000000000000','owner','2014-11-12 19:07:59','2014-11-12 19:07:59'),
+('00000000-0000-0000-0000-000000000001','20000000-0000-0000-0000-000000000000','member','2014-11-12 19:07:59','2014-11-12 19:07:59');
 
 # task 00000000-0000-0000-0000-000000000002, accepted, Mark Rogers (owner), Paul Smith (member)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
@@ -107,9 +107,9 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
 ('fbdfdd17-61ef-4f80-bcd4-7e6eb6990714',9,'TaskManagement\\TaskAccepted','a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000002\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}','2014-10-31T10:44:30.000000+0100','TaskManagement\\Task','00000000-0000-0000-0000-000000000002');
 INSERT INTO `tasks` (id, stream_id, subject, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type) VALUES
 ('00000000-0000-0000-0000-000000000002','00000000-1000-0000-0000-000000000000','Technology stack definition',40,'2014-11-12 19:07:59','2014-11-12 19:07:59','60000000-0000-0000-0000-000000000000','60000000-0000-0000-0000-000000000000','task');
-INSERT INTO task_members(task_id, member_id,role, estimation_value, estimation_createdAt) VALUES
-('00000000-0000-0000-0000-000000000002','60000000-0000-0000-0000-000000000000','owner','-1','2014-11-07 11:37:58'),
-('00000000-0000-0000-0000-000000000002','20000000-0000-0000-0000-000000000000','member','-1','2014-11-07 11:37:58');
+INSERT INTO task_members(task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt) VALUES
+('00000000-0000-0000-0000-000000000002','60000000-0000-0000-0000-000000000000','owner','2014-11-12 19:07:59','2014-11-12 19:07:59','-1','2014-11-07 11:37:58'),
+('00000000-0000-0000-0000-000000000002','20000000-0000-0000-0000-000000000000','member','2014-11-12 19:07:59','2014-11-12 19:07:59','-1','2014-11-07 11:37:58');
 
 # task 00000000-0000-0000-0000-000000000003, deleted, Mark Rogers (owner)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
@@ -129,8 +129,8 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
 ('fbdfdd17-61ef-4f80-bcd4-7e6eb6991714',6,'TaskManagement\\TaskAccepted','a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000106\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}','2014-10-31T10:44:31.000000+0100','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000106');
 INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type, boardId, taskId) VALUES
 ('00000000-0000-0000-0000-000000000106','00000000-1000-0000-0000-000000000000','Accepted Kanbanize Task',40,'2014-11-06 14:32:44','2014-11-06 14:32:44','kanbanizetask',3,114);
-INSERT INTO task_members(task_id, member_id, estimation_value, estimation_createdAt, role) VALUES
-('00000000-0000-0000-0000-000000000106','60000000-0000-0000-0000-000000000000','-1','2014-11-07 11:37:58','owner');
+INSERT INTO task_members(task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt) VALUES
+('00000000-0000-0000-0000-000000000106','60000000-0000-0000-0000-000000000000','owner','2014-11-12 19:07:59','2014-11-12 19:07:59','-1','2014-11-07 11:37:58');
 
 # kanbanizeTask 00000000-0000-0000-0000-000000000107, completed, Mark Rogers (owner), Bruce Wayne (member)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
@@ -144,9 +144,9 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
 ('65606b0b-0790-48b7-a122-ff2078c5bf20',8,'TaskManagement\\EstimationAdded','a:3:{s:2:"by";s:36:"80000000-0000-0000-0000-000000000000";s:5:"value";s:4:"1500";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000107";}','2015-02-02T21:22:11.000000+0100','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000107');
 INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type, boardId, taskId) VALUES
 ('00000000-0000-0000-0000-000000000107','00000000-1000-0000-0000-000000000000','Kanbanize Task 2',30,'2014-11-06 14:43:28','2014-11-06 14:43:28','kanbanizetask',3,115);
-INSERT INTO task_members (task_id, member_id, estimation_value, estimation_createdAt, role) VALUES
-('00000000-0000-0000-0000-000000000107','80000000-0000-0000-0000-000000000000','1500,00', '2014-11-07 11:37:58','member'),
-('00000000-0000-0000-0000-000000000107','60000000-0000-0000-0000-000000000000','-1', '2014-11-07 11:37:58','owner');
+INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt) VALUES
+('00000000-0000-0000-0000-000000000107','80000000-0000-0000-0000-000000000000','member','2014-11-12 19:07:59','2014-11-12 19:07:59','1500.00', '2014-11-07 11:37:58'),
+('00000000-0000-0000-0000-000000000107','60000000-0000-0000-0000-000000000000','owner','2014-11-12 19:07:59','2014-11-12 19:07:59','-1', '2014-11-07 11:37:58');
 
 # kanbanizeTask 00000000-0000-0000-0000-000000000108, ongoing, Mark Rogers (owner), Bruce Wayne (member)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
@@ -156,9 +156,9 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
 ('c033eb32-2ad4-49d5-b25c-3c0b600b7de1',4,'TaskManagement\\TaskMemberAdded','a:4:{s:6:\"userId\";s:36:\"60000000-0000-0000-0000-000000000000\";s:4:\"role\";s:5:\"owner\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000108\";}','2014-11-12T19:07:59.000000+0100','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000108');
 INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type, boardId, taskId) VALUES
 ('00000000-0000-0000-0000-000000000108','00000000-1000-0000-0000-000000000000','Kanbanize Task 3',20,'2014-11-06 14:51:12','2014-11-06 14:51:12','kanbanizetask',3,116);
-INSERT INTO task_members(task_id, member_id, estimation_value, estimation_createdAt, role) VALUES
-('00000000-0000-0000-0000-000000000108','60000000-0000-0000-0000-000000000000','1500,00','2014-11-07 11:37:58', 'owner'),
-('00000000-0000-0000-0000-000000000108','80000000-0000-0000-0000-000000000000',NULL, NULL, 'member');
+INSERT INTO task_members(task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt) VALUES
+('00000000-0000-0000-0000-000000000108','60000000-0000-0000-0000-000000000000','owner','2014-11-12 19:07:59','2014-11-12 19:07:59','1500.00','2014-11-07 11:37:58'),
+('00000000-0000-0000-0000-000000000108','80000000-0000-0000-0000-000000000000','member','2014-11-12 19:07:59','2014-11-12 19:07:59',NULL, NULL);
 
 # kanbanizeTask 00000000-0000-0000-0000-000000000110, completed, Mark Rogers (owner)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
@@ -169,8 +169,8 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
 ('fbdfdd18-61ef-4f80-bcd4-7e6eb6901723',5,'TaskManagement\\TaskCompleted','a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000110\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}','2014-10-31T10:44:30.000000+0100','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000110');
 INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type, boardId, taskId) VALUES
 ('00000000-0000-0000-0000-000000000110','00000000-1000-0000-0000-000000000000','completedTask',30,'2014-11-06 15:39:13','2014-11-06 15:39:13','kanbanizetask',3,119);
-INSERT INTO task_members(task_id, member_id,role) VALUES
-('00000000-0000-0000-0000-000000000110','60000000-0000-0000-0000-000000000000','owner');
+INSERT INTO task_members(task_id, member_id, role, createdAt, mostRecentEditAt) VALUES
+('00000000-0000-0000-0000-000000000110','60000000-0000-0000-0000-000000000000','owner','2014-11-12 19:07:59','2014-11-12 19:07:59');
 
 # kanbanizeTask 00000000-0000-0000-0000-000000000111, accepted, Mark Rogers (owner)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
@@ -182,8 +182,8 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
 ('fbefdd17-61ef-4f80-bcd4-7e6eb6991714',6,'TaskManagement\\TaskAccepted','a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000111\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}','2014-10-31T10:44:31.000000+0100','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000111');
 INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type, boardId, taskId) VALUES
 ('00000000-0000-0000-0000-000000000111','00000000-1000-0000-0000-000000000000','completedTask',40,'2014-11-06 15:48:17','2014-11-06 15:48:17','kanbanizetask',3,120);
-INSERT INTO task_members(task_id, member_id,role) VALUES
-('00000000-0000-0000-0000-000000000111','60000000-0000-0000-0000-000000000000','owner');
+INSERT INTO task_members(task_id, member_id, role, createdAt, mostRecentEditAt) VALUES
+('00000000-0000-0000-0000-000000000111','60000000-0000-0000-0000-000000000000','owner','2014-11-12 19:07:59','2014-11-12 19:07:59');
 
 # task 00000000-0000-0000-0000-000000000004, ongoing, Mark Rogers (owner), Paul Smith (member)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
@@ -194,7 +194,6 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
 ('c133eb32-2ad4-49d5-b25c-3c0b600b7dey',5,'TaskManagement\\TaskMemberAdded','a:4:{s:6:\"userId\";s:36:\"20000000-0000-0000-0000-000000000000\";s:4:\"role\";s:6:\"member\";s:2:\"by\";s:36:\"20000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000004\";}','2014-11-12T19:07:59.000000+0100','TaskManagement\\Task','00000000-0000-0000-0000-000000000004');
 INSERT INTO `tasks` (id, stream_id, subject, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type) VALUES
 ('00000000-0000-0000-0000-000000000004','00000000-1000-0000-0000-000000000000','Development environment setup',20,'2014-11-12 19:07:59','2014-11-12 19:07:59','60000000-0000-0000-0000-000000000000','60000000-0000-0000-0000-000000000000','task');
-INSERT INTO task_members(task_id, member_id,role) VALUES
-('00000000-0000-0000-0000-000000000004','60000000-0000-0000-0000-000000000000','owner');
-INSERT INTO task_members(task_id, member_id,role) VALUES
-('00000000-0000-0000-0000-000000000004','20000000-0000-0000-0000-000000000000','member');
+INSERT INTO task_members(task_id, member_id, role, createdAt, mostRecentEditAt) VALUES
+('00000000-0000-0000-0000-000000000004','60000000-0000-0000-0000-000000000000','owner','2014-11-12 19:07:59','2014-11-12 19:07:59'),
+('00000000-0000-0000-0000-000000000004','20000000-0000-0000-0000-000000000000','member','2014-11-12 19:07:59','2014-11-12 19:07:59');

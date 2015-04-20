@@ -28,16 +28,13 @@ class Bootstrap
 
 	public static function init($config)
 	{
-		self::$zendApp = Application::init($config);
-		self::$serviceManager = self::$zendApp->getServiceManager();		
-		static::$config = $config;
+		echo shell_exec(__DIR__ . '/../../src/vendor/bin/doctrine-module orm:schema-tool:drop --force');
+		echo shell_exec(__DIR__ . '/../../src/vendor/bin/doctrine-module orm:schema-tool:create');
+		echo shell_exec(__DIR__ . '/../../src/vendor/bin/doctrine-module dbal:import ' . __DIR__ . '/../sql/init.sql');
 		
-		$entityManager = self::$serviceManager->get('doctrine.entitymanager.orm_default');
-		$schemaTool = new SchemaTool($entityManager);
-		$metadata = $entityManager->getMetadataFactory()->getAllMetadata();
-		$schemaTool->dropSchema($metadata);
-		$schemaTool->updateSchema($metadata);
-		$entityManager->getConnection()->executeUpdate(file_get_contents(__DIR__."/../sql/init.sql"), array(), array());
+		self::$zendApp = Application::init($config);
+		self::$serviceManager = self::$zendApp->getServiceManager();
+		static::$config = $config;
 	}
 
 	public static function getServiceManager()
