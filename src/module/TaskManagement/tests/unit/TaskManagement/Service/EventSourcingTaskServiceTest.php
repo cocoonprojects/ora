@@ -9,6 +9,8 @@ use Application\Entity\User;
 use Application\Organization;
 use TaskManagement\Stream;
 use TaskManagement\Task;
+use TaskManagement\Entity\Task as ReadModelTask;
+
 
 class EventSourcingTaskServiceTest extends TestCase {
 	
@@ -35,17 +37,7 @@ class EventSourcingTaskServiceTest extends TestCase {
 	
 	public function testNotifyMembersForShareAssigment() {
 		
-		$taskToNotify = $this->setupTask();
-		$this->user->setEmail('user@email.com');
-		
-		$taskToNotify->addMember($this->user, Task::ROLE_OWNER);
-		$taskToNotify->addEstimation(1, $this->user);
-		$taskToNotify->complete($this->user);
-		$taskToNotify->accept($this->user);		
-		
-		$this->taskService->notifyMembersForShareAssignment($taskToNotify);
-		
-		//TODO: completare il test con le assertions
+		//TODO: riscrivere il test
 		
 	}
 	
