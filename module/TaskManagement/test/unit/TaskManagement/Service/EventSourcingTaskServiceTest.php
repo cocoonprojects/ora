@@ -9,7 +9,11 @@ use Application\Entity\User;
 use Application\Organization;
 use TaskManagement\Stream;
 use TaskManagement\Task;
+<<<<<<< HEAD:module/TaskManagement/test/unit/TaskManagement/Service/EventSourcingTaskServiceTest.php
 use Zend\View\Renderer\RendererInterface;
+=======
+use TaskManagement\Entity\Task as ReadModelTask;
+>>>>>>> send notification email completed:src/module/TaskManagement/tests/unit/TaskManagement/Service/EventSourcingTaskServiceTest.php
 
 
 class EventSourcingTaskServiceTest extends TestCase {
@@ -43,6 +47,7 @@ class EventSourcingTaskServiceTest extends TestCase {
 	}
 	
 	public function testNotifyMembersForShareAssigment() {
+<<<<<<< HEAD:module/TaskManagement/test/unit/TaskManagement/Service/EventSourcingTaskServiceTest.php
 
 		$taskToNotify = $this->setupTask();
 		$this->user->setEmail('user@email.com');
@@ -56,6 +61,10 @@ class EventSourcingTaskServiceTest extends TestCase {
 		
 		//TODO: completare il test con le assertions
 
+=======
+		
+		//TODO: riscrivere il test
+>>>>>>> send notification email completed:src/module/TaskManagement/tests/unit/TaskManagement/Service/EventSourcingTaskServiceTest.php
 		
 	}
 	
