@@ -19,6 +19,7 @@ use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
 use Application\Service\UserService;
 use Zend\Console\Request as ConsoleRequest;
+use Zend\Console\Exception\RuntimeException as ConsoleRuntimeException;
 
 class TasksController extends HATEOASRestfulController
 {
@@ -250,40 +251,39 @@ class TasksController extends HATEOASRestfulController
 	
 	public function applytimeboxforsharesAction(){
 		
-		$request = $this->getRequest();
+		$request = $this->getRequest();		
 		
 		if ($request instanceof ConsoleRequest) {
 			$timeboxForAcceptedTask = $this->getServiceLocator()->get('Config')['share_assignment_timebox'];
 			
 			$acceptedTaskIdsToNotify = $this->taskService->getAcceptedTaskIdsToNotify($timeboxForAcceptedTask);
 			$acceptedTaskIdsToClose = $this->taskService->getAcceptedTaskIdsToClose($timeboxForAcceptedTask);
-											
-			if(is_array($acceptedTaskIdsToNotify)){
-				array_map(array($this, 'notifySingleTaskForShareAssignment'),  $acceptedTaskIdsToNotify);
+
+			if(is_array($acceptedTaskIdsToNotify) && count($acceptedTaskIdsToNotify) > 0){
+				
+				array_map(array($this, 'notifySingleTaskForShareAssignment'),  $acceptedTaskIdsToNotify, array($this->getServiceLocator()->get('ViewRenderer')));
 			}
 			
-			if(is_array($acceptedTaskIdsToClose)){
+			if(is_array($acceptedTaskIdsToClose) && count($acceptedTaskIdsToClose) > 0){
 				
 				$this->transaction()->begin();
 				try{
 					$closedBy = $this->userService->findUser(User::SYSTEM_USER);
 					array_map(array($this, 'forceToCloseSingleTask'),  $acceptedTaskIdsToClose, array($closedBy));
 					$this->transaction()->commit();
-		      		$this->response->setStatusCode(200);	
 				}catch(IllegalStateException $ex){
 					$this->transaction()->rollback();
-	           		$this->response->setStatusCode(412);	// Preconditions failed	
+	           		throw new ConsoleRuntimeException($ex->getMessage());
 				}catch(InvalidArgumentException $ex){
 					$this->transaction()->rollback();
-					$this->response->setStatusCode(400);
+					throw new ConsoleRuntimeException($ex->getMessage());
 				}			
 			}			
 		}else{
+			//al momento la richiesta HTTP non e' consentita
 			$this->response->setStatusCode(403);
 		}
-		
 		return $this->response;	
-		
 	}
     
     public function setAccountService(AccountService $accountService) {
@@ -336,11 +336,11 @@ class TasksController extends HATEOASRestfulController
      *  
      * @param array $taskRetrieved
      */
-    private function notifySingleTaskForShareAssignment($taskRetrieved){
+    private function notifySingleTaskForShareAssignment($taskRetrieved, $renderer){
     	
     	if(isset($taskRetrieved['TASK_ID'])){
-	    	$taskToNotify = $this->taskService->getTask($taskRetrieved['TASK_ID']);			
-			$this->taskService->notifyMembersForShareAssignment($taskToNotify);
+	    	$taskToNotify = $this->taskService->findTask($taskRetrieved['TASK_ID']);			
+			$this->taskService->notifyMembersForShareAssignment($taskToNotify, $renderer, $this->url());
 			return true;
     	}    
     	return false;	

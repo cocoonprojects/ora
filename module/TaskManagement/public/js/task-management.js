@@ -477,7 +477,7 @@ TaskManagement.prototype = {
 				}
 
 				container.append(
-					'<li class="panel panel-default">' +
+					'<li id= "'+task.id+'" class="panel panel-default">' +
 						'<div class="panel-heading">' + subject + '</div>' +
 						'<div class="panel-body">' + rv + '</div>' +
 					'</li>');
