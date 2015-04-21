@@ -21,7 +21,6 @@ use Application\Service\UserService;
 use Zend\Console\Request as ConsoleRequest;
 use Zend\Console\Exception\RuntimeException as ConsoleRuntimeException;
 
-
 class TasksController extends HATEOASRestfulController
 {
     protected static $collectionOptions = ['GET', 'POST'];
@@ -250,6 +249,8 @@ class TasksController extends HATEOASRestfulController
     
 	public function applytimeboxforsharesAction(){
 		
+		$request = $this->getRequest();		
+		
 		if(isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] == 'localhost'){
 			$request = $this->getRequest();
 				
@@ -280,10 +281,8 @@ class TasksController extends HATEOASRestfulController
 		}else{
 			$this->response->setStatusCode(404);
 		}
-		
+				
 		return $this->response;
-		
-		
 	}
 	    
     public function setAccountService(AccountService $accountService) {
