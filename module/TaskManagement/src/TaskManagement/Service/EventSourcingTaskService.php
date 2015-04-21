@@ -122,9 +122,9 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	}
 
 	public function notifyMembersForShareAssignment(Task $task, RendererInterface $renderer, $taskMembersWithEmptyShares){
-	
+		
 		$result = false;
-	
+		
 		foreach ($taskMembersWithEmptyShares as $taskMember){
 				
 			//invio mail
@@ -136,7 +136,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			);
 				
 			$content = $renderer->render('task-management/email_templates/hurryup-taskmember', $params);
-	
+		
 			$headers  = 'MIME-Version: 1.0' . "\r\n";
 			$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
 			$headers .= 'From: O.R.A. Team<orateam@ora.com>' . "\r\n";
@@ -144,8 +144,9 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			$result = mail($taskMember->getEmail(), $params['emailSubject'], $content, $headers, 'orateam@ora.com');
 				
 		}
-	
+		
 		return $result;
+		
 	}
 
 	/**

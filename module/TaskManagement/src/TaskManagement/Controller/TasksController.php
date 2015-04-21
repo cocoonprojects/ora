@@ -16,13 +16,8 @@ use Accounting\Service\AccountService;
 use TaskManagement\Task;
 use TaskManagement\View\TaskJsonModel;
 use TaskManagement\Service\TaskService;
-
 use TaskManagement\Service\StreamService;
 use Application\Service\UserService;
-use Zend\Console\Request as ConsoleRequest;
-use Zend\Console\Exception\RuntimeException as ConsoleRuntimeException;
-
-
 
 class TasksController extends HATEOASRestfulController
 {
@@ -286,6 +281,7 @@ class TasksController extends HATEOASRestfulController
 			$this->response->setStatusCode(404);
 		}	
 		return $this->response;
+
 	}
 
     public function setAccountService(AccountService $accountService) {
@@ -341,14 +337,17 @@ class TasksController extends HATEOASRestfulController
      * @param array $taskRetrieved
      */
     private function notifySingleTaskForShareAssignment($taskRetrieved, $renderer){
-    	 
-    	if(isset($taskRetrieved['TASK_ID'])){
 
-	    	$taskToNotify = $this->taskService->getTask($taskRetrieved['TASK_ID']);			
-			$this->taskService->notifyMembersForShareAssignment($taskToNotify);
-			return true;
-    	}    
-    	return false;	
+    	if(isset($taskRetrieved['TASK_ID'])){
+    		//$taskToNotify = $this->taskService->findTask($taskRetrieved['TASK_ID']);
+    		$taskToNotify = $this->taskService->getTask($taskRetrieved['TASK_ID']);
+    		$taskMembersWithEmptyShares = $this->taskService->findMembersWithEmptyShares($taskToNotify);
+    		$result = $this->taskService->notifyMembersForShareAssignment($taskToNotify, $renderer, $taskMembersWithEmptyShares);
+    		return $result;    		
+    	}
+    	
+    	return false;
+    	
     }
     
     /**

@@ -4,8 +4,8 @@ namespace TaskManagement\Service;
 
 use TaskManagement\Stream;
 use TaskManagement\Task;
-use Application\Entity\User;
 use Zend\View\Renderer\RendererInterface;
+
 
 
 /**
@@ -39,5 +39,5 @@ interface TaskService
 	public function notifyMembersForShareAssignment(Task $task, RendererInterface $renderer, $taskMembersWithEmptyShares);
 	
 	public function findMembersWithEmptyShares(Task $task);
-
+	
 }
