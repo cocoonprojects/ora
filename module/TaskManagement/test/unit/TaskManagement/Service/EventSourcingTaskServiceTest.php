@@ -9,7 +9,8 @@ use Application\Entity\User;
 use Application\Organization;
 use TaskManagement\Stream;
 use TaskManagement\Task;
-use Zend\View\Renderer\RendererInterface;
+use TaskManagement\Entity\Task as ReadModelTask;
+
 
 
 class EventSourcingTaskServiceTest extends TestCase {
@@ -45,6 +46,7 @@ class EventSourcingTaskServiceTest extends TestCase {
 	
 	public function testNotifyMembersForShareAssigment() {
 
+
 // 		$renderer = new RendererInterface();
 // 		$noMembersWithEmptyShares = array();		
 // 		$this->assertFalse($this->taskService->notifyMembersForShareAssignment($taskMembersWithEmptyShares, $renderer, ''));
@@ -55,6 +57,7 @@ class EventSourcingTaskServiceTest extends TestCase {
 // 		//$this->assertNotEmpty($this->getMessages());
 		
 		//TODO: completare il test con le assertions
+
 		
 	}
 	
