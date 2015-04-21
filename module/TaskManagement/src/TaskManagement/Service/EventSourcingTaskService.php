@@ -17,6 +17,7 @@ use Application\Entity\User;
 use TaskManagement\Stream;
 use TaskManagement\Task;
 use TaskManagement\Entity\Task as ReadModelTask;
+use Zend\View\Renderer\RendererInterface;
 
 class EventSourcingTaskService extends AggregateRepository implements TaskService, EventManagerAwareInterface
 {
@@ -120,13 +121,27 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	}
 	
 	
-	public function notifyMembersForShareAssignment(Task $task){
-				
-		foreach ($task->getMembers() as $memberId=>$memberFields){
+	public function notifyMembersForShareAssignment(ReadModelTask $task, RendererInterface $renderer, $url){
 			
-			if(!isset($memberFields['share'])){
-				//invio mail ( agli utenti attivi ? ) 
-				echo($memberFields['email']." ASSEGNA GLI SHARE!!\n"); 
+		foreach ($task->getMembers() as $taskMember){
+			
+			if(is_array($taskMember->getShares()) && count($taskMember->getShares()) > 0){
+				//invio mail
+				$userMember = $taskMember->getMember();
+				$params = array(
+					'name' => $userMember->getFirstname()." ".$userMember->getLastname(),
+					'taskSubject' => $task->getSubject(),
+					'taskLink' => $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'].$url->fromRoute('tasks-home')."#".$task->getId(),
+					'emailSubject' => "O.R.A. - your contribution is required!"
+				);
+				
+				$content = $renderer->render('task-management/email_templates/hurryup-taskmember', $params);
+
+				$headers  = 'MIME-Version: 1.0' . "\r\n";
+				$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+				$headers .= 'From: O.R.A. Team<orateam@ora.com>' . "\r\n";
+				
+				mail($userMember->getEmail(), $params['emailSubject'], $content, $headers);
 			}
 		}
 				

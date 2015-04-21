@@ -5,6 +5,8 @@ namespace TaskManagement\Service;
 use TaskManagement\Stream;
 use TaskManagement\Task;
 use Application\Entity\User;
+use Zend\View\Renderer\RendererInterface;
+use TaskManagement\Entity\Task as ReadModelTask;
 
 /**
  * TODO: Rename in TaskRepository?
@@ -34,5 +36,5 @@ interface TaskService
 	
 	public function getAcceptedTaskIdsToClose(\DateInterval $interval);
 	
-	public function notifyMembersForShareAssignment(Task $task);
+	public function notifyMembersForShareAssignment(ReadModelTask $task, RendererInterface $renderer, $url);
 }
