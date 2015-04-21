@@ -148,6 +148,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		return $result;
 	}
 	
+	
 	/**
 	 * Retrieve an array of members (Application\Entity\User) of $task that haven't assigned any share
 	 * 

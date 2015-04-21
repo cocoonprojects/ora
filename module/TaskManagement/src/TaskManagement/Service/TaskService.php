@@ -4,6 +4,7 @@ namespace TaskManagement\Service;
 
 use TaskManagement\Stream;
 use TaskManagement\Task;
+
 use Application\Entity\User;
 use Zend\View\Renderer\RendererInterface;
 
