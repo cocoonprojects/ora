@@ -252,12 +252,11 @@ class TasksController extends HATEOASRestfulController
 		
 		if(isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] == 'localhost'){
 			$request = $this->getRequest();
-				
 			$timeboxForAcceptedTask = $this->getServiceLocator()->get('Config')['share_assignment_timebox'];
 				
 			$acceptedTaskIdsToNotify = $this->taskService->getAcceptedTaskIdsToNotify($timeboxForAcceptedTask);
 			$acceptedTaskIdsToClose = $this->taskService->getAcceptedTaskIdsToClose($timeboxForAcceptedTask);
-				
+			
 			if(is_array($acceptedTaskIdsToNotify) && count($acceptedTaskIdsToNotify) > 0){
 					
 				array_map(array($this, 'notifySingleTaskForShareAssignment'),  $acceptedTaskIdsToNotify, array($this->getServiceLocator()->get('ViewRenderer')));
@@ -282,7 +281,6 @@ class TasksController extends HATEOASRestfulController
 		}
 		
 		return $this->response;
-		
 	}
 	    
     public function setAccountService(AccountService $accountService) {
