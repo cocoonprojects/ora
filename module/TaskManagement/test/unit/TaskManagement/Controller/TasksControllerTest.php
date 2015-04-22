@@ -20,7 +20,6 @@ use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
 use TaskManagement\Task;
 use Application\Service\UserService;
-use Zend\Console\Request as ConsoleRequest;
 
 class TasksControllerTest extends \PHPUnit_Framework_TestCase {
 	
@@ -212,7 +211,12 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
         //dispatch
         $this->routeMatch->setParam('action', 'applytimeboxforshares');
         $result = $this->controller->dispatch($this->request);
+<<<<<<< HEAD:module/TaskManagement/test/unit/TaskManagement/Controller/TasksControllerTest.php
 		$response = $this->controller->getResponse();
+=======
+        
+        $response = $this->controller->getResponse();
+>>>>>>> completed configuration for calling action from localhost:src/module/TaskManagement/tests/unit/TaskManagement/Controller/TasksControllerTest.php
         
         //controllo che il task abbia lo stato corretto
 		$this->assertEquals(200, $response->getStatusCode());

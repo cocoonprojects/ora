@@ -248,8 +248,12 @@ class TasksController extends HATEOASRestfulController
 	public function applytimeboxforsharesAction(){
 		
 		if(isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] == 'localhost'){
+<<<<<<< HEAD
 
 			$request = $this->getRequest();
+=======
+			$request = $this->getRequest();
+>>>>>>> completed configuration for calling action from localhost
 
 			$timeboxForAcceptedTask = $this->getServiceLocator()->get('Config')['share_assignment_timebox'];
 				
@@ -273,6 +277,7 @@ class TasksController extends HATEOASRestfulController
 					$this->response->setStatusCode(412);
 				}catch(InvalidArgumentException $ex){
 					$this->transaction()->rollback();
+<<<<<<< HEAD
 					$this->response->setStatusCode(403);
 				}
 			}
@@ -280,6 +285,16 @@ class TasksController extends HATEOASRestfulController
 			$this->response->setStatusCode(404);
 		}	
 		return $this->response;
+=======
+					$this->response->setStatusCode(403);
+				}
+			}
+		}else{
+			$this->response->setStatusCode(404);
+		}
+		
+		return $this->response;
+>>>>>>> completed configuration for calling action from localhost
 
 	}
 	    
@@ -337,15 +352,15 @@ class TasksController extends HATEOASRestfulController
     private function notifySingleTaskForShareAssignment($taskRetrieved, $renderer){
 
     	if(isset($taskRetrieved['TASK_ID'])){
-    		//$taskToNotify = $this->taskService->findTask($taskRetrieved['TASK_ID']);
+
+	    	//$taskToNotify = $this->taskService->findTask($taskRetrieved['TASK_ID']);			
     		$taskToNotify = $this->taskService->getTask($taskRetrieved['TASK_ID']);
-    		$taskMembersWithEmptyShares = $this->taskService->findMembersWithEmptyShares($taskToNotify);
-    		$result = $this->taskService->notifyMembersForShareAssignment($taskToNotify, $renderer, $taskMembersWithEmptyShares);
-    		return $result;    		
-    	}
-    	
-    	return false;
-    	
+    		$taskMembersWithEmptyShares = $this->taskService->findMembersWithEmptyShares($taskToNotify);    		
+			$result = $this->taskService->notifyMembersForShareAssignment($taskToNotify, $renderer, $taskMembersWithEmptyShares);
+			return $result;
+    	}    
+    	return false;	
+
     }
     
     /**
@@ -355,6 +370,7 @@ class TasksController extends HATEOASRestfulController
      * @param User $closedBy
      */
     private function forceToCloseSingleTask($taskRetrieved, User $closedBy){
+<<<<<<< HEAD
     	 
 	    if($closedBy->getId() == User::SYSTEM_USER){
 	    	if(isset($taskRetrieved['TASK_ID'])){
@@ -365,6 +381,17 @@ class TasksController extends HATEOASRestfulController
 	    	}    	
 	    	return false;    
 	    }
+=======
+    	
+    	if(isset($taskRetrieved['TASK_ID'])){
+    		
+    		$taskToClose = $this->taskService->getTask($taskRetrieved['TASK_ID']);
+    		$taskToClose->close($closedBy);
+			return true;
+    	}
+    	
+    	return false;
+>>>>>>> completed configuration for calling action from localhost
     }
 
 }
