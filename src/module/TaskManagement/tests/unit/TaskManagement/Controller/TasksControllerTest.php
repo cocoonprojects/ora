@@ -20,7 +20,6 @@ use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
 use TaskManagement\Task;
 use Application\Service\UserService;
-use Zend\Console\Request as ConsoleRequest;
 
 class TasksControllerTest extends \PHPUnit_Framework_TestCase {
 	
@@ -66,6 +65,7 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
         $this->controller->getPluginManager()->setService('transaction', $transaction);
 
         $user = User::create();
+        $user->setEmail('fake@email.com');
         $this->setupLoggedUser($user);
         
     }
@@ -155,7 +155,21 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
 		
     }
     
+    public function testCannotApplyTimeboxFromGenericHosts(){
+    
+    	$_SERVER['HTTP_HOST'] = 'www.mydomain.com';
+    	
+    	$this->routeMatch->setParam('action', 'applytimeboxforshares');
+    	$result = $this->controller->dispatch($this->request);
+    
+    	$response = $this->controller->getResponse();
+    
+    	$this->assertEquals(404, $response->getStatusCode());
+    }
+    
 	public function testApplyTimeboxToCloseAnAcceptedTasks(){
+		
+		$_SERVER['HTTP_HOST'] = 'localhost';
 		
 		$userStub = $this->getMockBuilder(User::class)
         	->disableOriginalConstructor()
@@ -195,9 +209,8 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
         	->willReturn($taskToClose);	
         	
         //dispatch
-        $consoleRequest = new ConsoleRequest();
         $this->routeMatch->setParam('action', 'applytimeboxforshares');
-        $result = $this->controller->dispatch($consoleRequest);
+        $result = $this->controller->dispatch($this->request);
         
         $response = $this->controller->getResponse();
         
@@ -206,7 +219,7 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals(Task::STATUS_CLOSED, $taskToClose->getStatus());
         
 	}
-		
+
 	protected function setupStream(){
 		
 		$organization = Organization::create('My brand new Orga', $this->getLoggedUser());
