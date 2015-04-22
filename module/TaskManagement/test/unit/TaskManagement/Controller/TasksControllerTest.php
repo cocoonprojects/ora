@@ -28,7 +28,6 @@ use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
 use TaskManagement\Task;
 use Application\Service\UserService;
-use Zend\Console\Request as ConsoleRequest;
 
 
 class TasksControllerTest extends ControllerTest
@@ -141,7 +140,6 @@ class TasksControllerTest extends ControllerTest
 		$response = $this->controller->getResponse();
         $user = User::create();
         $user->setEmail('fake@email.com');
-        
         $this->setupLoggedUser($user);
         
     }
@@ -260,7 +258,7 @@ class TasksControllerTest extends ControllerTest
 	public function testApplyTimeboxToCloseAnAcceptedTasks(){
 		
 		$_SERVER['HTTP_HOST'] = 'localhost';
-
+		
 		$userStub = $this->getMockBuilder(User::class)
         	->disableOriginalConstructor()
         	->getMock();        	
@@ -309,6 +307,7 @@ class TasksControllerTest extends ControllerTest
         $this->assertEquals(Task::STATUS_CLOSED, $taskToClose->getStatus());
         
 	}
+
 	protected function setupStream(){
 		
 		$organization = Organization::create('My brand new Orga', $this->getLoggedUser());

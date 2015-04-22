@@ -120,7 +120,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		return $query->getArrayResult();		
 
 	}
-
+	
 	public function notifyMembersForShareAssignment(Task $task, RendererInterface $renderer, $taskMembersWithEmptyShares){
 
 		$result = false;
@@ -147,8 +147,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		
 		return $result;
 	}
-	
-	
+
 	/**
 	 * Retrieve an array of members (Application\Entity\User) of $task that haven't assigned any share
 	 * 
@@ -161,7 +160,6 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		
 		$readModelTask = $this->findTask($task->getId());
 		$taskMembers = $readModelTask->getMembers();
-		
 		foreach($taskMembers as $taskMember){
 			
 			if(count($taskMember->getShare() == 0)){
@@ -170,5 +168,6 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		}
 		
 		return $members;
+
 	}
 }
