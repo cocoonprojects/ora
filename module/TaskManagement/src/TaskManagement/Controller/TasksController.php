@@ -251,21 +251,21 @@ class TasksController extends HATEOASRestfulController
 	
 	public function applytimeboxforsharesAction(){
 		
-		$request = $this->getRequest();		
-		
-		if ($request instanceof ConsoleRequest) {
+		if(isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] == 'localhost'){
+			$request = $this->getRequest();
+			
 			$timeboxForAcceptedTask = $this->getServiceLocator()->get('Config')['share_assignment_timebox'];
 			
 			$acceptedTaskIdsToNotify = $this->taskService->getAcceptedTaskIdsToNotify($timeboxForAcceptedTask);
 			$acceptedTaskIdsToClose = $this->taskService->getAcceptedTaskIdsToClose($timeboxForAcceptedTask);
-
+			
 			if(is_array($acceptedTaskIdsToNotify) && count($acceptedTaskIdsToNotify) > 0){
-				
+					
 				array_map(array($this, 'notifySingleTaskForShareAssignment'),  $acceptedTaskIdsToNotify, array($this->getServiceLocator()->get('ViewRenderer')));
 			}
 			
 			if(is_array($acceptedTaskIdsToClose) && count($acceptedTaskIdsToClose) > 0){
-				
+					
 				$this->transaction()->begin();
 				try{
 					$closedBy = $this->userService->findUser(User::SYSTEM_USER);
@@ -273,17 +273,18 @@ class TasksController extends HATEOASRestfulController
 					$this->transaction()->commit();
 				}catch(IllegalStateException $ex){
 					$this->transaction()->rollback();
-	           		throw new ConsoleRuntimeException($ex->getMessage());
+					$this->response->setStatusCode(412);
 				}catch(InvalidArgumentException $ex){
 					$this->transaction()->rollback();
-					throw new ConsoleRuntimeException($ex->getMessage());
-				}			
+					$this->response->setStatusCode(403);
+				}
 			}			
 		}else{
-			//al momento la richiesta HTTP non e' consentita
-			$this->response->setStatusCode(403);
-		}
-		return $this->response;	
+			$this->response->setStatusCode(404);
+		}	
+		
+		return $this->response;
+		
 	}
     
     public function setAccountService(AccountService $accountService) {
@@ -339,9 +340,11 @@ class TasksController extends HATEOASRestfulController
     private function notifySingleTaskForShareAssignment($taskRetrieved, $renderer){
     	
     	if(isset($taskRetrieved['TASK_ID'])){
-	    	$taskToNotify = $this->taskService->findTask($taskRetrieved['TASK_ID']);			
-			$this->taskService->notifyMembersForShareAssignment($taskToNotify, $renderer, $this->url());
-			return true;
+	    	//$taskToNotify = $this->taskService->findTask($taskRetrieved['TASK_ID']);			
+    		$taskToNotify = $this->taskService->getTask($taskRetrieved['TASK_ID']);
+    		$taskMembersWithEmptyShares = $this->taskService->findMembersWithEmptyShares($taskToNotify);    		
+			$result = $this->taskService->notifyMembersForShareAssignment($taskToNotify, $renderer, $taskMembersWithEmptyShares);
+			return $result;
     	}    
     	return false;	
     }
@@ -355,6 +358,7 @@ class TasksController extends HATEOASRestfulController
     private function forceToCloseSingleTask($taskRetrieved, User $closedBy){
     	
     	if(isset($taskRetrieved['TASK_ID'])){
+    		
     		$taskToClose = $this->taskService->getTask($taskRetrieved['TASK_ID']);
     		$taskToClose->close($closedBy);
 			return true;
