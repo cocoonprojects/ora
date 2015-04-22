@@ -39,6 +39,7 @@ return array(
 					),
 				),
 			),
+				
 			'timebox-shares' => array(
 				'type' => 'Literal',
 				'options' => array(
@@ -85,9 +86,9 @@ return array(
 	'listeners' => array(
 		'TaskManagement\NotifyMailListener',	
 		'TaskManagement\StreamCommandsListener',
+
 		'TaskManagement\TaskCommandsListener',
 		'TaskManagement\TransferTaskSharesCreditsListener',
 		'TaskManagement\CloseTaskListener',
 	)
-	
 );

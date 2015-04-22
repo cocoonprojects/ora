@@ -339,15 +339,15 @@ class TasksController extends HATEOASRestfulController
     private function notifySingleTaskForShareAssignment($taskRetrieved, $renderer){
 
     	if(isset($taskRetrieved['TASK_ID'])){
-    		//$taskToNotify = $this->taskService->findTask($taskRetrieved['TASK_ID']);
+
+	    	//$taskToNotify = $this->taskService->findTask($taskRetrieved['TASK_ID']);			
     		$taskToNotify = $this->taskService->getTask($taskRetrieved['TASK_ID']);
-    		$taskMembersWithEmptyShares = $this->taskService->findMembersWithEmptyShares($taskToNotify);
-    		$result = $this->taskService->notifyMembersForShareAssignment($taskToNotify, $renderer, $taskMembersWithEmptyShares);
-    		return $result;    		
-    	}
-    	
-    	return false;
-    	
+    		$taskMembersWithEmptyShares = $this->taskService->findMembersWithEmptyShares($taskToNotify);    		
+			$result = $this->taskService->notifyMembersForShareAssignment($taskToNotify, $renderer, $taskMembersWithEmptyShares);
+			return $result;
+    	}    
+    	return false;	
+
     }
     
     /**
@@ -357,16 +357,15 @@ class TasksController extends HATEOASRestfulController
      * @param User $closedBy
      */
     private function forceToCloseSingleTask($taskRetrieved, User $closedBy){
-    	 
-	    if($closedBy->getId() == User::SYSTEM_USER){
-	    	if(isset($taskRetrieved['TASK_ID'])){
-	    
-	    		$taskToClose = $this->taskService->getTask($taskRetrieved['TASK_ID']);
-	    		$taskToClose->close($closedBy);
-				return true;
-	    	}    	
-	    	return false;    
-	    }
+   	
+    	if(isset($taskRetrieved['TASK_ID'])){
+    		
+    		$taskToClose = $this->taskService->getTask($taskRetrieved['TASK_ID']);
+    		$taskToClose->close($closedBy);
+			return true;
+    	}
+    	
+    	return false;
     }
 
 }
