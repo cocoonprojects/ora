@@ -101,7 +101,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->andWhere('t.status = :taskStatus')			
 			->setParameter('taskStatus', Task::STATUS_ACCEPTED)			
 			->getQuery();			
-			
+		
 		return $query->getArrayResult();		
 	}
 	
@@ -121,29 +121,53 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	}
 	
 	
-	public function notifyMembersForShareAssignment(ReadModelTask $task, RendererInterface $renderer, $url){
-			
-		foreach ($task->getMembers() as $taskMember){
-			
-			if(is_array($taskMember->getShares()) && count($taskMember->getShares()) > 0){
-				//invio mail
-				$userMember = $taskMember->getMember();
-				$params = array(
-					'name' => $userMember->getFirstname()." ".$userMember->getLastname(),
-					'taskSubject' => $task->getSubject(),
-					'taskLink' => $_SERVER['REQUEST_SCHEME']."://".$_SERVER['HTTP_HOST'].$url->fromRoute('tasks-home')."#".$task->getId(),
-					'emailSubject' => "O.R.A. - your contribution is required!"
-				);
-				
-				$content = $renderer->render('task-management/email_templates/hurryup-taskmember', $params);
+	public function notifyMembersForShareAssignment(Task $task, RendererInterface $renderer, $taskMembersWithEmptyShares){
 
-				$headers  = 'MIME-Version: 1.0' . "\r\n";
-				$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-				$headers .= 'From: O.R.A. Team<orateam@ora.com>' . "\r\n";
-				
-				mail($userMember->getEmail(), $params['emailSubject'], $content, $headers);
+		$result = false;
+		
+		foreach ($taskMembersWithEmptyShares as $taskMember){
+			
+			//invio mail
+			$params = array(
+				'name' => $taskMember->getFirstname()." ".$taskMember->getLastname(),
+				'taskSubject' => $task->getSubject(),
+				'taskId' => $task->getId(),
+				'emailSubject' => "O.R.A. - your contribution is required!"
+			);
+			
+			$content = $renderer->render('task-management/email_templates/hurryup-taskmember', $params);
+
+			$headers  = 'MIME-Version: 1.0' . "\r\n";
+			$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+			$headers .= 'From: O.R.A. Team<orateam@ora.com>' . "\r\n";
+			
+			$result = mail($taskMember->getEmail(), $params['emailSubject'], $content, $headers, 'orateam@ora.com');
+			
+		}
+		
+		return $result;
+	}
+	
+	/**
+	 * Retrieve an array of members (Application\Entity\User) of $task that haven't assigned any share
+	 * 
+	 * @param Task $task
+	 * @return array of Application\Entity\User or empty array
+	 */
+	public function findMembersWithEmptyShares(Task $task){
+		
+		$members = array();
+		
+		$readModelTask = $this->findTask($task->getId());
+		$taskMembers = $readModelTask->getMembers();
+		
+		foreach($taskMembers as $taskMember){
+			
+			if(count($taskMember->getShare() == 0)){
+				$members[] = $taskMember->getMember();
 			}
 		}
-				
+		
+		return $members;
 	}
 }
