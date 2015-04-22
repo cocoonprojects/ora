@@ -248,9 +248,7 @@ class TasksController extends HATEOASRestfulController
     }
     
 	public function applytimeboxforsharesAction(){
-		
-		$request = $this->getRequest();		
-		
+
 		if(isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] == 'localhost'){
 			$request = $this->getRequest();
 				
@@ -281,8 +279,9 @@ class TasksController extends HATEOASRestfulController
 		}else{
 			$this->response->setStatusCode(404);
 		}
-				
-		return $this->response;
+		
+		return $this->response;	
+	
 	}
 	    
     public function setAccountService(AccountService $accountService) {
@@ -347,7 +346,9 @@ class TasksController extends HATEOASRestfulController
     		$taskToNotify = $this->taskService->getTask($taskRetrieved['TASK_ID']);
     		$taskMembersWithEmptyShares = $this->taskService->findMembersWithEmptyShares($taskToNotify);    		
 			$result = $this->taskService->notifyMembersForShareAssignment($taskToNotify, $renderer, $taskMembersWithEmptyShares);
+
 			return $result;
+
     	}    
     	return false;	
     }
@@ -359,7 +360,7 @@ class TasksController extends HATEOASRestfulController
      * @param User $closedBy
      */
     private function forceToCloseSingleTask($taskRetrieved, User $closedBy){
-    	
+
     	if($closedBy->getId() == User::SYSTEM_USER){
     		
     		if(isset($taskRetrieved['TASK_ID'])){

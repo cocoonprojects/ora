@@ -42,9 +42,15 @@ return array(
 			'timebox-shares' => array(
 				'type' => 'Literal',
 				'options' => array(
+<<<<<<< HEAD
 
 					'route'	   => '/task-management/tasks/applytimeboxforshares',
 					'defaults' => array(
+=======
+					'route'	   => '/task-management/tasks/applytimeboxforshares',
+					
+					'defaults' => array(
+>>>>>>> completed configuration for calling action from localhost
 						'controller' => 'TaskManagement\Controller\Tasks',
 						'action' => 'applytimeboxforshares'
 					),
@@ -88,22 +94,7 @@ return array(
 		'TaskManagement\TaskCommandsListener',
 		'TaskManagement\TransferTaskSharesCreditsListener',
 		'TaskManagement\CloseTaskListener',
-	),
-	'console' => array(
-        'router' => array(
-            'routes' => array(
-                'scheduled-timebox-shares' => array(					
-					'options' => array(
-						'route'	   => 'apply timebox',						
-						'defaults' => array(
-							'controller' => 'TaskManagement\Controller\Tasks',
-							'action' => 'applytimeboxforshares'
-						),
-					),
-				),
-            )
-        )
-    ),
+	)
 	
 	
 );

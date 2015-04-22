@@ -9,8 +9,7 @@ use Application\Entity\User;
 use Application\Organization;
 use TaskManagement\Stream;
 use TaskManagement\Task;
-use TaskManagement\Entity\Task as ReadModelTask;
-
+use Zend\View\Renderer\RendererInterface;
 
 class EventSourcingTaskServiceTest extends TestCase {
 	
@@ -24,6 +23,10 @@ class EventSourcingTaskServiceTest extends TestCase {
 	 * @var User
 	 */
 	private $user;
+	/**
+	 * @var \Guzzle\Http\Client
+	 */
+	private $mailcatcher;
 	
 	protected function setUp() {
 		parent::setUp();
@@ -33,11 +36,20 @@ class EventSourcingTaskServiceTest extends TestCase {
 		$this->eventStore->commit();
 		$this->taskService = new EventSourcingTaskService($this->eventStore, $entityManager);
 		$this->user = User::create();
+		$this->mailcatcher = new \Guzzle\Http\Client('http://127.0.0.1:1080');
+		$this->cleanEmailMessages();
 	}
 	
 	public function testNotifyMembersForShareAssigment() {
-		
-		//TODO: riscrivere il test
+
+// 		$renderer = new RendererInterface();
+// 		$noMembersWithEmptyShares = array();		
+// 		$this->assertFalse($this->taskService->notifyMembersForShareAssignment($taskMembersWithEmptyShares, $renderer, ''));
+// 		//$response = $this->getLastEmailMessage();
+// 		//$this->assertContains($needle, (string)$response->getBody(), $description);
+// 		//$this->assertEquals($expected, $response->sender, $description);
+// 		//$this->assertContains($needle, $response->recipients, $description);
+// 		//$this->assertNotEmpty($this->getMessages());
 		
 	}
 	
@@ -52,4 +64,25 @@ class EventSourcingTaskServiceTest extends TestCase {
 		$stream = $this->setupStream();
 		return Task::create($stream, 'task subject', $this->user);		
 	}
+	
+	protected function cleanEmailMessages()
+	{
+		$this->mailcatcher->delete('/messages')->send();
+	}
+	
+	protected function getEmailMessages()
+    {
+        $jsonResponse = $this->mailcatcher->get('/messages')->send();
+        return json_decode($jsonResponse->getBody());
+    }
+    
+    public function getLastEmailMessage()
+    {
+    	$messages = $this->getEmailMessages();
+    	if (empty($messages)) {
+    		$this->fail("No messages received");
+    	}
+    	// messages are in descending order
+    	return reset($messages);
+    }
 }
