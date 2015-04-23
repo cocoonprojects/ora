@@ -11,6 +11,8 @@ use Zend\Mail;
 use MailNotification\Controller\MailController;
 use Ora\User\UserService;
 use Ora\User;
+use Assetic\Exception\Exception;
+
 
 class NotifyMailListener implements ListenerAggregateInterface {
 	
@@ -20,6 +22,8 @@ class NotifyMailListener implements ListenerAggregateInterface {
 	private $mailService;
 	private $userService;
 	protected $listeners = array ();
+	
+	
 	
 	public function __construct(MailService $mailService, UserService $userService) {
 		$this->mailService = $mailService;
@@ -62,7 +66,12 @@ class NotifyMailListener implements ListenerAggregateInterface {
 				'memberFirstName' => $memberFirstName,
 				'memberLastName' => $memberLastName 
 		) );
-		$this->mailService->send ();
-	
+		$result = $this->mailService->send ();
+		
+		return $result;
+		
+		/*if($result->hasException()){
+			throw $result->getException();
+		}*/
 	}
 }

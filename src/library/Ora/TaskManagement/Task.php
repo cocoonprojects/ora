@@ -235,7 +235,7 @@ class Task extends DomainEntity
 			$memberFirstName = $member->getFirstname();
 			$memberLastName = $member->getLastname();
 			
-			//trigger event
+			//trigger notification event
 			$this->getEventManager()->trigger(Task::EVENT_ADD_ESTIMATION_NOTIFICATION, $this, ['taskSubject'=>$this->getSubject(), 'ownerId'=>$ownerId, 'memberFirstName'=>$memberFirstName, 'memberLastName'=>$memberLastName]);		
 		}		
 	}
@@ -293,7 +293,7 @@ class Task extends DomainEntity
 			$memberFirstName = $member->getFirstname();
 			$memberLastName = $member->getLastname();
 					
-			//trigger event
+			//trigger notification event
 			$this->getEventManager()->trigger(Task::EVENT_SHARES_ASSIGNED_NOTIFICATION, $this, ['taskSubject'=>$this->getSubject(), 'ownerId'=>$ownerId, 'memberFirstName'=>$memberFirstName, 'memberLastName'=>$memberLastName]);
 		}
 	}
@@ -319,7 +319,7 @@ class Task extends DomainEntity
 			$memberFirstName = $member->getFirstname();
 			$memberLastName = $member->getLastname();
 				
-			//trigger event
+			//trigger notification event
 			$this->getEventManager()->trigger(Task::EVENT_SHARES_ASSIGNED_NOTIFICATION, $this, ['taskSubject'=>$this->getSubject(), 'ownerId'=>$ownerId, 'memberFirstName'=>$memberFirstName, 'memberLastName'=>$memberLastName]);
 		}
 	}
