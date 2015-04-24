@@ -10,7 +10,7 @@ Organizations.prototype = {
 	
 	data: [],
 	
-	membershipsData: [],
+	membershipsData: null,
 	
 	bindEventsOn: function()
 	{
@@ -19,7 +19,7 @@ Organizations.prototype = {
 		$('#userMenu').on('show.bs.dropdown', function(e) {
 			container = $(e.target);
 			$('li.membership').remove();
-			if(that.membershipsData.length == 0) {
+			if(that.membershipsData == null) {
 				$('<li class="membership"><a href="#">Loading...</a></li>').insertBefore('#userMenu li.divider');
 			} else {
 				$.each(that.membershipsData._embedded['ora:organization-membership'], function(i, object) {
@@ -30,7 +30,7 @@ Organizations.prototype = {
 		
 		$("#createOrganizationModal").on("show.bs.modal", function(e) {
 			var modal = $(this);
-			modal.find('div.alert').hide();			
+			modal.find('div.alert').hide();
 			modal.find("form")[0].reset();
 		});
 		
@@ -70,7 +70,7 @@ Organizations.prototype = {
 	
 	updateMemberships: function()
 	{
-		that = this;
+		var that = this;
 		$.getJSON('/memberships', function(data) {
 			that.membershipsData = data;
 		});
@@ -83,8 +83,7 @@ Organizations.prototype = {
 		alertDiv.text(message);
 		alertDiv.show();
 	}
-}
-
+};
 $().ready(function(e){
 	organizations = new Organizations();
 	organizations.updateMemberships();

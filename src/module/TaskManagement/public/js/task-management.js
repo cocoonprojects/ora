@@ -26,11 +26,11 @@ TaskManagement.prototype = {
 		var that = this;
 		
 		$("#createTaskModal").on("show.bs.modal", function(e) {
-			form = $(this).find("form");
+			var form = $(this).find("form");
 			form[0].reset();
 			$(this).find('div.alert').hide();
 			
-			select = form.find("#createTaskStreamID");
+			var select = form.find("#createTaskStreamID");
 			select.empty();
 			select.append('<option></option>');
 			$.each(that.streamsData._embedded['ora:stream'], function(i, object) {
@@ -44,11 +44,11 @@ TaskManagement.prototype = {
 		});
 		
 		$("#createStreamModal").on("show.bs.modal", function(e) {
-			form = $(this).find("form");
-			form[0].reset();
+			var f = $(this).find("form");
+			f[0].reset();
 			$(this).find('div.alert').hide();
 			
-			select = form.find("#createStreamOrganizationId");
+			var select = f.find("#createStreamOrganizationId");
 			select.empty();
 			select.append('<option></option>');
 			$.each(organizations.membershipsData._embedded['ora:organization-membership'], function(i, object) {
@@ -550,7 +550,7 @@ TaskManagement.prototype = {
 		});
 				
 		rv +=	'</tbody>' +
-			  '</table>';
+			'</table>';
 		return rv;
 	},
 
