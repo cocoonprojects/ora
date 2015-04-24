@@ -13,21 +13,21 @@
 >
 	<testsuites>
 		<testsuite name="Application integration tests">
-			<directory>../../src/module/Application/tests/integration</directory>
+			<directory>../../module/Application/tests/integration</directory>
 		</testsuite>
 		<testsuite name="Task Management integration tests">
-			<directory>../../src/module/TaskManagement/tests/integration</directory>
+			<directory>../../module/TaskManagement/tests/integration</directory>
 		</testsuite>
 		<testsuite name="Accounting integration tests">
-			<directory>../../src/module/Accounting/tests/integration</directory>
+			<directory>../../module/Accounting/tests/integration</directory>
 		</testsuite>
 		<testsuite name="Kanbanize integration tests">
-			<directory>../../src/module/Kanbanize/tests/integration</directory>
+			<directory>../../module/Kanbanize/tests/integration</directory>
 		</testsuite>
 	</testsuites>
 	<filter>
 		<blacklist>
-			<directory>../../src/vendor</directory>
+			<directory>../../vendor</directory>
 		</blacklist>
 	</filter>
 	<php>

@@ -1,10 +1,25 @@
-bin/
-src/vendor
-src/data
-.vagrant
+# Composer files
+#composer.phar
+vendor/
+
+# Local configs
+config/autoload/*.local.php
+
+# Binary gettext files
+*.mo
+
+# Data
+data/
+temp/
+
+# Legacy ZF1
+demos/
+extras/documentation
+
+#Eclipse files
 .project
 .buildpath
-*.old
 .settings/
 .DS_Store
 *.log
+*.old
