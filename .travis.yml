@@ -2,7 +2,6 @@ language: php
 
 php:
   - 5.6
-  - 5.5
 
 env:
   - APPLICATION_ENV=acceptance
@@ -38,15 +37,13 @@ before_script:
     # Set the GitHub OAuth token to make use of the 5000 per hour rate limit
   - "mkdir -p ~/.composer"
   - cp .travis.composer.config.json ~/.composer/config.json
-  - composer install -d src
+  - composer install
   - mysql -e 'create database '"$DB_NAME"';'
-  - src/vendor/bin/doctrine-module orm:schema-tool:create
+  - vendor/bin/doctrine-module orm:schema-tool:create
   - mysql $DB_NAME < tests/sql/init.sql
 
 script:
-  - cd tests/unit
-  - phpunit --coverage-text
-  - cd ../integration
-  - phpunit
-  - cd ..
-  - ../src/vendor/bin/behat
+  - cd tests
+  - phpunit --configuration unit/phpunit.xml --coverage-text
+  - phpunit --configuration integration/phpunit.xml
+  - ../vendor/bin/behat
