@@ -43,9 +43,8 @@ before_script:
   - mysql $DB_NAME < tests/sql/init.sql
 
 script:
-  - cd tests/unit
-  - phpunit --coverage-text
-  - cd ../integration
-  - phpunit
-  - cd ..
-  - ../vendor/bin/behat
+  - cd tests
+  - phpunit --configuration unit/phpunit.xml --coverage-text
+  - phpunit --configuration integration/phpunit.xml
+  - cd ../vendor/bin
+  - behat
