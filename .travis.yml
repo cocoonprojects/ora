@@ -47,4 +47,4 @@ script:
   - phpunit --configuration unit/phpunit.xml --coverage-text
   - phpunit --configuration integration/phpunit.xml
   - cd ../vendor/bin
-  - behat
+  - ./behat
