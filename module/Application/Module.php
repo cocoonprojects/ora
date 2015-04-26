@@ -9,7 +9,6 @@ use Zend\Authentication\AuthenticationService;
 use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
 use Doctrine\ORM\EntityManager;
 use Application\Controller\AuthController;
-use Application\Controller\OrganizationsController;
 use Application\Controller\MembershipsController;
 use Application\Controller\Plugin\EventStoreTransactionPlugin;
 use Application\Service\IdentityRolesProvider;
@@ -43,12 +42,6 @@ class Module
 					$userService = $locator->get('Application\UserService');
 					$controller = new AuthController($authService, $resolver);
 					$controller->setUserService($userService);
-					return $controller;
-				},
-				'Application\Controller\Organizations' => function ($sm) {
-					$locator = $sm->getServiceLocator();
-					$orgService = $locator->get('Application\OrganizationService');
-					$controller = new OrganizationsController($orgService);
 					return $controller;
 				},
 				'Application\Controller\Memberships' => function ($sm) {

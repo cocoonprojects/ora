@@ -65,7 +65,7 @@
 		</nav>
 		<?php echo $this->content; ?>
 		<?php echo $this->LoginPopupHelper(); ?>
-		<?php echo $this->partial('layout/create-organization-modal.phtml', array(
+		<?php echo $this->partial('people/create-organization-modal.phtml', array(
 			'identity' => is_null($this->identity()) ? null : $this->identity()['user']
 		)) ?>
 		<?php echo $this->inlineScript() ?>

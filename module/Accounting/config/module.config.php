@@ -34,13 +34,13 @@ return array(
 			'ViewJsonStrategy',
 		),
 		'template_path_stack' => array(
-			'accounting' => __DIR__ . '/../view',
+			__NAMESPACE__ => __DIR__ . '/../view',
 		),
 	),
 	'asset_manager' => array(
 		'resolver_configs' => array(
 			'paths' => array(
-				'Accounting' => __DIR__ . '/../public',
+				__NAMESPACE__ => __DIR__ . '/../public',
 			),
 		),
 	),

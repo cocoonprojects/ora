@@ -10,10 +10,11 @@ return array(
 		'ProophEventStoreModule',
 		'ZendOAuth2',
 		'AssetManager',
+		'BjyAuthorize',
+		'Application',
 		'Accounting',
 		'TaskManagement',
-		'Application',
-		'BjyAuthorize',
+		'People',
 		'Kanbanize'
 	),
 

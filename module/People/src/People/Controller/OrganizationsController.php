@@ -1,6 +1,6 @@
 <?php
 
-namespace Application\Controller;
+namespace People\Controller;
 
 use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
@@ -9,9 +9,8 @@ use Zend\Filter\StripTags;
 use Application\Organization;
 use Application\Service\OrganizationService;
 use Application\Controller\AbstractHATEOASRestfulController;
-use Application\View\OrganizationMembershipJsonModel;
 
-class MembershipsController extends AbstractHATEOASRestfulController
+class OrganizationsController extends AbstractHATEOASRestfulController
 {
 	protected static $collectionOptions = array('GET', 'POST');
 	protected static $resourceOptions = array('DELETE', 'POST', 'GET', 'PUT');
@@ -36,6 +35,14 @@ class MembershipsController extends AbstractHATEOASRestfulController
 	
 	public function getList()
 	{
+		// HTTP STATUS CODE 405: Method not allowed
+		$this->response->setStatusCode(405);
+		 
+		return $this->response;
+	}
+	
+	public function create($data)
+	{
 		$identity = $this->identity();
 		if(is_null($identity)) {
 			$this->response->setStatusCode(401);
@@ -43,18 +50,16 @@ class MembershipsController extends AbstractHATEOASRestfulController
 		}
 		$identity = $identity['user'];
 		
-		$memberships = $this->orgService->findUserOrganizationMemberships($identity);
+		$filters = new FilterChain();
+		$filters->attach(new StringTrim())
+				->attach(new StripNewlines())
+				->attach(new StripTags());
 		
-		$view = new OrganizationMembershipJsonModel($this->url(), $identity);
-		$view->setVariable('resource', $memberships);
-		return $view;
-	}
-	
-	public function create($data)
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
+		$name = isset($data['name']) ? $filters->filter($data['name']) : null;
+		$organization = $this->orgService->createOrganization($name, $identity);
+		$url = $this->url()->fromRoute('organizations', array('id' => $organization->getId()->toString()));
+		$this->response->getHeaders()->addHeaderLine('Location', $url);
+		$this->response->setStatusCode(201);
 		return $this->response;
 	}
 	

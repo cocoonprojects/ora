@@ -23,19 +23,6 @@ return array(
 						),
 				),
 			),
-			'organizations' => array(
-				'type' => 'Segment',
-				'options' => array(
-					'route'	   => '/organizations[/:id][/:controller]',
-					'constraints' => array(
-						'id' => '[0-9a-z\-]+'
-					),
-					'defaults' => array(
-						'__NAMESPACE__' => 'Application\Controller',
-						'controller' => 'Organizations'
-					),
-				),
-			),	
 			'memberships' => array(
 				'type' => 'Segment',
 				'options' => array(
@@ -147,7 +134,7 @@ return array(
 	'asset_manager' => array(
 		'resolver_configs' => array(
 			'paths' => array(
-				'Application' => __DIR__ . '/../public',
+				__NAMESPACE__ => __DIR__ . '/../public',
 			),
 		),
 	),
