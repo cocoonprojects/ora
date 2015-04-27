@@ -23,4 +23,8 @@ class OrganizationAccount extends Account {
 	public function getName() {
 		return $this->getOrganization()->getName();
 	}
+
+	public function getResourceId(){
+		return "Ora\OrganizationAccount";
+	}
 }

@@ -12,18 +12,18 @@
 >
 	<testsuites>
 		<testsuite name="Application integration tests">
-			<directory>../../module/Application/test/integration</directory>
+			<directory>../../module/Application/tests/integration</directory>
 		</testsuite>
 		<testsuite name="Task Management integration tests">
-			<directory>../../module/TaskManagement/test/integration</directory>
+			<directory>../../module/TaskManagement/tests/integration</directory>
 		</testsuite>
 		<testsuite name="Accounting integration tests">
-			<directory>../../module/Accounting/test/integration</directory>
+			<directory>../../module/Accounting/tests/integration</directory>
 		</testsuite>
 		<testsuite name="People integration tests">
-			<directory>../../module/People/test/integration</directory></testsuite>
+			<directory>../../module/People/tests/integration</directory></testsuite>
 		<testsuite name="Kanbanize integration tests">
-			<directory>../../module/Kanbanize/test/integration</directory>
+			<directory>../../module/Kanbanize/tests/integration</directory>
 		</testsuite>
 	</testsuites>
 	<filter>

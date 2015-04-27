@@ -12,17 +12,17 @@
 >
 	<testsuites>
 		<testsuite name="Application unit tests">
-			<directory>../../module/Application/test/unit</directory>
+			<directory>../../module/Application/tests/unit</directory>
 		</testsuite>
 		<testsuite name="Task Management unit tests">
-			<directory>../../module/TaskManagement/test/unit</directory>
+			<directory>../../module/TaskManagement/tests/unit</directory>
 		</testsuite>
 		<testsuite name="Accounting unit tests">
-			<directory>../../module/Accounting/test/unit</directory>
+			<directory>../../module/Accounting/tests/unit</directory>
 		</testsuite>
 		<testsuite name="People unit tests">
-			<directory>../../module/People/test/unit</directory></testsuite><testsuite name="Kanbanize unit tests">
-			<directory>../../module/Kanbanize/test/unit</directory>
+			<directory>../../module/People/tests/unit</directory></testsuite><testsuite name="Kanbanize unit tests">
+			<directory>../../module/Kanbanize/tests/unit</directory>
 		</testsuite>
 		
 	</testsuites>
@@ -32,6 +32,6 @@
 		</blacklist>
 	</filter>
 	<php>
-		<env name="APPLICATION_ENV" value="acceptance"/>
+		<env name="APPLICATION_ENV" value="unit"/>
 	</php>
 </phpunit>

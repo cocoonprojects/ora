@@ -3,11 +3,9 @@ namespace Application;
 
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
-use Zend\Log\Writer\Stream;
-use Zend\Log\Logger;
 use Zend\Authentication\AuthenticationService;
-use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
-use Doctrine\ORM\EntityManager;
+use Zend\Permissions\Acl\Acl;
+use ZFX\Controller\Plugin\IsAllowed;
 use Application\Controller\AuthController;
 use Application\Controller\MembershipsController;
 use Application\Controller\Plugin\EventStoreTransactionPlugin;
@@ -63,6 +61,11 @@ class Module
 					$transactionManager = $serviceLocator->get('prooph.event_store');
 					return new EventStoreTransactionPlugin($transactionManager);
 				},
+				'isAllowed' => function ($pluginManager) {
+					$serviceLocator = $pluginManager->getServiceLocator();
+					$acl = $serviceLocator->get('Application\Service\Acl');
+					return new IsAllowed($acl);
+				},
 			),
 		);
 	}
@@ -74,13 +77,8 @@ class Module
 				'Zend\Authentication\AuthenticationService' => AuthenticationService::class,
 			),
 			'factories' => array(
-				'Zend\Log' => function ($sl) {
-					$writer = new Stream(__DIR__ . '/../../data/logs/application.log');
-					$logger = new Logger();
-					$logger->addWriter($writer);
-					return $logger;
-				},
 				'Application\Service\AdapterResolver' => 'Application\Service\OAuth2AdapterResolverFactory',
+				'Application\Service\Acl' => 'Application\Service\AclFactory',
 				'Application\Service\IdentityRolesProvider' => function($serviceLocator){
 					$authService = $serviceLocator->get('Zend\Authentication\AuthenticationService');
 					$provider = new IdentityRolesProvider($authService);
@@ -90,7 +88,7 @@ class Module
 					$authService = $serviceLocator->get('Zend\Authentication\AuthenticationService');
 					$loggedUser = $authService->getIdentity()['user'];
 					return $loggedUser;
-	        	},	
+				},	
 				'Application\OrganizationService' => function ($serviceLocator) {
 					$eventStore = $serviceLocator->get('prooph.event_store');
 					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
