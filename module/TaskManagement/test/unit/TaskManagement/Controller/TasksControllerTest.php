@@ -1,13 +1,34 @@
 <?php
 namespace TaskManagement\Controller;
 
+
 use ZFX\Test\Controller\ControllerTest;
 use Zend\Permissions\Acl\Acl;
 use Application\Entity\User;
 use TaskManagement\Entity\Task;
 use TaskManagement\Entity\Stream;
+
+use UnitTest\Bootstrap;
+use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
+use Zend\Http\Request;
+use Zend\Http\Response;
+use Zend\Mvc\MvcEvent;
+use Zend\Mvc\Router\RouteMatch;
+use PHPUnit_Framework_TestCase;
+use Rhumsaa\Uuid\Uuid;
+use BjyAuthorize\Service\Authorize;
+use Application\Entity\User;
+use Application\Organization;
+use Application\Controller\Plugin\EventStoreTransactionPlugin;
+use TaskManagement\Stream;
+use TaskManagement\Entity\Task as ReadModelTask;
+use TaskManagement\Entity\Stream as ReadModelStream;
+
 use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
+use TaskManagement\Task;
+use Application\Service\UserService;
+
 
 class TasksControllerTest extends ControllerTest
 {
@@ -118,9 +139,65 @@ class TasksControllerTest extends ControllerTest
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 
-		$arrayResult = json_decode($result->serialize(), true);
-		
-		$this->assertEquals(200, $response->getStatusCode());
+    	$arrayResult = json_decode($result->serialize(), true);
+    	
+    	$this->assertEquals(200, $response->getStatusCode());
+    	$this->assertArrayHasKey('tasks', $arrayResult);
+    	$this->assertArrayHasKey('_links', $arrayResult);
+        $this->assertArrayHasKey('ora:create', $arrayResult['_links']);
+    }
+    
+	public function testCannotCreateTaskInEmptyStream() {
+    	
+    	$stream = $this->setupStream();
+    	
+       $this->taskServiceStub
+        	->expects($this->once())
+        	->method('findStreamTasks')
+        	->with($stream->getId()->toString())
+        	->willReturn(array());
+        
+        $this->authorizeServiceStub->method('isAllowed')->willReturn(false);	
+        	
+        $this->request->setMethod('get');
+    	$params = $this->request->getQuery();
+    	$params->set('streamID', $stream->getId()->toString());
+    	
+    	$result   = $this->controller->dispatch($this->request);
+    	$response = $this->controller->getResponse();
+
+    	$arrayResult = json_decode($result->serialize(), true);
+    	
+    	$this->assertEquals(200, $response->getStatusCode());
+    	$this->assertArrayHasKey('tasks', $arrayResult);
+    	$this->assertArrayNotHasKey('_links', $arrayResult);        
+    }
+    
+	public function testCanCreateTaskInPopulatedStream() {
+    	
+        $stream = new ReadModelStream('00000');
+    	$task = new ReadModelTask('00001');
+    	$task->setCreatedAt(new \DateTime());
+    	$task->setStream($stream);
+        
+       $this->taskServiceStub
+        	->expects($this->once())
+        	->method('findStreamTasks')
+        	->with($stream->getId())
+        	->willReturn(array($task));
+        
+        $this->authorizeServiceStub->method('isAllowed')->willReturn(true);	
+        	
+        $this->request->setMethod('get');
+    	$params = $this->request->getQuery();
+    	$params->set('streamID', $stream->getId());
+    	
+    	$result   = $this->controller->dispatch($this->request);
+    	$response = $this->controller->getResponse();
+
+    	$arrayResult = json_decode($result->serialize(), true);
+    	
+    	$this->assertEquals(200, $response->getStatusCode());
 		$this->assertArrayHasKey('_embedded', $arrayResult);
 		$this->assertArrayHasKey('ora:task', $arrayResult['_embedded']);
 		$this->assertArrayHasKey('_links', $arrayResult);
@@ -237,58 +314,58 @@ class TasksControllerTest extends ControllerTest
 	}
 	
 	public function testApplyTimeboxToCloseAnAcceptedTasks(){
-	
+		
 		$_SERVER['HTTP_HOST'] = 'localhost';
-	
+		
 		$userStub = $this->getMockBuilder(User::class)
-		->disableOriginalConstructor()
-		->getMock();
-		$userStub->expects($this->any())
-		->method('getId')
-		->willReturn(User::SYSTEM_USER);
-	
+        	->disableOriginalConstructor()
+        	->getMock();        	
+		 $userStub->expects($this->any())
+        	->method('getId')        	
+        	->willReturn(User::SYSTEM_USER); 		
+		
 		$userServiceStub = $this->getMockBuilder(UserService::class)
-		->disableOriginalConstructor()
-		->getMock();
-		$userServiceStub->expects($this->once())
-		->method('findUser')
-		->willReturn($userStub);
-	
-		$this->controller->setUserService($userServiceStub);
-		 
+        	->disableOriginalConstructor()
+        	->getMock();		 	
+        $userServiceStub->expects($this->once())
+        	->method('findUser')        	
+        	->willReturn($userStub);  
+       	
+        $this->controller->setUserService($userServiceStub); 	
+        	
 		$taskToClose = $this->setupTask();
 		$taskToClose->addMember($this->getLoggedUser(), Task::ROLE_OWNER);
 		$taskToClose->addEstimation(1, $this->getLoggedUser());
 		$taskToClose->complete($this->getLoggedUser());
 		$taskToClose->accept($this->getLoggedUser());
-	
-		$this->taskServiceStub
-		->expects($this->once())
-		->method('getAcceptedTaskIdsToNotify')
-		->willReturn(array());
-	
-		$this->taskServiceStub
-		->expects($this->once())
-		->method('getAcceptedTaskIdsToClose')
-		->willReturn(array(array('TASK_ID'=>$taskToClose->getId())));
-		 
-		$this->taskServiceStub
-		->expects($this->once())
-		->method('getTask')
-		->willReturn($taskToClose);
-		 
-		//dispatch
-		$this->routeMatch->setParam('action', 'applytimeboxforshares');
-		$result = $this->controller->dispatch($this->request);
-	
-		$response = $this->controller->getResponse();
-	
-		//controllo che il task abbia lo stato corretto
-		$this->assertEquals(200, $response->getStatusCode());
-		$this->assertEquals(Task::STATUS_CLOSED, $taskToClose->getStatus());
-	
-	}
 		
+		$this->taskServiceStub
+        	->expects($this->once())
+        	->method('getAcceptedTaskIdsToNotify')        	
+        	->willReturn(array());
+		
+		$this->taskServiceStub
+        	->expects($this->once())
+        	->method('getAcceptedTaskIdsToClose')        	
+        	->willReturn(array(array('TASK_ID'=>$taskToClose->getId())));
+        	
+        $this->taskServiceStub
+        	->expects($this->once())
+        	->method('getTask')        	
+        	->willReturn($taskToClose);	
+        	
+        //dispatch
+        $this->routeMatch->setParam('action', 'applytimeboxforshares');
+        $result = $this->controller->dispatch($this->request);
+        
+        $response = $this->controller->getResponse();
+        
+        //controllo che il task abbia lo stato corretto
+		$this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(Task::STATUS_CLOSED, $taskToClose->getStatus());
+        
+	}
+
 	protected function setupStream(){
 		
 		$organization = Organization::create('My brand new Orga', $this->getLoggedUser());
@@ -310,6 +387,7 @@ class TasksControllerTest extends ControllerTest
     	
     	$this->controller->getPluginManager()->setService('identity', $identity);
     }
+    
     
     protected function getLoggedUser() {
     	return $this->controller->identity()['user'];
