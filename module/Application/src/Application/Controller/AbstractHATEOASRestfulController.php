@@ -25,7 +25,7 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
 		return $response;
 	}
 	
-	public function checkOptions($e)
+	public function checkOptions(MvcEvent $e)
 	{
 		if ($this->params('id', false)) {
 			$options = $this->getResourceOptions();
@@ -47,42 +47,38 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
 		return $response;
 	}
 
-	public function preDispatch($e)	{}
-	
 	public function setEventManager(EventManagerInterface $events)
 	{
 		parent::setEventManager($events);
 		
 		// Register a listener at high priority
 		$events->attach('dispatch', array($this, 'checkOptions'), 10);
-		$events->attach('dispatch', array($this, 'preDispatch'), 20);
 	}
 
-	
 	//Supporting POST with id set
 	public function onDispatch(MvcEvent $e)
 	{
-        $routeMatch = $e->getRouteMatch();
-        if (!$routeMatch || $routeMatch->getParam('action', false)) {
-        	return parent::onDispatch($e);
-        }
-        $request = $e->getRequest();
-        // RESTful methods
-        $method = strtolower($request->getMethod());
-        switch ($method) {
-            case 'post':
-                $id = $this->getIdentifier($routeMatch, $request);
-                if ($id !== false) {
-                    $action = 'invoke';
-                    $return = $this->processPostWithIdData($id, $request);
-                    break;
-                }
-            default:
-            	$return = parent::onDispatch($e);
-            	break;
-        }
-        $e->setResult($return);
-        return $return;
+		$routeMatch = $e->getRouteMatch();
+		if (!$routeMatch || $routeMatch->getParam('action', false)) {
+			return parent::onDispatch($e);
+		}
+		$request = $e->getRequest();
+		// RESTful methods
+		$method = strtolower($request->getMethod());
+		switch ($method) {
+			case 'post':
+				$id = $this->getIdentifier($routeMatch, $request);
+				if ($id !== false) {
+					$action = 'invoke';
+					$return = $this->processPostWithIdData($id, $request);
+					break;
+				}
+			default:
+				$return = parent::onDispatch($e);
+				break;
+		}
+		$e->setResult($return);
+		return $return;
 	}
 	
 	/**
@@ -107,7 +103,7 @@ abstract class AbstractHATEOASRestfulController extends AbstractRestfulControlle
 	 * @param Request $request
 	 * @return mixed
 	 */
-	public function processPostWithIdData($id, Request $request)
+	protected function processPostWithIdData($id, Request $request)
 	{
 		if ($this->requestHasContentType($request, self::CONTENT_TYPE_JSON)) {
 			$data = Json::decode($request->getContent(), $this->jsonDecodeType);
