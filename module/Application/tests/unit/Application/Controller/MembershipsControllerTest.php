@@ -1,70 +1,29 @@
 <?php
 namespace Application\Controller;
 
-use UnitTest\Bootstrap;
-use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
-use Zend\Http\Request;
-use Zend\Mvc\MvcEvent;
-use Zend\Mvc\Router\RouteMatch;
-use PHPUnit_Framework_TestCase;
+use ZFX\Controller\ControllerTest;
 use Application\Entity\User;
-use Application\Service\OrganizationService;
-use Application\Controller\Plugin\EventStoreTransactionPlugin;
-use Accounting\OrganizationAccount;
-use Application\Entity\OrganizationMembership;
 use Application\Entity\Organization;
+use Application\Entity\OrganizationMembership;
+use Application\Service\OrganizationService;
+use Accounting\OrganizationAccount;
 
-class MembershipsControllerTest extends \PHPUnit_Framework_TestCase
+class MembershipsControllerTest extends ControllerTest
 {
-	/**
-	 * 
-	 * @var OrganizationsController
-	 */
-	protected $controller;
-	/**
-	 * 
-	 * @var Request
-	 */
-	protected $request;
-	/**
-	 * 
-	 * @var RouteMatch
-	 */
-	protected $routeMatch;
-	/**
-	 * 
-	 * @var MvcEvent
-	 */
-	protected $event;
-	
-	protected function setUp()
+	protected function setupController()
 	{
-		$orgService = $this->getMockBuilder(OrganizationService::class)
-			->getMock();
-		
-		$serviceManager = Bootstrap::getServiceManager();
-		$this->controller = new MembershipsController($orgService);
-		$this->request	= new Request();
-		$this->routeMatch = new RouteMatch(array('controller' => 'memberships'));
-		$this->event	  = new MvcEvent();
-		$config = $serviceManager->get('Config');
-		$routerConfig = isset($config['router']) ? $config['router'] : array();
-		$router = HttpRouter::factory($routerConfig);
-
-		$this->event->setRouter($router);
-		$this->event->setRouteMatch($this->routeMatch);
-		$this->controller->setEvent($this->event);
-		$this->controller->setServiceLocator($serviceManager);
-
-		$transaction = $this->getMockBuilder(EventStoreTransactionPlugin::class)
-			->disableOriginalConstructor()
-			->setMethods(['begin', 'commit', 'rollback'])
-			->getMock();
-		$this->controller->getPluginManager()->setService('transaction', $transaction);
+		$orgService = $this->getMockBuilder(OrganizationService::class)->getMock();
+		return new MembershipsController($orgService);
+	}
+	
+	protected function setupRouteMatch()
+	{
+		return ['controller' => 'memberships'];
 	}
 	
 	public function testGetListAsAnonymous() {
 		$this->setupAnonymous();
+		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 		
@@ -120,7 +79,6 @@ class MembershipsControllerTest extends \PHPUnit_Framework_TestCase
 		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-		
 		$arrayResult = json_decode($result->serialize(), true);
 		
 		$this->assertEquals(200, $response->getStatusCode());		 
@@ -129,23 +87,5 @@ class MembershipsControllerTest extends \PHPUnit_Framework_TestCase
 		$this->assertCount(0, $arrayResult['_embedded']['ora:organization-membership']);
 		$this->assertEquals(0, $arrayResult['count']);
 		$this->assertEquals(0, $arrayResult['total']);
-	}
-	
-	protected function setupAnonymous() {
-		$identity = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Identity')
-			->disableOriginalConstructor()
-			->getMock();
-		$identity->method('__invoke')->willReturn(null);
-		
-		$this->controller->getPluginManager()->setService('identity', $identity);
-	}
-	
-	protected function setupLoggedUser(User $user) {
-		$identity = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Identity')
-			->disableOriginalConstructor()
-			->getMock();
-		$identity->method('__invoke')->willReturn(['user' => $user]);
-		
-		$this->controller->getPluginManager()->setService('identity', $identity);
 	}
 }

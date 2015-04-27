@@ -2,12 +2,12 @@
 namespace TaskManagement\Controller;
 
 use Zend\Authentication\AuthenticationServiceInterface;
+use Zend\Permissions\Acl\Acl;
 use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
 use Zend\Validator\NotEmpty;
-use BjyAuthorize\Service\Authorize;
 use Application\Controller\AbstractHATEOASRestfulController;
 use Application\IllegalStateException;
 use Application\InvalidArgumentException;
@@ -35,20 +35,20 @@ class TasksController extends AbstractHATEOASRestfulController
 	private $streamService;
 	/**
 	 * 
-	 * @var Authorize
+	 * @var Acl
 	 */
-	private $authorize;
+	private $acl;
 	/**
 	 * 
 	 * @var AccountService
 	 */
 	private $accountService;
 	
-	public function __construct(TaskService $taskService, StreamService $streamService, Authorize $authorize)
+	public function __construct(TaskService $taskService, StreamService $streamService, Acl $acl)
 	{
 		$this->taskService = $taskService;
 		$this->streamService = $streamService;		
-		$this->authorize = $authorize;
+		$this->acl = $acl;
 	}
 	
     public function get($id)
@@ -65,7 +65,7 @@ class TasksController extends AbstractHATEOASRestfulController
         }
         
     	$this->response->setStatusCode(200);
-        $view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->authorize);
+        $view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl);
         $view->setVariable('resource', $task);
         return $view;
     }
@@ -87,7 +87,7 @@ class TasksController extends AbstractHATEOASRestfulController
     	$streamID = $this->getRequest()->getQuery('streamID');
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks() : $this->taskService->findStreamTasks($streamID);
 
-       	$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->authorize);
+       	$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl);
         $view->setVariable('resource', $availableTasks);
         return $view;
     }

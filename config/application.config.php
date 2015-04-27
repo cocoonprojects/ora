@@ -10,7 +10,7 @@ return array(
 		'ProophEventStoreModule',
 		'ZendOAuth2',
 		'AssetManager',
-		'BjyAuthorize',
+		'ZFX',
 		'Application',
 		'Accounting',
 		'TaskManagement',

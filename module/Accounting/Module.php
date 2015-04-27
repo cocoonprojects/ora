@@ -18,14 +18,14 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 	{
 		return array(
 			'invokables' => array(
-					'Accounting\Controller\Index' => 'Accounting\Controller\IndexController',
+				'Accounting\Controller\Index' => 'Accounting\Controller\IndexController',
 			),
 			'factories' => array(
 				'Accounting\Controller\Accounts' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
-					$authorize = $locator->get('BjyAuthorize\Service\Authorize');
-					$controller = new AccountsController($accountService, $authorize);
+					$acl = $locator->get('Application\Service\Acl');
+					$controller = new AccountsController($accountService, $acl);
 					return $controller;
 				},
 				'Accounting\Controller\Deposits' => function ($sm) {
@@ -37,8 +37,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				'Accounting\Controller\Statement' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
-					$authorize = $locator->get('BjyAuthorize\Service\Authorize');
-					$controller = new StatementsController($accountService, $authorize);
+					$acl = $locator->get('Application\Service\Acl');
+					$controller = new StatementsController($accountService, $acl);
 					return $controller;
 				},
 			)
@@ -48,12 +48,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 	public function getServiceConfig()
 	{
 		return array (
-			'invokables' => array(
-				'Accounting\AccountHolderAssertion' => 'Accounting\Assertion\AccountHolderAssertion',
-				'Accounting\MemberOfOrganizationOrAccountHolder' => 'Accounting\Assertion\MemberOfOrganizationOrAccountHolderAssertion',
-				'Accounting\AccountHolderOfOrganizationAccountAssertion' => 'Accounting\Assertion\AccountHolderOfOrganizationAccountAssertion',
-			),
-			
 			'factories' => array (
 				'Accounting\CreditsAccountsService' => function ($locator) {
 					$eventStore = $locator->get('prooph.event_store');
@@ -73,16 +67,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					return new CreatePersonalAccountListener($accountService);
 				},
 			),
-			
-			'initializers' => array(
-				function ($instance, $locator) {
-					if ($instance instanceof AssertionInterface) {
-						$authService = $locator->get('Zend\Authentication\AuthenticationService');
-						$loggedUser = $authService->getIdentity()['user'];	
-						$instance->setLoggedUser($loggedUser);
-					}
-				}
-			)
 		);
 	}
 

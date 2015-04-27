@@ -71,68 +71,6 @@ return array(
 			)
 		)
 	),
-	'bjyauthorize'=> array(
-		'resource_providers' => array(
-			'BjyAuthorize\Provider\Resource\Config' => array(
-				'Ora\Task' => array(),				
-			),
-		),
-		'rule_providers' => array(
-			'BjyAuthorize\Provider\Rule\Config' => array(
-				'allow' => array(
-					array(
-						array('user'), 
-						NULL, 
-						array('TaskManagement.Task.create')),
-					array(
-						array('user'), 
-						'Ora\Task', 
-						array('TaskManagement.Task.showDetails'),
-						'TaskManagement\MemberOfOrganizationAssertion'), 
-					array(
-						array('user'), 
-						'Ora\Task', 
-						array('TaskManagement.Task.join'), 
-						'TaskManagement\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion'),
-					array(
-						array('user'), 
-						'Ora\Task', 
-						array('TaskManagement.Task.estimate'), 
-						'TaskManagement\MemberOfNotAcceptedTaskAssertion'),
-					array(
-						array('user'), 
-						'Ora\Task', 
-						array('TaskManagement.Task.unjoin'), 
-						'TaskManagement\TaskMemberNotOwnerAndNotCompletedTaskAssertion'),
-					array(
-						array('user'), 
-						'Ora\Task', 
-						array('TaskManagement.Task.edit', 'TaskManagement.Task.delete'), 
-						 'TaskManagement\TaskOwnerAndNotCompletedTaskAssertion'),
-					array(
-						array('user'), 
-						'Ora\Task', 
-						array('TaskManagement.Task.execute'), 
-						'TaskManagement\OwnerOfOpenOrCompletedTaskAssertion'),
-					array(
-						array('user'), 
-						'Ora\Task', 
-						array('TaskManagement.Task.complete'), 
-						'TaskManagement\TaskOwnerAndOngoingOrAcceptedTaskAssertion'),
-					array(
-						array('user'), 
-						'Ora\Task', 
-						array('TaskManagement.Task.accept'), 
-						'TaskManagement\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion'),
-					array(
-						array('user'), 
-						'Ora\Task', 
-						array('TaskManagement.Task.assignShares'), 
-						'TaskManagement\TaskMemberAndAcceptedTaskAssertion'),
-				),
-			),
-		),
-	),
 	'listeners' => array(
 		'TaskManagement\StreamCommandsListener',
 		'TaskManagement\TaskCommandsListener',

@@ -3,12 +3,12 @@ namespace TaskManagement\View;
 
 use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
+use Zend\Permissions\Acl\Acl;
 use TaskManagement\Entity\Task;
 use TaskManagement\Entity\Estimation;
 use TaskManagement\Entity\TaskMember;
 use Zend\Mvc\Controller\Plugin\Url;
 use Application\Entity\User;
-use BjyAuthorize\Service\Authorize;
 
 class TaskJsonModel extends JsonModel
 {
@@ -25,14 +25,14 @@ class TaskJsonModel extends JsonModel
 	
 	/**
 	 * 
-	 * @var Authorize
+	 * @var Acl
 	 */
-	private $authorize;
+	private $acl;
 	
-	public function __construct(Url $url, User $user, Authorize $authorize) {
+	public function __construct(Url $url, User $user, Acl $acl) {
 		$this->url = $url;
 		$this->user = $user;
-		$this->authorize = $authorize;
+		$this->acl = $acl;
 	}
 	
 	public function serialize()
@@ -47,7 +47,7 @@ class TaskJsonModel extends JsonModel
 		} else {
 			$hal = $this->serializeOne($resource);
 		}
-		if ($this->authorize->isAllowed(NULL, 'TaskManagement.Task.create')) {
+		if ($this->acl->isAllowed($this->user, NULL, 'TaskManagement.Task.create')) {
 			$hal['_links']['ora:create']['href'] = $this->url->fromRoute('tasks');
 		}
 		return Json::encode($hal);		
@@ -56,43 +56,43 @@ class TaskJsonModel extends JsonModel
 	protected function serializeOne(Task $task) {
 		
 		$links = [];
-		if($this->authorize->isAllowed($task, 'TaskManagement.Task.showDetails')){
+		if($this->acl->isAllowed($this->user, $task, 'TaskManagement.Task.showDetails')){
 			$links['self']['href'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);	
 		}
 
-		if($this->authorize->isAllowed($task, 'TaskManagement.Task.edit')){
+		if($this->acl->isAllowed($this->user, $task, 'TaskManagement.Task.edit')){
 			$links['ora:edit'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);
 		}
 		
-		if($this->authorize->isAllowed($task, 'TaskManagement.Task.delete')){					
+		if($this->acl->isAllowed($this->user, $task, 'TaskManagement.Task.delete')){					
 			$links['ora:delete'] = $this->url->fromRoute('tasks', ['id' => $task->getId()]);
 		}		
 		
-		if($this->authorize->isAllowed($task, 'TaskManagement.Task.join')){
+		if($this->acl->isAllowed($this->user, $task, 'TaskManagement.Task.join')){
 			$links['ora:join'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']);
 		}
 		
-		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.unjoin')) {		 
+		if ($this->acl->isAllowed($this->user, $task, 'TaskManagement.Task.unjoin')) {		 
 			$links['ora:unjoin'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'members']); 
 		}	
 			
-		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.estimate')) {	   
+		if ($this->acl->isAllowed($this->user, $task, 'TaskManagement.Task.estimate')) {	   
 			$links['ora:estimate'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'estimations']); 
 		}
 		
-		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.execute')) {
+		if ($this->acl->isAllowed($this->user, $task, 'TaskManagement.Task.execute')) {
 			$links['ora:execute'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
 		}
 
-		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.complete')) {
+		if ($this->acl->isAllowed($this->user, $task, 'TaskManagement.Task.complete')) {
 			$links['ora:complete'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
 		}
 		
-		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.accept')) {
+		if ($this->acl->isAllowed($this->user, $task, 'TaskManagement.Task.accept')) {
 			$links['ora:accept'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'transitions']);
 		}
 		
-		if ($this->authorize->isAllowed($task, 'TaskManagement.Task.assignShares')) {
+		if ($this->acl->isAllowed($this->user, $task, 'TaskManagement.Task.assignShares')) {
 			$links['ora:assignShares'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'shares']);
 		}
 		
