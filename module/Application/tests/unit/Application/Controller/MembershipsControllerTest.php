@@ -30,6 +30,28 @@ class MembershipsControllerTest extends ControllerTest
 		$this->assertEquals(401, $response->getStatusCode());		 
 	}
 	
+	public function testGetEmptyList()
+	{
+		$user = User::create();
+		$this->setupLoggedUser($user);
+		
+		$this->controller->getOrganizationService()
+		->expects($this->once())
+		->method('findUserOrganizationMemberships')
+		->with($this->equalTo($user))
+		->willReturn(array());
+		
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+		
+		$arrayResult = json_decode($result->serialize(), true);
+		
+		$this->assertEquals(200, $response->getStatusCode());
+		$this->assertCount(0, $arrayResult['_embedded']['ora:organization-membership']);
+		$this->assertEquals(0, $arrayResult['count']);
+		$this->assertEquals(0, $arrayResult['total']);
+	}
+	
 	public function testGetList() {
 		$org1 = new Organization('1');
 		$org1->setName('Pippo');
@@ -65,6 +87,7 @@ class MembershipsControllerTest extends ControllerTest
 		$this->assertCount(2, $arrayResult['_embedded']['ora:organization-membership']);
 		$this->assertEquals(2, $arrayResult['count']);
 		$this->assertEquals(2, $arrayResult['total']);
+		$this->assertArrayHasKey('ora:organization-member', $arrayResult['_embedded']['ora:organization-membership'][0]['organization']['_links']);
 	}
 	
 	public function testGetListAsNotMemberOfAnyOrg() {

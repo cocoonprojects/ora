@@ -1,12 +1,8 @@
 <?php
 namespace People;
 
-use Zend\Log\Writer\Stream;
-use Zend\Log\Logger;
-use Zend\Authentication\AuthenticationService;
-use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
-use Doctrine\ORM\EntityManager;
 use People\Controller\OrganizationsController;
+use People\Controller\MembersController;
 
 class Module
 {
@@ -20,6 +16,12 @@ class Module
 					$locator = $sm->getServiceLocator();
 					$orgService = $locator->get('Application\OrganizationService');
 					$controller = new OrganizationsController($orgService);
+					return $controller;
+				},
+				'People\Controller\Members' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$orgService = $locator->get('Application\OrganizationService');
+					$controller = new MembersController($orgService);
 					return $controller;
 				},
 			)
