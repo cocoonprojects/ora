@@ -66,6 +66,7 @@ class OrganizationMembership
 		$this->member = $user;
 		$this->organization = $organization;
 		$this->role = $role;
+		$this->createdAt = $this->mostRecentEditAt = new \DateTime();
 	}
 
 	public function setRole($role)
