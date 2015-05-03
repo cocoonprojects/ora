@@ -4,6 +4,16 @@ namespace People;
 return array(
 	'router' => array(
 		'routes' => array(
+			'people-home' => array(
+				'type' => 'Literal',
+				'options' => array(
+					'route'    => '/people',
+					'defaults' => array(
+						'controller' => 'People\Controller\Index',
+						'action'	 => 'index',
+					),
+				),
+			),
 			'organizations' => array(
 				'type' => 'Segment',
 				'options' => array(

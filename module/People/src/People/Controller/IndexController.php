@@ -1,5 +1,5 @@
 <?php
-namespace TaskManagement\Controller;
+namespace People\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
 

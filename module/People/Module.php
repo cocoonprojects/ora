@@ -10,6 +10,7 @@ class Module
 	{
 		return array(
 			'invokables' => array(
+				'People\Controller\Index' => 'People\Controller\IndexController',
 			),
 			'factories' => array(
 				'People\Controller\Organizations' => function ($sm) {
