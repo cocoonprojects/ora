@@ -61,7 +61,7 @@ class OrganizationMembership
 	 */
 	protected $mostRecentEditBy;
 
-	public function __construct(User $user, Organization $organization)
+	public function __construct(User $user, Organization $organization, $role = self::ROLE_MEMBER)
 	{
 		$this->member = $user;
 		$this->organization = $organization;
