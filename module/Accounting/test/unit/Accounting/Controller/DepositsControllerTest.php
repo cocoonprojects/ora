@@ -1,7 +1,7 @@
 <?php
 namespace Accounting\Controller;
 
-use ZFX\Controller\ControllerTest;
+use ZFX\Test\Controller\ControllerTest;
 use Rhumsaa\Uuid\Uuid;
 use Application\Entity\User;
 use Application\Controller\Plugin\EventStoreTransactionPlugin;

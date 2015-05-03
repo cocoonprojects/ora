@@ -1,20 +1,16 @@
 <?php
-namespace ZFX\Controller;
+namespace ZFX\Test\Controller;
 
 use UnitTest\Bootstrap;
 use Zend\Http\Request;
 use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\RouteMatch;
 use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
-use Application\Service\OrganizationService;
-use Application\Controller\Plugin\EventStoreTransactionPlugin;
-use Application\Entity\User;
-use Application\Entity\Organization as ReadModelOrganization;
-use ZFX\Authentication\AuthenticationServiceMock;
-use Zend\Mvc\Controller\Plugin\Identity;
-use Zend\Mvc\Controller\AbstractController;
-use ZFX\Controller\Plugin\IsAllowed;
 use Zend\ServiceManager\ServiceManager;
+use Application\Entity\User;
+use Application\Service\AclFactory;
+use Application\Controller\Plugin\EventStoreTransactionPlugin;
+use ZFX\Controller\Plugin\IsAllowed;
 
 abstract class ControllerTest extends \PHPUnit_Framework_TestCase
 {
@@ -34,11 +30,6 @@ abstract class ControllerTest extends \PHPUnit_Framework_TestCase
 	 * @var MvcEvent
 	 */
 	protected $event;
-	/**
-	 * 
-	 * @var AuthenticationServiceMock
-	 */
-	private $authenticationService;
 	
 	protected function setUp()
 	{
@@ -62,18 +53,11 @@ abstract class ControllerTest extends \PHPUnit_Framework_TestCase
 			->getMock();
 		$this->controller->getPluginManager()->setService('transaction', $transaction);
 
-		$acl = $serviceManager->get('Application\Service\Acl');
-		$isAllowed = new IsAllowed($acl);
-		$this->controller->getPluginManager()->setService('isAllowed', $isAllowed);
-		
-		$this->authenticationService = $serviceManager->get('Zend\Authentication\AuthenticationService');
-		$identity = new Identity();
-		$identity->setAuthenticationService($this->authenticationService);
-		$this->controller->getPluginManager()->setService('identity', $identity);
+		$aclFactory = new AclFactory();
+		$acl = $aclFactory->createService($serviceManager);
+		$this->controller->getPluginManager()->setService('isAllowed', new IsAllowed($acl));
 	}
-	/**
-	 * @return AbstractController
-	 */
+
 	protected abstract function setupController();
 	/**
 	 * @return array
@@ -81,9 +65,17 @@ abstract class ControllerTest extends \PHPUnit_Framework_TestCase
 	protected abstract function setupRouteMatch();
 	
 	protected function setupAnonymous() {
-		$this->authenticationService->setIdentity(null);
+		$identity = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Identity')
+			->disableOriginalConstructor()
+			->getMock();
+		$identity->method('__invoke')->willReturn(null);
+		$this->controller->getPluginManager()->setService('identity', $identity);
 	}
 	protected function setupLoggedUser(User $user) {
-		$this->authenticationService->setIdentity($user);
+		$identity = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Identity')
+			->disableOriginalConstructor()
+			->getMock();
+		$identity->method('__invoke')->willReturn(['user' => $user]);
+		$this->controller->getPluginManager()->setService('identity', $identity);
 	}
 }

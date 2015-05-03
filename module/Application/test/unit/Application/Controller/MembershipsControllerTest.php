@@ -1,7 +1,7 @@
 <?php
 namespace Application\Controller;
 
-use ZFX\Controller\ControllerTest;
+use ZFX\Test\Controller\ControllerTest;
 use Application\Entity\User;
 use Application\Entity\Organization;
 use Application\Entity\OrganizationMembership;

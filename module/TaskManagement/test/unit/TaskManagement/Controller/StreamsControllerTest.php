@@ -1,7 +1,7 @@
 <?php
 namespace TaskManagement\Controller;
 
-use ZFX\Controller\ControllerTest;
+use ZFX\Test\Controller\ControllerTest;
 use Rhumsaa\Uuid\Uuid;
 use Application\Entity\User;
 use Application\Organization;
@@ -118,7 +118,7 @@ class StreamsControllerTest extends ControllerTest
 		 
 		$this->assertEquals(400, $response->getStatusCode());
 	}
-	
+
 	public function testCreateStreamAsAnonymous() {
 		$this->setupAnonymous();
 		

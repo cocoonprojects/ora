@@ -1,7 +1,7 @@
 <?php
 namespace TaskManagement\Controller;
 
-use ZFX\Controller\ControllerTest;
+use ZFX\Test\Controller\ControllerTest;
 use Zend\Permissions\Acl\Acl;
 use Rhumsaa\Uuid\Uuid;
 use Application\Entity\User;
