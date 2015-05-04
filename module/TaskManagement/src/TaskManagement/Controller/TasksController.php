@@ -8,7 +8,7 @@ use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
 use Zend\Validator\NotEmpty;
-use Application\Controller\AbstractHATEOASRestfulController;
+use ZFX\Rest\Controller\HATEOASRestfulController;
 use Application\IllegalStateException;
 use Application\InvalidArgumentException;
 use Application\Entity\User;
@@ -18,7 +18,7 @@ use TaskManagement\View\TaskJsonModel;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
 
-class TasksController extends AbstractHATEOASRestfulController
+class TasksController extends HATEOASRestfulController
 {
     protected static $collectionOptions = ['GET', 'POST'];
     protected static $resourceOptions = ['DELETE', 'GET', 'PUT'];

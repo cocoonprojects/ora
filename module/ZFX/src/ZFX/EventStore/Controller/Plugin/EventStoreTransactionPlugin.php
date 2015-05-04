@@ -1,5 +1,5 @@
 <?php
-namespace Application\Controller\Plugin;
+namespace ZFX\EventStore\Controller\Plugin;
 
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 use Prooph\EventStore\EventStore;

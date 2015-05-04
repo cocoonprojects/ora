@@ -1,5 +1,5 @@
 <?php
-namespace ZFX\Controller\Plugin;
+namespace ZFX\Acl\Controller\Plugin;
 
 use Zend\Mvc\Controller\Plugin\AbstractPlugin;
 use Zend\Permissions\Acl\Acl;

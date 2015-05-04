@@ -9,8 +9,8 @@ use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
 use Zend\ServiceManager\ServiceManager;
 use Application\Entity\User;
 use Application\Service\AclFactory;
-use Application\Controller\Plugin\EventStoreTransactionPlugin;
-use ZFX\Controller\Plugin\IsAllowed;
+use ZFX\Acl\Controller\Plugin\IsAllowed;
+use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
 
 abstract class ControllerTest extends \PHPUnit_Framework_TestCase
 {

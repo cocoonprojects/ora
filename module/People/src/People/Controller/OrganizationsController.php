@@ -8,9 +8,9 @@ use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
 use People\Organization;
 use People\Service\OrganizationService;
-use Application\Controller\AbstractHATEOASRestfulController;
+use ZFX\Rest\Controller\HATEOASRestfulController;
 
-class OrganizationsController extends AbstractHATEOASRestfulController
+class OrganizationsController extends HATEOASRestfulController
 {
 	protected static $collectionOptions = array('GET', 'POST');
 	protected static $resourceOptions = array('DELETE', 'POST', 'GET', 'PUT');

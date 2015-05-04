@@ -1,5 +1,5 @@
 <?php
-namespace Application\Controller;
+namespace ZFX\Rest\Controller;
 
 use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\EventManager\EventManagerInterface;
@@ -7,7 +7,7 @@ use Zend\Mvc\MvcEvent;
 use Zend\Stdlib\RequestInterface as Request;
 use Zend\Json\Json;
 
-abstract class AbstractHATEOASRestfulController extends AbstractRestfulController
+abstract class HATEOASRestfulController extends AbstractRestfulController
 {
 	protected static $JSON_CONTENT_TYPE = array('application/json','text/json');
 	

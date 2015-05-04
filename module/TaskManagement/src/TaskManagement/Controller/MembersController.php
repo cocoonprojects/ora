@@ -2,7 +2,7 @@
 
 namespace TaskManagement\Controller;
 
-use Application\Controller\AbstractHATEOASRestfulController;
+use ZFX\Rest\Controller\HATEOASRestfulController;
 use Application\IllegalStateException;
 use Application\DuplicatedDomainEntityException;
 use Application\DomainEntityUnavailableException;
@@ -12,7 +12,7 @@ use TaskManagement\Service\TaskService;
 use TaskManagement\Task;
 
 
-class MembersController extends AbstractHATEOASRestfulController
+class MembersController extends HATEOASRestfulController
 {
 	protected static $collectionOptions = array();
 	protected static $resourceOptions = array('DELETE', 'POST');

@@ -11,10 +11,10 @@ use Zend\EventManager\EventManager;
 use PHPUnit_Framework_TestCase;
 use Rhumsaa\Uuid\Uuid;
 use Application\Entity\User;
-use Application\Controller\Plugin\EventStoreTransactionPlugin;
 use TaskManagement\Task;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Controller\SharesController;
+use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
 
 class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 {	

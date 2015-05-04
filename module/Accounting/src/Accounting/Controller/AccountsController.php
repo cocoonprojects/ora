@@ -3,11 +3,11 @@ namespace Accounting\Controller;
 
 use Zend\Authentication\AuthenticationServiceInterface;
 use Zend\Permissions\Acl\Acl;
-use Application\Controller\AbstractHATEOASRestfulController;
+use ZFX\Rest\Controller\HATEOASRestfulController;
 use Accounting\Service\AccountService;
 use Accounting\View\AccountsJsonModel;
 
-class AccountsController extends AbstractHATEOASRestfulController
+class AccountsController extends HATEOASRestfulController
 {
 	protected static $collectionOptions = ['GET'];
 	protected static $resourceOptions = ['GET'];

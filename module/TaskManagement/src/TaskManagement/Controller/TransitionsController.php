@@ -1,14 +1,14 @@
 <?php
 namespace TaskManagement\Controller;
 
-use Application\Controller\AbstractHATEOASRestfulController;
+use ZFX\Rest\Controller\HATEOASRestfulController;
 use Application\IllegalStateException;
 use Application\InvalidArgumentException;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Task;
 use Zend\Validator\InArray;
 
-class TransitionsController extends AbstractHATEOASRestfulController
+class TransitionsController extends HATEOASRestfulController
 {
 	protected static $resourceOptions = array ('POST');
 	protected static $collectionOptions= array ();

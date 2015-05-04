@@ -6,12 +6,12 @@ use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
-use Application\Controller\AbstractHATEOASRestfulController;
+use ZFX\Rest\Controller\HATEOASRestfulController;
 use People\Service\OrganizationService;
 use TaskManagement\View\StreamJsonModel;
 use TaskManagement\Service\StreamService;
 
-class StreamsController extends AbstractHATEOASRestfulController
+class StreamsController extends HATEOASRestfulController
 {
 	protected static $collectionOptions = array ('GET','POST');
 	protected static $resourceOptions = array ('DELETE','GET');

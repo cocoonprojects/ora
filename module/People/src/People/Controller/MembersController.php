@@ -3,10 +3,10 @@
 namespace People\Controller;
 
 use People\Service\OrganizationService;
-use Application\Controller\AbstractHATEOASRestfulController;
+use ZFX\Rest\Controller\HATEOASRestfulController;
 use People\View\OrganizationMembershipJsonModel;
 
-class MembersController extends AbstractHATEOASRestfulController
+class MembersController extends HATEOASRestfulController
 {
 	protected static $collectionOptions = array('GET', 'POST');
 	protected static $resourceOptions = array('DELETE', 'POST', 'GET', 'PUT');

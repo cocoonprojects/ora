@@ -5,7 +5,7 @@ use Zend\Validator\ValidatorChain;
 use Zend\Validator\NotEmpty;
 use Zend\I18n\Validator\Float;
 use Zend\Validator\Between;
-use Application\Controller\AbstractHATEOASRestfulController;
+use ZFX\Rest\Controller\HATEOASRestfulController;
 use Application\View\ErrorJsonModel;
 use Application\InvalidArgumentException;
 use Application\IllegalStateException;
@@ -14,7 +14,7 @@ use TaskManagement\Service\TaskService;
 use TaskManagement\Task;
 use TaskManagement\StreamService;
 
-class SharesController extends AbstractHATEOASRestfulController {
+class SharesController extends HATEOASRestfulController {
 	
 	protected static $collectionOptions = array();
 	protected static $resourceOptions = array('POST');

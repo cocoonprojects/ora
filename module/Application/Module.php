@@ -5,11 +5,11 @@ use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 use Zend\Authentication\AuthenticationService;
 use Zend\Permissions\Acl\Acl;
-use ZFX\Controller\Plugin\IsAllowed;
 use Application\Controller\AuthController;
 use Application\Controller\MembershipsController;
-use Application\Controller\Plugin\EventStoreTransactionPlugin;
 use Application\Service\EventSourcingUserService;
+use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
+use ZFX\Acl\Controller\Plugin\IsAllowed;
 
 class Module
 {
