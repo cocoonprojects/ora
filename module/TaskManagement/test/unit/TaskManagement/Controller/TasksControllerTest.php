@@ -1,150 +1,44 @@
 <?php
 namespace TaskManagement\Controller;
 
-
 use ZFX\Test\Controller\ControllerTest;
 use Zend\Permissions\Acl\Acl;
 use Application\Entity\User;
 use TaskManagement\Entity\Task;
 use TaskManagement\Entity\Stream;
 
-use UnitTest\Bootstrap;
-use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
-use Zend\Http\Request;
-use Zend\Http\Response;
-use Zend\Mvc\MvcEvent;
-use Zend\Mvc\Router\RouteMatch;
-use PHPUnit_Framework_TestCase;
-use Rhumsaa\Uuid\Uuid;
-use BjyAuthorize\Service\Authorize;
-use Application\Entity\User;
-use Application\Organization;
-use Application\Controller\Plugin\EventStoreTransactionPlugin;
-use TaskManagement\Stream;
-use TaskManagement\Entity\Task as ReadModelTask;
-use TaskManagement\Entity\Stream as ReadModelStream;
-
 use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
 use TaskManagement\Task;
 use Application\Service\UserService;
 
-
-class TasksControllerTest extends ControllerTest
-{
-	protected $authorizeServiceStub;
-
-	private $user;
-
-	private $stream;
-
-	public function __construct()
-	{
-		$this->user = User::create();
-		$this->user->setFirstname('John');
-		$this->user->setLastname('Doe');
-		$this->stream = new Stream('00000');
-	}
-
-	protected function setupController()
-	{
-		$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
-		$streamServiceStub = $this->getMockBuilder(StreamService::class)->getMock();
-		$this->authorizeServiceStub = $this->getMockBuilder(Acl::class)
-			->disableOriginalConstructor()
-			->getMock();
-		return new TasksController($taskServiceStub, $streamServiceStub, $this->authorizeServiceStub);
-	}
-
-	protected function setupRouteMatch()
-	{
-		return ['controller' => 'tasks'];
-	}
-
-	public function testCreateTaskInEmptyStream()
-	{
-		$this->setupLoggedUser($this->user);
-
-		$this->controller->getTaskService()
-			->expects($this->once())
-			->method('findStreamTasks')
-			->with('1')
-			->willReturn(array());
-		
-		$this->authorizeServiceStub->method('isAllowed')->willReturn(true);	
-			
-		$this->request->setMethod('get');
-		$params = $this->request->getQuery();
-		$params->set('streamID', '1');
-		
-		$result   = $this->controller->dispatch($this->request);
-		$response = $this->controller->getResponse();
-
-		$arrayResult = json_decode($result->serialize(), true);
-		
-		$this->assertEquals(200, $response->getStatusCode());
-		$this->assertArrayHasKey('_embedded', $arrayResult);
-		$this->assertArrayHasKey('ora:task', $arrayResult['_embedded']);
-		$this->assertArrayHasKey('_links', $arrayResult);
-		$this->assertArrayHasKey('ora:create', $arrayResult['_links']);
-	}
+class TasksControllerTest extends ControllerTest {
 	
-	public function testCreateTaskInRejectedStream()
-	{
-		$this->setupLoggedUser($this->user);
+    protected $aclStub;
+        
+    protected function setupController()
+    {
+    	$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
+    	$streamServiceStub = $this->getMockBuilder(StreamService::class)->getMock();
+    	$this->aclStub = $this->getMockBuilder(Acl::class)
+    	->disableOriginalConstructor()
+    	->getMock();
+    	return new TasksController($taskServiceStub, $streamServiceStub, $this->aclStub);
+    }
+    
+    protected function setupRouteMatch()
+    {
+    	return ['controller' => 'tasks'];
+    }
+    
+    protected function setUp(){
 
-		$this->controller->getTaskService()
-			->expects($this->once())
-			->method('findStreamTasks')
-			->with($this->stream->getId())
-			->willReturn(array());
-		
-		$this->authorizeServiceStub->method('isAllowed')->willReturn(false);	
-			
-		$this->request->setMethod('get');
-		$params = $this->request->getQuery();
-		$params->set('streamID', $this->stream->getId());
-		
-		$result   = $this->controller->dispatch($this->request);
-		$response = $this->controller->getResponse();
-
-		$arrayResult = json_decode($result->serialize(), true);
-		
-		$this->assertEquals(200, $response->getStatusCode());
-		$this->assertArrayHasKey('_embedded', $arrayResult);
-		$this->assertArrayHasKey('ora:task', $arrayResult['_embedded']);
-		$this->assertArrayHasKey('_links', $arrayResult);		
-		$this->assertArrayNotHasKey('ora:create', $arrayResult['_links']);		
-	}
-	
-	public function testCreateTaskInPopulatedStream()
-	{
-		$this->setupLoggedUser($this->user);
-		$task = new Task('00001');
-		$task->setCreatedAt(new \DateTime());
-		$task->setStream($this->stream);
-
-		$this->controller->getTaskService()
-			->expects($this->once())
-			->method('findStreamTasks')
-			->with($this->stream->getId())
-			->willReturn(array($task));
-		
-		$this->authorizeServiceStub->method('isAllowed')->willReturn(true);	
-			
-		$this->request->setMethod('get');
-		$params = $this->request->getQuery();
-		$params->set('streamID', $this->stream->getId());
-		
-		$result   = $this->controller->dispatch($this->request);
-		$response = $this->controller->getResponse();
+        parent::setUp();
         $user = User::create();
         $user->setEmail('fake@email.com');
         $this->setupLoggedUser($user);
         
     }
-    
-    
 	
 	public function testGetListAsAnonymous()
 	{
@@ -254,7 +148,7 @@ class TasksControllerTest extends ControllerTest
 	
 		$this->assertEquals(404, $response->getStatusCode());
 	}
-	
+    
 	public function testApplyTimeboxToCloseAnAcceptedTasks(){
 		
 		$_SERVER['HTTP_HOST'] = 'localhost';
@@ -281,17 +175,17 @@ class TasksControllerTest extends ControllerTest
 		$taskToClose->complete($this->getLoggedUser());
 		$taskToClose->accept($this->getLoggedUser());
 		
-		$this->taskServiceStub
+		$this->controller->getTaskService()
         	->expects($this->once())
         	->method('getAcceptedTaskIdsToNotify')        	
         	->willReturn(array());
 		
-		$this->taskServiceStub
+		$this->controller->getTaskService()
         	->expects($this->once())
         	->method('getAcceptedTaskIdsToClose')        	
         	->willReturn(array(array('TASK_ID'=>$taskToClose->getId())));
         	
-        $this->taskServiceStub
+      	$this->controller->getTaskService()
         	->expects($this->once())
         	->method('getTask')        	
         	->willReturn($taskToClose);	
