@@ -9,10 +9,7 @@ use ZFX\Controller\Plugin\IsAllowed;
 use Application\Controller\AuthController;
 use Application\Controller\MembershipsController;
 use Application\Controller\Plugin\EventStoreTransactionPlugin;
-use Application\Service\IdentityRolesProvider;
-use Application\Service\OrganizationCommandsListener;
 use Application\Service\EventSourcingUserService;
-use Application\Service\EventSourcingOrganizationService;
 
 class Module
 {
@@ -44,7 +41,7 @@ class Module
 				},
 				'Application\Controller\Memberships' => function ($sm) {
 					$locator = $sm->getServiceLocator();
-					$orgService = $locator->get('Application\OrganizationService');
+					$orgService = $locator->get('People\OrganizationService');
 					$controller = new MembershipsController($orgService);
 					return $controller;
 				}
@@ -79,28 +76,9 @@ class Module
 			'factories' => array(
 				'Application\Service\AdapterResolver' => 'Application\Service\OAuth2AdapterResolverFactory',
 				'Application\Service\Acl' => 'Application\Service\AclFactory',
-				'Application\Service\IdentityRolesProvider' => function($serviceLocator){
-					$authService = $serviceLocator->get('Zend\Authentication\AuthenticationService');
-					$provider = new IdentityRolesProvider($authService);
-					return $provider;
-				},
-				'Authorization\CurrentUserProvider' => function($serviceLocator){
-					$authService = $serviceLocator->get('Zend\Authentication\AuthenticationService');
-					$loggedUser = $authService->getIdentity()['user'];
-					return $loggedUser;
-				},	
-				'Application\OrganizationService' => function ($serviceLocator) {
-					$eventStore = $serviceLocator->get('prooph.event_store');
-					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-					return new EventSourcingOrganizationService($eventStore, $entityManager);
-				},
 				'Application\UserService' => function ($serviceLocator) {
 					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
 					return new EventSourcingUserService($entityManager);
-				},
-				'Application\OrganizationCommandsListener' => function ($serviceLocator) {
-					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-					return new OrganizationCommandsListener($entityManager);
 				},
 			),
 		);

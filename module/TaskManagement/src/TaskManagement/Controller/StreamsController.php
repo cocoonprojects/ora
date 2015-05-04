@@ -7,7 +7,7 @@ use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
 use Application\Controller\AbstractHATEOASRestfulController;
-use Application\Service\OrganizationService;
+use People\Service\OrganizationService;
 use TaskManagement\View\StreamJsonModel;
 use TaskManagement\Service\StreamService;
 

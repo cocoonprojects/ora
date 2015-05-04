@@ -3,7 +3,7 @@ namespace Accounting\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
 use Application\Entity\User;
-use Application\Entity\Organization;
+use People\Entity\Organization;
 
 /**
  * @ORM\Entity

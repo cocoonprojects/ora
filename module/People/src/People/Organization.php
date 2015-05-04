@@ -1,9 +1,12 @@
 <?php
 
-namespace Application;
+namespace People;
 
 use Rhumsaa\Uuid\Uuid;
 use Application\Entity\User;
+use Application\DomainEntity;
+use Application\DuplicatedDomainEntityException;
+use Application\DomainEntityUnavailableException;
 use Accounting\Account;
 
 class Organization extends DomainEntity

@@ -1,6 +1,6 @@
 <?php
 
-namespace Application\Service;
+namespace People\Service;
 
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerInterface;
@@ -13,9 +13,9 @@ use Prooph\EventStore\Stream\SingleStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Rhumsaa\Uuid\Uuid;
 use Application\Entity\User;
-use Application\Organization;
-use Application\Entity\Organization as ReadModelOrg;
-use Application\Entity\OrganizationMembership;
+use People\Organization;
+use People\Entity\Organization as ReadModelOrg;
+use People\Entity\OrganizationMembership;
 
 class EventSourcingOrganizationService extends AggregateRepository implements OrganizationService, EventManagerAwareInterface
 {
@@ -76,7 +76,7 @@ class EventSourcingOrganizationService extends AggregateRepository implements Or
     public function setEventManager(EventManagerInterface $events)
     {
         $events->setIdentifiers(array(
-        	'Application\OrganizationService',
+        	'People\OrganizationService',
             __CLASS__,
             get_class($this)
         ));

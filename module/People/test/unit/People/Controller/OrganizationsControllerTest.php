@@ -2,9 +2,9 @@
 namespace People\Controller;
 
 use ZFX\Test\Controller\ControllerTest;
-use Application\Organization;
+use People\Organization;
 use Application\Entity\User;
-use Application\Service\OrganizationService;
+use People\Service\OrganizationService;
 use Accounting\OrganizationAccount;
 
 class OrganizationsControllerTest extends ControllerTest

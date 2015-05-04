@@ -6,6 +6,8 @@ use Zend\Permissions\Acl\Role\RoleInterface;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
+use People\Entity\Organization;
+use People\Entity\OrganizationMembership;
 
 
 /**
@@ -82,7 +84,7 @@ class User implements RoleInterface
 	private $picture;
 	
 	/**
-	 * @ORM\OneToMany(targetEntity="OrganizationMembership", mappedBy="member", indexBy="organization_id", fetch="EAGER")
+	 * @ORM\OneToMany(targetEntity="People\Entity\OrganizationMembership", mappedBy="member", indexBy="organization_id", fetch="EAGER")
 	 * @var OrganizationMembership[]
 	 */
 	private $memberships;
@@ -107,7 +109,10 @@ class User implements RoleInterface
 		$rv->mostRecentEditBy = $rv->createdBy;
 		return $rv;
 	}
-	
+	/**
+	 * TODO: remove dependence to People module
+	 * @param OrganizationMembership $membership
+	 */
 	public function addOrganizationMembership(OrganizationMembership $membership){
 		$this->memberships->set($membership->getOrganization()->getId(), $membership);
 	}

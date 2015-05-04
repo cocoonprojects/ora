@@ -2,10 +2,10 @@
 namespace People\Controller;
 
 use ZFX\Test\Controller\ControllerTest;
-use Application\Service\OrganizationService;
+use People\Service\OrganizationService;
 use Application\Entity\User;
-use Application\Entity\Organization as ReadModelOrganization;
-use Application\Entity\OrganizationMembership;
+use People\Entity\Organization as ReadModelOrganization;
+use People\Entity\OrganizationMembership;
 
 class MembersControllerTest extends ControllerTest
 {

@@ -1,8 +1,9 @@
 <?php
 
-namespace Application\Entity;
+namespace People\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
+use Application\Entity\User;
 
 /**
  * @ORM\Entity @ORM\Table(name="organization_members")
@@ -21,7 +22,7 @@ class OrganizationMembership
 			
 	/**
 	 * @ORM\Id
-	 * @ORM\ManyToOne(targetEntity="User", inversedBy="memberships")
+	 * @ORM\ManyToOne(targetEntity="Application\Entity\User", inversedBy="memberships")
 	 * @ORM\JoinColumn(name="member_id", referencedColumnName="id", onDelete="CASCADE")
 	 * @var User
 	 */
@@ -42,7 +43,7 @@ class OrganizationMembership
 	protected $createdAt;
 
 	/**
-	 * @ORM\ManyToOne(targetEntity="User")
+	 * @ORM\ManyToOne(targetEntity="Application\Entity\User")
 	 * @ORM\JoinColumn(name="createdBy_id", referencedColumnName="id")
 	 * @var User
 	 */
@@ -55,7 +56,7 @@ class OrganizationMembership
 	protected $mostRecentEditAt;
 
 	/**
-	 * @ORM\ManyToOne(targetEntity="User")
+	 * @ORM\ManyToOne(targetEntity="Application\Entity\User")
 	 * @ORM\JoinColumn(name="mostRecentEditBy_id", referencedColumnName="id")
 	 * @var User
 	 */

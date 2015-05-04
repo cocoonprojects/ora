@@ -5,7 +5,7 @@ use ZFX\Test\Controller\ControllerTest;
 use Zend\Permissions\Acl\Acl;
 use Rhumsaa\Uuid\Uuid;
 use Application\Entity\User;
-use Application\Organization;
+use People\Organization;
 use TaskManagement\Stream;
 use TaskManagement\Entity\Task as ReadModelTask;
 use TaskManagement\Entity\Stream as ReadModelStream;

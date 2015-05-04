@@ -3,7 +3,7 @@
 namespace Accounting\Service;
 
 use Application\Entity\User;
-use Application\Organization;
+use People\Organization;
 use Accounting\Entity\OrganizationAccount;
 use Accounting\Entity\Account;
 

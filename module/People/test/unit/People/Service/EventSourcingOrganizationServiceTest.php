@@ -1,5 +1,5 @@
 <?php
-namespace Application\Service;
+namespace People\Service;
 
 use Prooph\EventStoreTest\TestCase;
 use Prooph\EventStore\Stream\Stream;

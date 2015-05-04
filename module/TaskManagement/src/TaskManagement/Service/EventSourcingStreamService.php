@@ -10,8 +10,8 @@ use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Doctrine\ORM\EntityManager;
 use Rhumsaa\Uuid\Uuid;
 use Application\Entity\User;
-use Application\Organization;
-use Application\Entity\OrganizationMembership;
+use People\Organization;
+use People\Entity\OrganizationMembership;
 use TaskManagement\Stream;
 use TaskManagement\Entity\Stream as ReadModelStream;
 

@@ -5,7 +5,7 @@ use Zend\EventManager\ListenerAggregateInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\Event;
-use Application\Service\OrganizationService;
+use People\Service\OrganizationService;
 use Accounting\Service\AccountService;
 use Application\Entity\User;
 use TaskManagement\Service\TaskService;

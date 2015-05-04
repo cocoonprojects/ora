@@ -3,9 +3,9 @@ namespace Application\Controller;
 
 use ZFX\Test\Controller\ControllerTest;
 use Application\Entity\User;
-use Application\Entity\Organization;
-use Application\Entity\OrganizationMembership;
-use Application\Service\OrganizationService;
+use People\Entity\Organization;
+use People\Entity\OrganizationMembership;
+use People\Service\OrganizationService;
 use Accounting\OrganizationAccount;
 
 class MembershipsControllerTest extends ControllerTest

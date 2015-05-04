@@ -2,7 +2,7 @@
 
 namespace People\Controller;
 
-use Application\Service\OrganizationService;
+use People\Service\OrganizationService;
 use Application\Controller\AbstractHATEOASRestfulController;
 use People\View\OrganizationMembershipJsonModel;
 

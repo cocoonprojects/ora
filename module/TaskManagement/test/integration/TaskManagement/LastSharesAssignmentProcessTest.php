@@ -1,6 +1,7 @@
 <?php
 namespace TaskManagement;
 
+use IntegrationTest\Bootstrap;
 use Zend\Http\Request;
 use Zend\Http\Response;
 use Zend\Mvc\MvcEvent;
@@ -9,7 +10,6 @@ use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
 use Zend\EventManager\EventManager;
 use PHPUnit_Framework_TestCase;
 use Rhumsaa\Uuid\Uuid;
-use IntegrationTest\Bootstrap;
 use Application\Entity\User;
 use Application\Controller\Plugin\EventStoreTransactionPlugin;
 use TaskManagement\Task;

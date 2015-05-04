@@ -1,9 +1,10 @@
 <?php
 
-namespace Application\Entity;
+namespace People\Entity;
 
 use Zend\Permissions\Acl\Resource\ResourceInterface;
 use Doctrine\ORM\Mapping AS ORM;
+use Application\Entity\EditableEntity;
 
 /**
  * @ORM\Entity @ORM\Table(name="organizations")

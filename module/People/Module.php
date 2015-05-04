@@ -3,6 +3,8 @@ namespace People;
 
 use People\Controller\OrganizationsController;
 use People\Controller\MembersController;
+use People\Service\EventSourcingOrganizationService;
+use People\Service\OrganizationCommandsListener;
 
 class Module
 {
@@ -15,13 +17,13 @@ class Module
 			'factories' => array(
 				'People\Controller\Organizations' => function ($sm) {
 					$locator = $sm->getServiceLocator();
-					$orgService = $locator->get('Application\OrganizationService');
+					$orgService = $locator->get('People\OrganizationService');
 					$controller = new OrganizationsController($orgService);
 					return $controller;
 				},
 				'People\Controller\Members' => function ($sm) {
 					$locator = $sm->getServiceLocator();
-					$orgService = $locator->get('Application\OrganizationService');
+					$orgService = $locator->get('People\OrganizationService');
 					$controller = new MembersController($orgService);
 					return $controller;
 				},
@@ -35,15 +37,15 @@ class Module
 			'invokables' => array(
 			),
 			'factories' => array(
-// 				'Application\OrganizationService' => function ($serviceLocator) {
-// 					$eventStore = $serviceLocator->get('prooph.event_store');
-// 					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-// 					return new EventSourcingOrganizationService($eventStore, $entityManager);
-// 				},
-// 				'Application\OrganizationCommandsListener' => function ($serviceLocator) {
-// 					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-// 					return new OrganizationCommandsListener($entityManager);
-// 				},
+				'People\OrganizationService' => function ($serviceLocator) {
+					$eventStore = $serviceLocator->get('prooph.event_store');
+					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
+					return new EventSourcingOrganizationService($eventStore, $entityManager);
+				},
+				'People\OrganizationCommandsListener' => function ($serviceLocator) {
+					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
+					return new OrganizationCommandsListener($entityManager);
+				},
 			),
 		);
 	}

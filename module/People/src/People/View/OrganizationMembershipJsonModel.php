@@ -5,8 +5,8 @@ use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
 use Zend\Mvc\Controller\Plugin\Url;
 use Application\Entity\User;
-use Application\Entity\OrganizationMembership;
-use Application\Entity\Organization;
+use People\Entity\OrganizationMembership;
+use People\Entity\Organization;
 
 class OrganizationMembershipJsonModel extends JsonModel
 {

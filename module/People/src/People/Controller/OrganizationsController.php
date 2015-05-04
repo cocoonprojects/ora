@@ -6,8 +6,8 @@ use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
-use Application\Organization;
-use Application\Service\OrganizationService;
+use People\Organization;
+use People\Service\OrganizationService;
 use Application\Controller\AbstractHATEOASRestfulController;
 
 class OrganizationsController extends AbstractHATEOASRestfulController

@@ -6,7 +6,7 @@ use Prooph\EventStore\Stream\Stream;
 use Prooph\EventStore\Stream\StreamName;
 use Rhumsaa\Uuid\Uuid;
 use Application\Entity\User;
-use Application\Organization;
+use People\Organization;
 
 class EventSourcingAccountServiceTest extends TestCase
 {
