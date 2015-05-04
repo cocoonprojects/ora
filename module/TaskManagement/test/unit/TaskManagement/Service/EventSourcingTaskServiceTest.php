@@ -39,7 +39,7 @@ class EventSourcingTaskServiceTest extends TestCase {
 		$this->eventStore->commit();
 		$this->taskService = new EventSourcingTaskService($this->eventStore, $entityManager);
 		$this->user = User::create();
-		$this->mailcatcher = new \Guzzle\Http\Client('http://127.0.0.1:1080');
+		$this->mailcatcher = new \Guzzle\Http\Client('http://localhost:1080');
 		$this->cleanEmailMessages();
 	}
 	
