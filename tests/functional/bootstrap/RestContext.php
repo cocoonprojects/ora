@@ -38,14 +38,14 @@ class RestContext extends RawMinkContext
 			die();
 		}
 		
-		echo shell_exec('../src/vendor/bin/doctrine-module orm:schema-tool:drop --force');
-		echo shell_exec('../src/vendor/bin/doctrine-module orm:schema-tool:create');
-		echo shell_exec('../src/vendor/bin/doctrine-module dbal:import ' . __DIR__ . '/../../sql/init.sql');
+		echo shell_exec( __DIR__.'/../../../vendor/bin/doctrine-module orm:schema-tool:drop --force');
+		echo shell_exec(__DIR__.'/../../../vendor/bin/doctrine-module orm:schema-tool:create');
+		echo shell_exec(__DIR__.'/../../../vendor/bin/doctrine-module dbal:import ' . __DIR__ . '/../../sql/init.sql');
 	}
 	
 	/** @AfterSuite */
 	public static function teardownApplication(AfterSuiteScope $scope){
-		echo shell_exec('../src/vendor/bin/doctrine-module orm:schema-tool:drop --force');
+		echo shell_exec(__DIR__.'/../../../vendor/bin/doctrine-module orm:schema-tool:drop --force');
 	} 
 	
 	/**
