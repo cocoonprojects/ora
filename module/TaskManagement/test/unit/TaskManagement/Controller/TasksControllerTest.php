@@ -1,18 +1,11 @@
 <?php
 namespace TaskManagement\Controller;
 
-use UnitTest\Bootstrap;
-use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
-use Zend\Http\Request;
-use Zend\Http\Response;
-use Zend\Mvc\MvcEvent;
-use Zend\Mvc\Router\RouteMatch;
-use PHPUnit_Framework_TestCase;
+use ZFX\Test\Controller\ControllerTest;
+use Zend\Permissions\Acl\Acl;
 use Rhumsaa\Uuid\Uuid;
-use BjyAuthorize\Service\Authorize;
 use Application\Entity\User;
-use Application\Organization;
-use Application\Controller\Plugin\EventStoreTransactionPlugin;
+use People\Organization;
 use TaskManagement\Stream;
 use TaskManagement\Entity\Task as ReadModelTask;
 use TaskManagement\Entity\Stream as ReadModelStream;
@@ -21,49 +14,28 @@ use TaskManagement\Service\StreamService;
 use TaskManagement\Task;
 use Application\Service\UserService;
 
-class TasksControllerTest extends \PHPUnit_Framework_TestCase {
+class TasksControllerTest extends ControllerTest {
 	
-    protected $controller;
-    protected $request;
-    protected $response;
-    protected $routeMatch;
-    protected $event;
-    protected $authorizeServiceStub;
-    protected $taskServiceStub;
-	    
+    protected $aclStub;
+        
+    protected function setupController()
+    {
+    	$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
+    	$streamServiceStub = $this->getMockBuilder(StreamService::class)->getMock();
+    	$this->aclStub = $this->getMockBuilder(Acl::class)
+    	->disableOriginalConstructor()
+    	->getMock();
+    	return new TasksController($taskServiceStub, $streamServiceStub, $this->aclStub);
+    }
+    
+    protected function setupRouteMatch()
+    {
+    	return ['controller' => 'tasks'];
+    }
+    
     protected function setUp(){
-    	
-    	$serviceManager = Bootstrap::getServiceManager();
-    	
-    	$this->taskServiceStub = $this->getMockBuilder(TaskService::class)
-        	->getMock();
-    	
-    	 $streamServiceStub = $this->getMockBuilder(StreamService::class)
-        	->getMock();
-        
-        $this->authorizeServiceStub = $this->getMockBuilder(Authorize::class)
-        	->disableOriginalConstructor()
-        	->getMock();
-        
-        $this->controller = new TasksController($this->taskServiceStub, $streamServiceStub, $this->authorizeServiceStub);
-        $this->request    = new Request();
-        $this->routeMatch = new RouteMatch(array('controller' => 'tasks'));
-        $this->event      = new MvcEvent();
-        $config = $serviceManager->get('Config');
-        $routerConfig = isset($config['router']) ? $config['router'] : array();
-        $router = HttpRouter::factory($routerConfig);
 
-        $this->event->setRouter($router);
-        $this->event->setRouteMatch($this->routeMatch);
-        $this->controller->setEvent($this->event);
-        $this->controller->setServiceLocator($serviceManager);
-        
-    	$transaction = $this->getMockBuilder(EventStoreTransactionPlugin::class)
-    		->disableOriginalConstructor()
-    		->setMethods(['begin', 'commit', 'rollback'])
-    		->getMock();
-        $this->controller->getPluginManager()->setService('transaction', $transaction);
-
+        parent::setUp();
         $user = User::create();
         $user->setEmail('fake@email.com');
         $this->setupLoggedUser($user);
@@ -75,13 +47,13 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
     	
     	$stream = $this->setupStream();
     	
-        $this->taskServiceStub
+       $this->controller->getTaskService()
         	->expects($this->once())
         	->method('findStreamTasks')
         	->with($stream->getId()->toString())
         	->willReturn(array());
         
-        $this->authorizeServiceStub->method('isAllowed')->willReturn(true);	
+        $this->aclStub->method('isAllowed')->willReturn(true);	
         	
         $this->request->setMethod('get');
     	$params = $this->request->getQuery();
@@ -93,8 +65,9 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
     	$arrayResult = json_decode($result->serialize(), true);
     	
     	$this->assertEquals(200, $response->getStatusCode());
-    	$this->assertArrayHasKey('tasks', $arrayResult);
-    	$this->assertArrayHasKey('_links', $arrayResult);
+    	$this->assertArrayHasKey('_embedded', $arrayResult);
+		$this->assertArrayHasKey('ora:task', $arrayResult['_embedded']);
+		$this->assertArrayHasKey('_links', $arrayResult);
         $this->assertArrayHasKey('ora:create', $arrayResult['_links']);
     }
     
@@ -102,13 +75,13 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
     	
     	$stream = $this->setupStream();
     	
-       $this->taskServiceStub
+       	$this->controller->getTaskService()
         	->expects($this->once())
         	->method('findStreamTasks')
         	->with($stream->getId()->toString())
         	->willReturn(array());
         
-        $this->authorizeServiceStub->method('isAllowed')->willReturn(false);	
+        $this->aclStub->method('isAllowed')->willReturn(false);	
         	
         $this->request->setMethod('get');
     	$params = $this->request->getQuery();
@@ -120,8 +93,10 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
     	$arrayResult = json_decode($result->serialize(), true);
     	
     	$this->assertEquals(200, $response->getStatusCode());
-    	$this->assertArrayHasKey('tasks', $arrayResult);
-    	$this->assertArrayNotHasKey('_links', $arrayResult);        
+    	$this->assertArrayHasKey('_embedded', $arrayResult);
+		$this->assertArrayHasKey('ora:task', $arrayResult['_embedded']);
+		$this->assertArrayHasKey('_links', $arrayResult);		
+		$this->assertArrayNotHasKey('ora:create', $arrayResult['_links']);      
     }
     
 	public function testCanCreateTaskInPopulatedStream() {
@@ -131,13 +106,13 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
     	$task->setCreatedAt(new \DateTime());
     	$task->setStream($stream);
         
-       $this->taskServiceStub
+     	$this->controller->getTaskService()
         	->expects($this->once())
         	->method('findStreamTasks')
         	->with($stream->getId())
         	->willReturn(array($task));
         
-        $this->authorizeServiceStub->method('isAllowed')->willReturn(true);	
+        $this->aclStub->method('isAllowed')->willReturn(true);	
         	
         $this->request->setMethod('get');
     	$params = $this->request->getQuery();
@@ -149,9 +124,10 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
     	$arrayResult = json_decode($result->serialize(), true);
     	
     	$this->assertEquals(200, $response->getStatusCode());
-    	$this->assertArrayHasKey('tasks', $arrayResult);
-    	$this->assertArrayHasKey('_links', $arrayResult);
-    	$this->assertArrayHasKey('ora:create', $arrayResult['_links']);
+    	$this->assertArrayHasKey('_embedded', $arrayResult);
+		$this->assertArrayHasKey('ora:task', $arrayResult['_embedded']);
+		$this->assertArrayHasKey('_links', $arrayResult);
+		$this->assertArrayHasKey('ora:create', $arrayResult['_links']);
 		
     }
     
@@ -193,17 +169,17 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
 		$taskToClose->complete($this->getLoggedUser());
 		$taskToClose->accept($this->getLoggedUser());
 		
-		$this->taskServiceStub
+		$this->controller->getTaskService()
         	->expects($this->once())
         	->method('getAcceptedTaskIdsToNotify')        	
         	->willReturn(array());
 		
-		$this->taskServiceStub
+		$this->controller->getTaskService()
         	->expects($this->once())
         	->method('getAcceptedTaskIdsToClose')        	
         	->willReturn(array(array('TASK_ID'=>$taskToClose->getId())));
         	
-        $this->taskServiceStub
+      	$this->controller->getTaskService()
         	->expects($this->once())
         	->method('getTask')        	
         	->willReturn($taskToClose);	
