@@ -2,7 +2,7 @@
 namespace TaskManagement\Service;
 
 use Prooph\EventStore\Stream\StreamEvent;
-use Application\Entity\Organization;
+use People\Entity\Organization;
 use Application\Entity\User;
 use Application\Service\ReadModelProjector;
 use TaskManagement\Entity\Stream;

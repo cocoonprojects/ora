@@ -2,12 +2,12 @@
 namespace Accounting\Controller;
 
 use Zend\Authentication\AuthenticationServiceInterface;
-use BjyAuthorize\Service\Authorize;
-use Application\Controller\AbstractHATEOASRestfulController;
+use Zend\Permissions\Acl\Acl;
+use ZFX\Rest\Controller\HATEOASRestfulController;
 use Accounting\Service\AccountService;
 use Accounting\View\AccountsJsonModel;
 
-class AccountsController extends AbstractHATEOASRestfulController
+class AccountsController extends HATEOASRestfulController
 {
 	protected static $collectionOptions = ['GET'];
 	protected static $resourceOptions = ['GET'];
@@ -18,13 +18,13 @@ class AccountsController extends AbstractHATEOASRestfulController
 	protected $accountService;
 	/**
 	 * 
-	 * @var Authorize
+	 * @var Acl
 	 */
-	private $authorize;
+	private $acl;
 	
-	public function __construct(AccountService $accountService, Authorize $authorize) {
+	public function __construct(AccountService $accountService, Acl $acl) {
 		$this->accountService = $accountService;
-		$this->authorize = $authorize;
+		$this->acl = $acl;
 	}
 	
 	// Gets my credits accounts list
@@ -38,7 +38,7 @@ class AccountsController extends AbstractHATEOASRestfulController
 		$identity = $this->identity()['user'];
 		$accounts = $this->accountService->findAccounts($identity);
 		
-		$viewModel = new AccountsJsonModel($this->url(), $identity, $this->authorize);
+		$viewModel = new AccountsJsonModel($this->url(), $identity, $this->acl);
 		$viewModel->setVariable('resource', $accounts);
 		return $viewModel;
 	}
@@ -56,7 +56,7 @@ class AccountsController extends AbstractHATEOASRestfulController
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-		$viewModel = new AccountsJsonModel($this->url(), $identity, $this->authorize);
+		$viewModel = new AccountsJsonModel($this->url(), $identity, $this->acl);
 		$viewModel->setVariable('resource', $rv);
 		return $viewModel;
 	}

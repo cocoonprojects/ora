@@ -6,11 +6,11 @@ use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
-use Application\Organization;
-use Application\Service\OrganizationService;
-use Application\Controller\AbstractHATEOASRestfulController;
+use People\Organization;
+use People\Service\OrganizationService;
+use ZFX\Rest\Controller\HATEOASRestfulController;
 
-class OrganizationsController extends AbstractHATEOASRestfulController
+class OrganizationsController extends HATEOASRestfulController
 {
 	protected static $collectionOptions = array('GET', 'POST');
 	protected static $resourceOptions = array('DELETE', 'POST', 'GET', 'PUT');

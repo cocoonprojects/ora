@@ -1,11 +1,11 @@
 <?php
 
-namespace Application\Service;
+namespace People\Service;
 
 use Application\Entity\User;
-use Application\Organization;
-use Application\Entity\Organization as OrganizationReadModel;
-use Application\Entity\OrganizationMembership;
+use People\Organization;
+use People\Entity\Organization as OrganizationReadModel;
+use People\Entity\OrganizationMembership;
 
 interface OrganizationService
 {	

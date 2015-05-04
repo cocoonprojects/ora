@@ -1,5 +1,5 @@
 <?php
-namespace Application\Authentication;
+namespace ZFX\Authentication;
 
 use Zend\Authentication\AuthenticationServiceInterface;
 use Application\Entity\User;
@@ -13,10 +13,10 @@ use Zend\Authentication\AuthenticationService;
  */
 class AuthenticationServiceMock extends AuthenticationService {
 	
-	private $identity = array();
+	private $identity = null;
 	
 	public function __construct(User $user = null) {
-		$this->identity['user'] = $user;	
+		$this->setIdentity($user);
 	}
 	
 	public function authenticate() {
@@ -33,5 +33,9 @@ class AuthenticationServiceMock extends AuthenticationService {
 	
 	public function clearIdentity() {
 		$this->identity = null;
+	}
+	
+	public function setIdentity(User $user = null) {
+		$this->identity = $user == null ? null : ['user' => $user];
 	}
 }

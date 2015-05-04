@@ -2,12 +2,9 @@
 
 namespace UnitTest;
 
-use Zend\Loader\AutoloaderFactory;
 use Zend\Mvc\Service\ServiceManagerConfig;
 use Zend\ServiceManager\ServiceManager;
-use RuntimeException;
-use Zend\Mvc\Application;
-use Doctrine\ORM\Tools\SchemaTool;
+use ZFX\Authentication\AuthenticationServiceMock;
 
 error_reporting(E_ALL | E_STRICT);
 chdir(dirname(__DIR__));
@@ -25,27 +22,27 @@ if(isset($loader)) {
  */
 class Bootstrap
 {
-    protected static $serviceManager;
+	protected static $serviceManager;
 	protected static $config;
 
-    public static function init($config)
-    {
-        $serviceManager = new ServiceManager(new ServiceManagerConfig());
-        $serviceManager->setService('ApplicationConfig', $config);
-        $serviceManager->get('ModuleManager')->loadModules();
-        static::$serviceManager = $serviceManager;
-        static::$config = $config;
-    }
+	public static function init($config)
+	{
+		$serviceManager = new ServiceManager(new ServiceManagerConfig());
+		$serviceManager->setService('ApplicationConfig', $config);
+		$serviceManager->get('ModuleManager')->loadModules();
+		static::$serviceManager = $serviceManager;
+		static::$config = $config;
+	}
 
-    public static function getServiceManager()
-    {
-        return static::$serviceManager;
-    }
-    
-    public static function getConfig()
-    {
-        return static::$config;
-    }
+	public static function getServiceManager()
+	{
+		return static::$serviceManager;
+	}
+	
+	public static function getConfig()
+	{
+		return static::$config;
+	}
 }
 
 Bootstrap::init(include __DIR__.'/../../config/application.config.php');

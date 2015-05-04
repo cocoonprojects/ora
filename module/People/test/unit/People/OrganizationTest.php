@@ -1,5 +1,5 @@
 <?php
-namespace Application;
+namespace People;
 
 use Application\Entity\User;
 use Accounting\OrganizationAccount;

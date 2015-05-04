@@ -1,74 +1,44 @@
 <?php
 namespace TaskManagement\Controller;
 
-use UnitTest\Bootstrap;
-use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
-use Zend\Http\Request;
-use Zend\Http\Response;
-use Zend\Mvc\MvcEvent;
-use Zend\Mvc\Router\RouteMatch;
-use PHPUnit_Framework_TestCase;
+use ZFX\Test\Controller\ControllerTest;
+use Zend\Permissions\Acl\Acl;
 use Rhumsaa\Uuid\Uuid;
-use BjyAuthorize\Service\Authorize;
 use Application\Entity\User;
-use Application\Organization;
-use Application\Controller\Plugin\EventStoreTransactionPlugin;
+use People\Organization;
 use TaskManagement\Stream;
 use TaskManagement\Entity\Task as ReadModelTask;
 use TaskManagement\Entity\Stream as ReadModelStream;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
 
-class TasksControllerTest extends \PHPUnit_Framework_TestCase {
-	
-	protected $controller;
-	protected $request;
-	protected $response;
-	protected $routeMatch;
-	protected $event;
+class TasksControllerTest extends ControllerTest
+{
 	protected $authorizeServiceStub;
-		
-	protected function setUp(){
-		
-		$serviceManager = Bootstrap::getServiceManager();
-		
-		$taskServiceStub = $this->getMockBuilder(TaskService::class)
-			->getMock();
-		
-		 $streamServiceStub = $this->getMockBuilder(StreamService::class)
-			->getMock();
-		
-		$this->authorizeServiceStub = $this->getMockBuilder(Authorize::class)
+	
+	protected function setupController()
+	{
+		$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
+		$streamServiceStub = $this->getMockBuilder(StreamService::class)->getMock();
+		$this->authorizeServiceStub = $this->getMockBuilder(Acl::class)
 			->disableOriginalConstructor()
 			->getMock();
-		
-		$this->controller = new TasksController($taskServiceStub, $streamServiceStub, $this->authorizeServiceStub);
-		$this->request	= new Request();
-		$this->routeMatch = new RouteMatch(array('controller' => 'tasks'));
-		$this->event	  = new MvcEvent();
-		$config = $serviceManager->get('Config');
-		$routerConfig = isset($config['router']) ? $config['router'] : array();
-		$router = HttpRouter::factory($routerConfig);
-
-		$this->event->setRouter($router);
-		$this->event->setRouteMatch($this->routeMatch);
-		$this->controller->setEvent($this->event);
-		$this->controller->setServiceLocator($serviceManager);
-		
-		$transaction = $this->getMockBuilder(EventStoreTransactionPlugin::class)
-			->disableOriginalConstructor()
-			->setMethods(['begin', 'commit', 'rollback'])
-			->getMock();
-		$this->controller->getPluginManager()->setService('transaction', $transaction);
-
-		$user = User::create();
-		$this->setupLoggedUser($user);
-		
+		return new TasksController($taskServiceStub, $streamServiceStub, $this->authorizeServiceStub);
 	}
 	
+	protected function setupRouteMatch()
+	{
+		return ['controller' => 'tasks'];
+	}
+	protected function setUp()
+	{
+		parent::setUp();
+		$user = User::create();
+		$this->setupLoggedUser($user);
+	}
 	
-	public function testCanCreateTaskInEmptyStream() {
-		
+	public function testCanCreateTaskInEmptyStream()
+	{
 		$organization = Organization::create('My brand new Orga', $this->getLoggedUser());
 		$stream = Stream::create($organization, 'Really useful stream', $this->getLoggedUser());
 		
@@ -96,8 +66,8 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('ora:create', $arrayResult['_links']);
 	}
 	
-	public function testCannotCreateTaskInRejectedStream() {
-		
+	public function testCannotCreateTaskInRejectedStream()
+	{
 		$organization = Organization::create('My brand new Orga', $this->getLoggedUser());
 		$stream = Stream::create($organization, 'Really useful stream', $this->getLoggedUser());
 		
@@ -125,8 +95,8 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayNotHasKey('ora:create', $arrayResult['_links']);		
 	}
 	
-	public function testCanCreateTaskInPopulatedStream() {
-		
+	public function testCanCreateTaskInPopulatedStream()
+	{
 		$stream = new ReadModelStream('00000');
 		$task = new ReadModelTask('00001');
 		$task->setCreatedAt(new \DateTime());
@@ -155,16 +125,6 @@ class TasksControllerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayHasKey('ora:task', $arrayResult['_embedded']);
 		$this->assertArrayHasKey('_links', $arrayResult);
 		$this->assertArrayHasKey('ora:create', $arrayResult['_links']);
-		
-	}
-	
-	protected function setupLoggedUser(User $user) {
-		$identity = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Identity')
-			->disableOriginalConstructor()
-			->getMock();
-		$identity->method('__invoke')->willReturn(['user' => $user]);
-		
-		$this->controller->getPluginManager()->setService('identity', $identity);
 	}
 	
 	protected function getLoggedUser() {

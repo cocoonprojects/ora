@@ -31,7 +31,4 @@
 			<directory>../../vendor</directory>
 		</blacklist>
 	</filter>
-	<php>
-		<env name="APPLICATION_ENV" value="acceptance"/>
-	</php>
 </phpunit>

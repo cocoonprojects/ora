@@ -4,7 +4,7 @@ namespace Accounting\Service;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\Event;
-use Application\Organization;
+use People\Organization;
 use Accounting\Service\AccountService;
 
 class CreateOrganizationAccountListener implements ListenerAggregateInterface {
@@ -23,7 +23,7 @@ class CreateOrganizationAccountListener implements ListenerAggregateInterface {
 	
 	public function attach(EventManagerInterface $events) {
 		$accountService = $this->accountService;
-		$this->listeners[] = $events->getSharedManager()->attach('Application\OrganizationService', Organization::EVENT_CREATED, function(Event $event) use ($accountService) {
+		$this->listeners[] = $events->getSharedManager()->attach('People\OrganizationService', Organization::EVENT_CREATED, function(Event $event) use ($accountService) {
 			$organization = $event->getTarget();
 			$holder = $event->getParam('by');
 			$accountService->createOrganizationAccount($organization, $holder);
@@ -33,7 +33,7 @@ class CreateOrganizationAccountListener implements ListenerAggregateInterface {
 	
     public function detach(EventManagerInterface $events)
     {
-        if($events->getSharedManager()->detach('Application\OrganizationService', $this->listeners[0])) {
+        if($events->getSharedManager()->detach('People\OrganizationService', $this->listeners[0])) {
     		unset($this->listeners[0]);
     	}
     }

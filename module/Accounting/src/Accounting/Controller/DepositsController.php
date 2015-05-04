@@ -5,11 +5,11 @@ use Zend\I18n\Validator\Float;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\NotEmpty;
 use Zend\Validator\GreaterThan;
-use Application\Controller\AbstractHATEOASRestfulController;
+use ZFX\Rest\Controller\HATEOASRestfulController;
 use Accounting\Service\AccountService;
 use Accounting\IllegalAmountException;
 
-class DepositsController extends AbstractHATEOASRestfulController
+class DepositsController extends HATEOASRestfulController
 {
 	protected static $collectionOptions = [];
 	protected static $resourceOptions = ['POST'];

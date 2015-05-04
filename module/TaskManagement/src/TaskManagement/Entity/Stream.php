@@ -4,7 +4,7 @@ namespace TaskManagement\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
 use Application\Entity\EditableEntity;
-use Application\Entity\Organization;
+use People\Entity\Organization;
 
 /**
  * @ORM\Entity @ORM\Table(name="streams")
@@ -20,7 +20,7 @@ class Stream extends EditableEntity
 	private $subject;
 	
 	/**
-	 * @ORM\ManyToOne(targetEntity="Application\Entity\Organization")
+	 * @ORM\ManyToOne(targetEntity="People\Entity\Organization")
 	 * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", nullable=false)
 	 * @var Organization
 	 */

@@ -1,12 +1,12 @@
 <?php
 namespace Accounting\Controller;
 
-use BjyAuthorize\Service\Authorize;
-use Application\Controller\AbstractHATEOASRestfulController;
+use Zend\Permissions\Acl\Acl;
+use ZFX\Rest\Controller\HATEOASRestfulController;
 use Accounting\Service\AccountService;
 use Accounting\View\StatementJsonModel;
 
-class StatementsController extends AbstractHATEOASRestfulController
+class StatementsController extends HATEOASRestfulController
 {
 	protected static $collectionOptions = ['GET'];
 	protected static $resourceOptions = ['GET'];
@@ -17,13 +17,13 @@ class StatementsController extends AbstractHATEOASRestfulController
 	protected $accountService;
 	/**
 	 * 
-	 * @var Authorize
+	 * @var Acl
 	 */
-	private $authorize;
+	private $acl;
 	
-	public function __construct(AccountService $accountService, Authorize $authorize) {
+	public function __construct(AccountService $accountService, Acl $acl) {
 		$this->accountService = $accountService;
-		$this->authorize = $authorize;
+		$this->acl = $acl;
 	}
 
 	public function get($id)
@@ -34,7 +34,7 @@ class StatementsController extends AbstractHATEOASRestfulController
 			return $this->response;
 		}
 		$identity = $this->identity()['user'];
-		$viewModel = new StatementJsonModel($this->url(), $identity, $this->authorize);
+		$viewModel = new StatementJsonModel($this->url(), $identity, $this->acl);
 		$viewModel->setVariable('resource', $account);
 		return $viewModel;
 	}

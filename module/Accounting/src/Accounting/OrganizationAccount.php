@@ -2,7 +2,7 @@
 namespace Accounting;
 
 use Rhumsaa\Uuid\Uuid;
-use Application\Organization;
+use People\Organization;
 use Application\Entity\User;
 
 class OrganizationAccount extends Account {

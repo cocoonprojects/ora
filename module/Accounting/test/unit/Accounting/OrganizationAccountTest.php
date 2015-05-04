@@ -2,7 +2,7 @@
 namespace Accounting;
 
 use Application\Entity\User;
-use Application\Organization;
+use People\Organization;
 
 class OrganizationAccountTest extends \PHPUnit_Framework_TestCase {
 	

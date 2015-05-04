@@ -3,18 +3,13 @@ namespace Application;
 
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
-use Zend\Log\Writer\Stream;
-use Zend\Log\Logger;
 use Zend\Authentication\AuthenticationService;
-use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
-use Doctrine\ORM\EntityManager;
+use Zend\Permissions\Acl\Acl;
 use Application\Controller\AuthController;
 use Application\Controller\MembershipsController;
-use Application\Controller\Plugin\EventStoreTransactionPlugin;
-use Application\Service\IdentityRolesProvider;
-use Application\Service\OrganizationCommandsListener;
 use Application\Service\EventSourcingUserService;
-use Application\Service\EventSourcingOrganizationService;
+use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
+use ZFX\Acl\Controller\Plugin\IsAllowed;
 
 class Module
 {
@@ -46,7 +41,7 @@ class Module
 				},
 				'Application\Controller\Memberships' => function ($sm) {
 					$locator = $sm->getServiceLocator();
-					$orgService = $locator->get('Application\OrganizationService');
+					$orgService = $locator->get('People\OrganizationService');
 					$controller = new MembershipsController($orgService);
 					return $controller;
 				}
@@ -63,6 +58,11 @@ class Module
 					$transactionManager = $serviceLocator->get('prooph.event_store');
 					return new EventStoreTransactionPlugin($transactionManager);
 				},
+				'isAllowed' => function ($pluginManager) {
+					$serviceLocator = $pluginManager->getServiceLocator();
+					$acl = $serviceLocator->get('Application\Service\Acl');
+					return new IsAllowed($acl);
+				},
 			),
 		);
 	}
@@ -74,35 +74,11 @@ class Module
 				'Zend\Authentication\AuthenticationService' => AuthenticationService::class,
 			),
 			'factories' => array(
-				'Zend\Log' => function ($sl) {
-					$writer = new Stream(__DIR__ . '/../../data/logs/application.log');
-					$logger = new Logger();
-					$logger->addWriter($writer);
-					return $logger;
-				},
 				'Application\Service\AdapterResolver' => 'Application\Service\OAuth2AdapterResolverFactory',
-				'Application\Service\IdentityRolesProvider' => function($serviceLocator){
-					$authService = $serviceLocator->get('Zend\Authentication\AuthenticationService');
-					$provider = new IdentityRolesProvider($authService);
-					return $provider;
-				},
-				'Authorization\CurrentUserProvider' => function($serviceLocator){
-					$authService = $serviceLocator->get('Zend\Authentication\AuthenticationService');
-					$loggedUser = $authService->getIdentity()['user'];
-					return $loggedUser;
-	        	},	
-				'Application\OrganizationService' => function ($serviceLocator) {
-					$eventStore = $serviceLocator->get('prooph.event_store');
-					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-					return new EventSourcingOrganizationService($eventStore, $entityManager);
-				},
+				'Application\Service\Acl' => 'Application\Service\AclFactory',
 				'Application\UserService' => function ($serviceLocator) {
 					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
 					return new EventSourcingUserService($entityManager);
-				},
-				'Application\OrganizationCommandsListener' => function ($serviceLocator) {
-					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-					return new OrganizationCommandsListener($entityManager);
 				},
 			),
 		);

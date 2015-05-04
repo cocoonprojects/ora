@@ -1,12 +1,10 @@
 <?php
 namespace People;
 
-use Zend\Log\Writer\Stream;
-use Zend\Log\Logger;
-use Zend\Authentication\AuthenticationService;
-use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
-use Doctrine\ORM\EntityManager;
 use People\Controller\OrganizationsController;
+use People\Controller\MembersController;
+use People\Service\EventSourcingOrganizationService;
+use People\Service\OrganizationCommandsListener;
 
 class Module
 {
@@ -14,12 +12,19 @@ class Module
 	{
 		return array(
 			'invokables' => array(
+				'People\Controller\Index' => 'People\Controller\IndexController',
 			),
 			'factories' => array(
 				'People\Controller\Organizations' => function ($sm) {
 					$locator = $sm->getServiceLocator();
-					$orgService = $locator->get('Application\OrganizationService');
+					$orgService = $locator->get('People\OrganizationService');
 					$controller = new OrganizationsController($orgService);
+					return $controller;
+				},
+				'People\Controller\Members' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$orgService = $locator->get('People\OrganizationService');
+					$controller = new MembersController($orgService);
 					return $controller;
 				},
 			)
@@ -32,15 +37,15 @@ class Module
 			'invokables' => array(
 			),
 			'factories' => array(
-// 				'Application\OrganizationService' => function ($serviceLocator) {
-// 					$eventStore = $serviceLocator->get('prooph.event_store');
-// 					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-// 					return new EventSourcingOrganizationService($eventStore, $entityManager);
-// 				},
-// 				'Application\OrganizationCommandsListener' => function ($serviceLocator) {
-// 					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-// 					return new OrganizationCommandsListener($entityManager);
-// 				},
+				'People\OrganizationService' => function ($serviceLocator) {
+					$eventStore = $serviceLocator->get('prooph.event_store');
+					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
+					return new EventSourcingOrganizationService($eventStore, $entityManager);
+				},
+				'People\OrganizationCommandsListener' => function ($serviceLocator) {
+					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
+					return new OrganizationCommandsListener($entityManager);
+				},
 			),
 		);
 	}

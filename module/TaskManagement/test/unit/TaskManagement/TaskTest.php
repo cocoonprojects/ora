@@ -3,7 +3,7 @@ namespace TaskManagement;
 
 use Rhumsaa\Uuid\Uuid;
 use Application\Entity\User;
-use Application\Organization;
+use People\Organization;
 
 class TaskTest extends \PHPUnit_Framework_TestCase {
 	

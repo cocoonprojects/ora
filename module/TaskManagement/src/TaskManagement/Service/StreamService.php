@@ -2,7 +2,7 @@
 
 namespace TaskManagement\Service;
 
-use Application\Organization;
+use People\Organization;
 use Application\Entity\User;
 use TaskManagement\Entity\Stream as ReadModelStream;
 use TaskManagement\Stream;

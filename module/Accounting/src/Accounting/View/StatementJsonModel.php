@@ -4,8 +4,8 @@ namespace Accounting\View;
 use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
 use Zend\Mvc\Controller\Plugin\Url;
+use Zend\Permissions\Acl\Acl;
 use Application\Entity\User;
-use BjyAuthorize\Service\Authorize;
 use Accounting\Entity\Account;
 use Accounting\Entity\OrganizationAccount;
 use Accounting\Entity\AccountTransaction;
@@ -18,14 +18,14 @@ class StatementJsonModel extends JsonModel
 	protected $user;
 	
 	/**
-	 * @var BjyAuthorize\Service\Authorize
+	 * @var Acl
 	 */
-	protected $authorize;
+	protected $acl;
 	
-	public function __construct(Url $url, User $user, Authorize $authorize) {
+	public function __construct(Url $url, User $user, Acl $acl) {
 		$this->url = $url;
 		$this->user = $user;
-		$this->authorize = $authorize;
+		$this->acl = $acl;
 	} 
 	
 	public function serialize()
@@ -50,7 +50,7 @@ class StatementJsonModel extends JsonModel
 	protected function serializeLinks($account) {
 		
 		$rv['self'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'statement']);
-		if($this->authorize->isAllowed($account, 'Accounting.OrganizationAccount.deposit')){
+		if($this->acl->isAllowed($this->user, $account, 'Accounting.OrganizationAccount.deposit')){
 			$rv['deposits'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'deposits']);
 		}
 		return $rv;

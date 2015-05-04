@@ -6,14 +6,15 @@ use Zend\Permissions\Acl\Role\RoleInterface;
 use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Rhumsaa\Uuid\Uuid;
-use BjyAuthorize\Provider\Identity\ProviderInterface;	
+use People\Entity\Organization;
+use People\Entity\OrganizationMembership;
 
 
 /**
  * @ORM\Entity @ORM\Table(name="users")
  *
  */
-class User implements ProviderInterface, RoleInterface
+class User implements RoleInterface
 {	   
 	CONST STATUS_ACTIVE = 1;
 	CONST ROLE_ADMIN = 'admin';
@@ -22,15 +23,6 @@ class User implements ProviderInterface, RoleInterface
 	
 	CONST EVENT_CREATED = "User.Created";
 
-	private static $roles=[ 
-		self::ROLE_GUEST => [], 
-		self::ROLE_USER => [
-			'children' => [
-				self::ROLE_ADMIN => [],
-			 ], 
-		]
-	];
-	
 	/**
 	 * @ORM\Id @ORM\Column(type="string") 
 	 * @var string
@@ -92,7 +84,7 @@ class User implements ProviderInterface, RoleInterface
 	private $picture;
 	
 	/**
-	 * @ORM\OneToMany(targetEntity="OrganizationMembership", mappedBy="member", indexBy="organization_id", fetch="EAGER")
+	 * @ORM\OneToMany(targetEntity="People\Entity\OrganizationMembership", mappedBy="member", indexBy="organization_id", fetch="EAGER")
 	 * @var OrganizationMembership[]
 	 */
 	private $memberships;
@@ -117,9 +109,12 @@ class User implements ProviderInterface, RoleInterface
 		$rv->mostRecentEditBy = $rv->createdBy;
 		return $rv;
 	}
-	
-	public function addOrganizationMembership($membership){
-		$this->memberships->add($membership);
+	/**
+	 * TODO: remove dependence to People module
+	 * @param OrganizationMembership $membership
+	 */
+	public function addOrganizationMembership(OrganizationMembership $membership){
+		$this->memberships->set($membership->getOrganization()->getId(), $membership);
 	}
 	
 	public function getId() {
@@ -232,27 +227,23 @@ class User implements ProviderInterface, RoleInterface
 	/**
 	 * 
 	 * @param id|Organization $organization
-	 * @return unknown
+	 * @return bool
 	 */
 	public function isMemberOf($organization) {
 		$key = $organization instanceof Organization ? $organization->getId() : $organization;
 		return $this->memberships->containsKey($key);
 	}
 
-	public function getIdentityRoles(){
-		return $this->role;
-	}
-
 	public function setRole($role){
 		$this->role = $role;
+		return $this;
 	}
 	
-	public static function getRoleCollection(){
-		return self::$roles;
-
+	public function getRole() {
+		return $this->role;
 	}
 	
 	public function getRoleId(){
-		return $this->getIdentityRoles();
+		return $this->getRole();
 	}
 }

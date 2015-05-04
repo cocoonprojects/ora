@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Application\Entity\EditableEntity;
 use Application\Entity\User;
-use Application\Entity\Organization;
+use People\Entity\Organization;
 
 /**
  * @ORM\Entity @ORM\Table(name="accounts")
@@ -38,7 +38,7 @@ class Account extends EditableEntity implements ResourceInterface {
 	protected $transactions;
 	
 	/**
-	 * @ORM\OneToOne(targetEntity="Application\Entity\Organization")
+	 * @ORM\OneToOne(targetEntity="People\Entity\Organization")
 	 * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", nullable=true, onDelete="CASCADE")
 	 * @var Organization
 	 */

@@ -5,8 +5,8 @@ use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
 use Zend\Mvc\Controller\Plugin\Url;
 use Application\Entity\User;
-use Application\Entity\OrganizationMembership;
-use Application\Entity\Organization;
+use People\Entity\OrganizationMembership;
+use People\Entity\Organization;
 
 class OrganizationMembershipJsonModel extends JsonModel
 {
@@ -69,6 +69,9 @@ class OrganizationMembershipJsonModel extends JsonModel
 			'_links' => [
 				'self' => [
 					'href' => $this->url->fromRoute('organizations', ['id' => $org->getId()]),
+				],
+				'ora:organization-member' => [
+					'href' => $this->url->fromRoute('organizations-entities', ['orgId' => $org->getId(), 'controller' => 'members'])
 				]
 			]
 		];

@@ -1,6 +1,6 @@
 <?php
 
-namespace Application;
+namespace People;
 
 use Prooph\EventSourcing\AggregateChanged;
 

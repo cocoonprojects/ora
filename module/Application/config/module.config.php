@@ -138,7 +138,4 @@ return array(
 			),
 		),
 	),
-	'listeners' => array(
-		'Application\OrganizationCommandsListener'
-	),	
 );

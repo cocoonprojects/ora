@@ -2,7 +2,7 @@
 namespace TaskManagement;
 
 use Application\Entity\User;
-use Application\Organization;
+use People\Organization;
 
 class StreamTest extends \PHPUnit_Framework_TestCase {
 	

@@ -7,7 +7,7 @@ use Zend\Validator\NotEmpty;
 use Zend\Validator\GreaterThan;
 use Zend\Validator\Identical;
 use Zend\I18n\Validator\Float;
-use Application\Controller\AbstractHATEOASRestfulController;
+use ZFX\Rest\Controller\HATEOASRestfulController;
 use Application\DuplicatedDomainEntityException;
 use Application\IllegalStateException;
 use Application\DomainEntityUnavailableException;
@@ -18,7 +18,7 @@ use TaskManagement\Service\TaskService;
  * EstimationsController
  *
  */
-class EstimationsController extends AbstractHATEOASRestfulController {
+class EstimationsController extends HATEOASRestfulController {
 
 	protected static $collectionOptions = array();
 	protected static $resourceOptions = array('POST');

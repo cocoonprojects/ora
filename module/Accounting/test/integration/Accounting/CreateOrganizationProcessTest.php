@@ -7,7 +7,7 @@ use IntegrationTest\Bootstrap;
 use Accounting\Service\AccountService;
 use Accounting\Service\CreatePersonalAccountListener;
 use Accounting\Service\AccountCommandsListener;
-use Application\Service\OrganizationService;
+use People\Service\OrganizationService;
 use Application\Entity\User;
 
 class CreateOrganizationProcessTest extends \PHPUnit_Framework_TestCase
@@ -33,7 +33,7 @@ class CreateOrganizationProcessTest extends \PHPUnit_Framework_TestCase
 		$serviceManager = Bootstrap::getServiceManager();
 		$userService = $serviceManager->get('Application\UserService');
 		$this->user = $userService->findUser('60000000-0000-0000-0000-000000000000');
-		$this->organizationService = $serviceManager->get('Application\OrganizationService');
+		$this->organizationService = $serviceManager->get('People\OrganizationService');
 		$this->accountService = $serviceManager->get('Accounting\CreditsAccountsService');
 	}
 	

@@ -1,10 +1,11 @@
 <?php
-namespace Application\Service;
+namespace People\Service;
 
 use Prooph\EventStore\Stream\StreamEvent;
 use Application\Entity\User;
-use Application\Entity\Organization;
-use Application\Entity\OrganizationMembership;
+use People\Entity\Organization;
+use People\Entity\OrganizationMembership;
+use Application\Service\ReadModelProjector;
 
 class OrganizationCommandsListener extends ReadModelProjector {
 	
@@ -61,6 +62,6 @@ class OrganizationCommandsListener extends ReadModelProjector {
 	}
 	
 	protected function getPackage() {
-		return 'Application';
+		return 'People';
 	}
 }

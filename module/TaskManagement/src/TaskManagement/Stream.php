@@ -5,7 +5,7 @@ namespace TaskManagement;
 use Rhumsaa\Uuid\Uuid;
 use Application\DomainEntity;
 use Application\Entity\User;
-use Application\Organization;
+use People\Organization;
 
 /**
  * 

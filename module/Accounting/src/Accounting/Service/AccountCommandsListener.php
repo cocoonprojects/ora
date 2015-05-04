@@ -3,7 +3,7 @@ namespace Accounting\Service;
 
 use Prooph\EventStore\Stream\StreamEvent;
 use Application\Entity\User;
-use Application\Entity\Organization;
+use People\Entity\Organization;
 use Application\Service\ReadModelProjector;
 use Accounting\Entity\Balance;
 use Accounting\Entity\Account;
