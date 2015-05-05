@@ -55,7 +55,6 @@ class EventSourcingTaskServiceTest extends TestCase {
 		$_SERVER['SERVER_NAME'] = 'oraprojecttest';
 		
 		$this->taskService->setEmailTemplates(array('TaskManagement\NotifyMemebersForShareAssignment' => __DIR__.'/../../../../view/task-management/email_templates/hurryup-taskmember.phtml'));
-
 		$this->taskService->notifyMembersForShareAssignment($taskToNotify, new PhpRenderer(), array($this->user));
 				
 		$emails = $this->getEmailMessages();
