@@ -1,16 +1,21 @@
 language: php
 
 php:
-  - 5.5
-  - 5.4
+  - 5.6
 
 env:
   - APPLICATION_ENV=acceptance
+
+addons:
+  hosts:
+    - ora.local
+    - oraprojecttest
 
 install:
   - composer self-update
 
 before_script:
+  - sudo apt-get update -qq
   - sudo apt-get install apache2 libapache2-mod-fastcgi
   # enable php-fpm
   - sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
@@ -19,15 +24,26 @@ before_script:
   - ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
     # configure apache virtual hosts
   - sudo cp -f build/travis-ci-apache /etc/apache2/sites-available/default
+  - sudo sed -e 's/${APPLICATION_ENV}/'"$APPLICATION_ENV"'/g' --in-place /etc/apache2/sites-available/default
+  - sudo sed -e 's/${DB_HOSTNAME}/'"$DB_HOSTNAME"'/g' --in-place /etc/apache2/sites-available/default
+  - sudo sed -e 's/${DB_PORT}/'"$DB_PORT"'/g' --in-place /etc/apache2/sites-available/default
+  - sudo sed -e 's/${DB_USERNAME}/'"$DB_USERNAME"'/g' --in-place /etc/apache2/sites-available/default
+  - sudo sed -e 's/${DB_PASSWORD}/'"$DB_PASSWORD"'/g' --in-place /etc/apache2/sites-available/default
+  - sudo sed -e 's/${DB_NAME}/'"$DB_NAME"'/g' --in-place /etc/apache2/sites-available/default
+  - sudo sed -e 's/${KANBANIZE_APIKEY}/'"$KANBANIZE_APIKEY"'/g' --in-place /etc/apache2/sites-available/default
+  - sudo sed -e 's?${KANBANIZE_URL}?'"$KANBANIZE_URL"'?g' --in-place /etc/apache2/sites-available/default
   - sudo sed -e "s?%TRAVIS_BUILD_DIR%?$(pwd)?g" --in-place /etc/apache2/sites-available/default
   - sudo service apache2 restart
-  - mysql -e 'create database oraproject_test;'
     # Set the GitHub OAuth token to make use of the 5000 per hour rate limit
   - "mkdir -p ~/.composer"
   - cp .travis.composer.config.json ~/.composer/config.json
-  - composer install -d src --dev
+  - composer install
+  - mysql -e 'create database '"$DB_NAME"';'
+  - vendor/bin/doctrine-module orm:schema-tool:create
+  - mysql $DB_NAME < tests/sql/init.sql
 
 script:
-  - phpunit --configuration tests/phpunit.xml
   - cd tests
-  - ../src/vendor/bin/behat --profile travis-ci
+  - phpunit --configuration unit/phpunit.xml --coverage-text
+  - phpunit --configuration integration/phpunit.xml
+  - ../vendor/bin/behat
