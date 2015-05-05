@@ -59,6 +59,14 @@ class EventSourcingTaskServiceTest extends TestCase {
 		$this->taskService->notifyMembersForShareAssignment($taskToNotify, new PhpRenderer(), array($this->user));
 				
 		$emails = $this->getEmailMessages();
+		
+		// added only for travis debug
+		$messages = json_decode(file_get_contents('http://127.0.0.1:1080/messages'));
+		var_dump($emails);
+		var_dump($messages);
+		die();
+		
+		
 		$this->assertNotEmpty($emails);
 		$this->assertEquals(1, count($emails));
 		$this->assertEmailSubjectEquals('O.R.A. - your contribution is required!', $emails[0]);
