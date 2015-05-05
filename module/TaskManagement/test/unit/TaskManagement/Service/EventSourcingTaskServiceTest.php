@@ -61,8 +61,8 @@ class EventSourcingTaskServiceTest extends TestCase {
 		$emails = $this->getEmailMessages();
 		
 		// added only for travis debug
-// 		var_dump($emails);
-// 		die();
+ 		var_dump($emails);
+ 		die();
 		
 		
 		$this->assertNotEmpty($emails);
