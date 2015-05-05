@@ -42,7 +42,8 @@ before_script:
   - vendor/bin/doctrine-module orm:schema-tool:create
   - mysql $DB_NAME < tests/sql/init.sql
   - gem install mailcatcher
-  - mailcatcher --http-ip 0.0.0.0
+  - phpenv config-add travis.php.ini
+  - mailcatcher
 
 script:
   - cd tests
