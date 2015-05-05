@@ -156,7 +156,6 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			
 			$headers  = 'MIME-Version: 1.0' . "\r\n";
 			$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-			$headers .= 'From: O.R.A. Team<orateam@ora.com>' . "\r\n";
 			
 			$result = mail($taskMember->getEmail(), $params['emailSubject'], $content, $headers, 'orateam@ora.com');
 			
