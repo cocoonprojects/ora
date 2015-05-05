@@ -17,7 +17,9 @@ use Application\Entity\User;
 use TaskManagement\Stream;
 use TaskManagement\Task;
 use TaskManagement\Entity\Task as ReadModelTask;
-use Zend\View\Renderer\RendererInterface;
+use Zend\View\Renderer\PhpRenderer;
+use Zend\View\Model\ViewModel;
+use Zend\View\Resolver\TemplateMapResolver;
 
 class EventSourcingTaskService extends AggregateRepository implements TaskService, EventManagerAwareInterface
 {
@@ -31,6 +33,11 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @var EventManagerInterface
 	 */
 	private $events;
+	/**
+	 * 
+	 * @var array of email template paths
+	 */
+	private $emailTemplates;
     
     public function __construct(EventStore $eventStore, EntityManager $entityManager)
     {
@@ -43,6 +50,10 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	    $task->setEventManager($this->getEventManager());
 		$this->addAggregateRoot($task);
 		return $task;
+	}
+	
+	public function setEmailTemplates($arrayOfTemplatePaths){
+		$this->emailTemplates = $arrayOfTemplatePaths;
 	}
 	
 	/**
@@ -121,10 +132,10 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 
 	}
 	
-	public function notifyMembersForShareAssignment(Task $task, RendererInterface $renderer, $taskMembersWithEmptyShares){
+	public function notifyMembersForShareAssignment(Task $task, PhpRenderer $renderer, $taskMembersWithEmptyShares){
 
 		$result = false;
-		
+				
 		foreach ($taskMembersWithEmptyShares as $taskMember){
 			
 			//invio mail
@@ -132,11 +143,17 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 				'name' => $taskMember->getFirstname()." ".$taskMember->getLastname(),
 				'taskSubject' => $task->getSubject(),
 				'taskId' => $task->getId(),
-				'emailSubject' => "O.R.A. - your contribution is required!"
+				'emailSubject' => "O.R.A. - your contribution is required!",
+				'url' => 'http://'.$_SERVER['SERVER_NAME'].'/task-management#'.$task->getId()
 			);
 			
-			$content = $renderer->render('task-management/email_templates/hurryup-taskmember', $params);
-
+			$viewModel  = new ViewModel();
+			$resolver   = new TemplateMapResolver();
+			$resolver->setMap($this->emailTemplates);
+			$renderer->setResolver($resolver);
+			$viewModel->setTemplate('TaskManagement\NotifyMemebersForShareAssignment')->setVariables($params);			
+			$content = $renderer->render($viewModel);
+			
 			$headers  = 'MIME-Version: 1.0' . "\r\n";
 			$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
 			$headers .= 'From: O.R.A. Team<orateam@ora.com>' . "\r\n";
@@ -171,5 +188,4 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		return $members;
 	}
 	
-
 }

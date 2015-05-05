@@ -18,6 +18,7 @@ use TaskManagement\View\TaskJsonModel;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
 use Application\Service\UserService;
+use Zend\View\Renderer\PhpRenderer;
 
 class TasksController extends HATEOASRestfulController
 {
@@ -255,10 +256,10 @@ class TasksController extends HATEOASRestfulController
 				
 			$acceptedTaskIdsToNotify = $this->taskService->getAcceptedTaskIdsToNotify($timeboxForAcceptedTask);
 			$acceptedTaskIdsToClose = $this->taskService->getAcceptedTaskIdsToClose($timeboxForAcceptedTask);
-
+			
 			if(is_array($acceptedTaskIdsToNotify) && count($acceptedTaskIdsToNotify) > 0){
 					
-				array_map(array($this, 'notifySingleTaskForShareAssignment'),  $acceptedTaskIdsToNotify, array($this->getServiceLocator()->get('ViewRenderer')));
+				array_map(array($this, 'notifySingleTaskForShareAssignment'),  $acceptedTaskIdsToNotify);
 			}
 
 			if(is_array($acceptedTaskIdsToClose) && count($acceptedTaskIdsToClose) > 0){
@@ -333,14 +334,14 @@ class TasksController extends HATEOASRestfulController
      *
      * @param array $taskRetrieved
      */
-    private function notifySingleTaskForShareAssignment($taskRetrieved, $renderer){
+    private function notifySingleTaskForShareAssignment($taskRetrieved){
 
     	if(isset($taskRetrieved['TASK_ID'])){
 
 	    	//$taskToNotify = $this->taskService->findTask($taskRetrieved['TASK_ID']);			
     		$taskToNotify = $this->taskService->getTask($taskRetrieved['TASK_ID']);
     		$taskMembersWithEmptyShares = $this->taskService->findMembersWithEmptyShares($taskToNotify);    		
-			$result = $this->taskService->notifyMembersForShareAssignment($taskToNotify, $renderer, $taskMembersWithEmptyShares);
+			$result = $this->taskService->notifyMembersForShareAssignment($taskToNotify, new PhpRenderer(), $taskMembersWithEmptyShares);
 			return $result;
     	}    
     	return false;	

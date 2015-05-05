@@ -9,8 +9,7 @@ use Application\Entity\User;
 use People\Organization;
 use TaskManagement\Stream;
 use TaskManagement\Task;
-use Zend\View\Renderer\RendererInterface;
-
+use Zend\View\Renderer\PhpRenderer;
 
 
 class EventSourcingTaskServiceTest extends TestCase {
@@ -51,12 +50,25 @@ class EventSourcingTaskServiceTest extends TestCase {
 		$taskToNotify->addMember($this->user, Task::ROLE_OWNER);
 		$taskToNotify->addEstimation(1, $this->user);
 		$taskToNotify->complete($this->user);
-		$taskToNotify->accept($this->user);		
+		$taskToNotify->accept($this->user);				
 		
-		//TODO: da rivedere la chiamata al metodo
-		//$this->taskService->notifyMembersForShareAssignment($taskToNotify);
+		$_SERVER['SERVER_NAME'] = 'oraprojecttest';
 		
-		//TODO: completare il test con le assertions
+		$this->taskService->setEmailTemplates(array('TaskManagement\NotifyMemebersForShareAssignment' => __DIR__.'/../../../../view/task-management/email_templates/hurryup-taskmember.phtml'));
+
+		$this->taskService->notifyMembersForShareAssignment($taskToNotify, new PhpRenderer(), array($this->user));
+				
+		$emails = $this->getEmailMessages();
+		$this->assertNotEmpty($emails);
+		$this->assertEquals(1, count($emails));
+		$this->assertEmailSubjectEquals('O.R.A. - your contribution is required!', $emails[0]);
+		$this->assertEmailHtmlContains('task subject', $emails[0]);
+		$this->assertNotEmpty($emails[0]->recipients);
+		$this->assertEquals(1, count($emails[0]->recipients));
+		$this->assertEquals($emails[0]->recipients[0], '<user@email.com>');
+		
+		unset($_SERVER['SERVER_NAME']);
+		$this->cleanEmailMessages();
 		
 	}
 	
@@ -92,4 +104,16 @@ class EventSourcingTaskServiceTest extends TestCase {
     	// messages are in descending order
     	return reset($messages);
     }
+    
+    public function assertEmailSubjectEquals($expected, $email, $description = '')
+    {
+    	$this->assertContains($expected, $email->subject, $description);
+    }
+    
+    public function assertEmailHtmlContains($needle, $email, $description = '')
+    {
+    	$response = $this->mailcatcher->get("/messages/{$email->id}.html")->send();
+    	$this->assertContains($needle, (string)$response->getBody(), $description);
+    }
+    
 }
