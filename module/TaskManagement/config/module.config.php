@@ -90,5 +90,9 @@ return array(
 		'TaskManagement\TaskCommandsListener',
 		'TaskManagement\TransferTaskSharesCreditsListener',
 		'TaskManagement\CloseTaskListener',
+	),
+		
+	'email_templates' => array(
+		'TaskManagement\NotifyMemebersForShareAssignment' => __DIR__.'/../view/task-management/email_templates/hurryup-taskmember.phtml'			
 	)
 );

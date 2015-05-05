@@ -97,8 +97,11 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				'TaskManagement\TaskService' => function ($locator) {
 					$eventStore = $locator->get('prooph.event_store');
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
-					return new EventSourcingTaskService($eventStore, $entityManager);
-				},
+					$emailTemplates = $locator->get('Config')['email_templates'];
+					$service = new EventSourcingTaskService($eventStore, $entityManager);
+					$service->setEmailTemplates($emailTemplates);
+					return $service;
+				},					
 				'TaskManagement\TaskCommandsListener' => function ($locator) {
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
 					return new TaskCommandsListener($entityManager);

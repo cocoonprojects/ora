@@ -4,7 +4,7 @@ namespace TaskManagement\Service;
 
 use TaskManagement\Stream;
 use TaskManagement\Task;
-use Zend\View\Renderer\RendererInterface;
+use Zend\View\Renderer\PhpRenderer;
 
 
 /**
@@ -35,8 +35,9 @@ interface TaskService
 	
 	public function getAcceptedTaskIdsToClose(\DateInterval $interval);
 
-	public function notifyMembersForShareAssignment(Task $task, RendererInterface $renderer, $taskMembersWithEmptyShares);
+	public function notifyMembersForShareAssignment(Task $task, PhpRenderer $renderer, $taskMembersWithEmptyShares);
 
 	public function findMembersWithEmptyShares(Task $task);
 
+	public function setEmailTemplates($arrayOfTemplatePaths);
 }
