@@ -41,6 +41,8 @@ before_script:
   - mysql -e 'create database '"$DB_NAME"';'
   - vendor/bin/doctrine-module orm:schema-tool:create
   - mysql $DB_NAME < tests/sql/init.sql
+  - gem install mailcatcher
+  - mailcatcher
 
 script:
   - cd tests

@@ -39,21 +39,22 @@ class EventSourcingTaskServiceTest extends TestCase {
 		$this->eventStore->commit();
 		$this->taskService = new EventSourcingTaskService($this->eventStore, $entityManager);
 		$this->user = User::create();
-		$this->mailcatcher = new \Guzzle\Http\Client('http://localhost:1080');
+		$this->mailcatcher = new \Guzzle\Http\Client('http://127.0.0.1:1080');
 		$this->cleanEmailMessages();
 	}
 	
 	public function testNotifyMembersForShareAssigment() {
 
-// 		$taskToNotify = $this->setupTask();
-// 		$this->user->setEmail('user@email.com');
+		$taskToNotify = $this->setupTask();
+		$this->user->setEmail('user@email.com');
 		
-// 		$taskToNotify->addMember($this->user, Task::ROLE_OWNER);
-// 		$taskToNotify->addEstimation(1, $this->user);
-// 		$taskToNotify->complete($this->user);
-// 		$taskToNotify->accept($this->user);		
+		$taskToNotify->addMember($this->user, Task::ROLE_OWNER);
+		$taskToNotify->addEstimation(1, $this->user);
+		$taskToNotify->complete($this->user);
+		$taskToNotify->accept($this->user);		
 		
-//		$this->taskService->notifyMembersForShareAssignment($taskToNotify);
+		//TODO: da rivedere la chiamata al metodo
+		//$this->taskService->notifyMembersForShareAssignment($taskToNotify);
 		
 		//TODO: completare il test con le assertions
 		
