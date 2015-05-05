@@ -60,11 +60,6 @@ class EventSourcingTaskServiceTest extends TestCase {
 				
 		$emails = $this->getEmailMessages();
 		
-		// added only for travis debug
- 		var_dump($emails);
- 		die();
-		
-		
 		$this->assertNotEmpty($emails);
 		$this->assertEquals(1, count($emails));
 		$this->assertEmailSubjectEquals('O.R.A. - your contribution is required!', $emails[0]);
