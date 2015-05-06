@@ -15,6 +15,8 @@ use TaskManagement\Service\StreamCommandsListener;
 use TaskManagement\Service\TaskCommandsListener;
 use TaskManagement\Service\EventSourcingStreamService;
 use TaskManagement\Service\EventSourcingTaskService;
+use TaskManagement\Service\NotificationService;
+use TaskManagement\Controller\RemindersController;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
@@ -67,6 +69,13 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$organizationService = $locator->get('People\OrganizationService');
 					$controller = new StreamsController($streamService, $organizationService);
 					return $controller;
+			  	},
+			  	'TaskManagement\Controller\Reminders' => function ($sm) {
+				  	$locator = $sm->getServiceLocator();
+				  	$notificationService = $locator->get('TaskManagement\NotificationService');
+				  	$taskService = $locator->get('TaskManagement\TaskService');
+				  	$controller = new RemindersController($notificationService, $taskService);
+				  	return $controller;
 			  	}
 			)
 		);		
@@ -87,10 +96,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				'TaskManagement\TaskService' => function ($locator) {
 					$eventStore = $locator->get('prooph.event_store');
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
-					$emailTemplates = $locator->get('Config')['email_templates'];
-					$service = new EventSourcingTaskService($eventStore, $entityManager);
-					$service->setEmailTemplates($emailTemplates);
-					return $service;
+					return new EventSourcingTaskService($eventStore, $entityManager);
 				},					
 				'TaskManagement\TaskCommandsListener' => function ($locator) {
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
@@ -107,6 +113,11 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
 					return new TransferTaskSharesCreditsListener($taskService, $streamService, $organizationService, $accountService);
 				},
+				'TaskManagement\NotificationService' => function ($locator) {
+					$emailTemplates = $locator->get('Config')['email_templates'];
+					return new NotificationService($emailTemplates);
+				}
+				
 			),
 		);
 	}

@@ -103,80 +103,33 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		return $this->events;
 	}
 	
-	public function getAcceptedTaskIdsToNotify(\DateInterval $timeboxForAcceptedTask){
-		
-		$builder = $this->entityManager->createQueryBuilder();
-		$query = $builder->select('t.id as TASK_ID')
-			->from(ReadModelTask::class, 't')			
-			->where('DATE_DIFF(CURRENT_DATE(), t.acceptedAt) = '.$timeboxForAcceptedTask->format('%d') . '-1')			
-			->andWhere('t.status = :taskStatus')			
-			->setParameter('taskStatus', Task::STATUS_ACCEPTED)			
-			->getQuery();			
-
-		return $query->getArrayResult();		
-	}
-	
-	
-	public function getAcceptedTaskIdsToClose(\DateInterval $timeboxForAcceptedTask){
-		
-		$builder = $this->entityManager->createQueryBuilder();
-		$query = $builder->select('t.id as TASK_ID')
-			->from(ReadModelTask::class, 't')			
-			->where('DATE_DIFF(CURRENT_DATE(), t.acceptedAt) >= :interval')
-			->andWhere('t.status = :taskStatus')			
-			->setParameter('interval', $timeboxForAcceptedTask->format('%d'))
-			->setParameter('taskStatus', Task::STATUS_ACCEPTED)
-			->getQuery();			
-			
-		return $query->getArrayResult();		
-
-	}
-	
-	public function notifyMembersForShareAssignment(Task $task, PhpRenderer $renderer, $taskMembersWithEmptyShares){
-
-		$result = false;
-				
-		foreach ($taskMembersWithEmptyShares as $taskMember){
-			
-			//invio mail
-			$params = array(
-				'name' => $taskMember->getFirstname()." ".$taskMember->getLastname(),
-				'taskSubject' => $task->getSubject(),
-				'taskId' => $task->getId(),
-				'emailSubject' => "O.R.A. - your contribution is required!",
-				'url' => 'http://'.$_SERVER['SERVER_NAME'].'/task-management#'.$task->getId()
-			);
-			
-			$viewModel  = new ViewModel();
-			$resolver   = new TemplateMapResolver();
-			$resolver->setMap($this->emailTemplates);
-			$renderer->setResolver($resolver);
-			$viewModel->setTemplate('TaskManagement\NotifyMemebersForShareAssignment')->setVariables($params);			
-			$content = $renderer->render($viewModel);
-			
-			$headers  = 'MIME-Version: 1.0' . "\r\n";
-			$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-			
-			$result = mail($taskMember->getEmail(), $params['emailSubject'], $content, $headers, 'orateam@ora.com');
-			
-		}
-		
-		return $result;
-	}
-
 	/**
-	 * Retrieve an array of members (Application\Entity\User) of $task that haven't assigned any share
-	 * 
-	 * @param Task $task
-	 * @return array of Application\Entity\User or empty array
+	 * @see \TaskManagement\Service\TaskService::findAcceptedTasksBefore()
 	 */
-	public function findMembersWithEmptyShares(Task $task){
+	public function findAcceptedTasksBefore(\DateInterval $interval){
+		
+		$referenceDate = new \DateTime('now');
+		
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('t')
+			->from(ReadModelTask::class, 't')
+			->where("DATE_ADD(t.acceptedAt,".$interval->format('%d').", 'DAY') <= :referenceDate") 
+			->andWhere('t.status = :taskStatus')
+			->setParameter('taskStatus', Task::STATUS_ACCEPTED)
+			->setParameter('referenceDate', $referenceDate->format('Y-m-d H:i:s'))
+			->getQuery();			
+		
+		return $query->getResult();		
+	}
+	
+	/**
+	 * @see \TaskManagement\Service\TaskService::findMembersWithEmptyShares()
+	 */
+	public function findMembersWithEmptyShares(ReadModelTask $task){
 		
 		$members = array();
-		
-		$readModelTask = $this->findTask($task->getId());
 
-		$taskMembers = $readModelTask->getMembers();
+		$taskMembers = $task->getMembers();
 		foreach($taskMembers as $taskMember){
 
 			if(count($taskMember->getShare() == 0)){

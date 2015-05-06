@@ -4,6 +4,7 @@ namespace TaskManagement\Service;
 
 use TaskManagement\Stream;
 use TaskManagement\Task;
+use TaskManagement\Entity\Task as ReadModelTask;
 use Zend\View\Renderer\PhpRenderer;
 
 
@@ -31,13 +32,18 @@ interface TaskService
 	
 	public function findStreamTasks($streamId);
 
-	public function getAcceptedTaskIdsToNotify(\DateInterval $interval);
-	
-	public function getAcceptedTaskIdsToClose(\DateInterval $interval);
+	/**
+	 * Find accepted tasks with accepted date before $interval days from now
+	 * @param \DateInterval $interval
+	 * @return array
+	 */
+	public function findAcceptedTasksBefore(\DateInterval $interval, \DateTime $date);
 
-	public function notifyMembersForShareAssignment(Task $task, PhpRenderer $renderer, $taskMembersWithEmptyShares);
-
-	public function findMembersWithEmptyShares(Task $task);
-
-	public function setEmailTemplates($arrayOfTemplatePaths);
+	/**
+	 * Retrieve an array of members (Application\Entity\User) of $task that haven't assigned any share
+	 *
+	 * @param TaskManagement\Entity\Task $task
+	 * @return array of Application\Entity\User or empty array
+	 */
+	public function findMembersWithEmptyShares(ReadModelTask $task);
 }
