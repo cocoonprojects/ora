@@ -37,7 +37,7 @@ interface TaskService
 	 * @param \DateInterval $interval
 	 * @return array
 	 */
-	public function findAcceptedTasksBefore(\DateInterval $interval, \DateTime $date);
+	public function findAcceptedTasksBefore(\DateInterval $interval);
 
 	/**
 	 * Retrieve an array of members (Application\Entity\User) of $task that haven't assigned any share

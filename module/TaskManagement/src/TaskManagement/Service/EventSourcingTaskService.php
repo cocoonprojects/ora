@@ -17,9 +17,7 @@ use Application\Entity\User;
 use TaskManagement\Stream;
 use TaskManagement\Task;
 use TaskManagement\Entity\Task as ReadModelTask;
-use Zend\View\Renderer\PhpRenderer;
-use Zend\View\Model\ViewModel;
-use Zend\View\Resolver\TemplateMapResolver;
+
 
 class EventSourcingTaskService extends AggregateRepository implements TaskService, EventManagerAwareInterface
 {
@@ -33,12 +31,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @var EventManagerInterface
 	 */
 	private $events;
-	/**
-	 * 
-	 * @var array of email template paths
-	 */
-	private $emailTemplates;
-    
+	
     public function __construct(EventStore $eventStore, EntityManager $entityManager)
     {
 		parent::__construct($eventStore, new AggregateTranslator(), new SingleStreamStrategy($eventStore), AggregateType::fromAggregateRootClass(Task::class));
@@ -50,10 +43,6 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	    $task->setEventManager($this->getEventManager());
 		$this->addAggregateRoot($task);
 		return $task;
-	}
-	
-	public function setEmailTemplates($arrayOfTemplatePaths){
-		$this->emailTemplates = $arrayOfTemplatePaths;
 	}
 	
 	/**

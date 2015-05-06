@@ -39,8 +39,13 @@ class RemindersController extends HATEOASRestfulController
 	 */
 	public function create($data){
 		
+		if(isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != 'localhost'){
+			$this->response->setStatusCode(404);
+			return $this->response;
+		}
+		
+		
 		if (!isset($data['reminder']) || $data['reminder'] == ''){
-			// HTTP STATUS CODE 400: Bad Request
 			$this->response->setStatusCode(400);
 			return $this->response;
 		}
@@ -56,7 +61,6 @@ class RemindersController extends HATEOASRestfulController
 				}
 				break;
 			default:
-				// HTTP STATUS CODE 405
 				$this->response->setStatusCode(405);
 				break;
 		}
@@ -74,8 +78,7 @@ class RemindersController extends HATEOASRestfulController
 					'name' => $member->getFirstname()." ".$member->getLastname(),					
 					'taskSubject' => $taskToNotify->getSubject(),
 					'taskId' => $taskToNotify->getId(),
-					'emailAddress' => $member->getEmail(),
-					'emailSubject' => "O.R.A. - your contribution is required!",
+					'emailAddress' => $member->getEmail(),					
 					'url' => 'http://'.$_SERVER['SERVER_NAME'].'/task-management#'.$taskToNotify->getId()
 			);
 			

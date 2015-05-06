@@ -10,6 +10,7 @@ use People\Organization;
 use TaskManagement\Stream;
 use TaskManagement\Task;
 use Zend\View\Renderer\PhpRenderer;
+use TaskManagement;
 
 
 class EventSourcingTaskServiceTest extends TestCase {
@@ -24,10 +25,6 @@ class EventSourcingTaskServiceTest extends TestCase {
 	 * @var User
 	 */
 	private $user;
-	/**
-	 * @var \Guzzle\Http\Client
-	 */
-	private $mailcatcher;
 
 	
 	protected function setUp() {
@@ -37,39 +34,26 @@ class EventSourcingTaskServiceTest extends TestCase {
 		$this->eventStore->create(new ProophStream(new StreamName('event_task'), array()));
 		$this->eventStore->commit();
 		$this->taskService = new EventSourcingTaskService($this->eventStore, $entityManager);
-		$this->user = User::create();
-		$this->mailcatcher = new \Guzzle\Http\Client('http://127.0.0.1:1080');
-		$this->cleanEmailMessages();
+		$this->user = User::create();		
 	}
 	
-	public function testNotifyMembersForShareAssigment() {
-
-		$taskToNotify = $this->setupTask();
-		$this->user->setEmail('user@email.com');
+	public function testFindMembersWithEmptyShares(){
 		
-		$taskToNotify->addMember($this->user, Task::ROLE_OWNER);
-		$taskToNotify->addEstimation(1, $this->user);
-		$taskToNotify->complete($this->user);
-		$taskToNotify->accept($this->user);				
+		$taskStub = $this->getMockBuilder(TaskManagement\Entity\Task::class)
+			->disableOriginalConstructor()
+			->getMock();
 		
-		$_SERVER['SERVER_NAME'] = 'oraprojecttest';
+		$memberStub = $this->getMockBuilder(TaskManagement\Entity\TaskMember::class)
+			->disableOriginalConstructor()
+			->getMock();
 		
-		$this->taskService->setEmailTemplates(array('TaskManagement\NotifyMemebersForShareAssignment' => __DIR__.'/../../../../view/task-management/email_templates/hurryup-taskmember.phtml'));
-		$this->taskService->notifyMembersForShareAssignment($taskToNotify, new PhpRenderer(), array($this->user));
-				
-		$emails = $this->getEmailMessages();
+		$memberStub->method('getShare')->willReturn(0);		
+		$taskStub->method('getMembers')->willReturn(array($memberStub));
 		
-		$this->assertNotEmpty($emails);
-		$this->assertEquals(1, count($emails));
-		$this->assertEmailSubjectEquals('O.R.A. - your contribution is required!', $emails[0]);
-		$this->assertEmailHtmlContains('task subject', $emails[0]);
-		$this->assertNotEmpty($emails[0]->recipients);
-		//TODO: recipients in mailcathcer su travis ha dimensione 2 anche quando l'email è inviata ad una sola persona  
-		//$this->assertEquals(1, count($emails[0]->recipients));
-		$this->assertEquals($emails[0]->recipients[0], '<user@email.com>');
+		$membersWithEmptyShares = $this->taskService->findMembersWithEmptyShares($taskStub);
 		
-		unset($_SERVER['SERVER_NAME']);
-		$this->cleanEmailMessages();
+		$this->assertNotEmpty($membersWithEmptyShares);
+		$this->assertEquals(1, count($membersWithEmptyShares));
 		
 	}
 	
@@ -85,36 +69,4 @@ class EventSourcingTaskServiceTest extends TestCase {
 		return Task::create($stream, 'task subject', $this->user);		
 	}
 	
-	protected function cleanEmailMessages()
-	{
-		$this->mailcatcher->delete('/messages')->send();
-	}
-	
-	protected function getEmailMessages()
-    {
-        $jsonResponse = $this->mailcatcher->get('/messages')->send();
-        return json_decode($jsonResponse->getBody());
-    }
-    
-    public function getLastEmailMessage()
-    {
-    	$messages = $this->getEmailMessages();
-    	if (empty($messages)) {
-    		$this->fail("No messages received");
-    	}
-    	// messages are in descending order
-    	return reset($messages);
-    }
-    
-    public function assertEmailSubjectEquals($expected, $email, $description = '')
-    {
-    	$this->assertContains($expected, $email->subject, $description);
-    }
-    
-    public function assertEmailHtmlContains($needle, $email, $description = '')
-    {
-    	$response = $this->mailcatcher->get("/messages/{$email->id}.html")->send();
-    	$this->assertContains($needle, (string)$response->getBody(), $description);
-    }
-    
 }
