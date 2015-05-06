@@ -27,7 +27,6 @@ class NotificationService{
 		if(isset($params['name']) 
 				&& isset($params['taskSubject']) 
 				&& isset($params['taskId']) 
-				&& isset($params['emailSubject']) 
 				&& isset($params['emailAddress'])
 				&& isset($params['url'])){
 			
@@ -42,7 +41,7 @@ class NotificationService{
 			$headers  = 'MIME-Version: 1.0' . "\r\n";
 			$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
 			
-			$result = mail($params['emailAddress'], $params['emailSubject'], $content, $headers, 'orateam@ora.com');
+			$result = mail($params['emailAddress'], "O.R.A. - your contribution is required!", $content, $headers, 'orateam@ora.com');
 
 			return $result;
 		}

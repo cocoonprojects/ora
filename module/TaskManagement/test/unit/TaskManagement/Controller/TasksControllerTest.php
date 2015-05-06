@@ -12,7 +12,6 @@ use TaskManagement\Entity\Stream as ReadModelStream;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
 use TaskManagement\Task;
-use Application\Service\UserService;
 
 class TasksControllerTest extends ControllerTest {
 	
@@ -131,70 +130,6 @@ class TasksControllerTest extends ControllerTest {
 		
     }
     
-    public function testCannotApplyTimeboxFromGenericHosts(){
-    
-    	$_SERVER['HTTP_HOST'] = 'www.mydomain.com';
-    	
-    	$this->routeMatch->setParam('action', 'applytimeboxforshares');
-    	$result = $this->controller->dispatch($this->request);
-    
-    	$response = $this->controller->getResponse();
-    
-    	$this->assertEquals(404, $response->getStatusCode());
-    }
-    
-	public function testApplyTimeboxToCloseAnAcceptedTasks(){
-		
-		$_SERVER['HTTP_HOST'] = 'localhost';
-		
-		$userStub = $this->getMockBuilder(User::class)
-        	->disableOriginalConstructor()
-        	->getMock();        	
-		 $userStub->expects($this->any())
-        	->method('getId')        	
-        	->willReturn(User::SYSTEM_USER); 		
-		
-		$userServiceStub = $this->getMockBuilder(UserService::class)
-        	->disableOriginalConstructor()
-        	->getMock();		 	
-        $userServiceStub->expects($this->once())
-        	->method('findUser')        	
-        	->willReturn($userStub);  
-       	
-        $this->controller->setUserService($userServiceStub); 	
-        	
-		$taskToClose = $this->setupTask();
-		$taskToClose->addMember($this->getLoggedUser(), Task::ROLE_OWNER);
-		$taskToClose->addEstimation(1, $this->getLoggedUser());
-		$taskToClose->complete($this->getLoggedUser());
-		$taskToClose->accept($this->getLoggedUser());
-		
-		$this->controller->getTaskService()
-        	->expects($this->once())
-        	->method('getAcceptedTaskIdsToNotify')        	
-        	->willReturn(array());
-		
-		$this->controller->getTaskService()
-        	->expects($this->once())
-        	->method('getAcceptedTaskIdsToClose')        	
-        	->willReturn(array(array('TASK_ID'=>$taskToClose->getId())));
-        	
-      	$this->controller->getTaskService()
-        	->expects($this->once())
-        	->method('getTask')        	
-        	->willReturn($taskToClose);	
-        	
-        //dispatch
-        $this->routeMatch->setParam('action', 'applytimeboxforshares');
-        $result = $this->controller->dispatch($this->request);
-		$response = $this->controller->getResponse();
-        
-        //controllo che il task abbia lo stato corretto
-		$this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals(Task::STATUS_CLOSED, $taskToClose->getStatus());
-        
-	}
-
 	protected function setupStream(){
 		
 		$organization = Organization::create('My brand new Orga', $this->getLoggedUser());
