@@ -39,18 +39,20 @@ return array(
 					),
 				),
 			),
-				
-			'timebox-shares' => array(
-				'type' => 'Literal',
+			'reminder-share-assignment' => array(
+				'type' => 'Segment',
 				'options' => array(
-					'route'	   => '/task-management/tasks/applytimeboxforshares',
+					'route'	   => '/task-management/tasks/reminders/[:reminder]',
+					'constraints' => array(
+							'reminder' => '[a-z\-]+'
+					),
 					'defaults' => array(
-						'controller' => 'TaskManagement\Controller\Tasks',
-						'action' => 'applytimeboxforshares'
+							'__NAMESPACE__' => 'TaskManagement\Controller',
+							'controller' => 'Reminders'
 					),
 				),
-			),
-
+			)
+				
 		),
 	),
 	'translator' => array(),
