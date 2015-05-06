@@ -5,13 +5,12 @@ namespace TaskManagement\Service;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\Event;
 use Zend\EventManager\ListenerAggregateInterface;
-use Ora\TaskManagement\Task;
+use TaskManagement\Task;
 use AcMailer\Service\MailService;
-use Zend\Mail;
-use MailNotification\Controller\MailController;
-use Ora\User\UserService;
-use Ora\User;
-use Assetic\Exception\Exception;
+use Application\Service\UserService;
+use Application\Entity\User;
+
+
 
 
 class NotifyMailListener implements ListenerAggregateInterface {

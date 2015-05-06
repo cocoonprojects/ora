@@ -15,8 +15,7 @@ return array(
 		'Accounting',
 		'TaskManagement',
 		'People',
-		'Kanbanize'
-    	'MailNotification',	
+		'Kanbanize',	
     	'AcMailer'
 	),
 
