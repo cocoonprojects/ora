@@ -40,12 +40,9 @@ return array(
 				),
 			),
 			'reminder-share-assignment' => array(
-				'type' => 'Segment',
+				'type' => 'Zend\Mvc\Router\Http\Literal',
 				'options' => array(
-					'route'	   => '/task-management/tasks/reminders/[:reminder]',
-					'constraints' => array(
-							'reminder' => '[a-z\-]+'
-					),
+					'route'	   => '/task-management/tasks/reminders',					
 					'defaults' => array(
 							'__NAMESPACE__' => 'TaskManagement\Controller',
 							'controller' => 'Reminders'
@@ -93,6 +90,6 @@ return array(
 	),
 		
 	'email_templates' => array(
-		'TaskManagement\NotifyMemebersForShareAssignment' => __DIR__.'/../view/task-management/email_templates/hurryup-taskmember.phtml'			
+		'TaskManagement\RemindMembersForShareAssignment' => __DIR__.'/../view/task-management/email_templates/reminder-assignment-shares.phtml'			
 	)
 );

@@ -5,10 +5,7 @@ use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\EventManager\EventManagerInterface;
 use Zend\Mvc\MvcEvent;
 use Zend\Stdlib\RequestInterface as Request;
-use Zend\Stdlib\ResponseInterface as Response;
 use Zend\Json\Json;
-use Zend\Console\Request as ConsoleRequest;
-use Zend\Mvc\Controller\AbstractController;
 
 abstract class HATEOASRestfulController extends AbstractRestfulController
 {
@@ -35,7 +32,7 @@ abstract class HATEOASRestfulController extends AbstractRestfulController
 		} else {
 			$options = $this->getCollectionOptions();
 		}
-				
+
 		$method = $e->getRequest()->getMethod();
 		
 		if (in_array($method, $options) || $method == 'OPTIONS') {
@@ -57,6 +54,7 @@ abstract class HATEOASRestfulController extends AbstractRestfulController
 		// Register a listener at high priority
 		$events->attach('dispatch', array($this, 'checkOptions'), 10);
 	}
+
 	//Supporting POST with id set
 	public function onDispatch(MvcEvent $e)
 	{
@@ -119,13 +117,4 @@ abstract class HATEOASRestfulController extends AbstractRestfulController
 	protected abstract function getCollectionOptions();
 	
 	protected abstract function getResourceOptions();
-	
-	public function dispatch(Request $request, Response $response = null)
-    {
-        if ($request instanceof ConsoleRequest) {
-           return AbstractController::dispatch($request, $response);
-        }
-
-        return parent::dispatch($request, $response);
-    }
 }
