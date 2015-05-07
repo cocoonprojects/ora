@@ -246,44 +246,7 @@ class TasksController extends HATEOASRestfulController
         return $this->response;
     }
     
-	public function applytimeboxforsharesAction(){
-		
-		if(isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] == 'localhost'){
-
-			$request = $this->getRequest();
-
-			$timeboxForAcceptedTask = $this->getServiceLocator()->get('Config')['share_assignment_timebox'];
-				
-			$acceptedTaskIdsToNotify = $this->taskService->getAcceptedTaskIdsToNotify($timeboxForAcceptedTask);
-			$acceptedTaskIdsToClose = $this->taskService->getAcceptedTaskIdsToClose($timeboxForAcceptedTask);
-			
-			if(is_array($acceptedTaskIdsToNotify) && count($acceptedTaskIdsToNotify) > 0){
-					
-				array_map(array($this, 'notifySingleTaskForShareAssignment'),  $acceptedTaskIdsToNotify);
-			}
-
-			if(is_array($acceptedTaskIdsToClose) && count($acceptedTaskIdsToClose) > 0){
-					
-				$this->transaction()->begin();
-				try{
-					$closedBy = $this->userService->findUser(User::SYSTEM_USER);
-					array_map(array($this, 'forceToCloseSingleTask'),  $acceptedTaskIdsToClose, array($closedBy));
-					$this->transaction()->commit();
-				}catch(IllegalStateException $ex){
-					$this->transaction()->rollback();
-					$this->response->setStatusCode(412);
-				}catch(InvalidArgumentException $ex){
-					$this->transaction()->rollback();
-					$this->response->setStatusCode(403);
-				}
-			}
-		}else{
-			$this->response->setStatusCode(404);
-		}	
-		return $this->response;
-	}
-	    
-    public function setAccountService(AccountService $accountService) {
+	public function setAccountService(AccountService $accountService) {
     	$this->accountService = $accountService;
     	return $this;
     }
@@ -325,27 +288,6 @@ class TasksController extends HATEOASRestfulController
     
     public function getUserService(){
     	return $this->userService;
-    }
-    
-
-    
-    /**
-     * Forza la chiusura di un singolo task solo per l'utente SYSTEM 
-     * 
-     * @param array $taskRetrieved 
-     * @param User $closedBy
-     */
-    private function forceToCloseSingleTask($taskRetrieved, User $closedBy){
-    	 
-	    if($closedBy->getId() == User::SYSTEM_USER){
-	    	if(isset($taskRetrieved['TASK_ID'])){
-	    
-	    		$taskToClose = $this->taskService->getTask($taskRetrieved['TASK_ID']);
-	    		$taskToClose->close($closedBy);
-				return true;
-	    	}    	
-	    	return false;    
-	    }
     }
 
 }

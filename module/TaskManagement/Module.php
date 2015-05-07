@@ -17,6 +17,7 @@ use TaskManagement\Service\EventSourcingStreamService;
 use TaskManagement\Service\EventSourcingTaskService;
 use TaskManagement\Service\NotificationService;
 use TaskManagement\Controller\RemindersController;
+use Application\Entity\User;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
@@ -48,7 +49,12 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				'TaskManagement\Controller\Transitions' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
+					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
+					$systemUser = $entityManager->getRepository(User::class)->find(User::SYSTEM_USER);
+					$shareAssignmentInterval = $locator->get('Config')['share_assignment_timebox'];
 					$controller = new TransitionsController($taskService);
+					$controller->setSystemUser($systemUser);
+					$controller->setIntervalForCloseTasks($shareAssignmentInterval);
 					return $controller;
 				},
 				'TaskManagement\Controller\Estimations' => function ($sm) {
@@ -74,7 +80,10 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				  	$locator = $sm->getServiceLocator();
 				  	$notificationService = $locator->get('TaskManagement\NotificationService');
 				  	$taskService = $locator->get('TaskManagement\TaskService');
+				  	$shareAssignmentInterval = $locator->get('Config')['share_assignment_timebox'];
+				  	$intervalForRemind = new \DateInterval('P'.($shareAssignmentInterval->d - 1).'D');
 				  	$controller = new RemindersController($notificationService, $taskService);
+				  	$controller->setIntervalForRemindShareAssignment($intervalForRemind);
 				  	return $controller;
 			  	}
 			)
