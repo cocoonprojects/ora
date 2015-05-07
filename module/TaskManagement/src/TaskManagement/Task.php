@@ -200,7 +200,6 @@ class Task extends DomainEntity
 			'userId' => $user->getId(),
 			'accountId' => $accountId,
 			'role' => $role,
-			'email' => $user->getEmail(),
 			'by' => $by->getId(),
 		)));
 		return $this;
@@ -418,7 +417,7 @@ class Task extends DomainEntity
 		$this->status = self::STATUS_ACCEPTED;
 	}
 	
-	protected function whenTaskClosed(TaskClosed $event) {		
+	protected function whenTaskClosed(TaskClosed $event) {
 		$this->status = self::STATUS_CLOSED;
 	}
 	
@@ -439,9 +438,6 @@ class Task extends DomainEntity
 		$this->members[$id]['role'] = $p['role'];
 		if(isset($p['accountId'])) {
 			$this->members[$id]['accountId'] = $p['accountId'];
-		}
-		if(isset($p['email'])) {
-			$this->members[$id]['email'] = $p['email'];
 		}
 	}
 
