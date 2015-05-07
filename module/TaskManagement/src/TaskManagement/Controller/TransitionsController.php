@@ -17,6 +17,14 @@ class TransitionsController extends HATEOASRestfulController
 	 * @var TaskService
 	 */
 	private $taskService;
+	/**
+	 * @var Application\Entity\User
+	 */
+	private $systemUser;
+	/**
+	 *@var \DateInterval
+	 */
+	protected $intervalForCloseTasks;
 	
 	public function __construct(TaskService $taskService) {
 		$this->taskService = $taskService;
@@ -24,18 +32,29 @@ class TransitionsController extends HATEOASRestfulController
 	
 	public function invoke($id, $data) {
 		$validator = new InArray(
-			['haystack' => array('complete', 'accept','execute')]
+			['haystack' => array('complete', 'accept','execute', 'close')]
 		);
 		if (!isset ($data['action']) || !$validator->isValid($data['action'])) {
 			$this->response->setStatusCode ( 400 );
 			return $this->response;
 		}
 		
-		$task = $this->taskService->getTask($id);
-		if (is_null($task)) {
-			$this->response->setStatusCode ( 404 );
-			return $this->response;
+		if($data['action'] == 'close'){			
+			//TODO: spostare il controllo degli accessi nelle asserzioni
+			if(isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != 'localhost'){
+				$this->response->setStatusCode(404);
+				return $this->response;
+			}			
+			
+		}else{					
+			
+			$task = $this->taskService->getTask($id);
+			if (is_null($task)) {
+				$this->response->setStatusCode ( 404 );
+				return $this->response;
+			}	
 		}
+		
 		
 		$action = $data ["action"];
 		switch ($action) {
@@ -93,12 +112,53 @@ class TransitionsController extends HATEOASRestfulController
 					$this->response->setStatusCode ( 403 );
 				}
 				break;
+			case "close":
+				//recupero tutti i task accettati per i quali è stato superato il limite per assegnare gli share
+				$tasksFound = $this->taskService->findAcceptedTasksBefore($this->getIntervalForCloseTasks());
+				
+				foreach ($tasksFound as $taskFound){
+					
+					$taskToClose = $this->taskService->getTask($taskFound->getId());
+					
+					$this->transaction()->begin();
+					try {
+						//TODO: controllo degli accessi con un'asserzione per verificare che sia solo l'utente SYSTEM a chiudere il task
+						$taskToClose->close($this->getSystemUser());		
+						$this->transaction()->commit();
+					} catch ( IllegalStateException $e ) {
+						$this->transaction()->rollback();
+						continue; //skip task
+					} catch ( InvalidArgumentException $e ) {
+						$this->transaction()->rollback();
+						continue; //skip task
+					}					
+				}
+				
+				$this->response->setStatusCode ( 200 );
+			
+				break;
 			default :
 				$this->response->setStatusCode ( 400 );
 				break;
 		}
 		
 		return $this->response;
+	}
+	
+	public function setSystemUser($user){
+		$this->systemUser = $user;
+	}
+	
+	public function getSystemUser(){
+		return $this->systemUser;
+	}
+	
+	public function setIntervalForCloseTasks($interval){
+		$this->intervalForCloseTasks = $interval;
+	}
+	
+	public function getIntervalForCloseTasks(){
+		return $this->intervalForCloseTasks;
 	}
 	
 	protected function getCollectionOptions()

@@ -23,6 +23,11 @@ class RemindersController extends HATEOASRestfulController
 	 * @var TaskService
 	 */
 	protected $taskService;
+	/**
+	 *
+	 * @var \DateInterval
+	 */
+	protected $intervalForRemindShareAssignment;
 	
  	public function __construct(NotificationService $notificationService, TaskService $taskService) {
  		$this->notificationService = $notificationService;
@@ -39,6 +44,7 @@ class RemindersController extends HATEOASRestfulController
 	 */
 	public function create($data){
 		
+		//TODO: spostare il controllo degli accessi nelle asserzioni
 		if(isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != 'localhost'){
 			$this->response->setStatusCode(404);
 			return $this->response;
@@ -52,8 +58,8 @@ class RemindersController extends HATEOASRestfulController
 
 		switch ($data['reminder']) {
 			case "assignment-of-shares":
-				$timeboxForShareAssignment = $this->getServiceLocator()->get('Config')['share_assignment_timebox'];
-				$tasksToNotify = $this->taskService->findAcceptedTasksBefore($timeboxForShareAssignment);
+				
+				$tasksToNotify = $this->taskService->findAcceptedTasksBefore($this->getIntervalForRemindShareAssignment());
 
 				if(is_array($tasksToNotify) && count($tasksToNotify) > 0){
 						
@@ -86,6 +92,13 @@ class RemindersController extends HATEOASRestfulController
 		}
 	}
 	
+	public function setIntervalForRemindShareAssignment(\DateInterval $interval){
+		$this->intervalForRemindShareAssignment = $interval;
+	}
+	
+	public function getIntervalForRemindShareAssignment(){
+		return $this->intervalForRemindShareAssignment;
+	}
 	
 	protected function getCollectionOptions(){
 		return self::$collectionOptions;
