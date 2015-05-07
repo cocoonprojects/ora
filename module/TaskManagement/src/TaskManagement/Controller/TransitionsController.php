@@ -7,6 +7,7 @@ use Application\InvalidArgumentException;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Task;
 use Zend\Validator\InArray;
+use Zend\Permissions\Acl\Acl;
 
 class TransitionsController extends HATEOASRestfulController
 {
@@ -25,9 +26,15 @@ class TransitionsController extends HATEOASRestfulController
 	 *@var \DateInterval
 	 */
 	protected $intervalForCloseTasks;
+	/**
+	 *
+	 * @var Acl
+	 */
+	private $acl;
 	
-	public function __construct(TaskService $taskService) {
+	public function __construct(TaskService $taskService, Acl $acl) {
 		$this->taskService = $taskService;
+		$this->acl = $acl;
 	}
 	
 	public function invoke($id, $data) {
@@ -39,13 +46,12 @@ class TransitionsController extends HATEOASRestfulController
 			return $this->response;
 		}
 		
-		if($data['action'] == 'close'){			
-			//TODO: spostare il controllo degli accessi nelle asserzioni
-			if(isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != 'localhost'){
+		if($data["action"] == "close"){
+			if(!$this->acl->isAllowed(NULL, NULL, 'Application.Host.allowLocalhost')){			
+				
 				$this->response->setStatusCode(404);
 				return $this->response;
-			}			
-			
+			}	
 		}else{					
 			
 			$task = $this->taskService->getTask($id);
