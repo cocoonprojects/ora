@@ -6,6 +6,7 @@ use ZFX\Rest\Controller\HATEOASRestfulController;
 use TaskManagement\Service\NotificationService;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Entity\Task;
+use Zend\Permissions\Acl\Acl;
 
 class RemindersController extends HATEOASRestfulController
 {
@@ -28,10 +29,16 @@ class RemindersController extends HATEOASRestfulController
 	 * @var \DateInterval
 	 */
 	protected $intervalForRemindShareAssignment;
+	/**
+	 *
+	 * @var Acl
+	 */
+	private $acl;
 	
- 	public function __construct(NotificationService $notificationService, TaskService $taskService) {
+ 	public function __construct(NotificationService $notificationService, TaskService $taskService, Acl $acl) {
  		$this->notificationService = $notificationService;
  		$this->taskService = $taskService;
+ 		$this->acl = $acl;
  	}
 	
 	/**
@@ -44,8 +51,7 @@ class RemindersController extends HATEOASRestfulController
 	 */
 	public function create($data){
 		
-		//TODO: spostare il controllo degli accessi nelle asserzioni
-		if(isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] != 'localhost'){
+		if(!$this->acl->isAllowed(NULL, NULL, 'Application.Host.allowLocalhost')){
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
