@@ -17,8 +17,6 @@ use TaskManagement\Task;
 use TaskManagement\View\TaskJsonModel;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
-use Application\Service\UserService;
-use Zend\View\Renderer\PhpRenderer;
 
 class TasksController extends HATEOASRestfulController
 {
@@ -45,12 +43,6 @@ class TasksController extends HATEOASRestfulController
 	 * @var AccountService
 	 */
 	private $accountService;
-	/**
-	 * 
-	 * 
-	 * @var UserService
-	 */
-	private $userService;
 	
 	public function __construct(TaskService $taskService, StreamService $streamService, Acl $acl)
 	{
@@ -279,15 +271,6 @@ class TasksController extends HATEOASRestfulController
     		return null;
     	}
     	return $account->getId();
-    }
-    
-	public function setUserService(UserService $userService){
-    	$this->userService = $userService;
-    	return $this;
-    }
-    
-    public function getUserService(){
-    	return $this->userService;
     }
 
 }

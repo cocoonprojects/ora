@@ -51,7 +51,7 @@ class RemindersController extends HATEOASRestfulController
 	 */
 	public function create($data){
 		
-		if(!$this->acl->isAllowed(NULL, NULL, 'Application.Host.allowLocalhost')){
+		if(!$this->acl->isAllowed(NULL, NULL, 'TaskManagement.Reminder.createReminder')){
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
@@ -94,7 +94,7 @@ class RemindersController extends HATEOASRestfulController
 					'url' => 'http://'.$_SERVER['SERVER_NAME'].'/task-management#'.$taskToNotify->getId()
 			);
 			
-			$this->notificationService->sendEmailNotificationForShareAssignment($params);
+			$this->notificationService->sendEmailNotificationForAssignmentOfShares($params);
 		}
 	}
 	

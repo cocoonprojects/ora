@@ -22,7 +22,7 @@ class NotificationService{
 	}
 	
 	
-	public function sendEmailNotificationForShareAssignment($params){
+	public function sendEmailNotificationForAssignmentOfShares($params){
 				
 		if(isset($params['name']) 
 				&& isset($params['taskSubject']) 
@@ -35,7 +35,7 @@ class NotificationService{
 			$resolver = new TemplateMapResolver();
 			$resolver->setMap($this->emailTemplates);
 			$renderer->setResolver($resolver);
-			$viewModel->setTemplate('TaskManagement\NotifyMemebersForShareAssignment')->setVariables($params);
+			$viewModel->setTemplate('TaskManagement\NotifyMemebersForAssignmentOfShares')->setVariables($params);
 			$content = $renderer->render($viewModel);
 				
 			$headers  = 'MIME-Version: 1.0' . "\r\n";
