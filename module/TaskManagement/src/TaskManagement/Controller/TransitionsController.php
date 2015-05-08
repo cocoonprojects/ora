@@ -8,6 +8,7 @@ use TaskManagement\Service\TaskService;
 use TaskManagement\Task;
 use Zend\Validator\InArray;
 use Zend\Permissions\Acl\Acl;
+use Application\Entity\User;
 
 class TransitionsController extends HATEOASRestfulController
 {
@@ -18,10 +19,6 @@ class TransitionsController extends HATEOASRestfulController
 	 * @var TaskService
 	 */
 	private $taskService;
-	/**
-	 * @var Application\Entity\User
-	 */
-	private $systemUser;
 	/**
 	 *@var \DateInterval
 	 */
@@ -38,6 +35,7 @@ class TransitionsController extends HATEOASRestfulController
 	}
 	
 	public function invoke($id, $data) {
+		
 		$validator = new InArray(
 			['haystack' => array('complete', 'accept','execute', 'close')]
 		);
@@ -46,14 +44,7 @@ class TransitionsController extends HATEOASRestfulController
 			return $this->response;
 		}
 		
-		if($data["action"] == "close"){
-			if(!$this->acl->isAllowed(NULL, NULL, 'Application.Host.allowLocalhost')){			
-				
-				$this->response->setStatusCode(404);
-				return $this->response;
-			}	
-		}else{					
-			
+		if($data["action"] != "close"){			
 			$task = $this->taskService->getTask($id);
 			if (is_null($task)) {
 				$this->response->setStatusCode ( 404 );
@@ -119,6 +110,13 @@ class TransitionsController extends HATEOASRestfulController
 				}
 				break;
 			case "close":
+				
+				if(!$this->acl->isAllowed(NULL, NULL, 'TaskManagement.Task.closeTasksCollection')){
+				
+					$this->response->setStatusCode(404);
+					return $this->response;
+				}
+						
 				//recupero tutti i task accettati per i quali è stato superato il limite per assegnare gli share
 				$tasksFound = $this->taskService->findAcceptedTasksBefore($this->getIntervalForCloseTasks());
 				
@@ -128,8 +126,7 @@ class TransitionsController extends HATEOASRestfulController
 					
 					$this->transaction()->begin();
 					try {
-						//TODO: controllo degli accessi con un'asserzione per verificare che sia solo l'utente SYSTEM a chiudere il task
-						$taskToClose->close($this->getSystemUser());		
+						$taskToClose->close(User::createSystemUser());		
 						$this->transaction()->commit();
 					} catch ( IllegalStateException $e ) {
 						$this->transaction()->rollback();
@@ -149,14 +146,6 @@ class TransitionsController extends HATEOASRestfulController
 		}
 		
 		return $this->response;
-	}
-	
-	public function setSystemUser($user){
-		$this->systemUser = $user;
-	}
-	
-	public function getSystemUser(){
-		return $this->systemUser;
 	}
 	
 	public function setIntervalForCloseTasks($interval){

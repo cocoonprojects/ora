@@ -53,12 +53,9 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				'TaskManagement\Controller\Transitions' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$acl = $locator->get('Application\Service\Acl');
-					$taskService = $locator->get('TaskManagement\TaskService');
-					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
-					$systemUser = $entityManager->getRepository(User::class)->find(User::SYSTEM_USER);
+					$taskService = $locator->get('TaskManagement\TaskService');					
 					$shareAssignmentInterval = $locator->get('Config')['share_assignment_timebox'];
 					$controller = new TransitionsController($taskService, $acl);
-					$controller->setSystemUser($systemUser);
 					$controller->setIntervalForCloseTasks($shareAssignmentInterval);
 					return $controller;
 				},

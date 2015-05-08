@@ -37,7 +37,6 @@ class RestContext extends RawMinkContext
 			echo 'Setting APPLICATION_ENV=acceptance failed!';
 			die();
 		}
-		
 
 		echo shell_exec('../vendor/bin/doctrine-module orm:schema-tool:drop --force');
 		echo shell_exec('../vendor/bin/doctrine-module orm:schema-tool:create');

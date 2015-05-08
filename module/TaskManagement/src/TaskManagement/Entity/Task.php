@@ -245,4 +245,24 @@ class Task extends EditableEntity implements ResourceInterface
 		$this->acceptedAt = $date;
 	}
 	
+	/**
+	 * Retrieve an array of members (Application\Entity\User) of this task that haven't assigned any share
+	 *
+	 * @return array of Application\Entity\User or empty array
+	 */
+	public function findMembersWithEmptyShares(){
+	
+		$members = array();
+	
+		$taskMembers = $this->getMembers();
+		foreach($taskMembers as $taskMember){
+	
+			if(count($taskMember->getShare() == 0)){
+				$members[] = $taskMember->getMember();
+			}
+		}
+	
+		return $members;
+	}
+	
 }

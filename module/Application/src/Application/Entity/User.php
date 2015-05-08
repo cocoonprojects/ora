@@ -25,7 +25,7 @@ class User implements RoleInterface
 	CONST SYSTEM_USER = '00000000-0000-0000-0000-000000000000';
 	
 	CONST EVENT_CREATED = "User.Created";
-
+	
 	/**
 	 * @ORM\Id @ORM\Column(type="string") 
 	 * @var string
@@ -248,5 +248,11 @@ class User implements RoleInterface
 	
 	public function getRoleId(){
 		return $this->getRole();
+	}
+	
+	public static function createSystemUser(){
+		$sys = new self();
+		$sys->id = self::SYSTEM_USER;
+		return $sys;
 	}
 }

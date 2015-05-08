@@ -39,11 +39,4 @@ interface TaskService
 	 */
 	public function findAcceptedTasksBefore(\DateInterval $interval);
 
-	/**
-	 * Retrieve an array of members (Application\Entity\User) of $task that haven't assigned any share
-	 *
-	 * @param TaskManagement\Entity\Task $task
-	 * @return array of Application\Entity\User or empty array
-	 */
-	public function findMembersWithEmptyShares(ReadModelTask $task);
 }

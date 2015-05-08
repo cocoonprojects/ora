@@ -26,7 +26,7 @@ class AclFactory implements FactoryInterface
 		$acl->addRole(User::ROLE_GUEST);
 		$acl->addRole(User::ROLE_USER);
 		$acl->addRole(User::ROLE_ADMIN, User::ROLE_USER);
-		$acl->addRole(User::ROLE_SYSTEM, User::ROLE_USER);
+		$acl->addRole(User::ROLE_SYSTEM);
 
 		$acl->addResource('Ora\Organization');
 		$acl->allow(User::ROLE_USER, 'Ora\Organization', 'People.Organization.userList', new MemberOfOrganizationAssertion());
@@ -49,7 +49,7 @@ class AclFactory implements FactoryInterface
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.accept', new TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.assignShares', new TaskMemberAndAcceptedTaskAssertion());
 
-		$acl->allow(null, null, 'Application.Host.allowLocalhost', new HttpHostLocalhostAssertion());
+		$acl->allow(User::ROLE_SYSTEM, null, array('TaskManagement.Task.closeTasksCollection', 'TaskManagement.Reminder.createReminder'), new HttpHostLocalhostAssertion());
 		return $acl;
 	}
 }

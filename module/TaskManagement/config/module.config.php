@@ -92,6 +92,6 @@ return array(
 	),
 		
 	'email_templates' => array(
-		'TaskManagement\RemindMembersForShareAssignment' => __DIR__.'/../view/task-management/email_templates/reminder-assignment-shares.phtml'			
+		'TaskManagement\RemindMembersForAssignmentOfShares' => __DIR__.'/../view/task-management/email_templates/reminder-assignment-shares.phtml'			
 	)
 );

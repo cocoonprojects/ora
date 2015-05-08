@@ -110,23 +110,5 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		
 		return $query->getResult();		
 	}
-	
-	/**
-	 * @see \TaskManagement\Service\TaskService::findMembersWithEmptyShares()
-	 */
-	public function findMembersWithEmptyShares(ReadModelTask $task){
 		
-		$members = array();
-
-		$taskMembers = $task->getMembers();
-		foreach($taskMembers as $taskMember){
-
-			if(count($taskMember->getShare() == 0)){
-				$members[] = $taskMember->getMember();
-			}
-		}
-		
-		return $members;
-	}
-	
 }
