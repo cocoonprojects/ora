@@ -143,8 +143,8 @@ div,p,ul,h1 {
 															<div class="contentEditable" align='center'>
 
 																<p style='text-align: left; color: #999999; font-size: 14px; font-weight: normal; line-height: 19px;'>
-																	Hi <b> <?php echo $this->ownerName?></b>, <br>
-																	a new <b><?php echo $this->trigger?></b> has been inserted by <b><?php echo $this->memberFirstName?> <?php echo $this->memberLastName?></b> in the item <b><?php echo $this->taskSubject?></b>
+																	Hi <b> <?php echo $this->owner->getFirstname()?></b>, <br>
+																	a new <b><?php echo $this->trigger?></b> has been inserted by <b><?php echo $this->member->getFirstname()?> <?php echo $this->member->getLastname()?></b> in the item <b><?php echo $this->task->getSubject()?></b>
 																	of which you are owner. <br>
 																</p>
 

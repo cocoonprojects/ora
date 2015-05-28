@@ -3,10 +3,13 @@ return array(
 
     'mail_options' => array(
     		
-    		'mail_adapter' => 'Zend\Mail\Transport\Sendmail',
+    		'mail_adapter' => 'Zend\Mail\Transport\Smtp',
     		'from' => 'mailsender@oraproject.org',
     		'from_name' => 'O.R.A. Mail Sender',
-
+    		
+    		'server' => 'localhost',
+    		'port' => 1025,
+    		'connection_class' => 'smtp',
         /***********
          * ADAPTER *
          ***********/
@@ -173,7 +176,7 @@ return array(
          * Value can be one of 'smtp', 'plain', 'login' or 'crammd5'.
          * Default value is login. ZF2 default is smtp
          */
-        //'connection_class' => 'login',
+        //'connection_class' => 'smtp',
 
         /*
          * If Zend\Mail\Transport\Smtp adapter is used, this is the SMTP server port

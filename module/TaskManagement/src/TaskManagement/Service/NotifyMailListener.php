@@ -10,33 +10,41 @@ use AcMailer\Service\MailService;
 use Application\Service\UserService;
 use Application\Entity\User;
 
-
-
-
 class NotifyMailListener implements ListenerAggregateInterface {
-	
-	CONST ADD_ESTIMATION = 'estimation';
+	CONST ESTIMATION_ADDED = 'estimation';
 	CONST SHARES_ASSIGNED = 'share';
 	
 	private $mailService;
 	private $userService;
+	
 	protected $listeners = array ();
-	
-	
 	
 	public function __construct(MailService $mailService, UserService $userService) {
 		$this->mailService = $mailService;
 		$this->userService = $userService;
 	}
+	
 	public function attach(EventManagerInterface $events) {
-		$this->listeners [] = $events->getSharedManager ()->attach ( 'TaskManagement\TaskService', Task::EVENT_ADD_ESTIMATION_NOTIFICATION, function (Event $event) {
-			$this->sendMail ( $event->getParam ( 'taskSubject' ), $event->getParam ( 'ownerId' ), $event->getParam ( 'memberFirstName' ), $event->getParam ( 'memberLastName' ), self::ADD_ESTIMATION );
+		$this->listeners [] = $events->getSharedManager ()->attach ( 'TaskManagement\TaskService', Task::EVENT_ESTIMATION_ADDED, function (Event $event) {
+			$task = $event->getTarget ();
+			$member = $event->getParam ( 'by' );
+			$this->sendMail ( $task, $member, self::ESTIMATION_ADDED );
 		} );
 		
-		$this->listeners [] = $events->getSharedManager ()->attach ( 'TaskManagement\TaskService', Task::EVENT_SHARES_ASSIGNED_NOTIFICATION, function (Event $event) {
-			$this->sendMail ( $event->getParam ( 'taskSubject' ), $event->getParam ( 'ownerId' ), $event->getParam ( 'memberFirstName' ), $event->getParam ( 'memberLastName' ), self::SHARES_ASSIGNED );
+		$this->listeners [] = $events->getSharedManager ()->attach ( 'TaskManagement\TaskService', Task::EVENT_SHARES_ASSIGNED, function (Event $event) {
+			$task = $event->getTarget ();
+			$member = $event->getParam ( 'by' );
+			$this->sendMail ( $task, $member, self::SHARES_ASSIGNED );
 		} );
+		/*$this->listeners [] = $events->getSharedManager ()->attach ( 'TaskManagement\TaskService', Task::EVENT_ESTIMATION_ADDED, function (Event $event) {
+			$this->sendMail_ ( $event->getParam ( 'taskSubject' ), $event->getParam ( 'ownerId' ), $event->getParam ( 'memberFirstName' ), $event->getParam ( 'memberLastName' ), self::ADD_ESTIMATION );
+		} );*/
+		
+		//$this->listeners [] = $events->getSharedManager ()->attach ( 'TaskManagement\TaskService', Task::EVENT_SHARES_ASSIGNED_NOTIFICATION, function (Event $event) {
+			//$this->sendMail ( $event->getParam ( 'taskSubject' ), $event->getParam ( 'ownerId' ), $event->getParam ( 'memberFirstName' ), $event->getParam ( 'memberLastName' ), self::SHARES_ASSIGNED );
+		//} );
 	}
+	
 	public function detach(EventManagerInterface $events) {
 		foreach ( $this->listeners as $index => $listener ) {
 			if ($events->detach ( $listener )) {
@@ -45,32 +53,32 @@ class NotifyMailListener implements ListenerAggregateInterface {
 		}
 	}
 	
-	public function sendMail($taskSubject, $ownerId, $memberFirstName, $memberLastName, $trigger) {
+	public function sendMail($task, $member, $trigger){
+		if( !isset($task) || !isset($member) || !isset($trigger)){
+			return false;
+		}
+		if(!(strcmp($trigger, self::ESTIMATION_ADDED)==0)&&(!strcmp($trigger, self::SHARES_ASSIGNED)==0)){
+			return false;
+		}
 		
-		$owner = $this->userService->findUser($ownerId);
+		//OwnerInfo
+		$ownerId = $task->getOwner();
+		$owner = $this->userService->findUser($ownerId);		
 		
-		$ownerName=$owner->getFirstname();
-		$ownerMail=$owner->getEmail();
-		
-		$message = $this->mailService->getMessage ();
-		$message->setTo ( $ownerMail );
+		$message = $this->mailService->getMessage();
+		$message->setTo($owner->getEmail());
 		
 		$this->mailService->setSubject ( 'O.R.A. Notification Mail' );
 		
-		// Set template
-		$this->mailService->setTemplate ( 'mail-notification/mail-notification-template', array (
-				'ownerName' => $ownerName,
-				'trigger' => $trigger,
-				'taskSubject' => $taskSubject,
-				'memberFirstName' => $memberFirstName,
-				'memberLastName' => $memberLastName 
-		) );
-		$result = $this->mailService->send ();
+		$this->mailService->setTemplate( 'mail-notification/mail-notification-template', array(
+				'task' => $task,
+				'owner'=> $owner,
+				'member'=> $member,
+				'trigger'=> $trigger
+		));
 		
-		return $result;
-		
-		/*if($result->hasException()){
-			throw $result->getException();
-		}*/
+		$result = $this->mailService->send();	
+		return $result->isValid();
 	}
+	
 }
