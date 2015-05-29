@@ -63,7 +63,12 @@ class NotifyMailListener implements ListenerAggregateInterface {
 		
 		//OwnerInfo
 		$ownerId = $task->getOwner();
-		$owner = $this->userService->findUser($ownerId);		
+		$owner = $this->userService->findUser($ownerId);
+		
+		//No mail to Owner for his actions
+		if(strcmp($ownerId, $member->getId())==0){
+			return;
+		}		
 		
 		$message = $this->mailService->getMessage();
 		$message->setTo($owner->getEmail());
