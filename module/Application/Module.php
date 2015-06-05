@@ -10,6 +10,9 @@ use Application\Controller\MembershipsController;
 use Application\Service\EventSourcingUserService;
 use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
 use ZFX\Acl\Controller\Plugin\IsAllowed;
+use Application\Entity\User;
+use Application\Authentication\DomainBased\DomainBasedAuthentication;
+use Application\Authentication\DomainBased\Application\Authentication\DomainBased;
 
 class Module
 {
@@ -18,9 +21,22 @@ class Module
 		$application = $e->getApplication();
 		$eventManager = $application->getEventManager();
 		$serviceManager = $application->getServiceManager();
-		
+		//prepends the module name to the requested controller name. That's useful if you want to use controller short names in routing
 		$moduleRouteListener = new ModuleRouteListener();
-		$moduleRouteListener->attach($eventManager);		
+		$moduleRouteListener->attach($eventManager);	
+
+		$sharedEventManager = $eventManager->getSharedManager();
+		$sharedEventManager->attach('Zend\Stdlib\DispatchableInterface', MvcEvent::EVENT_DISPATCH, function($event) use($serviceManager) {
+
+			$request = $event->getRequest();			
+			$acl = $serviceManager->get('Application\Service\Acl');
+			if($acl->isAllowed(NULL, NULL, 'Application.Authentication.authenticateFromLocalhost')){				
+				$authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
+				$localhostAuthAdapter = $serviceManager->get('Application\Service\LocalhostBasedAuthentication');
+				$authService->authenticate($localhostAuthAdapter);	
+			}
+		}, 10);
+		
 	}
 	
 	public function getControllerConfig() 
@@ -80,6 +96,10 @@ class Module
 					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
 					return new EventSourcingUserService($entityManager);
 				},
+				'Application\Service\LocalhostBasedAuthentication' => function($serviceLocator){
+					$userService = $serviceLocator->get('Application\UserService');
+					return new DomainBasedAuthentication('localhost', $userService);
+				}
 			),
 		);
 	}
@@ -107,5 +127,5 @@ class Module
 				),
 			),
 		);
-	}
+	}	
 }
