@@ -6,6 +6,8 @@ use Zend\View\Renderer\PhpRenderer;
 use Zend\View\Model\ViewModel;
 use Zend\View\Resolver\TemplateMapResolver;
 use Zend\View\Renderer\Zend\View\Renderer;
+use TaskManagement\Entity\Task;
+use Application\Entity\User;
 
 class NotificationService{
 	
@@ -22,30 +24,30 @@ class NotificationService{
 	}
 	
 	
-	public function sendEmailNotificationForAssignmentOfShares($params){
-				
-		if(isset($params['name']) 
-				&& isset($params['taskSubject']) 
-				&& isset($params['taskId']) 
-				&& isset($params['emailAddress'])
-				&& isset($params['url'])){
-			
-			$renderer = new PhpRenderer();
-			$viewModel = new ViewModel();
-			$resolver = new TemplateMapResolver();
-			$resolver->setMap($this->emailTemplates);
-			$renderer->setResolver($resolver);
-			$viewModel->setTemplate('TaskManagement\NotifyMemebersForAssignmentOfShares')->setVariables($params);
-			$content = $renderer->render($viewModel);
-				
-			$headers  = 'MIME-Version: 1.0' . "\r\n";
-			$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-			
-			$result = mail($params['emailAddress'], "O.R.A. - your contribution is required!", $content, $headers, 'orateam@ora.com');
-
-			return $result;
-		}
+	public function sendEmailNotificationForAssignmentOfShares(Task $taskToNotify, User $member){
 		
-		return false;		
+		$params = array(
+				'name' => $member->getFirstname()." ".$member->getLastname(),					
+				'taskSubject' => $taskToNotify->getSubject(),
+				'taskId' => $taskToNotify->getId(),
+				'emailAddress' => $member->getEmail(),					
+				'url' => 'http://'.$_SERVER['SERVER_NAME'].'/task-management#'.$taskToNotify->getId()
+		);
+
+		$renderer = new PhpRenderer();
+		$viewModel = new ViewModel();
+		$resolver = new TemplateMapResolver();
+		$resolver->setMap($this->emailTemplates);
+		$renderer->setResolver($resolver);
+		$viewModel->setTemplate('TaskManagement\RemindMembersForAssignmentOfShares')->setVariables($params);
+		$content = $renderer->render($viewModel);
+		
+		$headers  = 'MIME-Version: 1.0' . "\r\n";
+		$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+			
+		$result = mail($params['emailAddress'], "O.R.A. - your contribution is required!", $content, $headers, 'orateam@ora.com');
+		
+		return $result;
+				
 	}
 }

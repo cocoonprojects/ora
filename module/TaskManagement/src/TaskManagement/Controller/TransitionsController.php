@@ -9,6 +9,7 @@ use TaskManagement\Task;
 use Zend\Validator\InArray;
 use Zend\Permissions\Acl\Acl;
 use Application\Entity\User;
+use Zend\Mvc\MvcEvent;
 
 class TransitionsController extends HATEOASRestfulController
 {
@@ -28,7 +29,7 @@ class TransitionsController extends HATEOASRestfulController
 	 * @var Acl
 	 */
 	private $acl;
-	
+
 	public function __construct(TaskService $taskService, Acl $acl) {
 		$this->taskService = $taskService;
 		$this->acl = $acl;
@@ -111,7 +112,7 @@ class TransitionsController extends HATEOASRestfulController
 				break;
 			case "close":
 				
-				if(!$this->acl->isAllowed(NULL, NULL, 'TaskManagement.Task.closeTasksCollection')){
+				if(!$this->acl->isAllowed($this->identity()['user'], NULL, 'TaskManagement.Task.closeTasksCollection')){
 				
 					$this->response->setStatusCode(404);
 					return $this->response;

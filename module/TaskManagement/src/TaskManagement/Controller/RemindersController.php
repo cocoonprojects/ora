@@ -7,6 +7,8 @@ use TaskManagement\Service\NotificationService;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Entity\Task;
 use Zend\Permissions\Acl\Acl;
+use TaskManagement;
+use TaskManagement\Entity\TaskMember;
 
 class RemindersController extends HATEOASRestfulController
 {
@@ -51,11 +53,10 @@ class RemindersController extends HATEOASRestfulController
 	 */
 	public function create($data){
 		
-		if(!$this->acl->isAllowed(NULL, NULL, 'TaskManagement.Reminder.createReminder')){
+		if(!$this->acl->isAllowed($this->identity()['user'], NULL, 'TaskManagement.Reminder.createReminder')){
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-		
 		
 		if (!isset($data['reminder']) || $data['reminder'] == ''){
 			$this->response->setStatusCode(400);
@@ -85,16 +86,7 @@ class RemindersController extends HATEOASRestfulController
 		
 		$taskMembersWithEmptyShares = $this->taskService->findMembersWithEmptyShares($taskToNotify);		
 		foreach ($taskMembersWithEmptyShares as $member){
-			
-			$params = array(
-					'name' => $member->getFirstname()." ".$member->getLastname(),					
-					'taskSubject' => $taskToNotify->getSubject(),
-					'taskId' => $taskToNotify->getId(),
-					'emailAddress' => $member->getEmail(),					
-					'url' => 'http://'.$_SERVER['SERVER_NAME'].'/task-management#'.$taskToNotify->getId()
-			);
-			
-			$this->notificationService->sendEmailNotificationForAssignmentOfShares($params);
+			$this->notificationService->sendEmailNotificationForAssignmentOfShares($taskToNotify, $member);
 		}
 	}
 	
