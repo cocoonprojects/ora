@@ -76,6 +76,7 @@ class Task extends EditableEntity implements ResourceInterface
 	
 	public function setSubject($subject) {
 		$this->subject = $subject;
+		return $this;
 	}
 	
 	public function getStream() {
@@ -84,12 +85,12 @@ class Task extends EditableEntity implements ResourceInterface
 	
 	public function setStream(Stream $stream) {
 		$this->stream = $stream;
-		return $this->stream;
+		return $this;
 	}
 	
 	public function setStatus($status) {
 		$this->status = $status;
-		return $this->status;
+		return $this;
 	}
 	
 	public function addMember(User $user, $role, User $by, \DateTime $when) {

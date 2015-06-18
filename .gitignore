@@ -20,3 +20,4 @@ extras/documentation
 .settings/
 .DS_Store
 *.log
+.idea/
