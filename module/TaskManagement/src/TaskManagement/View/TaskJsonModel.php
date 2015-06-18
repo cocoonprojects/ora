@@ -125,10 +125,12 @@ class TaskJsonModel extends JsonModel
 	protected function serializeOneMember(TaskMember $tm) {
 		$member = $tm->getMember();
 		$rv = [
-				'firstname' => $member->getFirstname(),
-				'lastname' => $member->getLastname(),
-				'picture' => $member->getPicture(),
-				'role' => $tm->getRole(),
+			'id' => $member->getId(),
+			'firstname' => $member->getFirstname(),
+			'lastname' => $member->getLastname(),
+			'picture' => $member->getPicture(),
+			'role' => $tm->getRole(),
+			'createdAt' => date_format($tm->getCreatedAt(), 'c'),
 // 				'_links' => [
 // 						'self' => $this->url->fromRoute('users', ['id' => $member->getId()]),
 // 				],
