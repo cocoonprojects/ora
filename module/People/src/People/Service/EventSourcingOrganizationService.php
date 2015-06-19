@@ -23,19 +23,19 @@ class EventSourcingOrganizationService extends AggregateRepository implements Or
 	 * 
 	 * @var EventManagerInterface
 	 */
-    protected $events;
-    /**
-     * 
-     * @var EntityManager
-     */
-    protected $entityManager;
-    
-    public function __construct(EventStore $eventStore, EntityManager $entityManager)
-    {
+	protected $events;
+	/**
+	 *
+	 * @var EntityManager
+	 */
+	protected $entityManager;
+
+	public function __construct(EventStore $eventStore, EntityManager $entityManager)
+	{
 		parent::__construct($eventStore, new AggregateTranslator(), new SingleStreamStrategy($eventStore), AggregateType::fromAggregateRootClass(Organization::class));
 		$this->entityManager = $entityManager;
-    }
-    
+	}
+
 	public function createOrganization($name, User $createdBy) {
 		$this->eventStore->beginTransaction();
 		try {
@@ -50,44 +50,50 @@ class EventSourcingOrganizationService extends AggregateRepository implements Or
 		return $org;
 	}
 	
-    public function getOrganization($id) {
+	public function getOrganization($id) {
 		$oId = $id instanceof Uuid ? $id->toString() : $id;
 		return $this->getAggregateRoot($oId);
-    }
+	}
 	
 	/**
 	*  Retrieve organization entity with specified ID
 	*/
 	public function findOrganization($id)
 	{
-	    return $this->entityManager->find(ReadModelOrg::class, $id);
+		return $this->entityManager->find(ReadModelOrg::class, $id);
 	}
 	
 	public function findUserOrganizationMemberships(User $user)
 	{
-		return $this->entityManager->getRepository(OrganizationMembership::class)->findBy(array('member' => $user), array('createdAt' => 'ASC'));
+		return $this->entityManager->getRepository(OrganizationMembership::class)->findBy(['member' => $user], ['createdAt' => 'ASC']);
 	}	
 	
 	public function findOrganizationMemberships(ReadModelOrg $organization)
 	{
-		return $this->entityManager->getRepository(OrganizationMembership::class)->findBy(array('organization' => $organization));
+		return $this->entityManager->getRepository(OrganizationMembership::class)->findBy(['organization' => $organization], ['createdAt' => 'ASC']);
 	}
 	
-    public function setEventManager(EventManagerInterface $events)
-    {
-        $events->setIdentifiers(array(
-        	'People\OrganizationService',
-            __CLASS__,
-            get_class($this)
-        ));
-        $this->events = $events;
-    }
+	public function setEventManager(EventManagerInterface $events)
+	{
+		$events->setIdentifiers(array(
+			'People\OrganizationService',
+			__CLASS__,
+			get_class($this)
+		));
+		$this->events = $events;
+	}
 
-    public function getEventManager()
-    {
-        if (!$this->events) {
-            $this->setEventManager(new EventManager());
-        }
-        return $this->events;
-    }
+	public function getEventManager()
+	{
+		if (!$this->events) {
+			$this->setEventManager(new EventManager());
+		}
+		return $this->events;
+	}
+
+	public function findOrganizations()
+	{
+		$rv = $this->entityManager->getRepository(ReadModelOrg::class)->findBy([], ['name' => 'ASC']);
+		return $rv;
+	}
 }

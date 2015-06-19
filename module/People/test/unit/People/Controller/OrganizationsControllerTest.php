@@ -9,6 +9,13 @@ use Accounting\OrganizationAccount;
 
 class OrganizationsControllerTest extends ControllerTest
 {
+	private $user;
+
+	public function __construct()
+	{
+		$this->user = User::create();
+	}
+
 	protected function setupController()
 	{
 		$orgService = $this->getMockBuilder(OrganizationService::class)->getMock();
@@ -22,12 +29,11 @@ class OrganizationsControllerTest extends ControllerTest
 	
 	
 	public function testCreate() {
-		$user = User::create();
-		$this->setupLoggedUser($user);
+		$this->setupLoggedUser($this->user);
 		
 		$this->controller->getOrganizationService()
 			->method('createOrganization')
-			->willReturn(Organization::create('Fusce nec ullamcorper', $user));
+			->willReturn(Organization::create('Fusce nec ullamcorper', $this->user));
 		
 		$this->request->setMethod('post');
 		
@@ -42,12 +48,11 @@ class OrganizationsControllerTest extends ControllerTest
 	}
 
 	public function testCreateWithoutName() {
-		$user = User::create();
-		$this->setupLoggedUser($user);
+		$this->setupLoggedUser($this->user);
 		
 		$this->controller->getOrganizationService()
 			->method('createOrganization')
-			->willReturn(Organization::create(null, $user));
+			->willReturn(Organization::create(null, $this->user));
 		
 		$this->request->setMethod('post');
 				
@@ -59,14 +64,13 @@ class OrganizationsControllerTest extends ControllerTest
 	}
 
 	public function testCreateWithHtmlTagName() {
-		$user = User::create();
-		$this->setupLoggedUser($user);
+		$this->setupLoggedUser($this->user);
 		
 		$this->controller->getOrganizationService()
 			->expects($this->once())
 			->method('createOrganization')
 			->with($this->equalTo('alert("Say hi!")Fusce nec ullamcorper'))
-			->willReturn(Organization::create('alert("Say hi!")Fusce nec ullamcorper', $user));
+			->willReturn(Organization::create('alert("Say hi!")Fusce nec ullamcorper', $this->user));
 		
 		$this->request->setMethod('post');
 		
@@ -90,6 +94,24 @@ class OrganizationsControllerTest extends ControllerTest
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 		
-		$this->assertEquals(401, $response->getStatusCode());		 
+		$this->assertEquals(401, $response->getStatusCode());
+	}
+
+	public function testGetListAsAnonymous() {
+		$this->setupAnonymous();
+
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+
+		$this->assertEquals(401, $response->getStatusCode());
+	}
+
+	public function testGetList() {
+		$this->setupLoggedUser($this->user);
+
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+
+		$this->assertEquals(200, $response->getStatusCode());
 	}
 }
