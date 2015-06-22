@@ -23,7 +23,7 @@ Organizations.prototype = {
 				$('<li class="membership"><a href="#">Loading...</a></li>').insertBefore('#userMenu li.divider');
 			} else {
 				$.each(that.membershipsData._embedded['ora:organization-membership'], function(i, object) {
-					$('<li class="membership"><a href="#">' + object.organization.name + '</a></li>').insertBefore('#userMenu li.divider');
+					$('<li class="membership"><a href="#" data-url="people/organizations/' + object.organization.id + '/members" data-action="loadPeople">' + object.organization.name + '</a></li>').insertBefore('#userMenu li.divider');
 				});
 			}
 		});
