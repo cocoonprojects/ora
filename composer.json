@@ -19,7 +19,7 @@
 		"prooph/event-sourcing": "~1.0",
 		"prooph/event-store": "~2.0",
 		"prooph/prooph-event-store-module": "~2.0",
-		"acelaya/zf2-acmailer": "~4.0",
+		"acelaya/zf2-acmailer": "~5.0",
 		"rwoverdijk/assetmanager": "*"
 	},
 	"require-dev": {
