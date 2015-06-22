@@ -41,8 +41,8 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 		$this->member->setLastname("Member_Lastname");
 				
 		//Organization & Stream for Task Creation
-		$organization = Organization::create('Pellentesque lorem ligula, auctor ac', $this->owner);
-		$this->stream = Stream::create($organization, 'Curabitur rhoncus mattis massa vel', $this->owner);
+		$organization = Organization::create('Organization_test', $this->owner);
+		$this->stream = Stream::create($organization, 'Steram_test', $this->owner);
 		
 		$this->task = Task::create($this->stream, 'Test TaskSubject', $this->owner);
 		$this->task->addMember($this->owner, Task::ROLE_OWNER);
