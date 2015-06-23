@@ -54,7 +54,7 @@ class OrganizationCommandsListener extends ReadModelProjector {
 		
 		$membership = $this->entityManager
 			 			   ->getRepository(OrganizationMembership::class)
-						   ->findBy(array(
+						   ->findOneBy(array(
 						   		'member' => $event->payload()['userId'],
 						   		'organization' => $event->metadata()['aggregate_id']
 						   ));

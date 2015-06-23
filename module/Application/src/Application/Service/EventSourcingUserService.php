@@ -29,10 +29,10 @@ class EventSourcingUserService implements UserService, EventManagerAwareInterfac
 	public function subscribeUser($userInfo)
 	{
 		$user = $this->create($userInfo, User::ROLE_USER);
-		$this->entityManager->persist($user);			
+		$this->entityManager->persist($user);
 		$this->entityManager->flush($user);
 		$this->getEventManager()->trigger(User::EVENT_CREATED, $user);
-		return $user;			
+		return $user;
 	}
 		
 	public function create($userInfo, $role, User $createdBy = null)

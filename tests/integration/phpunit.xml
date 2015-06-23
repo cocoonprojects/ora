@@ -21,7 +21,8 @@
 			<directory>../../module/Accounting/test/integration</directory>
 		</testsuite>
 		<testsuite name="People integration tests">
-			<directory>../../module/People/test/integration</directory></testsuite>
+			<directory>../../module/People/test/integration</directory>
+        </testsuite>
 		<testsuite name="Kanbanize integration tests">
 			<directory>../../module/Kanbanize/test/integration</directory>
 		</testsuite>

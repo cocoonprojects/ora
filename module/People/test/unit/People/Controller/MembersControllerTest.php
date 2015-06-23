@@ -167,7 +167,7 @@ class MembersControllerTest extends ControllerTest
 	{
 		$this->setupAnonymous();
 
-		$this->routeMatch->setParam('id', '1');
+		$this->routeMatch->setParam('orgId', '1');
 
 		$this->request->setMethod('post');
 
@@ -188,7 +188,7 @@ class MembersControllerTest extends ControllerTest
 			->with($this->equalTo('1'))
 			->willReturn(null);
 
-		$this->routeMatch->setParam('id', '1');
+		$this->routeMatch->setParam('orgId', '1');
 
 		$this->request->setMethod('post');
 
@@ -211,7 +211,7 @@ class MembersControllerTest extends ControllerTest
 			->with($this->equalTo($organization->getId()))
 			->willReturn($organization);
 
-		$this->routeMatch->setParam('id', $organization->getId());
+		$this->routeMatch->setParam('orgId', $organization->getId());
 
 		$this->request->setMethod('post');
 
@@ -234,7 +234,7 @@ class MembersControllerTest extends ControllerTest
 			->with($this->equalTo($organization->getId()))
 			->willReturn($organization);
 
-		$this->routeMatch->setParam('id', $organization->getId());
+		$this->routeMatch->setParam('orgId', $organization->getId());
 
 		$this->request->setMethod('post');
 
@@ -250,7 +250,7 @@ class MembersControllerTest extends ControllerTest
 	{
 		$this->setupAnonymous();
 
-		$this->routeMatch->setParam('id', '1');
+		$this->routeMatch->setParam('orgId', '1');
 
 		$this->request->setMethod('delete');
 
@@ -271,7 +271,7 @@ class MembersControllerTest extends ControllerTest
 			->with($this->equalTo('1'))
 			->willReturn(null);
 
-		$this->routeMatch->setParam('id', '1');
+		$this->routeMatch->setParam('orgId', '1');
 
 		$this->request->setMethod('delete');
 
@@ -294,7 +294,7 @@ class MembersControllerTest extends ControllerTest
 			->with($this->equalTo($organization->getId()))
 			->willReturn($organization);
 
-		$this->routeMatch->setParam('id', $organization->getId());
+		$this->routeMatch->setParam('orgId', $organization->getId());
 
 		$this->request->setMethod('delete');
 
@@ -317,7 +317,7 @@ class MembersControllerTest extends ControllerTest
 			->with($this->equalTo($organization->getId()))
 			->willReturn($organization);
 
-		$this->routeMatch->setParam('id', $organization->getId());
+		$this->routeMatch->setParam('orgId', $organization->getId());
 
 		$this->request->setMethod('delete');
 
