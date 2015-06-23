@@ -45,7 +45,7 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		$serviceManager = Bootstrap::getServiceManager();
 		
 		//Clean EmailMessages
-		$this->mailcatcher = new \Guzzle\Http\Client('http://192.168.56.101:1080');
+		$this->mailcatcher = new \Guzzle\Http\Client('http://127.0.0.1:1080');
 		$this->cleanEmailMessages();
 		
 		$userService = $serviceManager->get('Application\UserService');
