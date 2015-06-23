@@ -16,7 +16,7 @@ return array(
 		'TaskManagement',
 		'People',
 		'Kanbanize',	
-    	'AcMailer'
+		'AcMailer'
 	),
 
 	// These are various options for the listeners attached to the ModuleManager
