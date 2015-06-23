@@ -10,7 +10,7 @@ use People\View\OrganizationMembershipJsonModel;
 
 class MembersController extends HATEOASRestfulController
 {
-	protected static $collectionOptions = array('GET');
+	protected static $collectionOptions = array('GET', 'DELETE', 'POST');
 	protected static $resourceOptions = array('DELETE', 'POST');
 	
 	/**
@@ -54,7 +54,7 @@ class MembersController extends HATEOASRestfulController
 		return $view;
 	}
 	
-	public function invoke($id, $data)
+	public function create($data)
 	{
 		$identity = $this->identity();
 		if(is_null($identity)) {
@@ -63,7 +63,12 @@ class MembersController extends HATEOASRestfulController
 		}
 		$identity = $identity['user'];
 
-		$organization = $this->orgService->getOrganization($id);
+		$orgId = $this->params('orgId');
+		if(is_null($orgId)) {
+			$this->response->setStatusCode(400);
+			return $this->response;
+		}
+		$organization = $this->orgService->getOrganization($orgId);
 		if(is_null($organization)) {
 			$this->response->setStatusCode(404);
 			return $this->response;
@@ -81,7 +86,7 @@ class MembersController extends HATEOASRestfulController
 		return $this->response;
 	}
 
-	public function delete($id)
+	public function deleteList()
 	{
 		$identity = $this->identity();
 		if(is_null($identity)) {
@@ -90,7 +95,12 @@ class MembersController extends HATEOASRestfulController
 		}
 		$identity = $identity['user'];
 
-		$organization = $this->orgService->getOrganization($id);
+		$orgId = $this->params('orgId');
+		if(is_null($orgId)) {
+			$this->response->setStatusCode(400);
+			return $this->response;
+		}
+		$organization = $this->orgService->getOrganization($orgId);
 		if(is_null($organization)) {
 			$this->response->setStatusCode(404);
 			return $this->response;

@@ -7,7 +7,7 @@ use Application\Authentication\OAuth2\OAuth2AdapterResolver;
 
 class OAuth2AdapterResolverFactory implements FactoryInterface
 {
-	private static $instance;	
+	private static $instance;
 	
 	public function createService(ServiceLocatorInterface $serviceLocator) {
 		if(is_null(self::$instance)) {
@@ -26,6 +26,6 @@ class OAuth2AdapterResolverFactory implements FactoryInterface
 				$rv[$k] = $serviceLocator->get('ZendOAuth2\\'.ucfirst($k));
 			}
 		}
-		return $rv;		
+		return $rv;
 	}
 }

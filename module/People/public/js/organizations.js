@@ -38,6 +38,16 @@ Organizations.prototype = {
 			e.preventDefault();
 			that.createOrganization(e);
 		});
+
+		$("body").on("click", "a[data-action='joinOrganization']", function(e){
+			e.preventDefault();
+			that.joinOrganization(e);
+		});
+
+		$("body").on("click", "a[data-action='unjoinOrganization']", function(e){
+			e.preventDefault();
+			that.unjoinOrganization(e);
+		});
 	},
 
 	createOrganization: function(e)
@@ -68,6 +78,58 @@ Organizations.prototype = {
 		});
 	},
 
+	joinOrganization: function(e)
+	{
+		var url = $(e.target).attr('href');
+
+		var that = this;
+
+		$.ajax({
+			url: url,
+			method: 'POST',
+			complete: function(xhr, textStatus) {
+				m = $('#content');
+				if (xhr.status === 201) {
+					that.show(m, 'success', 'You successfully joined the organization');
+					that.init();
+				}
+				else if (xhr.status === 204) {
+					that.show(m, 'warning', 'You are already member of the organization');
+				}
+				else {
+					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to join the organization');
+				}
+			}
+		});
+
+	},
+
+	unjoinOrganization: function(e)
+	{
+		var url = $(e.target).attr('href');
+console.log(url);
+		var that = this;
+
+		$.ajax({
+			url: url,
+			method: 'DELETE',
+			complete: function(xhr, textStatus) {
+				m = $('#content');
+				if (xhr.status === 200) {
+					that.show(m, 'success', 'You successfully unjoined the organization');
+					that.init();
+				}
+				else if (xhr.status === 204) {
+					that.show(m, 'warning', 'You are already not a member of the organization');
+				}
+				else {
+					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to unjoin the organization');
+				}
+			}
+		});
+
+	},
+
 	onLoadOrganizationsCompleted: function()
 	{
 		var container = $('#organizations');
@@ -80,10 +142,10 @@ Organizations.prototype = {
 		} else {
 			var that = this;
 			$.each(organizations, function(key, org) {
-				member = '<button type="button" class="btn btn-info">Join</button>';
+				member = '<a href="people/organizations/' + org.id + '/members" class="btn btn-info" data-action="joinOrganization">Join</a>';
 				$.each(that.membershipsData._embedded['ora:organization-membership'], function(i, object) {
 					if(object.organization.id == org.id) {
-						member = '<button type="button" class="btn btn-warning">Unjoin</button>';
+						member = '<a href="people/organizations/' + org.id + '/members" class="btn btn-warning" data-action="unjoinOrganization">Unjoin</a>';
 					}
 				});
 
