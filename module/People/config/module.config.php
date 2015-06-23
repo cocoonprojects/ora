@@ -14,6 +14,16 @@ return array(
 					),
 				),
 			),
+			'organizations-home' => array(
+				'type' => 'Literal',
+				'options' => array(
+					'route'    => '/organizations',
+					'defaults' => array(
+						'controller' => 'People\Controller\Index',
+						'action'	 => 'organizations',
+					),
+				),
+			),
 			'organizations' => array(
 				'type' => 'Segment',
 				'options' => array(

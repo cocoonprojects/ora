@@ -40,5 +40,9 @@ interface OrganizationService
 	 * @return OrganizationMembership[]
 	 */
 	public function findOrganizationMemberships(OrganizationReadModel $organization);
-	
+
+	/**
+	 * @return OrganizationReadModel[]
+	 */
+	public function findOrganizations();
 }

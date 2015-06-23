@@ -138,4 +138,8 @@ return array(
 			),
 		),
 	),
+
+	'listeners' => array(
+		'Application\LoadLocalProfileListener',
+	),
 );
