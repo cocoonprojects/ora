@@ -2,14 +2,16 @@
 
 namespace People\Controller;
 
+use Application\DomainEntityUnavailableException;
+use Application\DuplicatedDomainEntityException;
 use People\Service\OrganizationService;
 use ZFX\Rest\Controller\HATEOASRestfulController;
 use People\View\OrganizationMembershipJsonModel;
 
 class MembersController extends HATEOASRestfulController
 {
-	protected static $collectionOptions = array('GET', 'POST');
-	protected static $resourceOptions = array('DELETE', 'POST', 'GET', 'PUT');
+	protected static $collectionOptions = array('GET');
+	protected static $resourceOptions = array('DELETE', 'POST');
 	
 	/**
 	 * 
@@ -21,14 +23,6 @@ class MembersController extends HATEOASRestfulController
 		$this->orgService = $orgService;
 	}
 
-	public function get($id)
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
-	}
-	
 	public function getList()
 	{
 		$identity = $this->identity();
@@ -60,46 +54,60 @@ class MembersController extends HATEOASRestfulController
 		return $view;
 	}
 	
-	public function create($data)
+	public function invoke($id, $data)
 	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
+		$identity = $this->identity();
+		if(is_null($identity)) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+		$identity = $identity['user'];
+
+		$organization = $this->orgService->getOrganization($id);
+		if(is_null($organization)) {
+			$this->response->setStatusCode(404);
+			return $this->response;
+		}
+
+		$this->transaction()->begin();
+		try {
+			$organization->addMember($identity, $identity);
+			$this->transaction()->commit();
+			$this->response->setStatusCode(201);
+		} catch (DuplicatedDomainEntityException $e) {
+			$this->transaction()->rollback();
+			$this->response->setStatusCode(204);
+		}
 		return $this->response;
 	}
-	
-	public function update($id, $data)
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
-	}
-	
-	public function replaceList($data)
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
-	}
-	
-	public function deleteList()
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
-	}
-	
+
 	public function delete($id)
 	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
+		$identity = $this->identity();
+		if(is_null($identity)) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+		$identity = $identity['user'];
+
+		$organization = $this->orgService->getOrganization($id);
+		if(is_null($organization)) {
+			$this->response->setStatusCode(404);
+			return $this->response;
+		}
+
+		$this->transaction()->begin();
+		try {
+			$organization->removeMember($identity, $identity);
+			$this->transaction()->commit();
+			$this->response->setStatusCode(200);
+		} catch (DomainEntityUnavailableException $e) {
+			$this->transaction()->rollback();
+			$this->response->setStatusCode(204);
+		}
 		return $this->response;
 	}
-	
+
 	public function getOrganizationService()
 	{
 		return $this->orgService;

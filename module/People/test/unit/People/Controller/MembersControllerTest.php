@@ -1,6 +1,7 @@
 <?php
 namespace People\Controller;
 
+use People\Organization;
 use ZFX\Test\Controller\ControllerTest;
 use People\Service\OrganizationService;
 use Application\Entity\User;
@@ -160,5 +161,170 @@ class MembersControllerTest extends ControllerTest
 		$this->assertArrayHasKey('id', $arrayResult['_embedded']['ora:organization-member'][0]);
 		$this->assertArrayHasKey('firstname', $arrayResult['_embedded']['ora:organization-member'][0]);
 		$this->assertArrayHasKey('lastname', $arrayResult['_embedded']['ora:organization-member'][0]);
+	}
+
+	public function testCreateAsAnonymous()
+	{
+		$this->setupAnonymous();
+
+		$this->routeMatch->setParam('id', '1');
+
+		$this->request->setMethod('post');
+
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+
+		$this->assertEquals(401, $response->getStatusCode());
+	}
+
+	public function testCreateInNotExistingOrganization()
+	{
+		$user = User::create();
+		$this->setupLoggedUser($user);
+
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('getOrganization')
+			->with($this->equalTo('1'))
+			->willReturn(null);
+
+		$this->routeMatch->setParam('id', '1');
+
+		$this->request->setMethod('post');
+
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+
+		$this->assertEquals(404, $response->getStatusCode());
+	}
+
+	public function testCreateOrganizationMemberAlreadyMember()
+	{
+		$user = User::create();
+		$this->setupLoggedUser($user);
+
+		$organization = Organization::create('Lorem ipsum', $user);
+
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('getOrganization')
+			->with($this->equalTo($organization->getId()))
+			->willReturn($organization);
+
+		$this->routeMatch->setParam('id', $organization->getId());
+
+		$this->request->setMethod('post');
+
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+
+		$this->assertEquals(204, $response->getStatusCode());
+	}
+
+	public function testCreateOrganizationMember()
+	{
+		$user = User::create();
+		$this->setupLoggedUser($user);
+
+		$organization = Organization::create('Lorem ipsum', User::create());
+
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('getOrganization')
+			->with($this->equalTo($organization->getId()))
+			->willReturn($organization);
+
+		$this->routeMatch->setParam('id', $organization->getId());
+
+		$this->request->setMethod('post');
+
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+
+		$this->assertEquals(201, $response->getStatusCode());
+		$this->arrayHasKey($user->getId(), $organization->getMembers());
+		$this->assertEquals(Organization::ROLE_MEMBER, $organization->getMembers()[$user->getId()]['role']);
+	}
+
+	public function testDeleteAsAnonymous()
+	{
+		$this->setupAnonymous();
+
+		$this->routeMatch->setParam('id', '1');
+
+		$this->request->setMethod('delete');
+
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+
+		$this->assertEquals(401, $response->getStatusCode());
+	}
+
+	public function testDeleteInNotExistingOrganization()
+	{
+		$user = User::create();
+		$this->setupLoggedUser($user);
+
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('getOrganization')
+			->with($this->equalTo('1'))
+			->willReturn(null);
+
+		$this->routeMatch->setParam('id', '1');
+
+		$this->request->setMethod('delete');
+
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+
+		$this->assertEquals(404, $response->getStatusCode());
+	}
+
+	public function testDeleteOrganizationNotAMember()
+	{
+		$user = User::create();
+		$this->setupLoggedUser($user);
+
+		$organization = Organization::create('Lorem ipsum', User::create());
+
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('getOrganization')
+			->with($this->equalTo($organization->getId()))
+			->willReturn($organization);
+
+		$this->routeMatch->setParam('id', $organization->getId());
+
+		$this->request->setMethod('delete');
+
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+
+		$this->assertEquals(204, $response->getStatusCode());
+	}
+
+	public function testDeleteOrganizationMember()
+	{
+		$user = User::create();
+		$this->setupLoggedUser($user);
+
+		$organization = Organization::create('Lorem ipsum', $user);
+
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('getOrganization')
+			->with($this->equalTo($organization->getId()))
+			->willReturn($organization);
+
+		$this->routeMatch->setParam('id', $organization->getId());
+
+		$this->request->setMethod('delete');
+
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+
+		$this->assertEquals(200, $response->getStatusCode());
+		$this->assertArrayNotHasKey($user->getId(), $organization->getMembers());
 	}
 }
