@@ -73,7 +73,7 @@ class OAuth2AdapterMock implements AdapterInterface, EventManagerAwareInterface,
 	}
 	
     public function setEventManager(EventManagerInterface $events) {
-        $events->setIdentifiers(__CLASS__);
+        $events->setIdentifiers('ZendOAuth2\Authentication\Adapter\ZendOAuth2');
         $this->events = $events;
         return $this;
     }
@@ -88,5 +88,4 @@ class OAuth2AdapterMock implements AdapterInterface, EventManagerAwareInterface,
     public function getProviders() {
     	return [];
     }
-	
 }

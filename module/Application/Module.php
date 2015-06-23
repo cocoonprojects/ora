@@ -1,6 +1,7 @@
 <?php
 namespace Application;
 
+use Application\Authentication\OAuth2\LoadLocalProfileListener;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 use Zend\Authentication\AuthenticationService;
@@ -34,9 +35,7 @@ class Module
 					$locator = $sm->getServiceLocator();
 					$resolver = $locator->get('Application\Service\AdapterResolver');
 					$authService = $locator->get('Zend\Authentication\AuthenticationService');
-					$userService = $locator->get('Application\UserService');
 					$controller = new AuthController($authService, $resolver);
-					$controller->setUserService($userService);
 					return $controller;
 				},
 				'Application\Controller\Memberships' => function ($sm) {
@@ -80,6 +79,10 @@ class Module
 					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
 					return new EventSourcingUserService($entityManager);
 				},
+				'Application\LoadLocalProfileListener' => function($serviceLocator) {
+					$userService = $serviceLocator->get('Application\UserService');
+					return new LoadLocalProfileListener($userService);
+				}
 			),
 		);
 	}

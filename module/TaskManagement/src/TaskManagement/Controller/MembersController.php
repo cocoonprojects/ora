@@ -44,11 +44,11 @@ class MembersController extends HATEOASRestfulController
 		$identity = $this->identity()['user'];
 		$accountId = $this->getAccountId($identity);
 		$this->transaction()->begin();
-		try {			
+		try {
 			$task->addMember($identity, Task::ROLE_MEMBER, $accountId);
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
-		} catch (DuplicatedDomainEntityException $e) {			
+		} catch (DuplicatedDomainEntityException $e) {
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(204);
 		} catch (IllegalStateException $e) {
