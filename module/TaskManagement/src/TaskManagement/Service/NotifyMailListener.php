@@ -36,13 +36,6 @@ class NotifyMailListener implements ListenerAggregateInterface {
 			$member = $event->getParam ( 'by' );
 			$this->sendMail ( $task, $member, self::SHARES_ASSIGNED );
 		} );
-		/*$this->listeners [] = $events->getSharedManager ()->attach ( 'TaskManagement\TaskService', Task::EVENT_ESTIMATION_ADDED, function (Event $event) {
-			$this->sendMail_ ( $event->getParam ( 'taskSubject' ), $event->getParam ( 'ownerId' ), $event->getParam ( 'memberFirstName' ), $event->getParam ( 'memberLastName' ), self::ADD_ESTIMATION );
-		} );*/
-		
-		//$this->listeners [] = $events->getSharedManager ()->attach ( 'TaskManagement\TaskService', Task::EVENT_SHARES_ASSIGNED_NOTIFICATION, function (Event $event) {
-			//$this->sendMail ( $event->getParam ( 'taskSubject' ), $event->getParam ( 'ownerId' ), $event->getParam ( 'memberFirstName' ), $event->getParam ( 'memberLastName' ), self::SHARES_ASSIGNED );
-		//} );
 	}
 	
 	public function detach(EventManagerInterface $events) {
