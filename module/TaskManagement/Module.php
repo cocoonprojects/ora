@@ -15,6 +15,8 @@ use TaskManagement\Service\StreamCommandsListener;
 use TaskManagement\Service\TaskCommandsListener;
 use TaskManagement\Service\EventSourcingStreamService;
 use TaskManagement\Service\EventSourcingTaskService;
+use AcMailer\Service\MailService;
+use TaskManagement\Service\NotifyMailListener;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
@@ -83,6 +85,12 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$eventStore = $locator->get('prooph.event_store');
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
 					return new EventSourcingStreamService($eventStore, $entityManager);
+				},
+				'TaskManagement\NotifyMailListener'=> function ($locator){
+					$mailService = $locator->get('AcMailer\Service\MailService');
+					$userService = $locator->get('Application\UserService');
+					$rv = new NotifyMailListener($mailService, $userService);
+					return $rv;
 				},
 				'TaskManagement\TaskService' => function ($locator) {
 					$eventStore = $locator->get('prooph.event_store');

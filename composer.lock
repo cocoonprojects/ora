@@ -4,8 +4,68 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "44567973ae818bf71340209ade5a922d",
+    "hash": "50a1ea4d53b62f78f8abd66b7d82dec1",
     "packages": [
+        {
+            "name": "acelaya/zf2-acmailer",
+            "version": "v4.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/acelaya/ZF2-AcMailer.git",
+                "reference": "5bb9cca16ff6425170e4c5f39f8517218ea15a82"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/acelaya/ZF2-AcMailer/zipball/5bb9cca16ff6425170e4c5f39f8517218ea15a82",
+                "reference": "5bb9cca16ff6425170e4c5f39f8517218ea15a82",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.23",
+                "zendframework/zend-eventmanager": "~2.2",
+                "zendframework/zend-loader": "~2.2",
+                "zendframework/zend-mail": "~2.2",
+                "zendframework/zend-mime": "~2.2",
+                "zendframework/zend-modulemanager": "~2.2",
+                "zendframework/zend-mvc": "~2.2",
+                "zendframework/zend-servicemanager": "~2.2",
+                "zendframework/zend-stdlib": "~2.2",
+                "zendframework/zend-view": "~2.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.0",
+                "squizlabs/php_codesniffer": "~1.0",
+                "zendframework/zendframework": "~2.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "AcMailer\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD"
+            ],
+            "authors": [
+                {
+                    "name": "Alejandro Celaya Alastrué",
+                    "email": "alejandro@alejandrocelaya.com",
+                    "homepage": "http://www.alejandrocelaya.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Mail sending module for Zend Framework 2",
+            "homepage": "https://github.com/acelaya/ZF2-AcMailer",
+            "keywords": [
+                "mail",
+                "module",
+                "php",
+                "zend",
+                "zf2"
+            ],
+            "time": "2015-01-03 16:37:47"
+        },
         {
             "name": "beberlei/assert",
             "version": "v2.3",
@@ -1392,6 +1452,7 @@
                 "identifier",
                 "uuid"
             ],
+            "abandoned": "ramsey/uuid",
             "time": "2014-11-09 18:42:56"
         },
         {
@@ -2507,6 +2568,50 @@
             "time": "2014-10-09 15:52:51"
         },
         {
+            "name": "heroku/heroku-buildpack-php",
+            "version": "v67",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/heroku/heroku-buildpack-php.git",
+                "reference": "8da6b92aad89b2e7254f5eb2ad39ffac315b2282"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/heroku/heroku-buildpack-php/zipball/8da6b92aad89b2e7254f5eb2ad39ffac315b2282",
+                "reference": "8da6b92aad89b2e7254f5eb2ad39ffac315b2282",
+                "shasum": ""
+            },
+            "bin": [
+                "bin/heroku-hhvm-apache2",
+                "bin/heroku-hhvm-nginx",
+                "bin/heroku-php-apache2",
+                "bin/heroku-php-nginx"
+            ],
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "David Zuelke",
+                    "email": "dz@heroku.com"
+                }
+            ],
+            "description": "Toolkit for starting a PHP application locally, with or without foreman, using the same config for PHP/HHVM and Apache2/Nginx as on Heroku",
+            "homepage": "http://github.com/heroku/heroku-buildpack-php",
+            "keywords": [
+                "apache",
+                "apache2",
+                "foreman",
+                "heroku",
+                "hhvm",
+                "nginx",
+                "php"
+            ],
+            "time": "2015-03-24 19:49:58"
+        },
+        {
             "name": "instaclick/php-webdriver",
             "version": "1.0.17",
             "source": {
@@ -2921,16 +3026,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "4.6.4",
+            "version": "4.6.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "163232991e652e6efed2f8470326fffa61e848e2"
+                "reference": "3afe303d873a4d64c62ef84de491b97b006fbdac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/163232991e652e6efed2f8470326fffa61e848e2",
-                "reference": "163232991e652e6efed2f8470326fffa61e848e2",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/3afe303d873a4d64c62ef84de491b97b006fbdac",
+                "reference": "3afe303d873a4d64c62ef84de491b97b006fbdac",
                 "shasum": ""
             },
             "require": {
@@ -2989,7 +3094,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-04-11 05:23:21"
+            "time": "2015-04-29 15:18:52"
         },
         {
             "name": "phpunit/phpunit-mock-objects",

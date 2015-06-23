@@ -29,6 +29,8 @@ class Task extends DomainEntity
 	CONST EVENT_ACCEPTED		= 'Task.Accepted';
 	CONST EVENT_CLOSED			= 'Task.Closed';
 	CONST EVENT_SHARES_ASSIGNED	= 'Task.SharesAssigned';
+	CONST EVENT_ESTIMATION_ADDED = 'Task.EstimationAdded';
+	
 	
 	/**
 	 * 
@@ -233,6 +235,8 @@ class Task extends DomainEntity
 			'by' => $member->getId(),
 			'value'	 => $value,
 		)));
+		
+		$this->getEventManager()->trigger(Task::EVENT_ESTIMATION_ADDED, $this, ['by' => $member]);
 	}
 	/**
 	 * 
@@ -379,6 +383,14 @@ class Task extends DomainEntity
 			return $this->members[$key]['role'];
 		}
 		return null;
+	}
+	
+	public function getOwner(){	
+		foreach ($this->members as $key=>$member){
+			if($member['role']==self::ROLE_OWNER)
+				return $key;
+		}
+		return null;	
 	}
 	
 	protected function whenTaskCreated(TaskCreated $event)
