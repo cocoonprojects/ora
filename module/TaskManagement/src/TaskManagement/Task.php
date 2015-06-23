@@ -237,16 +237,6 @@ class Task extends DomainEntity
 		)));
 		
 		$this->getEventManager()->trigger(Task::EVENT_ESTIMATION_ADDED, $this, ['by' => $member]);
-		
-		//check  if($member!=owner)-> mail notification
-		//if($this->getMemberRole($member) != self::ROLE_OWNER){
-			//$ownerId = $this->getOwner();		
-			//$memberFirstName = $member->getFirstname();
-			//$memberLastName = $member->getLastname();
-			
-			//trigger notification event
-			//$this->getEventManager()->trigger(Task::EVENT_ESTIMATION_ADDED, $this, ['taskSubject'=>$this->getSubject(), 'ownerId'=>$ownerId, 'memberFirstName'=>$memberFirstName, 'memberLastName'=>$memberLastName]);		
-		//}		
 	}
 	/**
 	 * 
