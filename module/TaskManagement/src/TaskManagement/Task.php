@@ -284,7 +284,7 @@ class Task extends DomainEntity
 			'by' => $member->getId(),
 		)));	
 
-		$this->getEventManager()->trigger(Task::EVENT_SHARES_ASSIGNED, $this, ['by' => $member]);	
+		$this->getEventManager()->trigger(Task::EVENT_SHARES_ASSIGNED, $this, ['by' => $member]);
 	}
 	
 	public function skipShares(User $member) {
