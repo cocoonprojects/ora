@@ -48,10 +48,7 @@ return array(
 		),
 		'template_path_stack' => array(
 			__NAMESPACE__ => __DIR__ . '/../view',
-		),
-		'template_map' => array(
-			'mail-notification/mail-notification-template' => __DIR__ . '/../view/mail-notification/mail-notification-template.phtml',
-		),
+		)
 	),
 	'asset_manager' => array(
 		'resolver_configs' => array(

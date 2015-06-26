@@ -34,133 +34,12 @@ return [
 			 *
 			 * Default value is \Zend\Mail\Transport\Sendmail
 			 */
-			'mail_adapter' => '\Zend\Mail\Transport\Sendmail',
+			'mail_adapter' => '\Zend\Mail\Transport\Smtp',
 
 			/*
 			 * An alias for the 'mail_adapter' option. Use just one or another.
 			 */
 			//'transport' => '\Zend\Mail\Transport\Sendmail',
-
-
-			/************************
-			 * MESSAGE CONFIGURATION *
-			 ************************/
-
-			'message_options' => [
-				/*
-				 * From email address of the email.
-				 *
-				 * Default value is an empty string
-				 */
-				'from' => 'no-reply@oraproject.org',
-
-				/*
-				 * From name to be displayed instead of from address.
-				 *
-				 * Default value is an empty string
-				 */
-				'from_name' => 'O.R.A.',
-
-				/*
-				 * Destination addresses of sent emails.
-				 * It can be an email address as string or an array of email addresses.
-				 *
-				 * Default value is an empty array.
-				 */
-				//'to' => [],
-
-				/*
-				 * Copy destination addresses of sent emails.
-				 * It can be an email address as string or an array of email addresses.
-				 *
-				 * Default value is an empty array
-				 */
-				//'cc' => [],
-
-				/*
-				 * Hidden copy destination addresses of sent emails.
-				 * It can be an email address as string or an array of email addresses.
-				 *
-				 * Default value is an empty array
-				 */
-				//'bcc' => [],
-
-				/*
-				 * Email subject.
-				 *
-				 * Default value is an empty string
-				 */
-				//'subject' => '',
-
-				/*
-				 * Email body.
-				 * It can be a plain-text string, a HTML string or a template that will be computed at runtime.
-				 * The 'content' property is used by default.
-				 * To force a template configuration to be used, set 'use_template' to true.
-				 *
-				 * Default content is an empty string.
-				 */
-				'body' => [
-					//'content' => '',
-					'charset' => 'utf-8',
-					'use_template' => true,
-
-					/*
-					 * Defines information to create the email body from a view partial.
-					 * It defines template path and template params.
-					 * The path will be resolved by a view resolver, so you need to place mail templates inside a view
-					 * folder of one of your modules or customize your template map and template path stack.
-					 * Params will be a group of key-value pairs.
-					 *
-					 * The 'children' property allows to define children for the template, in case you want to use
-					 * layouts.
-					 * You can define any number of children. The key in the array will be used as the 'capture_to'
-					 * property when rendering the template.
-					 * If you set the key 'content' to the child, you should have something like echo $this->content in
-					 * you layout.
-					 *
-					 * Any child can have its own children, so you can nest views into other views recursively.
-					 *
-					 * By default no children are used
-					 */
-					'template' => [
-						//    'path'          => 'ac-mailer/mail-templates/layout',
-						//    'params'        => [],
-						//    'children'      => [
-						//        'content'   => [
-						//            'path'   => 'ac-mailer/mail-templates/mail',
-						//            'params' => [],
-						//        ]
-						//    ],
-						'default_layout' => [
-							'path' => 'mail/layout.phtml',
-							'params' => [],
-							'template_capture_to' => 'content'
-						]
-					],
-				],
-
-				/*
-				 * Attachments config.
-				 * Allows to define an array of files that will be attached to the message,
-				 * or even a directory that will be iterated to attach all found files.
-				 * Set directory will only be iterated if 'iterate' property is true and 'path' is a valid
-				 * directory.
-				 * If 'recursive' is true all nested directories will be iterated too.
-				 * If both files and dir are set, all files will be merged without duplication.
-				 *
-				 * By default the files array is empty and the directory won't be iterated
-				 */
-				//'attachments' => [
-				//    'files' => [],
-				//    'dir' => [
-				//        'iterate'   => false,
-				//        'path'      => 'data/mail/attachments',
-				//        'recursive' => false,
-				//    ],
-				//],
-			],
-
 
 			/**********************
 			 * SMTP CONFIGURATION *
@@ -170,20 +49,20 @@ return [
 			 * SMTP concrete options that will be used only when the adapter is a Zend\Mail\Transport\Smtp.
 			 * This will be ignored otherwise.
 			 */
-			//'smtp_options' => [
+			'smtp_options' => [
 				/*
 				 * Hostname or IP address of the mail server.
 				 *
 				 * Default value is localhost
 				 */
-				//'host' => 'localhost',
+				'host' => 'localhost',
 
 				/*
 				 * Port of the mail server.
 				 *
 				 * Default value is 25
 				 */
-				//'port' => 25,
+				'port' => 1025,
 
 				/*
 				 * The connection class used for authentication.
@@ -191,7 +70,7 @@ return [
 				 *
 				 * Default value is 'smtp'.
 				 */
-				//'connection_class' => 'smtp',
+				'connection_class' => 'smtp',
 
 				//'connection_config' => [
 				/*
@@ -217,7 +96,7 @@ return [
 				 */
 				//'ssl' => false,
 				//],
-			//],
+			],
 
 
 			/**********************

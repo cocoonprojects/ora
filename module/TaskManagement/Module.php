@@ -2,6 +2,8 @@
 
 namespace TaskManagement;
 
+use AcMailer\Service\MailService;
+use AcMailer\View\DefaultLayout;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use TaskManagement\Controller\MembersController;
@@ -10,13 +12,12 @@ use TaskManagement\Controller\TransitionsController;
 use TaskManagement\Controller\EstimationsController;
 use TaskManagement\Controller\SharesController;
 use TaskManagement\Controller\StreamsController;
+use TaskManagement\Service\NotifyMailListener;
 use TaskManagement\Service\TransferTaskSharesCreditsListener;
 use TaskManagement\Service\StreamCommandsListener;
 use TaskManagement\Service\TaskCommandsListener;
 use TaskManagement\Service\EventSourcingStreamService;
 use TaskManagement\Service\EventSourcingTaskService;
-use AcMailer\Service\MailService;
-use TaskManagement\Service\NotifyMailListener;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
@@ -53,7 +54,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				},
 				'TaskManagement\Controller\Estimations' => function ($sm) {
 					$locator = $sm->getServiceLocator();
-					$taskService = $locator->get('TaskManagement\TaskService');					
+					$taskService = $locator->get('TaskManagement\TaskService');
 					$controller = new EstimationsController($taskService);
 					return $controller;
 				},
@@ -71,7 +72,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					return $controller;
 			  	}
 			)
-		);		
+		);
 	} 
 	
 	public function getServiceConfig()
@@ -96,7 +97,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$eventStore = $locator->get('prooph.event_store');
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
 					return new EventSourcingTaskService($eventStore, $entityManager);
-				},					
+				},
 				'TaskManagement\TaskCommandsListener' => function ($locator) {
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
 					return new TaskCommandsListener($entityManager);
@@ -106,7 +107,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					return new StreamCommandsListener($entityManager);
 				},
 				'TaskManagement\TransferTaskSharesCreditsListener' => function ($locator) {
-					$taskService = $locator->get('TaskManagement\TaskService');					
+					$taskService = $locator->get('TaskManagement\TaskService');
 					$streamService = $locator->get('TaskManagement\StreamService');
 					$organizationService = $locator->get('People\OrganizationService');
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
@@ -124,14 +125,14 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 	public function getAutoloaderConfig()
 	{
 		return array(
-				'Zend\Loader\ClassMapAutoloader' => array(
-						__DIR__ . '/autoload_classmap.php',
-				),
-				'Zend\Loader\StandardAutoloader' => array(
-						'namespaces' => array(
-								__NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
-						)
-				)
+			'Zend\Loader\ClassMapAutoloader' => array(
+					__DIR__ . '/autoload_classmap.php',
+			),
+			'Zend\Loader\StandardAutoloader' => array(
+					'namespaces' => array(
+							__NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
+					)
+			)
 		);
 	}
 }

@@ -16,9 +16,6 @@ use TaskManagement\Service\TaskService;
 use TaskManagement\Controller\SharesController;
 use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
 
-
-
-
 class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 {
 	
@@ -116,7 +113,7 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		
 		$this->assertNotEmpty($emails);
 		$this->assertEquals(1, count($emails));
-		$this->assertEmailSubjectEquals('O.R.A. Notification Mail', $emails[0]);
+		$this->assertEmailSubjectEquals('A member just estimated "', $emails[0]);
 		$this->assertEmailHtmlContains('estimation', $emails[0]);
 		$this->assertNotEmpty($emails[0]->recipients);
 		$this->assertEquals($emails[0]->recipients[0], '<mark.rogers@ora.local>');
@@ -137,8 +134,8 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		
 		$this->assertNotEmpty($emails);
 		$this->assertEquals(1, count($emails));
-		$this->assertEmailSubjectEquals('O.R.A. Notification Mail', $emails[0]);
-		$this->assertEmailHtmlContains('share', $emails[0]);
+		$this->assertEmailSubjectEquals('A member just assigned its shares to "', $emails[0]);
+		$this->assertEmailHtmlContains('shares', $emails[0]);
 		$this->assertNotEmpty($emails[0]->recipients);
 		$this->assertEquals($emails[0]->recipients[0], '<mark.rogers@ora.local>');
 		$this->cleanEmailMessages();
@@ -168,7 +165,7 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 	}
 	public function assertEmailSubjectEquals($expected, $email, $description = '')
 	{
-		$this->assertContains($expected, $email->subject, $description);
+		$this->assertStringStartsWith($expected, $email->subject, $description);
 	}
 	
 	public function assertEmailHtmlContains($needle, $email, $description = '')

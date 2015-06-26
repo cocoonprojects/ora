@@ -40,6 +40,7 @@ class EventSourcingOrganizationService extends AggregateRepository implements Or
 		$this->eventStore->beginTransaction();
 		try {
 			$org = Organization::create($name, $createdBy);
+			$org->setEventManager($this->getEventManager());
 			$this->addAggregateRoot($org);
 			$this->eventStore->commit();
 		} catch (\Exception $e) {
@@ -52,7 +53,11 @@ class EventSourcingOrganizationService extends AggregateRepository implements Or
 	
 	public function getOrganization($id) {
 		$oId = $id instanceof Uuid ? $id->toString() : $id;
-		return $this->getAggregateRoot($oId);
+		$rv = $this->getAggregateRoot($oId);
+		if($rv != null) {
+			$rv->setEventManager($this->getEventManager());
+		}
+		return $rv;
 	}
 	
 	/**

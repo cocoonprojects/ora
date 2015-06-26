@@ -55,7 +55,6 @@ Organizations.prototype = {
 		var form = $(e.target);
 		var url = form.attr('action');
 		var modal = $(e.delegateTarget);
-	
 		var that = this;
 		
 		$.ajax({
@@ -64,7 +63,7 @@ Organizations.prototype = {
 			data: form.serialize(),
 			success: function() {
 				modal.modal('hide');
-				that.updateMemberships();
+				that.init();
 			},
 			error: function(jqHXR, textStatus, errorThrown) {
 				json = $.parseJSON(jqHXR.responseText);
@@ -81,7 +80,6 @@ Organizations.prototype = {
 	joinOrganization: function(e)
 	{
 		var url = $(e.target).attr('href');
-
 		var that = this;
 
 		$.ajax({
@@ -107,7 +105,6 @@ Organizations.prototype = {
 	unjoinOrganization: function(e)
 	{
 		var url = $(e.target).attr('href');
-console.log(url);
 		var that = this;
 
 		$.ajax({

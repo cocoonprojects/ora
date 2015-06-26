@@ -13,8 +13,10 @@ use TaskManagement\Stream;
 
 
 class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
-	
-	
+
+	/**
+	 * @var NotifyMailListener
+	 */
 	protected $listener;
 	
 	protected  $mailService;
@@ -54,52 +56,17 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 		$this->userService = $this->getMockBuilder('Application\Service\UserService')->getMock();
 		$this->userService->method('findUser')->will($this->returnValue($this->owner));
 		
-		//NotificationMailListener
 		$this->listener = new NotifyMailListener($this->mailService, $this->userService);
 		
 	}
 	
 	public function testSendMail_EstimationAdded(){
 		$this->trigger = 'estimation';
-		$this->assertTrue($this->listener->sendMail($this->task, $this->member, $this->trigger));
-	}
-	
-	public function testSendMail_EstimationAdded_WithNullTask(){
-		$this->trigger = 'estimation';
-		$this->assertFalse($this->listener->sendMail(null, $this->member, $this->trigger));
-	}
-	
-	public function testSendMail_EstimationAdded_WithNullMember(){
-		$this->trigger = 'estimation';
-		$this->assertFalse($this->listener->sendMail($this->task, null, $this->trigger));
-	}
-	
-	public function testSendMail_EstimationAdded_WithNullTrigger(){
-		$this->assertFalse($this->listener->sendMail($this->task, $this->member, null));
-	}
-	
-	public function testSendMail_EstimationAdded_WithWrongTrigger(){
-		$this->trigger = 'wrong_trigger';
-		$this->assertFalse($this->listener->sendMail($this->task, $this->member, $this->trigger));
+		$this->assertTrue($this->listener->sendEstimationAddedInfoMail($this->task, $this->member));
 	}
 	
 	public function testSendMail_SharesAssigned(){
 		$this->trigger = 'share';
-		$this->assertTrue($this->listener->sendMail($this->task, $this->member, $this->trigger));
+		$this->assertTrue($this->listener->sendSharesAssignedInfoMail($this->task, $this->member));
 	}
-	
-	public function testSendMail_SharesAssigned_WithNullTask(){
-		$this->trigger = 'share';
-		$this->assertFalse($this->listener->sendMail(null, $this->member, $this->trigger));
-	}
-	
-	public function testSendMail_SharesAssigned_WithNullMember(){
-		$this->trigger = 'share';
-		$this->assertFalse($this->listener->sendMail($this->task, null, $this->trigger));
-	}
-	
-	public function testSendMail_SharesAssigned_WithNullTrigger(){
-		$this->assertFalse($this->listener->sendMail($this->task, $this->member, null));
-	}
-	
 }
