@@ -10,10 +10,8 @@ use AcMailer\Service\MailService;
 use Application\Service\UserService;
 use Application\Entity\User;
 
-class NotifyMailListener implements ListenerAggregateInterface {
-	CONST ESTIMATION_ADDED = 'estimation';
-	CONST SHARES_ASSIGNED = 'share';
-	
+class NotifyMailListener implements ListenerAggregateInterface
+{
 	private $mailService;
 	private $userService;
 	
@@ -28,13 +26,13 @@ class NotifyMailListener implements ListenerAggregateInterface {
 		$this->listeners [] = $events->getSharedManager ()->attach ( 'TaskManagement\TaskService', Task::EVENT_ESTIMATION_ADDED, function (Event $event) {
 			$task = $event->getTarget ();
 			$member = $event->getParam ( 'by' );
-			$this->sendMail ( $task, $member, self::ESTIMATION_ADDED );
+			$this->sendEstimationAddedInfoMail ( $task, $member );
 		} );
 		
 		$this->listeners [] = $events->getSharedManager ()->attach ( 'TaskManagement\TaskService', Task::EVENT_SHARES_ASSIGNED, function (Event $event) {
 			$task = $event->getTarget ();
 			$member = $event->getParam ( 'by' );
-			$this->sendMail ( $task, $member, self::SHARES_ASSIGNED );
+			$this->sendSharesAssignedInfoMail ( $task, $member );
 		} );
 	}
 	
@@ -46,14 +44,7 @@ class NotifyMailListener implements ListenerAggregateInterface {
 		}
 	}
 	
-	public function sendMail($task, $member, $trigger){
-		if( !isset($task) || !isset($member) || !isset($trigger)){
-			return false;
-		}
-		if(!(strcmp($trigger, self::ESTIMATION_ADDED)==0)&&(!strcmp($trigger, self::SHARES_ASSIGNED)==0)){
-			return false;
-		}
-		
+	public function sendEstimationAddedInfoMail(Task $task, User $member){
 		//OwnerInfo
 		$ownerId = $task->getOwner();
 		$owner = $this->userService->findUser($ownerId);
@@ -66,17 +57,41 @@ class NotifyMailListener implements ListenerAggregateInterface {
 		$message = $this->mailService->getMessage();
 		$message->setTo($owner->getEmail());
 		
-		$this->mailService->setSubject ( 'O.R.A. Notification Mail' );
+		$this->mailService->setSubject ( 'A member just estimated "' . $task->getSubject() . '"');
 		
-		$this->mailService->setTemplate( 'mail-notification/mail-notification-template', array(
+		$this->mailService->setTemplate( 'mail/estimation-added-info.phtml', array(
 				'task' => $task,
-				'owner'=> $owner,
-				'member'=> $member,
-				'trigger'=> $trigger
+				'recipient'=> $owner,
+				'member'=> $member
 		));
 		
-		$result = $this->mailService->send();	
+		$result = $this->mailService->send();
 		return $result->isValid();
 	}
-	
+
+	public function sendSharesAssignedInfoMail(Task $task, User $member)
+	{
+		//OwnerInfo
+		$ownerId = $task->getOwner();
+		$owner = $this->userService->findUser($ownerId);
+
+		//No mail to Owner for his actions
+		if(strcmp($ownerId, $member->getId())==0){
+			return;
+		}
+
+		$message = $this->mailService->getMessage();
+		$message->setTo($owner->getEmail());
+
+		$this->mailService->setSubject ( 'A member just assigned its shares to "' . $task->getSubject() . '"' );
+
+		$this->mailService->setTemplate( 'mail/shares-assigned-info.phtml', array(
+			'task' => $task,
+			'recipient'=> $owner,
+			'member'=> $member
+		));
+
+		$result = $this->mailService->send();
+		return $result->isValid();
+	}
 }

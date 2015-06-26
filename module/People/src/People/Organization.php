@@ -15,6 +15,8 @@ class Organization extends DomainEntity
 	CONST ROLE_ADMIN  = 'admin';
 	
 	CONST EVENT_CREATED = 'Organization.Created';
+	CONST EVENT_MEMBER_ADDED = 'Organization.MemberAdded';
+
 	/**
 	 * 
 	 * @var string
@@ -79,6 +81,9 @@ class Organization extends DomainEntity
 			'role' => $role,
 			'by' => $addedBy->getId(),
 		)));
+
+		$this->getEventManager()->trigger(self::EVENT_MEMBER_ADDED, $this, ['by' => $user]);
+
 	}
 
 	public function removeMember(User $member, User $removedBy)
@@ -94,6 +99,12 @@ class Organization extends DomainEntity
 	
 	public function getMembers() {
 		return $this->members;
+	}
+
+	public function getAdmins() {
+		return array_filter($this->members, function($profile) {
+			return $profile['role'] == self::ROLE_ADMIN;
+		});
 	}
 	
 	protected function whenOrganizationCreated(OrganizationCreated $event)

@@ -1,10 +1,12 @@
 <?php
 namespace People;
 
+use AcMailer\View\DefaultLayout;
 use People\Controller\OrganizationsController;
 use People\Controller\MembersController;
 use People\Service\EventSourcingOrganizationService;
 use People\Service\OrganizationCommandsListener;
+use People\Service\SendMailListener;
 
 class Module
 {
@@ -46,6 +48,11 @@ class Module
 					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
 					return new OrganizationCommandsListener($entityManager);
 				},
+				'People\SendMailListener' => function ($serviceLocator) {
+					$mailService = $serviceLocator->get('AcMailer\Service\MailService');
+					$userService = $serviceLocator->get('Application\UserService');
+					return new SendMailListener($mailService, $userService);
+				}
 			),
 		);
 	}

@@ -11,24 +11,24 @@ use Application\Entity\User;
 
 class Task extends DomainEntity
 {	
-	CONST STATUS_IDEA = 0;
-	CONST STATUS_OPEN = 10;
-	CONST STATUS_ONGOING = 20;
+	CONST STATUS_DELETED   = -10;
+	CONST STATUS_IDEA      = 0;
+	CONST STATUS_OPEN      = 10;
+	CONST STATUS_ONGOING   = 20;
 	CONST STATUS_COMPLETED = 30;
-	CONST STATUS_ACCEPTED = 40;
-	CONST STATUS_CLOSED = 50;
-	CONST STATUS_DELETED = -10;
-	
+	CONST STATUS_ACCEPTED  = 40;
+	CONST STATUS_CLOSED    = 50;
+
 	CONST ROLE_MEMBER = 'member';
 	CONST ROLE_OWNER  = 'owner';
 	
 	CONST NOT_ESTIMATED = -1;
 	
-	CONST EVENT_ONGOING			= 'Task.Ongoing';
-	CONST EVENT_COMPLETED		= 'Task.Completed';
-	CONST EVENT_ACCEPTED		= 'Task.Accepted';
-	CONST EVENT_CLOSED			= 'Task.Closed';
-	CONST EVENT_SHARES_ASSIGNED	= 'Task.SharesAssigned';
+	CONST EVENT_ONGOING          = 'Task.Ongoing';
+	CONST EVENT_COMPLETED        = 'Task.Completed';
+	CONST EVENT_ACCEPTED         = 'Task.Accepted';
+	CONST EVENT_CLOSED           = 'Task.Closed';
+	CONST EVENT_SHARES_ASSIGNED  = 'Task.SharesAssigned';
 	CONST EVENT_ESTIMATION_ADDED = 'Task.EstimationAdded';
 	
 	
@@ -66,7 +66,7 @@ class Task extends DomainEntity
 	}
 	
 	public function delete(User $deletedBy) {
-		if($this->getStatus() >= Task::STATUS_COMPLETED) {
+		if($this->getStatus() >= self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot delete a task in state '.$this->getStatus().'. Task '.$this->getId()->toString().' won\'t be deleted');
 		}
 		$this->recordThat(TaskDeleted::occur($this->id->toString(), array(
@@ -80,7 +80,7 @@ class Task extends DomainEntity
 	}
 	
 	public function execute(User $executedBy) {
-		if(!in_array($this->status, [Task::STATUS_OPEN, Task::STATUS_COMPLETED])) {
+		if(!in_array($this->status, [self::STATUS_OPEN, self::STATUS_COMPLETED])) {
 			throw new IllegalStateException('Cannot execute a task in '.$this->status.' state');
 		}
 		if(!isset($this->members[$executedBy->getId()]) || $this->members[$executedBy->getId()]['role'] != self::ROLE_OWNER) {
@@ -90,12 +90,12 @@ class Task extends DomainEntity
 				'prevStatus' => $this->getStatus(),
 				'by' => $executedBy->getId(),
 		)));
-		$this->getEventManager()->trigger(Task::EVENT_ONGOING, $this, ['by' => $executedBy]);
+		$this->getEventManager()->trigger(self::EVENT_ONGOING, $this, ['by' => $executedBy]);
 		return $this;
 	}
 	
 	public function complete(User $completedBy) {
-		if(!in_array($this->status, [Task::STATUS_ONGOING, Task::STATUS_ACCEPTED])) {
+		if(!in_array($this->status, [self::STATUS_ONGOING, self::STATUS_ACCEPTED])) {
 			throw new IllegalStateException('Cannot complete a task in '.$this->status.' state');
 		}
 		if(!isset($this->members[$completedBy->getId()]) || $this->members[$completedBy->getId()]['role'] != self::ROLE_OWNER) {
@@ -105,12 +105,12 @@ class Task extends DomainEntity
 			'prevStatus' => $this->getStatus(),
 			'by' => $completedBy->getId(),
 		)));
-		$this->getEventManager()->trigger(Task::EVENT_COMPLETED, $this, ['by' => $completedBy]);
+		$this->getEventManager()->trigger(self::EVENT_COMPLETED, $this, ['by' => $completedBy]);
 		return $this;
 	}
 	
 	public function accept(User $acceptedBy) {
-		if($this->status != Task::STATUS_COMPLETED) {
+		if($this->status != self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot accept a task in '.$this->status.' state');
 		}
 		if(is_null($this->getAverageEstimation())) {
@@ -123,12 +123,12 @@ class Task extends DomainEntity
 			'prevStatus' => $this->getStatus(),
 			'by' => $acceptedBy->getId(),
 		)));
-		$this->getEventManager()->trigger(Task::EVENT_ACCEPTED, $this, ['by' => $acceptedBy]);
+		$this->getEventManager()->trigger(self::EVENT_ACCEPTED, $this, ['by' => $acceptedBy]);
 		return $this;
 	}
 	
 	public function close(User $closedBy) {
-		if($this->status != Task::STATUS_ACCEPTED) {
+		if($this->status != self::STATUS_ACCEPTED) {
 			throw new IllegalStateException('Cannot close a task in '.$this->status.' state');
 		}
 		if(!isset($this->members[$closedBy->getId()])) {
@@ -138,7 +138,7 @@ class Task extends DomainEntity
 		$this->recordThat(TaskClosed::occur($this->id->toString(), array(
 				'by' => $closedBy->getId(),
 		)));
-		$this->getEventManager()->trigger(Task::EVENT_CLOSED, $this, ['by' => $closedBy]);
+		$this->getEventManager()->trigger(self::EVENT_CLOSED, $this, ['by' => $closedBy]);
 		return $this;
 	}
 	
@@ -236,7 +236,7 @@ class Task extends DomainEntity
 			'value'	 => $value,
 		)));
 		
-		$this->getEventManager()->trigger(Task::EVENT_ESTIMATION_ADDED, $this, ['by' => $member]);
+		$this->getEventManager()->trigger(self::EVENT_ESTIMATION_ADDED, $this, ['by' => $member]);
 	}
 	/**
 	 * 
@@ -284,7 +284,7 @@ class Task extends DomainEntity
 			'by' => $member->getId(),
 		)));	
 
-		$this->getEventManager()->trigger(Task::EVENT_SHARES_ASSIGNED, $this, ['by' => $member]);
+		$this->getEventManager()->trigger(self::EVENT_SHARES_ASSIGNED, $this, ['by' => $member]);
 	}
 	
 	public function skipShares(User $member) {
@@ -300,7 +300,7 @@ class Task extends DomainEntity
 			'by' => $member->getId(),
 		)));
 
-		$this->getEventManager()->trigger(Task::EVENT_SHARES_ASSIGNED, $this, ['by' => $member]);
+		$this->getEventManager()->trigger(self::EVENT_SHARES_ASSIGNED, $this, ['by' => $member]);
 	}
 	
 	public function getMembers() {

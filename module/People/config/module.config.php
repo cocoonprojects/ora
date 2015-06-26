@@ -57,7 +57,7 @@ return array(
 		),
 		'template_path_stack' => array(
 			__NAMESPACE__ => __DIR__ . '/../view',
-		),
+		)
 	),
 	'asset_manager' => array(
 		'resolver_configs' => array(
@@ -86,6 +86,7 @@ return array(
 		)
 	),
 	'listeners' => array(
-		'People\OrganizationCommandsListener'
-	),	
+		'People\OrganizationCommandsListener',
+		'People\SendMailListener'
+	)
 );
