@@ -272,7 +272,8 @@ class TasksController extends HATEOASRestfulController
     	if(is_null($account)) {
     		return null;
     	}
-    	return $account->getId();
+    	
+		return $account->getId();
     }
 
 }

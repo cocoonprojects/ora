@@ -5,18 +5,14 @@ use Application\Authentication\OAuth2\LoadLocalProfileListener;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 use Zend\Authentication\AuthenticationService;
-use Zend\Authentication\Storage\NonPersistent as NonPersistentStorage;
 use Zend\Permissions\Acl\Acl;
 use Application\Controller\AuthController;
 use Application\Controller\MembershipsController;
 use Application\Service\EventSourcingUserService;
 use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
 use ZFX\Acl\Controller\Plugin\IsAllowed;
-use Application\Entity\User;
 use Application\Authentication\DomainBased\DomainBasedAuthentication;
-use Application\Authentication\DomainBased\Application\Authentication\DomainBased;
-use Zend\Authentication\Storage\Zend\Authentication\Storage;
-use Zend\Authentication\Zend\Authentication;
+
 
 class Module
 {

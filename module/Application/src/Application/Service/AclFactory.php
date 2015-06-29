@@ -52,7 +52,6 @@ class AclFactory implements FactoryInterface
 		//TODO: rivedere la definizione di questa asserzione per estenderla a tutto il controller
 		$acl->allow(User::ROLE_SYSTEM, null, array('TaskManagement.Task.closeTasksCollection', 'TaskManagement.Reminder.createReminder'), new HttpHostLocalhostAssertion());
 		
-		
 		return $acl;
 	}
 }

@@ -31,6 +31,7 @@ class RemindersController extends HATEOASRestfulController
 	 * @var \DateInterval
 	 */
 	protected $intervalForRemindAssignmentOfShares;
+
 	/**
 	 *
 	 * @var Acl
@@ -43,6 +44,7 @@ class RemindersController extends HATEOASRestfulController
  		$this->taskService = $taskService;
  		$this->acl = $acl;
  		$this->intervalForRemindAssignmentOfShares = self::getDefaultIntervalToRemindAssignmentOfShares(); 		
+
  	}
 	
 	/**
@@ -65,6 +67,7 @@ class RemindersController extends HATEOASRestfulController
 			return $this->response;
 		}
 
+
 		switch ($data['id']) {
 			case "assignment-of-shares":
 				
@@ -73,6 +76,7 @@ class RemindersController extends HATEOASRestfulController
 				if(is_array($tasksToNotify) && count($tasksToNotify) > 0){
 						
 					array_map(array($this, 'remindAssignmentOfSharesOnSingleTask'),  $tasksToNotify);
+
 				}
 				break;
 			default:
@@ -83,10 +87,10 @@ class RemindersController extends HATEOASRestfulController
 		return $this->response;
 	}
 	
-	
 	private function remindAssignmentOfSharesOnSingleTask(Task $taskToNotify){
 		
 		$taskMembersWithEmptyShares = $taskToNotify->findMembersWithEmptyShares();		
+
 		foreach ($taskMembersWithEmptyShares as $member){
 			$this->notificationService->sendEmailNotificationForAssignmentOfShares($taskToNotify, $member);
 		}

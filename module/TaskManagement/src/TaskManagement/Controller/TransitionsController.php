@@ -38,7 +38,7 @@ class TransitionsController extends HATEOASRestfulController
 	public function invoke($id, $data) {
 		
 		$validator = new InArray(
-			['haystack' => array('complete', 'accept','execute')]
+			['haystack' => array('complete', 'accept','execute', 'close')]
 		);
 		if (!isset ($data['action']) || !$validator->isValid($data['action'])) {
 			$this->response->setStatusCode ( 400 );
@@ -50,7 +50,7 @@ class TransitionsController extends HATEOASRestfulController
 			$this->response->setStatusCode ( 404 );
 			return $this->response;
 		}	
-
+		
 		$action = $data ["action"];
 		switch ($action) {
 			case "complete":
@@ -107,6 +107,7 @@ class TransitionsController extends HATEOASRestfulController
 					$this->response->setStatusCode ( 403 );
 				}
 				break;
+
 				
 			default :
 				$this->response->setStatusCode ( 400 );
@@ -134,24 +135,25 @@ class TransitionsController extends HATEOASRestfulController
 				$tasksFound = $this->taskService->findAcceptedTasksBefore($this->getIntervalForCloseTasks());
 				
 				foreach ($tasksFound as $taskFound){
-	
+					
 					$taskToClose = $this->taskService->getTask($taskFound->getId());
-	
+					
 					$this->transaction()->begin();
 					try {
-						$taskToClose->close($this->identity()['user']);
+						$taskToClose->close(User::createSystemUser());		
+
 						$this->transaction()->commit();
 					} catch ( IllegalStateException $e ) {
 						$this->transaction()->rollback();
 						continue; //skip task
-					} catch ( InvalidArgumentException $e ) {						
+					} catch ( InvalidArgumentException $e ) {
 						$this->transaction()->rollback();
 						continue; //skip task
-					}
+					}					
 				}
-
+				
 				$this->response->setStatusCode ( 200 );
-	
+			
 				break;
 			default :
 				$this->response->setStatusCode ( 400 );

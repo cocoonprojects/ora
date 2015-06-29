@@ -24,7 +24,6 @@ use Application\Entity\User;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
-
 	public function getControllerConfig() 
     {
         return array(

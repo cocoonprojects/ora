@@ -33,13 +33,14 @@ class NotificationService{
 				'emailAddress' => $member->getEmail(),					
 				'url' => 'http://'.$_SERVER['SERVER_NAME'].'/task-management#'.$taskToNotify->getId()
 		);
-		
+
 		$renderer = new PhpRenderer();
 		$viewModel = new ViewModel();
 		$resolver = new TemplateMapResolver();
 		$resolver->setMap($this->emailTemplates);
 		$renderer->setResolver($resolver);
 		$viewModel->setTemplate('TaskManagement\RemindTemplateForAssignmentOfShares')->setVariables($params);
+
 		$content = $renderer->render($viewModel);
 		
 		$headers  = 'MIME-Version: 1.0' . "\r\n";
