@@ -14,7 +14,7 @@ use Zend\Mvc\MvcEvent;
 class TransitionsController extends HATEOASRestfulController
 {
 	protected static $resourceOptions = array ('POST');
-	protected static $collectionOptions= array ();
+	protected static $collectionOptions= array ('POST');
 	
 	/**
 	 * @var TaskService
@@ -38,22 +38,19 @@ class TransitionsController extends HATEOASRestfulController
 	public function invoke($id, $data) {
 		
 		$validator = new InArray(
-			['haystack' => array('complete', 'accept','execute', 'close')]
+			['haystack' => array('complete', 'accept','execute')]
 		);
 		if (!isset ($data['action']) || !$validator->isValid($data['action'])) {
 			$this->response->setStatusCode ( 400 );
 			return $this->response;
 		}
 		
-		if($data["action"] != "close"){			
-			$task = $this->taskService->getTask($id);
-			if (is_null($task)) {
-				$this->response->setStatusCode ( 404 );
-				return $this->response;
-			}	
-		}
-		
-		
+		$task = $this->taskService->getTask($id);
+		if (is_null($task)) {
+			$this->response->setStatusCode ( 404 );
+			return $this->response;
+		}	
+
 		$action = $data ["action"];
 		switch ($action) {
 			case "complete":
@@ -110,40 +107,56 @@ class TransitionsController extends HATEOASRestfulController
 					$this->response->setStatusCode ( 403 );
 				}
 				break;
+				
+			default :
+				$this->response->setStatusCode ( 400 );
+				break;
+		}
+		
+		return $this->response;
+	}
+	
+	public function create($data){
+		
+		$action = $data ["action"];
+		
+		switch ($action) {
+			
 			case "close":
-				
+
 				if(!$this->acl->isAllowed($this->identity()['user'], NULL, 'TaskManagement.Task.closeTasksCollection')){
-				
-					$this->response->setStatusCode(404);
+
+					$this->response->setStatusCode(405);
 					return $this->response;
 				}
-						
+
 				//recupero tutti i task accettati per i quali è stato superato il limite per assegnare gli share
 				$tasksFound = $this->taskService->findAcceptedTasksBefore($this->getIntervalForCloseTasks());
 				
 				foreach ($tasksFound as $taskFound){
-					
+	
 					$taskToClose = $this->taskService->getTask($taskFound->getId());
-					
+	
 					$this->transaction()->begin();
 					try {
-						$taskToClose->close(User::createSystemUser());		
+						$taskToClose->close($this->identity()['user']);
 						$this->transaction()->commit();
 					} catch ( IllegalStateException $e ) {
 						$this->transaction()->rollback();
 						continue; //skip task
-					} catch ( InvalidArgumentException $e ) {
+					} catch ( InvalidArgumentException $e ) {						
 						$this->transaction()->rollback();
 						continue; //skip task
-					}					
+					}
 				}
-				
+
 				$this->response->setStatusCode ( 200 );
-			
+	
 				break;
 			default :
 				$this->response->setStatusCode ( 400 );
 				break;
+			
 		}
 		
 		return $this->response;

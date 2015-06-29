@@ -32,7 +32,7 @@ class NotificationServiceTest extends \PHPUnit_Framework_TestCase {
 	
 	protected function setUp() {
 		
-		$emailTemplates = array('TaskManagement\RemindMembersForAssignmentOfShares' => __DIR__.'/../../../../view/task-management/email_templates/reminder-assignment-shares.phtml');
+		$emailTemplates = array('TaskManagement\RemindTemplateForAssignmentOfShares' => __DIR__.'/../../../../view/task-management/email_templates/reminder-assignment-shares.phtml');
 		
 		$this->notificationService = new NotificationService($emailTemplates);
 		$this->mailcatcher = new \Guzzle\Http\Client('http://127.0.0.1:1080');

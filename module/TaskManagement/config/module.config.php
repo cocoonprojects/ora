@@ -28,10 +28,11 @@ return array(
 			),
 			'tasks' => array(
 				'type' => 'Segment',
-				'options' => array(
+				'options' => array(				
 					'route'	   => '/task-management/tasks[/:id][/:controller]',
 					'constraints' => array(
-						'id' => '[0-9a-z\-]+'
+							//'id' => '[0-9a-z\-]+'
+							'id' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
 					),
 					'defaults' => array(
 						'__NAMESPACE__' => 'TaskManagement\Controller',
@@ -42,10 +43,13 @@ return array(
 			'reminder-share-assignment' => array(
 				'type' => 'Zend\Mvc\Router\Http\Literal',
 				'options' => array(
-					'route'	   => '/task-management/tasks/reminders',					
+					'route'	   => '/task-management/tasks/reminders/:id',					
+					'constraints' => array(
+						'id' => '[a-zA-Z-]+',	
+					),
 					'defaults' => array(
-							'__NAMESPACE__' => 'TaskManagement\Controller',
-							'controller' => 'Reminders'
+						'__NAMESPACE__' => 'TaskManagement\Controller',
+						'controller' => 'Reminders'
 					),
 				),
 			)
@@ -92,6 +96,10 @@ return array(
 	),
 		
 	'email_templates' => array(
-		'TaskManagement\RemindMembersForAssignmentOfShares' => __DIR__.'/../view/task-management/email_templates/reminder-assignment-shares.phtml'			
-	)
+		'TaskManagement\RemindTemplateForAssignmentOfShares' => __DIR__.'/../view/task-management/email_templates/reminder-assignment-shares.phtml'			
+	),
+		
+	'assignment_of_shares' => array(
+		'TaskManagement\TimeboxForAssignmentOfShares' => new \DateInterval('P7D'),
+	), 
 );

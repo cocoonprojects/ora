@@ -54,9 +54,9 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$locator = $sm->getServiceLocator();
 					$acl = $locator->get('Application\Service\Acl');
 					$taskService = $locator->get('TaskManagement\TaskService');					
-					$shareAssignmentInterval = $locator->get('Config')['share_assignment_timebox'];
+					$assignmentOfSharesConfig = $locator->get('Config')['assignment_of_shares'];
 					$controller = new TransitionsController($taskService, $acl);
-					$controller->setIntervalForCloseTasks($shareAssignmentInterval);
+					$controller->setIntervalForCloseTasks($assignmentOfSharesConfig['TaskManagement\TimeboxForAssignmentOfShares']);
 					return $controller;
 				},
 				'TaskManagement\Controller\Estimations' => function ($sm) {
@@ -82,11 +82,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				  	$locator = $sm->getServiceLocator();
 				  	$acl = $locator->get('Application\Service\Acl');
 				  	$notificationService = $locator->get('TaskManagement\NotificationService');
-				  	$taskService = $locator->get('TaskManagement\TaskService');
-				  	$shareAssignmentInterval = $locator->get('Config')['share_assignment_timebox'];
-				  	$intervalForRemind = new \DateInterval('P'.($shareAssignmentInterval->d - 1).'D');
+				  	$taskService = $locator->get('TaskManagement\TaskService');				  	
 				  	$controller = new RemindersController($notificationService, $taskService, $acl);
-				  	$controller->setIntervalForRemindShareAssignment($intervalForRemind);
 				  	return $controller;
 			  	}
 			)

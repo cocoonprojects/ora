@@ -5,6 +5,7 @@ use Application\Authentication\OAuth2\LoadLocalProfileListener;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 use Zend\Authentication\AuthenticationService;
+use Zend\Authentication\Storage\NonPersistent as NonPersistentStorage;
 use Zend\Permissions\Acl\Acl;
 use Application\Controller\AuthController;
 use Application\Controller\MembershipsController;
@@ -14,6 +15,8 @@ use ZFX\Acl\Controller\Plugin\IsAllowed;
 use Application\Entity\User;
 use Application\Authentication\DomainBased\DomainBasedAuthentication;
 use Application\Authentication\DomainBased\Application\Authentication\DomainBased;
+use Zend\Authentication\Storage\Zend\Authentication\Storage;
+use Zend\Authentication\Zend\Authentication;
 
 class Module
 {
@@ -26,18 +29,15 @@ class Module
 		$moduleRouteListener = new ModuleRouteListener();
 		$moduleRouteListener->attach($eventManager);	
 
-		$sharedEventManager = $eventManager->getSharedManager();
-		$sharedEventManager->attach('Zend\Stdlib\DispatchableInterface', MvcEvent::EVENT_DISPATCH, function($event) use($serviceManager) {
-
-			$request = $event->getRequest();			
-			$acl = $serviceManager->get('Application\Service\Acl');
-			if($acl->isAllowed(NULL, NULL, 'Application.Authentication.authenticateFromLocalhost')){				
-				$authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
-				$localhostAuthAdapter = $serviceManager->get('Application\Service\LocalhostBasedAuthentication');
-				$authService->authenticate($localhostAuthAdapter);	
-			}
-		}, 10);
 		
+ 		$eventManager->attach(MvcEvent::EVENT_DISPATCH, function($event) use($serviceManager) {
+ 			$authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
+ 			if(!$authService->hasIdentity()){
+ 				$userService = $serviceManager->get('Application\UserService');
+ 				$localhostAuthAdapter = new DomainBasedAuthentication($_SERVER['HTTP_HOST'], $userService);
+ 				$authService->authenticate($localhostAuthAdapter);
+ 			} 			
+ 		}, 100);		
 	}
 	
 	public function getControllerConfig() 
@@ -86,7 +86,7 @@ class Module
 	{
 		return array(
 			'invokables' => array(
-				'Zend\Authentication\AuthenticationService' => AuthenticationService::class,
+				'Zend\Authentication\AuthenticationService' => AuthenticationService::class,					
 			),
 			'factories' => array(
 				'Application\Service\AdapterResolver' => 'Application\Service\OAuth2AdapterResolverFactory',
@@ -98,12 +98,11 @@ class Module
 				'Application\LoadLocalProfileListener' => function($serviceLocator) {
 					$userService = $serviceLocator->get('Application\UserService');
 					return new LoadLocalProfileListener($userService);
-				},
+				},				
 				'Application\Service\LocalhostBasedAuthentication' => function($serviceLocator){
 					$userService = $serviceLocator->get('Application\UserService');
 					return new DomainBasedAuthentication('localhost', $userService);
-
-				}
+				},
 			),
 		);
 	}

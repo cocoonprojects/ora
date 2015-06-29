@@ -30,7 +30,7 @@ class RemindersController extends HATEOASRestfulController
 	 *
 	 * @var \DateInterval
 	 */
-	protected $intervalForRemindShareAssignment;
+	protected $intervalForRemindAssignmentOfShares;
 	/**
 	 *
 	 * @var Acl
@@ -38,9 +38,11 @@ class RemindersController extends HATEOASRestfulController
 	private $acl;
 	
  	public function __construct(NotificationService $notificationService, TaskService $taskService, Acl $acl) {
+ 		
  		$this->notificationService = $notificationService;
  		$this->taskService = $taskService;
  		$this->acl = $acl;
+ 		$this->intervalForRemindAssignmentOfShares = self::getDefaultIntervalToRemindAssignmentOfShares(); 		
  	}
 	
 	/**
@@ -54,23 +56,23 @@ class RemindersController extends HATEOASRestfulController
 	public function create($data){
 		
 		if(!$this->acl->isAllowed($this->identity()['user'], NULL, 'TaskManagement.Reminder.createReminder')){
-			$this->response->setStatusCode(404);
+			$this->response->setStatusCode(403);
 			return $this->response;
 		}
 		
-		if (!isset($data['reminder']) || $data['reminder'] == ''){
+		if (!isset($data['id']) || $data['id'] == ''){
 			$this->response->setStatusCode(400);
 			return $this->response;
 		}
 
-		switch ($data['reminder']) {
+		switch ($data['id']) {
 			case "assignment-of-shares":
 				
 				$tasksToNotify = $this->taskService->findAcceptedTasksBefore($this->getIntervalForRemindShareAssignment());
 
 				if(is_array($tasksToNotify) && count($tasksToNotify) > 0){
 						
-					array_map(array($this, 'remindShareAssignmentOnTask'),  $tasksToNotify);
+					array_map(array($this, 'remindAssignmentOfSharesOnSingleTask'),  $tasksToNotify);
 				}
 				break;
 			default:
@@ -82,7 +84,7 @@ class RemindersController extends HATEOASRestfulController
 	}
 	
 	
-	private function remindShareAssignmentOnTask(Task $taskToNotify){
+	private function remindAssignmentOfSharesOnSingleTask(Task $taskToNotify){
 		
 		$taskMembersWithEmptyShares = $this->taskService->findMembersWithEmptyShares($taskToNotify);		
 		foreach ($taskMembersWithEmptyShares as $member){
@@ -90,12 +92,12 @@ class RemindersController extends HATEOASRestfulController
 		}
 	}
 	
-	public function setIntervalForRemindShareAssignment(\DateInterval $interval){
-		$this->intervalForRemindShareAssignment = $interval;
+	public function setIntervalForRemindAssignmentOfShares(\DateInterval $interval){
+		$this->intervalForRemindAssignmentOfShares = $interval;
 	}
 	
-	public function getIntervalForRemindShareAssignment(){
-		return $this->intervalForRemindShareAssignment;
+	public function getIntervalForRemindAssignmentOfShares(){
+		return $this->intervalForRemindAssignmentOfShares;
 	}
 	
 	protected function getCollectionOptions(){
@@ -104,5 +106,9 @@ class RemindersController extends HATEOASRestfulController
 	
 	protected function getResourceOptions(){
 		return self::$resourceOptions;
+	}
+	
+	protected static function getDefaultIntervalToRemindAssignmentOfShares(){
+		return new \DateInterval('P6D');
 	}
 }
