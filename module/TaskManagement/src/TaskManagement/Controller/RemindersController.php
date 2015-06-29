@@ -68,7 +68,7 @@ class RemindersController extends HATEOASRestfulController
 		switch ($data['id']) {
 			case "assignment-of-shares":
 				
-				$tasksToNotify = $this->taskService->findAcceptedTasksBefore($this->getIntervalForRemindShareAssignment());
+				$tasksToNotify = $this->taskService->findAcceptedTasksBefore($this->getIntervalForRemindAssignmentOfShares());
 
 				if(is_array($tasksToNotify) && count($tasksToNotify) > 0){
 						
@@ -86,7 +86,7 @@ class RemindersController extends HATEOASRestfulController
 	
 	private function remindAssignmentOfSharesOnSingleTask(Task $taskToNotify){
 		
-		$taskMembersWithEmptyShares = $this->taskService->findMembersWithEmptyShares($taskToNotify);		
+		$taskMembersWithEmptyShares = $taskToNotify->findMembersWithEmptyShares();		
 		foreach ($taskMembersWithEmptyShares as $member){
 			$this->notificationService->sendEmailNotificationForAssignmentOfShares($taskToNotify, $member);
 		}
