@@ -9,7 +9,6 @@ use TaskManagement\Task;
 use Zend\Validator\InArray;
 use Zend\Permissions\Acl\Acl;
 use Application\Entity\User;
-use Zend\Mvc\MvcEvent;
 
 class TransitionsController extends HATEOASRestfulController
 {
@@ -107,8 +106,6 @@ class TransitionsController extends HATEOASRestfulController
 					$this->response->setStatusCode ( 403 );
 				}
 				break;
-
-				
 			default :
 				$this->response->setStatusCode ( 400 );
 				break;
@@ -164,14 +161,6 @@ class TransitionsController extends HATEOASRestfulController
 		return $this->response;
 	}
 	
-	public function setIntervalForCloseTasks($interval){
-		$this->intervalForCloseTasks = $interval;
-	}
-	
-	public function getIntervalForCloseTasks(){
-		return $this->intervalForCloseTasks;
-	}
-	
 	protected function getCollectionOptions()
 	{
 		return self::$collectionOptions;
@@ -180,5 +169,13 @@ class TransitionsController extends HATEOASRestfulController
 	protected function getResourceOptions()
 	{
 		return self::$resourceOptions;
+	}
+	
+	public function setIntervalForCloseTasks($interval){
+		$this->intervalForCloseTasks = $interval;
+	}
+	
+	public function getIntervalForCloseTasks(){
+		return $this->intervalForCloseTasks;
 	}
 }

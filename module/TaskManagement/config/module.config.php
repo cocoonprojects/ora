@@ -95,10 +95,6 @@ return array(
 		'TaskManagement\CloseTaskListener',
 	),
 		
-	'email_templates' => array(
-		'TaskManagement\RemindTemplateForAssignmentOfShares' => __DIR__.'/../view/mail/reminder-assignment-shares.phtml'			
-	),
-		
 	'assignment_of_shares' => array(
 		'TaskManagement\TimeboxForAssignmentOfShares' => new \DateInterval('P7D'),
 	), 

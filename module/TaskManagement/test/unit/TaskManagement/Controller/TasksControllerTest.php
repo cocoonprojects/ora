@@ -6,15 +6,17 @@ use Zend\Permissions\Acl\Acl;
 use Application\Entity\User;
 use TaskManagement\Entity\Task;
 use TaskManagement\Entity\Stream;
-
 use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
-use TaskManagement\Task;
 
 class TasksControllerTest extends ControllerTest {
 	
-    protected $aclStub;
-        
+    protected $authorizeServiceStub;
+    
+    private $user;
+    
+    private $stream;
+    
     public function __construct()
     {
     	$this->user = User::create();
@@ -28,27 +30,16 @@ class TasksControllerTest extends ControllerTest {
     {
     	$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
     	$streamServiceStub = $this->getMockBuilder(StreamService::class)->getMock();
-    	$this->aclStub = $this->getMockBuilder(Acl::class)
-    	->disableOriginalConstructor()
-    	->getMock();
-    	return new TasksController($taskServiceStub, $streamServiceStub, $this->aclStub);
+    	$this->authorizeServiceStub = $this->getMockBuilder(Acl::class)
+		    	->disableOriginalConstructor()
+		    	->getMock();
+    	return new TasksController($taskServiceStub, $streamServiceStub, $this->authorizeServiceStub);
     }
     
     protected function setupRouteMatch()
     {
     	return ['controller' => 'tasks'];
     }
-	
-	public function testGetListAsAnonymous()
-	{
-		$this->setupAnonymous();
-		$this->request->setMethod('get');
-
-		$result   = $this->controller->dispatch($this->request);
-		$response = $this->controller->getResponse();
-
-		$this->assertEquals(401, $response->getStatusCode());
-	}
 	
 	public function testCreateTaskInEmptyStream()
 	{
@@ -137,6 +128,16 @@ class TasksControllerTest extends ControllerTest {
 		$this->assertArrayHasKey('ora:create', $arrayResult['_links']);
 	}
 	
+	public function testGetListAsAnonymous()
+	{
+		$this->setupAnonymous();
+		$this->request->setMethod('get');
+	
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+	
+		$this->assertEquals(401, $response->getStatusCode());
+	}
 	
 	public function testGetEmptyList()
 	{
@@ -228,7 +229,7 @@ class TasksControllerTest extends ControllerTest {
 	
 		$_SERVER['HTTP_HOST'] = 'www.mydomain.com';
 		 
-		$this->routeMatch->setParam('action', 'applytimeboxforshares');
+		$this->routeMatch->setParam('action', 'create');
 		$result = $this->controller->dispatch($this->request);
 	
 		$response = $this->controller->getResponse();
@@ -278,7 +279,7 @@ class TasksControllerTest extends ControllerTest {
         	->willReturn($taskToClose);	
         	
         //dispatch
-        $this->routeMatch->setParam('action', 'applytimeboxforshares');
+        $this->routeMatch->setParam('action', 'create');
         $result = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
         
@@ -305,18 +306,4 @@ class TasksControllerTest extends ControllerTest {
 		$stream = $this->setupStream();
 		return Task::create($stream, 'task subject', $this->getLoggedUser());		
 	}
-	    
-	protected function setupLoggedUser(User $user) {
-    	$identity = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Identity')
-    		->disableOriginalConstructor()
-    		->getMock();
-    	$identity->method('__invoke')->willReturn(['user' => $user]);
-    	
-    	$this->controller->getPluginManager()->setService('identity', $identity);
-    }
-    
-    
-    protected function getLoggedUser() {
-    	return $this->controller->identity()['user'];
-    }
 }

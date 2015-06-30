@@ -5,7 +5,6 @@ namespace TaskManagement\Service;
 use Zend\View\Renderer\PhpRenderer;
 use Zend\View\Model\ViewModel;
 use Zend\View\Resolver\TemplateMapResolver;
-use Zend\View\Renderer\Zend\View\Renderer;
 use TaskManagement\Entity\Task;
 use Application\Entity\User;
 

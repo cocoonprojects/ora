@@ -18,9 +18,7 @@ use TaskManagement\Service\StreamCommandsListener;
 use TaskManagement\Service\TaskCommandsListener;
 use TaskManagement\Service\EventSourcingStreamService;
 use TaskManagement\Service\EventSourcingTaskService;
-use TaskManagement\Service\NotificationService;
 use TaskManagement\Controller\RemindersController;
-use Application\Entity\User;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
@@ -80,9 +78,9 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 			  	'TaskManagement\Controller\Reminders' => function ($sm) {
 				  	$locator = $sm->getServiceLocator();
 				  	$acl = $locator->get('Application\Service\Acl');
-				  	$notificationService = $locator->get('TaskManagement\NotificationService');
-				  	$taskService = $locator->get('TaskManagement\TaskService');				  	
-				  	$controller = new RemindersController($notificationService, $taskService, $acl);
+				  	$mailService = $locator->get('AcMailer\Service\MailService');
+				  	$taskService = $locator->get('TaskManagement\TaskService');	
+				  	$controller = new RemindersController($mailService, $taskService, $acl);
 				  	return $controller;
 			  	}
 			)
@@ -126,12 +124,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$organizationService = $locator->get('People\OrganizationService');
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
 					return new TransferTaskSharesCreditsListener($taskService, $streamService, $organizationService, $accountService);
-				},
-				'TaskManagement\NotificationService' => function ($locator) {
-					$emailTemplates = $locator->get('Config')['email_templates'];
-					return new NotificationService($emailTemplates);
 				}
-				
 			),
 		);
 	}

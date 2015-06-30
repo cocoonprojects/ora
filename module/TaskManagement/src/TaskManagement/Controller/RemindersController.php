@@ -3,12 +3,20 @@
 namespace TaskManagement\Controller;
 
 use ZFX\Rest\Controller\HATEOASRestfulController;
+use AcMailer\Service\MailServiceInterface;
 use TaskManagement\Service\NotificationService;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Entity\Task;
 use Zend\Permissions\Acl\Acl;
 use TaskManagement;
 use TaskManagement\Entity\TaskMember;
+use Zend\View\Model\ViewModel;
+
+
+
+
+use Zend\View\Renderer\PhpRenderer;
+use Zend\View\Resolver\TemplateMapResolver;
 
 class RemindersController extends HATEOASRestfulController
 {
@@ -18,9 +26,9 @@ class RemindersController extends HATEOASRestfulController
 	
 	/**
 	 *
-	 * @var NotificationService
+	 * @var MailService
 	 */
-	protected $notificationService;
+	protected $mailService;
 	/**
 	 *
 	 * @var TaskService
@@ -38,13 +46,12 @@ class RemindersController extends HATEOASRestfulController
 	 */
 	private $acl;
 	
- 	public function __construct(NotificationService $notificationService, TaskService $taskService, Acl $acl) {
+ 	public function __construct(MailServiceInterface $mailService, TaskService $taskService, Acl $acl) {
  		
- 		$this->notificationService = $notificationService;
+ 		$this->mailService = $mailService;
  		$this->taskService = $taskService;
  		$this->acl = $acl;
- 		$this->intervalForRemindAssignmentOfShares = self::getDefaultIntervalToRemindAssignmentOfShares(); 		
-
+ 		$this->intervalForRemindAssignmentOfShares = self::getDefaultIntervalToRemindAssignmentOfShares();
  	}
 	
 	/**
@@ -87,12 +94,30 @@ class RemindersController extends HATEOASRestfulController
 		return $this->response;
 	}
 	
+	/**
+	 * Send email notification to all members with empty shares of $taskToNotify
+	 * @param Task $taskToNotify
+	 */
 	private function remindAssignmentOfSharesOnSingleTask(Task $taskToNotify){
 		
 		$taskMembersWithEmptyShares = $taskToNotify->findMembersWithEmptyShares();		
 
 		foreach ($taskMembersWithEmptyShares as $member){
-			$this->notificationService->sendEmailNotificationForAssignmentOfShares($taskToNotify, $member);
+			
+			$message = $this->mailService->getMessage();
+ 			$message->setTo($member->getEmail());
+			
+ 			$this->mailService->setSubject ( "O.R.A. - your contribution is required!" );
+ 			
+			$this->mailService->setTemplate( 'mail/reminder-assignment-shares.phtml', array(
+					'name' => $member->getFirstname()." ".$member->getLastname(),
+					'taskSubject' => $taskToNotify->getSubject(),
+					'taskId' => $taskToNotify->getId(),
+					'emailAddress' => $member->getEmail(),
+					'url' => 'http://'.$_SERVER['SERVER_NAME'].'/task-management#'.$taskToNotify->getId()
+			));
+			
+			$this->mailService->send();
 		}
 	}
 	
