@@ -3,8 +3,7 @@
 namespace TaskManagement\Controller;
 
 use ZFX\Rest\Controller\HATEOASRestfulController;
-use AcMailer\Service\MailServiceInterface;
-use TaskManagement\Service\NotificationService;
+use TaskManagement\Service\NotifyMailListener;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Entity\Task;
 use Zend\Permissions\Acl\Acl;
@@ -26,9 +25,9 @@ class RemindersController extends HATEOASRestfulController
 	
 	/**
 	 *
-	 * @var MailService
+	 * @var NotifyMailListener
 	 */
-	protected $mailService;
+	protected $notifyMailListener;
 	/**
 	 *
 	 * @var TaskService
@@ -46,9 +45,9 @@ class RemindersController extends HATEOASRestfulController
 	 */
 	private $acl;
 	
- 	public function __construct(MailServiceInterface $mailService, TaskService $taskService, Acl $acl) {
+ 	public function __construct(NotifyMailListener $notifyMailListener, TaskService $taskService, Acl $acl) {
  		
- 		$this->mailService = $mailService;
+ 		$this->notifyMailListener = $notifyMailListener;
  		$this->taskService = $taskService;
  		$this->acl = $acl;
  		$this->intervalForRemindAssignmentOfShares = self::getDefaultIntervalToRemindAssignmentOfShares();
@@ -80,10 +79,8 @@ class RemindersController extends HATEOASRestfulController
 				
 				$tasksToNotify = $this->taskService->findAcceptedTasksBefore($this->getIntervalForRemindAssignmentOfShares());
 
-				if(is_array($tasksToNotify) && count($tasksToNotify) > 0){
-						
-					array_map(array($this, 'remindAssignmentOfSharesOnSingleTask'),  $tasksToNotify);
-
+				if(is_array($tasksToNotify) && count($tasksToNotify) > 0){						
+					$this->notifyMailListener->remindAssignmentOfSharesOnSingleTask($taskToNotify);
 				}
 				break;
 			default:
@@ -92,33 +89,6 @@ class RemindersController extends HATEOASRestfulController
 		}
 
 		return $this->response;
-	}
-	
-	/**
-	 * Send email notification to all members with empty shares of $taskToNotify
-	 * @param Task $taskToNotify
-	 */
-	private function remindAssignmentOfSharesOnSingleTask(Task $taskToNotify){
-		
-		$taskMembersWithEmptyShares = $taskToNotify->findMembersWithEmptyShares();		
-
-		foreach ($taskMembersWithEmptyShares as $member){
-			
-			$message = $this->mailService->getMessage();
- 			$message->setTo($member->getEmail());
-			
- 			$this->mailService->setSubject ( "O.R.A. - your contribution is required!" );
- 			
-			$this->mailService->setTemplate( 'mail/reminder-assignment-shares.phtml', array(
-					'name' => $member->getFirstname()." ".$member->getLastname(),
-					'taskSubject' => $taskToNotify->getSubject(),
-					'taskId' => $taskToNotify->getId(),
-					'emailAddress' => $member->getEmail(),
-					'url' => 'http://'.$_SERVER['SERVER_NAME'].'/task-management#'.$taskToNotify->getId()
-			));
-			
-			$this->mailService->send();
-		}
 	}
 	
 	public function setIntervalForRemindAssignmentOfShares(\DateInterval $interval){

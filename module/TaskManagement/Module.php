@@ -78,9 +78,9 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 			  	'TaskManagement\Controller\Reminders' => function ($sm) {
 				  	$locator = $sm->getServiceLocator();
 				  	$acl = $locator->get('Application\Service\Acl');
-				  	$mailService = $locator->get('AcMailer\Service\MailService');
+				  	$notifyMailListener = $locator->get('TaskManagement\NotifyMailListener');
 				  	$taskService = $locator->get('TaskManagement\TaskService');	
-				  	$controller = new RemindersController($mailService, $taskService, $acl);
+				  	$controller = new RemindersController($notifyMailListener, $taskService, $acl);
 				  	return $controller;
 			  	}
 			)

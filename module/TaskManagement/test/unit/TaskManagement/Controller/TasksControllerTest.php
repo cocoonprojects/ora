@@ -22,7 +22,6 @@ class TasksControllerTest extends ControllerTest {
     	$this->user = User::create();
     	$this->user->setFirstname('John');
     	$this->user->setLastname('Doe');
-    	$this->user->setEmail('fake@email.com');
     	$this->stream = new Stream('00000');
     }
     
@@ -223,85 +222,5 @@ class TasksControllerTest extends ControllerTest {
 		$this->assertEquals(Task::ROLE_OWNER, $m['role']);
 		$this->assertEquals('John', $m['firstname']);
 		$this->assertEquals('Doe', $m['lastname']);
-	}
-	
-	public function testCannotApplyTimeboxFromGenericHosts(){
-	
-		$_SERVER['HTTP_HOST'] = 'www.mydomain.com';
-		 
-		$this->routeMatch->setParam('action', 'create');
-		$result = $this->controller->dispatch($this->request);
-	
-		$response = $this->controller->getResponse();
-	
-		$this->assertEquals(404, $response->getStatusCode());
-	}
-    
-	public function testApplyTimeboxToCloseAnAcceptedTasks(){
-		
-		$_SERVER['HTTP_HOST'] = 'localhost';
-		
-		$userStub = $this->getMockBuilder(User::class)
-        	->disableOriginalConstructor()
-        	->getMock();        	
-		 $userStub->expects($this->any())
-        	->method('getId')        	
-        	->willReturn(User::SYSTEM_USER); 		
-		
-		$userServiceStub = $this->getMockBuilder(UserService::class)
-        	->disableOriginalConstructor()
-        	->getMock();		 	
-        $userServiceStub->expects($this->once())
-        	->method('findUser')        	
-        	->willReturn($userStub);  
-       		
-		$taskToClose = $this->setupTask();
-		$taskToClose->addMember($this->getLoggedUser(), Task::ROLE_OWNER);
-		$taskToClose->addEstimation(1, $this->getLoggedUser());
-		$taskToClose->complete($this->getLoggedUser());
-		$taskToClose->accept($this->getLoggedUser());
-		
-		$this->controller->getTaskService()
-        	->expects($this->once())
-        	->method('getAcceptedTaskIdsToNotify')        	
-        	->willReturn(array());
-		
-		$this->controller->getTaskService()
-        	->expects($this->once())
-        	->method('getAcceptedTaskIdsToClose')        	
-        	->willReturn(array(array('TASK_ID'=>$taskToClose->getId())));
-        	
-      	$this->controller->getTaskService()
-        	->expects($this->once())
-        	->method('getTask')        	
-        	->willReturn($taskToClose);	
-        	
-        //dispatch
-        $this->routeMatch->setParam('action', 'create');
-        $result = $this->controller->dispatch($this->request);
-		$response = $this->controller->getResponse();
-        
-        //controllo che il task abbia lo stato corretto
-		$this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals(Task::STATUS_CLOSED, $taskToClose->getStatus());
-    	$arrayResult = json_decode($result->serialize(), true);
-    	
-    	$this->assertEquals(200, $response->getStatusCode());
-    	$this->assertArrayHasKey('_embedded', $arrayResult);
-		$this->assertArrayHasKey('ora:task', $arrayResult['_embedded']);
-		$this->assertArrayHasKey('_links', $arrayResult);
-		$this->assertArrayHasKey('ora:create', $arrayResult['_links']);
-		
-    }
-	protected function setupStream(){
-		
-		$organization = Organization::create('My brand new Orga', $this->getLoggedUser());
-        return Stream::create($organization, 'Really useful stream', $this->getLoggedUser());
-	}
-	
-	protected function setupTask(){
-		
-		$stream = $this->setupStream();
-		return Task::create($stream, 'task subject', $this->getLoggedUser());		
 	}
 }
