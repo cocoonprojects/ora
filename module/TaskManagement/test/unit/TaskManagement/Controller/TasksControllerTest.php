@@ -254,9 +254,7 @@ class TasksControllerTest extends ControllerTest {
         $userServiceStub->expects($this->once())
         	->method('findUser')        	
         	->willReturn($userStub);  
-       	
-        $this->controller->setUserService($userServiceStub); 	
-        	
+       		
 		$taskToClose = $this->setupTask();
 		$taskToClose->addMember($this->getLoggedUser(), Task::ROLE_OWNER);
 		$taskToClose->addEstimation(1, $this->getLoggedUser());
