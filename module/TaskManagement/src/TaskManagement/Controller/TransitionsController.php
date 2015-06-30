@@ -9,7 +9,6 @@ use TaskManagement\Task;
 use Zend\Validator\InArray;
 use Zend\Permissions\Acl\Acl;
 use Application\Entity\User;
-use Zend\Mvc\MvcEvent;
 
 class TransitionsController extends HATEOASRestfulController
 {
@@ -107,8 +106,6 @@ class TransitionsController extends HATEOASRestfulController
 					$this->response->setStatusCode ( 403 );
 				}
 				break;
-
-				
 			default :
 				$this->response->setStatusCode ( 400 );
 				break;
@@ -125,12 +122,12 @@ class TransitionsController extends HATEOASRestfulController
 			
 			case "close":
 
-				if(!$this->acl->isAllowed($this->identity()['user'], NULL, 'TaskManagement.Task.closeTasksCollection')){
-
+				if(!$this->getAclService()->isAllowed($this->identity()['user'], NULL, 'TaskManagement.Task.closeTasksCollection')){
+										
 					$this->response->setStatusCode(405);
 					return $this->response;
 				}
-
+				
 				//recupero tutti i task accettati per i quali è stato superato il limite per assegnare gli share
 				$tasksFound = $this->taskService->findAcceptedTasksBefore($this->getIntervalForCloseTasks());
 				
@@ -164,14 +161,6 @@ class TransitionsController extends HATEOASRestfulController
 		return $this->response;
 	}
 	
-	public function setIntervalForCloseTasks($interval){
-		$this->intervalForCloseTasks = $interval;
-	}
-	
-	public function getIntervalForCloseTasks(){
-		return $this->intervalForCloseTasks;
-	}
-	
 	protected function getCollectionOptions()
 	{
 		return self::$collectionOptions;
@@ -180,5 +169,21 @@ class TransitionsController extends HATEOASRestfulController
 	protected function getResourceOptions()
 	{
 		return self::$resourceOptions;
+	}
+	
+	public function setIntervalForCloseTasks($interval){
+		$this->intervalForCloseTasks = $interval;
+	}
+	
+	public function getIntervalForCloseTasks(){
+		return $this->intervalForCloseTasks;
+	}
+	
+	public function getTaskService(){
+		return $this->taskService;
+	}
+	
+	public function getAclService(){
+		return $this->acl;
 	}
 }

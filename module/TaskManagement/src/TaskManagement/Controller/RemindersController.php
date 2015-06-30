@@ -3,12 +3,19 @@
 namespace TaskManagement\Controller;
 
 use ZFX\Rest\Controller\HATEOASRestfulController;
-use TaskManagement\Service\NotificationService;
+use TaskManagement\Service\NotifyMailListener;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Entity\Task;
 use Zend\Permissions\Acl\Acl;
 use TaskManagement;
 use TaskManagement\Entity\TaskMember;
+use Zend\View\Model\ViewModel;
+
+
+
+
+use Zend\View\Renderer\PhpRenderer;
+use Zend\View\Resolver\TemplateMapResolver;
 
 class RemindersController extends HATEOASRestfulController
 {
@@ -18,9 +25,9 @@ class RemindersController extends HATEOASRestfulController
 	
 	/**
 	 *
-	 * @var NotificationService
+	 * @var NotifyMailListener
 	 */
-	protected $notificationService;
+	protected $notifyMailListener;
 	/**
 	 *
 	 * @var TaskService
@@ -38,13 +45,12 @@ class RemindersController extends HATEOASRestfulController
 	 */
 	private $acl;
 	
- 	public function __construct(NotificationService $notificationService, TaskService $taskService, Acl $acl) {
+ 	public function __construct(NotifyMailListener $notifyMailListener, TaskService $taskService, Acl $acl) {
  		
- 		$this->notificationService = $notificationService;
+ 		$this->notifyMailListener = $notifyMailListener;
  		$this->taskService = $taskService;
  		$this->acl = $acl;
- 		$this->intervalForRemindAssignmentOfShares = self::getDefaultIntervalToRemindAssignmentOfShares(); 		
-
+ 		$this->intervalForRemindAssignmentOfShares = self::getDefaultIntervalToRemindAssignmentOfShares();
  	}
 	
 	/**
@@ -73,10 +79,8 @@ class RemindersController extends HATEOASRestfulController
 				
 				$tasksToNotify = $this->taskService->findAcceptedTasksBefore($this->getIntervalForRemindAssignmentOfShares());
 
-				if(is_array($tasksToNotify) && count($tasksToNotify) > 0){
-						
-					array_map(array($this, 'remindAssignmentOfSharesOnSingleTask'),  $tasksToNotify);
-
+				if(is_array($tasksToNotify) && count($tasksToNotify) > 0){						
+					$this->notifyMailListener->remindAssignmentOfSharesOnSingleTask($taskToNotify);
 				}
 				break;
 			default:
@@ -85,15 +89,6 @@ class RemindersController extends HATEOASRestfulController
 		}
 
 		return $this->response;
-	}
-	
-	private function remindAssignmentOfSharesOnSingleTask(Task $taskToNotify){
-		
-		$taskMembersWithEmptyShares = $taskToNotify->findMembersWithEmptyShares();		
-
-		foreach ($taskMembersWithEmptyShares as $member){
-			$this->notificationService->sendEmailNotificationForAssignmentOfShares($taskToNotify, $member);
-		}
 	}
 	
 	public function setIntervalForRemindAssignmentOfShares(\DateInterval $interval){
