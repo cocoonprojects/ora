@@ -78,9 +78,11 @@ class RemindersController extends HATEOASRestfulController
 			case "assignment-of-shares":
 				
 				$tasksToNotify = $this->taskService->findAcceptedTasksBefore($this->getIntervalForRemindAssignmentOfShares());
-
-				if(is_array($tasksToNotify) && count($tasksToNotify) > 0){						
-					$this->notifyMailListener->remindAssignmentOfSharesOnSingleTask($taskToNotify);
+				
+				if(is_array($tasksToNotify) && count($tasksToNotify) > 0){				
+					foreach ($tasksToNotify as $taskToNotify){
+						$this->notifyMailListener->remindAssignmentOfSharesOnSingleTask($taskToNotify);
+					}		
 				}
 				break;
 			default:
