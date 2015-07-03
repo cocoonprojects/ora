@@ -22,7 +22,7 @@ class DomainAdapter implements AdapterInterface{
 	 */
 	private $userService;
 	
-	private $domainUserMap = ['localhost' => User::SYSTEM_USER, 'oraproject.carmati.it' => User::SYSTEM_USER];
+	private $domainUserMap = ['localhost' => User::SYSTEM_USER];
 	
 	public function __construct($hostname, UserService $userService){
 		$this->hostname = $hostname;
