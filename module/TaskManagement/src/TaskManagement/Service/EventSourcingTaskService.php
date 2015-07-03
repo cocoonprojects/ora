@@ -18,6 +18,7 @@ use TaskManagement\Stream;
 use TaskManagement\Task;
 use TaskManagement\Entity\Task as ReadModelTask;
 
+
 class EventSourcingTaskService extends AggregateRepository implements TaskService, EventManagerAwareInterface
 {
 	/**
@@ -30,7 +31,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @var EventManagerInterface
 	 */
 	private $events;
-    
+	
     public function __construct(EventStore $eventStore, EntityManager $entityManager)
     {
 		parent::__construct($eventStore, new AggregateTranslator(), new SingleStreamStrategy($eventStore), AggregateType::fromAggregateRootClass(Task::class));
@@ -90,4 +91,24 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		}
 		return $this->events;
 	}
+	
+	/**
+	 * @see \TaskManagement\Service\TaskService::findAcceptedTasksBefore()
+	 */
+	public function findAcceptedTasksBefore(\DateInterval $interval){
+		
+		$referenceDate = new \DateTime('now');
+		
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('t')
+			->from(ReadModelTask::class, 't')
+			->where("DATE_ADD(t.acceptedAt,".$interval->format('%d').", 'DAY') <= :referenceDate") 
+			->andWhere('t.status = :taskStatus')
+			->setParameter('taskStatus', Task::STATUS_ACCEPTED)
+			->setParameter('referenceDate', $referenceDate->format('Y-m-d H:i:s'))
+			->getQuery();			
+		
+		return $query->getResult();		
+	}
+		
 }

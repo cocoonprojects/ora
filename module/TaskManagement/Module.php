@@ -18,18 +18,19 @@ use TaskManagement\Service\StreamCommandsListener;
 use TaskManagement\Service\TaskCommandsListener;
 use TaskManagement\Service\EventSourcingStreamService;
 use TaskManagement\Service\EventSourcingTaskService;
+use TaskManagement\Controller\RemindersController;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
 	public function getControllerConfig() 
-	{
-		return array(
-			'invokables' => array(
-				'TaskManagement\Controller\Index' => 'TaskManagement\Controller\IndexController',
-			),
-			'factories' => array(
-				'TaskManagement\Controller\Tasks' => function ($sm) {
-					$locator = $sm->getServiceLocator();
+    {
+        return array(
+            'invokables' => array(
+	            'TaskManagement\Controller\Index' => 'TaskManagement\Controller\IndexController',
+            ),
+            'factories' => array(
+	            'TaskManagement\Controller\Tasks' => function ($sm) {
+	            	$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$streamService = $locator->get('TaskManagement\StreamService');
 					$acl = $locator->get('Application\Service\Acl');
@@ -37,7 +38,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
 					$controller->setAccountService($accountService);
 					return $controller;
-				},
+	            },
 				'TaskManagement\Controller\Members' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
@@ -48,8 +49,11 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				},
 				'TaskManagement\Controller\Transitions' => function ($sm) {
 					$locator = $sm->getServiceLocator();
-					$taskService = $locator->get('TaskManagement\TaskService');
-					$controller = new TransitionsController($taskService);
+					$acl = $locator->get('Application\Service\Acl');
+					$taskService = $locator->get('TaskManagement\TaskService');					
+					$assignmentOfSharesConfig = $locator->get('Config')['assignment_of_shares'];
+					$controller = new TransitionsController($taskService, $acl);
+					$controller->setIntervalForCloseTasks($assignmentOfSharesConfig['TaskManagement\TimeboxForAssignmentOfShares']);
 					return $controller;
 				},
 				'TaskManagement\Controller\Estimations' => function ($sm) {
@@ -70,6 +74,14 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$organizationService = $locator->get('People\OrganizationService');
 					$controller = new StreamsController($streamService, $organizationService);
 					return $controller;
+			  	},
+			  	'TaskManagement\Controller\Reminders' => function ($sm) {
+				  	$locator = $sm->getServiceLocator();
+				  	$acl = $locator->get('Application\Service\Acl');
+				  	$notifyMailListener = $locator->get('TaskManagement\NotifyMailListener');
+				  	$taskService = $locator->get('TaskManagement\TaskService');	
+				  	$controller = new RemindersController($notifyMailListener, $taskService, $acl);
+				  	return $controller;
 			  	}
 			)
 		);
@@ -97,7 +109,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$eventStore = $locator->get('prooph.event_store');
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
 					return new EventSourcingTaskService($eventStore, $entityManager);
-				},
+				},					
 				'TaskManagement\TaskCommandsListener' => function ($locator) {
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
 					return new TaskCommandsListener($entityManager);
@@ -112,7 +124,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$organizationService = $locator->get('People\OrganizationService');
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
 					return new TransferTaskSharesCreditsListener($taskService, $streamService, $organizationService, $accountService);
-				},
+				}
 			),
 		);
 	}

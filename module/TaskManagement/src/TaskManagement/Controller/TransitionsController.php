@@ -7,24 +7,30 @@ use Application\InvalidArgumentException;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Task;
 use Zend\Validator\InArray;
+use Application\Entity\User;
 
 class TransitionsController extends HATEOASRestfulController
 {
 	protected static $resourceOptions = array ('POST');
-	protected static $collectionOptions= array ();
+	protected static $collectionOptions= array ('POST');
 	
 	/**
 	 * @var TaskService
 	 */
 	private $taskService;
-	
+	/**
+	 *@var \DateInterval
+	 */
+	protected $intervalForCloseTasks;
+
 	public function __construct(TaskService $taskService) {
 		$this->taskService = $taskService;
 	}
 	
 	public function invoke($id, $data) {
+		
 		$validator = new InArray(
-			['haystack' => array('complete', 'accept','execute')]
+			['haystack' => array('complete', 'accept','execute', 'close')]
 		);
 		if (!isset ($data['action']) || !$validator->isValid($data['action'])) {
 			$this->response->setStatusCode ( 400 );
@@ -35,7 +41,7 @@ class TransitionsController extends HATEOASRestfulController
 		if (is_null($task)) {
 			$this->response->setStatusCode ( 404 );
 			return $this->response;
-		}
+		}	
 		
 		$action = $data ["action"];
 		switch ($action) {
@@ -101,6 +107,52 @@ class TransitionsController extends HATEOASRestfulController
 		return $this->response;
 	}
 	
+	public function create($data){
+		
+		$action = $data ["action"];
+		
+		switch ($action) {
+			
+			case "close":
+
+				if(!(isset($this->identity()['user']) && $this->isAllowed($this->identity()['user'], NULL, 'TaskManagement.Task.closeTasksCollection'))){
+					$this->response->setStatusCode(405);
+					return $this->response;
+				}
+				
+				//recupero tutti i task accettati per i quali è stato superato il limite per assegnare gli share
+				$tasksFound = $this->taskService->findAcceptedTasksBefore($this->getIntervalForCloseTasks());
+				
+				foreach ($tasksFound as $taskFound){
+					
+					$taskToClose = $this->taskService->getTask($taskFound->getId());
+					
+					$this->transaction()->begin();
+					try {
+						$taskToClose->close(User::createSystemUser());		
+
+						$this->transaction()->commit();
+					} catch ( IllegalStateException $e ) {
+						$this->transaction()->rollback();
+						continue; //skip task
+					} catch ( InvalidArgumentException $e ) {
+						$this->transaction()->rollback();
+						continue; //skip task
+					}					
+				}
+				
+				$this->response->setStatusCode ( 200 );
+			
+				break;
+			default :
+				$this->response->setStatusCode ( 400 );
+				break;
+			
+		}
+		
+		return $this->response;
+	}
+	
 	protected function getCollectionOptions()
 	{
 		return self::$collectionOptions;
@@ -109,5 +161,17 @@ class TransitionsController extends HATEOASRestfulController
 	protected function getResourceOptions()
 	{
 		return self::$resourceOptions;
+	}
+	
+	public function setIntervalForCloseTasks($interval){
+		$this->intervalForCloseTasks = $interval;
+	}
+	
+	public function getIntervalForCloseTasks(){
+		return $this->intervalForCloseTasks;
+	}
+	
+	public function getTaskService(){
+		return $this->taskService;
 	}
 }

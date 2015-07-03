@@ -28,10 +28,11 @@ return array(
 			),
 			'tasks' => array(
 				'type' => 'Segment',
-				'options' => array(
+				'options' => array(				
 					'route'	   => '/task-management/tasks[/:id][/:controller]',
 					'constraints' => array(
-						'id' => '[0-9a-z\-]+'
+							//'id' => '[0-9a-z\-]+'
+							'id' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
 					),
 					'defaults' => array(
 						'__NAMESPACE__' => 'TaskManagement\Controller',
@@ -39,6 +40,20 @@ return array(
 					),
 				),
 			),
+			'task-reminders' => array(
+				'type' => 'Zend\Mvc\Router\Http\Literal',
+				'options' => array(
+					'route'	   => '/task-management/tasks/reminders/:id',					
+					'constraints' => array(
+						'id' => '[a-zA-Z-]+',	
+					),
+					'defaults' => array(
+						'__NAMESPACE__' => 'TaskManagement\Controller',
+						'controller' => 'Reminders'
+					),
+				),
+			)
+				
 		),
 	),
 	'translator' => array(),
@@ -74,8 +89,13 @@ return array(
 	'listeners' => array(
 		'TaskManagement\NotifyMailListener',	
 		'TaskManagement\StreamCommandsListener',
+
 		'TaskManagement\TaskCommandsListener',
 		'TaskManagement\TransferTaskSharesCreditsListener',
 		'TaskManagement\CloseTaskListener',
 	),
+		
+	'assignment_of_shares' => array(
+		'TaskManagement\TimeboxForAssignmentOfShares' => new \DateInterval('P7D'),
+	), 
 );

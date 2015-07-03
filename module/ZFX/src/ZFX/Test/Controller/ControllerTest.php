@@ -78,4 +78,7 @@ abstract class ControllerTest extends \PHPUnit_Framework_TestCase
 		$identity->method('__invoke')->willReturn(['user' => $user]);
 		$this->controller->getPluginManager()->setService('identity', $identity);
 	}
+	protected function getLoggedUser() {
+		return $this->controller->identity()['user'];
+	}
 }

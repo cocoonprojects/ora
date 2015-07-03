@@ -4,7 +4,9 @@ namespace TaskManagement\Service;
 
 use TaskManagement\Stream;
 use TaskManagement\Task;
-use Application\Entity\User;
+use TaskManagement\Entity\Task as ReadModelTask;
+use Zend\View\Renderer\PhpRenderer;
+
 
 /**
  * TODO: Rename in TaskRepository?
@@ -29,4 +31,12 @@ interface TaskService
 	public function findTask($id);
 	
 	public function findStreamTasks($streamId);
+
+	/**
+	 * Find accepted tasks with accepted date before $interval days from now
+	 * @param \DateInterval $interval
+	 * @return array
+	 */
+	public function findAcceptedTasksBefore(\DateInterval $interval);
+
 }

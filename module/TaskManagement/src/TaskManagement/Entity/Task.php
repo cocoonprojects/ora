@@ -60,6 +60,13 @@ class Task extends EditableEntity implements ResourceInterface
 	 */
 	private $members;
 	
+	/**
+ 	 * @ORM\Column(type="datetime", nullable=true)
+	 * @var \DateTime
+	 */
+	protected $acceptedAt;
+	
+	
 	public function __construct($id) 
 	{
 		$this->id = $id;
@@ -136,7 +143,7 @@ class Task extends EditableEntity implements ResourceInterface
 		return $this->members->containsKey($key);
 	}
 
-		/**
+	/**
 	 * @return TaskMember[]
 	 */
 	public function getMembers() {
@@ -228,4 +235,34 @@ class Task extends EditableEntity implements ResourceInterface
 		
 		return null;
 	}
+	
+	
+	public function getAcceptedAt() {
+		return $this->acceptedAt;
+	}
+	
+	public function setAcceptedAt(\DateTime $date) {
+		$this->acceptedAt = $date;
+	}
+	
+	/**
+	 * Retrieve an array of members (Application\Entity\User) of this task that haven't assigned any share
+	 *
+	 * @return array of Application\Entity\User or empty array
+	 */
+	public function findMembersWithEmptyShares(){
+	
+		$members = array();
+	
+		$taskMembers = $this->getMembers();
+		foreach($taskMembers as $taskMember){
+	
+			if(count($taskMember->getShares()== 0)){
+				$members[] = $taskMember->getMember();
+			}
+		}
+	
+		return $members;
+	}
+	
 }

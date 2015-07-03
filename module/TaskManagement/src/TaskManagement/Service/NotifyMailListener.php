@@ -9,6 +9,7 @@ use TaskManagement\Task;
 use AcMailer\Service\MailService;
 use Application\Service\UserService;
 use Application\Entity\User;
+use TaskManagement\Entity\Task as ReadModelTask;
 
 class NotifyMailListener implements ListenerAggregateInterface
 {
@@ -93,5 +94,32 @@ class NotifyMailListener implements ListenerAggregateInterface
 
 		$result = $this->mailService->send();
 		return $result->isValid();
+	}
+	
+	/**
+	 * Send email notification to all members with empty shares of $taskToNotify
+	 * @param Task $taskToNotify
+	 */
+	public function remindAssignmentOfShares(ReadModelTask $task){
+	
+		$taskMembersWithEmptyShares = $task->findMembersWithEmptyShares();
+	
+		foreach ($taskMembersWithEmptyShares as $member){
+				
+			$message = $this->mailService->getMessage();
+			$message->setTo($member->getEmail());
+				
+			$this->mailService->setSubject ( "O.R.A. - your contribution is required!" );
+	
+			$this->mailService->setTemplate( 'mail/reminder-assignment-shares.phtml', array(
+					'name' => $member->getFirstname()." ".$member->getLastname(),
+					'taskSubject' => $task->getSubject(),
+					'taskId' => $task->getId(),
+					'emailAddress' => $member->getEmail(),
+					'url' => 'http://'.$_SERVER['SERVER_NAME'].'/task-management#'.$task->getId()
+			));
+				
+			$this->mailService->send();
+		}
 	}
 }

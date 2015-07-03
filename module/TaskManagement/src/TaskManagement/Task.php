@@ -131,14 +131,16 @@ class Task extends DomainEntity
 		if($this->status != self::STATUS_ACCEPTED) {
 			throw new IllegalStateException('Cannot close a task in '.$this->status.' state');
 		}
-		if(!isset($this->members[$closedBy->getId()])) {
+		if(!(isset($this->members[$closedBy->getId()]) || $closedBy->getId() == User::SYSTEM_USER)) {
 			// Closing isn't restricted to the owner because it is triggered by an event (last share assignement)
 			throw new InvalidArgumentException('Only a member can close the task');
 		}
 		$this->recordThat(TaskClosed::occur($this->id->toString(), array(
 				'by' => $closedBy->getId(),
 		)));
+		
 		$this->getEventManager()->trigger(self::EVENT_CLOSED, $this, ['by' => $closedBy]);
+		
 		return $this;
 	}
 	

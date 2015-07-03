@@ -9,58 +9,58 @@ use TaskManagement\Entity\Stream;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
 
-class TasksControllerTest extends ControllerTest
-{
-	protected $authorizeServiceStub;
-
-	private $user;
-
-	private $stream;
-
-	public function __construct()
-	{
-		$this->user = User::create();
-		$this->user->setFirstname('John');
-		$this->user->setLastname('Doe');
-		$this->stream = new Stream('00000');
-	}
-
-	protected function setupController()
-	{
-		$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
-		$streamServiceStub = $this->getMockBuilder(StreamService::class)->getMock();
-		$this->authorizeServiceStub = $this->getMockBuilder(Acl::class)
-			->disableOriginalConstructor()
-			->getMock();
-		return new TasksController($taskServiceStub, $streamServiceStub, $this->authorizeServiceStub);
-	}
-
-	protected function setupRouteMatch()
-	{
-		return ['controller' => 'tasks'];
-	}
-
+class TasksControllerTest extends ControllerTest {
+	
+    protected $authorizeServiceStub;
+    
+    private $user;
+    
+    private $stream;
+    
+    public function __construct()
+    {
+    	$this->user = User::create();
+    	$this->user->setFirstname('John');
+    	$this->user->setLastname('Doe');
+    	$this->stream = new Stream('00000');
+    }
+    
+    protected function setupController()
+    {
+    	$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
+    	$streamServiceStub = $this->getMockBuilder(StreamService::class)->getMock();
+    	$this->authorizeServiceStub = $this->getMockBuilder(Acl::class)
+		    	->disableOriginalConstructor()
+		    	->getMock();
+    	return new TasksController($taskServiceStub, $streamServiceStub, $this->authorizeServiceStub);
+    }
+    
+    protected function setupRouteMatch()
+    {
+    	return ['controller' => 'tasks'];
+    }
+	
 	public function testCreateTaskInEmptyStream()
 	{
 		$this->setupLoggedUser($this->user);
-
+	
 		$this->controller->getTaskService()
-			->expects($this->once())
-			->method('findStreamTasks')
-			->with('1')
-			->willReturn(array());
-		
-		$this->authorizeServiceStub->method('isAllowed')->willReturn(true);	
+		->expects($this->once())
+		->method('findStreamTasks')
+		->with('1')
+		->willReturn(array());
+	
+		$this->authorizeServiceStub->method('isAllowed')->willReturn(true);
 			
 		$this->request->setMethod('get');
 		$params = $this->request->getQuery();
 		$params->set('streamID', '1');
-		
+	
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-
+	
 		$arrayResult = json_decode($result->serialize(), true);
-		
+	
 		$this->assertEquals(200, $response->getStatusCode());
 		$this->assertArrayHasKey('_embedded', $arrayResult);
 		$this->assertArrayHasKey('ora:task', $arrayResult['_embedded']);
@@ -71,29 +71,29 @@ class TasksControllerTest extends ControllerTest
 	public function testCreateTaskInRejectedStream()
 	{
 		$this->setupLoggedUser($this->user);
-
+	
 		$this->controller->getTaskService()
-			->expects($this->once())
-			->method('findStreamTasks')
-			->with($this->stream->getId())
-			->willReturn(array());
-		
-		$this->authorizeServiceStub->method('isAllowed')->willReturn(false);	
+		->expects($this->once())
+		->method('findStreamTasks')
+		->with($this->stream->getId())
+		->willReturn(array());
+	
+		$this->authorizeServiceStub->method('isAllowed')->willReturn(false);
 			
 		$this->request->setMethod('get');
 		$params = $this->request->getQuery();
 		$params->set('streamID', $this->stream->getId());
-		
+	
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-
+	
 		$arrayResult = json_decode($result->serialize(), true);
-		
+	
 		$this->assertEquals(200, $response->getStatusCode());
 		$this->assertArrayHasKey('_embedded', $arrayResult);
 		$this->assertArrayHasKey('ora:task', $arrayResult['_embedded']);
-		$this->assertArrayHasKey('_links', $arrayResult);		
-		$this->assertArrayNotHasKey('ora:create', $arrayResult['_links']);		
+		$this->assertArrayHasKey('_links', $arrayResult);
+		$this->assertArrayNotHasKey('ora:create', $arrayResult['_links']);
 	}
 	
 	public function testCreateTaskInPopulatedStream()
@@ -102,42 +102,42 @@ class TasksControllerTest extends ControllerTest
 		$task = new Task('00001');
 		$task->setCreatedAt(new \DateTime());
 		$task->setStream($this->stream);
-
+	
 		$this->controller->getTaskService()
-			->expects($this->once())
-			->method('findStreamTasks')
-			->with($this->stream->getId())
-			->willReturn(array($task));
-		
-		$this->authorizeServiceStub->method('isAllowed')->willReturn(true);	
+		->expects($this->once())
+		->method('findStreamTasks')
+		->with($this->stream->getId())
+		->willReturn(array($task));
+	
+		$this->authorizeServiceStub->method('isAllowed')->willReturn(true);
 			
 		$this->request->setMethod('get');
 		$params = $this->request->getQuery();
 		$params->set('streamID', $this->stream->getId());
-		
+	
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-
+	
 		$arrayResult = json_decode($result->serialize(), true);
-		
+	
 		$this->assertEquals(200, $response->getStatusCode());
 		$this->assertArrayHasKey('_embedded', $arrayResult);
 		$this->assertArrayHasKey('ora:task', $arrayResult['_embedded']);
 		$this->assertArrayHasKey('_links', $arrayResult);
 		$this->assertArrayHasKey('ora:create', $arrayResult['_links']);
 	}
-
+	
 	public function testGetListAsAnonymous()
 	{
 		$this->setupAnonymous();
 		$this->request->setMethod('get');
-
+	
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-
+	
 		$this->assertEquals(401, $response->getStatusCode());
 	}
-
+	
 	public function testGetEmptyList()
 	{
 		$this->setupLoggedUser($this->user);

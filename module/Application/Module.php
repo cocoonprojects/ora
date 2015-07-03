@@ -11,6 +11,8 @@ use Application\Controller\MembershipsController;
 use Application\Service\EventSourcingUserService;
 use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
 use ZFX\Acl\Controller\Plugin\IsAllowed;
+use ZFX\Authentication\DomainAdapter;
+
 
 class Module
 {
@@ -19,9 +21,19 @@ class Module
 		$application = $e->getApplication();
 		$eventManager = $application->getEventManager();
 		$serviceManager = $application->getServiceManager();
-		
+		//prepends the module name to the requested controller name. That's useful if you want to use controller short names in routing
 		$moduleRouteListener = new ModuleRouteListener();
-		$moduleRouteListener->attach($eventManager);		
+		$moduleRouteListener->attach($eventManager);	
+
+		
+ 		$eventManager->attach(MvcEvent::EVENT_DISPATCH, function($event) use($serviceManager) {
+ 			$authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
+ 			if(!$authService->hasIdentity()){
+ 				$userService = $serviceManager->get('Application\UserService');
+ 				$localhostAuthAdapter = new DomainAdapter($_SERVER['HTTP_HOST'], $userService);
+ 				$authService->authenticate($localhostAuthAdapter);
+ 			} 			
+ 		}, 100);		
 	}
 	
 	public function getControllerConfig() 
@@ -70,7 +82,7 @@ class Module
 	{
 		return array(
 			'invokables' => array(
-				'Zend\Authentication\AuthenticationService' => AuthenticationService::class,
+				'Zend\Authentication\AuthenticationService' => AuthenticationService::class,					
 			),
 			'factories' => array(
 				'Application\Service\AdapterResolver' => 'Application\Service\OAuth2AdapterResolverFactory',
@@ -82,7 +94,7 @@ class Module
 				'Application\LoadLocalProfileListener' => function($serviceLocator) {
 					$userService = $serviceLocator->get('Application\UserService');
 					return new LoadLocalProfileListener($userService);
-				}
+				},
 			),
 		);
 	}
@@ -110,5 +122,5 @@ class Module
 				),
 			),
 		);
-	}
+	}	
 }

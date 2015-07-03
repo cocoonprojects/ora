@@ -85,6 +85,7 @@ class TasksController extends HATEOASRestfulController
 		}
 
 		$streamID = $this->getRequest()->getQuery('streamID');
+
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks() : $this->taskService->findStreamTasks($streamID);
 
 		$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl);
@@ -232,44 +233,47 @@ class TasksController extends HATEOASRestfulController
 			$this->response->setStatusCode(200);
 		} catch (IllegalStateException $e) {
 			$this->transaction()->rollback();
-			$this->response->setStatusCode(412);	// Preconditions failed
+            $this->response->setStatusCode(412);	// Preconditions failed			
 		}
-
-		return $this->response;
-	}
+      	
+        return $this->response;
+    }
+    
 
 	public function setAccountService(AccountService $accountService) {
-		$this->accountService = $accountService;
-		return $this;
-	}
-
-	public function getAccountService() {
-		return $this->accountService;
-	}
-
+    	$this->accountService = $accountService;
+    	return $this;
+    }
+    
+    public function getAccountService() {
+    	return $this->accountService;
+    }
+    
 	public function getTaskService() 
-	{
-		return $this->taskService;
-	}
-
-	protected function getCollectionOptions()
-	{
-		return self::$collectionOptions;
-	}
-
-	protected function getResourceOptions()
-	{
-		return self::$resourceOptions;
-	}
-
-	protected function getAccountId(User $user) {
-		if(is_null($this->accountService)){
-			return null;
-		}
-		$account = $this->accountService->findPersonalAccount($user);
-		if(is_null($account)) {
-			return null;
-		}
+    {
+        return $this->taskService;
+    }
+        
+    protected function getCollectionOptions()
+    {
+        return self::$collectionOptions;
+    }
+    
+    protected function getResourceOptions()
+    {
+        return self::$resourceOptions;
+    }   
+    
+    protected function getAccountId(User $user) {
+    	if(is_null($this->accountService)){
+    		return null;
+    	}
+    	$account = $this->accountService->findPersonalAccount($user);
+    	if(is_null($account)) {
+    		return null;
+    	}
+    	
 		return $account->getId();
-	}
+    }
+
 }
