@@ -40,7 +40,7 @@ return array(
 					),
 				),
 			),
-			'reminder-share-assignment' => array(
+			'task-reminders' => array(
 				'type' => 'Zend\Mvc\Router\Http\Literal',
 				'options' => array(
 					'route'	   => '/task-management/tasks/reminders/:id',					

@@ -6,7 +6,6 @@ use ZFX\Rest\Controller\HATEOASRestfulController;
 use TaskManagement\Service\NotifyMailListener;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Entity\Task;
-use Zend\Permissions\Acl\Acl;
 use TaskManagement;
 use TaskManagement\Entity\TaskMember;
 use Zend\View\Model\ViewModel;
@@ -38,18 +37,11 @@ class RemindersController extends HATEOASRestfulController
 	 * @var \DateInterval
 	 */
 	protected $intervalForRemindAssignmentOfShares;
-
-	/**
-	 *
-	 * @var Acl
-	 */
-	private $acl;
 	
- 	public function __construct(NotifyMailListener $notifyMailListener, TaskService $taskService, Acl $acl) {
+ 	public function __construct(NotifyMailListener $notifyMailListener, TaskService $taskService) {
  		
  		$this->notifyMailListener = $notifyMailListener;
  		$this->taskService = $taskService;
- 		$this->acl = $acl;
  		$this->intervalForRemindAssignmentOfShares = self::getDefaultIntervalToRemindAssignmentOfShares();
  	}
 	
@@ -63,7 +55,7 @@ class RemindersController extends HATEOASRestfulController
 	 */
 	public function create($data){
 		
-		if(!$this->acl->isAllowed($this->identity()['user'], NULL, 'TaskManagement.Reminder.createReminder')){
+		if(!(isset($this->identity()['user']) && $this->isAllowed($this->identity()['user'], NULL, 'TaskManagement.Reminder.createReminder'))){
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
@@ -81,7 +73,7 @@ class RemindersController extends HATEOASRestfulController
 				
 				if(is_array($tasksToNotify) && count($tasksToNotify) > 0){				
 					foreach ($tasksToNotify as $taskToNotify){
-						$this->notifyMailListener->remindAssignmentOfSharesOnSingleTask($taskToNotify);
+						$this->notifyMailListener->remindAssignmentOfShares($taskToNotify);
 					}		
 				}
 				break;

@@ -23,15 +23,9 @@ class TransitionsController extends HATEOASRestfulController
 	 *@var \DateInterval
 	 */
 	protected $intervalForCloseTasks;
-	/**
-	 *
-	 * @var Acl
-	 */
-	private $acl;
 
-	public function __construct(TaskService $taskService, Acl $acl) {
+	public function __construct(TaskService $taskService) {
 		$this->taskService = $taskService;
-		$this->acl = $acl;
 	}
 	
 	public function invoke($id, $data) {
@@ -122,8 +116,7 @@ class TransitionsController extends HATEOASRestfulController
 			
 			case "close":
 
-				if(!$this->getAclService()->isAllowed($this->identity()['user'], NULL, 'TaskManagement.Task.closeTasksCollection')){
-										
+				if(!(isset($this->identity()['user']) && $this->isAllowed($this->identity()['user'], NULL, 'TaskManagement.Task.closeTasksCollection'))){
 					$this->response->setStatusCode(405);
 					return $this->response;
 				}
@@ -181,9 +174,5 @@ class TransitionsController extends HATEOASRestfulController
 	
 	public function getTaskService(){
 		return $this->taskService;
-	}
-	
-	public function getAclService(){
-		return $this->acl;
 	}
 }

@@ -16,7 +16,6 @@ use TaskManagement\Assertion\OwnerOfOpenOrCompletedTaskAssertion;
 use TaskManagement\Assertion\TaskOwnerAndOngoingOrAcceptedTaskAssertion;
 use TaskManagement\Assertion\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion;
 use TaskManagement\Assertion\TaskMemberAndAcceptedTaskAssertion;
-use Application\Assertion\HttpHostLocalhostAssertion;
 
 class AclFactory implements FactoryInterface
 {
@@ -48,9 +47,8 @@ class AclFactory implements FactoryInterface
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.complete', new TaskOwnerAndOngoingOrAcceptedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.accept', new TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.assignShares', new TaskMemberAndAcceptedTaskAssertion());
-
-		//TODO: rivedere la definizione di questa asserzione per estenderla a tutto il controller Reminder
-		$acl->allow(User::ROLE_SYSTEM, null, array('TaskManagement.Task.closeTasksCollection', 'TaskManagement.Reminder.createReminder'), new HttpHostLocalhostAssertion());
+		
+		$acl->allow(User::ROLE_SYSTEM, null, array('TaskManagement.Task.closeTasksCollection', 'TaskManagement.Reminder.createReminder'));
 		
 		return $acl;
 	}

@@ -11,7 +11,7 @@ use Application\Controller\MembershipsController;
 use Application\Service\EventSourcingUserService;
 use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
 use ZFX\Acl\Controller\Plugin\IsAllowed;
-use Application\Authentication\DomainBased\DomainBasedAuthentication;
+use ZFX\Authentication\DomainAdapter;
 
 
 class Module
@@ -30,7 +30,7 @@ class Module
  			$authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
  			if(!$authService->hasIdentity()){
  				$userService = $serviceManager->get('Application\UserService');
- 				$localhostAuthAdapter = new DomainBasedAuthentication($_SERVER['HTTP_HOST'], $userService);
+ 				$localhostAuthAdapter = new DomainAdapter($_SERVER['HTTP_HOST'], $userService);
  				$authService->authenticate($localhostAuthAdapter);
  			} 			
  		}, 100);		
@@ -94,10 +94,6 @@ class Module
 				'Application\LoadLocalProfileListener' => function($serviceLocator) {
 					$userService = $serviceLocator->get('Application\UserService');
 					return new LoadLocalProfileListener($userService);
-				},				
-				'Application\Service\LocalhostBasedAuthentication' => function($serviceLocator){
-					$userService = $serviceLocator->get('Application\UserService');
-					return new DomainBasedAuthentication('localhost', $userService);
 				},
 			),
 		);

@@ -139,7 +139,7 @@ class Task extends DomainEntity
 				'by' => $closedBy->getId(),
 		)));
 		
-		$this->getEventManager()->trigger(Task::EVENT_CLOSED, $this, ['by' => $closedBy]);
+		$this->getEventManager()->trigger(self::EVENT_CLOSED, $this, ['by' => $closedBy]);
 		
 		return $this;
 	}

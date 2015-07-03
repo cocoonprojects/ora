@@ -100,9 +100,9 @@ class NotifyMailListener implements ListenerAggregateInterface
 	 * Send email notification to all members with empty shares of $taskToNotify
 	 * @param Task $taskToNotify
 	 */
-	public function remindAssignmentOfSharesOnSingleTask(ReadModelTask $taskToNotify){
+	public function remindAssignmentOfShares(ReadModelTask $task){
 	
-		$taskMembersWithEmptyShares = $taskToNotify->findMembersWithEmptyShares();
+		$taskMembersWithEmptyShares = $task->findMembersWithEmptyShares();
 	
 		foreach ($taskMembersWithEmptyShares as $member){
 				
@@ -113,10 +113,10 @@ class NotifyMailListener implements ListenerAggregateInterface
 	
 			$this->mailService->setTemplate( 'mail/reminder-assignment-shares.phtml', array(
 					'name' => $member->getFirstname()." ".$member->getLastname(),
-					'taskSubject' => $taskToNotify->getSubject(),
-					'taskId' => $taskToNotify->getId(),
+					'taskSubject' => $task->getSubject(),
+					'taskId' => $task->getId(),
 					'emailAddress' => $member->getEmail(),
-					'url' => 'http://'.$_SERVER['SERVER_NAME'].'/task-management#'.$taskToNotify->getId()
+					'url' => 'http://'.$_SERVER['SERVER_NAME'].'/task-management#'.$task->getId()
 			));
 				
 			$this->mailService->send();

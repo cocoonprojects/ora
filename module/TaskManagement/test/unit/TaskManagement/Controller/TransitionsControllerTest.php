@@ -16,25 +16,20 @@ class TransitionsControllerTest extends ControllerTest {
 	
 	private $sysUser;
 	
-	private $authorizeServiceStub;
-	
 	public function __construct()
 	{
 		$this->user = User::create();
 		$this->user->setFirstname('John');
 		$this->user->setLastname('Doe');
-		
+		$this->user->setRole(User::ROLE_USER);
 		$this->sysUser = User::createSystemUser();
 	}
 	
 	protected function setupController()
 	{
 		$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
-		$this->authorizeServiceStub = $this->getMockBuilder(Acl::class)
-		->disableOriginalConstructor()
-		->getMock();
 		
-		$controller = new TransitionsController($taskServiceStub, $this->authorizeServiceStub); 
+		$controller = new TransitionsController($taskServiceStub); 
 		$controller->setIntervalForCloseTasks(new \DateInterval('P7D'));
 		
 		return $controller;
@@ -47,9 +42,7 @@ class TransitionsControllerTest extends ControllerTest {
 	
 	
 	public function testtApplyTimeboxBlocked(){
-	
-		$this->controller->getAclService()->method('isAllowed')->willReturn(false);
-			
+		
 		$this->setupLoggedUser($this->user);
 		
 		$this->request->setMethod('post');
@@ -65,9 +58,7 @@ class TransitionsControllerTest extends ControllerTest {
 	
 		$this->setupLoggedUser($this->sysUser);
 	
- 		$this->controller->getAclService()->method('isAllowed')->willReturn(true);
-		
-		$taskToClose = $this->setupTask();
+ 		$taskToClose = $this->setupTask();
 		$taskToClose->addMember($this->user, Task::ROLE_OWNER);
 		$taskToClose->addEstimation(1, $this->user);
 		$taskToClose->complete($this->user);
