@@ -3,7 +3,6 @@ namespace TaskManagement\Service;
 
 use AcMailer\Service\MailService;
 use Application\Service\UserService;
-use TaskManagement\Service\NotifyMailListener;
 use Application\Entity\User;
 use TaskManagement\Task;
 use UnitTest\Bootstrap;
@@ -11,7 +10,6 @@ use People\Organization;
 use TaskManagement\Stream;
 use TaskManagement\Entity\Task as ReadModelTask;
 use TaskManagement\Entity\TaskMember;
-use TaskManagement\Entity\TaskManagement\Entity;
 
 
 class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
@@ -20,9 +18,6 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 	 * @var NotifyMailListener
 	 */
 	protected $listener;
-	
-	protected  $mailService;
-	protected  $userService;
 	
 	protected $task;
 	protected $owner;
@@ -39,15 +34,31 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 		$serviceManager = Bootstrap::getServiceManager();
 		
 		//Task Owner
-		$this->owner = User::create();
-		$this->owner->setFirstname("Owner_Firstname");
-		$this->owner->setEmail("task_owner@oraproject.org");
+		$this->owner = $this->getMockBuilder(User::class)
+			->getMock();
+		$this->owner->method('getId')
+			->willReturn('60000000-0000-0000-0000-000000000000');
+		$this->owner->method('isMemberOf')
+			->willReturn(true);
+		$this->owner->method('getFirstname')
+			->willReturn("Owner_Firstname");
+		$this->owner->method('getEmail')
+			->willReturn("task_owner@oraproject.org");
 				
 		//Task Member
-		$this->member = User::create();
-		$this->member->setFirstname("Member_Firstname");
-		$this->member->setLastname("Member_Lastname");
-				
+		$this->member = $this->getMockBuilder(User::class)
+			->getMock();
+		$this->owner->method('getId')
+			->willReturn('70000000-0000-0000-0000-000000000000');
+		$this->owner->method('isMemberOf')
+			->willReturn(true);
+		$this->owner->method('getFirstname')
+			->willReturn("Member_Firstname");
+		$this->owner->method('getLastname')
+			->willReturn("Member_Lastname");
+		$this->owner->method('getEmail')
+			->willReturn("task_member@oraproject.org");
+
 		//Organization & Stream for Task Creation
 		$organization = Organization::create('Organization_test', $this->owner);
 		$this->stream = Stream::create($organization, 'Steram_test', $this->owner);
@@ -56,13 +67,12 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 		$this->task->addMember($this->owner, Task::ROLE_OWNER);
 		//$this->task->addMember($this->member);
 		
-		//MailService
-		$this->mailService = $serviceManager->get('AcMailer\Service\MailService');
-		//MockUserService
-		$this->userService = $this->getMockBuilder('Application\Service\UserService')->getMock();
-		$this->userService->method('findUser')->will($this->returnValue($this->owner));
-		
-		$this->listener = new NotifyMailListener($this->mailService, $this->userService);
+		$mailService = $serviceManager->get(MailService::class);
+		$userService = $this->getMockBuilder(UserService::class)->getMock();
+		$userService->method('findUser')->willReturn($this->owner);
+		$taskService = $this->getMockBuilder(TaskService::class)->getMock();
+
+		$this->listener = new NotifyMailListener($mailService, $userService, $taskService);
 		
 		$this->mailcatcher = new \Guzzle\Http\Client('http://127.0.0.1:1080');
 		$this->cleanEmailMessages();
@@ -74,22 +84,20 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testSendMail_EstimationAdded(){
-		$this->trigger = 'estimation';
 		$this->assertTrue($this->listener->sendEstimationAddedInfoMail($this->task, $this->member));
 	}
 	
 	public function testSendMail_SharesAssigned(){
-		$this->trigger = 'share';
 		$this->assertTrue($this->listener->sendSharesAssignedInfoMail($this->task, $this->member));
 	}
 	
-	public function testSendEmailNotificationForAssignmentOfShares(){
-	
+	public function testSendEmailNotificationForAssignmentOfShares()
+	{
 		$_SERVER['SERVER_NAME'] = 'example.com';
 		
 		$taskToNotify = $this->setupTaskWithMember();
-		$this->listener->remindAssignmentOfShares($taskToNotify);	
-		$emails = $this->getEmailMessages();	
+		$this->listener->remindAssignmentOfShares($taskToNotify);
+		$emails = $this->getEmailMessages();
 		$this->assertNotEmpty($emails);
 		$this->assertEquals(1, count($emails));
 		$this->assertEmailSubjectEquals('O.R.A. - your contribution is required!', $emails[0]);
@@ -100,9 +108,7 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 
 		unset($_SERVER['SERVER_NAME']);
 	}
-	
-	
-	
+
 	protected function cleanEmailMessages()
 	{
 		$this->mailcatcher->delete('/messages')->send();

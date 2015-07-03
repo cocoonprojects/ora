@@ -36,16 +36,16 @@ class Account extends EditableEntity implements ResourceInterface {
 	 * @var AccountTransaction[]
 	 */
 	protected $transactions;
-	
 	/**
 	 * @ORM\OneToOne(targetEntity="People\Entity\Organization")
-	 * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", nullable=true, onDelete="CASCADE")
+	 * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", onDelete="CASCADE")
 	 * @var Organization
 	 */
 	protected $organization;
 	
-	public function __construct($id) {
+	public function __construct($id, Organization $organization) {
 		parent::__construct($id);
+		$this->organization = $organization;
 		$this->holders = new ArrayCollection();
 		$this->transactions = new ArrayCollection();
 	}
@@ -80,7 +80,11 @@ class Account extends EditableEntity implements ResourceInterface {
 	public function isHeldBy(User $user) {
 		return $this->holders->containsKey($user->getId());
 	}
-	
+
+	public function getOrganization() {
+		return $this->organization;
+	}
+
 	public function getName() {
 		if($this->holders->count() > 0) {
 			$holder = $this->holders->first();

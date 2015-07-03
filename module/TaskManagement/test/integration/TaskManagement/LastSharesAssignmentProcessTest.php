@@ -7,14 +7,11 @@ use Zend\Http\Response;
 use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\RouteMatch;
 use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
-use Zend\EventManager\EventManager;
 use PHPUnit_Framework_TestCase;
-use Rhumsaa\Uuid\Uuid;
-use Application\Entity\User;
-use TaskManagement\Task;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Controller\SharesController;
 use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
+use ZFX\Test\Authentication\OAuth2AdapterMock;
 
 class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 {	
@@ -39,9 +36,8 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 		$streamService = $serviceManager->get('TaskManagement\StreamService');
 		$stream = $streamService->getStream('00000000-1000-0000-0000-000000000000');
 		
-		$taskServiceStub = $this->getMockBuilder(TaskService::class)
-			->getMock();
-		$this->controller = new SharesController($taskServiceStub);
+		$taskService = $serviceManager->get('TaskManagement\TaskService');
+		$this->controller = new SharesController($taskService);
 		$this->request	= new Request();
 		$this->routeMatch = new RouteMatch(array('controller' => 'shares'));
 		$this->event	  = new MvcEvent();
@@ -53,39 +49,37 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 		$this->event->setRouteMatch($this->routeMatch);
 		$this->controller->setEvent($this->event);
 		$this->controller->setServiceLocator($serviceManager);
-		
-		$transaction = $this->getMockBuilder(EventStoreTransactionPlugin::class)
-			->disableOriginalConstructor()
-			->setMethods(['begin', 'commit', 'rollback'])
-			->getMock();
-		$this->controller->getPluginManager()->setService('transaction', $transaction);
 
-		$identity = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Identity')
-			->disableOriginalConstructor()
-			->getMock();
-		$identity->method('__invoke')->willReturn(['user' => $this->owner]);
-		$this->controller->getPluginManager()->setService('identity', $identity);
-		
-		$sharedManager = $serviceManager->get('SharedEventManager');
-		$eventManager = new EventManager('TaskManagement\TaskService');
-		$eventManager->setSharedManager($sharedManager);
-		
-		$this->task = Task::create($stream, 'Cras placerat libero non tempor', $this->owner);
-		$this->task->setEventManager($eventManager);
-		$this->task->addMember($this->owner, Task::ROLE_OWNER, 'ccde992b-5aa9-4447-98ae-c8115906dcb7');
-		$this->task->addEstimation(1500, $this->owner);
-		$this->task->addMember($this->member, Task::ROLE_MEMBER, 'cdde992b-5aa9-4447-98ae-c8115906dcb7');
-		$this->task->addEstimation(3100, $this->member);
-		$this->task->complete($this->owner);
-		$this->task->accept($this->owner);
-		$this->task->assignShares([ $this->owner->getId() => 0.4, $this->member->getId() => 0.6 ], $this->member);
-		$this->controller->getTaskService()
-			->method('getTask')
-			->willReturn($this->task);
+		$adapter = new OAuth2AdapterMock();
+		$adapter->setEmail($this->owner->getEmail());
+		$this->authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
+		$this->authService->authenticate($adapter);
+
+		$pluginManager = $serviceManager->get('ControllerPluginManager');
+		$this->controller->setPluginManager($pluginManager);
+
+		$transactionManager = $serviceManager->get('prooph.event_store');
+		$transactionManager->beginTransaction();
+		try {
+			$task = Task::create($stream, 'Cras placerat libero non tempor', $this->owner);
+			$task->addMember($this->owner, Task::ROLE_OWNER);
+			$task->addEstimation(1500, $this->owner);
+			$task->addMember($this->member, Task::ROLE_MEMBER);
+			$task->addEstimation(3100, $this->member);
+			$task->complete($this->owner);
+			$task->accept($this->owner);
+			$task->assignShares([ $this->owner->getId() => 0.4, $this->member->getId() => 0.6 ], $this->member);
+			$this->task = $taskService->addTask($task);
+			$transactionManager->commit();
+		} catch (\Exception $e) {
+			var_dump($e);
+			$transactionManager->rollback();
+			throw $e;
+		}
 	}
 	
 	public function testAssignSharesAsLast() {
-		$this->routeMatch->setParam('id', $this->task->getId()->toString());
+		$this->routeMatch->setParam('id', $this->task->getId());
 		 
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -100,7 +94,7 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 	}
 
 	public function testSkipSharesAsLast() {
-		$this->routeMatch->setParam('id', $this->task->getId()->toString());
+		$this->routeMatch->setParam('id', $this->task->getId());
 		 
 		$this->request->setMethod('post');
 		

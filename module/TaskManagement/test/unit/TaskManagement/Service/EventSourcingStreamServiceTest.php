@@ -34,8 +34,8 @@ class EventSourcingStreamServiceTest extends TestCase {
 	public function testCreate() {
 		$organization = Organization::create('Quisque quis tortor ligula. Duis', $this->user);
 		$stream = $this->streamService->createStream($organization, 'Mauris vel lectus pellentesque, cursus', $this->user);
-		$this->assertInstanceOf('Rhumsaa\Uuid\Uuid', $stream->getId());
+		$this->assertNotNull($stream->getId());
 		$this->assertEquals('Mauris vel lectus pellentesque, cursus', $stream->getSubject());
-		$this->assertEquals($organization->getId()->toString(), $stream->getOrganizationId());
+		$this->assertEquals($organization->getId(), $stream->getOrganizationId());
 	}
 }

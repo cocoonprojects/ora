@@ -1,6 +1,7 @@
 <?php
 namespace TaskManagement\Controller;
 
+use People\Entity\OrganizationMembership;
 use ZFX\Test\Controller\ControllerTest;
 use Zend\Permissions\Acl\Acl;
 use Application\Entity\User;
@@ -10,23 +11,35 @@ use TaskManagement\Task;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Controller\TransitionsController;
 
-class TransitionsControllerTest extends ControllerTest {
-	
+class TransitionsControllerTest extends ControllerTest
+{
+	/**
+	 * @var User
+	 */
 	private $user;
-	
+	/**
+	 * @var User
+	 */
 	private $adminUser;
-	
-	public function __construct()
+	/**
+	 * @var Task
+	 */
+	private $task;
+
+	public function setupMore()
 	{
-		$this->user = User::create();
-		$this->user->setFirstname('John');
-		$this->user->setLastname('Doe');
-		$this->user->setRole(User::ROLE_USER);
-		
-		$this->adminUser = User::create();
-		$this->adminUser->setFirstname('Admin');
-		$this->adminUser->setLastname('admin');
-		$this->adminUser->setRole(User::ROLE_ADMIN);
+		$this->user = $this->getMockBuilder(User::class)->getMock();
+		$this->user->method('getRoleId')->willReturn(User::ROLE_USER);
+		$this->user->method('isMemberOf')->willReturn(true);
+
+		$this->adminUser = $this->getMockBuilder(User::class)->getMock();
+		$this->adminUser->method('getRoleId')->willReturn(User::ROLE_ADMIN);
+		$this->adminUser->method('isMemberOf')->willReturn(true);
+
+		$organization = Organization::create('My brand new Orga', $this->adminUser);
+		$stream = Stream::create($organization, 'Really useful stream', $this->adminUser);
+		$this->task = Task::create($stream, 'task subject', $this->adminUser);
+		$this->task->addMember($this->adminUser, Task::ROLE_OWNER);
 	}
 	
 	protected function setupController()
@@ -42,40 +55,37 @@ class TransitionsControllerTest extends ControllerTest {
 	{
 		return ['controller' => 'transitions'];
 	}
-	
-	
-	public function testtApplyTimeboxBlocked(){
 
+	public function testCreateWithNoSystemUser()
+	{
 		$this->setupLoggedUser($this->user);
 		
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
 		$params->set('action', 'close');
 		
-		$result = $this->controller->dispatch($this->request);	
-		$response = $this->controller->getResponse();	
+		$result = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
 		$this->assertEquals(405, $response->getStatusCode());
 	}
 	
-	public function testApplyTimeboxToCloseAnAcceptedTasks(){
+	public function testCreate(){
 	
 		$this->setupLoggedUser($this->adminUser);
 		
- 		$taskToClose = $this->setupTask();
-		$taskToClose->addMember($this->user, Task::ROLE_OWNER);
-		$taskToClose->addEstimation(1, $this->user);
-		$taskToClose->complete($this->user);
-		$taskToClose->accept($this->user);
+		$this->task->addEstimation(1, $this->adminUser);
+		$this->task->complete($this->adminUser);
+		$this->task->accept($this->adminUser);
 		
 		$this->controller->getTaskService()
 		->expects($this->once())
 		->method('findAcceptedTasksBefore')
-		->willReturn(array($taskToClose));
+		->willReturn(array($this->task));
 		 
 		$this->controller->getTaskService()
 		->expects($this->once())
 		->method('getTask')
-		->willReturn($taskToClose);
+		->willReturn($this->task);
 		 
 		//dispatch
 		$this->request->setMethod('post');
@@ -87,20 +97,7 @@ class TransitionsControllerTest extends ControllerTest {
 	
 		//controllo che il task abbia lo stato corretto
 		$this->assertEquals(200, $response->getStatusCode());
-		$this->assertEquals(Task::STATUS_CLOSED, $taskToClose->getStatus());
+		$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
 		
-	}
-	
-	
-	protected function setupStream(){
-	
-		$organization = Organization::create('My brand new Orga', $this->getLoggedUser());
-		return Stream::create($organization, 'Really useful stream', $this->getLoggedUser());
-	}
-	
-	protected function setupTask(){
-	
-		$stream = $this->setupStream();
-		return Task::create($stream, 'task subject', $this->getLoggedUser());
 	}
 }

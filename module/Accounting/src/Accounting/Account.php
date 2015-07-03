@@ -1,27 +1,39 @@
 <?php
 namespace Accounting;
 
+use People\Organization;
 use Rhumsaa\Uuid\Uuid;
 use Application\DomainEntity;
 use Application\Entity\User;
 use Application\DuplicatedDomainEntityException;
 
-class Account extends DomainEntity {
-	
+class Account extends DomainEntity
+{
 	/**
-	 * 
+	 * @var Uuid
+	 */
+	protected $organizationId;
+	/**
 	 * @var Balance
 	 */
 	private $balance;
-	
+	/**
+	 * @var map($id, name)
+	 */
 	private $holders = array();
-	
-	public static function create(User $createdBy) {
-		$rv = new self();
+
+	/**
+	 * @param Organization $organization
+	 * @param User $createdBy
+	 * @return Account
+	 */
+	public static function create(Organization $organization, User $createdBy) {
+		$rv = new static();
 		// At creation time the balance is 0
 		$rv->recordThat(AccountCreated::occur(Uuid::uuid4()->toString(), array(
-				'balance' => 0,
-				'by' => $createdBy->getId()
+			'balance' => 0,
+			'by' => $createdBy->getId(),
+			'organization' => $organization->getId(),
 		)));
 		$rv->addHolder($createdBy, $createdBy);
 		return $rv;
@@ -34,7 +46,11 @@ class Account extends DomainEntity {
 	public function getHolders() {
 		return $this->holders;
 	}
-	
+
+	public function getOrganizationId() {
+		return $this->organizationId;
+	}
+
 	public function deposit($amount, User $holder, $description) {
 		if ($amount <= 0) {
 			throw new IllegalAmountException($amount);
@@ -60,7 +76,7 @@ class Account extends DomainEntity {
 		$this->recordThat(IncomingCreditsTransferred::occur($this->id->toString(), array(
 				'amount' => $amount,
 				'description' => $description,
-				'payer'	 => $payer->getId()->toString(),
+				'payer'	 => $payer->getId(),
 				'balance' => $this->balance->getValue() + $amount,
 				'prevBalance' => $this->balance->getValue(),
 				'by' => $by->getId(),
@@ -75,7 +91,7 @@ class Account extends DomainEntity {
 		$this->recordThat(OutgoingCreditsTransferred::occur($this->id->toString(), array(
 				'amount' => $amount,
 				'description' => $description,
-				'payee'	 => $payee->getId()->toString(),
+				'payee'	 => $payee->getId(),
 				'balance' => $this->balance->getValue() + $amount,
 				'prevBalance' => $this->balance->getValue(),
 				'by' => $by->getId(),
@@ -85,7 +101,7 @@ class Account extends DomainEntity {
 	
 	public function addHolder(User $holder, User $by) {
 		if(array_key_exists($holder->getId(), $this->holders)) {
-			throw new DuplicatedDomainEntityException($this, $user);
+			throw new DuplicatedDomainEntityException($this, $holder);
 		}
 		$this->recordThat(HolderAdded::occur($this->id->toString(), array(
 				'id' => $holder->getId(),
@@ -98,6 +114,7 @@ class Account extends DomainEntity {
 	
 	protected function whenAccountCreated(AccountCreated $event) {
 		$this->id = Uuid::fromString($event->aggregateId());
+		$this->organizationId = Uuid::fromString($event->payload()['organization']);
 		$this->balance = new Balance(0, $event->occurredOn());
 	}
 	
@@ -125,5 +142,4 @@ class Account extends DomainEntity {
 		$value = $e->payload()['amount'];
 		$this->balance = new Balance($current + $value, $e->occurredOn());
 	}
-	
 }

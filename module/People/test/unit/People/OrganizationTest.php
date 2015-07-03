@@ -41,15 +41,15 @@ class OrganizationTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testChangeAccount() {
 		$organization = Organization::create(null, $this->user);
-		$account = OrganizationAccount::createOrganizationAccount($organization, $this->user);
+		$account = OrganizationAccount::create($organization, $this->user);
 		
-		$this->assertEquals($account->getId()->toString(), $organization->getAccountId());
+		$this->assertEquals($account->getId(), $organization->getAccountId());
 	}
 	
 	public function testAddMember() {
 		$organization = Organization::create(null, $this->user);
 		$u = User::create();
-		$organization->addMember($u, $this->user);
+		$organization->addMember($u);
 		
 		$this->assertArrayHasKey($u->getId(), $organization->getMembers());
 		$this->assertEquals(Organization::ROLE_MEMBER, $organization->getMembers()[$u->getId()]['role']);
@@ -58,7 +58,7 @@ class OrganizationTest extends \PHPUnit_Framework_TestCase {
 	public function testAddMemberAsAdmin() {
 		$organization = Organization::create(null, $this->user);
 		$u = User::create();
-		$organization->addMember($u, $this->user, Organization::ROLE_ADMIN);
+		$organization->addMember($u, Organization::ROLE_ADMIN);
 		
 		$this->assertArrayHasKey($u->getId(), $organization->getMembers());
 		$this->assertEquals(Organization::ROLE_ADMIN, $organization->getMembers()[$u->getId()]['role']);
@@ -69,14 +69,14 @@ class OrganizationTest extends \PHPUnit_Framework_TestCase {
 	 */
 	public function testReaddMember() {
 		$organization = Organization::create(null, $this->user);
-		$organization->addMember($this->user, $this->user);
+		$organization->addMember($this->user);
 	}
 	
 	public function testRemoveMember() {
 		$organization = Organization::create(null, $this->user);
 		$u = User::create();
-		$organization->addMember($u, $this->user);
-		$organization->removeMember($u, $this->user);
+		$organization->addMember($u);
+		$organization->removeMember($u);
 
 		$this->assertArrayNotHasKey($u->getId(), $organization->getMembers());
 	}
@@ -87,7 +87,7 @@ class OrganizationTest extends \PHPUnit_Framework_TestCase {
 	public function testRemoveANonMember() {
 		$organization = Organization::create(null, $this->user);
 		$u = User::create();
-		$organization->removeMember($u, $this->user);
+		$organization->removeMember($u);
 	}
 
 	public function testGetAdminsAfterCreation() {
@@ -106,7 +106,7 @@ class OrganizationTest extends \PHPUnit_Framework_TestCase {
 	public function testGetAdminsAfterAdminAdded() {
 		$organization = Organization::create(null, $this->user);
 		$u = User::create();
-		$organization->addMember($u, $this->user, Organization::ROLE_ADMIN);
+		$organization->addMember($u, Organization::ROLE_ADMIN);
 		$this->assertCount(2, $organization->getAdmins());
 		$this->assertArrayHasKey($u->getId(), $organization->getAdmins());
 	}

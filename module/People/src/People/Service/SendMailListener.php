@@ -3,6 +3,7 @@
 namespace People\Service;
 
 use People\Organization;
+use People\OrganizationMemberAdded;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\Event;
 use Zend\EventManager\ListenerAggregateInterface;
@@ -10,25 +11,39 @@ use TaskManagement\Task;
 use AcMailer\Service\MailService;
 use Application\Service\UserService;
 use Application\Entity\User;
+use Zend\Mvc\Application;
 
 class SendMailListener implements ListenerAggregateInterface
 {
+	/**
+	 * @var MailService
+	 */
 	private $mailService;
+	/**
+	 * @var UserService
+	 */
 	private $userService;
+	/**
+	 * @var OrganizationService
+	 */
+	private $organizationService;
 
 	protected $listeners = array ();
 
-	public function __construct(MailService $mailService, UserService $userService) {
+	public function __construct(MailService $mailService, UserService $userService, OrganizationService $organizationService) {
 		$this->mailService = $mailService;
 		$this->userService = $userService;
+		$this->organizationService = $organizationService;
 	}
 
 	public function attach(EventManagerInterface $events) {
-		$that = $this;
-		$this->listeners [] = $events->getSharedManager ()->attach ( 'People\OrganizationService', Organization::EVENT_MEMBER_ADDED, function (Event $event) use ($that) {
-			$organization = $event->getTarget ();
-			$member = $event->getParam ( 'by' );
-			$that->sendMemberAddedInfoMail ( $organization, $member );
+		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, OrganizationMemberAdded::class, function (Event $event) {
+			$streamEvent = $event->getTarget();
+			$organizationId = $streamEvent->metadata()['aggregate_id'];
+			$organization = $this->organizationService->getOrganization($organizationId);
+			$memberId = $event->getParam ( 'userId' );
+			$member = $this->userService->findUser($memberId);
+			$this->sendMemberAddedInfoMail ( $organization, $member );
 		} );
 	}
 
@@ -40,6 +55,11 @@ class SendMailListener implements ListenerAggregateInterface
 		}
 	}
 
+	/**
+	 * @param Organization $organization
+	 * @param User $member
+	 * @throws \AcMailer\Exception\MailException
+	 */
 	public function sendMemberAddedInfoMail(Organization $organization, User $member)
 	{
 		$this->mailService->setSubject ( 'A new member joined "' . $organization->getName() . '"');
@@ -60,5 +80,4 @@ class SendMailListener implements ListenerAggregateInterface
 			$result = $this->mailService->send();
 		}
 	}
-
 }

@@ -38,7 +38,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				},
 				'Kanbanize\SyncTaskListener' => function ($locator) {
 					$kanbanizeService = $locator->get('Kanbanize\KanbanizeService');
-					return new SyncTaskListener($kanbanizeService);
+					$taskService = $locator->get('TaskManagement\TaskService');
+					return new SyncTaskListener($kanbanizeService, $taskService);
 				},
 			),
 			'initializers' => array(

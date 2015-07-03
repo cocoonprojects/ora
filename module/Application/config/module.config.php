@@ -141,5 +141,6 @@ return array(
 
 	'listeners' => array(
 		'Application\LoadLocalProfileListener',
+		'Application\DomainEventDispatcher'
 	),
 );

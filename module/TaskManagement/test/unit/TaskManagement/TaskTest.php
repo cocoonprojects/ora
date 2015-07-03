@@ -17,28 +17,33 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	 * @var Stream
 	 */
 	protected $stream;
-		
+
 	
 	protected function setUp() {
-		$this->owner = User::create();
+		$this->owner = $this->getMockBuilder(User::class)
+			->getMock();
+		$this->owner->method('getId')
+			->willReturn('60000000-0000-0000-0000-000000000000');
+		$this->owner->method('isMemberOf')
+			->willReturn(true);
 		$organization = Organization::create('Pellentesque lorem ligula, auctor ac', $this->owner);
 		$this->stream = Stream::create($organization, 'Curabitur rhoncus mattis massa vel', $this->owner);
 	}
-		
+
 	public function testCreate() {
 		$task = Task::create($this->stream, 'Test subject', $this->owner);
-		$this->assertInstanceOf(Uuid::class, $task->getId());
+		$this->assertNotNull($task->getId());
 		$this->assertEquals('Test subject', $task->getSubject());
 		$this->assertEquals(Task::STATUS_ONGOING, $task->getStatus());
-		$this->assertEquals($this->stream->getId()->toString(), $task->getStreamId());
+		$this->assertEquals($this->stream->getId(), $task->getStreamId());
 	}
 	
 	public function testCreateWithNoSubject() {
 		$task = Task::create($this->stream, null, $this->owner);
-		$this->assertInstanceOf(Uuid::class, $task->getId());
+		$this->assertNotNull($task->getId());
 		$this->assertNull($task->getSubject());
 		$this->assertEquals(Task::STATUS_ONGOING, $task->getStatus());
-		$this->assertEquals($this->stream->getId()->toString(), $task->getStreamId());
+		$this->assertEquals($this->stream->getId(), $task->getStreamId());
 	}
 	
 	/**
@@ -76,8 +81,18 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
 
-		$member1 = User::create();
-		$member2 = User::create();
+		$member1 = $this->getMockBuilder(User::class)
+			->getMock();
+		$member1->method('getId')
+			->willReturn('80000000-0000-0000-0000-000000000000');
+		$member1->method('isMemberOf')
+			->willReturn(true);
+		$member2 = $this->getMockBuilder(User::class)
+			->getMock();
+		$member2->method('getId')
+			->willReturn('90000000-0000-0000-0000-000000000000');
+		$member2->method('isMemberOf')
+			->willReturn(true);
 		$task->addMember($member1, Task::ROLE_MEMBER);
 		$task->addMember($member2);
 		
@@ -103,17 +118,16 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(Task::ROLE_OWNER, $members[$this->owner->getId()]['role']);
 		$this->assertArrayNotHasKey('accountId', $members[$this->owner->getId()]);
 	}
-	
-	public function testAddMemberWithAccount() {
+
+	/**
+	 * @expectedException People\MissingOrganizationMembershipException
+	 */
+	public function testAddMemberNotInOrganization() {
 		$task = Task::create($this->stream, null, $this->owner);
-		$task->addMember($this->owner, Task::ROLE_MEMBER, 'account-Id');
-		
-		$members = $task->getMembers();
-		$this->assertArrayHasKey($this->owner->getId(), $members);
-		$this->assertEquals(Task::ROLE_MEMBER, $members[$this->owner->getId()]['role']);
-		$this->assertEquals('account-Id', $members[$this->owner->getId()]['accountId']);
+		$user = User::create();
+		$task->addMember($user);
 	}
-	
+
 	public function testHasMember() {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner);		
@@ -129,8 +143,18 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	public function testAddEstimation() {
 		$task = Task::create($this->stream, null, $this->owner);
 		
-		$user1 = User::create();
-		$user2 = User::create();
+		$user1 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user1->method('getId')
+			->willReturn('80000000-0000-0000-0000-000000000000');
+		$user1->method('isMemberOf')
+			->willReturn(true);
+		$user2 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user2->method('getId')
+			->willReturn('90000000-0000-0000-0000-000000000000');
+		$user2->method('isMemberOf')
+			->willReturn(true);
 		
 		$task->addMember($user1);
 		$task->addMember($user2);
@@ -150,8 +174,18 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
 
-		$user1 = User::create();
-		$user2 = User::create();
+		$user1 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user1->method('getId')
+			->willReturn('80000000-0000-0000-0000-000000000000');
+		$user1->method('isMemberOf')
+			->willReturn(true);
+		$user2 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user2->method('getId')
+			->willReturn('90000000-0000-0000-0000-000000000000');
+		$user2->method('isMemberOf')
+			->willReturn(true);
 		
 		$task->addMember($user1);
 		$task->addMember($user2);
@@ -166,8 +200,8 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		
 		$task->assignShares([
 			$this->owner->getId() => 0.4,
-			$user1->getId()				=> 0.4,
-			$user2->getId()				=> 0.2
+			$user1->getId()       => 0.4,
+			$user2->getId()       => 0.2
 		], $this->owner);
 		
 		$this->assertEquals(0.4, $task->getMembers()[$this->owner->getId()]['share']);
@@ -178,9 +212,19 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	public function testEveryMemberAssignShares() {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
-		
-		$user1 = User::create();
-		$user2 = User::create();
+
+		$user1 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user1->method('getId')
+			->willReturn('80000000-0000-0000-0000-000000000000');
+		$user1->method('isMemberOf')
+			->willReturn(true);
+		$user2 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user2->method('getId')
+			->willReturn('90000000-0000-0000-0000-000000000000');
+		$user2->method('isMemberOf')
+			->willReturn(true);
 		
 		$task->addMember($user1, $user1);
 		$task->addMember($user2, $user2);
@@ -219,9 +263,19 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	public function testEveryMemberAssignSharesWithAMemberTo0() {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
-		
-		$user1 = User::create();
-		$user2 = User::create();
+
+		$user1 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user1->method('getId')
+			->willReturn('80000000-0000-0000-0000-000000000000');
+		$user1->method('isMemberOf')
+			->willReturn(true);
+		$user2 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user2->method('getId')
+			->willReturn('90000000-0000-0000-0000-000000000000');
+		$user2->method('isMemberOf')
+			->willReturn(true);
 		
 		$task->addMember($user1, $user1);
 		$task->addMember($user2, $user2);
@@ -260,9 +314,19 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	public function testEveryMemberAssignSharesWith0() {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
-		
-		$user1 = User::create();
-		$user2 = User::create();
+
+		$user1 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user1->method('getId')
+			->willReturn('80000000-0000-0000-0000-000000000000');
+		$user1->method('isMemberOf')
+			->willReturn(true);
+		$user2 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user2->method('getId')
+			->willReturn('90000000-0000-0000-0000-000000000000');
+		$user2->method('isMemberOf')
+			->willReturn(true);
 		
 		$task->addMember($user1, $user1);
 		$task->addMember($user2, $user2);
@@ -301,9 +365,19 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	public function testOneMemberSkipSharesAssignment() {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
-		
-		$user1 = User::create();
-		$user2 = User::create();
+
+		$user1 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user1->method('getId')
+			->willReturn('80000000-0000-0000-0000-000000000000');
+		$user1->method('isMemberOf')
+			->willReturn(true);
+		$user2 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user2->method('getId')
+			->willReturn('90000000-0000-0000-0000-000000000000');
+		$user2->method('isMemberOf')
+			->willReturn(true);
 	
 		$task->addMember($user1, $user1);
 		$task->addMember($user2, $user2);
@@ -338,9 +412,19 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	public function testAllMembersSkipSharesAssignment() {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
-		
-		$user1 = User::create();
-		$user2 = User::create();
+
+		$user1 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user1->method('getId')
+			->willReturn('80000000-0000-0000-0000-000000000000');
+		$user1->method('isMemberOf')
+			->willReturn(true);
+		$user2 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user2->method('getId')
+			->willReturn('90000000-0000-0000-0000-000000000000');
+		$user2->method('isMemberOf')
+			->willReturn(true);
 		
 		$task->addMember($user1, $user1);
 		$task->addMember($user2, $user2);
@@ -365,9 +449,19 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	public function testLastUserShareAssignement() {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
-		
-		$user1 = User::create();
-		$user2 = User::create();
+
+		$user1 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user1->method('getId')
+			->willReturn('80000000-0000-0000-0000-000000000000');
+		$user1->method('isMemberOf')
+			->willReturn(true);
+		$user2 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user2->method('getId')
+			->willReturn('90000000-0000-0000-0000-000000000000');
+		$user2->method('isMemberOf')
+			->willReturn(true);
 		
 		$task->addMember($user1, $user1);
 		$task->addMember($user2, $user2);
@@ -400,9 +494,19 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	public function testGetMembersCredits() {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
-		
-		$user1 = User::create();
-		$user2 = User::create();
+
+		$user1 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user1->method('getId')
+			->willReturn('80000000-0000-0000-0000-000000000000');
+		$user1->method('isMemberOf')
+			->willReturn(true);
+		$user2 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user2->method('getId')
+			->willReturn('90000000-0000-0000-0000-000000000000');
+		$user2->method('isMemberOf')
+			->willReturn(true);
 		
 		$task->addMember($user1, $user1);
 		$task->addMember($user2, $user2);
@@ -441,9 +545,19 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	public function testGetMembersCreditsWhenEverybodySkip() {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
-		
-		$user1 = User::create();
-		$user2 = User::create();
+
+		$user1 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user1->method('getId')
+			->willReturn('80000000-0000-0000-0000-000000000000');
+		$user1->method('isMemberOf')
+			->willReturn(true);
+		$user2 = $this->getMockBuilder(User::class)
+			->getMock();
+		$user2->method('getId')
+			->willReturn('90000000-0000-0000-0000-000000000000');
+		$user2->method('isMemberOf')
+			->willReturn(true);
 		
 		$task->addMember($user1, $user1);
 		$task->addMember($user2, $user2);

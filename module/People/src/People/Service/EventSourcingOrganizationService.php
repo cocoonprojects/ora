@@ -2,9 +2,6 @@
 
 namespace People\Service;
 
-use Zend\EventManager\EventManager;
-use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\EventManagerAwareInterface;
 use Doctrine\ORM\EntityManager;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Aggregate\AggregateRepository;
@@ -17,13 +14,8 @@ use People\Organization;
 use People\Entity\Organization as ReadModelOrg;
 use People\Entity\OrganizationMembership;
 
-class EventSourcingOrganizationService extends AggregateRepository implements OrganizationService, EventManagerAwareInterface
+class EventSourcingOrganizationService extends AggregateRepository implements OrganizationService
 {
-	/**
-	 * 
-	 * @var EventManagerInterface
-	 */
-	protected $events;
 	/**
 	 *
 	 * @var EntityManager
@@ -36,66 +28,71 @@ class EventSourcingOrganizationService extends AggregateRepository implements Or
 		$this->entityManager = $entityManager;
 	}
 
+	/**
+	 * @param string $name
+	 * @param User $createdBy
+	 * @return Organization
+	 * @throws \Exception
+	 */
 	public function createOrganization($name, User $createdBy) {
 		$this->eventStore->beginTransaction();
 		try {
 			$org = Organization::create($name, $createdBy);
-			$org->setEventManager($this->getEventManager());
 			$this->addAggregateRoot($org);
 			$this->eventStore->commit();
 		} catch (\Exception $e) {
 			$this->eventStore->rollback();
 			throw $e;
 		}
-		$this->getEventManager()->trigger(Organization::EVENT_CREATED, $org, ['by' => $createdBy]);
 		return $org;
 	}
-	
+
+	/**
+	 * @param string|Uuid $id
+	 * @return null|object
+	 */
 	public function getOrganization($id) {
 		$oId = $id instanceof Uuid ? $id->toString() : $id;
 		$rv = $this->getAggregateRoot($oId);
-		if($rv != null) {
-			$rv->setEventManager($this->getEventManager());
-		}
 		return $rv;
 	}
-	
+
 	/**
-	*  Retrieve organization entity with specified ID
-	*/
+	 * @param string $id
+	 * @return null|object
+	 * @throws \Doctrine\ORM\ORMException
+	 * @throws \Doctrine\ORM\OptimisticLockException
+	 * @throws \Doctrine\ORM\TransactionRequiredException
+	 */
 	public function findOrganization($id)
 	{
-		return $this->entityManager->find(ReadModelOrg::class, $id);
+		$rv = $this->entityManager->find(ReadModelOrg::class, $id);
+		return $rv;
 	}
-	
+
+	/**
+	 * @param User $user
+	 * @return array
+	 */
 	public function findUserOrganizationMemberships(User $user)
 	{
-		return $this->entityManager->getRepository(OrganizationMembership::class)->findBy(['member' => $user], ['createdAt' => 'ASC']);
-	}	
-	
+		$rv = $this->entityManager->getRepository(OrganizationMembership::class)->findBy(['member' => $user], ['createdAt' => 'ASC']);
+		return $rv;
+	}
+
+	/**
+	 * @param ReadModelOrg $organization
+	 * @return array
+	 */
 	public function findOrganizationMemberships(ReadModelOrg $organization)
 	{
-		return $this->entityManager->getRepository(OrganizationMembership::class)->findBy(['organization' => $organization], ['createdAt' => 'ASC']);
-	}
-	
-	public function setEventManager(EventManagerInterface $events)
-	{
-		$events->setIdentifiers(array(
-			'People\OrganizationService',
-			__CLASS__,
-			get_class($this)
-		));
-		$this->events = $events;
+		$rv = $this->entityManager->getRepository(OrganizationMembership::class)->findBy(['organization' => $organization], ['createdAt' => 'ASC']);
+		return $rv;
 	}
 
-	public function getEventManager()
-	{
-		if (!$this->events) {
-			$this->setEventManager(new EventManager());
-		}
-		return $this->events;
-	}
-
+	/**
+	 * @return array
+	 */
 	public function findOrganizations()
 	{
 		$rv = $this->entityManager->getRepository(ReadModelOrg::class)->findBy([], ['name' => 'ASC']);

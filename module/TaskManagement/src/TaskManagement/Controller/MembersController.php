@@ -6,8 +6,6 @@ use ZFX\Rest\Controller\HATEOASRestfulController;
 use Application\IllegalStateException;
 use Application\DuplicatedDomainEntityException;
 use Application\DomainEntityUnavailableException;
-use Application\Entity\User;
-use Accounting\Service\AccountService;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Task;
 
@@ -22,14 +20,9 @@ class MembersController extends HATEOASRestfulController
 	 * @var TaskService
 	 */
 	protected $taskService;
-	/**
-	 * 
-	 * @var AccountService
-	 */
-	protected $accountService;
-		
+
 	public function __construct(TaskService $taskService) {
-		$this->taskService = $taskService;	
+		$this->taskService = $taskService;
 	}
 	
 	public function invoke($id, $data)
@@ -42,10 +35,9 @@ class MembersController extends HATEOASRestfulController
 		}
 		
 		$identity = $this->identity()['user'];
-		$accountId = $this->getAccountId($identity);
 		$this->transaction()->begin();
 		try {
-			$task->addMember($identity, Task::ROLE_MEMBER, $accountId);
+			$task->addMember($identity, Task::ROLE_MEMBER);
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
 		} catch (DuplicatedDomainEntityException $e) {
@@ -82,14 +74,6 @@ class MembersController extends HATEOASRestfulController
 		return $this->response;
 	}
 	
-	public function setAccountService(AccountService $accountService) {
-		$this->accountService = $accountService;
-	}
-	
-	public function getAccountService() {
-		return $this->accountService;
-	}
-	
 	protected function getCollectionOptions()
 	{
 		return self::$collectionOptions;
@@ -98,16 +82,5 @@ class MembersController extends HATEOASRestfulController
 	protected function getResourceOptions()
 	{
 		return self::$resourceOptions;
-	}
-	
-	protected function getAccountId(User $user) {
-		if(is_null($this->accountService)){
-			return null;
-		}
-		$account = $this->accountService->findPersonalAccount($user);
-		if(is_null($account)) {
-			return null;
-		}
-		return $account->getId();
 	}
 }

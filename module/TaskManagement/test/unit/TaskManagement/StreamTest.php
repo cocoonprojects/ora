@@ -20,7 +20,7 @@ class StreamTest extends \PHPUnit_Framework_TestCase {
 		
 		$this->assertNotEmpty($stream->getId());
 		$this->assertEquals('Duis vulputate nulla vel purus', $stream->getSubject());
-		$this->assertEquals($this->organization->getId()->toString(), $stream->getOrganizationId());
+		$this->assertEquals($this->organization->getId(), $stream->getOrganizationId());
 	}
 
 	public function testCreateWithNoSubject() {
@@ -28,7 +28,7 @@ class StreamTest extends \PHPUnit_Framework_TestCase {
 		
 		$this->assertNotEmpty($stream->getId());
 		$this->assertNull($stream->getSubject());
-		$this->assertEquals($this->organization->getId()->toString(), $stream->getOrganizationId());
+		$this->assertEquals($this->organization->getId(), $stream->getOrganizationId());
 	}
 	
 	public function testSetSubject() {
@@ -43,6 +43,6 @@ class StreamTest extends \PHPUnit_Framework_TestCase {
 		$org = Organization::create('Fusce nec fringilla turpis. Donec', $this->user);
 		$stream->changeOrganization($org, $this->user);
 		
-		$this->assertEquals($org->getId()->toString(), $stream->getOrganizationId());
+		$this->assertEquals($org->getId(), $stream->getOrganizationId());
 	}
 }

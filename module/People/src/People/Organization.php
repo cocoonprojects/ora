@@ -13,10 +13,6 @@ class Organization extends DomainEntity
 {
 	CONST ROLE_MEMBER = 'member';
 	CONST ROLE_ADMIN  = 'admin';
-	
-	CONST EVENT_CREATED = 'Organization.Created';
-	CONST EVENT_MEMBER_ADDED = 'Organization.MemberAdded';
-
 	/**
 	 * 
 	 * @var string
@@ -36,10 +32,10 @@ class Organization extends DomainEntity
 	public static function create($name, User $createdBy) {
 		$rv = new self();
 		$rv->recordThat(OrganizationCreated::occur(Uuid::uuid4()->toString(), array(
-				'by' => $createdBy->getId(),
+			'by' => $createdBy->getId(),
 		)));
-		$rv->setName($name, $createdBy);		
-		$rv->addMember($createdBy, $createdBy, self::ROLE_ADMIN);
+		$rv->setName($name, $createdBy);
+		$rv->addMember($createdBy, self::ROLE_ADMIN);
 		return $rv;
 	}
 	
@@ -58,7 +54,7 @@ class Organization extends DomainEntity
 	
 	public function changeAccount(Account $account, User $updatedBy) {
 		$payload = array(
-				'accountId' => $account->getId()->toString(),
+				'accountId' => $account->getId(),
 				'by' => $updatedBy->getId(),
 		);
 		if(!is_null($this->accountId)) {
@@ -72,28 +68,25 @@ class Organization extends DomainEntity
 		return $this->accountId;
 	}
 	
-	public function addMember(User $user, User $addedBy, $role = self::ROLE_MEMBER) {
+	public function addMember(User $user, $role = self::ROLE_MEMBER, User $addedBy = null) {
 		if (array_key_exists($user->getId(), $this->members)) {
 			throw new DuplicatedDomainEntityException($this, $user);
 		}
 		$this->recordThat(OrganizationMemberAdded::occur($this->id->toString(), array(
 			'userId' => $user->getId(),
 			'role' => $role,
-			'by' => $addedBy->getId(),
+			'by' => $addedBy == null ? $user->getId() : $addedBy->getId(),
 		)));
-
-		$this->getEventManager()->trigger(self::EVENT_MEMBER_ADDED, $this, ['by' => $user]);
-
 	}
 
-	public function removeMember(User $member, User $removedBy)
+	public function removeMember(User $member, User $removedBy = null)
 	{
 		if (!array_key_exists($member->getId(), $this->members)) {
 			throw new DomainEntityUnavailableException($this, $member); 
 		}
 		$this->recordThat(OrganizationMemberRemoved::occur($this->id->toString(), array(
 			'userId' => $member->getId(),
-			'by' => $removedBy->getId(),
+			'by' => $removedBy == null ? $member->getId() : $removedBy->getId(),
 		)));
 	}
 	
@@ -135,5 +128,4 @@ class Organization extends DomainEntity
 		$id = $p['userId'];
 		unset($this->members[$id]);
 	}
-	
 }

@@ -224,12 +224,11 @@ class User implements RoleInterface
 	
 	public function getPicture() {
 		return $this->picture;
-
 	}
 	
 	/**
 	 * 
-	 * @param id|Organization $organization
+	 * @param string|Organization $organization
 	 * @return bool
 	 */
 	public function isMemberOf($organization) {

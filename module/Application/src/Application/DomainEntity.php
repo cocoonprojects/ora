@@ -1,9 +1,6 @@
 <?php
 namespace Application;
 
-use Zend\EventManager\EventManagerAwareInterface;
-use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\EventManager;
 use Prooph\EventSourcing\AggregateRoot;
 use Rhumsaa\Uuid\Uuid;
 
@@ -12,45 +9,46 @@ use Rhumsaa\Uuid\Uuid;
  * @author andreabandera
  *
  */
-class DomainEntity extends AggregateRoot implements EventManagerAwareInterface {
+class DomainEntity extends AggregateRoot {
 	
 	/**
 	 *  
 	 * @var Uuid
 	 */
 	protected $id;
-	
+
 	/**
-	 * 
-	 * @var EventManagerInterface
+	 * @return Uuid
 	 */
-	private $events;
-	
-	public function getId() {
+	public function getUuid() {
 		return $this->id;
 	}
-	
+
+	/**
+	 * @return string
+	 */
+	public function getId() {
+		return $this->id->toString();
+	}
+
+	public function __toString() {
+		return $this->getId();
+	}
+	/**
+	 * @param DomainEntity $object
+	 * @return bool
+	 */
 	public function equals(DomainEntity $object = null) {
 		if(is_null($object)) {
 			return false;
 		}
 		return $this->id->compareTo($object->getId()) === 0;
 	}
-	
-	public function setEventManager(EventManagerInterface $eventManager) {
-		$this->events = $eventManager;
-	}
-	
-	public function getEventManager()
-	{
-		if (!$this->events) {
-			$this->setEventManager(new EventManager());
-        }
-		return $this->events;
-	}
-	
+
+	/**
+	 * @return string
+	 */
 	protected function aggregateId() {
-		return $this->id;
+		return $this->id->toString();
 	}
-	
 }

@@ -129,7 +129,7 @@ class TransitionsController extends HATEOASRestfulController
 					
 					$this->transaction()->begin();
 					try {
-						$taskToClose->close(User::createSystemUser());		
+						$taskToClose->close(User::createSystemUser());
 
 						$this->transaction()->commit();
 					} catch ( IllegalStateException $e ) {
@@ -138,7 +138,7 @@ class TransitionsController extends HATEOASRestfulController
 					} catch ( InvalidArgumentException $e ) {
 						$this->transaction()->rollback();
 						continue; //skip task
-					}					
+					}
 				}
 				
 				$this->response->setStatusCode ( 200 );

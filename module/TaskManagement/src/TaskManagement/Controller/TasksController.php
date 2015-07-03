@@ -38,12 +38,7 @@ class TasksController extends HATEOASRestfulController
 	 * @var Acl
 	 */
 	private $acl;
-	/**
-	 * 
-	 * @var AccountService
-	 */
-	private $accountService;
-	
+
 	public function __construct(TaskService $taskService, StreamService $streamService, Acl $acl)
 	{
 		$this->taskService = $taskService;
@@ -139,16 +134,14 @@ class TasksController extends HATEOASRestfulController
 			return $this->response;
 		}
 
-		$accountId = $this->getAccountId($identity);
-
 		$this->transaction()->begin();
 		try {
 			$task = Task::create($stream, $subject, $identity);
-			$task->addMember($identity, Task::ROLE_OWNER, $accountId);
+			$task->addMember($identity, Task::ROLE_OWNER);
 			$this->taskService->addTask($task);
 			$this->transaction()->commit();
 
-			$url = $this->url()->fromRoute('tasks', array('id' => $task->getId()->toString()));
+			$url = $this->url()->fromRoute('tasks', array('id' => $task->getId()));
 			$this->response->getHeaders()->addHeaderLine('Location', $url);
 			$this->response->setStatusCode(201);
 			return $this->response;
@@ -235,45 +228,21 @@ class TasksController extends HATEOASRestfulController
 			$this->transaction()->rollback();
             $this->response->setStatusCode(412);	// Preconditions failed			
 		}
-      	
-        return $this->response;
-    }
-    
+		return $this->response;
+	}
 
-	public function setAccountService(AccountService $accountService) {
-    	$this->accountService = $accountService;
-    	return $this;
-    }
-    
-    public function getAccountService() {
-    	return $this->accountService;
-    }
-    
-	public function getTaskService() 
-    {
-        return $this->taskService;
-    }
-        
-    protected function getCollectionOptions()
-    {
-        return self::$collectionOptions;
-    }
-    
-    protected function getResourceOptions()
-    {
-        return self::$resourceOptions;
-    }   
-    
-    protected function getAccountId(User $user) {
-    	if(is_null($this->accountService)){
-    		return null;
-    	}
-    	$account = $this->accountService->findPersonalAccount($user);
-    	if(is_null($account)) {
-    		return null;
-    	}
-    	
-		return $account->getId();
-    }
+	public function getTaskService()
+	{
+		return $this->taskService;
+	}
 
+	protected function getCollectionOptions()
+	{
+		return self::$collectionOptions;
+	}
+
+	protected function getResourceOptions()
+	{
+		return self::$resourceOptions;
+	}
 }
