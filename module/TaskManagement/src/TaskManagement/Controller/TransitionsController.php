@@ -7,7 +7,6 @@ use Application\InvalidArgumentException;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Task;
 use Zend\Validator\InArray;
-use Zend\Permissions\Acl\Acl;
 use Application\Entity\User;
 
 class TransitionsController extends HATEOASRestfulController
@@ -157,11 +156,6 @@ class TransitionsController extends HATEOASRestfulController
 	protected function getCollectionOptions()
 	{
 		return self::$collectionOptions;
-	}
-	
-	protected function getResourceOptions()
-	{
-		return self::$resourceOptions;
 	}
 	
 	public function setIntervalForCloseTasks($interval){

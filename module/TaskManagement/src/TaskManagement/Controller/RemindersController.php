@@ -38,6 +38,7 @@ class RemindersController extends HATEOASRestfulController
 	 */
 	protected $intervalForRemindAssignmentOfShares;
 	
+
  	public function __construct(NotifyMailListener $notifyMailListener, TaskService $taskService) {
  		
  		$this->notifyMailListener = $notifyMailListener;

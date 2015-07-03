@@ -28,7 +28,6 @@ class TransitionsControllerTest extends ControllerTest {
 	protected function setupController()
 	{
 		$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
-		
 		$controller = new TransitionsController($taskServiceStub); 
 		$controller->setIntervalForCloseTasks(new \DateInterval('P7D'));
 		
@@ -42,7 +41,7 @@ class TransitionsControllerTest extends ControllerTest {
 	
 	
 	public function testtApplyTimeboxBlocked(){
-		
+
 		$this->setupLoggedUser($this->user);
 		
 		$this->request->setMethod('post');
@@ -57,7 +56,7 @@ class TransitionsControllerTest extends ControllerTest {
 	public function testApplyTimeboxToCloseAnAcceptedTasks(){
 	
 		$this->setupLoggedUser($this->sysUser);
-	
+		
  		$taskToClose = $this->setupTask();
 		$taskToClose->addMember($this->user, Task::ROLE_OWNER);
 		$taskToClose->addEstimation(1, $this->user);
