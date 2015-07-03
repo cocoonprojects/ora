@@ -42,7 +42,7 @@ class TransitionsControllerTest extends ControllerTest {
 	
 	public function testtApplyTimeboxBlocked(){
 
-		$this->setupLoggedUser($this->user);
+		$this->setupLoggedUser($this->sysUser);
 		
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -55,7 +55,7 @@ class TransitionsControllerTest extends ControllerTest {
 	
 	public function testApplyTimeboxToCloseAnAcceptedTasks(){
 	
-		$this->setupLoggedUser($this->sysUser);
+		$this->setupLoggedUser($this->user);
 		
  		$taskToClose = $this->setupTask();
 		$taskToClose->addMember($this->user, Task::ROLE_OWNER);
