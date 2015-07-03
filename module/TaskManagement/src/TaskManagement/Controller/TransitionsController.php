@@ -158,6 +158,11 @@ class TransitionsController extends HATEOASRestfulController
 		return self::$collectionOptions;
 	}
 	
+	protected function getResourceOptions()
+	{
+		return self::$resourceOptions;
+	}
+	
 	public function setIntervalForCloseTasks($interval){
 		$this->intervalForCloseTasks = $interval;
 	}
