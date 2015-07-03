@@ -54,7 +54,7 @@ class AclFactory implements FactoryInterface
 		if($env == "production"){
 			$acl->allow(User::ROLE_SYSTEM, null, array('TaskManagement.Task.closeTasksCollection', 'TaskManagement.Reminder.createReminder'));			
 		}else{
-			$acl->allow($config['scheduled-jobs']['allowTo'], null, array('TaskManagement.Task.closeTasksCollection', 'TaskManagement.Reminder.createReminder'));
+			$acl->allow(User::ROLE_ADMIN, null, array('TaskManagement.Task.closeTasksCollection', 'TaskManagement.Reminder.createReminder'));
 		}
 		
 		

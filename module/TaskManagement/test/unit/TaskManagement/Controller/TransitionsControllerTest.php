@@ -14,7 +14,7 @@ class TransitionsControllerTest extends ControllerTest {
 	
 	private $user;
 	
-	private $sysUser;
+	private $adminUser;
 	
 	public function __construct()
 	{
@@ -22,7 +22,11 @@ class TransitionsControllerTest extends ControllerTest {
 		$this->user->setFirstname('John');
 		$this->user->setLastname('Doe');
 		$this->user->setRole(User::ROLE_USER);
-		$this->sysUser = User::createSystemUser();
+		
+		$this->adminUser = User::create();
+		$this->adminUser->setFirstname('Admin');
+		$this->adminUser->setLastname('admin');
+		$this->adminUser->setRole(User::ROLE_ADMIN);
 	}
 	
 	protected function setupController()
@@ -42,7 +46,7 @@ class TransitionsControllerTest extends ControllerTest {
 	
 	public function testtApplyTimeboxBlocked(){
 
-		$this->setupLoggedUser($this->sysUser);
+		$this->setupLoggedUser($this->user);
 		
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -55,7 +59,7 @@ class TransitionsControllerTest extends ControllerTest {
 	
 	public function testApplyTimeboxToCloseAnAcceptedTasks(){
 	
-		$this->setupLoggedUser($this->user);
+		$this->setupLoggedUser($this->adminUser);
 		
  		$taskToClose = $this->setupTask();
 		$taskToClose->addMember($this->user, Task::ROLE_OWNER);
