@@ -21,6 +21,9 @@ class AclFactory implements FactoryInterface
 {
 	public function createService(ServiceLocatorInterface $serviceLocator)
 	{
+		$config = $serviceLocator->get('Config');
+		$env = getenv('APPLICATION_ENV') ? : "local";
+		
 		$acl = new Acl();
 		$acl->addRole(User::ROLE_GUEST);
 		$acl->addRole(User::ROLE_USER);
@@ -47,8 +50,13 @@ class AclFactory implements FactoryInterface
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.complete', new TaskOwnerAndOngoingOrAcceptedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.accept', new TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.assignShares', new TaskMemberAndAcceptedTaskAssertion());
-
-		$acl->allow(User::ROLE_SYSTEM, null, array('TaskManagement.Task.closeTasksCollection', 'TaskManagement.Reminder.createReminder'));
+		
+		if($env == "production"){
+			$acl->allow(User::ROLE_SYSTEM, null, array('TaskManagement.Task.closeTasksCollection', 'TaskManagement.Reminder.createReminder'));			
+		}else{
+			$acl->allow(User::ROLE_ADMIN, null, array('TaskManagement.Task.closeTasksCollection', 'TaskManagement.Reminder.createReminder'));
+		}
+		
 		
 		return $acl;
 	}

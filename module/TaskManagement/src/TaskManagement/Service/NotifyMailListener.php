@@ -112,11 +112,8 @@ class NotifyMailListener implements ListenerAggregateInterface
 			$this->mailService->setSubject ( "O.R.A. - your contribution is required!" );
 	
 			$this->mailService->setTemplate( 'mail/reminder-assignment-shares.phtml', array(
-					'name' => $member->getFirstname()." ".$member->getLastname(),
-					'taskSubject' => $task->getSubject(),
-					'taskId' => $task->getId(),
-					'emailAddress' => $member->getEmail(),
-					'url' => 'http://'.$_SERVER['SERVER_NAME'].'/task-management#'.$task->getId()
+					'task' => $task,
+					'recipient'=> $member
 			));
 				
 			$this->mailService->send();
