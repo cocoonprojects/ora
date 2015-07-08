@@ -1,6 +1,7 @@
 <?php
 namespace TaskManagement;
 
+use People\MissingOrganizationMembershipException;
 use Rhumsaa\Uuid\Uuid;
 use Application\IllegalStateException;
 use Application\InvalidArgumentException;
@@ -23,33 +24,22 @@ class Task extends DomainEntity
 	CONST ROLE_OWNER  = 'owner';
 	
 	CONST NOT_ESTIMATED = -1;
-	
-	CONST EVENT_ONGOING          = 'Task.Ongoing';
-	CONST EVENT_COMPLETED        = 'Task.Completed';
-	CONST EVENT_ACCEPTED         = 'Task.Accepted';
-	CONST EVENT_CLOSED           = 'Task.Closed';
-	CONST EVENT_SHARES_ASSIGNED  = 'Task.SharesAssigned';
-	CONST EVENT_ESTIMATION_ADDED = 'Task.EstimationAdded';
-	
-	
 	/**
-	 * 
 	 * @var string
 	 */
 	private $subject;
-	
 	/**
-	 * 
 	 * @var int
 	 */
 	private $status;
-	
 	/**
-	 * 
 	 * @var Uuid
 	 */
 	private $streamId;
-	
+	/**
+	 * @var Uuid
+	 */
+	private $organizationId;
 	/**
 	 */
 	private $members = array();
@@ -57,8 +47,9 @@ class Task extends DomainEntity
 	public static function create(Stream $stream, $subject, User $createdBy, array $options = null) {
 		$rv = new self();
 		$rv->recordThat(TaskCreated::occur(Uuid::uuid4()->toString(), array(
-				'status' => self::STATUS_ONGOING,
-				'by' => $createdBy->getId(),
+			'status' => self::STATUS_ONGOING,
+			'by' => $createdBy->getId(),
+			'organization' => $stream->getOrganizationId()->toString()
 		)));
 		$rv->setSubject($subject, $createdBy);
 		$rv->changeStream($stream, $createdBy);
@@ -67,7 +58,7 @@ class Task extends DomainEntity
 	
 	public function delete(User $deletedBy) {
 		if($this->getStatus() >= self::STATUS_COMPLETED) {
-			throw new IllegalStateException('Cannot delete a task in state '.$this->getStatus().'. Task '.$this->getId()->toString().' won\'t be deleted');
+			throw new IllegalStateException('Cannot delete a task in state '.$this->getStatus().'. Task '.$this->getId().' won\'t be deleted');
 		}
 		$this->recordThat(TaskDeleted::occur($this->id->toString(), array(
 			'prevStatus' => $this->getStatus(),
@@ -90,7 +81,6 @@ class Task extends DomainEntity
 				'prevStatus' => $this->getStatus(),
 				'by' => $executedBy->getId(),
 		)));
-		$this->getEventManager()->trigger(self::EVENT_ONGOING, $this, ['by' => $executedBy]);
 		return $this;
 	}
 	
@@ -105,7 +95,6 @@ class Task extends DomainEntity
 			'prevStatus' => $this->getStatus(),
 			'by' => $completedBy->getId(),
 		)));
-		$this->getEventManager()->trigger(self::EVENT_COMPLETED, $this, ['by' => $completedBy]);
 		return $this;
 	}
 	
@@ -123,7 +112,6 @@ class Task extends DomainEntity
 			'prevStatus' => $this->getStatus(),
 			'by' => $acceptedBy->getId(),
 		)));
-		$this->getEventManager()->trigger(self::EVENT_ACCEPTED, $this, ['by' => $acceptedBy]);
 		return $this;
 	}
 	
@@ -136,11 +124,8 @@ class Task extends DomainEntity
 			throw new InvalidArgumentException('Only a member can close the task');
 		}
 		$this->recordThat(TaskClosed::occur($this->id->toString(), array(
-				'by' => $closedBy->getId(),
+			'by' => $closedBy->getId(),
 		)));
-		
-		$this->getEventManager()->trigger(self::EVENT_CLOSED, $this, ['by' => $closedBy]);
-		
 		return $this;
 	}
 	
@@ -162,7 +147,7 @@ class Task extends DomainEntity
 			throw new IllegalStateException('Cannot set the task stream in '.$this->status.' state');
 		}
 		$payload = array(
-				'streamId' => $stream->getId()->toString(),
+				'streamId' => $stream->getId(),
 				'by' => $updatedBy->getId(),
 		);
 		if(!is_null($this->streamId)) {
@@ -175,30 +160,36 @@ class Task extends DomainEntity
 	public function getStreamId() {
 		return $this->streamId;
 	}
+
+	public function getOrganizationId() {
+		return $this->organizationId;
+	}
 	
 	/**
 	 * 
 	 * @param User $user
 	 * @param string $role
-	 * @param string $accountId
 	 * @param User $addedBy
 	 * @throws IllegalStateException
+	 * @throws MissingOrganizationMembershipException
 	 * @throws DuplicatedDomainEntityException
 	 */
-	public function addMember(User $user, $role = self::ROLE_MEMBER, $accountId = null, User $addedBy = null)
+	public function addMember(User $user, $role = self::ROLE_MEMBER, User $addedBy = null)
 	{ 
 		if($this->status >= self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot add a member to a task in '.$this->status.' state');
 		}
+		if(!$user->isMemberOf($this->getOrganizationId()->toString())) {
+			throw new MissingOrganizationMembershipException($this->getOrganizationId(), $user->getId());
+		}
 		if (array_key_exists($user->getId(), $this->members)) {
-			   throw new DuplicatedDomainEntityException($this, $user); 
+			throw new DuplicatedDomainEntityException($this, $user);
 		}
 		
 		$by = is_null($addedBy) ? $user : $addedBy;
 		
 		$this->recordThat(TaskMemberAdded::occur($this->id->toString(), array(
 			'userId' => $user->getId(),
-			'accountId' => $accountId,
 			'role' => $role,
 			'by' => $by->getId(),
 		)));
@@ -237,8 +228,6 @@ class Task extends DomainEntity
 			'by' => $member->getId(),
 			'value'	 => $value,
 		)));
-		
-		$this->getEventManager()->trigger(self::EVENT_ESTIMATION_ADDED, $this, ['by' => $member]);
 	}
 	/**
 	 * 
@@ -284,9 +273,7 @@ class Task extends DomainEntity
 		$this->recordThat(SharesAssigned::occur($this->id->toString(), array(
 			'shares' => $membersShares,
 			'by' => $member->getId(),
-		)));	
-
-		$this->getEventManager()->trigger(self::EVENT_SHARES_ASSIGNED, $this, ['by' => $member]);
+		)));
 	}
 	
 	public function skipShares(User $member) {
@@ -301,8 +288,6 @@ class Task extends DomainEntity
 		$this->recordThat(SharesSkipped::occur($this->id->toString(), array(
 			'by' => $member->getId(),
 		)));
-
-		$this->getEventManager()->trigger(self::EVENT_SHARES_ASSIGNED, $this, ['by' => $member]);
 	}
 	
 	public function getMembers() {
@@ -399,6 +384,7 @@ class Task extends DomainEntity
 	{
 		$this->id = Uuid::fromString($event->aggregateId());
 		$this->status = $event->payload()['status'];
+		$this->organizationId = Uuid::fromString($event->payload()['organization']);
 	}
 	
 	protected function whenTaskOngoing(TaskOngoing $event) {
@@ -436,9 +422,6 @@ class Task extends DomainEntity
 		$p = $event->payload();
 		$id = $p['userId'];
 		$this->members[$id]['role'] = $p['role'];
-		if(isset($p['accountId'])) {
-			$this->members[$id]['accountId'] = $p['accountId'];
-		}
 	}
 
 	protected function whenTaskMemberRemoved(TaskMemberRemoved $event) {

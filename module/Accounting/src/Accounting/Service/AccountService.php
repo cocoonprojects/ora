@@ -2,16 +2,16 @@
 
 namespace Accounting\Service;
 
-use Application\Entity\User;
-use People\Organization;
 use Accounting\Entity\OrganizationAccount;
 use Accounting\Entity\Account;
+use Application\Entity\User;
+use People\Organization;
 
 interface AccountService
 {
-	public function createPersonalAccount(User $holder);
+	public function createPersonalAccount(User $holder, Organization $organization);
 	
-	public function createOrganizationAccount(Organization $organization, User $holder);	
+	public function createOrganizationAccount(Organization $organization, User $holder);
 	
 	public function getAccount($id);
 	
@@ -20,14 +20,15 @@ interface AccountService
 	public function findAccount($id);
 	/**
 	 * 
-	 * @param User $user
+	 * @param string|User $user
+	 * @param string|Organization $organization
 	 * @return Account
 	 */
-	public function findPersonalAccount(User $user);
+	public function findPersonalAccount($user, $organization);
 	/**
 	 * 
-	 * @param string|Uuid $organizationId
+	 * @param string|Organization $organization
 	 * @return OrganizationAccount
 	 */
-	public function findOrganizationAccount($organizationId);
+	public function findOrganizationAccount($organization);
 }

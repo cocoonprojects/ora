@@ -1,27 +1,28 @@
 <?php
 namespace Accounting\Service;
 
-use Prooph\EventStore\Stream\StreamEvent;
-use Application\Entity\User;
-use People\Entity\Organization;
-use Application\Service\ReadModelProjector;
-use Accounting\Entity\Balance;
 use Accounting\Entity\Account;
-use Accounting\Entity\OrganizationAccount;
+use Accounting\Entity\Balance;
 use Accounting\Entity\Deposit;
+use Accounting\Entity\OrganizationAccount;
 use Accounting\Entity\IncomingTransfer;
 use Accounting\Entity\OutgoingTransfer;
+use Application\Entity\User;
+use Application\Service\ReadModelProjector;
+use People\Entity\Organization;
+use Prooph\EventStore\Stream\StreamEvent;
 
 class AccountCommandsListener extends ReadModelProjector {
 	
 	protected function onAccountCreated(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
+		$organizationId = $event->payload()['organization'];
+
+		$organization = $this->entityManager->find(Organization::class, $organizationId);
+
+		$entity = $event->metadata()['aggregate_type'] == 'Accounting\OrganizationAccount' ? new OrganizationAccount($id, $organization) : new Account($id, $organization);
+
 		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
-		if(isset($event->payload()['organization'])) {
-			$orgId = $event->payload()['organization'];
-			$organization = $this->entityManager->find(Organization::class, $orgId);
-		}
-		$entity = isset($organization) ? new OrganizationAccount($id, $organization) : new Account($id);
 		$entity->setCreatedAt($event->occurredOn());
 		$entity->setCreatedBy($createdBy);
 		$entity->setMostRecentEditAt($event->occurredOn());

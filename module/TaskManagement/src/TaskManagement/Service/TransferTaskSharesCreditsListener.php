@@ -1,79 +1,84 @@
 <?php
 namespace TaskManagement\Service;
 
-use Zend\EventManager\ListenerAggregateInterface;
-use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\EventManager;
-use Zend\EventManager\Event;
-use People\Service\OrganizationService;
 use Accounting\Service\AccountService;
 use Application\Entity\User;
-use TaskManagement\Service\TaskService;
+use Application\Service\UserService;
+use People\Service\OrganizationService;
+use Prooph\EventStore\EventStore;
 use TaskManagement\Task;
+use TaskManagement\TaskClosed;
+use Zend\EventManager\ListenerAggregateInterface;
+use Zend\EventManager\EventManagerInterface;
+use Zend\EventManager\Event;
+use Zend\Mvc\Application;
 
-class TransferTaskSharesCreditsListener implements ListenerAggregateInterface {
+class TransferTaskSharesCreditsListener implements ListenerAggregateInterface
+{
 	/**
-	 * 
 	 * @var TaskService
 	 */
 	private $taskService;
 	/**
-	 * 
-	 * @var StreamService
-	 */
-	private $streamService;
-	/**
-	 * 
 	 * @var OrganizationService
 	 */
 	private $organizationService;
 	/**
-	 * 
 	 * @var AccountService
 	 */
 	private $accountService;
+	/**
+	 * @var UserService
+	 */
+	private $userService;
+	/**
+	 * @var EventStore
+	 */
+	private $transactionManager;
 
 	protected $listeners = array();
 	
-	public function __construct(TaskService $taskService, StreamService $streamService, OrganizationService $organizationService, AccountService $accountService) {
+	public function __construct(TaskService $taskService, OrganizationService $organizationService, AccountService $accountService, UserService $userService, EventStore $transactionManager) {
 		$this->taskService = $taskService;
-		$this->streamService = $streamService;
 		$this->organizationService = $organizationService;
 		$this->accountService = $accountService;
+		$this->userService = $userService;
+		$this->transactionManager = $transactionManager;
 	}
 	
+	public function attach(EventManagerInterface $events) {
+		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskClosed::class,
+			function(Event $event) {
+				$streamEvent = $event->getTarget();
+				$taskId = $streamEvent->metadata()['aggregate_id'];
+				$task = $this->taskService->getTask($taskId);
+				$byId = $event->getParam('by');
+				$by = $this->userService->findUser($byId);
+				$this->execute($task, $by);
+			});
+	}
+	
+	public function detach(EventManagerInterface $events)
+	{
+		if($events->getSharedManager()->detach(Application::class, $this->listeners[0])) {
+			unset($this->listeners[0]);
+		}
+	}
+
 	public function execute(Task $task, User $by) {
-		$credits = $task->getMembersCredits();
-		$stream = $this->streamService->getStream($task->getStreamId());
-		$organization = $this->organizationService->getOrganization($stream->getOrganizationId());
+		$organization = $this->organizationService->getOrganization($task->getOrganizationId());
 		$payer = $this->accountService->getAccount($organization->getAccountId());
-		
-// 		$this->transactionManager->beginTransaction();
-		$members = $task->getMembers();
+
+ 		$this->transactionManager->beginTransaction();
+		$credits = $task->getMembersCredits();
 		foreach ($credits as $memberId => $amount) {
 			if($amount > 0) {
-				$accountId = $members[$memberId]['accountId'];
-				$payee = $this->accountService->getAccount($accountId);
+				$account = $this->accountService->findPersonalAccount($memberId, $organization);
+				$payee = $this->accountService->getAccount($account->getId());
 				$payer->transferOut(-$amount, $payee, "Item '" . $task->getSubject() . "' (#" . $task->getId() .") credits share", $by);
 				$payee->transferIn($amount, $payer, "Item '" . $task->getSubject() . "' (#" . $task->getId() .") credits share", $by);
 			}
 		}
-// 		$this->transactionManager->commit();
+ 		$this->transactionManager->commit();
 	}
-
-	public function attach(EventManagerInterface $events) {
-		$that = $this;
-		$this->listeners[] = $events->getSharedManager()->attach('TaskManagement\TaskService', Task::EVENT_CLOSED, function(Event $event) use ($that) {
-			$task = $event->getTarget();
-			$by = $event->getParam('by');
-			$that->execute($task, $by);
-		});
-	}
-	
-    public function detach(EventManagerInterface $events)
-    {
-		if($events->getSharedManager()->detach('TaskManagement\TaskService', $this->listeners[0])) {
-			unset($this->listeners[0]);
-		}
-    }
 }

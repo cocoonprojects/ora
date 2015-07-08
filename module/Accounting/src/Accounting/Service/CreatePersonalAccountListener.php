@@ -1,39 +1,51 @@
 <?php
 namespace Accounting\Service;
 
+use Application\Service\UserService;
+use People\OrganizationMemberAdded;
+use People\Service\OrganizationService;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\Event;
-use Accounting\Service\AccountService;
-use Application\Entity\User;
+use Zend\Mvc\Application;
 
-class CreatePersonalAccountListener implements ListenerAggregateInterface {
-	
+class CreatePersonalAccountListener implements ListenerAggregateInterface
+{
 	protected $listeners = array();
-	
 	/**
-	 * 
 	 * @var AccountService
 	 */
 	protected $accountService;
-	
-	public function __construct(AccountService $accountService) {
+	/**
+	 * @var UserService
+	 */
+	protected $userService;
+	/**
+	 * @var OrganizationService
+	 */
+	protected $organizationService;
+
+	public function __construct(AccountService $accountService, UserService $userService, OrganizationService $organizationService) {
 		$this->accountService = $accountService;
+		$this->userService    = $userService;
+		$this->organizationService = $organizationService;
 	}
 	
 	public function attach(EventManagerInterface $events) {
-		$accountService = $this->accountService;
-		$this->listeners[] = $events->getSharedManager()->attach('Application\UserService', User::EVENT_CREATED, function(Event $event) use ($accountService) {
-			$user = $event->getTarget();
-			$this->accountService->createPersonalAccount($user);
+		$this->listeners[] = $events->getSharedManager()->attach(Application::class, OrganizationMemberAdded::class, function(Event $event) {
+			$streamEvent = $event->getTarget();
+			$organizationId = $streamEvent->metadata()['aggregate_id'];
+			$organization = $this->organizationService->getOrganization($organizationId);
+			$userId = $event->getParam ( 'userId' );
+			$user = $this->userService->findUser($userId);
+			$this->accountService->createPersonalAccount($user, $organization);
 		});
-		$this->events = $events;
 	}
 	
-    public function detach(EventManagerInterface $events)
-    {
-    	if($events->getSharedManager()->detach('Application\UserService', $this->listeners[0])) {
-    		unset($this->listeners[0]);
-    	}
-    }
+	public function detach(EventManagerInterface $events)
+	{
+		if($events->getSharedManager()->detach(Application::class, $this->listeners[0])) {
+			unset($this->listeners[0]);
+		}
+	}
 }

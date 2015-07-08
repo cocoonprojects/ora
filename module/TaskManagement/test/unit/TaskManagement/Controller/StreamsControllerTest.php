@@ -42,7 +42,7 @@ class StreamsControllerTest extends ControllerTest
 		$this->controller->getOrganizationService()
 			->expects($this->once())
 			->method('getOrganization')
-			->with($organization->getId()->toString())
+			->with($organization->getId())
 			->willReturn($organization);
 		
 		$this->controller->getStreamService()
@@ -52,7 +52,7 @@ class StreamsControllerTest extends ControllerTest
 		
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
-		$params->set('organizationId', $organization->getId()->toString());
+		$params->set('organizationId', $organization->getId());
 		$params->set('subject', 'Vestibulum sed magna vitae velit');
 		
 		$result   = $this->controller->dispatch($this->request);
@@ -69,7 +69,7 @@ class StreamsControllerTest extends ControllerTest
 		$this->controller->getOrganizationService()
 			->expects($this->once())
 			->method('getOrganization')
-			->with($organization->getId()->toString())
+			->with($organization->getId())
 			->willReturn($organization);
 		
 		$this->controller->getStreamService()
@@ -80,7 +80,7 @@ class StreamsControllerTest extends ControllerTest
 		
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
-		$params->set('organizationId', $organization->getId()->toString());
+		$params->set('organizationId', $organization->getId());
 		$params->set('subject', 'Vestibulum sed<script>alert("A big problem")</script> magna vitae velit');
 		
 		$result   = $this->controller->dispatch($this->request);

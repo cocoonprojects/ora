@@ -29,10 +29,10 @@ abstract class ReadModelProjector implements ListenerAggregateInterface
 				if (is_null($handler)) {
 					continue;
 				}
-				$that->{$handler}($streamEvent);				
+				$that->{$handler}($streamEvent);
 			}
 	 		$that->entityManager->flush();
-		});
+		}, 100);
 	}
 	
     public function detach(EventManagerInterface $events)

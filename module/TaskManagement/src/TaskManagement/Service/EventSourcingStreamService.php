@@ -46,6 +46,10 @@ class EventSourcingStreamService extends AggregateRepository implements StreamSe
 		return $rv;
 	}
 
+	/**
+	 * @param string
+	 * @return null|object
+	 */
 	public function getStream($id)
 	{
 		$sId = $id instanceof Uuid ? $id->toString() : $id;

@@ -2,39 +2,54 @@
 
 namespace TaskManagement\Service;
 
-use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\Event;
-use Zend\EventManager\ListenerAggregateInterface;
-use TaskManagement\Task;
 use AcMailer\Service\MailService;
 use Application\Service\UserService;
 use Application\Entity\User;
+use TaskManagement\EstimationAdded;
 use TaskManagement\Entity\Task as ReadModelTask;
+use TaskManagement\SharesAssigned;
+use TaskManagement\SharesSkipped;
+use TaskManagement\Task;
+use Zend\EventManager\EventManagerInterface;
+use Zend\EventManager\Event;
+use Zend\EventManager\ListenerAggregateInterface;
+use Zend\Mvc\Application;
 
 class NotifyMailListener implements ListenerAggregateInterface
 {
+	/**
+	 * @var MailService
+	 */
 	private $mailService;
+	/**
+	 * @var UserService
+	 */
 	private $userService;
+	/**
+	 * @var TaskService
+	 */
+	private $taskService;
 	
 	protected $listeners = array ();
 	
-	public function __construct(MailService $mailService, UserService $userService) {
+	public function __construct(MailService $mailService, UserService $userService, TaskService $taskService) {
 		$this->mailService = $mailService;
 		$this->userService = $userService;
+		$this->taskService = $taskService;
 	}
 	
 	public function attach(EventManagerInterface $events) {
-		$this->listeners [] = $events->getSharedManager ()->attach ( 'TaskManagement\TaskService', Task::EVENT_ESTIMATION_ADDED, function (Event $event) {
-			$task = $event->getTarget ();
-			$member = $event->getParam ( 'by' );
+		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, EstimationAdded::class, function (Event $event) {
+			$streamEvent = $event->getTarget();
+			$taskId = $streamEvent->metadata()['aggregate_id'];
+			$task = $this->taskService->getTask($taskId);
+			$memberId = $event->getParam ( 'by' );
+			$member = $this->userService->findUser($memberId);
 			$this->sendEstimationAddedInfoMail ( $task, $member );
 		} );
 		
-		$this->listeners [] = $events->getSharedManager ()->attach ( 'TaskManagement\TaskService', Task::EVENT_SHARES_ASSIGNED, function (Event $event) {
-			$task = $event->getTarget ();
-			$member = $event->getParam ( 'by' );
-			$this->sendSharesAssignedInfoMail ( $task, $member );
-		} );
+		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, SharesAssigned::class, array($this, 'processSharesAssigned'));
+		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, SharesSkipped::class, array($this, 'processSharesAssigned'));
 	}
 	
 	public function detach(EventManagerInterface $events) {
@@ -43,6 +58,15 @@ class NotifyMailListener implements ListenerAggregateInterface
 				unset ( $this->listeners [$index] );
 			}
 		}
+	}
+
+	public function processSharesAssigned(Event $event) {
+		$streamEvent = $event->getTarget();
+		$taskId = $streamEvent->metadata()['aggregate_id'];
+		$task = $this->taskService->getTask($taskId);
+		$memberId = $event->getParam ( 'by' );
+		$member = $this->userService->findUser($memberId);
+		$this->sendSharesAssignedInfoMail ( $task, $member );
 	}
 	
 	public function sendEstimationAddedInfoMail(Task $task, User $member){
@@ -53,12 +77,11 @@ class NotifyMailListener implements ListenerAggregateInterface
 		//No mail to Owner for his actions
 		if(strcmp($ownerId, $member->getId())==0){
 			return;
-		}		
+		}
 		
 		$message = $this->mailService->getMessage();
 		$message->setTo($owner->getEmail());
-		
-		$this->mailService->setSubject ( 'A member just estimated "' . $task->getSubject() . '"');
+		$message->setSubject ( 'A member just estimated "' . $task->getSubject() . '"');
 		
 		$this->mailService->setTemplate( 'mail/estimation-added-info.phtml', array(
 				'task' => $task,
@@ -83,8 +106,7 @@ class NotifyMailListener implements ListenerAggregateInterface
 
 		$message = $this->mailService->getMessage();
 		$message->setTo($owner->getEmail());
-
-		$this->mailService->setSubject ( 'A member just assigned its shares to "' . $task->getSubject() . '"' );
+		$message->setSubject ( 'A member just assigned its shares to "' . $task->getSubject() . '"' );
 
 		$this->mailService->setTemplate( 'mail/shares-assigned-info.phtml', array(
 			'task' => $task,

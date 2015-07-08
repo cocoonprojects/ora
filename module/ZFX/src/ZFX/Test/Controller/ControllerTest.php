@@ -56,6 +56,8 @@ abstract class ControllerTest extends \PHPUnit_Framework_TestCase
 		$aclFactory = new AclFactory();
 		$acl = $aclFactory->createService($serviceManager);
 		$this->controller->getPluginManager()->setService('isAllowed', new IsAllowed($acl));
+
+		$this->setupMore();
 	}
 
 	protected abstract function setupController();
@@ -63,6 +65,8 @@ abstract class ControllerTest extends \PHPUnit_Framework_TestCase
 	 * @return array
 	 */
 	protected abstract function setupRouteMatch();
+
+	protected function setupMore() {}
 	
 	protected function setupAnonymous() {
 		$identity = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Identity')

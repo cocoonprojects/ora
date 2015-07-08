@@ -1,15 +1,7 @@
 Feature: Create personal account
 	As a user
-	I want to have an account when I subscribe
+	I want to have a personal account when I join an organization
 	in order to collect and use my credits
-
-Scenario: Successfully subscribing and checking the account
-	Given that I am authenticated as "brian.colangelo@ora.local"
-	And that I want to find a "Account"
-	When I request "/accounting/accounts"
-	Then the response status code should be 200
-	And the response should be JSON
-	And the "accounts" property size should be "1"
 
 Scenario: Successfully getting organization account
 	Given that I am authenticated as "mark.rogers@ora.local"

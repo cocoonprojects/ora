@@ -33,12 +33,16 @@ class SharesControllerTest extends ControllerTest
 			->getMock();
 		$this->owner->method('getId')
 			->willReturn('60000000-0000-0000-0000-000000000000');
-		
+		$this->owner->method('isMemberOf')
+			->willReturn(true);
+
 		$this->member = $this->getMockBuilder(User::class)
 			->getMock();
 		$this->member->method('getId')
 			->willReturn('70000000-0000-0000-0000-000000000000');
-		
+		$this->member->method('isMemberOf')
+			->willReturn(true);
+
 		$this->setupLoggedUser($this->owner);
 
 		$stream = $this->getMockBuilder(Stream::class)
@@ -46,10 +50,12 @@ class SharesControllerTest extends ControllerTest
 			->getMock();
 		$stream->method('getId')
 			->willReturn(Uuid::fromString('00000000-1000-0000-0000-000000000000'));
-		
+		$stream->method('getOrganizationId')
+			->willReturn(Uuid::fromString('00000000-1000-0000-0000-000000000000'));
+
 		$this->task = Task::create($stream, 'Cras placerat libero non tempor', $this->owner);
-		$this->task->addMember($this->owner, Task::ROLE_OWNER, 'ccde992b-5aa9-4447-98ae-c8115906dcb7');
-		$this->task->addMember($this->member, Task::ROLE_MEMBER, 'cdde992b-5aa9-4447-98ae-c8115906dcb7');
+		$this->task->addMember($this->owner, Task::ROLE_OWNER);
+		$this->task->addMember($this->member, Task::ROLE_MEMBER);
 		
 		$this->task->addEstimation(1500, $this->owner);
 		$this->task->addEstimation(3100, $this->member);
@@ -69,8 +75,8 @@ class SharesControllerTest extends ControllerTest
 		$service = $this->controller->getTaskService();
 		$service->method('getTask')
 				->willReturn($this->task);
-		
-		$this->routeMatch->setParam('id', $this->task->getId()->toString());
+
+		$this->routeMatch->setParam('id', $this->task->getId());
 		
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -90,7 +96,7 @@ class SharesControllerTest extends ControllerTest
 		$service->method('getTask')
 				->willReturn($this->task);
 		
-		$this->routeMatch->setParam('id', $this->task->getId()->toString());
+		$this->routeMatch->setParam('id', $this->task->getId());
 		
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -110,7 +116,7 @@ class SharesControllerTest extends ControllerTest
 		$service->method('getTask')
 				->willReturn($this->task);
 		
-		$this->routeMatch->setParam('id', $this->task->getId()->toString());
+		$this->routeMatch->setParam('id', $this->task->getId());
 		
 		$this->request->setMethod('post');
 		 
@@ -127,7 +133,7 @@ class SharesControllerTest extends ControllerTest
 		$service->method('getTask')
 				->willReturn($this->task);
 		
-		$this->routeMatch->setParam('id', $this->task->getId()->toString());
+		$this->routeMatch->setParam('id', $this->task->getId());
 		
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -147,7 +153,7 @@ class SharesControllerTest extends ControllerTest
 		$service->method('getTask')
 				->willReturn($this->task);
 		
-		$this->routeMatch->setParam('id', $this->task->getId()->toString());
+		$this->routeMatch->setParam('id', $this->task->getId());
 		
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -167,7 +173,7 @@ class SharesControllerTest extends ControllerTest
 		$service->method('getTask')
 				->willReturn($this->task);
 		
-		$this->routeMatch->setParam('id', $this->task->getId()->toString());
+		$this->routeMatch->setParam('id', $this->task->getId());
 		
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -186,7 +192,7 @@ class SharesControllerTest extends ControllerTest
 		$service->method('getTask')
 				->willReturn(null);
 		
-		$this->routeMatch->setParam('id', $this->task->getId()->toString());
+		$this->routeMatch->setParam('id', $this->task->getId());
 		
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -206,7 +212,7 @@ class SharesControllerTest extends ControllerTest
 		$service->method('getTask')
 				->willReturn($this->task);
 		
-		$this->routeMatch->setParam('id', $this->task->getId()->toString());
+		$this->routeMatch->setParam('id', $this->task->getId());
 		
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -231,7 +237,7 @@ class SharesControllerTest extends ControllerTest
 		$service->method('getTask')
 			->willReturn($this->task);
 		 
-		$this->routeMatch->setParam('id', $this->task->getId()->toString());
+		$this->routeMatch->setParam('id', $this->task->getId());
 		 
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -250,7 +256,7 @@ class SharesControllerTest extends ControllerTest
 		$service->method('getTask')
 		->willReturn($this->task);
 		
-		$this->routeMatch->setParam('id', $this->task->getId()->toString());
+		$this->routeMatch->setParam('id', $this->task->getId());
 		
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -270,7 +276,7 @@ class SharesControllerTest extends ControllerTest
 		$service->method('getTask')
 			->willReturn($this->task);
 		 
-		$this->routeMatch->setParam('id', $this->task->getId()->toString());
+		$this->routeMatch->setParam('id', $this->task->getId());
 		 
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -291,7 +297,7 @@ class SharesControllerTest extends ControllerTest
 		$service->method('getTask')
 			->willReturn($this->task);
 		 
-		$this->routeMatch->setParam('id', $this->task->getId()->toString());
+		$this->routeMatch->setParam('id', $this->task->getId());
 		 
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();

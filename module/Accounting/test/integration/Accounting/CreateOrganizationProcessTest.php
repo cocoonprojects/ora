@@ -2,13 +2,11 @@
 
 namespace Accounting;
 
-use Zend\EventManager\ListenerAggregateInterface;
-use IntegrationTest\Bootstrap;
+use Accounting\Entity\OrganizationAccount as OrganizationAccountReadModel;
 use Accounting\Service\AccountService;
-use Accounting\Service\CreatePersonalAccountListener;
-use Accounting\Service\AccountCommandsListener;
-use People\Service\OrganizationService;
 use Application\Entity\User;
+use IntegrationTest\Bootstrap;
+use People\Service\OrganizationService;
 
 class CreateOrganizationProcessTest extends \PHPUnit_Framework_TestCase
 {
@@ -37,7 +35,7 @@ class CreateOrganizationProcessTest extends \PHPUnit_Framework_TestCase
 		$this->accountService = $serviceManager->get('Accounting\CreditsAccountsService');
 	}
 	
-	public function testSubscriptionProcess()
+	public function testCreationProcess()
 	{
 		$organization = $this->organizationService->createOrganization('Lorem ipsum', $this->user);
 		$this->assertNotNull($organization->getAccountId());
@@ -45,13 +43,14 @@ class CreateOrganizationProcessTest extends \PHPUnit_Framework_TestCase
 		$org = $this->organizationService->getOrganization($organization->getId());
 		$this->assertNotNull($org->getAccountId(), 'The newly created organization has no account (into the read model) after creation process completed');
 		
-		$account = $this->accountService->findOrganizationAccount($organization->getId());
+		$account = $this->accountService->findOrganizationAccount($organization);
 		$this->assertNotNull($account);
+		$this->assertInstanceOf(OrganizationAccountReadModel::class, $account);
 		$this->assertEquals($org->getAccountId()->toString(), $account->getId());
 		$this->assertCount(1, $account->getHolders());
 		$this->assertEquals($this->user, $account->getHolders()->first());
 		$this->assertEquals(0, $account->getBalance()->getValue());
 		$this->assertEmpty($account->getTransactions());
-		$this->assertEquals($organization->getId()->toString(), $account->getOrganization()->getId());
+		$this->assertEquals($organization->getId(), $account->getOrganization()->getId());
 	}
 }

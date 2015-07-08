@@ -17,6 +17,8 @@ class EventSourcingAccountServiceTest extends TestCase
 	protected $accountService;
 	
 	protected $user;
+
+	protected $organization;
 		
 	protected function setUp() {
 		parent::setUp();
@@ -26,28 +28,27 @@ class EventSourcingAccountServiceTest extends TestCase
 		$this->eventStore->commit();
 		$this->accountService = new EventSourcingAccountService($this->eventStore, $entityManager);
 		$this->user = User::create();
+		$this->organization = Organization::create('Test', $this->user);
 	}
-	
+
 	public function testCreatePersonalAccount() {
-		$account = $this->accountService->createPersonalAccount($this->user);
+		$account = $this->accountService->createPersonalAccount($this->user, $this->organization);
 		$this->assertInstanceOf('Accounting\Account', $account);
 		$this->assertAttributeInstanceOf('Rhumsaa\Uuid\Uuid', 'id', $account);
 	}
-	
+
 	public function testCreateOrganizationAccount() {
 		$holder = $this->user;
-		$organization = Organization::create('Test', $holder);
-		$account = $this->accountService->createOrganizationAccount($organization, $holder);
+		$account = $this->accountService->createOrganizationAccount($this->organization, $holder);
 		$this->assertInstanceOf('Accounting\OrganizationAccount', $account);
 		$this->assertAttributeInstanceOf('Rhumsaa\Uuid\Uuid', 'id', $account);
-		$a = $this->accountService->getAccount($account->getId()->toString());
+		$a = $this->accountService->getAccount($account->getId());
 		$this->assertInstanceOf('Accounting\OrganizationAccount', $a);
 	}
 	
 	public function testDeposit() {
 		$holder = $this->user;
-		$organization = Organization::create('Test', $holder);
-		$account = $this->accountService->createOrganizationAccount($organization, $holder);
+		$account = $this->accountService->createOrganizationAccount($this->organization, $holder);
 		$balance = $account->getBalance()->getValue();
 		$this->eventStore->beginTransaction();
 		$account->deposit(150, $holder, "My first deposit");

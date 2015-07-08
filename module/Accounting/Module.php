@@ -60,11 +60,15 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				},
 				'Accounting\CreateOrganizationAccountListener' => function ($locator) {
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
-					return new CreateOrganizationAccountListener($accountService);
+					$organizationService = $locator->get('People\OrganizationService');
+					$userService = $locator->get('Application\UserService');
+					return new CreateOrganizationAccountListener($accountService, $organizationService, $userService);
 				},
 				'Accounting\CreatePersonalAccountListener' => function ($locator) {
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
-					return new CreatePersonalAccountListener($accountService);
+					$organizationService = $locator->get('People\OrganizationService');
+					$userService = $locator->get('Application\UserService');
+					return new CreatePersonalAccountListener($accountService, $userService, $organizationService);
 				},
 			),
 		);

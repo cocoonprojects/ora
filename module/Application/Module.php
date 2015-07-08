@@ -2,13 +2,13 @@
 namespace Application;
 
 use Application\Authentication\OAuth2\LoadLocalProfileListener;
+use Application\Controller\AuthController;
+use Application\Controller\MembershipsController;
+use Application\Service\DomainEventDispatcher;
+use Application\Service\EventSourcingUserService;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 use Zend\Authentication\AuthenticationService;
-use Zend\Permissions\Acl\Acl;
-use Application\Controller\AuthController;
-use Application\Controller\MembershipsController;
-use Application\Service\EventSourcingUserService;
 use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
 use ZFX\Acl\Controller\Plugin\IsAllowed;
 use ZFX\Authentication\DomainAdapter;
@@ -83,6 +83,7 @@ class Module
 		return array(
 			'invokables' => array(
 				'Zend\Authentication\AuthenticationService' => AuthenticationService::class,					
+				'Application\DomainEventDispatcher' => DomainEventDispatcher::class
 			),
 			'factories' => array(
 				'Application\Service\AdapterResolver' => 'Application\Service\OAuth2AdapterResolverFactory',

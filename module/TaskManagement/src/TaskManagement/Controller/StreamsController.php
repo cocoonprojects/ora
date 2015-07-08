@@ -79,7 +79,7 @@ class StreamsController extends HATEOASRestfulController
 		
 		$subject = isset($data['subject']) ? $filters->filter($data['subject']) : null;
 		$stream = $this->streamService->createStream($organization, $subject, $identity);
-		$url = $this->url()->fromRoute('streams', array('id' => $stream->getId()->toString()));
+		$url = $this->url()->fromRoute('streams', array('id' => $stream->getId()));
 		$this->response->getHeaders()->addHeaderLine('Location', $url);
 		$this->response->setStatusCode(201);
 		

@@ -22,13 +22,13 @@ class Stream extends DomainEntity
 	 *
 	 * @var Uuid
 	 */
-	private $organizationId;	
+	private $organizationId;
 	
 	public static function create(Organization $organization, $subject, User $createdBy) 
 	{
 		$rv = new self();
 		$rv->recordThat(StreamCreated::occur(Uuid::uuid4()->toString(), [
-			'organizationId' => $organization->getId()->toString(),
+			'organizationId' => $organization->getId(),
 			'by' => $createdBy->getId(),
 		]));
 		$rv->setSubject($subject, $createdBy);
@@ -49,7 +49,7 @@ class Stream extends DomainEntity
 
 	public function changeOrganization(Organization $organization, User $by) {
 		$this->recordThat(StreamOrganizationChanged::occur($this->id->toString(), [
-			'organizationId' => $organization->getId()->toString(),
+			'organizationId' => $organization->getId(),
 			'by' => $by->getId()
 		]));
 	}

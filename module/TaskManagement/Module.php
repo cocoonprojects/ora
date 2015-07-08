@@ -4,6 +4,7 @@ namespace TaskManagement;
 
 use AcMailer\Service\MailService;
 use AcMailer\View\DefaultLayout;
+use TaskManagement\Service\CloseTaskListener;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use TaskManagement\Controller\MembersController;
@@ -35,16 +36,12 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$streamService = $locator->get('TaskManagement\StreamService');
 					$acl = $locator->get('Application\Service\Acl');
 					$controller = new TasksController($taskService, $streamService, $acl);
-					$accountService = $locator->get('Accounting\CreditsAccountsService');
-					$controller->setAccountService($accountService);
 					return $controller;
 	            },
 				'TaskManagement\Controller\Members' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
-					$accountService = $locator->get('Accounting\CreditsAccountsService');
 					$controller = new MembersController($taskService);
-					$controller->setAccountService($accountService);
 					return $controller;
 				},
 				'TaskManagement\Controller\Transitions' => function ($sm) {
@@ -91,7 +88,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 	{
 		return array (
 			'invokables' => array(
-				'TaskManagement\CloseTaskListener' => 'TaskManagement\Service\CloseTaskListener',
 			),
 			'factories' => array (
 				'TaskManagement\StreamService' => function ($locator) {
@@ -102,7 +98,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				'TaskManagement\NotifyMailListener'=> function ($locator){
 					$mailService = $locator->get('AcMailer\Service\MailService');
 					$userService = $locator->get('Application\UserService');
-					$rv = new NotifyMailListener($mailService, $userService);
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$rv = new NotifyMailListener($mailService, $userService, $taskService);
 					return $rv;
 				},
 				'TaskManagement\TaskService' => function ($locator) {
@@ -120,10 +117,16 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				},
 				'TaskManagement\TransferTaskSharesCreditsListener' => function ($locator) {
 					$taskService = $locator->get('TaskManagement\TaskService');
-					$streamService = $locator->get('TaskManagement\StreamService');
+					$transactionManager = $locator->get('prooph.event_store');
 					$organizationService = $locator->get('People\OrganizationService');
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
-					return new TransferTaskSharesCreditsListener($taskService, $streamService, $organizationService, $accountService);
+					$userService = $locator->get('Application\UserService');
+					return new TransferTaskSharesCreditsListener($taskService, $organizationService, $accountService, $userService, $transactionManager);
+				},
+				'TaskManagement\CloseTaskListener' => function ($locator) {
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$userService = $locator->get('Application\UserService');
+					return new CloseTaskListener($taskService, $userService);
 				}
 			),
 		);

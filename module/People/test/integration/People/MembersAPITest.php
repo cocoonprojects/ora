@@ -12,6 +12,7 @@ namespace People;
 use IntegrationTest\Bootstrap;
 use People\Controller\MembersController;
 use People\Service\OrganizationService;
+use Zend\Authentication\AuthenticationService;
 use Zend\Http\Request;
 use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\RouteMatch;
@@ -31,6 +32,10 @@ class MembersAPITest extends \PHPUnit_Framework_TestCase
 	 * @var OrganizationService
 	 */
 	protected $orgService;
+	/**
+	 * @var AuthenticationService
+	 */
+	protected $authService;
 
 	protected function setUp()
 	{
@@ -50,9 +55,9 @@ class MembersAPITest extends \PHPUnit_Framework_TestCase
 		$this->controller->setServiceLocator($serviceManager);
 
 		$adapter = new OAuth2AdapterMock();
-		$adapter->setEmail('phil.toledo@ora.local');
-		$authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
-		$authService->authenticate($adapter);
+		$adapter->setEmail('paul.smith@ora.local');
+		$this->authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
+		$this->authService->authenticate($adapter);
 
 		$pluginManager = $serviceManager->get('ControllerPluginManager');
 		$this->controller->setPluginManager($pluginManager);
@@ -70,6 +75,12 @@ class MembersAPITest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals(201, $response->getStatusCode());
 		$organization = $this->orgService->findOrganization('00000000-0000-0000-1000-000000000000');
 		$memberships = $this->orgService->findOrganizationMemberships($organization);
-		$this->assertEquals('70000000-0000-0000-0000-000000000000', end($memberships)->getMember()->getId());
+		$isMember = false;
+		foreach($memberships as $m) {
+			if($m->getMember()->getId() == $this->authService->getIdentity()['user']->getId()) {
+				$isMember = true;
+			}
+		}
+		$this->assertTrue($isMember);
 	}
 }

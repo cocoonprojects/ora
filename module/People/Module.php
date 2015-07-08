@@ -51,7 +51,8 @@ class Module
 				'People\SendMailListener' => function ($serviceLocator) {
 					$mailService = $serviceLocator->get('AcMailer\Service\MailService');
 					$userService = $serviceLocator->get('Application\UserService');
-					return new SendMailListener($mailService, $userService);
+					$organizationService = $serviceLocator->get('People\OrganizationService');
+					return new SendMailListener($mailService, $userService, $organizationService);
 				}
 			),
 		);

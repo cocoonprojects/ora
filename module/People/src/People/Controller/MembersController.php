@@ -76,7 +76,7 @@ class MembersController extends HATEOASRestfulController
 
 		$this->transaction()->begin();
 		try {
-			$organization->addMember($identity, $identity);
+			$organization->addMember($identity);
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
 		} catch (DuplicatedDomainEntityException $e) {
@@ -108,7 +108,7 @@ class MembersController extends HATEOASRestfulController
 
 		$this->transaction()->begin();
 		try {
-			$organization->removeMember($identity, $identity);
+			$organization->removeMember($identity);
 			$this->transaction()->commit();
 			$this->response->setStatusCode(200);
 		} catch (DomainEntityUnavailableException $e) {

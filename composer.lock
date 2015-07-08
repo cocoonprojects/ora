@@ -116,16 +116,16 @@
         },
         {
             "name": "codeliner/array-reader",
-            "version": "1.1.0",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/codeliner/array-reader.git",
-                "reference": "2ee2cbd3c5588d0db30cc2543ab2269bdb747d6b"
+                "reference": "c1be1b89e4d1b8df0e9414a3ab79b04b46418d29"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codeliner/array-reader/zipball/2ee2cbd3c5588d0db30cc2543ab2269bdb747d6b",
-                "reference": "2ee2cbd3c5588d0db30cc2543ab2269bdb747d6b",
+                "url": "https://api.github.com/repos/codeliner/array-reader/zipball/c1be1b89e4d1b8df0e9414a3ab79b04b46418d29",
+                "reference": "c1be1b89e4d1b8df0e9414a3ab79b04b46418d29",
                 "shasum": ""
             },
             "require": {
@@ -159,7 +159,7 @@
                 "php",
                 "util"
             ],
-            "time": "2014-07-05 10:51:05"
+            "time": "2015-07-02 17:50:54"
         },
         {
             "name": "doctrine/annotations",
@@ -598,12 +598,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/DoctrineORMModule.git",
-                "reference": "11cf6a34cd097b4d252a82d198ceed565ee3102c"
+                "reference": "18f90ee76734ea974c0856d9c2db0fa080457398"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/DoctrineORMModule/zipball/11cf6a34cd097b4d252a82d198ceed565ee3102c",
-                "reference": "11cf6a34cd097b4d252a82d198ceed565ee3102c",
+                "url": "https://api.github.com/repos/doctrine/DoctrineORMModule/zipball/18f90ee76734ea974c0856d9c2db0fa080457398",
+                "reference": "18f90ee76734ea974c0856d9c2db0fa080457398",
                 "shasum": ""
             },
             "require": {
@@ -668,7 +668,7 @@
                 "orm",
                 "zf2"
             ],
-            "time": "2015-06-15 21:20:41"
+            "time": "2015-06-25 17:58:22"
         },
         {
             "name": "doctrine/inflector",
@@ -1148,16 +1148,16 @@
         },
         {
             "name": "prooph/event-store",
-            "version": "v2.1.0",
+            "version": "v2.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/prooph/event-store.git",
-                "reference": "96debf2e6a92477da59080b8f96e1dbb44a50ed2"
+                "reference": "34f0c33a5571384f840d7a9df360e63f1596c506"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/prooph/event-store/zipball/96debf2e6a92477da59080b8f96e1dbb44a50ed2",
-                "reference": "96debf2e6a92477da59080b8f96e1dbb44a50ed2",
+                "url": "https://api.github.com/repos/prooph/event-store/zipball/34f0c33a5571384f840d7a9df360e63f1596c506",
+                "reference": "34f0c33a5571384f840d7a9df360e63f1596c506",
                 "shasum": ""
             },
             "require": {
@@ -1209,7 +1209,7 @@
                 "prooph",
                 "zf2"
             ],
-            "time": "2015-04-16 17:45:56"
+            "time": "2015-07-03 08:46:42"
         },
         {
             "name": "prooph/event-store-zf2-adapter",
@@ -2775,16 +2775,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "2.1.6",
+            "version": "2.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "631e365cf26bb2c078683e8d9bcf8bc631ac4d44"
+                "reference": "07e27765596d72c378a6103e80da5d84e802f1e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/631e365cf26bb2c078683e8d9bcf8bc631ac4d44",
-                "reference": "631e365cf26bb2c078683e8d9bcf8bc631ac4d44",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/07e27765596d72c378a6103e80da5d84e802f1e4",
+                "reference": "07e27765596d72c378a6103e80da5d84e802f1e4",
                 "shasum": ""
             },
             "require": {
@@ -2833,7 +2833,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-06-19 07:11:55"
+            "time": "2015-06-30 06:52:35"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -3015,16 +3015,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "4.7.5",
+            "version": "4.7.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "f6701ef3faea759acd1910a7751d8d102a7fd5bc"
+                "reference": "0ebabb4cda7d066be8391dfdbaf57fe70ac9a99b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/f6701ef3faea759acd1910a7751d8d102a7fd5bc",
-                "reference": "f6701ef3faea759acd1910a7751d8d102a7fd5bc",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/0ebabb4cda7d066be8391dfdbaf57fe70ac9a99b",
+                "reference": "0ebabb4cda7d066be8391dfdbaf57fe70ac9a99b",
                 "shasum": ""
             },
             "require": {
@@ -3083,7 +3083,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-06-21 07:23:36"
+            "time": "2015-06-30 06:53:57"
         },
         {
             "name": "phpunit/phpunit-mock-objects",

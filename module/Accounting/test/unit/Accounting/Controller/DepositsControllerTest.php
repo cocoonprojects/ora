@@ -1,6 +1,7 @@
 <?php
 namespace Accounting\Controller;
 
+use People\Organization;
 use ZFX\Test\Controller\ControllerTest;
 use Rhumsaa\Uuid\Uuid;
 use Application\Entity\User;
@@ -28,8 +29,10 @@ class DepositsControllerTest extends ControllerTest
 		parent::setUp();
 		$user = User::create();
 		$this->setupLoggedUser($user);
+
+		$organization = Organization::create('Lorem Ipsum', $user);
 		
-		$this->account = Account::create($user);
+		$this->account = Account::create($organization, $user);
 	}
 	
 	public function testInvoke() {
