@@ -53,6 +53,7 @@ class TasksController extends OrganizationAwareController
 		$this->acl = $acl;
 		$this->intervalForCloseTasks = new \DateInterval('P7D');
 	}
+	
 	public function get($id)
 	{
 		if(is_null($this->identity())) {

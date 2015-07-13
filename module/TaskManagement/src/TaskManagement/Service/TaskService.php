@@ -2,6 +2,7 @@
 
 namespace TaskManagement\Service;
 
+use People\Entity\Organization;
 use TaskManagement\Stream;
 use TaskManagement\Task;
 use TaskManagement\Entity\Task as ReadModelTask;
