@@ -129,7 +129,7 @@
  </target>
  
  <target name="phpunit" description="Run unit tests with PHPUnit">
-  <exex executable="phpunit" failonerror="true">
+  <exec executable="phpunit" failonerror="true">
   	<arg value="-d" />
   	<arg value="memory_limit=256M" />
   	<arg value="--coverage-crap4j" />
