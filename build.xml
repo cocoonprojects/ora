@@ -141,7 +141,7 @@
   	<arg value="-c" />
   	<arg value="${basedir}/tests/phpunit.xml" />
   	<arg value="${basedir}/tests" />
-  </exex>
+  </exec>
  </target>
 
 </project>
