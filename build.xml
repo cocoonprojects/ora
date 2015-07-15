@@ -139,8 +139,8 @@
   	<arg value="--log-junit" />
   	<arg value="${basedir}/build/logs/junit.xml" />
   	<arg value="-c" />
-  	<arg value="${basedir}/tests/phpunit.xml" />
-  	<arg value="${basedir}/tests" />
+  	<arg value="${basedir}/tests/unit/phpunit.xml" />
+  	<arg value="${basedir}/tests/unit" />
   </exec>
  </target>
 
