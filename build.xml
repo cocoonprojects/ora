@@ -132,12 +132,6 @@
   <exec executable="phpunit" failonerror="true">
   	<arg value="-d" />
   	<arg value="memory_limit=256M" />
-  	<arg value="--coverage-crap4j" />
-  	<arg value="${basedir}/build/logs/crap4j.xml" />
-  	<arg value="--coverage-clover" />
-  	<arg value="${basedir}/build/logs/clover.xml" />
-  	<arg value="--log-junit" />
-  	<arg value="${basedir}/build/logs/junit.xml" />
   	<arg value="-c" />
   	<arg value="${basedir}/tests/unit/phpunit.xml" />
   	<arg value="${basedir}/tests/unit" />
