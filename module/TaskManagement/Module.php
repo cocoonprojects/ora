@@ -20,6 +20,7 @@ use TaskManagement\Service\TaskCommandsListener;
 use TaskManagement\Service\EventSourcingStreamService;
 use TaskManagement\Service\EventSourcingTaskService;
 use TaskManagement\Controller\RemindersController;
+use TaskManagement\Controller\MailController;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
@@ -79,6 +80,14 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				  	$taskService = $locator->get('TaskManagement\TaskService');	
 				  	$controller = new RemindersController($notifyMailListener, $taskService, $acl);
 				  	return $controller;
+			  	},
+			  	'TaskManagement\Controller\Mail' => function ($sm){
+			  		$locator = $sm->getServiceLocator();
+			  		$acl = $locator->get('Application\Service\Acl');
+			  		$notifyMailListener = $locator->get('TaskManagement\NotifyMailListener');
+			  		$taskService = $locator->get('TaskManagement\TaskService');
+			  		$controller = new MailController($notifyMailListener, $taskService, $acl);
+			  		return $controller;
 			  	}
 			)
 		);
