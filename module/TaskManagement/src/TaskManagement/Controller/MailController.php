@@ -46,7 +46,7 @@ class MailController extends HATEOASRestfulController {
 				
 				$task = $this->taskService->findTask($id);
 				
-				$this->notifyMailListener->remindAddOfEstimation($task);
+				$this->notifyMailListener->reminderAddEstimation($task);
 				
 				break;
 			default:
