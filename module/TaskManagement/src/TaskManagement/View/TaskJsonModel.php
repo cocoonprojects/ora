@@ -95,6 +95,9 @@ class TaskJsonModel extends JsonModel
 		if ($this->acl->isAllowed($this->user, $task, 'TaskManagement.Task.assignShares')) {
 			$links['ora:assignShares'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'controller' => 'shares']);
 		}
+		if($this->acl->isAllowed($this->user, $task,'TaskManagement.Task.sendReminder')){
+			$links['ora:sendReminder'] = $this->url->fromRoute('mail', ['id' => $task->getId()]);//TODO
+		}
 		
 		$rv = [
 			'id' => $task->getId (),

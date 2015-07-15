@@ -98,6 +98,12 @@ TaskManagement.prototype = {
 			e.preventDefault();
 			that.acceptTask(e);
 		});
+		
+		//SEND REMINDER
+		$("body").on("click", "a[data-action='add-estimation']", function(e){
+			e.preventDefault();
+			that.sendReminder(e);
+		});
 
 		$("body").on("click", "a[data-action='completeTask']", function(e){
 			e.preventDefault();
@@ -471,6 +477,10 @@ TaskManagement.prototype = {
 					actions.push('<a href="' + task._links['ora:delete'] + '" data-action="deleteTask" class="btn btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>');
 				}
 				
+				if(task._links['ora:sendReminder'] != undefined && task.status == TASK_STATUS.get('ONGOING')){
+					actions.push('<a href="' + task._links['ora:sendReminder'] + '" data-action="add-estimation" class="btn">Send Reminder <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></a>');
+				}
+				
 				rv = that.renderTask(task);
 				if ( actions.length > 0 ) {
 					rv += '<ul class="task-actions"><li>' + actions.join('</li><li>') + '</li></ul>';
@@ -770,6 +780,34 @@ TaskManagement.prototype = {
 		alertDiv.addClass('alert alert-' + level);
 		alertDiv.text(message);
 		alertDiv.show();
+	},
+	
+	sendReminder: function(e){
+		var url = $(e.target).attr('href');
+		var type = $(e.target).attr('data-action');
+		
+		$.ajax({
+			url: $(e.target).attr('href'),
+			method: 'POST',
+			data: {type: $(e.target).attr('data-action')},
+			success: function() {
+				that.listTasks();
+			},
+			statusCode: {
+				400 : function(jqHXR, textStatus, errorThrown){
+					json = $.parseJSON(jqHXR.responseText);
+					if(json.description != undefined) {
+						that.show(modal, 'danger', json.description);
+					}
+					if(json.errors != undefined) {
+						that.show(modal, 'danger', json.errors[0].message);
+					}
+				}
+			},
+			error: function(jqHXR, textStatus, errorThrown) {
+				that.show(modal, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to send reminder');
+			}
+		});
 	}
 	
 };
