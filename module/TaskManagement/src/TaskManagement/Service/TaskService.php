@@ -6,6 +6,7 @@ use TaskManagement\Stream;
 use TaskManagement\Task;
 use TaskManagement\Entity\Task as ReadModelTask;
 use Zend\View\Renderer\PhpRenderer;
+use People\Entity\Organization;
 
 
 /**
@@ -26,7 +27,13 @@ interface TaskService
 	 */
 	public function getTask($id);
 	
-	public function findTasks();
+	/**
+	 * Get the list of all available tasks
+	 *
+	 * @param Organization $organization
+	 * @return Task[]
+	 */
+	public function findTasks(Organization $organization);
 	
 	public function findTask($id);
 	

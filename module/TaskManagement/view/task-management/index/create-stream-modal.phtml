@@ -15,17 +15,16 @@
 					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 					  <span aria-hidden="true">&times;</span>
 					</button>
-				</div>
-				<div class="form-group">
-					<label for="subject">Subject</label>
-					<input type="text" class="form-control" id="subject" name="subject">
-				</div>
+				</div>				
 				<div class="form-group">
 					<label for="createStreamOrganizationId">Organization</label>
-					<select class="form-control" id="createStreamOrganizationId" name="organizationId">
-						<option></option>
-					</select>
-				</div>
+					<input type="text" class="form-control" disabled id="createStreamOrganizationName">		
+					<input type="hidden" class="form-control" name="organizationId" id="organizationId">		
+				</div>				
+				<div class="form-group">
+					<label for="subject">Subject</label>
+					<input type="text" class="form-control" id="subject" required name="subject">
+				</div>				
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

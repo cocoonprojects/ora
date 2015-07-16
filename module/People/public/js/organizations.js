@@ -1,6 +1,17 @@
 var Organizations = function()
 {
 	this.bindEventsOn();
+	
+//	var orgId = "";
+//	
+//	$("body").on("click", "a[data-action='loadOrganizationItems']", function(e){			
+//		orgId = e.target.getAttribute("data-id");			
+//		window.location = "/task-management";
+//	});
+//	
+//	this.getOrgId = function(){
+//		return orgId;
+//	}
 };
 
 Organizations.prototype = {
@@ -16,16 +27,30 @@ Organizations.prototype = {
 	{
 		var that = this;
 		
-		$('#userMenu').on('show.bs.dropdown', function(e) {
-			container = $(e.target);
-			$('li.membership').remove();
-			if(that.membershipsData == null) {
-				$('<li class="membership"><a href="#">Loading...</a></li>').insertBefore('#myOrgDevider');
-			} else {
-				$.each(that.membershipsData._embedded['ora:organization-membership'], function(i, object) {
-					$('<li class="membership"><a href="#" data-url="people/organizations/' + object.organization.id + '/members" data-action="loadPeople">' + object.organization.name + '</a></li>').insertBefore('#myOrgDevider');
-				});
-			}
+//		$('#userMenu').on('show.bs.dropdown', function(e) {
+//			container = $(e.target);
+//			$('li.membership').remove();
+//			if(that.membershipsData == null) {
+//				$('<li class="membership"><a href="#">Loading...</a></li>').insertBefore('#myOrgDevider');
+//			} else {
+//				$.each(that.membershipsData._embedded['ora:organization-membership'], function(i, object) {
+//					$('<li class="membership"><a href="#" data-url="people/organizations/' + object.organization.id + '/members" data-action="loadPeople">' + object.organization.name + '</a></li>').insertBefore('#myOrgDevider');
+//				});
+//			}
+//		});
+		
+		$("body").on("click", "a[data-action='loadOrganizationItems']", function(e){
+			
+			sessionStorage.removeItem('orgName');
+			sessionStorage.removeItem('orgId');
+			sessionStorage.setItem('orgName', e.target.innerHTML);			
+			sessionStorage.setItem('orgId', e.target.getAttribute("data-id"));
+						
+			window.location = '/task-management';
+		});
+		
+		$("#organizations_body").on("organizationsLoaded", function(e){
+			that.showMyOrganizations(e.target);
 		});
 		
 		$("#createOrganizationModal").on("show.bs.modal", function(e) {
@@ -50,6 +75,23 @@ Organizations.prototype = {
 		});
 	},
 
+	showMyOrganizations: function(target){
+		
+		if(this.membershipsData.count == 0) {
+			target.innerHTML = "Not member of any organization yet";
+		} else {
+			target.innerHTML = "";
+			$.each(this.membershipsData._embedded['ora:organization-membership'], function(i, object) {
+				$("#wait_for_organizations").hide();
+				$(target).append('<li class="membership"><a href="#"'
+						+'data-id='+ object.organization.id+' '
+						+'data-action="loadOrganizationItems">' 
+						+ object.organization.name 
+						+ '</li>');
+			});
+		}		
+	},
+	
 	createOrganization: function(e)
 	{
 		var form = $(e.target);
@@ -154,6 +196,7 @@ Organizations.prototype = {
 	init: function()
 	{
 		var that = this;
+		//TODO: A cosa si riferisce?
 		if($("ol#organizations").length) {
 			$.when($.ajax('people/organizations'), $.ajax('/memberships')).done(function(orgs, myorgs) {
 				that.setMembershipsData(myorgs[0]);
@@ -161,7 +204,10 @@ Organizations.prototype = {
 				that.onLoadOrganizationsCompleted();
 			});
 		} else {
-			$.getJSON('/memberships', function(data) { that.setMembershipsData(data); } );
+			$.getJSON('/memberships', function(data) { 
+				that.setMembershipsData(data);
+				$("#organizations_body").trigger("organizationsLoaded");
+			});
 		}
 	},
 

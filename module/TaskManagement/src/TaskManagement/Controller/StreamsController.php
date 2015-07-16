@@ -48,7 +48,25 @@ class StreamsController extends HATEOASRestfulController
 	   	}
 	   	$identity = $identity['user'];
 
-	   	$streams = $this->streamService->findStreams($identity);
+	   	$orgId = $this->getRequest()->getQuery('orgId');
+	   	
+	   	if (is_null($orgId)){
+	   		$this->response->setStatusCode(400);
+	   		return $this->response;
+	   	}
+	   	
+	   	$organization = $this->organizationService->findOrganization($orgId);
+	   	if (is_null($organization)){
+	   		$this->response->setStatusCode(404);
+	   		return $this->response;
+	   	}
+	   	
+	   	if(!$this->isAllowed($identity, $organization, 'TaskManagement.Stream.list')){
+	   		$this->response->setStatusCode(403);
+	   		return $this->response;
+	   	}
+	   	
+	   	$streams = $this->streamService->findStreams($organization);
 	   	$view = new StreamJsonModel($this->url(), $identity);
 	   	$view->setVariable('resource', $streams);
 		return $view;

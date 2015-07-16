@@ -31,7 +31,7 @@ class AclFactory implements FactoryInterface
 		$acl->addRole(User::ROLE_SYSTEM);
 
 		$acl->addResource('Ora\Organization');
-		$acl->allow(User::ROLE_USER, 'Ora\Organization', 'People.Organization.userList', new MemberOfOrganizationAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\Organization', array('People.Organization.userList', 'TaskManagement.Task.list', 'TaskManagement.Stream.list'), new MemberOfOrganizationAssertion());
 		
 		$acl->addResource('Ora\Account');
 		$acl->addResource('Ora\OrganizationAccount');

@@ -24,24 +24,25 @@ use TaskManagement\Controller\RemindersController;
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
 	public function getControllerConfig() 
-    {
-        return array(
-            'invokables' => array(
-	            'TaskManagement\Controller\Index' => 'TaskManagement\Controller\IndexController',
-            ),
-            'factories' => array(
-	            'TaskManagement\Controller\Tasks' => function ($sm) {
-	            	$locator = $sm->getServiceLocator();
+	{
+		return array(
+			'invokables' => array(
+				'TaskManagement\Controller\Index' => 'TaskManagement\Controller\IndexController',
+			),
+			'factories' => array(
+				'TaskManagement\Controller\Tasks' => function ($sm) {
+					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$streamService = $locator->get('TaskManagement\StreamService');
 					$acl = $locator->get('Application\Service\Acl');
-					$controller = new TasksController($taskService, $streamService, $acl);
+					$organizationService = $locator->get('People\OrganizationService');
+					$controller = new TasksController($taskService, $streamService, $acl, $organizationService);
 					if(array_key_exists('assignment_of_shares_timebox', $locator->get('Config'))){
 						$assignmentOfSharesTimebox = $locator->get('Config')['assignment_of_shares_timebox'];
 						$controller->setIntervalForCloseTasks($assignmentOfSharesTimebox);
 					}
 					return $controller;
-	            },
+				},
 				'TaskManagement\Controller\Members' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
@@ -77,15 +78,15 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$organizationService = $locator->get('People\OrganizationService');
 					$controller = new StreamsController($streamService, $organizationService);
 					return $controller;
-			  	},
-			  	'TaskManagement\Controller\Reminders' => function ($sm) {
-				  	$locator = $sm->getServiceLocator();
-				  	$acl = $locator->get('Application\Service\Acl');
-				  	$notifyMailListener = $locator->get('TaskManagement\NotifyMailListener');
-				  	$taskService = $locator->get('TaskManagement\TaskService');	
-				  	$controller = new RemindersController($notifyMailListener, $taskService, $acl);
-				  	return $controller;
-			  	}
+				},
+				'TaskManagement\Controller\Reminders' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$acl = $locator->get('Application\Service\Acl');
+					$notifyMailListener = $locator->get('TaskManagement\NotifyMailListener');
+					$taskService = $locator->get('TaskManagement\TaskService');	
+					$controller = new RemindersController($notifyMailListener, $taskService, $acl);
+					return $controller;
+				}
 			)
 		);
 	} 

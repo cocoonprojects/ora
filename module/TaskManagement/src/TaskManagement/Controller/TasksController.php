@@ -17,6 +17,7 @@ use TaskManagement\Task;
 use TaskManagement\View\TaskJsonModel;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
+use People\Service\OrganizationService;
 
 class TasksController extends HATEOASRestfulController
 {
@@ -42,13 +43,19 @@ class TasksController extends HATEOASRestfulController
 	 *@var \DateInterval
 	 */
 	protected $intervalForCloseTasks;
-
-	public function __construct(TaskService $taskService, StreamService $streamService, Acl $acl)
+	/**
+	 *
+	 * @var OrganizationService
+	 */
+	private $organizationService;
+	
+	public function __construct(TaskService $taskService, StreamService $streamService, Acl $acl, OrganizationService $organizationService)
 	{
 		$this->taskService = $taskService;
 		$this->streamService = $streamService;		
 		$this->acl = $acl;
 		$this->intervalForCloseTasks = new \DateInterval('P7D');
+		$this->organizationService = $organizationService;
 	}
 	
 	public function get($id)
@@ -79,15 +86,34 @@ class TasksController extends HATEOASRestfulController
 	 */
 	public function getList()
 	{
-		if(is_null($this->identity())) {
+		if (is_null($this->identity())){
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-
+		$identity = $this->identity()['user'];
+		
+		$orgId = $this->getRequest()->getQuery('orgId');
+		
+		if (is_null($orgId)){
+			$this->response->setStatusCode(400);
+			return $this->response;
+		}
+		
+		$organization = $this->organizationService->findOrganization($orgId);
+		if (is_null($organization)){
+			$this->response->setStatusCode(404);
+			return $this->response;
+		}
+		
+		if(!$this->isAllowed($identity, $organization, 'TaskManagement.Task.list')){
+			$this->response->setStatusCode(403);
+			return $this->response;
+		}
+		
 		$streamID = $this->getRequest()->getQuery('streamID');
-
-		$availableTasks = is_null($streamID) ? $this->taskService->findTasks() : $this->taskService->findStreamTasks($streamID);
-
+		
+		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($organization) : $this->taskService->findStreamTasks($streamID);
+		
 		$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl);
 		$view->setVariable('resource', $availableTasks);
 		return $view;
@@ -231,7 +257,7 @@ class TasksController extends HATEOASRestfulController
 			$this->response->setStatusCode(200);
 		} catch (IllegalStateException $e) {
 			$this->transaction()->rollback();
-            $this->response->setStatusCode(412);	// Preconditions failed			
+			$this->response->setStatusCode(412);	// Preconditions failed			
 		}
 		return $this->response;
 	}

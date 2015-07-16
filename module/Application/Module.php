@@ -104,7 +104,7 @@ class Module
 	{
 		return array(
 			'invokables' => array(
-				'LoginPopupHelper' => 'Application\View\Helper\LoginPopupHelper',
+				'LoginHelper' => 'Application\View\Helper\LoginHelper',
 			),
 		);
 	}

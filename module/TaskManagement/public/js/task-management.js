@@ -48,12 +48,19 @@ TaskManagement.prototype = {
 			f[0].reset();
 			$(this).find('div.alert').hide();
 			
-			var select = f.find("#createStreamOrganizationId");
-			select.empty();
-			select.append('<option></option>');
-			$.each(organizations.membershipsData._embedded['ora:organization-membership'], function(i, object) {
-				select.append('<option value="' + object.organization.id + '">' + object.organization.name + '</option>');
-			});
+			var orgName = f.find("#createStreamOrganizationName");
+			orgName.val(sessionStorage.getItem('orgName'));
+			
+			var orgId = f.find("#organizationId");
+			orgId.val(sessionStorage.getItem('orgId'));
+		});
+		
+		$("#createStreamModal").on("shown.bs.modal", function(e) {
+			$("#createStreamModal :input:text:enabled:first").focus()
+		});
+		
+		$("#createTaskModal").on("shown.bs.modal", function(e) {
+			$("#createTaskModal :input:text:enabled:first").focus()
 		});
 		
 		$("#createStreamModal").on("submit", "form", function(e){
@@ -398,7 +405,7 @@ TaskManagement.prototype = {
 	listTasks: function()
 	{
 		that = this;
-		$.getJSON('/task-management/tasks', function(data) {
+		$.getJSON('/task-management/tasks?orgId='+sessionStorage.getItem('orgId'), function(data) {
 			that.data = data;
 			that.onListTasksCompleted();
 		});
@@ -407,7 +414,7 @@ TaskManagement.prototype = {
 	updateStreams: function()
 	{
 		that = this;
-		$.getJSON('/task-management/streams', function(data) {
+		$.getJSON('/task-management/streams?orgId='+sessionStorage.getItem('orgId'), function(data) {
 			that.streamsData = data;
 		});
 	},
@@ -658,7 +665,7 @@ TaskManagement.prototype = {
 				that.updateStreams();
 			},
 			error: function(jqHXR, textStatus, errorThrown) {
-				that.show(m, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to create the stream');
+				that.show($('#createStreamModal'), 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to create the stream');
 			}
 		});
 	},
@@ -841,4 +848,5 @@ $().ready(function(e){
 	collaboration = new TaskManagement();
 	collaboration.listTasks();
 	collaboration.updateStreams();
+	$('#organization_name').html(sessionStorage.getItem('orgName'));
 });
