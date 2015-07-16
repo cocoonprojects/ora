@@ -272,7 +272,7 @@ class Task extends EditableEntity implements ResourceInterface
 		$taskMembers = $this->getMembers();
 		foreach ($taskMembers as $taskMember){
 			$estimation = $taskMember->getEstimation()->getValue();
-			if($estimation===null){
+			if($estimation===null && $this->getMemberRole($taskMember->getMember())===$this::ROLE_MEMBER){
 				$members[] = $taskMember->getMember();
 			}
 		}
