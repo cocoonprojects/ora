@@ -134,7 +134,6 @@
   	<arg value="memory_limit=256M" />
   	<arg value="-c" />
   	<arg value="${basedir}/tests/unit/phpunit.xml" />
-  	<arg value="${basedir}/tests/unit" />
   </exec>
  </target>
 <target name="phpunit-i" description="Run integration tests with PHPUnit">
@@ -143,7 +142,6 @@
   	<arg value="memory_limit=256M" />
   	<arg value="-c" />
   	<arg value="${basedir}/tests/integration/phpunit.xml" />
-  	<arg value="${basedir}/tests/integration" />
   </exec>
  </target>
 
