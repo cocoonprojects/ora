@@ -4,6 +4,8 @@ namespace TaskManagement\Controller;
 use ZFX\Test\Controller\ControllerTest;
 use Rhumsaa\Uuid\Uuid;
 use Application\Entity\User;
+use People\Entity\OrganizationMembership;
+use People\Entity\Organization as ReadModelOrganization;
 use People\Organization;
 use People\Service\OrganizationService;
 use TaskManagement\Service\StreamService;
@@ -15,6 +17,7 @@ class StreamsControllerTest extends ControllerTest
 	protected $task;
 	protected $member1;
 	protected $member2;
+	protected $organization;
 
 	protected function setupController()
 	{
@@ -32,6 +35,12 @@ class StreamsControllerTest extends ControllerTest
 	{
 		parent::setUp();
 		$user = User::create();
+		$user->setRole(User::ROLE_USER);
+		
+		$this->organization = new ReadModelOrganization('00000');
+		$orgMembership = new OrganizationMembership($user, $this->organization);
+		$user->addOrganizationMembership($orgMembership);
+		
 		$this->setupLoggedUser($user);
 	}
 	
@@ -142,16 +151,25 @@ class StreamsControllerTest extends ControllerTest
 	}
 	
 	public function testGetEmptyList() {
+		
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->organization->getId())
+			->willReturn($this->organization);		
+		
 		$this->controller->getStreamService()
 			->expects($this->once())
 			->method('findStreams')
 			->willReturn(array());
 		
 		$this->request->setMethod('get');
-		 
+		$params = $this->request->getQuery();
+		$params->set('orgId', $this->organization->getId());
+		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-		
+				
 		$arrayResult = json_decode($result->serialize(), true);
 		
 		$this->assertEquals(200, $response->getStatusCode());

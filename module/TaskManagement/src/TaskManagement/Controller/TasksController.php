@@ -104,7 +104,7 @@ class TasksController extends HATEOASRestfulController
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-		
+			
 		if(!$this->isAllowed($identity, $organization, 'TaskManagement.Task.list')){
 			$this->response->setStatusCode(403);
 			return $this->response;
@@ -267,6 +267,11 @@ class TasksController extends HATEOASRestfulController
 		return $this->taskService;
 	}
 
+	public function getOrganizationService()
+	{
+		return $this->organizationService;
+	}
+	
 	protected function getCollectionOptions()
 	{
 		return self::$collectionOptions;
