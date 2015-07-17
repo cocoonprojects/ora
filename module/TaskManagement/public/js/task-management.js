@@ -504,8 +504,15 @@ TaskManagement.prototype = {
 
 		rv = '<ul class="task-details">' +
 				'<li>' + task.stream.subject + '</li>' +
-				'<li>Created at ' + createdAt.toLocaleString() + '</li>' +
-				'<li>' + this.statuses[task.status] + '</li>' +
+				'<li>Created at ' + createdAt.toLocaleString() + '</li>';
+		
+		if(task.acceptedAt !== null){
+			
+			acceptedAt = new Date(Date.parse(task.acceptedAt));
+			rv += '<li>Accepted at ' + acceptedAt.toLocaleString() + '</li>';
+		}
+		
+		rv += '<li>' + this.statuses[task.status] + '</li>' +
 				estimation +
 			'</ul>';
 		
@@ -572,8 +579,15 @@ TaskManagement.prototype = {
 		createdAt = new Date(Date.parse(task.createdAt));
 
 		rv = '<ul class="task-details">' + 
-				'<li>Created at ' + createdAt.toLocaleString() + '</li>' +
-				'<li>' + this.statuses[task.status] + '</li>' +
+				'<li>Created at ' + createdAt.toLocaleString() + '</li>';
+		
+		if(task.acceptedAt !== null){
+			
+			acceptedAt = new Date(Date.parse(task.acceptedAt));
+			rv += '<li>Accepted at ' + acceptedAt.toLocaleString() + '</li>';
+		}
+		
+		rv += '<li>' + this.statuses[task.status] + '</li>' +
 				estimation +
 				'<li>Members:' +
 					'<ul>' + $.map(task.members, function(object, key) {
