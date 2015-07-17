@@ -260,13 +260,14 @@ class Task extends EditableEntity implements ResourceInterface
 		$members = array();
 	
 		$taskMembers = $this->getMembers();
+				
 		foreach($taskMembers as $taskMember){
-	
-			if(count($taskMember->getShares()== 0)){
+				
+			if(empty($taskMember->getShares())){
 				$members[] = $taskMember->getMember();
 			}
 		}
-	
+
 		return $members;
 	}
 	
