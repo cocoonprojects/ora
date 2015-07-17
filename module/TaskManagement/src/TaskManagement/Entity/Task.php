@@ -245,6 +245,11 @@ class Task extends EditableEntity implements ResourceInterface
 		$this->acceptedAt = $date;
 	}
 	
+	public function resetAcceptedAt(){
+		$this->acceptedAt = null;
+	}
+	
+	
 	/**
 	 * Retrieve an array of members (Application\Entity\User) of this task that haven't assigned any share
 	 *

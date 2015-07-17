@@ -143,6 +143,7 @@ class TaskCommandsListener extends ReadModelProjector
         $user = $this->entityManager->find(User::class, $event->payload()['by']);
 		$task->setMostRecentEditBy($user);
 		$task->setMostRecentEditAt($event->occurredOn());
+		$task->resetAcceptedAt();
 		$this->entityManager->persist($task);
 	}
 	

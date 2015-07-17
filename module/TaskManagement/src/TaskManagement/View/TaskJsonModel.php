@@ -100,6 +100,7 @@ class TaskJsonModel extends JsonModel
 			'id' => $task->getId (),
 			'subject' => $task->getSubject (),
 			'createdAt' => date_format($task->getCreatedAt(), 'c'),
+			'acceptedAt' => ($task->getAcceptedAt() instanceof \DateTime) ? date_format($task->getAcceptedAt(), 'c') : null,
 			'createdBy' => is_null ( $task->getCreatedBy () ) ? "" : $task->getCreatedBy ()->getFirstname () . " " . $task->getCreatedBy ()->getLastname (),
 			'type' => $task->getType (),
 			'status' => $task->getStatus(),
