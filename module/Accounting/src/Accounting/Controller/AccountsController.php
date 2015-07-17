@@ -36,6 +36,13 @@ class AccountsController extends HATEOASRestfulController
 		}
 		
 		$identity = $this->identity()['user'];
+		$orgId = $this->params('orgId');
+		
+		if (is_null($orgId)){
+			$this->response->setStatusCode(400);
+			return $this->response;
+		}
+		
 		$accounts = $this->accountService->findAccounts($identity);
 		
 		$viewModel = new AccountsJsonModel($this->url(), $identity, $this->acl);

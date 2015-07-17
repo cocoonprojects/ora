@@ -40,7 +40,7 @@ Accounting.prototype = {
 			$('#account').hide();
 
 			$.ajax({
-				url: '/accounting/accounts',
+				url: $("#accounting-home").attr('href')+'accounts',
 				method: 'GET',
 				dataType: 'json'
 			})

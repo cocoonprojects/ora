@@ -48,7 +48,7 @@ class StreamsController extends HATEOASRestfulController
 	   	}
 	   	$identity = $identity['user'];
 
-	   	$orgId = $this->getRequest()->getQuery('orgId');
+	   	$orgId = $this->params('orgId');
 	   	
 	   	if (is_null($orgId)){
 	   		$this->response->setStatusCode(400);
@@ -69,6 +69,7 @@ class StreamsController extends HATEOASRestfulController
 	   	$streams = $this->streamService->findStreams($organization);
 	   	$view = new StreamJsonModel($this->url(), $identity);
 	   	$view->setVariable('resource', $streams);
+	   	$view->setVariable('organization', $organization);
 		return $view;
 	}
 	

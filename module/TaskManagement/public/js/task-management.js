@@ -405,7 +405,7 @@ TaskManagement.prototype = {
 	listTasks: function()
 	{
 		that = this;
-		$.getJSON('/task-management/tasks?orgId='+sessionStorage.getItem('orgId'), function(data) {
+		$.getJSON('task-management/tasks', function(data) {
 			that.data = data;
 			that.onListTasksCompleted();
 		});
@@ -414,13 +414,15 @@ TaskManagement.prototype = {
 	updateStreams: function()
 	{
 		that = this;
-		$.getJSON('/task-management/streams?orgId='+sessionStorage.getItem('orgId'), function(data) {
+		$.getJSON('task-management/streams', function(data) {
 			that.streamsData = data;
 		});
 	},
 	
 	onListTasksCompleted: function()
 	{
+		$("#organization_name").html(this.data._organization);		
+		
 		if(this.data._links !== undefined && this.data._links['ora:create'] !== undefined) {
 			$("#createTaskModal form").attr("action", this.data._links['ora:create']['href']);
 			$("#createTaskBtn").show();
@@ -848,5 +850,4 @@ $().ready(function(e){
 	collaboration = new TaskManagement();
 	collaboration.listTasks();
 	collaboration.updateStreams();
-	$('#organization_name').html(sessionStorage.getItem('orgName'));
 });

@@ -1,17 +1,6 @@
 var Organizations = function()
 {
 	this.bindEventsOn();
-	
-//	var orgId = "";
-//	
-//	$("body").on("click", "a[data-action='loadOrganizationItems']", function(e){			
-//		orgId = e.target.getAttribute("data-id");			
-//		window.location = "/task-management";
-//	});
-//	
-//	this.getOrgId = function(){
-//		return orgId;
-//	}
 };
 
 Organizations.prototype = {
@@ -27,26 +16,8 @@ Organizations.prototype = {
 	{
 		var that = this;
 		
-//		$('#userMenu').on('show.bs.dropdown', function(e) {
-//			container = $(e.target);
-//			$('li.membership').remove();
-//			if(that.membershipsData == null) {
-//				$('<li class="membership"><a href="#">Loading...</a></li>').insertBefore('#myOrgDevider');
-//			} else {
-//				$.each(that.membershipsData._embedded['ora:organization-membership'], function(i, object) {
-//					$('<li class="membership"><a href="#" data-url="people/organizations/' + object.organization.id + '/members" data-action="loadPeople">' + object.organization.name + '</a></li>').insertBefore('#myOrgDevider');
-//				});
-//			}
-//		});
-		
-		$("body").on("click", "a[data-action='loadOrganizationItems']", function(e){
-			
-			sessionStorage.removeItem('orgName');
-			sessionStorage.removeItem('orgId');
-			sessionStorage.setItem('orgName', e.target.innerHTML);			
-			sessionStorage.setItem('orgId', e.target.getAttribute("data-id"));
-						
-			window.location = '/task-management';
+		$("body").on("click", "a[data-action='loadOrganizationItems']", function(e){						
+			window.location = '/'+e.target.getAttribute("data-id")+'/task-management';
 		});
 		
 		$("#organizations_body").on("organizationsLoaded", function(e){
@@ -196,7 +167,6 @@ Organizations.prototype = {
 	init: function()
 	{
 		var that = this;
-		//TODO: A cosa si riferisce?
 		if($("ol#organizations").length) {
 			$.when($.ajax('people/organizations'), $.ajax('/memberships')).done(function(orgs, myorgs) {
 				that.setMembershipsData(myorgs[0]);

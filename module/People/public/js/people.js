@@ -1,8 +1,4 @@
-var People = function(oranizations)
-{
-	this.bindEventsOn();
-	
-	this.organizations = organizations;
+var People = function(){
 };
 
 People.prototype = {
@@ -10,17 +6,6 @@ People.prototype = {
 	constructor: People,
 	classe : 'People',
 	data : [],
-	
-	bindEventsOn: function()
-	{
-		var that = this;
-
-		$("body").on("click", "a[data-action='loadPeople']", function(e){
-			e.preventDefault();
-			var anchor = $(e.target);
-			that.loadPeople(anchor.data('url'));
-		});
-	},
 
 	loadPeople: function(url)
 	{
@@ -50,5 +35,6 @@ People.prototype = {
 };
 
 $().ready(function(e){
-	people = new People(organizations);
+	people = new People();
+	people.loadPeople($("#people-home").attr('href')+'/members')
 });

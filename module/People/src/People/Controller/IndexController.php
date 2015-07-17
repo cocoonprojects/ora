@@ -7,6 +7,7 @@ class IndexController extends AbstractActionController
 {
 	public function indexAction()
 	{
+		$this->layout()->setVariable('orgId', $this->params('orgId'));
 	}
 
 	public function organizationsAction()

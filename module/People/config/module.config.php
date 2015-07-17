@@ -5,12 +5,16 @@ return array(
 	'router' => array(
 		'routes' => array(
 			'people-home' => array(
-				'type' => 'Literal',
+				'type' => 'Segment',
 				'options' => array(
-					'route'    => '/people',
+					'route'    => '/:orgId/people',
 					'defaults' => array(
 						'controller' => 'People\Controller\Index',
 						'action'	 => 'index',
+						'orgId' => ''
+					),
+					'constraints' => array(
+						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
 					),
 				),
 			),
@@ -24,12 +28,13 @@ return array(
 					),
 				),
 			),
+				
 			'organizations' => array(
 				'type' => 'Segment',
 				'options' => array(
-					'route' => '/people/organizations[/:id][/:controller]',
+					'route' => '/people/organizations[/:orgId][/:controller]',
 					'constraints' => array(
-						'id' => '[0-9a-z\-]+'
+						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})'
 					),
 					'defaults' => array(
 						'__NAMESPACE__' => 'People\Controller',
@@ -40,12 +45,14 @@ return array(
 			'organizations-entities' => array(
 				'type' => 'Segment',
 				'options' => array(
-					'route' => '/people/organizations/:orgId/:controller[/:id]',
+					//'route' => '/people/organizations/:orgId/:controller[/:id]',
+					'route' => '/:orgId/people/:controller[/:id]',
 					'constraints' => array(
-						'orgId' => '[0-9a-z\-]+'
+						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
 					),
 					'defaults' => array(
 						'__NAMESPACE__' => 'People\Controller',
+						'orgId' => ''
 					),
 				),
 			),	

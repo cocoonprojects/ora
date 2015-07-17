@@ -1,6 +1,7 @@
 <?php
 namespace TaskManagement\View;
 
+use People\Entity\Organization;
 use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
 use Zend\Permissions\Acl\Acl;
@@ -29,6 +30,7 @@ class TaskJsonModel extends JsonModel
 	 */
 	private $acl;
 	
+	
 	public function __construct(Url $url, User $user, Acl $acl) {
 		$this->url = $url;
 		$this->user = $user;
@@ -38,7 +40,8 @@ class TaskJsonModel extends JsonModel
 	public function serialize()
 	{
 		$resource = $this->getVariable('resource');
-	
+		$organization = $this->getVariable('organization');
+		
 		if(is_array($resource)) {
 			$hal['_links']['self']['href'] = $this->url->fromRoute('tasks');
 			$hal['_embedded']['ora:task'] = array_map(array($this, 'serializeOne'), $resource);
@@ -50,6 +53,11 @@ class TaskJsonModel extends JsonModel
 		if ($this->acl->isAllowed($this->user, NULL, 'TaskManagement.Task.create')) {
 			$hal['_links']['ora:create']['href'] = $this->url->fromRoute('tasks');
 		}
+		
+		if($organization instanceof Organization){
+			$hal['_organization'] = $organization->getName();
+		}
+			
 		return Json::encode($hal);		
 	}
 

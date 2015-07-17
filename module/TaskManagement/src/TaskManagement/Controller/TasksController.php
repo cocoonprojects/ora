@@ -90,9 +90,9 @@ class TasksController extends HATEOASRestfulController
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		$identity = $this->identity()['user'];
 		
-		$orgId = $this->getRequest()->getQuery('orgId');
+		$identity = $this->identity()['user'];
+		$orgId = $this->params('orgId');
 		
 		if (is_null($orgId)){
 			$this->response->setStatusCode(400);
@@ -116,6 +116,7 @@ class TasksController extends HATEOASRestfulController
 		
 		$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl);
 		$view->setVariable('resource', $availableTasks);
+		$view->setVariable('organization', $organization);
 		return $view;
 	}
 
