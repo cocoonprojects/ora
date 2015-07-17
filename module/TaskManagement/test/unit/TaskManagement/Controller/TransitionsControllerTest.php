@@ -16,10 +16,6 @@ class TransitionsControllerTest extends ControllerTest
 	/**
 	 * @var User
 	 */
-	private $user;
-	/**
-	 * @var User
-	 */
 	private $adminUser;
 	/**
 	 * @var Task
@@ -28,10 +24,6 @@ class TransitionsControllerTest extends ControllerTest
 
 	public function setupMore()
 	{
-		$this->user = $this->getMockBuilder(User::class)->getMock();
-		$this->user->method('getRoleId')->willReturn(User::ROLE_USER);
-		$this->user->method('isMemberOf')->willReturn(true);
-
 		$this->adminUser = $this->getMockBuilder(User::class)->getMock();
 		$this->adminUser->method('getRoleId')->willReturn(User::ROLE_ADMIN);
 		$this->adminUser->method('isMemberOf')->willReturn(true);
@@ -56,9 +48,9 @@ class TransitionsControllerTest extends ControllerTest
 		return ['controller' => 'transitions'];
 	}
 
-	public function testCreateWithNoSystemUser()
+	public function testCreateAsAnonymous()
 	{
-		$this->setupLoggedUser($this->user);
+		$this->setupAnonymous();
 		
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -66,7 +58,7 @@ class TransitionsControllerTest extends ControllerTest
 		
 		$result = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-		$this->assertEquals(405, $response->getStatusCode());
+		$this->assertEquals(401, $response->getStatusCode());
 	}
 	
 	public function testCreate(){

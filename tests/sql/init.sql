@@ -23,10 +23,6 @@ INSERT INTO users (id, status, createdAt, mostRecentEditAt, firstname, lastname,
 # user 70000000-0000-0000-0000-000000000000 Phil Toledo
 INSERT INTO users (id, status, createdAt, mostRecentEditAt, firstname, lastname, email, role) VALUES ('70000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', '2014-10-09 11:33:45', 'Phil', 'Toledo', 'phil.toledo@ora.local', 'user');
 
-# system user
-INSERT INTO users (id, email, status, createdAt, mostRecentEditAt, role) VALUES
-('00000000-0000-0000-0000-000000000000', 'no@email.com', 1, '2015-04-10 00:00:00', '2015-04-10 00:00:00','system');
-
 # organization 00000000-0000-0000-1000-000000000000
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
 ('907dd600-1e37-4e35-8045-7abfc5f60895',1,'People\\OrganizationCreated','a:2:{s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-1000-000000000000";}', '2015-03-06T19:42:58.000000+0100','People\\Organization','00000000-0000-0000-1000-000000000000'),
