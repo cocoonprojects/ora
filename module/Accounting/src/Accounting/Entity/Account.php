@@ -55,6 +55,9 @@ abstract class Account extends EditableEntity implements ResourceInterface {
 	}
 	
 	public function getBalance() {
+		if(is_null($this->balance)) {
+			$this->balance = new Balance(0, $this->getCreatedAt());
+		}
 		return $this->balance;
 	}
 	
@@ -93,6 +96,6 @@ abstract class Account extends EditableEntity implements ResourceInterface {
 	}
 	
 	public function getResourceId(){
-		return "Ora\Account";
+		return 'Ora\Account';
 	}
 }

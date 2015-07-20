@@ -3,7 +3,6 @@ namespace Accounting\Controller;
 
 use People\Organization;
 use ZFX\Test\Controller\ControllerTest;
-use Rhumsaa\Uuid\Uuid;
 use Application\Entity\User;
 use Application\Controller\Plugin\EventStoreTransactionPlugin;
 use Accounting\Account;
@@ -140,6 +139,6 @@ class DepositsControllerTest extends ControllerTest
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 		
-		$this->assertEquals(401, $response->getStatusCode());		 
+		$this->assertEquals(401, $response->getStatusCode());
 	}
 }

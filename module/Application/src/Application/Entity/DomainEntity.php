@@ -43,6 +43,9 @@ abstract class DomainEntity {
 	 * @return \DateTime
 	 */
 	public function getCreatedAt() {
+		if(is_null($this->createdAt)) {
+			$this->createdAt = new \DateTime();
+		}
 		return $this->createdAt;
 	}
 	/**

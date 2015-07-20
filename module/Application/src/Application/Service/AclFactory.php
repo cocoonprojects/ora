@@ -37,8 +37,9 @@ class AclFactory implements FactoryInterface
 		$acl->addResource('Ora\OrganizationAccount');
 		$acl->allow(User::ROLE_USER, 'Ora\Account','Accounting.Account.statement', new AccountHolderAssertion()); 
 		$acl->allow(User::ROLE_USER, 'Ora\OrganizationAccount','Accounting.Account.statement', new MemberOfOrganizationOrAccountHolderAssertion());
-		$acl->allow(User::ROLE_USER, "Ora\OrganizationAccount",'Accounting.Account.deposit', new AccountHolderAssertion()); 
-		
+		$acl->allow(User::ROLE_USER, 'Ora\OrganizationAccount','Accounting.Account.deposit', new AccountHolderAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\Account','Accounting.Account.withdraw', new AccountHolderAssertion());
+
 		$acl->addResource('Ora\Task');
 		$acl->allow(User::ROLE_USER, null, 'TaskManagement.Task.create');
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.showDetails', new \TaskManagement\Assertion\MemberOfOrganizationAssertion());
