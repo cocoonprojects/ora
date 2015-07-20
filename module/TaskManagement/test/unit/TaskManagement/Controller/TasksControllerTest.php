@@ -90,49 +90,56 @@ class TasksControllerTest extends ControllerTest {
 		$this->assertArrayHasKey('ora:create', $arrayResult['_links']);
 	}
 	
-	public function testCreateTaskInRejectedStream()
+	public function testGetEmptyListFromAStream()
 	{
+		$this->user->addMembership($this->organization);
 		$this->setupLoggedUser($this->user);
-	
-		$this->controller->getTaskService()
-			->expects($this->once())
-			->method('findStreamTasks')
-			->with($this->stream->getId())
-			->willReturn(array());
-		
+
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
 		$this->controller->getOrganizationService()
 			->expects($this->once())
 			->method('findOrganization')
 			->with($this->organization->getId())
 			->willReturn($this->organization);
-	
+
+		$this->controller->getTaskService()
+			->expects($this->once())
+			->method('findStreamTasks')
+			->with($this->stream->getId())
+			->willReturn([]);
+		
 		$this->authorizeServiceStub->method('isAllowed')->willReturn(false);
-			
-		$this->request->setMethod('get');
+
 		$params = $this->request->getQuery();
 		$params->set('streamID', $this->stream->getId());
-		
-		$this->routeMatch->setParam('orgId', $this->organization->getId());
 		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 		
-		$arrayResult = json_decode($result->serialize(), true);
-	
 		$this->assertEquals(200, $response->getStatusCode());
-		$this->assertArrayHasKey('_embedded', $arrayResult);
-		$this->assertArrayHasKey('ora:task', $arrayResult['_embedded']);
-		$this->assertArrayHasKey('_links', $arrayResult);
-		$this->assertArrayNotHasKey('ora:create', $arrayResult['_links']);
+		$arrayResult = json_decode($result->serialize(), true);
+		$this->assertCount(0, $arrayResult['_embedded']['ora:task']);
+		$this->assertNotEmpty($arrayResult['_links']['self']['href']);
+		$this->assertEquals(0, $arrayResult['count']);
+		$this->assertEquals(0, $arrayResult['total']);
 	}
-	
-	public function testCreateTaskInPopulatedStream()
+
+	public function testGetListFromPopulatedStream()
 	{
+		$this->user->addMembership($this->organization);
 		$this->setupLoggedUser($this->user);
+
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+		$this->organizationServiceStub
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->organization->getId())
+			->willReturn($this->organization);
+
 		$task = new Task('00001');
 		$task->setCreatedAt(new \DateTime());
 		$task->setStream($this->stream);
-	
+
 		$this->controller->getTaskService()
 			->expects($this->once())
 			->method('findStreamTasks')
@@ -151,18 +158,15 @@ class TasksControllerTest extends ControllerTest {
 		$params = $this->request->getQuery();
 		$params->set('streamID', $this->stream->getId());
 		
-		$this->routeMatch->setParam('orgId', $this->organization->getId());
-		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 	
-		$arrayResult = json_decode($result->serialize(), true);
-	
 		$this->assertEquals(200, $response->getStatusCode());
-		$this->assertArrayHasKey('_embedded', $arrayResult);
-		$this->assertArrayHasKey('ora:task', $arrayResult['_embedded']);
-		$this->assertArrayHasKey('_links', $arrayResult);
-		$this->assertArrayHasKey('ora:create', $arrayResult['_links']);
+		$arrayResult = json_decode($result->serialize(), true);
+		$this->assertCount(1, $arrayResult['_embedded']['ora:task']);
+		$this->assertNotEmpty($arrayResult['_links']['self']['href']);
+		$this->assertEquals(1, $arrayResult['count']);
+		$this->assertEquals(1, $arrayResult['total']);
 	}
 	
 	public function testGetListAsAnonymous()
@@ -183,10 +187,64 @@ class TasksControllerTest extends ControllerTest {
 	
 		$this->assertEquals(401, $response->getStatusCode());
 	}
-	
-	public function testGetEmptyList()
+
+	public function testGetListWithoutOrganizationId()
+	{
+		$this->user->addMembership($this->organization);
+		$this->setupLoggedUser($this->user);
+
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+
+		$this->assertEquals(400, $response->getStatusCode());
+	}
+
+	public function testGetListWithNotExistingOrganizationId()
+	{
+		$this->user->addMembership($this->organization);
+		$this->setupLoggedUser($this->user);
+		$this->routeMatch->setParam('orgId', '1234567890');
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with('1234567890')
+			->willReturn(null);
+		
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+		
+		$this->assertEquals(404, $response->getStatusCode());
+	}
+
+	public function testGetListWithNotAllowedOrganizationId()
 	{
 		$this->setupLoggedUser($this->user);
+
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+		$this->organizationServiceStub
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->organization->getId())
+			->willReturn($this->organization);
+
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+
+		$this->assertEquals(403, $response->getStatusCode());
+	}
+
+	public function testGetEmptyList()
+	{
+		$this->user->addMembership($this->organization);
+		$this->setupLoggedUser($this->user);
+
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+		$this->organizationServiceStub
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->organization->getId())
+			->willReturn($this->organization);
+
 		$this->controller->getTaskService()
 			->expects($this->once())
 			->method('findTasks')
@@ -197,44 +255,12 @@ class TasksControllerTest extends ControllerTest {
 			->method('findOrganization')
 			->with($this->organization->getId())
 			->willReturn($this->organization);
-		
-		$this->routeMatch->setParam('orgId', $this->organization->getId());
-		
-		$result   = $this->controller->dispatch($this->request);
-		$response = $this->controller->getResponse();
-		
-		$arrayResult = json_decode($result->serialize(), true);
-		$this->assertEquals(200, $response->getStatusCode());
-		$this->assertCount(0, $arrayResult['_embedded']['ora:task']);
-		$this->assertNotEmpty($arrayResult['_links']['self']['href']);
-		$this->assertEquals(0, $arrayResult['count']);
-		$this->assertEquals(0, $arrayResult['total']);
-	}
 
-	public function testGetEmptyListFromAStream()
-	{
-		$this->setupLoggedUser($this->user);
-		$this->controller->getTaskService()
-			->expects($this->once())
-			->method('findStreamTasks')
-			->willReturn(array());
-		
-		$this->controller->getOrganizationService()
-			->expects($this->once())
-			->method('findOrganization')
-			->with($this->organization->getId())
-			->willReturn($this->organization);
-
-		$params = $this->request->getQuery();
-		$params->set('streamID', '1');
-		
-		$this->routeMatch->setParam('orgId', $this->organization->getId());
-		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 
-		$arrayResult = json_decode($result->serialize(), true);
 		$this->assertEquals(200, $response->getStatusCode());
+		$arrayResult = json_decode($result->serialize(), true);
 		$this->assertCount(0, $arrayResult['_embedded']['ora:task']);
 		$this->assertNotEmpty($arrayResult['_links']['self']['href']);
 		$this->assertEquals(0, $arrayResult['count']);
@@ -243,7 +269,15 @@ class TasksControllerTest extends ControllerTest {
 
 	public function testGetList()
 	{
+		$this->user->addMembership($this->organization);
 		$this->setupLoggedUser($this->user);
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+		$this->organizationServiceStub
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->organization->getId())
+			->willReturn($this->organization);
+		$this->authorizeServiceStub->method('isAllowed')->willReturn(true);
 
 		$task1 = new Task('1');
 		$task1->setSubject('Lorem ipsum')
@@ -266,15 +300,12 @@ class TasksControllerTest extends ControllerTest {
 			->method('findOrganization')
 			->with($this->organization->getId())
 			->willReturn($this->organization);
-			
-		
-		$this->routeMatch->setParam('orgId', $this->organization->getId());
 		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 
-		$arrayResult = json_decode($result->serialize(), true);
 		$this->assertEquals(200, $response->getStatusCode());
+		$arrayResult = json_decode($result->serialize(), true);
 		$this->assertCount(1, $arrayResult['_embedded']['ora:task']);
 		$this->assertNotEmpty($arrayResult['_links']['self']['href']);
 		$this->assertEquals(1, $arrayResult['count']);

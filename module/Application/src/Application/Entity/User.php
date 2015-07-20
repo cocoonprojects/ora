@@ -99,7 +99,7 @@ class User implements RoleInterface
 	private $role;
 
 	public function __construct(){
-		$this->memberships = new ArrayCollection();		  
+		$this->memberships = new ArrayCollection();
 	}
 	
 	public static function create(User $createdBy = null) {
@@ -112,14 +112,7 @@ class User implements RoleInterface
 		$rv->mostRecentEditBy = $rv->createdBy;
 		return $rv;
 	}
-	/**
-	 * TODO: remove dependence to People module
-	 * @param OrganizationMembership $membership
-	 */
-	public function addOrganizationMembership(OrganizationMembership $membership){
-		$this->memberships->set($membership->getOrganization()->getId(), $membership);
-	}
-	
+
 	public function getId() {
 		return $this->id;
 	}
@@ -216,7 +209,18 @@ class User implements RoleInterface
 	{
 		return $this->memberships->toArray();
 	}
-	
+
+	/**
+	 * @param Organization $organization
+	 * @param string $role
+	 * @return $this
+	 */
+	public function addMembership(Organization $organization, $role = OrganizationMembership::ROLE_MEMBER) {
+		$membership = new OrganizationMembership($this, $organization, $role);
+		$this->memberships->set($organization->getId(), $membership);
+		return $this;
+	}
+
 	public function setPicture($url) {
 		$this->picture = $url;
 		return $this;

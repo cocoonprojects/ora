@@ -47,7 +47,7 @@ return array(
 			'task-reminders' => array(
 				'type' => 'Zend\Mvc\Router\Http\Literal',
 				'options' => array(
-					'route'	   => '/task-management/tasks/reminders/:id',					
+					'route'	   => '/task-management/tasks/reminders/:id',
 					'constraints' => array(
 						'id' => '[a-zA-Z-]+',	
 					),
