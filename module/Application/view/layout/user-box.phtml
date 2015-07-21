@@ -1,4 +1,4 @@
-<?php if($this->identity) {?>
+<?php if($this->identity() != null) {?>
 	<ul class="nav navbar-nav navbar-right">
 		<li><a href="<?php echo $this->basePath().'/auth/logout'?>">Logout</a></li>
 	</ul>
