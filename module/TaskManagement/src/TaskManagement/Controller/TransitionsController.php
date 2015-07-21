@@ -132,8 +132,7 @@ class TransitionsController extends HATEOASRestfulController
 				
 				foreach ($tasksFound as $taskFound){
 					
-					$taskToClose = $this->taskService->getTask($taskFound->getId());
-										
+					$taskToClose = $this->taskService->getTask($taskFound->getId());										
 					$this->transaction()->begin();
 					try {
 						$taskToClose->close($identity);

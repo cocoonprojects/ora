@@ -32,7 +32,7 @@ class TaskJsonModel extends JsonModel
 	public function __construct(Url $url, User $user, Acl $acl) {
 		$this->url = $url;
 		$this->user = $user;
-		$this->acl = $acl;
+		$this->acl = $acl;		
 	}
 	
 	public function serialize()
@@ -107,6 +107,7 @@ class TaskJsonModel extends JsonModel
 			'stream' => $this->getStream($task),
 			'members' => array_map(array($this, 'serializeOneMember'), $task->getMembers()),
 			'_links' => $links,
+			'daysRemainingToAssignShares' => ($task->getStatus() == Task::STATUS_ACCEPTED && $task->getAcceptedAt() instanceof \DateTime) ? $this->getDaysLeftForAssignShares($task->getAcceptedAt()) : null,
 		];
 		
 		if($task->getStatus() >= Task::STATUS_ONGOING) {
@@ -166,4 +167,15 @@ class TaskJsonModel extends JsonModel
 			'createdAt' => date_format($estimation->getCreatedAt(), 'c'),
 		];
 	}	 
+	
+	private function getDaysLeftForAssignShares(\DateTime $acceptedAt){				
+		
+		$intervalForCloseTasks = $this->getVariable('intervalForCloseTasks');
+		
+		if($intervalForCloseTasks instanceof \DateInterval){
+			return date_diff($acceptedAt->add($this->intervalForCloseTasks), new \DateTime())->format('%d');
+		}
+		
+		return "";
+	}
 }
