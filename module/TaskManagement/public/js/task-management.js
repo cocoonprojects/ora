@@ -1,6 +1,6 @@
 var TaskManagement = function()
 {
-	this.bindEventsOn();
+	this.bindEventsOn();	
 };
 
 TaskManagement.prototype = {
@@ -13,7 +13,7 @@ TaskManagement.prototype = {
 			10: 'Open',
 			20: 'Ongoing',
 			30: 'Completed',
-			40: 'Accepted (shares assignment in progress)',
+			40: 'Shares assignment in progress',
 			50: 'Closed'
 	},
 	
@@ -512,9 +512,13 @@ TaskManagement.prototype = {
 			rv += '<li>Accepted at ' + acceptedAt.toLocaleString() + '</li>';
 		}
 		
-		rv += '<li>' + this.statuses[task.status] + '</li>' +
-				estimation +
-			'</ul>';
+		rv += '<li>' + this.statuses[task.status];
+		
+		if(task.status == TASK_STATUS.get('ACCEPTED')){
+			rv += this.getLabelForAssignShares(task.daysRemainingToAssignShares);
+		}
+		
+		rv += '</li>' + estimation + '</ul>';
 		
 		rv += '<table class="table table-striped"><caption>Members</caption>' +
 				'<thead><tr><th></th><th style="text-align: right">Estimate</th>';
@@ -587,8 +591,13 @@ TaskManagement.prototype = {
 			rv += '<li>Accepted at ' + acceptedAt.toLocaleString() + '</li>';
 		}
 		
-		rv += '<li>' + this.statuses[task.status] + '</li>' +
-				estimation +
+		rv += '<li>' + this.statuses[task.status];
+		
+		if(task.status == TASK_STATUS.get('ACCEPTED')){
+			rv += this.getLabelForAssignShares(task.daysRemainingToAssignShares);
+		}
+
+		rv += '</li>' + estimation +
 				'<li>Members:' +
 					'<ul>' + $.map(task.members, function(object, key) {
 							rv = '<li><span class="task-member">' + object.firstname + " " + object.lastname;
@@ -784,6 +793,18 @@ TaskManagement.prototype = {
 		alertDiv.addClass('alert alert-' + level);
 		alertDiv.text(message);
 		alertDiv.show();
+	},
+	
+	getLabelForAssignShares: function(daysLeft){
+		
+		if(daysLeft){
+			
+			if(daysLeft == 1){
+				return ": "+daysLeft + " day left";
+			}
+			return ": "+daysLeft + " days left";	
+		}
+		return "";
 	}
 	
 };
@@ -794,7 +815,7 @@ var TASK_STATUS = (function() {
 		10: 'Open',
 		20: 'Ongoing',
 		30: 'Completed',
-		40: 'Accepted (shares assignment in progress)',
+		40: 'Shares assignment in progress',
 		50: 'Closed'
 	};
 	

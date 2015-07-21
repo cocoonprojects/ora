@@ -35,7 +35,9 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$streamService = $locator->get('TaskManagement\StreamService');
 					$acl = $locator->get('Application\Service\Acl');
+					$assignmentOfSharesConfig = $locator->get('Config')['assignment_of_shares'];
 					$controller = new TasksController($taskService, $streamService, $acl);
+					$controller->setIntervalForCloseTasks($assignmentOfSharesConfig['TaskManagement\TimeboxForAssignmentOfShares']);
 					return $controller;
 	            },
 				'TaskManagement\Controller\Members' => function ($sm) {
