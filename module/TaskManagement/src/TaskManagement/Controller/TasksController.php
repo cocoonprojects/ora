@@ -38,6 +38,10 @@ class TasksController extends HATEOASRestfulController
 	 * @var Acl
 	 */
 	private $acl;
+	/**
+	 *@var \DateInterval
+	 */
+	protected $intervalForCloseTasks;
 
 	public function __construct(TaskService $taskService, StreamService $streamService, Acl $acl)
 	{
@@ -62,6 +66,7 @@ class TasksController extends HATEOASRestfulController
 		$this->response->setStatusCode(200);
 		$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl);
 		$view->setVariable('resource', $task);
+		$view->setVariable('intervalForCloseTasks', $this->intervalForCloseTasks);
 		return $view;
 	}
 	
@@ -85,6 +90,7 @@ class TasksController extends HATEOASRestfulController
 
 		$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl);
 		$view->setVariable('resource', $availableTasks);
+		$view->setVariable('intervalForCloseTasks', $this->intervalForCloseTasks);
 		return $view;
 	}
 
@@ -244,5 +250,13 @@ class TasksController extends HATEOASRestfulController
 	protected function getResourceOptions()
 	{
 		return self::$resourceOptions;
+	}
+	
+	public function setIntervalForCloseTasks($interval){
+		$this->intervalForCloseTasks = $interval;
+	}
+	
+	public function getIntervalForCloseTasks(){
+		return $this->intervalForCloseTasks;
 	}
 }
