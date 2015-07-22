@@ -108,6 +108,7 @@ class TaskJsonModel extends JsonModel
 			'members' => array_map(array($this, 'serializeOneMember'), $task->getMembers()),
 			'_links' => $links,
 			'daysRemainingToAssignShares' => ($task->getStatus() == Task::STATUS_ACCEPTED && $task->getAcceptedAt() instanceof \DateTime) ? $this->getDaysLeftForAssignShares($task->getAcceptedAt()) : null,
+
 		];
 		
 		if($task->getStatus() >= Task::STATUS_ONGOING) {
