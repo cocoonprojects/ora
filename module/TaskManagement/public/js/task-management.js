@@ -1,6 +1,6 @@
 var TaskManagement = function()
 {
-	this.bindEventsOn();	
+	this.bindEventsOn();
 };
 
 TaskManagement.prototype = {

@@ -32,7 +32,7 @@ class TaskJsonModel extends JsonModel
 	public function __construct(Url $url, User $user, Acl $acl) {
 		$this->url = $url;
 		$this->user = $user;
-		$this->acl = $acl;		
+		$this->acl = $acl;
 	}
 	
 	public function serialize()
