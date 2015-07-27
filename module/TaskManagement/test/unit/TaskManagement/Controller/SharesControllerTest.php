@@ -14,6 +14,7 @@ class SharesControllerTest extends ControllerTest
 	protected $owner;
 	protected $member;
 	protected $organization;
+	protected $intervalForCloseTasks;
 
 	protected function setupController()
 	{
@@ -61,6 +62,8 @@ class SharesControllerTest extends ControllerTest
 		$this->task->addEstimation(3100, $this->member);
 		
 		$this->task->complete($this->owner);
+		
+		$this->intervalForCloseTasks = new \DateInterval('P7D');
 	}
 	
 	public function testAssignSharesAsAnonymous()
@@ -71,7 +74,7 @@ class SharesControllerTest extends ControllerTest
 		$identity->method('__invoke')->willReturn(null);
 		$this->controller->getPluginManager()->setService('identity', $identity);
 		
-		$this->task->accept($this->owner);
+		$this->task->accept($this->owner, $this->intervalForCloseTasks);
 		$service = $this->controller->getTaskService();
 		$service->method('getTask')
 				->willReturn($this->task);
@@ -91,7 +94,7 @@ class SharesControllerTest extends ControllerTest
 	
 	public function testAssignShares()
 	{
-		$this->task->accept($this->owner);
+		$this->task->accept($this->owner, $this->intervalForCloseTasks);
 		$service = $this->controller->getTaskService();
 		$service->method('getTask')
 				->willReturn($this->task);
@@ -111,7 +114,7 @@ class SharesControllerTest extends ControllerTest
 	
 	public function testSkipAssignShares()
 	{
-		$this->task->accept($this->owner);
+		$this->task->accept($this->owner, $this->intervalForCloseTasks);
 		$service = $this->controller->getTaskService();
 		$service->method('getTask')
 				->willReturn($this->task);
@@ -128,7 +131,7 @@ class SharesControllerTest extends ControllerTest
 	
 	public function testAssignSharesWithMoreThan100Share()
 	{
-		$this->task->accept($this->owner);
+		$this->task->accept($this->owner, $this->intervalForCloseTasks);
 		$service = $this->controller->getTaskService();
 		$service->method('getTask')
 				->willReturn($this->task);
@@ -148,7 +151,7 @@ class SharesControllerTest extends ControllerTest
 	
 	public function testAssignSharesWithLessThan0Share()
 	{
-		$this->task->accept($this->owner);
+		$this->task->accept($this->owner, $this->intervalForCloseTasks);
 		$service = $this->controller->getTaskService();
 		$service->method('getTask')
 				->willReturn($this->task);
@@ -168,7 +171,7 @@ class SharesControllerTest extends ControllerTest
 	
 	public function testAssignSharesWithMoreThan100TotalShares()
 	{
-		$this->task->accept($this->owner);
+		$this->task->accept($this->owner, $this->intervalForCloseTasks);
 		$service = $this->controller->getTaskService();
 		$service->method('getTask')
 				->willReturn($this->task);
@@ -207,7 +210,7 @@ class SharesControllerTest extends ControllerTest
 	
 	public function testAssignSharesWithMissingMember()
 	{
-		$this->task->accept($this->owner);
+		$this->task->accept($this->owner, $this->intervalForCloseTasks);
 		$service = $this->controller->getTaskService();
 		$service->method('getTask')
 				->willReturn($this->task);
@@ -226,7 +229,7 @@ class SharesControllerTest extends ControllerTest
 	
 	public function testAssignSharesByNonMember()
 	{
-		$this->task->accept($this->owner);
+		$this->task->accept($this->owner, $this->intervalForCloseTasks);
 		$identity = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Identity')
 			->disableOriginalConstructor()
 			->getMock();
@@ -271,7 +274,7 @@ class SharesControllerTest extends ControllerTest
 	
 	public function testAssignSharesToANonMembers()
 	{
-		$this->task->accept($this->owner);
+		$this->task->accept($this->owner, $this->intervalForCloseTasks);
 		$service = $this->controller->getTaskService();
 		$service->method('getTask')
 			->willReturn($this->task);
@@ -292,7 +295,7 @@ class SharesControllerTest extends ControllerTest
 
 	public function testAssignSharesToANonMembersExtraShares()
 	{
-		$this->task->accept($this->owner);
+		$this->task->accept($this->owner, $this->intervalForCloseTasks);
 		$service = $this->controller->getTaskService();
 		$service->method('getTask')
 			->willReturn($this->task);

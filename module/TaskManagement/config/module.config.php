@@ -95,7 +95,5 @@ return array(
 		'TaskManagement\CloseTaskListener',
 	),
 		
-	'assignment_of_shares' => array(
-		'TaskManagement\TimeboxForAssignmentOfShares' => new \DateInterval('P7D'),
-	), 
+	'assignment_of_shares_timebox' => new \DateInterval('P7D'), 
 );

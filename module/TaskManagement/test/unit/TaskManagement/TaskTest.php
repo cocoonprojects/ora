@@ -17,7 +17,11 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	 * @var Stream
 	 */
 	protected $stream;
-
+	/**
+	 *
+	 * @var \DateInterval
+	 */
+	protected $intervalForCloseTasks;
 	
 	protected function setUp() {
 		$this->owner = $this->getMockBuilder(User::class)
@@ -28,6 +32,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 			->willReturn(true);
 		$organization = Organization::create('Pellentesque lorem ligula, auctor ac', $this->owner);
 		$this->stream = Stream::create($organization, 'Curabitur rhoncus mattis massa vel', $this->owner);
+		$this->intervalForCloseTasks = new \DateInterval('P7D');		
 	}
 
 	public function testCreate() {
@@ -196,7 +201,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$task->addEstimation(2500, $user2);
 		$task->addEstimation(3200, $this->owner);
 		
-		$task->accept($this->owner);
+		$task->accept($this->owner, $this->intervalForCloseTasks);
 		
 		$task->assignShares([
 			$this->owner->getId() => 0.4,
@@ -235,7 +240,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$task->addEstimation(2500, $user2);
 		$task->addEstimation(3200, $this->owner);
 		
-		$task->accept($this->owner);
+		$task->accept($this->owner, $this->intervalForCloseTasks);
 		
 		$task->assignShares([
 			$this->owner->getId() => 0.4,
@@ -286,7 +291,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$task->addEstimation(2500, $user2);
 		$task->addEstimation(3200, $this->owner);
 		
-		$task->accept($this->owner);
+		$task->accept($this->owner, $this->intervalForCloseTasks);
 		
 		$task->assignShares([
 			$this->owner->getId() => 0.4,
@@ -337,7 +342,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$task->addEstimation(2500, $user2);
 		$task->addEstimation(3200, $this->owner);
 		
-		$task->accept($this->owner);
+		$task->accept($this->owner, $this->intervalForCloseTasks);
 		
 		$task->assignShares([
 			$this->owner->getId() => 0.4,
@@ -388,7 +393,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$task->addEstimation(2500, $user2);
 		$task->addEstimation(3200, $this->owner);
 	
-		$task->accept($this->owner);
+		$task->accept($this->owner, $this->intervalForCloseTasks);
 	
 		$task->skipShares($this->owner);
 	
@@ -435,7 +440,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$task->addEstimation(2500, $user2);
 		$task->addEstimation(3200, $this->owner);
 		
-		$task->accept($this->owner);
+		$task->accept($this->owner, $this->intervalForCloseTasks);
 		
 		$task->skipShares($this->owner);
 		$task->skipShares($user1);
@@ -472,7 +477,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$task->addEstimation(2500, $user2);
 		$task->addEstimation(3200, $this->owner);
 		
-		$task->accept($this->owner);
+		$task->accept($this->owner, $this->intervalForCloseTasks);
 		
 		$task->skipShares($this->owner);
 		
@@ -517,7 +522,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$task->addEstimation(2500, $user2);
 		$task->addEstimation(3200, $this->owner);
 		
-		$task->accept($this->owner);
+		$task->accept($this->owner, $this->intervalForCloseTasks);
 		
 		$task->assignShares([
 			$this->owner->getId() => 0.4,
@@ -568,7 +573,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$task->addEstimation(2500, $user2);
 		$task->addEstimation(3200, $this->owner);
 		
-		$task->accept($this->owner);
+		$task->accept($this->owner, $this->intervalForCloseTasks);
 		
 		$task->skipShares($this->owner);
 		$task->skipShares($user1);
@@ -584,7 +589,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$task->addMember($this->owner, Task::ROLE_OWNER);
 		$task->addEstimation(1, $this->owner);
 		$task->complete($this->owner);
-		$task->accept($this->owner);
+		$task->accept($this->owner, $this->intervalForCloseTasks);
 		$task->close($this->owner);
 		$this->assertEquals(Task::STATUS_CLOSED, $task->getStatus());
 	}
