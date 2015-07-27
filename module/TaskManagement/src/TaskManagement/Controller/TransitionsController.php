@@ -25,6 +25,7 @@ class TransitionsController extends HATEOASRestfulController
 
 	public function __construct(TaskService $taskService) {
 		$this->taskService = $taskService;
+		$this->intervalForCloseTasks = new \DateInterval('P7D');
 	}
 	
 	public function invoke($id, $data) {
@@ -70,7 +71,7 @@ class TransitionsController extends HATEOASRestfulController
 				}
 				$this->transaction()->begin();
 				try {
-					$task->accept($this->identity()['user']);
+					$task->accept($this->identity()['user'], $this->getIntervalForCloseTasks());
 					$this->transaction()->commit();
 					$this->response->setStatusCode ( 200 );
 				} catch ( IllegalStateException $e ) {

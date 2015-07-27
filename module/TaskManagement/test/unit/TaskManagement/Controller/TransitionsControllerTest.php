@@ -38,7 +38,6 @@ class TransitionsControllerTest extends ControllerTest
 	{
 		$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
 		$controller = new TransitionsController($taskServiceStub); 
-		$controller->setIntervalForCloseTasks(new \DateInterval('P7D'));
 		
 		return $controller;
 	}
@@ -67,7 +66,7 @@ class TransitionsControllerTest extends ControllerTest
 		
 		$this->task->addEstimation(1, $this->adminUser);
 		$this->task->complete($this->adminUser);
-		$this->task->accept($this->adminUser);
+		$this->task->accept($this->adminUser, $this->controller->getIntervalForCloseTasks());
 		
 		$this->controller->getTaskService()
 		->expects($this->once())

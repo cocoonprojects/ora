@@ -107,7 +107,7 @@ class TaskJsonModel extends JsonModel
 			'stream' => $this->getStream($task),
 			'members' => array_map(array($this, 'serializeOneMember'), $task->getMembers()),
 			'_links' => $links,
-			'daysRemainingToAssignShares' => ($task->getStatus() == Task::STATUS_ACCEPTED && $task->getAcceptedAt() instanceof \DateTime) ? $this->getDaysLeftForAssignShares($task->getAcceptedAt()) : null,
+			'daysRemainingToAssignShares' => $this->getDaysLeftForAssignShares($task),
 
 		];
 		
@@ -169,12 +169,10 @@ class TaskJsonModel extends JsonModel
 		];
 	}	 
 	
-	private function getDaysLeftForAssignShares(\DateTime $acceptedAt){				
+	private function getDaysLeftForAssignShares(Task $task){				
 		
-		$intervalForCloseTasks = $this->getVariable('intervalForCloseTasks');
-		
-		if($intervalForCloseTasks instanceof \DateInterval){
-			return date_diff($acceptedAt->add($this->intervalForCloseTasks), new \DateTime())->format('%d');
+		if($task->getSharesAssignmentExpiresAt() instanceof \DateTime){
+			return date_diff($task->getSharesAssignmentExpiresAt(), new \DateTime())->format('%d');
 		}
 		
 		return "";

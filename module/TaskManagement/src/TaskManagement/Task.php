@@ -98,7 +98,7 @@ class Task extends DomainEntity
 		return $this;
 	}
 	
-	public function accept(User $acceptedBy) {
+	public function accept(User $acceptedBy, \DateInterval $intervalForCloseTask) {
 		if($this->status != self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot accept a task in '.$this->status.' state');
 		}
@@ -111,6 +111,7 @@ class Task extends DomainEntity
 		$this->recordThat(TaskAccepted::occur($this->id->toString(), array(
 			'prevStatus' => $this->getStatus(),
 			'by' => $acceptedBy->getId(),
+			'intervalForCloseTask' => $intervalForCloseTask
 		)));
 		return $this;
 	}
