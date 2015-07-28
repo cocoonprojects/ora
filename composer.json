@@ -20,7 +20,8 @@
 		"prooph/event-store": "~2.0",
 		"prooph/prooph-event-store-module": "~2.0",
 		"acelaya/zf2-acmailer": "~5.0",
-		"rwoverdijk/assetmanager": "*"
+		"rwoverdijk/assetmanager": "*",
+		"namshi/jose": "5.0.*"
 	},
 	"require-dev": {
 		"phpunit/phpunit": ">=4.1",
