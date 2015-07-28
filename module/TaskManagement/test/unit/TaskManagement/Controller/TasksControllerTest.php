@@ -32,7 +32,9 @@ class TasksControllerTest extends ControllerTest {
     	$this->authorizeServiceStub = $this->getMockBuilder(Acl::class)
 		    	->disableOriginalConstructor()
 		    	->getMock();
-    	return new TasksController($taskServiceStub, $streamServiceStub, $this->authorizeServiceStub);
+    	$controller = new TasksController($taskServiceStub, $streamServiceStub, $this->authorizeServiceStub); 
+    	$controller->setIntervalForCloseTasks(new \DateInterval('P7D'));
+		return $controller;    	
     }
     
     protected function setupRouteMatch()

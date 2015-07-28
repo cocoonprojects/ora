@@ -35,6 +35,10 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 	 * @var EventStore
 	 */
 	private $transactionManager;
+	/**
+	 * @var \DateInterval
+	 */
+	protected $intervalForCloseTasks;
 	
 	protected function setUp()
 	{
@@ -73,6 +77,8 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		$pluginManager = $serviceManager->get('ControllerPluginManager');
 		$this->controller->setPluginManager($pluginManager);
 
+		$this->intervalForCloseTasks = new \DateInterval('P7D');
+		
 		$this->transactionManager = $serviceManager->get('prooph.event_store');
 		$this->transactionManager->beginTransaction();
 		$task = Task::create($stream, 'Cras placerat libero non tempor', $this->owner);
@@ -107,7 +113,7 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		$this->task->addEstimation(1500, $this->owner);
 		$this->task->addEstimation(3100, $this->member);
 		$this->task->complete($this->owner);
-		$this->task->accept($this->owner);
+		$this->task->accept($this->owner, $this->intervalForCloseTasks);
 		$this->transactionManager->commit();
 		$this->cleanEmailMessages();
 

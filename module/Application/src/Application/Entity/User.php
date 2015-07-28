@@ -248,11 +248,4 @@ class User implements RoleInterface
 	public function getRoleId(){
 		return $this->getRole();
 	}
-	
-	public static function createSystemUser(){
-		$sys = new self();
-		$sys->id = self::SYSTEM_USER;
-		$sys->role = self::ROLE_SYSTEM;
-		return $sys;
-	}
 }

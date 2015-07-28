@@ -36,6 +36,10 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$streamService = $locator->get('TaskManagement\StreamService');
 					$acl = $locator->get('Application\Service\Acl');
 					$controller = new TasksController($taskService, $streamService, $acl);
+					if(array_key_exists('assignment_of_shares_timebox', $locator->get('Config'))){
+						$assignmentOfSharesTimebox = $locator->get('Config')['assignment_of_shares_timebox'];
+						$controller->setIntervalForCloseTasks($assignmentOfSharesTimebox);
+					}
 					return $controller;
 	            },
 				'TaskManagement\Controller\Members' => function ($sm) {
@@ -48,9 +52,11 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$locator = $sm->getServiceLocator();
 					$acl = $locator->get('Application\Service\Acl');
 					$taskService = $locator->get('TaskManagement\TaskService');					
-					$assignmentOfSharesConfig = $locator->get('Config')['assignment_of_shares'];
 					$controller = new TransitionsController($taskService, $acl);
-					$controller->setIntervalForCloseTasks($assignmentOfSharesConfig['TaskManagement\TimeboxForAssignmentOfShares']);
+					if(array_key_exists('assignment_of_shares_timebox', $locator->get('Config'))){
+						$assignmentOfSharesTimebox = $locator->get('Config')['assignment_of_shares_timebox'];
+						$controller->setIntervalForCloseTasks($assignmentOfSharesTimebox);
+					}					
 					return $controller;
 				},
 				'TaskManagement\Controller\Estimations' => function ($sm) {

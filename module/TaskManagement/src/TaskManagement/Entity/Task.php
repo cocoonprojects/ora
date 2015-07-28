@@ -66,6 +66,12 @@ class Task extends EditableEntity implements ResourceInterface
 	 */
 	protected $acceptedAt;
 	
+	/**
+	 * @ORM\Column(type="datetime", nullable=true)
+	 * @var \DateTime
+	 */
+	protected $sharesAssignmentExpiresAt;
+	
 	
 	public function __construct($id) 
 	{
@@ -243,6 +249,14 @@ class Task extends EditableEntity implements ResourceInterface
 	
 	public function setAcceptedAt(\DateTime $date) {
 		$this->acceptedAt = $date;
+	}
+	
+	public function getSharesAssignmentExpiresAt() {
+		return $this->sharesAssignmentExpiresAt;
+	}
+	
+	public function setSharesAssignmentExpiresAt(\DateTime $date) {
+		$this->sharesAssignmentExpiresAt = $date;
 	}
 	
 	public function resetAcceptedAt(){

@@ -107,6 +107,8 @@ class TaskJsonModel extends JsonModel
 			'stream' => $this->getStream($task),
 			'members' => array_map(array($this, 'serializeOneMember'), $task->getMembers()),
 			'_links' => $links,
+			'daysRemainingToAssignShares' => $this->getDaysLeftForAssignShares($task),
+
 		];
 		
 		if($task->getStatus() >= Task::STATUS_ONGOING) {
@@ -166,4 +168,13 @@ class TaskJsonModel extends JsonModel
 			'createdAt' => date_format($estimation->getCreatedAt(), 'c'),
 		];
 	}	 
+	
+	private function getDaysLeftForAssignShares(Task $task){				
+		
+		if($task->getSharesAssignmentExpiresAt() instanceof \DateTime){
+			return date_diff($task->getSharesAssignmentExpiresAt(), new \DateTime())->format('%d');
+		}
+		
+		return "";
+	}
 }

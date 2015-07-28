@@ -25,6 +25,7 @@ class TransitionsController extends HATEOASRestfulController
 
 	public function __construct(TaskService $taskService) {
 		$this->taskService = $taskService;
+		$this->intervalForCloseTasks = new \DateInterval('P7D');
 	}
 	
 	public function invoke($id, $data) {
@@ -70,7 +71,7 @@ class TransitionsController extends HATEOASRestfulController
 				}
 				$this->transaction()->begin();
 				try {
-					$task->accept($this->identity()['user']);
+					$task->accept($this->identity()['user'], $this->getIntervalForCloseTasks());
 					$this->transaction()->commit();
 					$this->response->setStatusCode ( 200 );
 				} catch ( IllegalStateException $e ) {
@@ -111,12 +112,19 @@ class TransitionsController extends HATEOASRestfulController
 		
 		$action = $data ["action"];
 		
+		if($this->identity() == null){
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+		
+		$identity = $this->identity()['user'];
+		
 		switch ($action) {
 			
 			case "close":
 
-				if(!(isset($this->identity()['user']) && $this->isAllowed($this->identity()['user'], NULL, 'TaskManagement.Task.closeTasksCollection'))){
-					$this->response->setStatusCode(405);
+				if(!$this->isAllowed($identity, NULL, 'TaskManagement.Task.closeTasksCollection')){
+					$this->response->setStatusCode(403);
 					return $this->response;
 				}
 				
@@ -125,11 +133,10 @@ class TransitionsController extends HATEOASRestfulController
 				
 				foreach ($tasksFound as $taskFound){
 					
-					$taskToClose = $this->taskService->getTask($taskFound->getId());
-					
+					$taskToClose = $this->taskService->getTask($taskFound->getId());										
 					$this->transaction()->begin();
 					try {
-						$taskToClose->close(User::createSystemUser());
+						$taskToClose->close($identity);
 
 						$this->transaction()->commit();
 					} catch ( IllegalStateException $e ) {
