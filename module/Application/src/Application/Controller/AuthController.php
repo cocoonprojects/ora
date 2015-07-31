@@ -2,7 +2,9 @@
 
 namespace Application\Controller;
 
+use Application\Authentication\JWTUtils;
 use Zend\Mvc\Controller\AbstractActionController;
+use Zend\View\Model\JsonModel;
 use Zend\View\Model\ViewModel;
 use Zend\Authentication\AuthenticationServiceInterface;
 use Zend\Session\Container;
@@ -29,26 +31,21 @@ class AuthController extends AbstractActionController
 		
 	public function loginAction()
 	{
-		$view = new ViewModel();
+		$json = new JsonModel();
 		try {
 			$adapter = $this->adapterResolver->getAdapter($this);
 			if(is_null($adapter)) {
-				$view->setVariable('error', 'Auth.InvalidProvider');
+				$json->setVariable('error', 'Auth.InvalidProvider');
 			} else {
 				$result = $this->authService->authenticate($adapter);
-				
-				if(getenv('APPLICATION_ENV') != 'acceptance') {
-					if($result->isValid()) {
-						$this->redirect()->toRoute('home');
-					}
+				if($result->isValid()) {
+					return $json->setVariable('token', JWTUtils::buildJWT($result->getIdentity()));
 				}
-				$view->setVariable('authenticate', $result);
 			}
 		} catch (InvalidTokenException $e) {
-			$view->setVariable('error', $e->getMessage());
+			return $json->setVariable('error', $e->getMessage());
 		}
-		
-		return $view;
+		return $json;
 	}
 	
 	public function logoutAction()

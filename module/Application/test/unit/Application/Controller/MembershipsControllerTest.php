@@ -27,7 +27,7 @@ class MembershipsControllerTest extends ControllerTest
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 		
-		$this->assertEquals(401, $response->getStatusCode());		 
+		$this->assertEquals(401, $response->getStatusCode());
 	}
 	
 	public function testGetEmptyList()

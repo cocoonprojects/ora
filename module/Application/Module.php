@@ -42,7 +42,7 @@ class Module
  				$userService = $serviceManager->get('Application\UserService');
  				$localhostAuthAdapter = new DomainAdapter($_SERVER['HTTP_HOST'], $userService);
  				$authService->authenticate($localhostAuthAdapter);
- 			} 			
+ 			}
  		}, 100);
 	}
 	

@@ -15,7 +15,7 @@ return array(
 		'Accounting',
 		'TaskManagement',
 		'People',
-		'Kanbanize',	
+		'Kanbanize',
 		'AcMailer'
 	),
 
@@ -36,5 +36,5 @@ return array(
 		'config_glob_paths' => array(
 			__DIR__.'/autoload/{,*.}{global,'.$env.',local}.php',
 		),
-	),		
+	),
 );

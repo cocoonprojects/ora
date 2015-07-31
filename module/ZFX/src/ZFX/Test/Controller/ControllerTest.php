@@ -3,6 +3,7 @@ namespace ZFX\Test\Controller;
 
 use UnitTest\Bootstrap;
 use Zend\Http\Request;
+use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\RouteMatch;
 use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
@@ -14,6 +15,9 @@ use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
 
 abstract class ControllerTest extends \PHPUnit_Framework_TestCase
 {
+	/**
+	 * @var AbstractRestfulController
+	 */
 	protected $controller;
 	/**
 	 * 
