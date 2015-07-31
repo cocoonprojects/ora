@@ -1,7 +1,7 @@
 <?php
 namespace Accounting\Service;
 
-use Accounting\Entity\Account;
+use Accounting\Entity\PersonalAccount;
 use Accounting\Entity\Balance;
 use Accounting\Entity\Deposit;
 use Accounting\Entity\OrganizationAccount;
@@ -20,7 +20,7 @@ class AccountCommandsListener extends ReadModelProjector {
 
 		$organization = $this->entityManager->find(Organization::class, $organizationId);
 
-		$entity = $event->metadata()['aggregate_type'] == 'Accounting\OrganizationAccount' ? new OrganizationAccount($id, $organization) : new Account($id, $organization);
+		$entity = $event->metadata()['aggregate_type'] == 'Accounting\OrganizationAccount' ? new OrganizationAccount($id, $organization) : new PersonalAccount($id, $organization);
 
 		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
 		$entity->setCreatedAt($event->occurredOn());
@@ -34,7 +34,7 @@ class AccountCommandsListener extends ReadModelProjector {
 	
 	protected function onHolderAdded(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$entity = $this->entityManager->find(Account::class, $id);
+		$entity = $this->entityManager->find(PersonalAccount::class, $id);
 		
 		$holder = $this->entityManager->find(User::class, $event->payload()['id']);
 		$entity->addHolder($holder);
@@ -73,10 +73,10 @@ class AccountCommandsListener extends ReadModelProjector {
 
 	protected function onIncomingCreditsTransferred(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$entity = $this->entityManager->find(Account::class, $id);
+		$entity = $this->entityManager->find(PersonalAccount::class, $id);
 		
 		$payerId = $event->payload()['payer'];
-		$payer = $this->entityManager->find(Account::class, $payerId);
+		$payer = $this->entityManager->find(PersonalAccount::class, $payerId);
 		
 		$amount = $event->payload()['amount'];
 
@@ -102,10 +102,10 @@ class AccountCommandsListener extends ReadModelProjector {
 	
 	protected function onOutgoingCreditsTransferred(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$entity = $this->entityManager->find(Account::class, $id);
+		$entity = $this->entityManager->find(PersonalAccount::class, $id);
 		
 		$payeeId = $event->payload()['payee'];
-		$payee = $this->entityManager->find(Account::class, $payeeId);
+		$payee = $this->entityManager->find(PersonalAccount::class, $payeeId);
 		
 		$amount = $event->payload()['amount'];
 
