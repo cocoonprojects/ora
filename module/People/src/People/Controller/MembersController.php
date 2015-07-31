@@ -7,6 +7,9 @@ use Application\DuplicatedDomainEntityException;
 use People\Service\OrganizationService;
 use ZFX\Rest\Controller\HATEOASRestfulController;
 use People\View\OrganizationMembershipJsonModel;
+use Zend\Mvc\MvcEvent;
+use Zend\EventManager\EventManagerInterface;
+use People\Entity\Organization;
 
 class MembersController extends HATEOASRestfulController
 {
@@ -18,6 +21,11 @@ class MembersController extends HATEOASRestfulController
 	 * @var OrganizationService
 	 */
 	private $orgService;
+	/**
+	 *
+	 * @var Organization
+	 */
+	private $organization;
 	
 	public function __construct(OrganizationService $orgService) {
 		$this->orgService = $orgService;
@@ -32,24 +40,14 @@ class MembersController extends HATEOASRestfulController
 		}
 		$identity = $identity['user'];
 		
-		$orgId = $this->params('orgId');
-		if(is_null($orgId)) {
-			$this->response->setStatusCode(400);
-			return $this->response;
-		}
-		$organization = $this->orgService->findOrganization($orgId);
-		if(is_null($organization)) {
-			$this->response->setStatusCode(404);
-			return $this->response;
-		}
-		if(!$this->isAllowed($identity, $organization, 'People.Organization.userList')) {
+		if(!$this->isAllowed($identity, $this->organization, 'People.Organization.userList')) {
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
-		$memberships = $this->orgService->findOrganizationMemberships($organization);
+		$memberships = $this->orgService->findOrganizationMemberships($this->organization);
 
 		$view = new OrganizationMembershipJsonModel($this->url(), $identity);
-		$view->setVariable('organization', $organization);
+		$view->setVariable('organization', $this->organization);
 		$view->setVariable('resource', $memberships);
 		return $view;
 	}
@@ -63,20 +61,9 @@ class MembersController extends HATEOASRestfulController
 		}
 		$identity = $identity['user'];
 
-		$orgId = $this->params('orgId');
-		if(is_null($orgId)) {
-			$this->response->setStatusCode(400);
-			return $this->response;
-		}
-		$organization = $this->orgService->getOrganization($orgId);
-		if(is_null($organization)) {
-			$this->response->setStatusCode(404);
-			return $this->response;
-		}
-
 		$this->transaction()->begin();
 		try {
-			$organization->addMember($identity);
+			$this->organization->addMember($identity);
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
 		} catch (DuplicatedDomainEntityException $e) {
@@ -95,20 +82,9 @@ class MembersController extends HATEOASRestfulController
 		}
 		$identity = $identity['user'];
 
-		$orgId = $this->params('orgId');
-		if(is_null($orgId)) {
-			$this->response->setStatusCode(400);
-			return $this->response;
-		}
-		$organization = $this->orgService->getOrganization($orgId);
-		if(is_null($organization)) {
-			$this->response->setStatusCode(404);
-			return $this->response;
-		}
-
 		$this->transaction()->begin();
 		try {
-			$organization->removeMember($identity);
+			$this->organization->removeMember($identity);
 			$this->transaction()->commit();
 			$this->response->setStatusCode(200);
 		} catch (DomainEntityUnavailableException $e) {
@@ -131,5 +107,32 @@ class MembersController extends HATEOASRestfulController
 	protected function getResourceOptions()
 	{
 		return self::$resourceOptions;
+	}
+	
+	public function setEventManager(EventManagerInterface $events)
+	{
+		parent::setEventManager($events);
+	
+		// Register a listener at high priority
+		$events->attach('dispatch', array($this, 'getOrganization'), 50);
+	}
+	
+	public function getOrganization(MvcEvent $e){
+	
+		$orgId = $this->params('orgId');
+		$response = $this->getResponse();
+	
+		if (is_null($orgId)){
+			$response->setStatusCode(400);
+			return $response;
+		}
+	
+		$this->organization = $this->organizationService->findOrganization($orgId);
+		if (is_null($this->organization)){
+			$response->setStatusCode(404);
+			return $response;
+		}
+	
+		return;
 	}
 }

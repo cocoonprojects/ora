@@ -2,22 +2,24 @@
 namespace TaskManagement\Controller;
 
 use Zend\Authentication\AuthenticationServiceInterface;
+use Zend\EventManager\EventManagerInterface;
 use Zend\Permissions\Acl\Acl;
 use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
+use Zend\Mvc\MvcEvent;
 use Zend\Validator\NotEmpty;
 use ZFX\Rest\Controller\HATEOASRestfulController;
 use Application\IllegalStateException;
 use Application\InvalidArgumentException;
-use Application\Entity\User;
 use Accounting\Service\AccountService;
 use TaskManagement\Task;
 use TaskManagement\View\TaskJsonModel;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
 use People\Service\OrganizationService;
+use People\Entity\Organization;
 
 class TasksController extends HATEOASRestfulController
 {
@@ -48,6 +50,11 @@ class TasksController extends HATEOASRestfulController
 	 * @var OrganizationService
 	 */
 	private $organizationService;
+	/**
+	 *
+	 * @var Organization
+	 */
+	private $organization;
 	
 	public function __construct(TaskService $taskService, StreamService $streamService, Acl $acl, OrganizationService $organizationService)
 	{
@@ -57,13 +64,14 @@ class TasksController extends HATEOASRestfulController
 		$this->intervalForCloseTasks = new \DateInterval('P7D');
 		$this->organizationService = $organizationService;
 	}
-	
 	public function get($id)
 	{
 		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
+		
+		$identity = $this->identity()['user'];		
 
 		$task = $this->taskService->findTask($id);
 		if(is_null($task)) {
@@ -72,8 +80,8 @@ class TasksController extends HATEOASRestfulController
 		}
 
 		$this->response->setStatusCode(200);
-		$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl);
-		$view->setVariable('resource', $task);
+		$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl, $this->organization);
+		$view->setVariable('resource', $task);		
 		return $view;
 	}
 	
@@ -92,31 +100,18 @@ class TasksController extends HATEOASRestfulController
 		}
 		
 		$identity = $this->identity()['user'];
-		$orgId = $this->params('orgId');
-		
-		if (is_null($orgId)){
-			$this->response->setStatusCode(400);
-			return $this->response;
-		}
-		
-		$organization = $this->organizationService->findOrganization($orgId);
-		if (is_null($organization)){
-			$this->response->setStatusCode(404);
-			return $this->response;
-		}
-			
-		if(!$this->isAllowed($identity, $organization, 'TaskManagement.Task.list')){
+					
+		if(!$this->isAllowed($identity, $this->organization, 'TaskManagement.Task.list')){
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
 		
 		$streamID = $this->getRequest()->getQuery('streamID');
 		
-		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($organization) : $this->taskService->findStreamTasks($streamID);
-		
-		$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl);
-		$view->setVariable('resource', $availableTasks);
-		$view->setVariable('organization', $organization);
+		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization) : $this->taskService->findStreamTasks($streamID);
+				
+		$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl, $this->organization);
+		$view->setVariable('resource', $availableTasks);		
 		return $view;
 	}
 
@@ -272,7 +267,7 @@ class TasksController extends HATEOASRestfulController
 	{
 		return $this->organizationService;
 	}
-	
+
 	protected function getCollectionOptions()
 	{
 		return self::$collectionOptions;
@@ -286,8 +281,35 @@ class TasksController extends HATEOASRestfulController
 	public function setIntervalForCloseTasks($interval){
 		$this->intervalForCloseTasks = $interval;
 	}
-	
+
 	public function getIntervalForCloseTasks(){
 		return $this->intervalForCloseTasks;
+	}
+
+	public function setEventManager(EventManagerInterface $events)
+	{
+		parent::setEventManager($events);
+	
+		// Register a listener at high priority
+		$events->attach('dispatch', array($this, 'getOrganization'), 50);
+	}
+	
+	public function getOrganization(MvcEvent $e){
+		
+		$orgId = $this->params('orgId');
+		$response = $this->getResponse();
+		
+		if (is_null($orgId)){
+			$response->setStatusCode(400);
+			return $response;
+		}
+		
+		$this->organization = $this->organizationService->findOrganization($orgId);
+		if (is_null($this->organization)){
+			$response->setStatusCode(404);
+			return $response;
+		}
+
+		return;
 	}
 }

@@ -7,7 +7,7 @@ return array(
 			'tasks-home' => array(
 				'type' => 'Segment',
 				'options' => array(
-					'route'	   => '/:orgId/task-management',
+					'route'	   => '[/:orgId]/task-management',
 					'constraints' => array(
 						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
 					),

@@ -25,7 +25,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$locator = $sm->getServiceLocator();
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
 					$acl = $locator->get('Application\Service\Acl');
-					$controller = new AccountsController($accountService, $acl);
+					$organizationService = $locator->get('People\OrganizationService');
+					$controller = new AccountsController($accountService, $acl, $organizationService);
 					return $controller;
 				},
 				'Accounting\Controller\Deposits' => function ($sm) {

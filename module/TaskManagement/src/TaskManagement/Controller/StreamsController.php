@@ -10,6 +10,9 @@ use ZFX\Rest\Controller\HATEOASRestfulController;
 use People\Service\OrganizationService;
 use TaskManagement\View\StreamJsonModel;
 use TaskManagement\Service\StreamService;
+use Zend\Mvc\MvcEvent;
+use Zend\EventManager\EventManagerInterface;
+use People\Entity\Organization;
 
 class StreamsController extends HATEOASRestfulController
 {
@@ -25,6 +28,11 @@ class StreamsController extends HATEOASRestfulController
 	 * @var OrganizationService
 	 */
 	protected $organizationService;
+	/**
+	 *
+	 * @var Organization
+	 */
+	private $organization;
 	
 	public function __construct(StreamService $streamService, OrganizationService $organizationService) {
 		$this->streamService = $streamService;
@@ -48,33 +56,20 @@ class StreamsController extends HATEOASRestfulController
 	   	}
 	   	$identity = $identity['user'];
 
-	   	$orgId = $this->params('orgId');
-	   	
-	   	if (is_null($orgId)){
-	   		$this->response->setStatusCode(400);
-	   		return $this->response;
-	   	}
-	   	
-	   	$organization = $this->organizationService->findOrganization($orgId);
-	   	if (is_null($organization)){
-	   		$this->response->setStatusCode(404);
-	   		return $this->response;
-	   	}
-	   	
-	   	if(!$this->isAllowed($identity, $organization, 'TaskManagement.Stream.list')){
+	   	if(!$this->isAllowed($identity, $this->organization, 'TaskManagement.Stream.list')){
 	   		$this->response->setStatusCode(403);
 	   		return $this->response;
 	   	}
 	   	
-	   	$streams = $this->streamService->findStreams($organization);
+	   	$streams = $this->streamService->findStreams($this->organization);
 	   	$view = new StreamJsonModel($this->url(), $identity);
 	   	$view->setVariable('resource', $streams);
-	   	$view->setVariable('organization', $organization);
+	   	$view->setVariable('organization', $this->organization);
 		return $view;
 	}
 	
 	public function create($data)
-	{
+	{		
 		$identity = $this->identity();
 		if(is_null($identity)) {
 			$this->response->setStatusCode(401);
@@ -82,22 +77,13 @@ class StreamsController extends HATEOASRestfulController
 		}
 		$identity = $identity['user'];
 		
-		if(!isset($data['organizationId'])) {
-			$this->response->setStatusCode(400);
-			return $this->response;
-		}
-		$organization = $this->organizationService->getOrganization($data['organizationId']);
-		if(is_null($organization)) {
-			$this->response->setStatusCode(404);
-			return $this->response;
-		}
 		$filters = new FilterChain();
 		$filters->attach(new StringTrim())
 				->attach(new StripNewlines())
 				->attach(new StripTags());
 		
 		$subject = isset($data['subject']) ? $filters->filter($data['subject']) : null;
-		$stream = $this->streamService->createStream($organization, $subject, $identity);
+		$stream = $this->streamService->createStream($this->organization, $subject, $identity);
 		$url = $this->url()->fromRoute('streams', array('id' => $stream->getId()));
 		$this->response->getHeaders()->addHeaderLine('Location', $url);
 		$this->response->setStatusCode(201);
@@ -155,6 +141,32 @@ class StreamsController extends HATEOASRestfulController
 	protected function getResourceOptions()
 	{
 		return self::$resourceOptions;
+	}
+	public function setEventManager(EventManagerInterface $events)
+	{
+		parent::setEventManager($events);
+	
+		// Register a listener at high priority
+		$events->attach('dispatch', array($this, 'getOrganization'), 50);
+	}
+	
+	public function getOrganization(MvcEvent $e){
+	
+		$orgId = $this->params('orgId');
+		$response = $this->getResponse();
+	
+		if (is_null($orgId)){
+			$response->setStatusCode(400);
+			return $response;
+		}
+	
+		$this->organization = $this->organizationService->findOrganization($orgId);
+		if (is_null($this->organization)){
+			$response->setStatusCode(404);
+			return $response;
+		}
+	
+		return;
 	}
 	
 }

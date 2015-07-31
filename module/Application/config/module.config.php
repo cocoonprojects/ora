@@ -20,6 +20,7 @@ return array(
 						'route'	   => '/auth/:action[/:id]',
 						'defaults' => array(
 							'controller'	=> 'Application\Controller\Auth',
+							'action' => 'login'
 						),
 				),
 			),

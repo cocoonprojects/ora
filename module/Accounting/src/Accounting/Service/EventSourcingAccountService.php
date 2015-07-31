@@ -12,6 +12,7 @@ use Rhumsaa\Uuid\Uuid;
 use Application\Entity\User;
 use People\Organization;
 use People\Entity\OrganizationMembership;
+use People\Entity\Organization as ReadModelOrganization;
 use Accounting\Account;
 use Accounting\OrganizationAccount;
 use Accounting\Entity\Account as ReadModelAccount;
@@ -83,13 +84,15 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 		return $this->getAggregateRoot($aId);
 	}
 	
-	public function findAccounts(User $holder) {
+	public function findAccounts(User $holder, ReadModelOrganization $organization) {
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('a')
 			->from(ReadModelAccount::class, 'a')
 			->leftJoin(OrganizationMembership::class, 'm', 'WITH', 'm.organization = a.organization')
 			->where($builder->expr()->orX(':user = m.member', ':user MEMBER OF a.holders'))
+			->andWhere('a.organization = :organization')
 			->setParameter('user', $holder)
+			->setParameter('organization', $organization)
 			->getQuery();
 		return $query->getResult();
 	}

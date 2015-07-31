@@ -25,7 +25,6 @@ class StreamJsonModel extends JsonModel
 	public function __construct(Url $url, User $user) {
 		$this->url = $url;
 		$this->user = $user;
-		$this->organization = $organization;
 	}
 	
 	public function serialize()

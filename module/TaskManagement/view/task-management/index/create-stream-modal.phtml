@@ -2,7 +2,8 @@
 <div id="createStreamModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="createStreamLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<form action="<?php echo $this->url('streams') ?>">
+				
+			<form action="<?php echo $this->url('streams', array('orgId'=>$this->layout()->getVariable('orgId')));?>">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal">
 					<span aria-hidden="true">&times;</span>
