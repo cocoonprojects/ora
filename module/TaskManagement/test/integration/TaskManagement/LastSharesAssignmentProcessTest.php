@@ -69,7 +69,7 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 		$transactionManager = $serviceManager->get('prooph.event_store');
 		$transactionManager->beginTransaction();
 		try {
-			$task = Task::create($stream, 'Cras placerat libero non tempore', $this->owner);
+			$task = Task::create($stream, 'Cras placerat libero non tempor', $this->owner);
 			$task->addMember($this->owner, Task::ROLE_OWNER);
 			$task->addEstimation(1500, $this->owner);
 			$task->addMember($this->member, Task::ROLE_MEMBER);
