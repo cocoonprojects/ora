@@ -132,7 +132,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				'TaskManagement\CloseTaskListener' => function ($locator) {
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$userService = $locator->get('Application\UserService');
-					return new CloseTaskListener($taskService, $userService);
+					$transactionManager = $locator->get('prooph.event_store');
+					return new CloseTaskListener($taskService, $userService, $transactionManager);
 				}
 			),
 		);

@@ -1,7 +1,10 @@
 <?php
 namespace TaskManagement\Service;
 
+use Application\IllegalStateException;
+use Application\InvalidArgumentException;
 use Application\Service\UserService;
+use Prooph\EventStore\EventStore;
 use TaskManagement\SharesAssigned;
 use TaskManagement\SharesSkipped;
 use Zend\EventManager\EventManagerInterface;
@@ -20,10 +23,15 @@ class CloseTaskListener implements ListenerAggregateInterface {
 	 * @var UserService
 	 */
 	protected $userService;
+	/**
+	 * @var EventStore
+	 */
+	private $transactionManager;
 
-	public function __construct(TaskService $taskService, UserService $userService) {
+	public function __construct(TaskService $taskService, UserService $userService, EventStore $transactionManager) {
 		$this->taskService = $taskService;
 		$this->userService = $userService;
+		$this->transactionManager = $transactionManager;
 	}
 	
 	public function attach(EventManagerInterface $events) {
@@ -38,7 +46,17 @@ class CloseTaskListener implements ListenerAggregateInterface {
 		$byId = $event->getParam('by');
 		$by = $this->userService->findUser($byId);
 		if ($task->isSharesAssignmentCompleted()) {
-			$task->close($by);
+			$this->transactionManager->beginTransaction();
+			try {
+				$task->close($by);
+				$this->transactionManager->commit();
+			}catch( IllegalStateException $e ) {
+				$this->transactionManager->rollback();
+				throw $e;
+			}catch( InvalidArgumentException $e ) {
+				$this->transactionManager->rollback();
+				throw $e;
+			}
 		}
 	}
 	

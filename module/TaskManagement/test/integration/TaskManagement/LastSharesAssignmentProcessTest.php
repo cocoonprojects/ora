@@ -25,6 +25,8 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 	protected $owner;
 	protected $member;
 	protected $organization;
+	
+	protected $readModelTask;
 	/**
 	 * @var \DateInterval
 	 */
@@ -67,7 +69,7 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 		$transactionManager = $serviceManager->get('prooph.event_store');
 		$transactionManager->beginTransaction();
 		try {
-			$task = Task::create($stream, 'Cras placerat libero non tempor', $this->owner);
+			$task = Task::create($stream, 'Cras placerat libero non tempore', $this->owner);
 			$task->addMember($this->owner, Task::ROLE_OWNER);
 			$task->addEstimation(1500, $this->owner);
 			$task->addMember($this->member, Task::ROLE_MEMBER);
@@ -81,7 +83,8 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 			var_dump($e);
 			$transactionManager->rollback();
 			throw $e;
-		}		
+		}
+		$this->readModelTask = $taskService->findTask($this->task->getId());
 	}
 	
 	public function testAssignSharesAsLast() {
@@ -97,6 +100,7 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(201, $response->getStatusCode());
 		$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
+		$this->assertEquals(Task::STATUS_CLOSED, $this->readModelTask->getStatus());
 	}
 
 	public function testSkipSharesAsLast() {
@@ -109,5 +113,6 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 		
 		$this->assertEquals(201, $response->getStatusCode());
 		$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
+		$this->assertEquals(Task::STATUS_CLOSED, $this->readModelTask->getStatus());
 	}
 }
