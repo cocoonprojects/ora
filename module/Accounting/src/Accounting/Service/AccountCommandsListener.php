@@ -2,6 +2,7 @@
 namespace Accounting\Service;
 
 use Accounting\Entity\PersonalAccount;
+use Accounting\Entity\Account;
 use Accounting\Entity\Balance;
 use Accounting\Entity\Deposit;
 use Accounting\Entity\OrganizationAccount;
@@ -34,7 +35,7 @@ class AccountCommandsListener extends ReadModelProjector {
 	
 	protected function onHolderAdded(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$entity = $this->entityManager->find(PersonalAccount::class, $id);
+		$entity = $this->entityManager->find(Account::class, $id);
 		
 		$holder = $this->entityManager->find(User::class, $event->payload()['id']);
 		$entity->addHolder($holder);
@@ -73,10 +74,10 @@ class AccountCommandsListener extends ReadModelProjector {
 
 	protected function onIncomingCreditsTransferred(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$entity = $this->entityManager->find(PersonalAccount::class, $id);
+		$entity = $this->entityManager->find(Account::class, $id);
 		
 		$payerId = $event->payload()['payer'];
-		$payer = $this->entityManager->find(PersonalAccount::class, $payerId);
+		$payer = $this->entityManager->find(Account::class, $payerId);
 		
 		$amount = $event->payload()['amount'];
 
@@ -102,10 +103,10 @@ class AccountCommandsListener extends ReadModelProjector {
 	
 	protected function onOutgoingCreditsTransferred(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$entity = $this->entityManager->find(PersonalAccount::class, $id);
+		$entity = $this->entityManager->find(Account::class, $id);
 		
 		$payeeId = $event->payload()['payee'];
-		$payee = $this->entityManager->find(PersonalAccount::class, $payeeId);
+		$payee = $this->entityManager->find(Account::class, $payeeId);
 		
 		$amount = $event->payload()['amount'];
 
