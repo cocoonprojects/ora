@@ -2,6 +2,7 @@
 namespace TaskManagement\Service;
 
 use Accounting\Service\AccountService;
+use Accounting\IllegalAmountException;
 use Application\Entity\User;
 use Application\Service\UserService;
 use People\Service\OrganizationService;
