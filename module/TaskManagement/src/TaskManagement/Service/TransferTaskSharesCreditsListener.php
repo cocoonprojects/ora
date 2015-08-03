@@ -71,14 +71,19 @@ class TransferTaskSharesCreditsListener implements ListenerAggregateInterface
 
  		$this->transactionManager->beginTransaction();
 		$credits = $task->getMembersCredits();
-		foreach ($credits as $memberId => $amount) {
-			if($amount > 0) {
-				$account = $this->accountService->findPersonalAccount($memberId, $organization);
-				$payee = $this->accountService->getAccount($account->getId());
-				$payer->transferOut(-$amount, $payee, "Item '" . $task->getSubject() . "' (#" . $task->getId() .") credits share", $by);
-				$payee->transferIn($amount, $payer, "Item '" . $task->getSubject() . "' (#" . $task->getId() .") credits share", $by);
+		try{
+			foreach ($credits as $memberId => $amount) {
+				if($amount > 0) {
+					$account = $this->accountService->findPersonalAccount($memberId, $organization);
+					$payee = $this->accountService->getAccount($account->getId());
+					$payer->transferOut(-$amount, $payee, "Item '" . $task->getSubject() . "' (#" . $task->getId() .") credits share", $by);
+					$payee->transferIn($amount, $payer, "Item '" . $task->getSubject() . "' (#" . $task->getId() .") credits share", $by);
+				}
 			}
+	 		$this->transactionManager->commit();
+		}catch(IllegalAmountException $e){
+			$this->transactionManager->rollback();
+			throw $e;
 		}
- 		$this->transactionManager->commit();
 	}
 }
