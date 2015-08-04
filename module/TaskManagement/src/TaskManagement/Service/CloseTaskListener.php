@@ -1,8 +1,6 @@
 <?php
 namespace TaskManagement\Service;
 
-use Application\IllegalStateException;
-use Application\InvalidArgumentException;
 use Application\Service\UserService;
 use Prooph\EventStore\EventStore;
 use TaskManagement\SharesAssigned;
@@ -50,10 +48,7 @@ class CloseTaskListener implements ListenerAggregateInterface {
 			try {
 				$task->close($by);
 				$this->transactionManager->commit();
-			}catch( IllegalStateException $e ) {
-				$this->transactionManager->rollback();
-				throw $e;
-			}catch( InvalidArgumentException $e ) {
+			}catch( \Exception $e ) {
 				$this->transactionManager->rollback();
 				throw $e;
 			}
