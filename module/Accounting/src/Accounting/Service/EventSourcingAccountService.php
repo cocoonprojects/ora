@@ -17,6 +17,7 @@ use Accounting\OrganizationAccount;
 use Accounting\Entity\Account as ReadModelAccount;
 use Accounting\Entity\OrganizationAccount as ReadModelOrgAccount;
 use Zend\Db\TableGateway\Exception\RuntimeException;
+use Accounting\Entity\PersonalAccount;
 
 class EventSourcingAccountService extends AggregateRepository implements AccountService
 {
@@ -110,12 +111,13 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	 */
 	public function findPersonalAccount($user, $organization) {
 		$builder = $this->entityManager->createQueryBuilder();
-		$query = $builder->select('a')
-			->from(ReadModelAccount::class, 'a')
-			->where($builder->expr()->andX(':user MEMBER OF a.holders', 'a.organization = :organization'))
+		$query = $builder->select('p')
+			->from(PersonalAccount::class, 'p')
+			->where($builder->expr()->andX(':user MEMBER OF p.holders', 'p.organization = :organization'))
 			->setParameter('user', $user)
 			->setParameter('organization', $organization)
 			->getQuery();
+		
 		return $query->getSingleResult();
 	}
 

@@ -7,15 +7,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Application\Entity\EditableEntity;
 use Application\Entity\User;
 use People\Entity\Organization;
-
 /**
- * @ORM\Entity @ORM\Table(name="accounts")
+ * @ORM\Entity 
+ * @ORM\Table(name="accounts")
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="type", type="string")
  * @author andreabandera
- *
  */
-class Account extends EditableEntity implements ResourceInterface {
+abstract class Account extends EditableEntity implements ResourceInterface {
 	
 	/**
 	 * @ORM\Embedded(class="Accounting\Entity\Balance")

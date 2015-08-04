@@ -25,6 +25,7 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 	protected $owner;
 	protected $member;
 	protected $organization;
+	
 	/**
 	 * @var \DateInterval
 	 */
@@ -81,7 +82,7 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 			var_dump($e);
 			$transactionManager->rollback();
 			throw $e;
-		}		
+		}
 	}
 	
 	public function testAssignSharesAsLast() {
@@ -95,8 +96,10 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 		
+		$readModelTask = $this->controller->getTaskService()->findTask($this->task->getId());
 		$this->assertEquals(201, $response->getStatusCode());
 		$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
+		$this->assertEquals(Task::STATUS_CLOSED, $readModelTask->getStatus());
 	}
 
 	public function testSkipSharesAsLast() {
@@ -107,7 +110,9 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 		
+		$readModelTask = $this->controller->getTaskService()->findTask($this->task->getId());
 		$this->assertEquals(201, $response->getStatusCode());
 		$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
+		$this->assertEquals(Task::STATUS_CLOSED, $readModelTask->getStatus());
 	}
 }
