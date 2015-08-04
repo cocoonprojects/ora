@@ -96,7 +96,7 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 		
-		$readModelTask = $taskService->findTask($this->task->getId());
+		$readModelTask = $this->controller->getTaskService()->findTask($this->task->getId());
 		$this->assertEquals(201, $response->getStatusCode());
 		$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
 		$this->assertEquals(Task::STATUS_CLOSED, $readModelTask->getStatus());
@@ -110,7 +110,7 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 		
-		$readModelTask = $taskService->findTask($this->task->getId());
+		$readModelTask = $this->controller->getTaskService()->findTask($this->task->getId());
 		$this->assertEquals(201, $response->getStatusCode());
 		$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
 		$this->assertEquals(Task::STATUS_CLOSED, $readModelTask->getStatus());
