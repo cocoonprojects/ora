@@ -64,7 +64,6 @@ class StreamsController extends HATEOASRestfulController
 	   	$streams = $this->streamService->findStreams($this->organization);
 	   	$view = new StreamJsonModel($this->url(), $identity);
 	   	$view->setVariable('resource', $streams);
-	   	$view->setVariable('organization', $this->organization);
 		return $view;
 	}
 	
@@ -83,7 +82,8 @@ class StreamsController extends HATEOASRestfulController
 				->attach(new StripTags());
 		
 		$subject = isset($data['subject']) ? $filters->filter($data['subject']) : null;
-		$stream = $this->streamService->createStream($this->organization, $subject, $identity);
+		$organization = $this->organizationService->getOrganization($this->params('orgId'));
+		$stream = $this->streamService->createStream($organization, $subject, $identity);
 		$url = $this->url()->fromRoute('streams', array('id' => $stream->getId()));
 		$this->response->getHeaders()->addHeaderLine('Location', $url);
 		$this->response->setStatusCode(201);
@@ -147,20 +147,20 @@ class StreamsController extends HATEOASRestfulController
 		parent::setEventManager($events);
 	
 		// Register a listener at high priority
-		$events->attach('dispatch', array($this, 'getOrganization'), 50);
-	}
+		$events->attach('dispatch', array($this, 'findOrganization'), 50);
+		}
 	
-	public function getOrganization(MvcEvent $e){
-	
+	public function findOrganization(MvcEvent $e){
+		
 		$orgId = $this->params('orgId');
 		$response = $this->getResponse();
-	
+		
 		if (is_null($orgId)){
 			$response->setStatusCode(400);
 			return $response;
 		}
-	
-		$this->organization = $this->organizationService->findOrganization($orgId);
+		
+		$this->organization = $this->getOrganizationService()->findOrganization($orgId);
 		if (is_null($this->organization)){
 			$response->setStatusCode(404);
 			return $response;

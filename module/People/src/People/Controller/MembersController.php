@@ -61,9 +61,11 @@ class MembersController extends HATEOASRestfulController
 		}
 		$identity = $identity['user'];
 
+		$organization = $this->orgService->getOrganization($this->params('orgId'));
+		
 		$this->transaction()->begin();
 		try {
-			$this->organization->addMember($identity);
+			$organization->addMember($identity);
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
 		} catch (DuplicatedDomainEntityException $e) {
@@ -82,9 +84,11 @@ class MembersController extends HATEOASRestfulController
 		}
 		$identity = $identity['user'];
 
+		$organization = $this->orgService->getOrganization($this->params('orgId'));
+		
 		$this->transaction()->begin();
 		try {
-			$this->organization->removeMember($identity);
+			$organization->removeMember($identity);
 			$this->transaction()->commit();
 			$this->response->setStatusCode(200);
 		} catch (DomainEntityUnavailableException $e) {
@@ -114,10 +118,10 @@ class MembersController extends HATEOASRestfulController
 		parent::setEventManager($events);
 	
 		// Register a listener at high priority
-		$events->attach('dispatch', array($this, 'getOrganization'), 50);
+		$events->attach('dispatch', array($this, 'findOrganization'), 50);
 	}
 	
-	public function getOrganization(MvcEvent $e){
+	public function findOrganization(MvcEvent $e){
 	
 		$orgId = $this->params('orgId');
 		$response = $this->getResponse();
@@ -127,7 +131,7 @@ class MembersController extends HATEOASRestfulController
 			return $response;
 		}
 	
-		$this->organization = $this->organizationService->findOrganization($orgId);
+		$this->organization = $this->getOrganizationService()->findOrganization($orgId);
 		if (is_null($this->organization)){
 			$response->setStatusCode(404);
 			return $response;

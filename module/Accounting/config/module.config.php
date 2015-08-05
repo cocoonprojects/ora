@@ -7,7 +7,7 @@ return array(
 			'accounting-home' => array(
 				'type' => 'segment',
 				'options' => array(
-					'route'	   => '[/:orgId]/accounting/',
+					'route'	   => '/:orgId/accounting/',
 					'constraints' => array(
 							'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
 					),
@@ -21,7 +21,7 @@ return array(
 			'accounts' => array (
 				'type'	  => 'segment',
 				'options' => array (
-					'route'		  => '[/:orgId]/accounting/accounts[/:id][/:controller]',
+					'route'		  => '/:orgId/accounting/accounts[/:id][/:controller]',
 					'constraints' => array (
 						'id'	 => '[0-9a-z\-]+',
 						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',

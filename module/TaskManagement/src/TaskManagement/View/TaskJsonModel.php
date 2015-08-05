@@ -58,8 +58,6 @@ class TaskJsonModel extends JsonModel
 		if ($this->acl->isAllowed($this->user, NULL, 'TaskManagement.Task.create')) {
 			$hal['_links']['ora:create']['href'] = $this->url->fromRoute('tasks', ['orgId'=>$this->organization->getId()]);
 		}
-		
-		$hal['_organization'] = $this->organization->getName();		
 			
 		return Json::encode($hal);		
 	}

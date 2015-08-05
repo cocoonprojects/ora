@@ -95,10 +95,15 @@ class AccountsController extends HATEOASRestfulController
 		parent::setEventManager($events);
 	
 		// Register a listener at high priority
-		$events->attach('dispatch', array($this, 'getOrganization'), 50);
+		$events->attach('dispatch', array($this, 'findOrganization'), 50);
 	}
 	
-	public function getOrganization(MvcEvent $e){
+	public function getOrganizationService()
+	{
+		return $this->organizationService;
+	}
+	
+	public function findOrganization(MvcEvent $e){
 	
 		$orgId = $this->params('orgId');
 		$response = $this->getResponse();
@@ -108,7 +113,7 @@ class AccountsController extends HATEOASRestfulController
 			return $response;
 		}
 	
-		$this->organization = $this->organizationService->findOrganization($orgId);
+		$this->organization = $this->getOrganizationService()->findOrganization($orgId);
 		if (is_null($this->organization)){
 			$response->setStatusCode(404);
 			return $response;

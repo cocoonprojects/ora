@@ -7,6 +7,7 @@ use People\Service\OrganizationService;
 use Application\Entity\User;
 use People\Entity\Organization as ReadModelOrganization;
 use People\Entity\OrganizationMembership;
+use People\Entity\People\Entity;
 
 class MembersControllerTest extends ControllerTest
 {
@@ -24,6 +25,16 @@ class MembersControllerTest extends ControllerTest
 	public function testGetListAsAnonymous()
 	{
 		$this->setupAnonymous();
+		
+		$organization = new ReadModelOrganization('1');
+		
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($organization->getId())
+			->willReturn($organization);
+		
+		$this->routeMatch->setParam('orgId', $organization->getId());
 		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
@@ -131,10 +142,10 @@ class MembersControllerTest extends ControllerTest
 		$this->setupLoggedUser($user);
 		
 		$this->controller->getOrganizationService()
-		->expects($this->once())
-		->method('findOrganization')
-		->with($this->equalTo($organization->getId()))
-		->willReturn($organization);
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->equalTo($organization->getId()))
+			->willReturn($organization);
 		
 		$user2 = User::create();
 		$user2->setFirstname('Jane');
@@ -142,10 +153,10 @@ class MembersControllerTest extends ControllerTest
 		$memberships[] = new OrganizationMembership($user2, $organization, OrganizationMembership::ROLE_ADMIN);
 		
 		$this->controller->getOrganizationService()
-		->expects($this->once())
-		->method('findOrganizationMemberships')
-		->with($this->equalTo($organization))
-		->willReturn($memberships);
+			->expects($this->once())
+			->method('findOrganizationMemberships')
+			->with($this->equalTo($organization))
+			->willReturn($memberships);
 		
 		$this->routeMatch->setParam('orgId', $organization->getId());
 		
@@ -167,7 +178,15 @@ class MembersControllerTest extends ControllerTest
 	{
 		$this->setupAnonymous();
 
-		$this->routeMatch->setParam('orgId', '1');
+		$organization = new ReadModelOrganization('1');
+		
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->equalTo($organization->getId()))
+			->willReturn($organization);
+		
+		$this->routeMatch->setParam('orgId', $organization->getId());
 
 		$this->request->setMethod('post');
 
@@ -184,7 +203,7 @@ class MembersControllerTest extends ControllerTest
 
 		$this->controller->getOrganizationService()
 			->expects($this->once())
-			->method('getOrganization')
+			->method('findOrganization')
 			->with($this->equalTo('1'))
 			->willReturn(null);
 
@@ -204,14 +223,21 @@ class MembersControllerTest extends ControllerTest
 		$this->setupLoggedUser($user);
 
 		$organization = Organization::create('Lorem ipsum', $user);
+		$readModelOrganization = new ReadModelOrganization($organization->getId());
+
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->equalTo($readModelOrganization->getId()))
+			->willReturn($readModelOrganization);
 
 		$this->controller->getOrganizationService()
 			->expects($this->once())
 			->method('getOrganization')
 			->with($this->equalTo($organization->getId()))
 			->willReturn($organization);
-
-		$this->routeMatch->setParam('orgId', $organization->getId());
+		
+		$this->routeMatch->setParam('orgId', $readModelOrganization->getId());
 
 		$this->request->setMethod('post');
 
@@ -227,14 +253,21 @@ class MembersControllerTest extends ControllerTest
 		$this->setupLoggedUser($user);
 
 		$organization = Organization::create('Lorem ipsum', User::create());
+		$readModelOrganization = new ReadModelOrganization($organization->getId());
+
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->equalTo($readModelOrganization->getId()))
+			->willReturn($readModelOrganization);
 
 		$this->controller->getOrganizationService()
 			->expects($this->once())
 			->method('getOrganization')
 			->with($this->equalTo($organization->getId()))
 			->willReturn($organization);
-
-		$this->routeMatch->setParam('orgId', $organization->getId());
+		
+		$this->routeMatch->setParam('orgId', $readModelOrganization->getId());
 
 		$this->request->setMethod('post');
 
@@ -250,7 +283,15 @@ class MembersControllerTest extends ControllerTest
 	{
 		$this->setupAnonymous();
 
-		$this->routeMatch->setParam('orgId', '1');
+		$organization = new ReadModelOrganization('1');
+		
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->equalTo($organization->getId()))
+			->willReturn($organization);
+		
+		$this->routeMatch->setParam('orgId', $organization->getId());
 
 		$this->request->setMethod('delete');
 
@@ -267,7 +308,7 @@ class MembersControllerTest extends ControllerTest
 
 		$this->controller->getOrganizationService()
 			->expects($this->once())
-			->method('getOrganization')
+			->method('findOrganization')
 			->with($this->equalTo('1'))
 			->willReturn(null);
 
@@ -287,14 +328,21 @@ class MembersControllerTest extends ControllerTest
 		$this->setupLoggedUser($user);
 
 		$organization = Organization::create('Lorem ipsum', User::create());
+		$readModelOrganization = new ReadModelOrganization($organization->getId());
+
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->equalTo($readModelOrganization->getId()))
+			->willReturn($readModelOrganization);
 
 		$this->controller->getOrganizationService()
 			->expects($this->once())
 			->method('getOrganization')
 			->with($this->equalTo($organization->getId()))
 			->willReturn($organization);
-
-		$this->routeMatch->setParam('orgId', $organization->getId());
+		
+		$this->routeMatch->setParam('orgId', $readModelOrganization->getId());
 
 		$this->request->setMethod('delete');
 
@@ -310,14 +358,21 @@ class MembersControllerTest extends ControllerTest
 		$this->setupLoggedUser($user);
 
 		$organization = Organization::create('Lorem ipsum', $user);
+		$readModelOrganization = new ReadModelOrganization($organization->getId());
 
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->equalTo($readModelOrganization->getId()))
+			->willReturn($readModelOrganization);
+		
 		$this->controller->getOrganizationService()
 			->expects($this->once())
 			->method('getOrganization')
 			->with($this->equalTo($organization->getId()))
 			->willReturn($organization);
 
-		$this->routeMatch->setParam('orgId', $organization->getId());
+		$this->routeMatch->setParam('orgId', $readModelOrganization->getId());
 
 		$this->request->setMethod('delete');
 

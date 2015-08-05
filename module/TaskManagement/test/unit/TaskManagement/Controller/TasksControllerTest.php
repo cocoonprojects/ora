@@ -75,8 +75,9 @@ class TasksControllerTest extends ControllerTest {
 		$this->request->setMethod('get');
 		$params = $this->request->getQuery();
 		$params->set('streamID', '1');
-		$params->set('orgId', $this->organization->getId());
-	
+		
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 	
@@ -110,7 +111,8 @@ class TasksControllerTest extends ControllerTest {
 		$this->request->setMethod('get');
 		$params = $this->request->getQuery();
 		$params->set('streamID', $this->stream->getId());
-		$params->set('orgId', $this->organization->getId());
+		
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
 		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
@@ -148,8 +150,9 @@ class TasksControllerTest extends ControllerTest {
 		$this->request->setMethod('get');
 		$params = $this->request->getQuery();
 		$params->set('streamID', $this->stream->getId());
-		$params->set('orgId', $this->organization->getId());
-	
+		
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 	
@@ -166,6 +169,14 @@ class TasksControllerTest extends ControllerTest {
 	{
 		$this->setupAnonymous();
 		$this->request->setMethod('get');
+		
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->organization->getId())
+			->willReturn($this->organization);
+		
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
 	
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
@@ -186,9 +197,8 @@ class TasksControllerTest extends ControllerTest {
 			->method('findOrganization')
 			->with($this->organization->getId())
 			->willReturn($this->organization);
-
-		$params = $this->request->getQuery();
-		$params->set('orgId', $this->organization->getId());
+		
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
 		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
@@ -217,8 +227,9 @@ class TasksControllerTest extends ControllerTest {
 
 		$params = $this->request->getQuery();
 		$params->set('streamID', '1');
-		$params->set('orgId', $this->organization->getId());
-
+		
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 
@@ -243,8 +254,6 @@ class TasksControllerTest extends ControllerTest {
 		$task1->setStream($this->stream)
 			->addMember($this->user, Task::ROLE_OWNER, $this->user, $task1->getCreatedAt());
 
-		
-		
 		$this->controller->getTaskService()
 			->expects($this->once())
 			->method('findTasks')
@@ -258,8 +267,8 @@ class TasksControllerTest extends ControllerTest {
 			->with($this->organization->getId())
 			->willReturn($this->organization);
 			
-		$params = $this->request->getQuery();
-		$params->set('orgId', $this->organization->getId());
+		
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
 		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();

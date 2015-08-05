@@ -11,6 +11,7 @@ use People\Service\OrganizationService;
 use TaskManagement\Service\StreamService;
 use TaskManagement\Task;
 use TaskManagement\Stream;
+use People\Entity\People\Entity;
 
 class StreamsControllerTest extends ControllerTest
 {
@@ -37,7 +38,7 @@ class StreamsControllerTest extends ControllerTest
 		$user = User::create();
 		$user->setRole(User::ROLE_USER);
 		
-		$this->organization = new ReadModelOrganization('00000');
+		$this->organization = new ReadModelOrganization('00000000');
 		$orgMembership = new OrganizationMembership($user, $this->organization);
 		$user->addOrganizationMembership($orgMembership);
 		
@@ -46,7 +47,14 @@ class StreamsControllerTest extends ControllerTest
 	
 	public function testCreateStream() {
 		$organization = Organization::create('Cum sociis natoque penatibus et', $this->getLoggedUser());
+		$readModelOrganization = new ReadModelOrganization($organization->getId());		
 		$stream = Stream::create($organization, 'Vestibulum sed magna vitae velit', $this->getLoggedUser());
+		
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($readModelOrganization->getId())
+			->willReturn($readModelOrganization);
 		
 		$this->controller->getOrganizationService()
 			->expects($this->once())
@@ -61,8 +69,9 @@ class StreamsControllerTest extends ControllerTest
 		
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
-		$params->set('organizationId', $organization->getId());
 		$params->set('subject', 'Vestibulum sed magna vitae velit');
+		
+		$this->routeMatch->setParam('orgId', $readModelOrganization->getId());
 		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
@@ -73,7 +82,14 @@ class StreamsControllerTest extends ControllerTest
 	
 	public function testCreateStreamWithHtmlTagsInSubject() {
 		$organization = Organization::create('Cum sociis natoque penatibus et', $this->getLoggedUser());
+		$readModelOrganization = new ReadModelOrganization($organization->getId());
 		$stream = Stream::create($organization, 'Vestibulum sedalert("A big problem") magna vitae velit', $this->getLoggedUser());
+		
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($readModelOrganization->getId())
+			->willReturn($readModelOrganization);
 		
 		$this->controller->getOrganizationService()
 			->expects($this->once())
@@ -89,12 +105,13 @@ class StreamsControllerTest extends ControllerTest
 		
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
-		$params->set('organizationId', $organization->getId());
 		$params->set('subject', 'Vestibulum sed<script>alert("A big problem")</script> magna vitae velit');
+		
+		$this->routeMatch->setParam('orgId', $readModelOrganization->getId());
 		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-		 
+		
 		$this->assertEquals(201, $response->getStatusCode());
 		$this->assertNotEmpty($response->getHeaders()->get('Location'));
 	}
@@ -102,18 +119,19 @@ class StreamsControllerTest extends ControllerTest
 	public function testCreateStreamInNotExistingOrganization() {
 		$this->controller->getOrganizationService()
 			->expects($this->once())
-			->method('getOrganization')
+			->method('findOrganization')
 			->with('00000000-0000-0000-2000-000000000000')
 			->willReturn(null);
 		
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
-		$params->set('organizationId', '00000000-0000-0000-2000-000000000000');
 		$params->set('subject', 'Vestibulum sed magna vitae velit');
+		
+		$this->routeMatch->setParam('orgId', '00000000-0000-0000-2000-000000000000');
 		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-		 
+		
 		$this->assertEquals(404, $response->getStatusCode());
 	}
 	
@@ -131,6 +149,14 @@ class StreamsControllerTest extends ControllerTest
 	public function testCreateStreamAsAnonymous() {
 		$this->setupAnonymous();
 		
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->organization->getId())
+			->willReturn($this->organization);
+		
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+		
 		$this->request->setMethod('post');
 		
 		$result   = $this->controller->dispatch($this->request);
@@ -141,9 +167,17 @@ class StreamsControllerTest extends ControllerTest
 	
 	public function testGetList() {
 		$this->setupAnonymous();
-		 
+
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->organization->getId())
+			->willReturn($this->organization);
+		
 		$this->request->setMethod('get');
-		 
+		
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 		
@@ -164,12 +198,12 @@ class StreamsControllerTest extends ControllerTest
 			->willReturn(array());
 		
 		$this->request->setMethod('get');
-		$params = $this->request->getQuery();
-		$params->set('orgId', $this->organization->getId());
+		
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
 		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-				
+		
 		$arrayResult = json_decode($result->serialize(), true);
 		
 		$this->assertEquals(200, $response->getStatusCode());

@@ -111,7 +111,8 @@ class TasksController extends HATEOASRestfulController
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization) : $this->taskService->findStreamTasks($streamID);
 				
 		$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl, $this->organization);
-		$view->setVariable('resource', $availableTasks);		
+		$view->setVariable('resource', $availableTasks);
+		
 		return $view;
 	}
 
@@ -291,10 +292,10 @@ class TasksController extends HATEOASRestfulController
 		parent::setEventManager($events);
 	
 		// Register a listener at high priority
-		$events->attach('dispatch', array($this, 'getOrganization'), 50);
+		$events->attach('dispatch', array($this, 'findOrganization'), 50);
 	}
 	
-	public function getOrganization(MvcEvent $e){
+	public function findOrganization(MvcEvent $e){
 		
 		$orgId = $this->params('orgId');
 		$response = $this->getResponse();
@@ -304,7 +305,7 @@ class TasksController extends HATEOASRestfulController
 			return $response;
 		}
 		
-		$this->organization = $this->organizationService->findOrganization($orgId);
+		$this->organization = $this->getOrganizationService()->findOrganization($orgId);
 		if (is_null($this->organization)){
 			$response->setStatusCode(404);
 			return $response;

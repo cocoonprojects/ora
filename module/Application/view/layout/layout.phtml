@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-		<?php echo $this->headTitle('O.R.A.') ?>
+		<?php echo $this->headTitle($this->translate($this->OrganizationName())) ?>
 
 		<?php echo $this->headMeta()
 			->appendName('viewport', 'width=device-width, initial-scale=1.0')
@@ -49,15 +49,17 @@
 						class="icon-bar"></span>
 				</button>
 				<a class="navbar-brand" href="<?php echo $this->url('home') ?>"><span
-					id="organization_name"><?php echo $this->translate('O.R.A.') ?></span></a>
+					id="organization_name"><?php echo $this->translate($this->OrganizationName()) ?></span></a>
 			</div>
 				<?php if( $this->url() != $this->url('home') && $this->url() != $this->url('organizations-home') ) {?>
 					<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav" id="firstLevelMenu" role="menu">
+					<?php if($this->orgId != null){?>
 					<li><a id="tasks-home" href="<?php echo $this->url('tasks-home', array('orgId'=>$this->orgId)); ?>"><?php echo $this->translate('Items') ?></a></li>
 					<li><a id="accounting-home" href="<?php echo $this->url('accounting-home', array('orgId'=>$this->orgId)); ?>"><?php echo $this->translate('Credits') ?></a></li>
 					<li><a id="decisions-home" href=""><?php echo $this->translate('Decisions') ?></a></li>
 					<li><a id="people-home"href="<?php echo $this->url('people-home', array('orgId'=>$this->orgId)); ?>"><?php echo $this->translate('People') ?></a></li>
+					<?php }?>
 				</ul>
 				<?php }?>
 				<?php

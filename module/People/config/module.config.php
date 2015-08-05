@@ -7,7 +7,7 @@ return array(
 			'people-home' => array(
 				'type' => 'Segment',
 				'options' => array(
-					'route'    => '[/:orgId]/people',
+					'route'    => '/:orgId/people',
 					'defaults' => array(
 						'controller' => 'People\Controller\Index',
 						'action'	 => 'index',
@@ -46,7 +46,7 @@ return array(
 			'organizations-entities' => array(
 				'type' => 'Segment',
 				'options' => array(
-					'route' => '[/:orgId]/people/:controller[/:id]',
+					'route' => '/:orgId/people/:controller[/:id]',
 					'constraints' => array(
 						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
 					),

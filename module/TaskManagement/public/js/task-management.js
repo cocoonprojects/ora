@@ -421,8 +421,6 @@ TaskManagement.prototype = {
 	
 	onListTasksCompleted: function()
 	{
-		$("#organization_name").html(this.data._organization);		
-		
 		if(this.data._links !== undefined && this.data._links['ora:create'] !== undefined) {
 			$("#createTaskModal form").attr("action", this.data._links['ora:create']['href']);
 			$("#createTaskBtn").show();

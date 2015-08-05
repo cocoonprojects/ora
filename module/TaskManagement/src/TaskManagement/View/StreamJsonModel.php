@@ -30,7 +30,6 @@ class StreamJsonModel extends JsonModel
 	public function serialize()
 	{
 		$resource = $this->getVariable('resource');
-		$organization = $this->getVariable('organization');
 		
 		if(is_array($resource)) {
 			$hal['_links']['self']['href'] = $this->url->fromRoute('streams');
@@ -39,10 +38,6 @@ class StreamJsonModel extends JsonModel
 			$hal['total'] = count($resource);
 		} else {
 			$hal = $this->serializeOne($resource);
-		}
-		
-		if($organization instanceof Organization){
-			$hal['_organization'] = $organization->getName();
 		}
 		return Json::encode($hal);		
 	}
