@@ -26,6 +26,9 @@
 		<testsuite name="Kanbanize unit tests">
 			<directory>../../module/Kanbanize/test/unit</directory>
 		</testsuite>
+		<testsuite name="ZFX unit tests">
+			<directory>../../module/ZFX/test</directory>
+		</testsuite>
 	</testsuites>
 	<filter>
 		<blacklist>

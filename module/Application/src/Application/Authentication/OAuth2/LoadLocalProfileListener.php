@@ -1,18 +1,14 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: andreabandera
- * Date: 23/06/15
- * Time: 12:14
- */
 
 namespace Application\Authentication\OAuth2;
 
 
 use Application\Service\UserService;
+use Zend\Authentication\Result;
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
+use ZFX\Authentication\JWTAdapter;
 
 class LoadLocalProfileListener implements ListenerAggregateInterface {
 
@@ -40,6 +36,7 @@ class LoadLocalProfileListener implements ListenerAggregateInterface {
 	public function attach(EventManagerInterface $events)
 	{
 		$this->listeners[] = $events->getSharedManager()->attach('ZendOAuth2\Authentication\Adapter\ZendOAuth2', 'oauth2.success', array($this, 'loadUser'));
+		$this->listeners[] = $events->getSharedManager()->attach(JWTAdapter::class, 'jwt.success', array($this, 'loadJWTUser'));
 	}
 
 	/**
@@ -72,11 +69,24 @@ class LoadLocalProfileListener implements ListenerAggregateInterface {
 		}
 
 		$user = $this->userService->findUserByEmail($info['email']);
-		if(is_null($user))
-		{
+		if(is_null($user)) {
 			$user = $this->userService->subscribeUser($info);
 		}
 
-		$args['info']['user'] = $user;
+		$args['info'] = $user;
+	}
+
+	public function loadJWTUser(Event $event)
+	{
+		$args = $event->getParams();
+		$info = $args['info'];
+
+		$user = $this->userService->findUser($info['uid']);
+		if(is_null($user)) {
+			$args['code'] = Result::FAILURE_IDENTITY_NOT_FOUND;
+			$args['info'] = null;
+		}
+
+		$args['info'] = $user;
 	}
 }

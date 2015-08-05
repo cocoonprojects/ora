@@ -2,14 +2,13 @@
 
 namespace Application\Controller;
 
-use Application\Authentication\JWTUtils;
-use Zend\Mvc\Controller\AbstractActionController;
-use Zend\View\Model\JsonModel;
-use Zend\View\Model\ViewModel;
-use Zend\Authentication\AuthenticationServiceInterface;
-use Zend\Session\Container;
 use Application\Authentication\AdapterResolver;
 use Application\Authentication\OAuth2\InvalidTokenException;
+use Zend\Authentication\AuthenticationServiceInterface;
+use Zend\Mvc\Controller\AbstractActionController;
+use Zend\Session\Container;
+use Zend\View\Model\JsonModel;
+use ZFX\Authentication\JWTBuilder;
 
 class AuthController extends AbstractActionController
 {
@@ -23,10 +22,15 @@ class AuthController extends AbstractActionController
 	 * @var AuthenticationServiceInterface
 	 */
 	private $authService;
+	/**
+	 * @var JWTBuilder
+	 */
+	private $builder;
 
-	public function __construct(AuthenticationServiceInterface $authService, AdapterResolver $adapterResolver) {
+	public function __construct(AuthenticationServiceInterface $authService, AdapterResolver $adapterResolver, JWTBuilder $builder) {
 		$this->authService = $authService;
 		$this->adapterResolver = $adapterResolver;
+		$this->builder = $builder;
 	}
 		
 	public function loginAction()
@@ -39,7 +43,9 @@ class AuthController extends AbstractActionController
 			} else {
 				$result = $this->authService->authenticate($adapter);
 				if($result->isValid()) {
-					return $json->setVariable('token', JWTUtils::buildJWT($result->getIdentity()));
+					$json->setVariable('token', $this->builder->buildJWT($result->getIdentity()));
+				} else {
+					$json->setVariable('error', $result->getMessages());
 				}
 			}
 		} catch (InvalidTokenException $e) {
@@ -47,12 +53,9 @@ class AuthController extends AbstractActionController
 		}
 		return $json;
 	}
-	
-	public function logoutAction()
+
+	public function getAdapterResolver()
 	{
-		$this->authService->clearIdentity();
-		$sm = Container::getDefaultManager();
-		$sm->destroy();
-		return $this->redirect()->toRoute('home');
+		return $this->adapterResolver;
 	}
 }

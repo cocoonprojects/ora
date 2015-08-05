@@ -9,8 +9,8 @@ use Application\Service\UserService;
 use Application\Entity\User;
 
 
-class DomainAdapter implements AdapterInterface{
-	
+class DomainAdapter implements AdapterInterface
+{
 	/**
 	 * 
 	 * @var string
