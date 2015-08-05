@@ -21,20 +21,18 @@ class MembersController extends OrganizationAwareController
 
 	public function getList()
 	{
-		$identity = $this->identity();
-		if(is_null($identity)) {
+		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
-		}
-		$identity = $identity['user'];
-		
-		if(!$this->isAllowed($identity, $this->organization, 'People.Organization.userList')) {
+        }
+
+		if(!$this->isAllowed($this->identity(), $organization, 'People.Organization.userList')) {
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
 		$memberships = $this->getOrganizationService()->findOrganizationMemberships($this->organization);
 
-		$view = new OrganizationMembershipJsonModel($this->url(), $identity);
+		$view = new OrganizationMembershipJsonModel($this->url(), $this->identity());
 		$view->setVariable('organization', $this->organization);
 		$view->setVariable('resource', $memberships);
 		return $view;
@@ -42,12 +40,10 @@ class MembersController extends OrganizationAwareController
 	
 	public function create($data)
 	{
-		$identity = $this->identity();
-		if(is_null($identity)) {
+		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		$identity = $identity['user'];
 
 		$organization = $this->getOrganizationService()->getOrganization($this->params('orgId'));
 		if(is_null($organization)) {
@@ -57,7 +53,7 @@ class MembersController extends OrganizationAwareController
 		
 		$this->transaction()->begin();
 		try {
-			$organization->addMember($identity);
+			$organization->addMember($this->identity());
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
 		} catch (DuplicatedDomainEntityException $e) {
@@ -69,12 +65,10 @@ class MembersController extends OrganizationAwareController
 
 	public function deleteList()
 	{
-		$identity = $this->identity();
-		if(is_null($identity)) {
+		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		$identity = $identity['user'];
 
 		$organization = $this->getOrganizationService()->getOrganization($this->params('orgId'));
 		if(is_null($organization)) {
@@ -84,7 +78,7 @@ class MembersController extends OrganizationAwareController
 		
 		$this->transaction()->begin();
 		try {
-			$organization->removeMember($identity);
+			$organization->removeMember($this->identity());
 			$this->transaction()->commit();
 			$this->response->setStatusCode(200);
 		} catch (DomainEntityUnavailableException $e) {

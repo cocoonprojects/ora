@@ -31,23 +31,22 @@ class SharesController extends HATEOASRestfulController {
 	
 	public function invoke($id, $data)
 	{
+		if(is_null($this->identity())) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+
 		$task = $this->taskService->getTask($id);
 		if (is_null($task)) {
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-		
-		$identity = $this->identity();
-		if(is_null($identity)) {
-			$this->response->setStatusCode(401);
-			return $this->response;
-		}
-		$identity = $identity['user'];
+
 		$error = new ErrorJsonModel();
 		if(count($data) == 0) {
 			$this->transaction()->begin();
 			try {
-				$task->skipShares($identity);
+				$task->skipShares($this->identity());
 				$this->transaction()->commit();
 				$this->response->setStatusCode(201);
 				return $this->response;
@@ -89,7 +88,7 @@ class SharesController extends HATEOASRestfulController {
 		
 		$this->transaction()->begin();
 		try {
-			$task->assignShares($data, $identity);
+			$task->assignShares($data, $this->identity());
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
 			return $this->response;

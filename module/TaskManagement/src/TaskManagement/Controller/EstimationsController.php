@@ -35,6 +35,11 @@ class EstimationsController extends HATEOASRestfulController {
 	
 	public function invoke($id, $data)
 	{
+		if(is_null($this->identity())) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+
 		$error = new ErrorJsonModel();
 		if(!isset($data['value'])) {
 			$error->setCode(400);
@@ -66,15 +71,9 @@ class EstimationsController extends HATEOASRestfulController {
 			return $this->response;
 		}
 		
-		if(is_null($this->identity())) {
-			$this->response->setStatusCode(401);
-			return $this->response;
-		}
-		$loggedUser = $this->identity()['user'];
-		
 		$this->transaction()->begin();
 		try {
-			$task->addEstimation($value, $loggedUser);
+			$task->addEstimation($value, $this->identity());
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
 		} catch (DomainEntityUnavailableException $e) {

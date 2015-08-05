@@ -37,7 +37,6 @@ class DepositsController extends HATEOASRestfulController
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		$identity = $this->identity()['user'];
 
 		if(!isset($data['amount']) || !$this->amountValidator->isValid($data['amount'])) {
 			$this->response->setStatusCode(400);
@@ -59,7 +58,7 @@ class DepositsController extends HATEOASRestfulController
 
 		$this->transaction()->begin();
 		try {
-			$account->deposit($data['amount'], $identity, $description);
+			$account->deposit($data['amount'], $this->identity(), $description);
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201); // Created
 			$this->response->getHeaders()->addHeaderLine(

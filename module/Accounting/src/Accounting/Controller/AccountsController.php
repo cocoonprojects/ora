@@ -38,9 +38,7 @@ class AccountsController extends OrganizationAwareController
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		$identity = $this->identity()['user'];
-		
-		if(!$this->isAllowed($identity, $this->organization, 'Accounting.Accounts.list')){
+		if(!$this->isAllowed($this->identity(), $this->organization, 'Accounting.Accounts.list')){
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
@@ -61,7 +59,7 @@ class AccountsController extends OrganizationAwareController
 	public function getAccountService() {
 		return $this->accountService;
 	}
-	
+
 	protected function getCollectionOptions() {
 		return self::$collectionOptions;
 	}

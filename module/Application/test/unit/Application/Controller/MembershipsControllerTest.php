@@ -1,12 +1,11 @@
 <?php
 namespace Application\Controller;
 
-use ZFX\Test\Controller\ControllerTest;
 use Application\Entity\User;
 use People\Entity\Organization;
 use People\Entity\OrganizationMembership;
 use People\Service\OrganizationService;
-use Accounting\OrganizationAccount;
+use ZFX\Test\Controller\ControllerTest;
 
 class MembershipsControllerTest extends ControllerTest
 {

@@ -1,12 +1,12 @@
-<?php if($this->identity() != null) {?>
+<?php if($this->identity()) {?>
 	<ul class="nav navbar-nav navbar-right">
 		<li><a href="<?php echo $this->basePath().'/auth/logout'?>">Logout</a></li>
 	</ul>
 	<ul class="nav navbar-nav navbar-right">
 		<li>
 			<p class="navbar-text">
-			<img src="<?php echo $this->identity->getPicture()?>" alt="Avatar" style="max-width: 20px; max-height: 20px;" class="img-circle">
-			<?php echo $this->identity->getEmail()?></p>
+			<img src="<?php echo $this->identity()->getPicture()?>" alt="Avatar" style="max-width: 20px; max-height: 20px;" class="img-circle">
+			<?php echo $this->identity()->getEmail()?></p>
 		</li>
 	</ul>
 <?php } ?>

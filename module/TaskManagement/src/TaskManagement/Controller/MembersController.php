@@ -27,17 +27,20 @@ class MembersController extends HATEOASRestfulController
 	
 	public function invoke($id, $data)
 	{
+		if(is_null($this->identity())) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+
 		$task = $this->taskService->getTask($id);
-		
 		if (is_null($task)) {
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
 		
-		$identity = $this->identity()['user'];
 		$this->transaction()->begin();
 		try {
-			$task->addMember($identity, Task::ROLE_MEMBER);
+			$task->addMember($this->identity(), Task::ROLE_MEMBER);
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
 		} catch (DuplicatedDomainEntityException $e) {
@@ -52,16 +55,20 @@ class MembersController extends HATEOASRestfulController
 
 	public function delete($id)
 	{
+		if(is_null($this->identity())) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+
 		$task = $this->taskService->getTask($id);
 		if (is_null($task)) {
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
 		
-		$identity = $this->identity()['user'];
 		$this->transaction()->begin();
 		try {
-			$task->removeMember($identity, $identity);
+			$task->removeMember($this->identity(), $this->identity());
 			$this->transaction()->commit();
 			$this->response->setStatusCode(200);
 		} catch (DomainEntityUnavailableException $e) {

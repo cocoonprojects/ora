@@ -42,9 +42,8 @@ class DomainAdapter implements AdapterInterface
 			$user = $this->userService->findUser($userId);
 			
 			if($user instanceof User){
-				$result['user'] = $user;
-				return new Result(Result::SUCCESS, $result);
-			}	
+				return new Result(Result::SUCCESS, $user);
+			}
 		}
 		
 		return new Result(Result::FAILURE_IDENTITY_NOT_FOUND, 'User not found based on hostname');

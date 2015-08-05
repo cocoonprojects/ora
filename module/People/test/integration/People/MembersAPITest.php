@@ -77,7 +77,7 @@ class MembersAPITest extends \PHPUnit_Framework_TestCase
 		$memberships = $this->orgService->findOrganizationMemberships($organization);
 		$isMember = false;
 		foreach($memberships as $m) {
-			if($m->getMember()->getId() == $this->authService->getIdentity()['user']->getId()) {
+			if($m->getMember()->getId() == $this->authService->getIdentity()->getId()) {
 				$isMember = true;
 			}
 		}

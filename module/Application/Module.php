@@ -15,11 +15,10 @@ use Zend\Authentication\Storage\NonPersistent;
 >>>>>>> Set request related authentication based on JWT
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
+use ZFX\Acl\Controller\Plugin\IsAllowed;
 use ZFX\Authentication\JWTAdapter;
 use ZFX\Authentication\JWTBuilder;
 use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
-use ZFX\Acl\Controller\Plugin\IsAllowed;
-use ZFX\Authentication\DomainAdapter;
 
 
 class Module
@@ -44,11 +43,10 @@ class Module
 
 		$request = $e->getRequest();
  		$eventManager->attach(MvcEvent::EVENT_DISPATCH, function($event) use($serviceManager, $request) {
-			$token = $request->getHeaders('ORA-JWT');
-			if(!is_null($token)) {
+			if($token = $request->getHeaders('ORA-JWT')) {
 				$builder = $serviceManager->get('Application\JWTBuilder');
 				$adapter = new JWTAdapter($builder);
-				$adapter->setToken($token);
+				$adapter->setToken($token->getFieldValue());
 
 				$authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
 				$result = $authService->authenticate($adapter);
@@ -136,7 +134,7 @@ class Module
 					if(!isset($jwt['public-key'])) {
 						throw new \Exception('JWT public-key config not found');
 					}
-					if(!($publicKey = openssl_pkey_get_private($jwt['public-key']))) {
+					if(!($publicKey = openssl_pkey_get_public($jwt['public-key']))) {
 						throw new \Exception('Error loading public key ' . $jwt['public-key'] . ':' . openssl_error_string());
 					}
 					$rv = new JWTBuilder($privateKey, $publicKey);

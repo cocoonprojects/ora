@@ -36,16 +36,14 @@ class MembershipsController extends HATEOASRestfulController
 	
 	public function getList()
 	{
-		$identity = $this->identity();
-		if(is_null($identity)) {
+		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		$identity = $identity['user'];
+
+		$memberships = $this->orgService->findUserOrganizationMemberships($this->identity());
 		
-		$memberships = $this->orgService->findUserOrganizationMemberships($identity);
-		
-		$view = new OrganizationMembershipJsonModel($this->url(), $identity);
+		$view = new OrganizationMembershipJsonModel($this->url(), $this->identity());
 		$view->setVariable('resource', $memberships);
 		return $view;
 	}

@@ -85,10 +85,10 @@ abstract class ControllerTest extends \PHPUnit_Framework_TestCase
 		$identity = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Identity')
 			->disableOriginalConstructor()
 			->getMock();
-		$identity->method('__invoke')->willReturn(['user' => $user]);
+		$identity->method('__invoke')->willReturn($user);
 		$this->controller->getPluginManager()->setService('identity', $identity);
 	}
 	protected function getLoggedUser() {
-		return $this->controller->identity()['user'];
+		return $this->controller->identity();
 	}
 }

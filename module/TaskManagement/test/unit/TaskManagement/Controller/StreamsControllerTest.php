@@ -208,6 +208,6 @@ class StreamsControllerTest extends ControllerTest
 	}
 	
 	protected function getLoggedUser() {
-		return $this->controller->identity()['user'];
+		return $this->controller->identity();
 	}
 }
