@@ -114,7 +114,6 @@ class Module
 		return array(
 			'invokables' => array(
 				'LoginHelper' => 'Application\View\Helper\LoginHelper',
-				'OrganizationName' => 'Application\View\Helper\OrganizationNameHelper'
 			),
 		);
 	}

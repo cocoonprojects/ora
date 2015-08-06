@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-		<?php echo $this->headTitle($this->translate($this->OrganizationName())) ?>
+		<?php echo is_null($this->orgName) ? $this->headTitle('O.R.A.') : $this->headTitle($this->translate($this->orgName));?>
 
 		<?php echo $this->headMeta()
 			->appendName('viewport', 'width=device-width, initial-scale=1.0')
@@ -49,7 +49,7 @@
 						class="icon-bar"></span>
 				</button>
 				<a class="navbar-brand" href="<?php echo $this->url('home') ?>"><span
-					id="organization_name"><?php echo $this->translate($this->OrganizationName()) ?></span></a>
+					id="organization_name"><?php echo is_null($this->orgName) ? 'O.R.A.' : $this->translate($this->orgName);?></span></a>
 			</div>
 				<?php if( $this->url() != $this->url('home') && $this->url() != $this->url('organizations-home') ) {?>
 					<div class="collapse navbar-collapse">

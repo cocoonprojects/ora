@@ -50,6 +50,10 @@ class MembersController extends OrganizationAwareController
 		$identity = $identity['user'];
 
 		$organization = $this->getOrganizationService()->getOrganization($this->params('orgId'));
+		if(is_null($organization)) {
+			$this->response->setStatusCode(404);
+			return $this->response;
+		}
 		
 		$this->transaction()->begin();
 		try {
@@ -73,6 +77,10 @@ class MembersController extends OrganizationAwareController
 		$identity = $identity['user'];
 
 		$organization = $this->getOrganizationService()->getOrganization($this->params('orgId'));
+		if(is_null($organization)) {
+			$this->response->setStatusCode(404);
+			return $this->response;
+		}
 		
 		$this->transaction()->begin();
 		try {
