@@ -4,31 +4,19 @@ namespace People\Controller;
 
 use Application\DomainEntityUnavailableException;
 use Application\DuplicatedDomainEntityException;
-use People\Service\OrganizationService;
-use ZFX\Rest\Controller\HATEOASRestfulController;
 use People\View\OrganizationMembershipJsonModel;
 use Zend\Mvc\MvcEvent;
 use Zend\EventManager\EventManagerInterface;
-use People\Entity\Organization;
+use Application\Controller\OrganizationAwareController;
+use People\Service\OrganizationService;
 
-class MembersController extends HATEOASRestfulController
+class MembersController extends OrganizationAwareController
 {
 	protected static $collectionOptions = array('GET', 'DELETE', 'POST');
 	protected static $resourceOptions = array('DELETE', 'POST');
 	
-	/**
-	 * 
-	 * @var OrganizationService
-	 */
-	private $orgService;
-	/**
-	 *
-	 * @var Organization
-	 */
-	private $organization;
-	
-	public function __construct(OrganizationService $orgService) {
-		$this->orgService = $orgService;
+	public function __construct(OrganizationService $organizationService){
+		parent::__construct($organizationService);
 	}
 
 	public function getList()
@@ -44,7 +32,7 @@ class MembersController extends HATEOASRestfulController
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
-		$memberships = $this->orgService->findOrganizationMemberships($this->organization);
+		$memberships = $this->getOrganizationService()->findOrganizationMemberships($this->organization);
 
 		$view = new OrganizationMembershipJsonModel($this->url(), $identity);
 		$view->setVariable('organization', $this->organization);
@@ -61,7 +49,7 @@ class MembersController extends HATEOASRestfulController
 		}
 		$identity = $identity['user'];
 
-		$organization = $this->orgService->getOrganization($this->params('orgId'));
+		$organization = $this->getOrganizationService()->getOrganization($this->params('orgId'));
 		
 		$this->transaction()->begin();
 		try {
@@ -84,7 +72,7 @@ class MembersController extends HATEOASRestfulController
 		}
 		$identity = $identity['user'];
 
-		$organization = $this->orgService->getOrganization($this->params('orgId'));
+		$organization = $this->getOrganizationService()->getOrganization($this->params('orgId'));
 		
 		$this->transaction()->begin();
 		try {
@@ -97,11 +85,6 @@ class MembersController extends HATEOASRestfulController
 		}
 		return $this->response;
 	}
-
-	public function getOrganizationService()
-	{
-		return $this->orgService;
-	}
 	
 	protected function getCollectionOptions()
 	{
@@ -111,27 +94,5 @@ class MembersController extends HATEOASRestfulController
 	protected function getResourceOptions()
 	{
 		return self::$resourceOptions;
-	}
-	
-	public function setEventManager(EventManagerInterface $events)
-	{
-		parent::setEventManager($events);
-	
-		// Register a listener at high priority
-		$events->attach('dispatch', array($this, 'findOrganization'), 50);
-	}
-	
-	public function findOrganization(MvcEvent $e){
-	
-		$orgId = $this->params('orgId');
-		$response = $this->getResponse();
-	
-		$this->organization = $this->getOrganizationService()->findOrganization($orgId);
-		if (is_null($this->organization)){
-			$response->setStatusCode(404);
-			return $response;
-		}
-	
-		return;
 	}
 }

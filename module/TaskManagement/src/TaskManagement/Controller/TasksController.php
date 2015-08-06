@@ -10,7 +10,6 @@ use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
 use Zend\Mvc\MvcEvent;
 use Zend\Validator\NotEmpty;
-use ZFX\Rest\Controller\HATEOASRestfulController;
 use Application\IllegalStateException;
 use Application\InvalidArgumentException;
 use Accounting\Service\AccountService;
@@ -18,10 +17,10 @@ use TaskManagement\Task;
 use TaskManagement\View\TaskJsonModel;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
+use Application\Controller\OrganizationAwareController;
 use People\Service\OrganizationService;
-use People\Entity\Organization;
 
-class TasksController extends HATEOASRestfulController
+class TasksController extends OrganizationAwareController
 {
 	protected static $collectionOptions = ['GET', 'POST'];
 	protected static $resourceOptions = ['DELETE', 'GET', 'PUT'];
@@ -45,24 +44,14 @@ class TasksController extends HATEOASRestfulController
 	 *@var \DateInterval
 	 */
 	protected $intervalForCloseTasks;
-	/**
-	 *
-	 * @var OrganizationService
-	 */
-	private $organizationService;
-	/**
-	 *
-	 * @var Organization
-	 */
-	private $organization;
 	
 	public function __construct(TaskService $taskService, StreamService $streamService, Acl $acl, OrganizationService $organizationService)
 	{
+		parent::__construct($organizationService);
 		$this->taskService = $taskService;
 		$this->streamService = $streamService;		
 		$this->acl = $acl;
 		$this->intervalForCloseTasks = new \DateInterval('P7D');
-		$this->organizationService = $organizationService;
 	}
 	public function get($id)
 	{
@@ -264,11 +253,6 @@ class TasksController extends HATEOASRestfulController
 		return $this->taskService;
 	}
 
-	public function getOrganizationService()
-	{
-		return $this->organizationService;
-	}
-
 	protected function getCollectionOptions()
 	{
 		return self::$collectionOptions;
@@ -285,27 +269,5 @@ class TasksController extends HATEOASRestfulController
 
 	public function getIntervalForCloseTasks(){
 		return $this->intervalForCloseTasks;
-	}
-
-	public function setEventManager(EventManagerInterface $events)
-	{
-		parent::setEventManager($events);
-	
-		// Register a listener at high priority
-		$events->attach('dispatch', array($this, 'findOrganization'), 50);
-	}
-	
-	public function findOrganization(MvcEvent $e){
-		
-		$orgId = $this->params('orgId');
-		$response = $this->getResponse();
-		
-		$this->organization = $this->getOrganizationService()->findOrganization($orgId);
-		if (is_null($this->organization)){
-			$response->setStatusCode(404);
-			return $response;
-		}
-
-		return;
 	}
 }

@@ -6,15 +6,14 @@ use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
-use ZFX\Rest\Controller\HATEOASRestfulController;
-use People\Service\OrganizationService;
 use TaskManagement\View\StreamJsonModel;
 use TaskManagement\Service\StreamService;
 use Zend\Mvc\MvcEvent;
 use Zend\EventManager\EventManagerInterface;
-use People\Entity\Organization;
+use Application\Controller\OrganizationAwareController;
+use People\Service\OrganizationService;
 
-class StreamsController extends HATEOASRestfulController
+class StreamsController extends OrganizationAwareController
 {
 	protected static $collectionOptions = array ('GET','POST');
 	protected static $resourceOptions = array ('DELETE','GET');
@@ -23,20 +22,10 @@ class StreamsController extends HATEOASRestfulController
 	 * @var StreamService
 	 */
 	protected $streamService;
-	/**
-	 * 
-	 * @var OrganizationService
-	 */
-	protected $organizationService;
-	/**
-	 *
-	 * @var Organization
-	 */
-	private $organization;
 	
 	public function __construct(StreamService $streamService, OrganizationService $organizationService) {
+		parent::__construct($organizationService);
 		$this->streamService = $streamService;
-		$this->organizationService = $organizationService;
 	}
 	
 	public function get($id)
@@ -82,7 +71,7 @@ class StreamsController extends HATEOASRestfulController
 				->attach(new StripTags());
 		
 		$subject = isset($data['subject']) ? $filters->filter($data['subject']) : null;
-		$organization = $this->organizationService->getOrganization($this->params('orgId'));
+		$organization = $this->getOrganizationService()->getOrganization($this->params('orgId'));
 		$stream = $this->streamService->createStream($organization, $subject, $identity);
 		$url = $this->url()->fromRoute('streams', array('id' => $stream->getId()));
 		$this->response->getHeaders()->addHeaderLine('Location', $url);
@@ -128,11 +117,6 @@ class StreamsController extends HATEOASRestfulController
 		return $this->streamService;
 	}
 	
-	public function getOrganizationService()
-	{
-		return $this->organizationService;
-	}
-	
 	protected function getCollectionOptions()
 	{
 		return self::$collectionOptions;
@@ -142,26 +126,4 @@ class StreamsController extends HATEOASRestfulController
 	{
 		return self::$resourceOptions;
 	}
-	public function setEventManager(EventManagerInterface $events)
-	{
-		parent::setEventManager($events);
-	
-		// Register a listener at high priority
-		$events->attach('dispatch', array($this, 'findOrganization'), 50);
-		}
-	
-	public function findOrganization(MvcEvent $e){
-		
-		$orgId = $this->params('orgId');
-		$response = $this->getResponse();
-		
-		$this->organization = $this->getOrganizationService()->findOrganization($orgId);
-		if (is_null($this->organization)){
-			$response->setStatusCode(404);
-			return $response;
-		}
-	
-		return;
-	}
-	
 }

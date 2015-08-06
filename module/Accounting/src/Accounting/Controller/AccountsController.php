@@ -3,15 +3,14 @@ namespace Accounting\Controller;
 
 use Zend\Authentication\AuthenticationServiceInterface;
 use Zend\Permissions\Acl\Acl;
-use ZFX\Rest\Controller\HATEOASRestfulController;
 use Accounting\Service\AccountService;
 use Accounting\View\AccountsJsonModel;
-use People\Service\OrganizationService;
 use Zend\Mvc\MvcEvent;
 use Zend\EventManager\EventManagerInterface;
-use People\Entity\Organization;
+use Application\Controller\OrganizationAwareController;
+use People\Service\OrganizationService;
 
-class AccountsController extends HATEOASRestfulController
+class AccountsController extends OrganizationAwareController
 {
 	protected static $collectionOptions = ['GET'];
 	protected static $resourceOptions = ['GET'];
@@ -25,21 +24,11 @@ class AccountsController extends HATEOASRestfulController
 	 * @var Acl
 	 */
 	private $acl;
-	/**
-	 *
-	 * @var OrganizationService
-	 */
-	private $organizationService;
-	/**
-	 *
-	 * @var Organization
-	 */
-	private $organization;
 	
 	public function __construct(AccountService $accountService, Acl $acl, OrganizationService $organizationService) {
+		parent::__construct($organizationService);
 		$this->accountService = $accountService;
 		$this->acl = $acl;
-		$this->organizationService = $organizationService;
 	}
 	
 	// Gets my credits accounts list
@@ -89,32 +78,4 @@ class AccountsController extends HATEOASRestfulController
 	protected function getResourceOptions() {
 		return self::$resourceOptions;
 	}
-	
-	public function setEventManager(EventManagerInterface $events)
-	{
-		parent::setEventManager($events);
-	
-		// Register a listener at high priority
-		$events->attach('dispatch', array($this, 'findOrganization'), 50);
-	}
-	
-	public function getOrganizationService()
-	{
-		return $this->organizationService;
-	}
-	
-	public function findOrganization(MvcEvent $e){
-	
-		$orgId = $this->params('orgId');
-		$response = $this->getResponse();
-	
-		$this->organization = $this->getOrganizationService()->findOrganization($orgId);
-		if (is_null($this->organization)){
-			$response->setStatusCode(404);
-			return $response;
-		}
-	
-		return;
-	}
-	
 }
