@@ -6,7 +6,6 @@ use Zend\Json\Json;
 use Zend\Mvc\Controller\Plugin\Url;
 use Application\Entity\User;
 use TaskManagement\Entity\Stream;
-use People\Entity\Organization;
 
 class StreamJsonModel extends JsonModel
 {
@@ -19,8 +18,7 @@ class StreamJsonModel extends JsonModel
 	 * 
 	 * @var User
 	 */
-	private $user;
-	
+	private $user;	
 	
 	public function __construct(Url $url, User $user) {
 		$this->url = $url;
@@ -29,8 +27,7 @@ class StreamJsonModel extends JsonModel
 	
 	public function serialize()
 	{
-		$resource = $this->getVariable('resource');
-		
+		$resource = $this->getVariable('resource');		
 		if(is_array($resource)) {
 			$hal['_links']['self']['href'] = $this->url->fromRoute('streams');
 			$hal['_embedded']['ora:stream'] = array_map(array($this, 'serializeOne'), $resource);
