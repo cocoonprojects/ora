@@ -2,10 +2,10 @@
 <project name="ora-prod" default="build">
 
 <target name="build"
-   depends="prepare,lint,phploc,pdepend,phpmd-ci,phpcs-ci,phpcpd"/>
+   depends="prepare,lint,phploc,pdepend,phpmd-ci,phpcs-ci,phpcpd,phpunit,phpunit-i"/>
 
  <target name="build-parallel"
-   depends="prepare,lint,tools-parallel"/>
+   depends="prepare,lint,tools-parallel,phpunit,phpunit-i"/>
 
  <target name="tools-parallel" description="Run tools in parallel">
   <parallel threadCount="2">
@@ -125,6 +125,23 @@
    <arg value="--exclude" />
    <arg value="tests" />
    <arg path="${basedir}" />
+  </exec>
+ </target>
+ 
+ <target name="phpunit" description="Run unit tests with PHPUnit">
+  <exec executable="phpunit" failonerror="true">
+  	<arg value="-d" />
+  	<arg value="memory_limit=256M" />
+  	<arg value="-c" />
+  	<arg value="${basedir}/tests/unit/phpunit.xml" />
+  </exec>
+ </target>
+<target name="phpunit-i" description="Run integration tests with PHPUnit">
+  <exec executable="phpunit" failonerror="true">
+  	<arg value="-d" />
+  	<arg value="memory_limit=256M" />
+  	<arg value="-c" />
+  	<arg value="${basedir}/tests/integration/phpunit.xml" />
   </exec>
  </target>
 

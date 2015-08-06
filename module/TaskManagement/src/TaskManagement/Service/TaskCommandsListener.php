@@ -143,6 +143,7 @@ class TaskCommandsListener extends ReadModelProjector
         $user = $this->entityManager->find(User::class, $event->payload()['by']);
 		$task->setMostRecentEditBy($user);
 		$task->setMostRecentEditAt($event->occurredOn());
+		$task->resetAcceptedAt();
 		$this->entityManager->persist($task);
 	}
 	
@@ -154,7 +155,10 @@ class TaskCommandsListener extends ReadModelProjector
 		$task->setMostRecentEditBy($user);
 		$task->setMostRecentEditAt($event->occurredOn());
 		$task->setAcceptedAt($event->occurredOn());
-		$this->entityManager->persist($task);
+		$sharesAssignmentExpiresAt = clone $event->occurredOn();
+		$sharesAssignmentExpiresAt->add($event->payload()['intervalForCloseTask']);
+		$task->setSharesAssignmentExpiresAt($sharesAssignmentExpiresAt);
+		$this->entityManager->persist($task);		
 	}
 	
 	protected function onTaskClosed(StreamEvent $event) {

@@ -16,10 +16,6 @@ class TransitionsControllerTest extends ControllerTest
 	/**
 	 * @var User
 	 */
-	private $user;
-	/**
-	 * @var User
-	 */
 	private $adminUser;
 	/**
 	 * @var Task
@@ -28,10 +24,6 @@ class TransitionsControllerTest extends ControllerTest
 
 	public function setupMore()
 	{
-		$this->user = $this->getMockBuilder(User::class)->getMock();
-		$this->user->method('getRoleId')->willReturn(User::ROLE_USER);
-		$this->user->method('isMemberOf')->willReturn(true);
-
 		$this->adminUser = $this->getMockBuilder(User::class)->getMock();
 		$this->adminUser->method('getRoleId')->willReturn(User::ROLE_ADMIN);
 		$this->adminUser->method('isMemberOf')->willReturn(true);
@@ -46,7 +38,6 @@ class TransitionsControllerTest extends ControllerTest
 	{
 		$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
 		$controller = new TransitionsController($taskServiceStub); 
-		$controller->setIntervalForCloseTasks(new \DateInterval('P7D'));
 		
 		return $controller;
 	}
@@ -56,9 +47,9 @@ class TransitionsControllerTest extends ControllerTest
 		return ['controller' => 'transitions'];
 	}
 
-	public function testCreateWithNoSystemUser()
+	public function testCreateAsAnonymous()
 	{
-		$this->setupLoggedUser($this->user);
+		$this->setupAnonymous();
 		
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -66,7 +57,7 @@ class TransitionsControllerTest extends ControllerTest
 		
 		$result = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-		$this->assertEquals(405, $response->getStatusCode());
+		$this->assertEquals(401, $response->getStatusCode());
 	}
 	
 	public function testCreate(){
@@ -75,7 +66,7 @@ class TransitionsControllerTest extends ControllerTest
 		
 		$this->task->addEstimation(1, $this->adminUser);
 		$this->task->complete($this->adminUser);
-		$this->task->accept($this->adminUser);
+		$this->task->accept($this->adminUser, $this->controller->getIntervalForCloseTasks());
 		
 		$this->controller->getTaskService()
 		->expects($this->once())

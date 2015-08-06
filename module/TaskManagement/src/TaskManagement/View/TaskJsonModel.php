@@ -103,12 +103,15 @@ class TaskJsonModel extends JsonModel
 			'id' => $task->getId (),
 			'subject' => $task->getSubject (),
 			'createdAt' => date_format($task->getCreatedAt(), 'c'),
+			'acceptedAt' => ($task->getAcceptedAt() instanceof \DateTime) ? date_format($task->getAcceptedAt(), 'c') : null,
 			'createdBy' => is_null ( $task->getCreatedBy () ) ? "" : $task->getCreatedBy ()->getFirstname () . " " . $task->getCreatedBy ()->getLastname (),
 			'type' => $task->getType (),
 			'status' => $task->getStatus(),
 			'stream' => $this->getStream($task),
 			'members' => array_map(array($this, 'serializeOneMember'), $task->getMembers()),
 			'_links' => $links,
+			'daysRemainingToAssignShares' => $this->getDaysLeftForAssignShares($task),
+
 		];
 		
 		if($task->getStatus() >= Task::STATUS_ONGOING) {
@@ -168,4 +171,13 @@ class TaskJsonModel extends JsonModel
 			'createdAt' => date_format($estimation->getCreatedAt(), 'c'),
 		];
 	}	 
+	
+	private function getDaysLeftForAssignShares(Task $task){				
+		
+		if($task->getSharesAssignmentExpiresAt() instanceof \DateTime){
+			return date_diff($task->getSharesAssignmentExpiresAt(), new \DateTime())->format('%d');
+		}
+		
+		return "";
+	}
 }

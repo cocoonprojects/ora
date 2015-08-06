@@ -25,6 +25,11 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 	protected $owner;
 	protected $member;
 	protected $organization;
+	
+	/**
+	 * @var \DateInterval
+	 */
+	protected $intervalForCloseTasks;
 
 	protected function setUp()
 	{
@@ -58,6 +63,8 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 		$pluginManager = $serviceManager->get('ControllerPluginManager');
 		$this->controller->setPluginManager($pluginManager);
 
+		$this->intervalForCloseTasks = new \DateInterval('P7D');
+		
 		$transactionManager = $serviceManager->get('prooph.event_store');
 		$transactionManager->beginTransaction();
 		try {
@@ -67,7 +74,7 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 			$task->addMember($this->member, Task::ROLE_MEMBER);
 			$task->addEstimation(3100, $this->member);
 			$task->complete($this->owner);
-			$task->accept($this->owner);
+			$task->accept($this->owner, $this->intervalForCloseTasks);
 			$task->assignShares([ $this->owner->getId() => 0.4, $this->member->getId() => 0.6 ], $this->member);
 			$this->task = $taskService->addTask($task);
 			$transactionManager->commit();
@@ -89,8 +96,10 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 		
+		$readModelTask = $this->controller->getTaskService()->findTask($this->task->getId());
 		$this->assertEquals(201, $response->getStatusCode());
 		$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
+		$this->assertEquals(Task::STATUS_CLOSED, $readModelTask->getStatus());
 	}
 
 	public function testSkipSharesAsLast() {
@@ -101,7 +110,9 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 		
+		$readModelTask = $this->controller->getTaskService()->findTask($this->task->getId());
 		$this->assertEquals(201, $response->getStatusCode());
 		$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
+		$this->assertEquals(Task::STATUS_CLOSED, $readModelTask->getStatus());
 	}
 }

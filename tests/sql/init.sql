@@ -23,10 +23,6 @@ INSERT INTO users (id, status, createdAt, mostRecentEditAt, firstname, lastname,
 # user 70000000-0000-0000-0000-000000000000 Phil Toledo
 INSERT INTO users (id, status, createdAt, mostRecentEditAt, firstname, lastname, email, role) VALUES ('70000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', '2014-10-09 11:33:45', 'Phil', 'Toledo', 'phil.toledo@ora.local', 'user');
 
-# system user
-INSERT INTO users (id, email, status, createdAt, mostRecentEditAt, role) VALUES
-('00000000-0000-0000-0000-000000000000', 'no@email.com', 1, '2015-04-10 00:00:00', '2015-04-10 00:00:00','system');
-
 # organization 00000000-0000-0000-1000-000000000000
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
 ('907dd600-1e37-4e35-8045-7abfc5f60895',1,'People\\OrganizationCreated','a:2:{s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-1000-000000000000";}', '2015-03-06T19:42:58.000000+0100','People\\Organization','00000000-0000-0000-1000-000000000000'),
@@ -45,11 +41,11 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
 insert into accounts(id, organization_id, createdAt, mostRecentEditAt, balance_value, balance_date, createdBy_id, mostRecentEditBy_id, type) values
 ('dcde992b-5aa9-4447-98ae-c8115906dcb7', '00000000-0000-0000-1000-000000000000', '2014-12-09 15:25:18', '2014-12-09 15:25:18', 0, '2014-12-09 15:25:18', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000', 'organizationaccount');
 
-# account
+# personal account
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
 ('45f1b89a-156b-4dbf-b5c9-9a0540460a0b',1,'Accounting\\AccountCreated','a:4:{s:12:\"organization\";s:36:\"00000000-0000-0000-1000-000000000000\";s:7:\"balance\";i:0;s:7:\"holders\";a:1:{s:36:\"60000000-0000-0000-0000-000000000000\";s:11:\"Mark Rogers\";}s:12:\"aggregate_id\";s:36:\"ccde992b-5aa9-4447-98ae-c8115906dcb7\";}','2014-12-29T17:32:07.000000+0100','Accounting\\Account','ccde992b-5aa9-4447-98ae-c8115906dcb7');
 insert into accounts(id, organization_id, createdAt, mostRecentEditAt, balance_value, balance_date, createdBy_id, mostRecentEditBy_id, type) values
-('ccde992b-5aa9-4447-98ae-c8115906dcb7','00000000-0000-0000-1000-000000000000','2014-12-29T17:32:07.000000+0100','2014-12-29T17:32:07.000000+0100',0,'2014-12-29T17:32:07.000000+0100','60000000-0000-0000-0000-000000000000','60000000-0000-0000-0000-000000000000','account');
+('ccde992b-5aa9-4447-98ae-c8115906dcb7','00000000-0000-0000-1000-000000000000','2014-12-29T17:32:07.000000+0100','2014-12-29T17:32:07.000000+0100',0,'2014-12-29T17:32:07.000000+0100','60000000-0000-0000-0000-000000000000','60000000-0000-0000-0000-000000000000','personalaccount');
 INSERT INTO account_holders(account_id, user_id) VALUES
 ('ccde992b-5aa9-4447-98ae-c8115906dcb7', '60000000-0000-0000-0000-000000000000');
 
@@ -59,7 +55,7 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
 INSERT INTO organization_members(member_id, organization_id, role, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id) VALUES
 ('70000000-0000-0000-0000-000000000000', '00000000-0000-0000-1000-000000000000', 'member', '2014-10-09 11:33:45', '2014-10-09 11:33:45', '70000000-0000-0000-0000-000000000000', '70000000-0000-0000-0000-000000000000');
 insert into accounts(id, organization_id, createdAt, mostRecentEditAt, balance_value, balance_date, createdBy_id, mostRecentEditBy_id, type) values
-('cdde992b-5aa9-4447-98ae-c8115906dcb7','00000000-0000-0000-1000-000000000000','2014-12-29T17:32:07.000000+0100','2014-12-29T17:32:07.000000+0100',0,'2014-12-29T17:32:07.000000+0100','70000000-0000-0000-0000-000000000000','70000000-0000-0000-0000-000000000000','account');
+('cdde992b-5aa9-4447-98ae-c8115906dcb7','00000000-0000-0000-1000-000000000000','2014-12-29T17:32:07.000000+0100','2014-12-29T17:32:07.000000+0100',0,'2014-12-29T17:32:07.000000+0100','70000000-0000-0000-0000-000000000000','70000000-0000-0000-0000-000000000000','personalaccount');
 INSERT INTO account_holders(account_id, user_id) VALUES
 ('cdde992b-5aa9-4447-98ae-c8115906dcb7', '70000000-0000-0000-0000-000000000000');
 

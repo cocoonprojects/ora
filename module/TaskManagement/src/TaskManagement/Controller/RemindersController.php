@@ -6,7 +6,6 @@ use ZFX\Rest\Controller\HATEOASRestfulController;
 use TaskManagement\Service\NotifyMailListener;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Entity\Task;
-use TaskManagement;
 use TaskManagement\Entity\TaskMember;
 use Zend\View\Model\ViewModel;
 

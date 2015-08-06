@@ -1,6 +1,7 @@
 <?php
 namespace Accounting\Service;
 
+use Accounting\Entity\PersonalAccount;
 use Accounting\Entity\Account;
 use Accounting\Entity\Balance;
 use Accounting\Entity\Deposit;
@@ -20,7 +21,7 @@ class AccountCommandsListener extends ReadModelProjector {
 
 		$organization = $this->entityManager->find(Organization::class, $organizationId);
 
-		$entity = $event->metadata()['aggregate_type'] == 'Accounting\OrganizationAccount' ? new OrganizationAccount($id, $organization) : new Account($id, $organization);
+		$entity = $event->metadata()['aggregate_type'] == 'Accounting\OrganizationAccount' ? new OrganizationAccount($id, $organization) : new PersonalAccount($id, $organization);
 
 		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
 		$entity->setCreatedAt($event->occurredOn());

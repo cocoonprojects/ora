@@ -13,7 +13,7 @@ TaskManagement.prototype = {
 			10: 'Open',
 			20: 'Ongoing',
 			30: 'Completed',
-			40: 'Accepted (shares assignment in progress)',
+			40: 'Shares assignment in progress',
 			50: 'Closed'
 	},
 	
@@ -514,10 +514,21 @@ TaskManagement.prototype = {
 
 		rv = '<ul class="task-details">' +
 				'<li>' + task.stream.subject + '</li>' +
-				'<li>Created at ' + createdAt.toLocaleString() + '</li>' +
-				'<li>' + this.statuses[task.status] + '</li>' +
-				estimation +
-			'</ul>';
+				'<li>Created at ' + createdAt.toLocaleString() + '</li>';
+		
+		if(task.acceptedAt !== null){
+			
+			acceptedAt = new Date(Date.parse(task.acceptedAt));
+			rv += '<li>Accepted at ' + acceptedAt.toLocaleString() + '</li>';
+		}
+		
+		rv += '<li>' + this.statuses[task.status];
+		
+		if(task.status == TASK_STATUS.get('ACCEPTED')){
+			rv += this.getLabelForAssignShares(task.daysRemainingToAssignShares);
+		}
+		
+		rv += '</li>' + estimation + '</ul>';
 		
 		rv += '<table class="table table-striped"><caption>Members</caption>' +
 				'<thead><tr><th></th><th style="text-align: right">Estimate</th>';
@@ -582,9 +593,21 @@ TaskManagement.prototype = {
 		createdAt = new Date(Date.parse(task.createdAt));
 
 		rv = '<ul class="task-details">' + 
-				'<li>Created at ' + createdAt.toLocaleString() + '</li>' +
-				'<li>' + this.statuses[task.status] + '</li>' +
-				estimation +
+				'<li>Created at ' + createdAt.toLocaleString() + '</li>';
+		
+		if(task.acceptedAt !== null){
+			
+			acceptedAt = new Date(Date.parse(task.acceptedAt));
+			rv += '<li>Accepted at ' + acceptedAt.toLocaleString() + '</li>';
+		}
+		
+		rv += '<li>' + this.statuses[task.status];
+		
+		if(task.status == TASK_STATUS.get('ACCEPTED')){
+			rv += this.getLabelForAssignShares(task.daysRemainingToAssignShares);
+		}
+
+		rv += '</li>' + estimation +
 				'<li>Members:' +
 					'<ul>' + $.map(task.members, function(object, key) {
 							rv = '<li><span class="task-member">' + object.firstname + " " + object.lastname;
@@ -808,6 +831,20 @@ TaskManagement.prototype = {
 				that.show(modal, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to send reminder');
 			}
 		});
+
+	},
+
+	getLabelForAssignShares: function(daysLeft){
+		
+		if(daysLeft !== null){			
+			if(daysLeft == 1){
+				return ": "+daysLeft + " day left";
+			}else if(daysLeft == 0){
+				return ": less than a day";
+			}
+			return ": "+daysLeft + " days left";	
+		}
+		return "";
 	}
 	
 };
@@ -818,7 +855,7 @@ var TASK_STATUS = (function() {
 		10: 'Open',
 		20: 'Ongoing',
 		30: 'Completed',
-		40: 'Accepted (shares assignment in progress)',
+		40: 'Shares assignment in progress',
 		50: 'Closed'
 	};
 	
