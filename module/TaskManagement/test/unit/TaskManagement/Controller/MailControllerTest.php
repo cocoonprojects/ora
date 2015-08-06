@@ -9,6 +9,7 @@ use Application\Entity\User;
 use AcMailer\Service\MailService;
 use Application\Service\UserService;
 use TaskManagement\Entity\Task;
+use Zend\Permissions\Acl\Acl;
 
 
 
@@ -76,7 +77,7 @@ class MailControllerTest extends ControllerTest{
 	}
 
 	public function testSendReminder() {
-		$_SERVER ['HTTP_HOST'] = 'oraproject.org';
+		$_SERVER ['SERVER_NAME'] = 'oraproject.org';
 		
 		$this->setupLoggedUser ( $this->owner );
 		
@@ -94,7 +95,7 @@ class MailControllerTest extends ControllerTest{
 		$this->assertEquals ( 200, $response->getStatusCode () );
 		$this->assertEquals ( Task::STATUS_ONGOING, $this->readModelTask->getStatus () );
 		
-		unset ( $_SERVER ['HTTP_HOST'] );
+		unset ( $_SERVER ['SERVER_NAME'] );
 	}
 	public function testSendReminderAsAnonymous() {
 		$this->setupAnonymous ();
