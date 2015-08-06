@@ -76,7 +76,7 @@ class MailControllerTest extends ControllerTest{
 	}
 
 	public function testSendReminder() {
-		$_SERVER ['SERVER_NAME'] = 'oraproject.org';
+		$_SERVER ['HTTP_HOST'] = 'oraproject.org';
 		
 		$this->setupLoggedUser ( $this->owner );
 		
@@ -94,7 +94,7 @@ class MailControllerTest extends ControllerTest{
 		$this->assertEquals ( 200, $response->getStatusCode () );
 		$this->assertEquals ( Task::STATUS_ONGOING, $this->readModelTask->getStatus () );
 		
-		unset ( $_SERVER ['SERVER_NAME'] );
+		unset ( $_SERVER ['HTTP_HOST'] );
 	}
 	public function testSendReminderAsAnonymous() {
 		$this->setupAnonymous ();
