@@ -155,11 +155,6 @@ class StreamsController extends HATEOASRestfulController
 		$orgId = $this->params('orgId');
 		$response = $this->getResponse();
 		
-		if (is_null($orgId) || $orgId == ''){
-			$response->setStatusCode(400);
-			return $response;
-		}
-		
 		$this->organization = $this->getOrganizationService()->findOrganization($orgId);
 		if (is_null($this->organization)){
 			$response->setStatusCode(404);
