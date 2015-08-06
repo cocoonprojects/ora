@@ -19,43 +19,44 @@ class MailController extends HATEOASRestfulController {
 	protected $notifyMailListener;
 
 	protected $taskService;
-	
+
 	public function __construct(NotifyMailListener $notifyMailListener, TaskService $taskService) {
-		
 		$this->notifyMailListener = $notifyMailListener;
 		$this->taskService = $taskService;
-		
 	}
 	
-	public function invoke($id, $data)
-	{
-		$task = $this->taskService->findTask($id);
-		if(!(isset($this->identity()['user']) && $this->isAllowed($this->identity()['user'], $task, 'TaskManagement.Task.sendReminder'))){
-			$this->response->setStatusCode(403);
+	public function invoke($id, $data) {
+		if (! isset ( $data ['type'] ) || $data ['type'] == '') {
+			$this->response->setStatusCode ( 400 );
 			return $this->response;
 		}
 		
-		if (!isset($data['type']) || $data['type'] == ''){
-			$this->response->setStatusCode(400);
+		$task = $this->taskService->findTask ( $id );
+		if (is_null ( $task )) {
+			$this->response->setStatusCode ( 404 );
+			return $this->response;
+		}
+		
+		if (! (isset ( $this->identity ()['user'] ) && $this->isAllowed ( $this->identity ()['user'], $task, 'TaskManagement.Task.sendReminder' ))) {
+			$this->response->setStatusCode ( 403 );
 			return $this->response;
 		}
 		
 		$type = $data ["type"];
-		switch ($type){
-			case 'add-estimation':
+		switch ($type) {
+			case 'add-estimation' :
 				
-				$task = $this->taskService->findTask($id);
+				$task = $this->taskService->findTask ( $id );
 				
-				$this->notifyMailListener->reminderAddEstimation($task);
+				$this->notifyMailListener->reminderAddEstimation ( $task );
 				
 				break;
-			default:
-				$this->response->setStatusCode(405);
+			default :
+				$this->response->setStatusCode ( 405 );
 				break;
 		}
 		
 		return $this->response;
-		
 	}
 	
 	protected function getCollectionOptions()
@@ -67,5 +68,5 @@ class MailController extends HATEOASRestfulController {
 	{
 		return self::$resourceOptions;
 	}
-	
+
 }
