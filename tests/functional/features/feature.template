@@ -4,7 +4,7 @@ Scenario: Creating a new Task
 	Given that I want to make a new "Task"
 	And that its "subject" is "UNA ROTONDA SUL MARE"
 	And that its "streamID" is "1"
-	When I request "/task-management/task"
+	When I request "/00000000-0000-0000-1000-000000000000/task-management/task"
 	Then the response is JSON
 	And the response has a "taskId" property
 	And the type of the "taskId" property is numeric
@@ -13,18 +13,18 @@ Scenario: Creating a new Task
 Scenario: Finding a Task
 	Given that I want to find a "Task"
 	And that its "id" is "1"
-	When I request "/task-management/task"
+	When I request "/00000000-0000-0000-1000-000000000000/task-management/task"
 	Then the "description" property equals "UNA ROTONDA SUL MARE"
 
 Scenario: Deleting a Task
 	Given that I want to delete a "Task"
 	And that its "id" is "1"
-	When I request "/task-management/task"
+	When I request "/00000000-0000-0000-1000-000000000000/task-management/task"
 	Then the "status" property equals "success"
 
 Scenario: Creating a new Task with not validated parameters
 	Given that I want to make a new "Task"
 	And that its "subject" is "UNA ROTONDA SUL MARE"
 	And that its "streamID" is "NOT VALID PROJECT ID TYPE"
-	When I request "/task-management/task"
+	When I request "/00000000-0000-0000-1000-000000000000/task-management/task"
 	Then the response status code should be 406

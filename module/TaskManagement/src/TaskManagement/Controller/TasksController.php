@@ -300,7 +300,7 @@ class TasksController extends HATEOASRestfulController
 		$orgId = $this->params('orgId');
 		$response = $this->getResponse();
 		
-		if (is_null($orgId)){
+		if (is_null($orgId) || $orgId == ''){
 			$response->setStatusCode(400);
 			return $response;
 		}
