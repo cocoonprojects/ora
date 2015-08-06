@@ -1,6 +1,6 @@
 <p>Hi <?= $this->recipient->getFirstname()." ".$this->recipient->getLastname()?>,<br>
 The item <b><?= $this->task->getSubject()?></b> is still on OnGoing status!</p>
-<p>Please follow <a href="<?= 'http://'.$_SERVER['HTTP_HOST'] .'/task-management'?>"> this link</a> and add your estimation as soon as possible.</p>
+<p>Please follow <a href="<?= 'http://'.$_SERVER['SERVER_NAME'] .'/task-management'?>"> this link</a> and add your estimation as soon as possible.</p>
 <br/> 
 <p>Thank you!</p>
 <p>O.R.A.</p>
