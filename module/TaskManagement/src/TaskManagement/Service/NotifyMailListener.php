@@ -150,14 +150,16 @@ class NotifyMailListener implements ListenerAggregateInterface
 		$taskMembersWithNoEstimation = $task->findMembersWithNoEstimation();
 		
 		foreach ($taskMembersWithNoEstimation as $member){
+			$recipient = $this->userService->findUser($member);
+			
 			$message = $this->mailService->getMessage();
-			$message->setTo($member->getEmail());
+			$message->setTo($recipient->getEmail());
 			
 			$this->mailService->setSubject ( "O.R.A. - your contribution is required!" );
 			
 			$this->mailService->setTemplate( 'mail/reminder-add-estimation.phtml', array(
 					'task' => $task,
-					'recipient'=> $member
+					'recipient'=> $recipient
 			));
 			
 			$this->mailService->send();
