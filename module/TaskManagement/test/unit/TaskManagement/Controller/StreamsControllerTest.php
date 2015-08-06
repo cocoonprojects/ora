@@ -143,7 +143,7 @@ class StreamsControllerTest extends ControllerTest
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 		 
-		$this->assertEquals(400, $response->getStatusCode());
+		$this->assertEquals(404, $response->getStatusCode());
 	}
 
 	public function testCreateStreamAsAnonymous() {

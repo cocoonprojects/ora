@@ -16,7 +16,11 @@ class TransitionsControllerTest extends ControllerTest
 	/**
 	 * @var User
 	 */
-	private $adminUser;
+	private $systemUser;
+	/**
+	 * @var User
+	 */
+	private $user;
 	/**
 	 * @var Task
 	 */
@@ -24,14 +28,20 @@ class TransitionsControllerTest extends ControllerTest
 
 	public function setupMore()
 	{
-		$this->adminUser = $this->getMockBuilder(User::class)->getMock();
-		$this->adminUser->method('getRoleId')->willReturn(User::ROLE_ADMIN);
-		$this->adminUser->method('isMemberOf')->willReturn(true);
-
-		$organization = Organization::create('My brand new Orga', $this->adminUser);
-		$stream = Stream::create($organization, 'Really useful stream', $this->adminUser);
-		$this->task = Task::create($stream, 'task subject', $this->adminUser);
-		$this->task->addMember($this->adminUser, Task::ROLE_OWNER);
+		$this->systemUser = $this->getMockBuilder(User::class)->getMock();
+		$this->systemUser->method('getRoleId')->willReturn(User::ROLE_SYSTEM);
+		
+		$this->user = $this->getMockBuilder(User::class)->getMock();
+		$this->user->method('isMemberOf')->willReturn(true);
+		$this->user->method('getRoleId')->willReturn(User::ROLE_USER);		
+		
+		$organization = Organization::create('My brand new Orga', $this->user);
+		$stream = Stream::create($organization, 'Really useful stream', $this->user);
+		$this->task = Task::create($stream, 'task subject', $this->user);
+		$this->task->addMember($this->user, Task::ROLE_OWNER);
+		$this->task->addEstimation(1, $this->user);
+		$this->task->complete($this->user);
+		$this->task->accept($this->user, $this->controller->getIntervalForCloseTasks());
 	}
 	
 	protected function setupController()
@@ -62,21 +72,17 @@ class TransitionsControllerTest extends ControllerTest
 	
 	public function testCreate(){
 	
-		$this->setupLoggedUser($this->adminUser);
-		
-		$this->task->addEstimation(1, $this->adminUser);
-		$this->task->complete($this->adminUser);
-		$this->task->accept($this->adminUser, $this->controller->getIntervalForCloseTasks());
+		$this->setupLoggedUser($this->systemUser);
 		
 		$this->controller->getTaskService()
-		->expects($this->once())
-		->method('findAcceptedTasksBefore')
-		->willReturn(array($this->task));
+			->expects($this->once())
+			->method('findAcceptedTasksBefore')
+			->willReturn(array($this->task));
 		 
 		$this->controller->getTaskService()
-		->expects($this->once())
-		->method('getTask')
-		->willReturn($this->task);
+			->expects($this->once())
+			->method('getTask')
+			->willReturn($this->task);
 		 
 		//dispatch
 		$this->request->setMethod('post');
