@@ -31,9 +31,9 @@ return array(
 			'organizations' => array(
 				'type' => 'Segment',
 				'options' => array(
-					'route' => '/people/organizations[/:orgId][/:controller]',
+					'route' => '/people/organizations[/:id][/:controller]',
 					'constraints' => array(
-						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})'
+						'id' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})'
 					),
 					'defaults' => array(
 						'__NAMESPACE__' => 'People\Controller',
