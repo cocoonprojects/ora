@@ -14,7 +14,6 @@ return array(
 					'defaults' => array(
 						'controller' => 'Accounting\Controller\Index',
 						'action'	 => 'index',
-						'orgId' => ''
 					),					
 				),
 			),
@@ -29,7 +28,6 @@ return array(
 					'defaults'	  => array (
 						'__NAMESPACE__' => 'Accounting\Controller',
 						'controller' => 'Accounts',
-						'orgId' => ''
 					),
 				),
 			),
