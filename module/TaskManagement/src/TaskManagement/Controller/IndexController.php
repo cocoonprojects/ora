@@ -13,7 +13,6 @@ class IndexController extends AbstractActionController
 		if (is_null($organization)){
 			$this->response->setStatusCode(404);
 		}
-		$this->layout()->setVariable('orgId', $this->params('orgId'));
-		$this->layout()->setVariable('orgName', $organization->getName());
+		$this->layout()->setVariable('organization', $organization);
 	}
 }

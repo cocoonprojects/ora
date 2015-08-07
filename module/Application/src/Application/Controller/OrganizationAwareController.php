@@ -8,7 +8,7 @@ use People\Entity\Organization;
 use Zend\Mvc\MvcEvent;
 use Zend\EventManager\EventManagerInterface;
 
-class OrganizationAwareController extends HATEOASRestfulController{
+abstract class OrganizationAwareController extends HATEOASRestfulController{
 	
 	/**
 	 *
@@ -50,12 +50,5 @@ class OrganizationAwareController extends HATEOASRestfulController{
 		}
 	
 		return;
-	}
-	protected function getCollectionOptions() {
-		return [];
-	}
-	
-	protected function getResourceOptions() {
-		return [];
 	}
 }
