@@ -11,7 +11,6 @@ return array(
 					'defaults' => array(
 						'controller' => 'People\Controller\Index',
 						'action'	 => 'index',
-						'orgId' => ''
 					),
 					'constraints' => array(
 						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
@@ -39,7 +38,6 @@ return array(
 					'defaults' => array(
 						'__NAMESPACE__' => 'People\Controller',
 						'controller' => 'Organizations',
-						'orgId' => ''
 					),
 				),
 			),	
@@ -52,7 +50,6 @@ return array(
 					),
 					'defaults' => array(
 						'__NAMESPACE__' => 'People\Controller',
-						'orgId' => ''
 					),
 				),
 			),	

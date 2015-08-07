@@ -51,7 +51,7 @@ class StreamsController extends OrganizationAwareController
 	   	}
 	   	
 	   	$streams = $this->streamService->findStreams($this->organization);
-	   	$view = new StreamJsonModel($this->url(), $identity);
+	   	$view = new StreamJsonModel($this->url(), $identity, $this->organization);
 	   	$view->setVariable('resource', $streams);
 		return $view;
 	}

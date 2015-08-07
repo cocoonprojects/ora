@@ -47,12 +47,6 @@ TaskManagement.prototype = {
 			var f = $(this).find("form");
 			f[0].reset();
 			$(this).find('div.alert').hide();
-			
-			var orgName = f.find("#createStreamOrganizationName");
-			orgName.val(sessionStorage.getItem('orgName'));
-			
-			var orgId = f.find("#organizationId");
-			orgId.val(sessionStorage.getItem('orgId'));
 		});
 		
 		$("#createStreamModal").on("shown.bs.modal", function(e) {

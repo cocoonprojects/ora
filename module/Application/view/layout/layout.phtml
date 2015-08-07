@@ -51,23 +51,21 @@
 				<a class="navbar-brand" href="<?php echo $this->url('home') ?>"><span
 					id="organization_name"><?php echo is_null($this->orgName) ? 'O.R.A.' : $this->translate($this->orgName);?></span></a>
 			</div>
-				<?php if( $this->url() != $this->url('home') && $this->url() != $this->url('organizations-home') ) {?>
-					<div class="collapse navbar-collapse">
+			
+			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav" id="firstLevelMenu" role="menu">
-					<?php if($this->orgId != null){?>
+				<?php if($this->orgId != null){?>
 					<li><a id="tasks-home" href="<?php echo $this->url('tasks-home', array('orgId'=>$this->orgId)); ?>"><?php echo $this->translate('Items') ?></a></li>
 					<li><a id="accounting-home" href="<?php echo $this->url('accounting-home', array('orgId'=>$this->orgId)); ?>"><?php echo $this->translate('Credits') ?></a></li>
 					<li><a id="decisions-home" href=""><?php echo $this->translate('Decisions') ?></a></li>
 					<li><a id="people-home"href="<?php echo $this->url('people-home', array('orgId'=>$this->orgId)); ?>"><?php echo $this->translate('People') ?></a></li>
 					<?php }?>
 				</ul>
-				<?php }?>
-				<?php
-					echo $this->partial('layout/user-box.phtml', array(
+				<?php echo $this->partial('layout/user-box.phtml', array(
 							'identity' => is_null($this->identity()) ? null : $this->identity()['user']
 					)); 
 				?>
-					</div>
+			</div>
 		</div>
 	</nav>
 		<?php echo $this->content; ?>

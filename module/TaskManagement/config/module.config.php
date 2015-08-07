@@ -14,7 +14,6 @@ return array(
 					'defaults' => array(
 						'controller' => 'TaskManagement\Controller\Index',
 						'action'	 => 'index',
-						'orgId' => ''
 					),
 				),
 			),
@@ -28,7 +27,6 @@ return array(
 					),
 					'defaults' => array(
 						'controller' => 'TaskManagement\Controller\Streams',
-						'orgId' => ''
 					),
 				),
 			),
@@ -43,7 +41,6 @@ return array(
 					'defaults' => array(
 						'__NAMESPACE__' => 'TaskManagement\Controller',
 						'controller' => 'Tasks',
-						'orgId' => ''
 					),
 				),
 			),

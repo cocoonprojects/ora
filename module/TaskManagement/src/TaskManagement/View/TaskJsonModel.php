@@ -131,7 +131,7 @@ class TaskJsonModel extends JsonModel
 	private function getStream(Task $task) {
 		$stream = $task->getStream();
 		$rv['subject'] = $stream->getSubject();
-		$rv['_links']['self']['href'] = $this->url->fromRoute('streams', ['id' => $stream->getId()]);
+		$rv['_links']['self']['href'] = $this->url->fromRoute('streams', ['id' => $stream->getId(), 'orgId' => $this->organization->getId()]);
 		return $rv;
 	}
 	
