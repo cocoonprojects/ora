@@ -59,7 +59,7 @@ class DepositsController extends HATEOASRestfulController
 			$this->response->setStatusCode(201); // Created
 			$this->response->getHeaders()->addHeaderLine(
 					'Location',
-					$this->url()->fromRoute('accounts', array('id' => $account->getId()))
+					$this->url()->fromRoute('accounts', array('orgId' => $account->getOrganizationId(),'id' => $account->getId()))
 			);
 		} catch (IllegalAmountException $e) {
 			$this->transaction()->rollback();
