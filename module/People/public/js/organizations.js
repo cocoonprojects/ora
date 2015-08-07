@@ -152,10 +152,10 @@ Organizations.prototype = {
 		} else {
 			var that = this;
 			$.each(organizations, function(key, org) {
-				member = '<a href="people/organizations/' + org.id + '/members" class="btn btn-info" data-action="joinOrganization">Join</a>';
+				member = '<a href="' + org.id + '/people/members" class="btn btn-info" data-action="joinOrganization">Join</a>';
 				$.each(that.membershipsData._embedded['ora:organization-membership'], function(i, object) {
 					if(object.organization.id == org.id) {
-						member = '<a href="people/organizations/' + org.id + '/members" class="btn btn-warning" data-action="unjoinOrganization">Unjoin</a>';
+						member = '<a href="' + org.id + '/people/members" class="btn btn-warning" data-action="unjoinOrganization">Unjoin</a>';
 					}
 				});
 

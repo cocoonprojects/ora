@@ -158,7 +158,7 @@ class TasksController extends OrganizationAwareController
 			$this->taskService->addTask($task);
 			$this->transaction()->commit();
 
-			$url = $this->url()->fromRoute('tasks', array('id' => $task->getId()));
+			$url = $this->url()->fromRoute('tasks', array('orgId' => $this->organization->getId(), 'id' => $task->getId()));
 			$this->response->getHeaders()->addHeaderLine('Location', $url);
 			$this->response->setStatusCode(201);
 			return $this->response;
