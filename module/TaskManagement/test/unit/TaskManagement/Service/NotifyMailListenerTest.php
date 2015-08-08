@@ -7,8 +7,10 @@ use Application\Entity\User;
 use TaskManagement\Task;
 use UnitTest\Bootstrap;
 use People\Organization;
+use People\Entity\Organization as ReadModelOrganization;
 use TaskManagement\Stream;
 use TaskManagement\Entity\Task as ReadModelTask;
+use TaskManagement\Entity\Stream as ReadModelStream;
 use TaskManagement\Entity\TaskMember;
 
 
@@ -102,7 +104,7 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(1, count($emails));
 		$this->assertEmailSubjectEquals('O.R.A. - your contribution is required!', $emails[0]);
 		$this->assertEmailHtmlContains('new book', $emails[0]);
-		$this->assertEmailHtmlContains('http://example.com/task-management#11111ab-1111-1111-1111-11111111c500', $emails[0]);
+		$this->assertEmailHtmlContains('http://example.com/22222ab-1111-1111-1111-11111111c500/task-management#11111ab-1111-1111-1111-11111111c500', $emails[0]);
 		$this->assertNotEmpty($emails[0]->recipients);
 		$this->assertEquals($emails[0]->recipients[0], '<doriangray@email.com>');
 
@@ -151,6 +153,12 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 		$task = new ReadModelTask('11111ab-1111-1111-1111-11111111c500');
 		$task->setSubject('new book');
 		$task->addMember($taskMember, TaskMember::ROLE_MEMBER, $taskMember, new \DateTime());
+		
+		$stream = new ReadModelStream('00000ab-1111-1111-1111-11111111c500');
+		$organization = new ReadModelOrganization('22222ab-1111-1111-1111-11111111c500');
+		$stream->setOrganization($organization);
+		
+		$task->setStream($stream);
 
 		return $task;
 	}

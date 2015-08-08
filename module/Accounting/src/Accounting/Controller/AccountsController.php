@@ -3,11 +3,14 @@ namespace Accounting\Controller;
 
 use Zend\Authentication\AuthenticationServiceInterface;
 use Zend\Permissions\Acl\Acl;
-use ZFX\Rest\Controller\HATEOASRestfulController;
 use Accounting\Service\AccountService;
 use Accounting\View\AccountsJsonModel;
+use Zend\Mvc\MvcEvent;
+use Zend\EventManager\EventManagerInterface;
+use Application\Controller\OrganizationAwareController;
+use People\Service\OrganizationService;
 
-class AccountsController extends HATEOASRestfulController
+class AccountsController extends OrganizationAwareController
 {
 	protected static $collectionOptions = ['GET'];
 	protected static $resourceOptions = ['GET'];
@@ -22,7 +25,8 @@ class AccountsController extends HATEOASRestfulController
 	 */
 	private $acl;
 	
-	public function __construct(AccountService $accountService, Acl $acl) {
+	public function __construct(AccountService $accountService, Acl $acl, OrganizationService $organizationService) {
+		parent::__construct($organizationService);
 		$this->accountService = $accountService;
 		$this->acl = $acl;
 	}
@@ -36,7 +40,13 @@ class AccountsController extends HATEOASRestfulController
 		}
 		
 		$identity = $this->identity()['user'];
-		$accounts = $this->accountService->findAccounts($identity);
+		
+		if(!$this->isAllowed($identity, $this->organization, 'Accounting.Accounts.list')){
+			$this->response->setStatusCode(403);
+			return $this->response;
+		}
+		
+		$accounts = $this->accountService->findAccounts($identity, $this->organization);
 		
 		$viewModel = new AccountsJsonModel($this->url(), $identity, $this->acl);
 		$viewModel->setVariable('resource', $accounts);
@@ -68,5 +78,4 @@ class AccountsController extends HATEOASRestfulController
 	protected function getResourceOptions() {
 		return self::$resourceOptions;
 	}
-	
 }

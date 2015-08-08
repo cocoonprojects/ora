@@ -3,6 +3,7 @@
 namespace TaskManagement\Service;
 
 use Doctrine\ORM\EntityManager;
+use People\Entity\Organization;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Aggregate\AggregateRepository;
 use Prooph\EventStore\Aggregate\AggregateType;
@@ -43,12 +44,19 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	}
 	
 	/**
-	 * Get the list of all available tasks 
+	 *
+	 * @see \TaskManagement\Service\TaskService::findTasks()
 	 */
-	public function findTasks()
-	{
-		$repository = $this->entityManager->getRepository(ReadModelTask::class);
-		return $repository->findBy(array(), array('mostRecentEditAt' => 'DESC'));
+	public function findTasks(Organization $organization) {
+		$builder = $this->entityManager->createQueryBuilder ();
+		$query = $builder->select ( 't' )
+		->from ( ReadModelTask::class, 't' )
+		->innerjoin ( 't.stream', 's', 'WITH', 's.organization = :organization')
+		->orderBy ( 't.mostRecentEditAt', 'DESC' )
+		->setParameter ( ':organization', $organization )
+		->getQuery ();
+		
+		return $query->getResult ();
 	}
 	
 	public function findTask($id) {

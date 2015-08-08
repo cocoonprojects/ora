@@ -1,10 +1,11 @@
-<?php if($this->identity) {?>
+<?php if($this->identity() != null) {?>
 	<ul class="nav navbar-nav navbar-right">
 		<li><a href="<?php echo $this->basePath().'/auth/logout'?>">Logout</a></li>
 	</ul>
 	<ul class="nav navbar-nav navbar-right">
 		<li id="userMenu" class="dropdown">
 			<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+				<img src="<?php echo $this->identity->getPicture()?>" alt="Avatar" style="max-width: 20px; max-height: 20px;" class="img-circle">
 				<?php echo $this->identity->getEmail()?>
 				<span class="caret"></span>
 			</a>
@@ -17,6 +18,4 @@
 			</ul>
 		</li>
 	</ul>
-<?php } else { ?>
-	<ul class="nav navbar-nav navbar-right"><li><a href="#" data-toggle="modal" data-target="#loginModal">Sign in</a></li></ul>
 <?php } ?>

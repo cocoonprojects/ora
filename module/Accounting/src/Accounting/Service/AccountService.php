@@ -6,6 +6,7 @@ use Accounting\Entity\OrganizationAccount;
 use Accounting\Entity\Account;
 use Application\Entity\User;
 use People\Organization;
+use People\Entity\Organization as ReadModelOrganization;
 
 interface AccountService
 {
@@ -15,7 +16,7 @@ interface AccountService
 	
 	public function getAccount($id);
 	
-	public function findAccounts(User $user);
+	public function findAccounts(User $user, ReadModelOrganization $organization);
 	
 	public function findAccount($id);
 	/**

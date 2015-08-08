@@ -5,25 +5,29 @@ return array(
 	'router' => array(
 		'routes' => array(
 			'accounting-home' => array(
-				'type' => 'Zend\Mvc\Router\Http\Literal',
+				'type' => 'segment',
 				'options' => array(
-					'route'	   => '/accounting/',
+					'route'	   => '/:orgId/accounting/',
+					'constraints' => array(
+							'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+					),
 					'defaults' => array(
 						'controller' => 'Accounting\Controller\Index',
 						'action'	 => 'index',
-					),
+					),					
 				),
 			),
 			'accounts' => array (
 				'type'	  => 'segment',
 				'options' => array (
-					'route'		  => '/accounting/accounts[/:id][/:controller]',
+					'route'		  => '/:orgId/accounting/accounts[/:id][/:controller]',
 					'constraints' => array (
 						'id'	 => '[0-9a-z\-]+',
+						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
 					),
 					'defaults'	  => array (
 						'__NAMESPACE__' => 'Accounting\Controller',
-						'controller' => 'Accounts'
+						'controller' => 'Accounts',
 					),
 				),
 			),

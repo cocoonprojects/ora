@@ -19,7 +19,7 @@ return array(
 				'options' => array(
 						'route'	   => '/auth/:action[/:id]',
 						'defaults' => array(
-							'controller'	=> 'Application\Controller\Auth',
+							'controller'	=> 'Application\Controller\Auth'
 						),
 				),
 			),

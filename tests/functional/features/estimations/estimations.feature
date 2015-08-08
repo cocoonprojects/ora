@@ -6,6 +6,6 @@ Feature: Estimation list
 Scenario: Seeing who already estimated a task
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to find a "members who estimated a task"
-	When I request "/task-management/tasks"
+	When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
 	Then the response status code should be 200
 	And the response should have a "/estimation\.value$/" property

@@ -2,23 +2,25 @@
 namespace TaskManagement\Controller;
 
 use Zend\Authentication\AuthenticationServiceInterface;
+use Zend\EventManager\EventManagerInterface;
 use Zend\Permissions\Acl\Acl;
 use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
+use Zend\Mvc\MvcEvent;
 use Zend\Validator\NotEmpty;
-use ZFX\Rest\Controller\HATEOASRestfulController;
 use Application\IllegalStateException;
 use Application\InvalidArgumentException;
-use Application\Entity\User;
 use Accounting\Service\AccountService;
 use TaskManagement\Task;
 use TaskManagement\View\TaskJsonModel;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
+use Application\Controller\OrganizationAwareController;
+use People\Service\OrganizationService;
 
-class TasksController extends HATEOASRestfulController
+class TasksController extends OrganizationAwareController
 {
 	protected static $collectionOptions = ['GET', 'POST'];
 	protected static $resourceOptions = ['DELETE', 'GET', 'PUT'];
@@ -42,21 +44,23 @@ class TasksController extends HATEOASRestfulController
 	 *@var \DateInterval
 	 */
 	protected $intervalForCloseTasks;
-
-	public function __construct(TaskService $taskService, StreamService $streamService, Acl $acl)
+	
+	public function __construct(TaskService $taskService, StreamService $streamService, Acl $acl, OrganizationService $organizationService)
 	{
+		parent::__construct($organizationService);
 		$this->taskService = $taskService;
 		$this->streamService = $streamService;		
 		$this->acl = $acl;
 		$this->intervalForCloseTasks = new \DateInterval('P7D');
 	}
-	
 	public function get($id)
 	{
 		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
+		
+		$identity = $this->identity()['user'];		
 
 		$task = $this->taskService->findTask($id);
 		if(is_null($task)) {
@@ -65,8 +69,8 @@ class TasksController extends HATEOASRestfulController
 		}
 
 		$this->response->setStatusCode(200);
-		$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl);
-		$view->setVariable('resource', $task);
+		$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl, $this->organization);
+		$view->setVariable('resource', $task);		
 		return $view;
 	}
 	
@@ -79,17 +83,25 @@ class TasksController extends HATEOASRestfulController
 	 */
 	public function getList()
 	{
-		if(is_null($this->identity())) {
+		if (is_null($this->identity())){
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-
+		
+		$identity = $this->identity()['user'];
+					
+		if(!$this->isAllowed($identity, $this->organization, 'TaskManagement.Task.list')){
+			$this->response->setStatusCode(403);
+			return $this->response;
+		}
+		
 		$streamID = $this->getRequest()->getQuery('streamID');
-
-		$availableTasks = is_null($streamID) ? $this->taskService->findTasks() : $this->taskService->findStreamTasks($streamID);
-
-		$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl);
+		
+		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization) : $this->taskService->findStreamTasks($streamID);
+				
+		$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl, $this->organization);
 		$view->setVariable('resource', $availableTasks);
+		
 		return $view;
 	}
 
@@ -146,7 +158,7 @@ class TasksController extends HATEOASRestfulController
 			$this->taskService->addTask($task);
 			$this->transaction()->commit();
 
-			$url = $this->url()->fromRoute('tasks', array('id' => $task->getId()));
+			$url = $this->url()->fromRoute('tasks', array('orgId' => $this->organization->getId(), 'id' => $task->getId()));
 			$this->response->getHeaders()->addHeaderLine('Location', $url);
 			$this->response->setStatusCode(201);
 			return $this->response;
@@ -231,7 +243,7 @@ class TasksController extends HATEOASRestfulController
 			$this->response->setStatusCode(200);
 		} catch (IllegalStateException $e) {
 			$this->transaction()->rollback();
-            $this->response->setStatusCode(412);	// Preconditions failed			
+			$this->response->setStatusCode(412);	// Preconditions failed			
 		}
 		return $this->response;
 	}
@@ -254,7 +266,7 @@ class TasksController extends HATEOASRestfulController
 	public function setIntervalForCloseTasks($interval){
 		$this->intervalForCloseTasks = $interval;
 	}
-	
+
 	public function getIntervalForCloseTasks(){
 		return $this->intervalForCloseTasks;
 	}

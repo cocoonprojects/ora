@@ -2,7 +2,8 @@
 <div id="createStreamModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="createStreamLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<form action="<?php echo $this->url('streams') ?>">
+				
+			<form action="<?php echo $this->url('streams', array('orgId'=>$this->layout()->getVariable('organization')->getId()));?>">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal">
 					<span aria-hidden="true">&times;</span>
@@ -15,17 +16,11 @@
 					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 					  <span aria-hidden="true">&times;</span>
 					</button>
-				</div>
+				</div>				
 				<div class="form-group">
 					<label for="subject">Subject</label>
-					<input type="text" class="form-control" id="subject" name="subject">
-				</div>
-				<div class="form-group">
-					<label for="createStreamOrganizationId">Organization</label>
-					<select class="form-control" id="createStreamOrganizationId" name="organizationId">
-						<option></option>
-					</select>
-				</div>
+					<input type="text" class="form-control" id="subject" required name="subject">
+				</div>				
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

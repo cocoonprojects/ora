@@ -1,13 +1,17 @@
 <?php
 namespace TaskManagement\Controller;
 
-use ZFX\Test\Controller\ControllerTest;
-use Zend\Permissions\Acl\Acl;
 use Application\Entity\User;
+use People\Entity\Organization;
+use People\Entity\OrganizationMembership;
+use People\Service\OrganizationService;
 use TaskManagement\Entity\Task;
 use TaskManagement\Entity\Stream;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Service\StreamService;
+use ZFX\Test\Controller\ControllerTest;
+use Zend\Permissions\Acl\Acl;
+
 
 class TasksControllerTest extends ControllerTest {
 	
@@ -17,24 +21,32 @@ class TasksControllerTest extends ControllerTest {
     
     private $stream;
     
+    private $organization;
+    
     public function __construct()
     {
     	$this->user = User::create();
     	$this->user->setFirstname('John');
     	$this->user->setLastname('Doe');
+    	$this->user->setRole(User::ROLE_USER);
     	$this->stream = new Stream('00000');
+    	$this->organization = new Organization('00000');
+    	$this->stream->setOrganization($this->organization);
+    	$orgMembership = new OrganizationMembership($this->user, $this->organization);
+    	$this->user->addOrganizationMembership($orgMembership);
     }
     
     protected function setupController()
     {
     	$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
     	$streamServiceStub = $this->getMockBuilder(StreamService::class)->getMock();
+    	$organizationServiceStub = $this->getMockBuilder(OrganizationService::class)->getMock();
     	$this->authorizeServiceStub = $this->getMockBuilder(Acl::class)
-		    	->disableOriginalConstructor()
-		    	->getMock();
-    	$controller = new TasksController($taskServiceStub, $streamServiceStub, $this->authorizeServiceStub); 
-    	$controller->setIntervalForCloseTasks(new \DateInterval('P7D'));
-		return $controller;    	
+				->disableOriginalConstructor()
+				->getMock();
+		$controller = new TasksController($taskServiceStub, $streamServiceStub, $this->authorizeServiceStub, $organizationServiceStub);
+		$controller->setIntervalForCloseTasks(new \DateInterval('P7D'));
+		return $controller;
     }
     
     protected function setupRouteMatch()
@@ -47,17 +59,25 @@ class TasksControllerTest extends ControllerTest {
 		$this->setupLoggedUser($this->user);
 	
 		$this->controller->getTaskService()
-		->expects($this->once())
-		->method('findStreamTasks')
-		->with('1')
-		->willReturn(array());
+			->expects($this->once())
+			->method('findStreamTasks')
+			->with('1')
+			->willReturn(array());
+		
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->organization->getId())
+			->willReturn($this->organization);
 	
 		$this->authorizeServiceStub->method('isAllowed')->willReturn(true);
 			
 		$this->request->setMethod('get');
 		$params = $this->request->getQuery();
 		$params->set('streamID', '1');
-	
+		
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 	
@@ -75,20 +95,28 @@ class TasksControllerTest extends ControllerTest {
 		$this->setupLoggedUser($this->user);
 	
 		$this->controller->getTaskService()
-		->expects($this->once())
-		->method('findStreamTasks')
-		->with($this->stream->getId())
-		->willReturn(array());
+			->expects($this->once())
+			->method('findStreamTasks')
+			->with($this->stream->getId())
+			->willReturn(array());
+		
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->organization->getId())
+			->willReturn($this->organization);
 	
 		$this->authorizeServiceStub->method('isAllowed')->willReturn(false);
 			
 		$this->request->setMethod('get');
 		$params = $this->request->getQuery();
 		$params->set('streamID', $this->stream->getId());
-	
+		
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-	
+		
 		$arrayResult = json_decode($result->serialize(), true);
 	
 		$this->assertEquals(200, $response->getStatusCode());
@@ -106,17 +134,25 @@ class TasksControllerTest extends ControllerTest {
 		$task->setStream($this->stream);
 	
 		$this->controller->getTaskService()
-		->expects($this->once())
-		->method('findStreamTasks')
-		->with($this->stream->getId())
-		->willReturn(array($task));
+			->expects($this->once())
+			->method('findStreamTasks')
+			->with($this->stream->getId())
+			->willReturn(array($task));
 	
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->organization->getId())
+			->willReturn($this->organization);
+		
 		$this->authorizeServiceStub->method('isAllowed')->willReturn(true);
 			
 		$this->request->setMethod('get');
 		$params = $this->request->getQuery();
 		$params->set('streamID', $this->stream->getId());
-	
+		
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 	
@@ -133,6 +169,14 @@ class TasksControllerTest extends ControllerTest {
 	{
 		$this->setupAnonymous();
 		$this->request->setMethod('get');
+		
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->organization->getId())
+			->willReturn($this->organization);
+		
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
 	
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
@@ -147,10 +191,18 @@ class TasksControllerTest extends ControllerTest {
 			->expects($this->once())
 			->method('findTasks')
 			->willReturn(array());
-
+		
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->organization->getId())
+			->willReturn($this->organization);
+		
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-
+		
 		$arrayResult = json_decode($result->serialize(), true);
 		$this->assertEquals(200, $response->getStatusCode());
 		$this->assertCount(0, $arrayResult['_embedded']['ora:task']);
@@ -166,10 +218,18 @@ class TasksControllerTest extends ControllerTest {
 			->expects($this->once())
 			->method('findStreamTasks')
 			->willReturn(array());
+		
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->organization->getId())
+			->willReturn($this->organization);
 
 		$params = $this->request->getQuery();
 		$params->set('streamID', '1');
-
+		
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 
@@ -201,6 +261,15 @@ class TasksControllerTest extends ControllerTest {
 				$task1
 			]);
 
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('findOrganization')
+			->with($this->organization->getId())
+			->willReturn($this->organization);
+			
+		
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 

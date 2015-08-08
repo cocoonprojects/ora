@@ -6,6 +6,7 @@ use Application\Controller\AuthController;
 use Application\Controller\MembershipsController;
 use Application\Service\DomainEventDispatcher;
 use Application\Service\EventSourcingUserService;
+use Zend\Mvc\Application;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 use Zend\Authentication\AuthenticationService;
@@ -24,7 +25,15 @@ class Module
 		//prepends the module name to the requested controller name. That's useful if you want to use controller short names in routing
 		$moduleRouteListener = new ModuleRouteListener();
 		$moduleRouteListener->attach($eventManager);	
-
+		
+		$eventManager->attach(MvcEvent::EVENT_DISPATCH_ERROR, function($event) use($serviceManager) {
+			$error  = $event->getError();
+			if ($error == Application::ERROR_ROUTER_NO_MATCH) {
+				$response = $event->getResponse();
+				$response->setStatusCode(404);
+				$response->send();
+			}
+		}, 100);
 		
  		$eventManager->attach(MvcEvent::EVENT_DISPATCH, function($event) use($serviceManager) {
  			$authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
@@ -33,7 +42,7 @@ class Module
  				$localhostAuthAdapter = new DomainAdapter($_SERVER['HTTP_HOST'], $userService);
  				$authService->authenticate($localhostAuthAdapter);
  			} 			
- 		}, 100);		
+ 		}, 100);
 	}
 	
 	public function getControllerConfig() 
@@ -104,7 +113,7 @@ class Module
 	{
 		return array(
 			'invokables' => array(
-				'LoginPopupHelper' => 'Application\View\Helper\LoginPopupHelper',
+				'LoginHelper' => 'Application\View\Helper\LoginHelper',
 			),
 		);
 	}

@@ -7,15 +7,10 @@ Feature: Login with SSO system
 Scenario: login for unknown user not authenticated in ORA Project
         Given I am not authenticated in ORA Project    
         When I go to "/" 
-        Then I should see "Sign in"        
+		Then I should see "Sign in into O.R.A."
+		And I should see "btn-google-plus" login button
+		And I should see "btn-linkedin" login button
 
-@login        
-Scenario: login for unknown user not authenticated in ORA Project
-        Given I am not authenticated in ORA Project
-        When I go to "/"
-		Then I click on "Sign in"
-        And I should see popup "Sign in with"        
-	
        
 #Scenario: Guest select Provider for authenticatin login
 #        Given I am not authenticated in ORA Project
