@@ -3,19 +3,10 @@
 		<li><a href="<?php echo $this->basePath().'/auth/logout'?>">Logout</a></li>
 	</ul>
 	<ul class="nav navbar-nav navbar-right">
-		<li id="userMenu" class="dropdown">
-			<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-				<img src="<?php echo $this->identity->getPicture()?>" alt="Avatar" style="max-width: 20px; max-height: 20px;" class="img-circle">
-				<?php echo $this->identity->getEmail()?>
-				<span class="caret"></span>
-			</a>
-			<ul class="dropdown-menu" role="menu">
-				<li class="divider" id="myOrgDevider"></li>
-				<li><a href="#" data-toggle="modal" data-target="#createOrganizationModal">New Organization...</a></li>
-				<li><a href="#" data-toggle="modal" data-target="#createStreamModal">New Stream...</a></li>
-				<li class="divider"></li>
-				<li><a href="organizations">All Organizations</a></li>
-			</ul>
+		<li>
+			<p class="navbar-text">
+			<img src="<?php echo $this->identity->getPicture()?>" alt="Avatar" style="max-width: 20px; max-height: 20px;" class="img-circle">
+			<?php echo $this->identity->getEmail()?></p>
 		</li>
 	</ul>
 <?php } ?>

@@ -1,23 +1,25 @@
 <?php
 namespace Accounting\Controller;
 
-use Accounting\Entity\Account;
 use Accounting\Entity\OrganizationAccount;
+use Accounting\Entity\PersonalAccount;
 use Accounting\Service\AccountService;
 use Application\Entity\User;
-use Application\Controller\Plugin\EventStoreTransactionPlugin;
 use People\Entity\Organization;
-use Zend\Permissions\Acl\Acl;
+use People\Service\OrganizationService;
 use ZFX\Test\Controller\ControllerTest;
 
 class AccountsControllerTest extends ControllerTest
 {
-	protected $account;
+	protected $organization;
 	
 	protected function setupController()
 	{
 		$accountService = $this->getMockBuilder(AccountService::class)->getMock();
-		return new AccountsController($accountService, $this->acl);
+		$this->organization = new Organization('1');
+		$orgServiceStub = $this->getMockBuilder(OrganizationService::class)->getMock();
+		$orgServiceStub->method('findOrganization')->willReturn($this->organization);
+		return new AccountsController($accountService, $this->acl, $orgServiceStub);
 	}
 	
 	protected function setupRouteMatch()
@@ -29,6 +31,8 @@ class AccountsControllerTest extends ControllerTest
 	{
 		$this->setupAnonymous();
 
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 
@@ -39,14 +43,13 @@ class AccountsControllerTest extends ControllerTest
 	{
 		$user = User::create();
 		$user->setRole(User::ROLE_USER);
+		$user->addMembership($this->organization);
 		$this->setupLoggedUser($user);
 
-		$organization = new Organization('1');
-
-		$account = new Account('1', $organization);
+		$account = new PersonalAccount('1', $this->organization);
 		$account->addHolder($user);
 
-		$organizationAccount = new OrganizationAccount('2', $organization);
+		$organizationAccount = new OrganizationAccount('2', $this->organization);
 		$organizationAccount->addHolder($user);
 
 		$this->controller->getAccountService()
@@ -57,6 +60,8 @@ class AccountsControllerTest extends ControllerTest
 				$account,
 				$organizationAccount
 			]);
+
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
 
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();

@@ -2,12 +2,12 @@
 
 namespace Application\Entity;
 
-use Zend\Permissions\Acl\Role\RoleInterface;
-use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
-use Rhumsaa\Uuid\Uuid;
+use Doctrine\ORM\Mapping as ORM;
 use People\Entity\Organization;
 use People\Entity\OrganizationMembership;
+use Rhumsaa\Uuid\Uuid;
+use Zend\Permissions\Acl\Role\RoleInterface;
 
 
 /**

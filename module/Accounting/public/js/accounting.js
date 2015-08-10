@@ -87,11 +87,13 @@ Accounting.prototype = {
 		{
 			var container = $('#accounts');
 			container.empty();
-						
+
 			$.each(json._embedded['ora:account'], function(key, account) {
 				s = account.organization == undefined ? 'My account' : account.organization + ' account';
 				if(account._links['ora:statement'] != undefined){
 					container.append('<li role="presentation"><a href="' + account._links['ora:statement'].href + '">' + s + '</a></li>');
+				} else {
+					container.append('<li role="presentation">' + s + '</li>');
 				}
 			});
 		},

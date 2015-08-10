@@ -3,11 +3,7 @@
 namespace TaskManagement\Service;
 
 use People\Entity\Organization;
-use TaskManagement\Stream;
 use TaskManagement\Task;
-use TaskManagement\Entity\Task as ReadModelTask;
-use Zend\View\Renderer\PhpRenderer;
-use People\Entity\Organization;
 
 
 /**
@@ -35,9 +31,17 @@ interface TaskService
 	 * @return Task[]
 	 */
 	public function findTasks(Organization $organization);
-	
+
+	/**
+	 * @param string|Uuid $id
+	 * @return Task|null
+	 */
 	public function findTask($id);
-	
+
+	/**
+	 * @param string|Uuid $streamId
+	 * @return Task[]
+	 */
 	public function findStreamTasks($streamId);
 
 	/**

@@ -46,7 +46,7 @@ class AccountsController extends OrganizationAwareController
 		
 		$accounts = $this->accountService->findAccounts($identity, $this->organization);
 		
-		$viewModel = new AccountsJsonModel($this->url(), $identity, $this->acl);
+		$viewModel = new AccountsJsonModel($this->url(), $identity, $this->acl, $this->organization);
 		$viewModel->setVariable('resource', $accounts);
 		return $viewModel;
 	}
@@ -64,7 +64,7 @@ class AccountsController extends OrganizationAwareController
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-		$viewModel = new AccountsJsonModel($this->url(), $identity, $this->acl);
+		$viewModel = new AccountsJsonModel($this->url(), $identity, $this->acl, $this->organization);
 		$viewModel->setVariable('resource', $rv);
 		return $viewModel;
 	}

@@ -31,11 +31,7 @@ class TaskJsonModel extends JsonModel
 	 * @var Organization
 	 */
 	private $organization;
-	/**
-	 *
-	 * @var Organization
-	 */
-	private $organization;
+
 	public function __construct(Url $url, User $user, Acl $acl, Organization $organization) {
 		$this->url = $url;
 		$this->user = $user;
@@ -52,7 +48,7 @@ class TaskJsonModel extends JsonModel
 			$hal['_embedded']['ora:task'] = array_map(array($this, 'serializeOne'), $resource);
 			$hal['count'] = count($resource);
 			$hal['total'] = count($resource);
-		} else {			
+		} else {
 			$hal = $this->serializeOne($resource);
 		}
 		if ($this->acl->isAllowed($this->user, NULL, 'TaskManagement.Task.create')) {
@@ -61,7 +57,6 @@ class TaskJsonModel extends JsonModel
 		return Json::encode($hal);
 	}
 
-	//protected function serializeOne(Task $task, Organization $organization) {
 	protected function serializeOne(Task $task) {
 		
 		$links = [];

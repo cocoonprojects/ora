@@ -43,40 +43,6 @@ class TasksControllerTest extends ControllerTest {
 		$this->stream->setOrganization($this->organization);
 	}
 	
-	public function testCreateTaskInEmptyStream()
-	{
-		$this->setupLoggedUser($this->user);
-
-		$this->controller->getOrganizationService()
-			->expects($this->once())
-			->method('findOrganization')
-			->with($this->organization->getId())
-			->willReturn($this->organization);
-
-		$this->controller->getTaskService()
-			->expects($this->once())
-			->method('findStreamTasks')
-			->with('1')
-			->willReturn([]);
-
-		$this->request->setMethod('get');
-		$params = $this->request->getQuery();
-		$params->set('streamID', '1');
-		
-		$this->routeMatch->setParam('orgId', $this->organization->getId());
-		
-		$result   = $this->controller->dispatch($this->request);
-		$response = $this->controller->getResponse();
-	
-		$arrayResult = json_decode($result->serialize(), true);
-	
-		$this->assertEquals(200, $response->getStatusCode());
-		$this->assertArrayHasKey('_embedded', $arrayResult);
-		$this->assertArrayHasKey('ora:task', $arrayResult['_embedded']);
-		$this->assertArrayHasKey('_links', $arrayResult);
-		$this->assertArrayHasKey('ora:create', $arrayResult['_links']);
-	}
-	
 	public function testGetEmptyListFromAStream()
 	{
 		$this->user->addMembership($this->organization);
@@ -202,7 +168,7 @@ class TasksControllerTest extends ControllerTest {
 	{
 		$this->setupLoggedUser($this->user);
 
-		$this->organizationServiceStub
+		$this->controller->getOrganizationService()
 			->expects($this->once())
 			->method('findOrganization')
 			->with($this->organization->getId())

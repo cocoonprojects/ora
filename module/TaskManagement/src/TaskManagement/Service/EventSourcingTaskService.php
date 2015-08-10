@@ -57,7 +57,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->orderBy('t.mostRecentEditAt', 'DESC')
 			->setParameter(':organization', $organization)
 			->getQuery();
-		return $query->getArrayResult();
+		return $query->getResult();
 	}
 	
 	public function findTask($id) {
