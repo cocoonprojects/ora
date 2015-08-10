@@ -1,6 +1,9 @@
 <?php
 namespace Accounting\View;
 
+use Application\Entity\User;
+use People\Entity\Organization;
+use Zend\Permissions\Acl\Acl;
 use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
 use Accounting\Entity\Account;
@@ -9,15 +12,26 @@ use Zend\Mvc\Controller\Plugin\Url;
 
 class AccountsJsonModel extends StatementJsonModel
 {
+	private $organization;
+
+	public function __construct(Url $url, User $user, Acl $acl, Organization $organization)
+	{
+		parent::__construct($url, $user, $acl);
+		$this->organization = $organization;
+	}
+
 	public function serialize()
 	{
 		$resource = $this->getVariable('resource');
 		if(is_array($resource)) {
-			$representation['accounts'] = array_map(array($this, 'serializeOne'), $resource);
+			$hal['_links']['self']['href'] = $this->url->fromRoute('accounts', ['orgId' => $this->organization->getId()]);
+			$hal['_embedded']['ora:account'] = array_map(array($this, 'serializeOne'), $resource);
+			$hal['count'] = count($resource);
+			$hal['total'] = count($resource);
 		} else {
-			$representation = $this->serializeOne($resource);
+			$hal = $this->serializeOne($resource);
 		}
-		return Json::encode($representation);
+		return Json::encode($hal);
 	}
 	
 	protected function serializeOne(Account $account) {
@@ -32,13 +46,15 @@ class AccountsJsonModel extends StatementJsonModel
 	
 	protected function serializeLinks($account) {
 		$rv['self'] = $this->url->fromRoute('accounts', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId()]);
-		if($this->acl->isAllowed($this->user, $account, 'Accounting.Account.statement')){		 
-			$rv['statement'] = $this->url->fromRoute('accounts', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => 'statement']);
+		if($this->acl->isAllowed($this->user, $account, 'Accounting.Account.statement')) {
+			$rv['ora:statement']['href'] = $this->url->fromRoute('accounts', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => 'statement']);
 		}
-		if($this->acl->isAllowed($this->user, $account, 'Accounting.Account.deposit')){
-			$rv['deposits'] = $this->url->fromRoute('accounts', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => 'deposits']);
+		if($this->acl->isAllowed($this->user, $account, 'Accounting.Account.deposit')) {
+			$rv['ora:deposit']['href'] = $this->url->fromRoute('accounts', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => 'deposits']);
+		}
+		if($this->acl->isAllowed($this->user, $account, 'Accounting.Account.withdraw')) {
+			$rv['ora:withdraw']['href'] = $this->url->fromRoute('accounts', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => 'withdrawals']);
 		}
 		return $rv;
 	}
-	
 }

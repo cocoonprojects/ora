@@ -50,7 +50,7 @@ class MembersControllerTest extends ControllerTest
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 		
-		$this->assertEquals(404, $response->getStatusCode());
+		$this->assertEquals(400, $response->getStatusCode());
 	}
 
 	public function testGetListWithWrongOrganizationId()
@@ -100,7 +100,7 @@ class MembersControllerTest extends ControllerTest
 		$organization = new ReadModelOrganization('1');
 		$user = User::create();
 		$user->setRole(User::ROLE_USER);
-		$user->addOrganizationMembership(new OrganizationMembership($user, $organization));
+		$user->addMembership($organization);
 		$this->setupLoggedUser($user);
 				
 		$this->controller->getOrganizationService()
@@ -138,7 +138,7 @@ class MembersControllerTest extends ControllerTest
 		$user->setRole(User::ROLE_USER);
 		$memberships[] = new OrganizationMembership($user, $organization);
 		
-		$user->addOrganizationMembership($memberships[0]);
+		$user->addMembership($organization);
 		$this->setupLoggedUser($user);
 		
 		$this->controller->getOrganizationService()

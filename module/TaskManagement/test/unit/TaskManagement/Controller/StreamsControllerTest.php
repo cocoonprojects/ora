@@ -1,17 +1,13 @@
 <?php
 namespace TaskManagement\Controller;
 
-use ZFX\Test\Controller\ControllerTest;
-use Rhumsaa\Uuid\Uuid;
 use Application\Entity\User;
-use People\Entity\OrganizationMembership;
 use People\Entity\Organization as ReadModelOrganization;
 use People\Organization;
 use People\Service\OrganizationService;
 use TaskManagement\Service\StreamService;
-use TaskManagement\Task;
 use TaskManagement\Stream;
-use People\Entity\People\Entity;
+use ZFX\Test\Controller\ControllerTest;
 
 class StreamsControllerTest extends ControllerTest
 {
@@ -39,8 +35,7 @@ class StreamsControllerTest extends ControllerTest
 		$user->setRole(User::ROLE_USER);
 		
 		$this->organization = new ReadModelOrganization('00000000');
-		$orgMembership = new OrganizationMembership($user, $this->organization);
-		$user->addOrganizationMembership($orgMembership);
+		$user->addMembership($this->organization);
 		
 		$this->setupLoggedUser($user);
 	}
@@ -143,7 +138,7 @@ class StreamsControllerTest extends ControllerTest
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 		 
-		$this->assertEquals(404, $response->getStatusCode());
+		$this->assertEquals(400, $response->getStatusCode());
 	}
 
 	public function testCreateStreamAsAnonymous() {

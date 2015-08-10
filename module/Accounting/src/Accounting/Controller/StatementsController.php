@@ -28,12 +28,18 @@ class StatementsController extends HATEOASRestfulController
 
 	public function get($id)
 	{
+		if(is_null($this->identity())) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+		$identity = $this->identity()['user'];
+
 		$account = $this->accountService->findAccount($id);
 		if(is_null($account)) {
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-		$identity = $this->identity()['user'];
+
 		$viewModel = new StatementJsonModel($this->url(), $identity, $this->acl);
 		$viewModel->setVariable('resource', $account);
 		return $viewModel;

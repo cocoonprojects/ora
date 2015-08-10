@@ -87,11 +87,13 @@ Accounting.prototype = {
 		{
 			var container = $('#accounts');
 			container.empty();
-						
-			$.each(json.accounts, function(key, account) {
+
+			$.each(json._embedded['ora:account'], function(key, account) {
 				s = account.organization == undefined ? 'My account' : account.organization + ' account';
-				if(account._links.statement){
-					container.append('<li role="presentation"><a href="' + account._links.statement + '">' + s + '</a></li>');	
+				if(account._links['ora:statement'] != undefined){
+					container.append('<li role="presentation"><a href="' + account._links['ora:statement'].href + '">' + s + '</a></li>');
+				} else {
+					container.append('<li role="presentation">' + s + '</li>');
 				}
 			});
 		},
@@ -104,8 +106,8 @@ Accounting.prototype = {
 			p = container.find('p');
 			p.html('<span class="text-primary">' + json.balance.value + ' credits</span> at ' + balanceDate.toLocaleString());
 			var features = '';
-			if(json._links.deposits != undefined) {
-				features += '<li><a href="#" data-href="' + json._links.deposits + '" class="btn btn-default" data-toggle="modal" data-target="#depositModal">Deposit</a></li>';
+			if(json._links['ora:deposit'] != undefined) {
+				features += '<li><a href="#" data-href="' + json._links['ora:deposit'].href + '" class="btn btn-default" data-toggle="modal" data-target="#depositModal">Deposit</a></li>';
 			}
 			p.append('<ul role="menu" style="margin-left:0; padding-left:0; list-style: none">' + features + '</ul>');
 

@@ -31,14 +31,15 @@ class AclFactory implements FactoryInterface
 		$acl->addRole(User::ROLE_SYSTEM);
 
 		$acl->addResource('Ora\Organization');
-		$acl->allow(User::ROLE_USER, 'Ora\Organization', array('People.Organization.userList', 'TaskManagement.Task.list', 'TaskManagement.Stream.list', 'Accounting.Accounts.list'), new MemberOfOrganizationAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\Organization', ['People.Organization.userList', 'TaskManagement.Task.list', 'TaskManagement.Stream.list', 'Accounting.Accounts.list'], new MemberOfOrganizationAssertion());
 		
 		$acl->addResource('Ora\Account');
 		$acl->addResource('Ora\OrganizationAccount');
 		$acl->allow(User::ROLE_USER, 'Ora\Account','Accounting.Account.statement', new AccountHolderAssertion()); 
 		$acl->allow(User::ROLE_USER, 'Ora\OrganizationAccount','Accounting.Account.statement', new MemberOfOrganizationOrAccountHolderAssertion());
-		$acl->allow(User::ROLE_USER, "Ora\OrganizationAccount",'Accounting.Account.deposit', new AccountHolderAssertion()); 
-		
+		$acl->allow(User::ROLE_USER, 'Ora\OrganizationAccount','Accounting.Account.deposit', new AccountHolderAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\Account','Accounting.Account.withdraw', new AccountHolderAssertion());
+
 		$acl->addResource('Ora\Task');
 		$acl->allow(User::ROLE_USER, null, 'TaskManagement.Task.create');
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.showDetails', new \TaskManagement\Assertion\MemberOfOrganizationAssertion());

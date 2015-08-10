@@ -14,6 +14,6 @@ class OrganizationAccount extends Account {
 	}
 
 	public function getResourceId(){
-		return "Ora\OrganizationAccount";
+		return 'Ora\OrganizationAccount';
 	}
 }

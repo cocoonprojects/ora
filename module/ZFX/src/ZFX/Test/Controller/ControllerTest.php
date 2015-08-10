@@ -30,10 +30,15 @@ abstract class ControllerTest extends \PHPUnit_Framework_TestCase
 	 * @var MvcEvent
 	 */
 	protected $event;
+
+	protected $acl;
 	
 	protected function setUp()
 	{
 		$serviceManager = Bootstrap::getServiceManager();
+		$aclFactory = new AclFactory();
+		$this->acl = $aclFactory->createService($serviceManager);
+
 		$this->controller = $this->setupController();
 		$this->request	= new Request();
 		$this->routeMatch = new RouteMatch($this->setupRouteMatch());
@@ -52,10 +57,7 @@ abstract class ControllerTest extends \PHPUnit_Framework_TestCase
 			->setMethods(['begin', 'commit', 'rollback'])
 			->getMock();
 		$this->controller->getPluginManager()->setService('transaction', $transaction);
-
-		$aclFactory = new AclFactory();
-		$acl = $aclFactory->createService($serviceManager);
-		$this->controller->getPluginManager()->setService('isAllowed', new IsAllowed($acl));
+		$this->controller->getPluginManager()->setService('isAllowed', new IsAllowed($this->acl));
 
 		$this->setupMore();
 	}

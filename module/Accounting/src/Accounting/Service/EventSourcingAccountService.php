@@ -78,6 +78,7 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	/**
 	 * @param string|Uuid
 	 * @return null|object
+	 * @codeCoverageIgnore
 	 */
 	public function getAccount($id) {
 		$aId = $id instanceof Uuid ? $id->toString() : $id;
@@ -100,6 +101,7 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	/**
 	 * @param string
 	 * @return null|object
+	 * @codeCoverageIgnore
 	 */
 	public function findAccount($id) {
 		return $this->entityManager->getRepository(ReadModelAccount::class)->find($id);
@@ -111,6 +113,7 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	 * @return Account
 	 * @throws \Doctrine\ORM\NoResultException
 	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 * @codeCoverageIgnore
 	 */
 	public function findPersonalAccount($user, $organization) {
 		$builder = $this->entityManager->createQueryBuilder();
@@ -127,6 +130,7 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	/**
 	 * @param Organization|string $organization
 	 * @return null|object
+	 * @codeCoverageIgnore
 	 */
 	public function findOrganizationAccount($organization) {
 		return $this->entityManager->getRepository(ReadModelOrgAccount::class)->findOneBy(array('organization' => $organization));

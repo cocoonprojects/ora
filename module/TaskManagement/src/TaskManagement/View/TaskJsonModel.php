@@ -6,7 +6,6 @@ use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
 use Zend\Permissions\Acl\Acl;
 use TaskManagement\Entity\Task;
-use TaskManagement\Entity\Estimation;
 use TaskManagement\Entity\TaskMember;
 use Zend\Mvc\Controller\Plugin\Url;
 use Application\Entity\User;
@@ -23,19 +22,16 @@ class TaskJsonModel extends JsonModel
 	 * @var User
 	 */
 	private $user;
-	
 	/**
 	 * 
 	 * @var Acl
 	 */
 	private $acl;
-	
 	/**
-	 *
 	 * @var Organization
 	 */
 	private $organization;
-	
+
 	public function __construct(Url $url, User $user, Acl $acl, Organization $organization) {
 		$this->url = $url;
 		$this->user = $user;
@@ -48,21 +44,19 @@ class TaskJsonModel extends JsonModel
 		$resource = $this->getVariable('resource');
 		
 		if(is_array($resource)) {
-			$hal['_links']['self']['href'] = $this->url->fromRoute('tasks', ['orgId'=>$this->organization->getId()]);
+			$hal['_links']['self']['href'] = $this->url->fromRoute('tasks', ['orgId' => $this->organization->getId()]);
 			$hal['_embedded']['ora:task'] = array_map(array($this, 'serializeOne'), $resource);
 			$hal['count'] = count($resource);
 			$hal['total'] = count($resource);
-		} else {			
+		} else {
 			$hal = $this->serializeOne($resource);
 		}
 		if ($this->acl->isAllowed($this->user, NULL, 'TaskManagement.Task.create')) {
-			$hal['_links']['ora:create']['href'] = $this->url->fromRoute('tasks', ['orgId'=>$this->organization->getId()]);
+			$hal['_links']['ora:create']['href'] = $this->url->fromRoute('tasks', ['orgId' => $this->organization->getId()]);
 		}
-			
-		return Json::encode($hal);		
+		return Json::encode($hal);
 	}
 
-	//protected function serializeOne(Task $task, Organization $organization) {
 	protected function serializeOne(Task $task) {
 		
 		$links = [];

@@ -48,8 +48,10 @@
 					<span class="icon-bar"></span> <span class="icon-bar"></span> <span
 						class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="<?php echo $this->url('home') ?>"><span
-					id="organization_name"><?php echo is_null($this->organization) ? 'O.R.A.' : $this->translate($this->organization->getName());?></span></a>
+				<?php if($this->organization) { ?><a class="navbar-brand" href="<?php echo $this->url('home') ?>"><span class="mdi-navigation-chevron-left"></span></a><?php } ?>
+				<p class="navbar-text"><span id="organization_name">
+					<?php echo is_null($this->organization) ? 'O.R.A.' : $this->translate($this->organization->getName());?>
+				</span></p>
 			</div>
 			
 			<div class="collapse navbar-collapse">

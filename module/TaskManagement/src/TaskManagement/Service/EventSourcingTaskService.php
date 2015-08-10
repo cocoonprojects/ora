@@ -12,6 +12,7 @@ use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Rhumsaa\Uuid\Uuid;
 use TaskManagement\Task;
 use TaskManagement\Entity\Task as ReadModelTask;
+use TaskManagement\Entity\Stream as ReadModelStream;
 
 class EventSourcingTaskService extends AggregateRepository implements TaskService
 {
@@ -42,21 +43,21 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		$task = $this->getAggregateRoot($tId);
 		return $task;
 	}
-	
+
 	/**
-	 *
-	 * @see \TaskManagement\Service\TaskService::findTasks()
+	 * @param Organization $organization
+	 * @return Task[]
 	 */
-	public function findTasks(Organization $organization) {
-		$builder = $this->entityManager->createQueryBuilder ();
-		$query = $builder->select ( 't' )
-		->from ( ReadModelTask::class, 't' )
-		->innerjoin ( 't.stream', 's', 'WITH', 's.organization = :organization')
-		->orderBy ( 't.mostRecentEditAt', 'DESC' )
-		->setParameter ( ':organization', $organization )
-		->getQuery ();
-		
-		return $query->getResult ();
+	public function findTasks(Organization $organization)
+	{
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('t')
+			->from(ReadModelTask::class, 't')
+			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
+			->orderBy('t.mostRecentEditAt', 'DESC')
+			->setParameter(':organization', $organization)
+			->getQuery();
+		return $query->getResult();
 	}
 	
 	public function findTask($id) {
@@ -64,8 +65,8 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	}
 	
 	public function findStreamTasks($streamId) {
-		$repository = $this->entityManager->getRepository(ReadModelTask::class)->findBy(array('stream' => $streamId));
-		return $repository;
+		$repository = $this->entityManager->getRepository(ReadModelTask::class);
+		return $repository->findBy(array('stream' => $streamId));
 	}
 	
 	/**
@@ -82,8 +83,8 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->andWhere('t.status = :taskStatus')
 			->setParameter('taskStatus', Task::STATUS_ACCEPTED)
 			->setParameter('referenceDate', $referenceDate->format('Y-m-d H:i:s'))
-			->getQuery();			
+			->getQuery();
 		
-		return $query->getResult();		
+		return $query->getResult();
 	}
 }

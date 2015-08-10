@@ -31,14 +31,12 @@ class AccountsController extends OrganizationAwareController
 		$this->acl = $acl;
 	}
 	
-	// Gets my credits accounts list
 	public function getList()
 	{
 		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		
 		$identity = $this->identity()['user'];
 		
 		if(!$this->isAllowed($identity, $this->organization, 'Accounting.Accounts.list')){
@@ -48,7 +46,7 @@ class AccountsController extends OrganizationAwareController
 		
 		$accounts = $this->accountService->findAccounts($identity, $this->organization);
 		
-		$viewModel = new AccountsJsonModel($this->url(), $identity, $this->acl);
+		$viewModel = new AccountsJsonModel($this->url(), $identity, $this->acl, $this->organization);
 		$viewModel->setVariable('resource', $accounts);
 		return $viewModel;
 	}
@@ -59,16 +57,20 @@ class AccountsController extends OrganizationAwareController
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		
 		$identity = $this->identity()['user'];
+
 		$rv = $this->accountService->findAccount($id);
 		if(is_null($rv)) {
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-		$viewModel = new AccountsJsonModel($this->url(), $identity, $this->acl);
+		$viewModel = new AccountsJsonModel($this->url(), $identity, $this->acl, $this->organization);
 		$viewModel->setVariable('resource', $rv);
 		return $viewModel;
+	}
+
+	public function getAccountService() {
+		return $this->accountService;
 	}
 	
 	protected function getCollectionOptions() {

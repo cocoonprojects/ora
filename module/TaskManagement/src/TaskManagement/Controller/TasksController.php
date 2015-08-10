@@ -1,24 +1,19 @@
 <?php
 namespace TaskManagement\Controller;
 
-use Zend\Authentication\AuthenticationServiceInterface;
-use Zend\EventManager\EventManagerInterface;
-use Zend\Permissions\Acl\Acl;
+use Application\Controller\OrganizationAwareController;
+use Application\IllegalStateException;
+use People\Service\OrganizationService;
+use TaskManagement\Service\StreamService;
+use TaskManagement\Service\TaskService;
+use TaskManagement\Task;
+use TaskManagement\View\TaskJsonModel;
 use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
-use Zend\Mvc\MvcEvent;
+use Zend\Permissions\Acl\Acl;
 use Zend\Validator\NotEmpty;
-use Application\IllegalStateException;
-use Application\InvalidArgumentException;
-use Accounting\Service\AccountService;
-use TaskManagement\Task;
-use TaskManagement\View\TaskJsonModel;
-use TaskManagement\Service\TaskService;
-use TaskManagement\Service\StreamService;
-use Application\Controller\OrganizationAwareController;
-use People\Service\OrganizationService;
 
 class TasksController extends OrganizationAwareController
 {
@@ -49,10 +44,11 @@ class TasksController extends OrganizationAwareController
 	{
 		parent::__construct($organizationService);
 		$this->taskService = $taskService;
-		$this->streamService = $streamService;		
+		$this->streamService = $streamService;
 		$this->acl = $acl;
 		$this->intervalForCloseTasks = new \DateInterval('P7D');
 	}
+	
 	public function get($id)
 	{
 		if(is_null($this->identity())) {
@@ -79,7 +75,6 @@ class TasksController extends OrganizationAwareController
 	 * @method GET
 	 * @link http://oraproject/task-management/tasks?streamID=[uuid]
 	 * @return TaskJsonModel
-	 * @author Giannotti Fabio
 	 */
 	public function getList()
 	{
@@ -99,7 +94,7 @@ class TasksController extends OrganizationAwareController
 		
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization) : $this->taskService->findStreamTasks($streamID);
 				
-		$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl, $this->organization);
+		$view = new TaskJsonModel($this->url(), $identity, $this->acl, $this->organization);
 		$view->setVariable('resource', $availableTasks);
 		
 		return $view;
@@ -112,7 +107,6 @@ class TasksController extends OrganizationAwareController
 	 * @param array $data['streamID'] Parent stream ID of the new task
 	 * @param array $data['subject'] Task subject
 	 * @return HTTPStatusCode
-	 * @author Giannotti Fabio
 	 */
 	public function create($data)
 	{
@@ -243,7 +237,7 @@ class TasksController extends OrganizationAwareController
 			$this->response->setStatusCode(200);
 		} catch (IllegalStateException $e) {
 			$this->transaction()->rollback();
-			$this->response->setStatusCode(412);	// Preconditions failed			
+			$this->response->setStatusCode(412);	// Preconditions failed
 		}
 		return $this->response;
 	}

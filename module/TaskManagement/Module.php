@@ -34,6 +34,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$streamService = $locator->get('TaskManagement\StreamService');
+					$organizationService = $locator->get('People\OrganizationService');
 					$acl = $locator->get('Application\Service\Acl');
 					$organizationService = $locator->get('People\OrganizationService');
 					$controller = new TasksController($taskService, $streamService, $acl, $organizationService);

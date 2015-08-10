@@ -3,6 +3,7 @@ namespace Application;
 
 use Application\Authentication\OAuth2\LoadLocalProfileListener;
 use Application\Controller\AuthController;
+use Application\Controller\IndexController;
 use Application\Controller\MembershipsController;
 use Application\Service\DomainEventDispatcher;
 use Application\Service\EventSourcingUserService;
@@ -49,7 +50,7 @@ class Module
 	{
 		return array(
 			'invokables' => array(
-				'Application\Controller\Index' => 'Application\Controller\IndexController',
+				'Application\Controller\Index' => 'Application\Controller\IndexController'
 			),
 			'factories' => array(
 				'Application\Controller\Auth'  => function ($sm) {
@@ -64,7 +65,7 @@ class Module
 					$orgService = $locator->get('People\OrganizationService');
 					$controller = new MembershipsController($orgService);
 					return $controller;
-				}
+				},
 			)
 		);
 	}
