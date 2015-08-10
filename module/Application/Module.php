@@ -16,6 +16,7 @@ use Zend\Authentication\Storage\NonPersistent;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 use ZFX\Acl\Controller\Plugin\IsAllowed;
+use ZFX\Authentication\GoogleJWTAdapter;
 use ZFX\Authentication\JWTAdapter;
 use ZFX\Authentication\JWTBuilder;
 use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
@@ -46,6 +47,13 @@ class Module
 			if($token = $request->getHeaders('ORA-JWT')) {
 				$builder = $serviceManager->get('Application\JWTBuilder');
 				$adapter = new JWTAdapter($builder);
+				$adapter->setToken($token->getFieldValue());
+
+				$authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
+				$result = $authService->authenticate($adapter);
+			} elseif($token = $request->getHeaders('GOOGLE-JWT')) {
+				$client = $serviceManager->get('Application\Service\GoogleAPIClient');
+				$adapter = new GoogleJWTAdapter($client);
 				$adapter->setToken($token->getFieldValue());
 
 				$authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
@@ -117,7 +125,24 @@ class Module
 				},
 				'Application\LoadLocalProfileListener' => function($serviceLocator) {
 					$userService = $serviceLocator->get('Application\UserService');
-					return new LoadLocalProfileListener($userService);
+					$google = $serviceLocator->get('Application\Service\GoogleAPIClient');
+					return new LoadLocalProfileListener($userService, $google);
+				},
+				'Application\Service\GoogleAPIClient' => function ($serviceLocator) {
+					$config = $serviceLocator->get('Config');
+					if(!isset($config['zendoauth2'])) {
+						throw new \Exception('ZendOAuth2 config not found');
+					}
+					if(!isset($config['zendoauth2']['google'])) {
+						throw new \Exception('ZendOAuth2/Google config not found');
+					}
+					$googleConfig = $config['zendoauth2']['google'];
+					$rv = new \Google_Client();
+					$rv->setClientId($googleConfig['client_id']);
+					$rv->setClientSecret($googleConfig['client_secret']);
+					$rv->setRedirectUri($googleConfig['redirect_uri']);
+					$rv->setApplicationName('O.R.A. Platform');
+					return $rv;
 				},
 				'Application\JWTBuilder' => function($serviceLocator) {
 					$config = $serviceLocator->get('Config');

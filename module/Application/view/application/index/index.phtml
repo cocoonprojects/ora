@@ -1,3 +1,14 @@
+<?php $this->headMeta()
+	->appendName('google-signin-scope', 'profile email')
+	->appendName('google-signin-client_id', $this->providers['google']->getOptions()->getClientId()); ?>
+<?php
+$this->headScript()->setAllowArbitraryAttributes(true);
+$this->headScript()
+	->appendFile('https://apis.google.com/js/platform.js', 'text/javascript', [
+		'async' => 'async',
+		'defer' => 'defer'
+	]); ?>
+
 <div class="container">
 
 	<div class="row" style="margin-top: 40px">
@@ -16,13 +27,30 @@
 		</div>
 	<?php }?>
 	
-	<?php
-	
-echo $this->partial ( 'layout/organizations-box.phtml', array (
-			'identity' => is_null ( $this->identity () ) ? null : $this->identity ()['user'] 
-	) );
-	?>
-	
-	
+	<?= $this->partial('layout/organizations-box.phtml')?>
 	</div>
+	<div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark"></div>
+	<script>
+		function onSignIn(googleUser) {
+			var id_token = googleUser.getAuthResponse().id_token;
+			console.log("ID Token: " + id_token);
+
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', 'http://oraproject.org/auth/google');
+			xhr.setRequestHeader('GOOGLE-JWT', id_token);
+			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+			xhr.onload = function() {
+				console.log('Signed in as: ' + xhr.responseText);
+			};
+			xhr.send('idtoken=' + id_token);
+
+			// Useful data for your client-side scripts:
+			var profile = googleUser.getBasicProfile();
+			console.log("ID: " + profile.getId()); // Don't send this directly to your server!
+			console.log("Name: " + profile.getName());
+			console.log("Image URL: " + profile.getImageUrl());
+			console.log("Email: " + profile.getEmail());
+		};
+	</script>
+</span>
 </div>

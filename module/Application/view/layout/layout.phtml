@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 		<?php echo is_null($this->organization) ? $this->headTitle('O.R.A.') : $this->headTitle($this->translate($this->organization->getName()));?>
 
-		<?php echo $this->headMeta()
-			->appendName('viewport', 'width=device-width, initial-scale=1.0')
-			->appendHttpEquiv('X-UA-Compatible', 'IE=edge')
-		?>
+<?php echo $this->headMeta()
+	->appendName('viewport', 'width=device-width, initial-scale=1.0')
+	->appendHttpEquiv('X-UA-Compatible', 'IE=edge')
+?>
 
-		<!-- Le styles -->
-		<?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))
-						->prependStylesheet($this->basePath() . '/css/style.css')
-						->prependStylesheet($this->basePath() . '/css/bootstrap-social.css')
-						->prependStylesheet($this->basePath() . '/css/material-wfont.min.css')
-						->prependStylesheet($this->basePath() . '/css/ripples.min.css')
-						->prependStylesheet('//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css')
-						->prependStylesheet('//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css') ?>
+<!-- Le styles -->
+<?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))
+				->prependStylesheet($this->basePath() . '/css/style.css')
+				->prependStylesheet($this->basePath() . '/css/bootstrap-social.css')
+				->prependStylesheet($this->basePath() . '/css/material-wfont.min.css')
+				->prependStylesheet($this->basePath() . '/css/ripples.min.css')
+				->prependStylesheet('//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css')
+				->prependStylesheet('//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css') ?>
 
 		<!-- Scripts -->
 		<?php if($this->identity() != null) {
@@ -37,7 +37,6 @@
 				$.material.init();
 			});
 		</script>
-<<<<<<< HEAD
 </head>
 
 <body>

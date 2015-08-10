@@ -1,6 +1,14 @@
 <?php if($this->identity()) {?>
 	<ul class="nav navbar-nav navbar-right">
-		<li><a href="<?php echo $this->basePath().'/auth/logout'?>">Logout</a></li>
+		<li><a href="#" onclick="signOut();">Logout</a></li>
+		<script>
+			function signOut() {
+				var auth2 = gapi.auth2.getAuthInstance();
+				auth2.signOut().then(function () {
+					console.log('User signed out.');
+				});
+			}
+		</script>
 	</ul>
 	<ul class="nav navbar-nav navbar-right">
 		<li>

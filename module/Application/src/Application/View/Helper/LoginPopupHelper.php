@@ -19,7 +19,7 @@ class LoginPopupHelper extends AbstractHelper implements ServiceLocatorAwareInte
 		if(!$authService->hasIdentity())
 		{
 			$output = '<div id="loginModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-					<div class="modal-dialog" style="width: 20%; margin-left: 40%">
+					<div class="modal-dialog">
 						<div class="modal-content">
 							<div class="modal-header">
 								<button type="button" class="close" data-dismiss="modal">
@@ -54,10 +54,10 @@ class LoginPopupHelper extends AbstractHelper implements ServiceLocatorAwareInte
 			$output .="</div>
 		            </div><!-- /.modal-content -->
 		          </div><!-- /.modal-dialog -->
-		        </div><!-- /.modal -->";			
+		        </div><!-- /.modal -->";
 			
-			return $output;		
-		}		
+			return $output;
+		}
 	}
 	
 	public function setServiceLocator(ServiceLocatorInterface $helperPluginManager)

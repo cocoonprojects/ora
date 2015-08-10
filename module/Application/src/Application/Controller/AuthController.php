@@ -10,6 +10,11 @@ use Zend\Session\Container;
 use Zend\View\Model\JsonModel;
 use ZFX\Authentication\JWTBuilder;
 
+/**
+ * Class AuthController
+ * @package Application\Controller
+ * @deprecated
+ */
 class AuthController extends AbstractActionController
 {
 	/**
@@ -32,7 +37,7 @@ class AuthController extends AbstractActionController
 		$this->adapterResolver = $adapterResolver;
 		$this->builder = $builder;
 	}
-		
+
 	public function loginAction()
 	{
 		$json = new JsonModel();

@@ -5,32 +5,31 @@ namespace ZFX\Authentication;
 
 use Zend\Authentication\Adapter\AdapterInterface;
 use Zend\Authentication\Result;
-use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
 
-class JWTAdapter implements AdapterInterface, EventManagerAwareInterface
+class GoogleJWTAdapter implements AdapterInterface, EventManagerAwareInterface
 {
 	/**
 	 * @var string
 	 */
 	private $token;
 	/**
-	 * @var JWTBuilder
+	 * @var \Google_Client
 	 */
-	private $parser;
+	private $client;
 	/**
 	 * @var EventManagerInterface
 	 */
 	protected $eventManager;
 
 	/**
-	 * JWTAdapter constructor.
-	 * @param JWTBuilder $parser
+	 * GoogleSignInAdapter constructor.
+	 * @param \Google_Client $client
 	 */
-	public function __construct(JWTBuilder $parser)
+	public function __construct(\Google_Client $client)
 	{
-		$this->parser = $parser;
+		$this->client = $client;
 	}
 
 	/**
@@ -40,6 +39,7 @@ class JWTAdapter implements AdapterInterface, EventManagerAwareInterface
 	{
 		$this->token = $token;
 	}
+
 	/**
 	 * Performs an authentication attempt
 	 *
@@ -48,19 +48,26 @@ class JWTAdapter implements AdapterInterface, EventManagerAwareInterface
 	 */
 	public function authenticate()
 	{
-		$payload = $this->parser->parsePayload($this->token);
-		if(is_null($payload)) {
-			return new Result(Result::FAILURE_CREDENTIAL_INVALID, null); // Expired token or broken sign
+		try {
+			$ticket = $this->client->verifyIdToken($this->token);
+			if($ticket) {
+				$data = $ticket->getAttributes();
+				$args['code']     = Result::SUCCESS;
+				$args['info']     = $data['payload'];
+				$args['token']    = $this->token;
+				$args['provider'] = 'google';
+
+				var_dump($args['info']);
+				die();
+
+				$args = $this->getEventManager()->prepareArgs($args);
+				$this->getEventManager()->trigger('google-jwt.success', $this, $args);
+				return new Result($args['code'], $args['info']);
+			}
+			return new Result(Result::FAILURE, null);
+		} catch (\Google_Auth_Exception $e) {
+			return new Result(Result::FAILURE_CREDENTIAL_INVALID, null, $e->getMessage()); // Expired token or broken sign
 		}
-		$args['code']     = Result::SUCCESS;
-		$args['info']     = $payload;
-		$args['token']    = $this->token;
-		$args['provider'] = 'jwt';
-
-		$args = $this->getEventManager()->prepareArgs($args);
-		$this->getEventManager()->trigger('jwt.success', $this, $args);
-
-		return new Result($args['code'], $args['info']);
 	}
 
 	/**
@@ -93,4 +100,5 @@ class JWTAdapter implements AdapterInterface, EventManagerAwareInterface
 		}
 		return $this->eventManager;
 	}
+
 }
