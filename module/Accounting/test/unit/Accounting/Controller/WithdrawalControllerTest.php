@@ -13,7 +13,7 @@ use ZFX\Test\Controller\ControllerTest;
  * @package Accounting\Controller
  * @group accounting
  */
-class DepositsControllerTest extends ControllerTest
+class WithdrawalControllerTest extends ControllerTest
 {
 	/**
 	 * @var Account
@@ -41,13 +41,13 @@ class DepositsControllerTest extends ControllerTest
 			->with($this->account->getId())
 			->willReturn($this->account);
 
-		return new DepositsController($accountService);
+		return new WithdrawalsController($accountService);
 	}
 	
 	protected function setupRouteMatch()
 	{
 		return [
-			'controller' => 'deposits',
+			'controller' => 'withdrawals',
 			'id'         => $this->account->getId()
 		];
 	}

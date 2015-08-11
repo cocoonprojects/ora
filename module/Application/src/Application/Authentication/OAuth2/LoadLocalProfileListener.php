@@ -78,6 +78,5 @@ class LoadLocalProfileListener implements ListenerAggregateInterface {
 		}
 
 		$args['info']['user'] = $user;
-		$args['info']['provider'] = $args['provider'];
 	}
 }

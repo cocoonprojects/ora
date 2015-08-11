@@ -14,23 +14,36 @@ return array(
 					'defaults' => array(
 						'controller' => 'Accounting\Controller\Index',
 						'action'	 => 'index',
-					),					
+					),
 				),
 			),
-			'accounts' => array (
+			'accounts' => [
 				'type'	  => 'segment',
-				'options' => array (
-					'route'		  => '/:orgId/accounting/accounts[/:id][/:controller]',
-					'constraints' => array (
-						'id'	 => '[0-9a-z\-]+',
+				'options' => [
+					'route'       => '/:orgId/accounting/accounts[/:id][/:controller]',
+					'constraints' => [
+						'id'    => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
 						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
-					),
-					'defaults'	  => array (
+					],
+					'defaults'	  => [
 						'__NAMESPACE__' => 'Accounting\Controller',
-						'controller' => 'Accounts',
-					),
-				),
-			),
+						'controller'    => 'Accounts',
+					]
+				]
+			],
+			'statements' => [
+				'type'    => 'Segment',
+				'options' => [
+					'route'       => '/:orgId/accounting/:controller',
+					'constraints' => [
+						'orgId'      => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+						'controller' => 'personal-statement|organization-statement'
+					],
+					'defaults'    => [
+						'__NAMESPACE__' => 'Accounting\Controller'
+					]
+				]
+			]
 		),
 	),
 	'view_manager' => array(
