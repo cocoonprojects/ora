@@ -2,25 +2,27 @@
 namespace Accounting\Controller;
 
 use Accounting\Entity\OrganizationAccount;
-use Accounting\Entity\PersonalAccount;
 use Accounting\Service\AccountService;
 use Application\Entity\User;
-use Application\Service\UserService;
 use People\Entity\Organization;
 use People\Service\OrganizationService;
 use ZFX\Test\Controller\ControllerTest;
 
 /**
- * Class AccountsControllerTest
+ * Class OrganizationAccountControllerTest
  * @package Accounting\Controller
  * @group accounting
  */
-class AccountsControllerTest extends ControllerTest
+class OrganizationStatementControllerTest extends ControllerTest
 {
 	/**
 	 * @var Organization
 	 */
 	protected $organization;
+	/**
+	 * @var OrganizationAccount
+	 */
+	protected $account;
 	/**
 	 * @var User
 	 */
@@ -29,38 +31,29 @@ class AccountsControllerTest extends ControllerTest
 	protected function setupController()
 	{
 		$this->user = User::create();
-		$this->user->setEmail('john.doe@foo.com');
-
-		$userService = $this->getMockBuilder(UserService::class)->getMock();
-		$userService
-			->expects($this->any())
-			->method('findUserByEmail')
-			->with($this->user->getEmail())
-			->willReturn($this->user);
 
 		$this->organization = new Organization('1');
+		$this->organization->setName('Lorem ipsum dolor sit amet');
+
+		$this->account = new OrganizationAccount('2', $this->organization);
+
+		$accountService = $this->getMockBuilder(AccountService::class)->getMock();
+		$accountService
+			->method('findOrganizationAccount')
+			->with($this->organization)
+			->willReturn($this->account);
+
 		$orgServiceStub = $this->getMockBuilder(OrganizationService::class)->getMock();
 		$orgServiceStub
 			->method('findOrganization')
 			->willReturn($this->organization);
-
-		$account = new PersonalAccount('1', $this->organization);
-		$account->addHolder($this->user);
-
-		$accountService = $this->getMockBuilder(AccountService::class)->getMock();
-		$accountService
-			->expects($this->any())
-			->method('findPersonalAccount')
-			->with($this->user, $this->organization)
-			->willReturn($account);
-
-		return new AccountsController($accountService, $userService, $this->acl, $orgServiceStub);
+		return new OrganizationStatementController($accountService, $this->acl, $orgServiceStub);
 	}
 	
 	protected function setupRouteMatch()
 	{
 		return [
-			'controller' => 'accounts',
+			'controller' => 'organization-statement',
 			'orgId'      => $this->organization->getId()
 		];
 	}
@@ -85,37 +78,42 @@ class AccountsControllerTest extends ControllerTest
 		$this->assertEquals(403, $response->getStatusCode());
 	}
 
-	public function testGetListWithoutCriteria()
+	public function testGetListAsNotHolder()
 	{
 		$this->user->addMembership($this->organization);
 		$this->setupLoggedUser($this->user);
-
-		$result   = $this->controller->dispatch($this->request);
-		$response = $this->controller->getResponse();
-
-		$this->assertEquals(400, $response->getStatusCode());
-	}
-
-	public function testGetListByEmail()
-	{
-		$this->user->addMembership($this->organization);
-		$this->setupLoggedUser($this->user);
-
-		$params = $this->request->getQuery();
-		$params->set('email', $this->user->getEmail());
 
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 
 		$this->assertEquals(200, $response->getStatusCode());
 		$arrayResult = json_decode($result->serialize(), true);
-		$this->assertCount(1, $arrayResult['_embedded']['ora:account']);
+		$this->assertNotEmpty($arrayResult['organization']);
+		$this->assertArrayHasKey('transactions', $arrayResult);
 		$this->assertNotEmpty($arrayResult['_links']['self']['href']);
-		$this->assertEquals(1, $arrayResult['count']);
-		$this->assertEquals(1, $arrayResult['total']);
-		$this->assertArrayNotHasKey('ora:deposit', $arrayResult['_embedded']['ora:account'][0]['_links']);
-		$this->assertArrayNotHasKey('ora:withdrawal', $arrayResult['_embedded']['ora:account'][0]['_links']);
-		$this->assertArrayNotHasKey('ora:incoming-transfer', $arrayResult['_embedded']['ora:account'][0]['_links']);
-		$this->assertArrayNotHasKey('ora:outgoing-transfer', $arrayResult['_embedded']['ora:account'][0]['_links']);
+		$this->assertArrayNotHasKey('ora:deposit', $arrayResult['_links']);
+		$this->assertArrayNotHasKey('ora:withdrawal', $arrayResult['_links']);
+		$this->assertArrayNotHasKey('ora:incoming-transfer', $arrayResult['_links']);
+		$this->assertArrayNotHasKey('ora:outgoing-transfer', $arrayResult['_links']);
+	}
+
+	public function testGetList()
+	{
+		$this->user->addMembership($this->organization);
+		$this->account->addHolder($this->user);
+		$this->setupLoggedUser($this->user);
+
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+
+		$this->assertEquals(200, $response->getStatusCode());
+		$arrayResult = json_decode($result->serialize(), true);
+		$this->assertNotEmpty($arrayResult['organization']);
+		$this->assertArrayHasKey('transactions', $arrayResult);
+		$this->assertNotEmpty($arrayResult['_links']['self']['href']);
+		$this->assertNotEmpty($arrayResult['_links']['ora:deposit']['href']);
+		$this->assertNotEmpty($arrayResult['_links']['ora:withdrawal']['href']);
+		$this->assertNotEmpty($arrayResult['_links']['ora:incoming-transfer']['href']);
+		$this->assertNotEmpty($arrayResult['_links']['ora:outgoing-transfer']['href']);
 	}
 }

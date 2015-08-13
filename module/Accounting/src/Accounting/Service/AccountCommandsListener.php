@@ -8,6 +8,7 @@ use Accounting\Entity\Deposit;
 use Accounting\Entity\OrganizationAccount;
 use Accounting\Entity\IncomingTransfer;
 use Accounting\Entity\OutgoingTransfer;
+use Accounting\Entity\Withdrawal;
 use Application\Entity\User;
 use Application\Service\ReadModelProjector;
 use People\Entity\Organization;
@@ -53,7 +54,7 @@ class AccountCommandsListener extends ReadModelProjector {
 		$amount = $event->payload()['amount'];
 		$balance = $event->payload()['balance'];
 		
-		$payer = $this->entityManager->find(User::class, $event->payload()['payer']);
+		$by = $this->entityManager->find(User::class, $event->payload()['by']);
 
 		$transaction = new Deposit($event->eventId());
 		$transaction->setAccount($entity)
@@ -61,14 +62,40 @@ class AccountCommandsListener extends ReadModelProjector {
 			->setBalance($balance)
 			->setDescription($event->payload()['description'])
 			->setCreatedAt($event->occurredOn())
-			->setCreatedBy($payer)
+			->setCreatedBy($by)
 			->setNumber($event->version());
 		$entity->addTransaction($transaction);
 		
 		$balance = new Balance($transaction->getBalance(), $event->occurredOn());
 		$entity->setBalance($balance);
 		$entity->setMostRecentEditAt($event->occurredOn());
-		$entity->setMostRecentEditBy($payer);
+		$entity->setMostRecentEditBy($by);
+		$this->entityManager->persist($entity);
+	}
+
+	protected function onCreditsWithdrawn(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$entity = $this->entityManager->find(Account::class, $id);
+
+		$amount = $event->payload()['amount'];
+		$balance = $event->payload()['balance'];
+
+		$by = $this->entityManager->find(User::class, $event->payload()['by']);
+
+		$transaction = new Withdrawal($event->eventId());
+		$transaction->setAccount($entity)
+			->setAmount($amount)
+			->setBalance($balance)
+			->setDescription($event->payload()['description'])
+			->setCreatedAt($event->occurredOn())
+			->setCreatedBy($by)
+			->setNumber($event->version());
+		$entity->addTransaction($transaction);
+
+		$balance = new Balance($transaction->getBalance(), $event->occurredOn());
+		$entity->setBalance($balance);
+		$entity->setMostRecentEditAt($event->occurredOn());
+		$entity->setMostRecentEditBy($by);
 		$this->entityManager->persist($entity);
 	}
 

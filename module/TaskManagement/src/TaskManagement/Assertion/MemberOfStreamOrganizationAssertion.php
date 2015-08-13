@@ -8,7 +8,7 @@ use Zend\Permissions\Acl\Resource\ResourceInterface;
 use Zend\Permissions\Acl\Assertion\AssertionInterface;
 use TaskManagement\Entity\Stream;
 
-class MemberOfOrganizationAssertion implements AssertionInterface
+class MemberOfStreamOrganizationAssertion implements AssertionInterface
 {
 	public function assert(Acl $acl, RoleInterface $user = null, ResourceInterface $resource = null, $privilege = null)
 	{

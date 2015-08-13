@@ -798,13 +798,13 @@ TaskManagement.prototype = {
 	
 	getLabelForAssignShares: function(daysLeft){
 		
-		if(daysLeft !== null){			
+		if(daysLeft !== null){
 			if(daysLeft == 1){
 				return ": "+daysLeft + " day left";
 			}else if(daysLeft == 0){
 				return ": less than a day";
 			}
-			return ": "+daysLeft + " days left";	
+			return ": "+daysLeft + " days left";
 		}
 		return "";
 	}

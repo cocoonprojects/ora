@@ -31,27 +31,30 @@ class StatementJsonModel extends JsonModel
 	public function serialize()
 	{
 		$account = $this->getVariable('resource');
-		$rv['balance']		= $this->serializeBalance($account);
-		$rv['transactions']	= array_map(array($this, 'serializeTransaction'), $account->getTransactions());
-		$rv['_links']		= $this->serializeLinks($account);
-		if($account instanceof OrganizationAccount) {
-			$rv['organization'] = $account->getOrganization()->getName();
-		}
+		$rv['organization'] = $account->getOrganization()->getName();
+		$rv['transactions'] = array_map(array($this, 'serializeTransaction'), $account->getTransactions());
+		$rv['_links']       = $this->serializeLinks($account);
 		return Json::encode($rv);
 	}
 	
-	protected function serializeBalance($account) {
-		return array(
-			'value' => $account->getBalance()->getValue(),
-			'date' => date_format($account->getBalance()->getDate(), 'c'),
-		);
-	}
-	
 	protected function serializeLinks($account) {
-		
-		$rv['self'] = $this->url->fromRoute('accounts', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => 'statement']);
-		if($this->acl->isAllowed($this->user, $account, 'Accounting.Account.deposit')){
+
+		$controller = $account instanceof OrganizationAccount ? 'organization-statement' : 'personal-statement';
+		$rv['self']['href'] = $this->url->fromRoute('statements', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => $controller]);
+		if($this->acl->isAllowed($this->user, $account, 'Accounting.Account.list')) {
+			$rv['ora:account']['href'] = $this->url->fromRoute('accounts', ['orgId' => $account->getOrganization()->getId()]);
+		}
+		if($this->acl->isAllowed($this->user, $account, 'Accounting.Account.deposit')) {
 			$rv['ora:deposit']['href'] = $this->url->fromRoute('accounts', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => 'deposits']);
+		}
+		if($this->acl->isAllowed($this->user, $account, 'Accounting.Account.withdrawal')) {
+			$rv['ora:withdrawal']['href'] = $this->url->fromRoute('accounts', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => 'withdrawals']);
+		}
+		if($this->acl->isAllowed($this->user, $account, 'Accounting.Account.incoming-transfer')) {
+			$rv['ora:incoming-transfer']['href'] = $this->url->fromRoute('accounts', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => 'incoming-transfers']);
+		}
+		if($this->acl->isAllowed($this->user, $account, 'Accounting.Account.outgoing-transfer')) {
+			$rv['ora:outgoing-transfer']['href'] = $this->url->fromRoute('accounts', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => 'outgoing-transfers']);
 		}
 		return $rv;
 	}

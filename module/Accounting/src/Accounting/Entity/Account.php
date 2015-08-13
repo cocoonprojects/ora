@@ -94,8 +94,4 @@ abstract class Account extends EditableEntity implements ResourceInterface {
 		}
 		return null;
 	}
-	
-	public function getResourceId(){
-		return 'Ora\Account';
-	}
 }

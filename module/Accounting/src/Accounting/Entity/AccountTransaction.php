@@ -24,7 +24,7 @@ class AccountTransaction extends DomainEntity {
 	 */
 	protected $amount;
 	/**
-	 * @ORM\Column(type="string", nullable=true)
+	 * @ORM\Column(type="string", nullable=true, length=256)
 	 * @var string
 	 */
 	protected $description;

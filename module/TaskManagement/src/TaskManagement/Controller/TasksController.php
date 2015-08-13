@@ -56,7 +56,7 @@ class TasksController extends OrganizationAwareController
 			return $this->response;
 		}
 		
-		$identity = $this->identity()['user'];		
+		$identity = $this->identity()['user'];
 
 		$task = $this->taskService->findTask($id);
 		if(is_null($task)) {
@@ -66,7 +66,7 @@ class TasksController extends OrganizationAwareController
 
 		$this->response->setStatusCode(200);
 		$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl, $this->organization);
-		$view->setVariable('resource', $task);		
+		$view->setVariable('resource', $task);
 		return $view;
 	}
 	
@@ -82,9 +82,8 @@ class TasksController extends OrganizationAwareController
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		
 		$identity = $this->identity()['user'];
-					
+
 		if(!$this->isAllowed($identity, $this->organization, 'TaskManagement.Task.list')){
 			$this->response->setStatusCode(403);
 			return $this->response;
@@ -93,7 +92,7 @@ class TasksController extends OrganizationAwareController
 		$streamID = $this->getRequest()->getQuery('streamID');
 		
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization) : $this->taskService->findStreamTasks($streamID);
-				
+
 		$view = new TaskJsonModel($this->url(), $identity, $this->acl, $this->organization);
 		$view->setVariable('resource', $availableTasks);
 		

@@ -96,7 +96,7 @@ class User implements RoleInterface
 	 * @ORM\Column(type="string")
 	 * @var string 
 	 */
-	private $role;
+	private $role = self::ROLE_USER;
 
 	public function __construct(){
 		$this->memberships = new ArrayCollection();

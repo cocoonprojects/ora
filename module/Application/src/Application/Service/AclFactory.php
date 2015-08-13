@@ -1,6 +1,8 @@
 <?php
 namespace Application\Service;
 
+use Accounting\Assertion\MemberOfAccountOrganizationAssertion;
+use TaskManagement\Assertion\MemberOfStreamOrganizationAssertion;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Permissions\Acl\Acl;
@@ -33,20 +35,22 @@ class AclFactory implements FactoryInterface
 		$acl->addResource('Ora\Organization');
 		$acl->allow(User::ROLE_USER, 'Ora\Organization', ['People.Organization.userList', 'TaskManagement.Task.list', 'TaskManagement.Stream.list', 'Accounting.Accounts.list'], new MemberOfOrganizationAssertion());
 		
-		$acl->addResource('Ora\Account');
+		$acl->addResource('Ora\PersonalAccount');
 		$acl->addResource('Ora\OrganizationAccount');
-		$acl->allow(User::ROLE_USER, 'Ora\Account','Accounting.Account.statement', new AccountHolderAssertion()); 
-		$acl->allow(User::ROLE_USER, 'Ora\OrganizationAccount','Accounting.Account.statement', new MemberOfOrganizationOrAccountHolderAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\PersonalAccount','Accounting.Account.statement', new AccountHolderAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\OrganizationAccount','Accounting.Account.statement', new MemberOfAccountOrganizationAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\OrganizationAccount','Accounting.Account.deposit', new AccountHolderAssertion());
-		$acl->allow(User::ROLE_USER, 'Ora\Account','Accounting.Account.withdraw', new AccountHolderAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\OrganizationAccount','Accounting.Account.withdrawal', new AccountHolderAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\OrganizationAccount', 'Accounting.Account.incoming-transfer', new AccountHolderAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\OrganizationAccount', 'Accounting.Account.outgoing-transfer', new AccountHolderAssertion());
 
 		$acl->addResource('Ora\Task');
 		$acl->allow(User::ROLE_USER, null, 'TaskManagement.Task.create');
-		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.showDetails', new \TaskManagement\Assertion\MemberOfOrganizationAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.showDetails', new MemberOfStreamOrganizationAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.join', new OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.estimate', new MemberOfNotAcceptedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.unjoin', new TaskMemberNotOwnerAndNotCompletedTaskAssertion());
-		$acl->allow(User::ROLE_USER, 'Ora\Task', array('TaskManagement.Task.edit', 'TaskManagement.Task.delete'), new TaskOwnerAndNotCompletedTaskAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\Task', ['TaskManagement.Task.edit', 'TaskManagement.Task.delete'], new TaskOwnerAndNotCompletedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.execute', new OwnerOfOpenOrCompletedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.complete', new TaskOwnerAndOngoingOrAcceptedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.accept', new TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion());
