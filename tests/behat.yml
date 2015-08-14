@@ -15,11 +15,6 @@ default:
             contexts:
                 - RestContext:
                     - http://oraprojecttest
-        login_features:
-            paths: 
-                - functional/features/login
-            contexts: 
-                - LoginContext
     extensions:
         Behat\MinkExtension:
             base_url:  http://oraprojecttest

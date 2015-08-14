@@ -8,6 +8,7 @@ use Zend\Authentication\Result;
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
+use ZendOAuth2\Authentication\Adapter\ZendOAuth2;
 use ZFX\Authentication\GoogleJWTAdapter;
 use ZFX\Authentication\JWTAdapter;
 
@@ -41,6 +42,7 @@ class LoadLocalProfileListener implements ListenerAggregateInterface {
 	 */
 	public function attach(EventManagerInterface $events)
 	{
+		$this->listeners[] = $events->getSharedManager()->attach(ZendOAuth2::class, 'oauth2.success', array($this, 'loadUserByEmail'));
 		$this->listeners[] = $events->getSharedManager()->attach(JWTAdapter::class, 'jwt.success', array($this, 'loadJWTUser'));
 		$this->listeners[] = $events->getSharedManager()->attach(GoogleJWTAdapter::class, 'google-jwt.success', array($this, 'loadGoogleJWTUser'));
 	}
@@ -57,6 +59,20 @@ class LoadLocalProfileListener implements ListenerAggregateInterface {
 		if($events->getSharedManager()->detach('ZendOAuth2\Authentication\Adapter\ZendOAuth2', $this->listeners[0])) {
 			unset($this->listeners[0]);
 		}
+	}
+
+	public function loadUserByEmail(Event $event)
+	{
+		$args = $event->getParams();
+		$info = $args['info'];
+
+		$user = $this->userService->findUserByEmail($info['email']);
+		if(is_null($user)) {
+			$args['code'] = Result::FAILURE_IDENTITY_NOT_FOUND;
+			$args['info'] = null;
+		}
+
+		$args['info'] = $user;
 	}
 
 	public function loadJWTUser(Event $event)
@@ -78,11 +94,20 @@ class LoadLocalProfileListener implements ListenerAggregateInterface {
 		$args = $event->getParams();
 		$info = $args['info'];
 
-		$user = $this->userService->findUserByGoogleId($info['sub']);
+//		$user = $this->userService->findUserByGoogleId($info['sub']);
+		$user = $this->userService->findUserByEmail($info['email']);
 		if(is_null($user)) {
 			$user = $this->userService->subscribeUser($info);
 		}
 
 		$args['info'] = $user;
+	}
+
+	/**
+	 * @return UserService
+	 */
+	public function getUserService()
+	{
+		return $this->userService;
 	}
 }

@@ -53,16 +53,25 @@ class PersonalStatementController extends OrganizationAwareController
 
 	/**
 	 * @return AccountService
+	 * @codeCoverageIgnore
 	 */
 	public function getAccountService()
 	{
 		return $this->accountService;
 	}
 
+	/**
+	 * @return array
+	 * @codeCoverageIgnore
+	 */
 	protected function getCollectionOptions() {
 		return self::$collectionOptions;
 	}
-	
+
+	/**
+	 * @return array
+	 * @codeCoverageIgnore
+	 */
 	protected function getResourceOptions() {
 		return self::$resourceOptions;
 	}

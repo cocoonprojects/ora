@@ -39,7 +39,6 @@ class OrganizationStatementController extends OrganizationAwareController
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		$identity = $this->identity()['user'];
 
 		$account = $this->accountService->findOrganizationAccount($this->organization);
 		if(is_null($account)) {
@@ -47,24 +46,36 @@ class OrganizationStatementController extends OrganizationAwareController
 			return $this->response;
 		}
 
-		if(!$this->isAllowed($identity, $account, 'Accounting.Account.statement')) {
+		if(!$this->isAllowed($this->identity(), $account, 'Accounting.Account.statement')) {
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
 
-		$viewModel = new StatementJsonModel($this->url(), $identity, $this->acl);
+		$viewModel = new StatementJsonModel($this->url(), $this->identity(), $this->acl);
 		$viewModel->setVariable('resource', $account);
 		return $viewModel;
 	}
 
+	/**
+	 * @return AccountService
+	 * @codeCoverageIgnore
+	 */
 	public function getAccountService() {
 		return $this->accountService;
 	}
-	
+
+	/**
+	 * @return array
+	 * @codeCoverageIgnore
+	 */
 	protected function getCollectionOptions() {
 		return self::$collectionOptions;
 	}
-	
+
+	/**
+	 * @return array
+	 * @codeCoverageIgnore
+	 */
 	protected function getResourceOptions() {
 		return self::$resourceOptions;
 	}

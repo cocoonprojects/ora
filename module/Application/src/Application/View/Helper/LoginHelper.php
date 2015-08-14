@@ -21,10 +21,6 @@ class LoginHelper extends AbstractHelper implements ServiceLocatorAwareInterface
 			$signin = array ();
 			foreach ( $adapterResolver->getProviders () as $provider => $instance ) {
 				switch ($provider) {
-					case 'google' :
-						$btn = ' btn-google-plus" style="background-color: #DD4B39; color: white; text-transform: none';
-						$icon = ' fa-google-plus';
-						break;
 					case 'linkedin' :
 						$btn = ' btn-linkedin" style="background-color: #007BB6; color: white; text-transform: none';
 						$icon = ' fa-linkedin';

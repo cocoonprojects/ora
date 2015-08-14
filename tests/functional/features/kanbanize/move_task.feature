@@ -43,7 +43,6 @@ Scenario: Succesfully moving back a completed Kanbanize Task to ongoing (107)
 	And that I want to make a new "Transaction"
 	And that its "action" is "execute"
 	When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000110/transitions"
-	Then echo last response
 	Then the response status code should be 200
 
 Scenario: Succesfully moving back an accepted Kanbanize Task to completed (106)

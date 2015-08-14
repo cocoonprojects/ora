@@ -26,7 +26,7 @@ class MembersController extends OrganizationAwareController
 			return $this->response;
         }
 
-		if(!$this->isAllowed($this->identity(), $organization, 'People.Organization.userList')) {
+		if(!$this->isAllowed($this->identity(), $this->organization, 'People.Organization.userList')) {
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}

@@ -46,7 +46,7 @@ class AclFactory implements FactoryInterface
 
 		$acl->addResource('Ora\Task');
 		$acl->allow(User::ROLE_USER, null, 'TaskManagement.Task.create');
-		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.showDetails', new MemberOfStreamOrganizationAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.get', new MemberOfStreamOrganizationAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.join', new OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.estimate', new MemberOfNotAcceptedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.unjoin', new TaskMemberNotOwnerAndNotCompletedTaskAssertion());

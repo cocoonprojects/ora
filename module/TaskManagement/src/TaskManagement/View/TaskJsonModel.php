@@ -60,7 +60,7 @@ class TaskJsonModel extends JsonModel
 	protected function serializeOne(Task $task) {
 		
 		$links = [];
-		if($this->acl->isAllowed($this->user, $task, 'TaskManagement.Task.showDetails')){
+		if($this->acl->isAllowed($this->user, $task, 'TaskManagement.Task.get')){
 			$links['self']['href'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'orgId' => $this->organization->getId()]);
 		}
 
@@ -68,7 +68,7 @@ class TaskJsonModel extends JsonModel
 			$links['ora:edit'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'orgId' => $this->organization->getId()]);
 		}
 		
-		if($this->acl->isAllowed($this->user, $task, 'TaskManagement.Task.delete')){					
+		if($this->acl->isAllowed($this->user, $task, 'TaskManagement.Task.delete')){
 			$links['ora:delete'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'orgId' => $this->organization->getId()]);
 		}		
 		
@@ -76,11 +76,11 @@ class TaskJsonModel extends JsonModel
 			$links['ora:join'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'orgId' => $this->organization->getId(), 'controller' => 'members']);
 		}
 		
-		if ($this->acl->isAllowed($this->user, $task, 'TaskManagement.Task.unjoin')) {		 
+		if ($this->acl->isAllowed($this->user, $task, 'TaskManagement.Task.unjoin')) {
 			$links['ora:unjoin'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'orgId' => $this->organization->getId(), 'controller' => 'members']); 
 		}	
 			
-		if ($this->acl->isAllowed($this->user, $task, 'TaskManagement.Task.estimate')) {	   
+		if ($this->acl->isAllowed($this->user, $task, 'TaskManagement.Task.estimate')) {
 			$links['ora:estimate'] = $this->url->fromRoute('tasks', ['id' => $task->getId(), 'orgId' => $this->organization->getId(), 'controller' => 'estimations']); 
 		}
 		

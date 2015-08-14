@@ -10,14 +10,18 @@ People.prototype = {
 	loadPeople: function(url)
 	{
 		that = this;
-		$.getJSON(url, function(data) {
-			that.data = data;
-			that.onLoadPeopleCompleted();
-		});
+		$.ajax({
+			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
+
+		}).done(that.onLoadPeopleCompleted.bind(this));
 	},
 
-	onLoadPeopleCompleted: function()
+	onLoadPeopleCompleted: function(json)
 	{
+		this.data = json;
 		var container = $('#people');
 		container.empty();
 

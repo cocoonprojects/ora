@@ -5,6 +5,7 @@ namespace ZFX\Authentication;
 
 use Zend\Authentication\Adapter\AdapterInterface;
 use Zend\Authentication\Result;
+use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
 
@@ -57,16 +58,13 @@ class GoogleJWTAdapter implements AdapterInterface, EventManagerAwareInterface
 				$args['token']    = $this->token;
 				$args['provider'] = 'google';
 
-				var_dump($args['info']);
-				die();
-
 				$args = $this->getEventManager()->prepareArgs($args);
 				$this->getEventManager()->trigger('google-jwt.success', $this, $args);
 				return new Result($args['code'], $args['info']);
 			}
 			return new Result(Result::FAILURE, null);
 		} catch (\Google_Auth_Exception $e) {
-			return new Result(Result::FAILURE_CREDENTIAL_INVALID, null, $e->getMessage()); // Expired token or broken sign
+			return new Result(Result::FAILURE_CREDENTIAL_INVALID, null, [$e->getMessage()]); // Expired token or broken sign
 		}
 	}
 

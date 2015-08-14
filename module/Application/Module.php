@@ -3,16 +3,12 @@ namespace Application;
 
 use Application\Authentication\OAuth2\LoadLocalProfileListener;
 use Application\Controller\AuthController;
-use Application\Controller\IndexController;
 use Application\Controller\MembershipsController;
 use Application\Service\DomainEventDispatcher;
 use Application\Service\EventSourcingUserService;
-<<<<<<< HEAD
-use Zend\Mvc\Application;
-=======
 use Zend\Authentication\AuthenticationService;
 use Zend\Authentication\Storage\NonPersistent;
->>>>>>> Set request related authentication based on JWT
+use Zend\Mvc\Application;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 use ZFX\Acl\Controller\Plugin\IsAllowed;

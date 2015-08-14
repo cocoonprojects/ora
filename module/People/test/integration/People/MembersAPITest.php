@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: andreabandera
- * Date: 23/06/15
- * Time: 10:45
- */
-
 namespace People;
 
 
@@ -15,8 +8,9 @@ use People\Service\OrganizationService;
 use Zend\Authentication\AuthenticationService;
 use Zend\Http\Request;
 use Zend\Mvc\MvcEvent;
-use Zend\Mvc\Router\RouteMatch;
 use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
+use Zend\Mvc\Router\RouteMatch;
+use ZFX\Test\Authentication\AdapterMock;
 use ZFX\Test\Authentication\OAuth2AdapterMock;
 
 
@@ -54,7 +48,7 @@ class MembersAPITest extends \PHPUnit_Framework_TestCase
 		$this->controller->setEvent($this->event);
 		$this->controller->setServiceLocator($serviceManager);
 
-		$adapter = new OAuth2AdapterMock();
+		$adapter = new AdapterMock();
 		$adapter->setEmail('paul.smith@ora.local');
 		$this->authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
 		$this->authService->authenticate($adapter);

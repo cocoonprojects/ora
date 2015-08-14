@@ -20,7 +20,6 @@ class IncomingTransfersController extends TransfersController
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		$identity = $this->identity()['user'];
 
 		if(!isset($data['amount']) || !$this->amountValidator->isValid($data['amount'])) {
 			$this->response->setStatusCode(400);
@@ -51,7 +50,7 @@ class IncomingTransfersController extends TransfersController
 			return $this->response;
 		}
 
-		if(!$this->isAllowed($identity, $account, 'Accounting.Account.incoming-transfer')) {
+		if(!$this->isAllowed($this->identity(), $account, 'Accounting.Account.incoming-transfer')) {
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
@@ -65,8 +64,8 @@ class IncomingTransfersController extends TransfersController
 
 		$this->transaction()->begin();
 		try{
-			$payerAccount->transferOut(-$amount, $account, $description, $identity);
-			$account->transferIn($amount, $payerAccount, $description, $identity);
+			$payerAccount->transferOut(-$amount, $account, $description, $this->identity());
+			$account->transferIn($amount, $payerAccount, $description, $this->identity());
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201); // Created
 			$this->response->getHeaders()->addHeaderLine(

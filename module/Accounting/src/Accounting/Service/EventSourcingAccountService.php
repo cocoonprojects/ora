@@ -108,6 +108,9 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	}
 
 	/**
+	 * Personal Account could be more than one in case of a join->unjoin->join of an organization. We do not remove old
+	 * account but we make it unacessible
+	 *
 	 * @param User|string $user
 	 * @param Organization|string $organization
 	 * @return Account
@@ -120,9 +123,11 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 		$query = $builder->select('p')
 			->from(PersonalAccount::class, 'p')
 			->where($builder->expr()->andX(':user MEMBER OF p.holders', 'p.organization = :organization'))
+			->orderBy('p.createdAt', 'DESC')
 			->setParameter('user', $user)
 			->setParameter('organization', $organization)
 			->getQuery();
+		$query->setMaxResults(1);
 		
 		return $query->getSingleResult();
 	}

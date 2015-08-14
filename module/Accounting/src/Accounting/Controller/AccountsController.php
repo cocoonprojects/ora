@@ -47,7 +47,7 @@ class AccountsController extends OrganizationAwareController
 		if(!empty($email)) {
 			$user = $this->userService->findUserByEmail($email);
 			$account = $this->accountService->findPersonalAccount($user, $this->organization);
-			$viewModel = new AccountsJsonModel($this->url(), $identity, $this->acl, $this->organization);
+			$viewModel = new AccountsJsonModel($this->url(), $this->identity(), $this->acl, $this->organization);
 			$viewModel->setVariable('resource', [$account]);
 			return $viewModel;
 		}

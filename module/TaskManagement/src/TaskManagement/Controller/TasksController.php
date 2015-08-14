@@ -55,12 +55,15 @@ class TasksController extends OrganizationAwareController
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		
-		$identity = $this->identity()['user'];
 
 		$task = $this->taskService->findTask($id);
 		if(is_null($task)) {
 			$this->response->setStatusCode(404);
+			return $this->response;
+		}
+
+		if(!$this->isAllowed($this->identity(), $task, 'TaskManagement.Task.get')) {
+			$this->response->setStatusCode(403);
 			return $this->response;
 		}
 
@@ -82,9 +85,8 @@ class TasksController extends OrganizationAwareController
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		$identity = $this->identity()['user'];
 
-		if(!$this->isAllowed($identity, $this->organization, 'TaskManagement.Task.list')){
+		if(!$this->isAllowed($this->identity(), $this->organization, 'TaskManagement.Task.list')){
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}

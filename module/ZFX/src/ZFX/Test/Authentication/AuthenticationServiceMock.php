@@ -36,6 +36,6 @@ class AuthenticationServiceMock extends AuthenticationService {
 	}
 	
 	public function setIdentity(User $user = null) {
-		$this->identity = $user == null ? null : ['user' => $user];
+		$this->identity = $user;
 	}
 }

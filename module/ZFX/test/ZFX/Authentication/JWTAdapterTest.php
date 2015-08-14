@@ -24,6 +24,10 @@ class JWTAdapterTest extends \PHPUnit_Framework_TestCase
 	 * @var JWTAdapter
 	 */
 	private $adapter;
+	/**
+	 * @var LoadLocalProfileListener
+	 */
+	private $listener;
 
 	protected function setUp()
 	{
@@ -64,16 +68,19 @@ WY2YYeEi31dEvdcFM+ASmDkvcnftAbZVmDi8oJzksztA1nmUoD8XQzTXxBOTSFGS
 nwIDAQAB
 -----END PUBLIC KEY-----");
 		$this->adapter = new JWTAdapter($this->builder);
+		$googleClient = new \Google_Client();
+		$userService = $this->getMockBuilder(UserService::class)->getMock();
+		$this->listener = new LoadLocalProfileListener($userService, $googleClient);
+		$this->listener->attach($this->adapter->getEventManager());
 	}
 
 	public function testAuthenticate()
 	{
 		$user = User::create();
 
-		$userService = $this->getMockBuilder(UserService::class)->getMock();
-		$userService->method('findUser')->willReturn($user);
-		$listener = new LoadLocalProfileListener($userService);
-		$listener->attach($this->adapter->getEventManager());
+		$this->listener->getUserService()
+			->method('findUser')
+			->willReturn($user);
 
 		$token = $this->builder->buildJWT($user);
 
@@ -109,10 +116,9 @@ nwIDAQAB
 
 	public function testAuthenticateWithNotExistingIdentity()
 	{
-		$userService = $this->getMockBuilder(UserService::class)->getMock();
-		$userService->method('findUser')->willReturn(null);
-		$listener = new LoadLocalProfileListener($userService);
-		$listener->attach($this->adapter->getEventManager());
+		$this->listener->getUserService()
+			->method('findUser')
+			->willReturn(null);
 
 		$user = User::create();
 		$token = $this->builder->buildJWT($user);

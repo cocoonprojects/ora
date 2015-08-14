@@ -51,7 +51,7 @@ class DepositsController extends HATEOASRestfulController
 			return $this->response;
 		}
 
-		if(!$this->isAllowed($identity, $account, 'Accounting.Account.deposit')) {
+		if(!$this->isAllowed($this->identity(), $account, 'Accounting.Account.deposit')) {
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
@@ -75,15 +75,27 @@ class DepositsController extends HATEOASRestfulController
 		
 		return $this->response;
 	}
-	
+
+	/**
+	 * @return AccountService
+	 * @codeCoverageIgnore
+	 */
 	public function getAccountService() {
 		return $this->accountService;
 	}
 
+	/**
+	 * @return array
+	 * @codeCoverageIgnore
+	 */
 	protected function getCollectionOptions() {
 		return self::$collectionOptions;
 	}
-	
+
+	/**
+	 * @return array
+	 * @codeCoverageIgnore
+	 */
 	protected function getResourceOptions() {
 		return self::$resourceOptions;
 	}
