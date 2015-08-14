@@ -1,12 +1,11 @@
 <?php
 namespace Application\Controller;
 
-use ZFX\Test\Controller\ControllerTest;
 use Application\Entity\User;
 use People\Entity\Organization;
 use People\Entity\OrganizationMembership;
 use People\Service\OrganizationService;
-use Accounting\OrganizationAccount;
+use ZFX\Test\Controller\ControllerTest;
 
 class MembershipsControllerTest extends ControllerTest
 {
@@ -27,7 +26,7 @@ class MembershipsControllerTest extends ControllerTest
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 		
-		$this->assertEquals(401, $response->getStatusCode());		 
+		$this->assertEquals(401, $response->getStatusCode());
 	}
 	
 	public function testGetEmptyList()

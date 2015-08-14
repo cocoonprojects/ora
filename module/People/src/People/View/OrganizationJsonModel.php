@@ -18,11 +18,11 @@ class OrganizationJsonModel extends JsonModel
 	 * 
 	 * @var User
 	 */
-	private $user;
+	private $identity;
 	
-	public function __construct(Url $url, User $user) {
+	public function __construct(Url $url, User $identity) {
 		$this->url = $url;
-		$this->user = $user;
+		$this->identity = $identity;
 	}
 	
 	public function serialize()
@@ -54,12 +54,16 @@ class OrganizationJsonModel extends JsonModel
 		$rv = [
 			'id' => $organization->getId(),
 			'name' => $organization->getName(),
+			'membership' => $this->identity->isMemberOf($organization),
 			'createdAt' => date_format($organization->getCreatedAt(), 'c'),
 			'createdBy' => is_null ( $organization->getCreatedBy () ) ? "" : $organization->getCreatedBy ()->getFirstname () . " " . $organization->getCreatedBy ()->getLastname (),
 			'_links' => [
 				'self' => [
 					'href' => $this->url->fromRoute('organizations', ['orgId' => $organization->getId()])
 				],
+				'ora:member' => [
+					'href' => $this->url->fromRoute('organizations-entities', ['orgId' => $organization->getId(), 'controller' => 'members'])
+				]
 			]
 		];
 

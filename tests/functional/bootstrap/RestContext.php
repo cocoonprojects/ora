@@ -1,13 +1,8 @@
 <?php
 
 use Behat\MinkExtension\Context\RawMinkContext;
-use Behat\Mink\Driver\BrowserKitDriver;
-use Behat\Mink\Exception\UnsupportedDriverActionException;
-use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use Behat\Testwork\Hook\Scope\AfterSuiteScope;
-use Guzzle\Plugin\Cookie\Cookie;
-use Guzzle\Plugin\Cookie\CookieJar\ArrayCookieJar;
-use Guzzle\Plugin\Cookie\CookiePlugin;
+use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use Guzzle\Service\Client;
 
 /**
@@ -23,9 +18,17 @@ class RestContext extends RawMinkContext
 	private $_requestUrl = null;
 	private $base_url = null;
 
-	private static $LOGIN_URL = '/auth/login/acceptance';
 	private $json = null;
 	private $jsonProperties = null;
+
+	private static $tokens = [
+		'mark.rogers@ora.local' => 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXUyJ9.eyJ1aWQiOiI2MDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDAiLCJpYXQiOiIxNDM4NzgyOTU1In0.rqGFFeOf5VdxO_qpz_fkwFJtgJH4Q5Kg6WUFGA_L1tMB-yyZj7bH3CppxxxvpekQzJ7y6aH6I7skxDh1K1Cayn3OpyaXHyG9V_tlgo08TKR7EK0TsBA0vWWiT7Oito97ircrw_4N4ZZFmF6srpNHda2uw775-7SpQ8fdI0_0LOn1IwF1MKvJIuZ9J7bR7PZsdyqLQSpNm8P5gJiA0c6i_uubtVEljVvr1H1mSoq6hViS9A2M-v4THlbH_Wki2pYp00-ggUu6dm25NeX300Q6x2RBHVY_bXpw7voRbXI1VAg_LxXDjv61l4lar6dOhK3qbsXm9P2JTEqyG7bYSAqtLA',
+		'phil.toledo@ora.local' => 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXUyJ9.eyJ1aWQiOiI3MDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDAiLCJpYXQiOiIxNDM4NzgzMDYzIn0.etOL9ozjnNni8-cu3dF4RO1rcQhmUkJ3fOzBTEWK4IIJjaVhjdYwTX_FFiWG_pKNPAI0EItijRxAG4zh66zHV-6ERnTAD7VA6V7Si_LA8vAS3gIsB1XsrkJ2Xjrj8ax7HtzM5UVhHwEXDZGXJQ3XEZX0tXO-jUvvizZ5qwFSAopSpydcTjwQmMDdr_stGuGJ5qq03sEN4Z5iWugsJoVBSf389KlIfXqlvTnVy2tojDh4ba7sWhh-O9IkxCMtJrUckn2_iI1TS-3Z1iavVh8ebTwbVx41QAjAR_I_CerINNIeewRoVGu3R2gYdVvf4PphaUXZLS7sN3KaldvTVB59jA',
+		'paul.smith@ora.local'  => 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXUyJ9.eyJ1aWQiOiIyMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDAiLCJpYXQiOiIxNDM4NzgzMjQzIn0.WTKW0CBmHlHIfBmtzTeakDUlX0p775w59bT1FKN2TIYcJ3nBEF_hmY0s3eEKZ6dOs4PjxyskVRYiB5dlbG1ZSYRbOJGysn5lvltXBmhOk2Ad3RiI8rina-Af0eBXS96A2BY2Qc2NN5t3EcjmIateH_dgG85adewQSZVJTTKKUBid46fdZ0TO5Y1jcr153xxMuE66W9gMGP2ffUGJIt01UQeuljQM1OF8Ss87l9tIcgRrKd5NiU5ap6JY4nTiZYgh8d7LPd4NfZ34GdQjt0vM0J9q_pQ9dN2GzuF9MO09TjRfmMNuE-fHboye4ahTaHH2OcUFDEMOF6XWy8tw8t7E3A',
+		'bruce.wayne@ora.local' => 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXUyJ9.eyJ1aWQiOiI4MDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDAiLCJpYXQiOiIxNDM4NzgzMzE0In0.PFaRVhV_us6hLMjCyfVcA1GdhoSDlZDInOa-g7Ks2HMLYqiaOwzoRjxhLObBY8KQZ4h9mkBbhycnO6HsX6QtXlxdqB4jGACGAQzGxfS9l4kIUJzHacQxVO0SW58U-XITpKZL6tAnLo_rpfnWFdTKUWZ1lBx0Z7ymPiHIqmlrBSdXW9JJTP4OVCq4CsxfUpT65DcLCJebJ7rDbMgCGy6C2SvP676IjBqKeAf44_XjolvBvqHWbYx6WrgbQfZQpPmaqhggyKRRcivgsp8bd1GOuxM9bvXRagdqF1suac5SXZG8vgv-V3UjxyZpmu7XsJeWO085pPsOvG3i7EvIRKgqbg'
+	];
+
+	private $currentToken;
 	
 	/**
 	 *  @BeforeSuite
@@ -67,12 +70,9 @@ class RestContext extends RawMinkContext
 		$session = new \Behat\Mink\Session($driver);
 		$session->start();
 		
-		if ($this->base_url === "" || $this->base_url === null) 
-		{			
+		if ($this->base_url === "" || $this->base_url === null) {
 			throw new \Exception("Base_url not loaded!");
-		}
-		else 
-		{
+		} else {
 			return (isset($this->base_url)) ? $this->base_url : null;
 		}
 	}
@@ -126,37 +126,9 @@ class RestContext extends RawMinkContext
 	 */
 	public function thatIAmAuthenticatedAs($email)
 	{
-		$this->thatTheItsIs('email', $email);
-		$this->_restObjectMethod = 'post';
-		$this->iRequest(self::$LOGIN_URL);
-		if($this->_response->getStatusCode() != 200) {
-			throw new \Exception('Cannot authenticate '.$email.' user: response status code for url '. $this->_requestUrl . ' is '.$this->_response->getStatusCode());
+		if(isset(self::$tokens[$email])) {
+			$this->currentToken = self::$tokens[$email];
 		}
-		unset($this->_restObject->email);
-		
-		$cookie = $this->_response->getSetCookie();
-		// PHPSESSID=p3sp0qs8ai1c62o9ll9o18ro20; path=/ 
-		$tmp = explode(';', $cookie);
-
-		$phpsessid = null;
-		if(strpos($tmp[0], 'PHPSESSID') !== false)
-		{
-			list($nameCookie, $phpsessid) = explode('=', $tmp[0]);
-		}
-		 
-		//echo "PHPSESSID: ".$phpsessid;
-		$cookie = new Cookie();
-		$cookie->setName('PHPSESSID');
-		$cookie->setPath('/');
-		$cookie->setValue($phpsessid);
-		$domain = trim(str_replace("http://", "", $this->base_url));		
-		$cookie->setDomain($domain);
-		
-		$jar = new ArrayCookieJar();
-		$jar->add($cookie);
-		$plugin = new CookiePlugin($jar);
-		
-		$this->_client->addSubscriber($plugin);
 	}
 	
 	/**
@@ -166,18 +138,19 @@ class RestContext extends RawMinkContext
 	{
 		$baseUrl = $this->getBaseUrl();
 		$this->_requestUrl = $baseUrl . $pageUrl;
-		
-		
-		//$this->_client->addCookie('PHPSESSID',$this->_phpsessid);
-		
-		switch (strtoupper($this->_restObjectMethod)) 
-		{			
+		$headers = [];
+		if($this->currentToken != null) {
+			$headers['ORA-JWT'] = $this->currentToken;
+		}
+
+		switch (strtoupper($this->_restObjectMethod))
+		{
 			case 'GET':
 				// Create a GET request: $client->get($uri, array $headers, $options)
 				try
 				{
 					$response = $this->_client->get(
-						$this->_requestUrl . '?' . http_build_query((array) $this->_restObject)
+						$this->_requestUrl . '?' . http_build_query((array) $this->_restObject), $headers
 					)->send();
 				}
 				catch (Guzzle\Http\Exception\ClientErrorResponseException $e) {
@@ -200,7 +173,7 @@ class RestContext extends RawMinkContext
 				{
 					$postFields = (array) $this->_restObject;
 					$response = $this->_client->put(
-						$this->_requestUrl, null, $postFields
+						$this->_requestUrl, $headers, $postFields
 					)->send();
 				}
 				catch (Guzzle\Http\Exception\ClientErrorResponseException $e) {
@@ -220,10 +193,10 @@ class RestContext extends RawMinkContext
 			case 'POST': 
 				// Create a POST request: $client->post($uri, array $headers, $postBody, $options)
 				try
-				{			 
+				{
 					$postFields = (array) $this->_restObject;
 					$response = $this->_client->post(
-						$this->_requestUrl, null, $postFields
+						$this->_requestUrl, $headers, $postFields
 					)->send();
 				}
 				catch (Guzzle\Http\Exception\ClientErrorResponseException $e) {
@@ -246,7 +219,7 @@ class RestContext extends RawMinkContext
 				try
 				{   
 					$response = $this->_client->delete(
-						$this->_requestUrl . '?' . http_build_query((array) $this->_restObject)
+						$this->_requestUrl . '?' . http_build_query((array) $this->_restObject), $headers
 					)->send();
 				}
 				catch (Guzzle\Http\Exception\ClientErrorResponseException $e) {

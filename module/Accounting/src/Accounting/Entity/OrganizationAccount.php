@@ -13,6 +13,10 @@ class OrganizationAccount extends Account {
 		return $this->getOrganization()->getName();
 	}
 
+	/**
+	 * @return string
+	 * @codeCoverageIgnore
+	 */
 	public function getResourceId(){
 		return 'Ora\OrganizationAccount';
 	}

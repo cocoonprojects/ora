@@ -37,7 +37,6 @@ class DepositsController extends HATEOASRestfulController
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		$identity = $this->identity()['user'];
 
 		if(!isset($data['amount']) || !$this->amountValidator->isValid($data['amount'])) {
 			$this->response->setStatusCode(400);
@@ -52,14 +51,14 @@ class DepositsController extends HATEOASRestfulController
 			return $this->response;
 		}
 
-		if(!$this->isAllowed($identity, $account, 'Accounting.Account.deposit')) {
+		if(!$this->isAllowed($this->identity(), $account, 'Accounting.Account.deposit')) {
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
 
 		$this->transaction()->begin();
 		try {
-			$account->deposit($data['amount'], $identity, $description);
+			$account->deposit($data['amount'], $this->identity(), $description);
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201); // Created
 			$this->response->getHeaders()->addHeaderLine(
@@ -76,15 +75,27 @@ class DepositsController extends HATEOASRestfulController
 		
 		return $this->response;
 	}
-	
+
+	/**
+	 * @return AccountService
+	 * @codeCoverageIgnore
+	 */
 	public function getAccountService() {
 		return $this->accountService;
 	}
 
+	/**
+	 * @return array
+	 * @codeCoverageIgnore
+	 */
 	protected function getCollectionOptions() {
 		return self::$collectionOptions;
 	}
-	
+
+	/**
+	 * @return array
+	 * @codeCoverageIgnore
+	 */
 	protected function getResourceOptions() {
 		return self::$resourceOptions;
 	}

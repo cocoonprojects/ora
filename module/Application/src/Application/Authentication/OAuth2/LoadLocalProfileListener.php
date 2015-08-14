@@ -1,18 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: andreabandera
- * Date: 23/06/15
- * Time: 12:14
- */
 
 namespace Application\Authentication\OAuth2;
 
 
 use Application\Service\UserService;
+use Zend\Authentication\Result;
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
+use ZendOAuth2\Authentication\Adapter\ZendOAuth2;
+use ZFX\Authentication\GoogleJWTAdapter;
+use ZFX\Authentication\JWTAdapter;
 
 class LoadLocalProfileListener implements ListenerAggregateInterface {
 
@@ -22,9 +20,14 @@ class LoadLocalProfileListener implements ListenerAggregateInterface {
 	 * @var UserService
 	 */
 	private $userService;
+	/**
+	 * @var \Google_Client
+	 */
+	private $google;
 
-	public function __construct(UserService $userService) {
+	public function __construct(UserService $userService, \Google_Client $google) {
 		$this->userService = $userService;
+		$this->google = $google;
 	}
 
 	/**
@@ -39,7 +42,9 @@ class LoadLocalProfileListener implements ListenerAggregateInterface {
 	 */
 	public function attach(EventManagerInterface $events)
 	{
-		$this->listeners[] = $events->getSharedManager()->attach('ZendOAuth2\Authentication\Adapter\ZendOAuth2', 'oauth2.success', array($this, 'loadUser'));
+		$this->listeners[] = $events->getSharedManager()->attach(ZendOAuth2::class, 'oauth2.success', array($this, 'loadUserByEmail'));
+		$this->listeners[] = $events->getSharedManager()->attach(JWTAdapter::class, 'jwt.success', array($this, 'loadJWTUser'));
+		$this->listeners[] = $events->getSharedManager()->attach(GoogleJWTAdapter::class, 'google-jwt.success', array($this, 'loadGoogleJWTUser'));
 	}
 
 	/**
@@ -56,27 +61,53 @@ class LoadLocalProfileListener implements ListenerAggregateInterface {
 		}
 	}
 
-	public function loadUser(Event $event)
+	public function loadUserByEmail(Event $event)
 	{
 		$args = $event->getParams();
 		$info = $args['info'];
 
-		switch($args['provider'])
-		{
-			case 'linkedin':
-				$info['email'] = $info['emailAddress'];
-				$info['given_name'] = $info['firstName'];
-				$info['family_name'] = $info['lastName'];
-				$info['picture'] = $info['pictureUrl'];
-				break;
+		$user = $this->userService->findUserByEmail($info['email']);
+		if(is_null($user)) {
+			$args['code'] = Result::FAILURE_IDENTITY_NOT_FOUND;
+			$args['info'] = null;
 		}
 
+		$args['info'] = $user;
+	}
+
+	public function loadJWTUser(Event $event)
+	{
+		$args = $event->getParams();
+		$info = $args['info'];
+
+		$user = $this->userService->findUser($info['uid']);
+		if(is_null($user)) {
+			$args['code'] = Result::FAILURE_IDENTITY_NOT_FOUND;
+			$args['info'] = null;
+		}
+
+		$args['info'] = $user;
+	}
+
+	public function loadGoogleJWTUser(Event $event)
+	{
+		$args = $event->getParams();
+		$info = $args['info'];
+
+//		$user = $this->userService->findUserByGoogleId($info['sub']);
 		$user = $this->userService->findUserByEmail($info['email']);
-		if(is_null($user))
-		{
+		if(is_null($user)) {
 			$user = $this->userService->subscribeUser($info);
 		}
 
-		$args['info']['user'] = $user;
+		$args['info'] = $user;
+	}
+
+	/**
+	 * @return UserService
+	 */
+	public function getUserService()
+	{
+		return $this->userService;
 	}
 }

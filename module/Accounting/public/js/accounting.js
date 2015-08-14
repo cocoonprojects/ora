@@ -81,6 +81,9 @@ Accounting.prototype = {
 		var url = $('a', $('#accounts li.active')).attr('href');
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'GET',
 			dataType: 'json'
 		})
@@ -94,6 +97,9 @@ Accounting.prototype = {
 		var that = this;
 		$.ajax({
 			url: jform.attr('action'),
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data: jform.serialize(),
 			success: function() {
@@ -124,6 +130,9 @@ Accounting.prototype = {
 		var that = this;
 		$.ajax({
 			url: jform.attr('action'),
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data: jform.serialize(),
 			success: function() {
@@ -155,6 +164,9 @@ Accounting.prototype = {
 
 		$.ajax({
 			url: jform.attr('action'),
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data: jform.serialize(),
 			success: function() {
@@ -186,6 +198,9 @@ Accounting.prototype = {
 
 		$.ajax({
 			url: jform.attr('action'),
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data: jform.serialize(),
 			success: function() {

@@ -55,8 +55,6 @@ class TasksController extends OrganizationAwareController
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		
-		$identity = $this->identity()['user'];
 
 		$task = $this->taskService->findTask($id);
 		if(is_null($task)) {
@@ -64,8 +62,13 @@ class TasksController extends OrganizationAwareController
 			return $this->response;
 		}
 
+		if(!$this->isAllowed($this->identity(), $task, 'TaskManagement.Task.get')) {
+			$this->response->setStatusCode(403);
+			return $this->response;
+		}
+
 		$this->response->setStatusCode(200);
-		$view = new TaskJsonModel($this->url(), $this->identity()['user'], $this->acl, $this->organization);
+		$view = new TaskJsonModel($this->url(), $this->identity(), $this->acl, $this->organization);
 		$view->setVariable('resource', $task);
 		return $view;
 	}
@@ -82,9 +85,8 @@ class TasksController extends OrganizationAwareController
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		$identity = $this->identity()['user'];
 
-		if(!$this->isAllowed($identity, $this->organization, 'TaskManagement.Task.list')){
+		if(!$this->isAllowed($this->identity(), $this->organization, 'TaskManagement.Task.list')){
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
@@ -93,7 +95,7 @@ class TasksController extends OrganizationAwareController
 		
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization) : $this->taskService->findStreamTasks($streamID);
 
-		$view = new TaskJsonModel($this->url(), $identity, $this->acl, $this->organization);
+		$view = new TaskJsonModel($this->url(), $this->identity(), $this->acl, $this->organization);
 		$view->setVariable('resource', $availableTasks);
 		
 		return $view;
@@ -109,20 +111,17 @@ class TasksController extends OrganizationAwareController
 	 */
 	public function create($data)
 	{
+		if(is_null($this->identity())) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+
 		if (!isset($data['streamID']) || !isset($data['subject']))
 		{
 			// HTTP STATUS CODE 400: Bad Request
 			$this->response->setStatusCode(400);
 			return $this->response;
 		}
-		
-		$identity = $this->identity();
-		if(is_null($identity))
-		{
-			$this->response->setStatusCode(401);
-			return $this->response;
-		}
-		$identity = $this->identity()['user'];
 
 		$stream = $this->streamService->getStream($data['streamID']);
 		if(is_null($stream)) {
@@ -146,8 +145,8 @@ class TasksController extends OrganizationAwareController
 
 		$this->transaction()->begin();
 		try {
-			$task = Task::create($stream, $subject, $identity);
-			$task->addMember($identity, Task::ROLE_OWNER);
+			$task = Task::create($stream, $subject, $this->identity());
+			$task->addMember($this->identity(), Task::ROLE_OWNER);
 			$this->taskService->addTask($task);
 			$this->transaction()->commit();
 
@@ -173,6 +172,11 @@ class TasksController extends OrganizationAwareController
 	 */
 	public function update($id, $data)
 	{
+		if(is_null($this->identity())) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+
 		if (!isset($data['subject'])) {
 			$this->response->setStatusCode(204);	// HTTP STATUS CODE 204: No Content (Nothing to update)
 			return $this->response;
@@ -195,10 +199,9 @@ class TasksController extends OrganizationAwareController
 			return $this->response;
 		}
 
-		$updatedBy = $this->identity()['user'];
 		$this->transaction()->begin();
 		try {
-			$task->setSubject($data['subject'], $updatedBy);
+			$task->setSubject($data['subject'], $this->identity());
 			$this->transaction()->commit();
 			// HTTP STATUS CODE 202: Element Accepted
 			$this->response->setStatusCode(202);
@@ -218,20 +221,25 @@ class TasksController extends OrganizationAwareController
 	 */
 	public function delete($id)
 	{
+		if(is_null($this->identity())) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+
 		$task = $this->taskService->getTask($id);
 		if(is_null($task)) {
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
+
 		if($task->getStatus() == Task::STATUS_DELETED) {
 			$this->response->setStatusCode(204);
 			return $this->response;
 		}
 
-		$deletedBy = $this->identity()['user'];
 		$this->transaction()->begin();
 		try {
-			$task->delete($deletedBy);
+			$task->delete($this->identity());
 			$this->transaction()->commit();
 			$this->response->setStatusCode(200);
 		} catch (IllegalStateException $e) {

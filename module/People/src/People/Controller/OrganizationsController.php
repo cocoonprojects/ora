@@ -35,15 +35,13 @@ class OrganizationsController extends HATEOASRestfulController
 	
 	public function getList()
 	{
-		$identity = $this->identity();
-		if(is_null($identity)) {
+		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		$identity = $identity['user'];
 
 		$organizations = $this->orgService->findOrganizations();
-		$view = new OrganizationJsonModel($this->url(), $identity);
+		$view = new OrganizationJsonModel($this->url(), $this->identity());
 		$view->setVariable('resource', $organizations);
 
 		return $view;
@@ -51,20 +49,18 @@ class OrganizationsController extends HATEOASRestfulController
 	
 	public function create($data)
 	{
-		$identity = $this->identity();
-		if(is_null($identity)) {
+		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		$identity = $identity['user'];
-		
+
 		$filters = new FilterChain();
 		$filters->attach(new StringTrim())
 				->attach(new StripNewlines())
 				->attach(new StripTags());
 		
 		$name = isset($data['name']) ? $filters->filter($data['name']) : null;
-		$organization = $this->orgService->createOrganization($name, $identity);
+		$organization = $this->orgService->createOrganization($name, $this->identity());
 		$url = $this->url()->fromRoute('organizations', array('id' => $organization->getId()));
 		$this->response->getHeaders()->addHeaderLine('Location', $url);
 		$this->response->setStatusCode(201);

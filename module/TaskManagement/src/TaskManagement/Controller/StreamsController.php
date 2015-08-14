@@ -38,41 +38,37 @@ class StreamsController extends OrganizationAwareController
 	
 	public function getList()
 	{
-		$identity = $this->identity();
-		if(is_null($identity)) {
+		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
-	   	}
-	   	$identity = $identity['user'];
+		}
 
-	   	if(!$this->isAllowed($identity, $this->organization, 'TaskManagement.Stream.list')){
+	   	if(!$this->isAllowed($this->identity(), $this->organization, 'TaskManagement.Stream.list')){
 	   		$this->response->setStatusCode(403);
 	   		return $this->response;
 	   	}
 	   	
 	   	$streams = $this->streamService->findStreams($this->organization);
-	   	$view = new StreamJsonModel($this->url(), $identity, $this->organization);
+	   	$view = new StreamJsonModel($this->url(), $this->identity(), $this->organization);
 	   	$view->setVariable('resource', $streams);
 		return $view;
 	}
 	
 	public function create($data)
-	{		
-		$identity = $this->identity();
-		if(is_null($identity)) {
+	{
+		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		$identity = $identity['user'];
-		
+
 		$filters = new FilterChain();
 		$filters->attach(new StringTrim())
 				->attach(new StripNewlines())
 				->attach(new StripTags());
 		
 		$subject = isset($data['subject']) ? $filters->filter($data['subject']) : null;
-		$organization = $this->getOrganizationService()->getOrganization($this->params('orgId'));
-		$stream = $this->streamService->createStream($organization, $subject, $identity);
+		$organization = $this->getOrganizationService()->getOrganization($this->organization->getId());
+		$stream = $this->streamService->createStream($organization, $subject, $this->identity());
 		$url = $this->url()->fromRoute('streams', array('orgId' => $organization->getId(),'id' => $stream->getId()));
 		$this->response->getHeaders()->addHeaderLine('Location', $url);
 		$this->response->setStatusCode(201);

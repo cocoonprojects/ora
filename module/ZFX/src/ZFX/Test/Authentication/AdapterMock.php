@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: andreabandera
- * Date: 23/06/15
- * Time: 11:03
- */
 
 namespace ZFX\Test\Authentication;
 
@@ -14,8 +8,9 @@ use Zend\Authentication\Result;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
+use ZendOAuth2\Authentication\Adapter\ZendOAuth2;
 
-class OAuth2AdapterMock implements AdapterInterface, EventManagerAwareInterface
+class AdapterMock implements AdapterInterface, EventManagerAwareInterface
 {
 	/**
 	 *
@@ -76,7 +71,7 @@ class OAuth2AdapterMock implements AdapterInterface, EventManagerAwareInterface
 	 */
 	public function setEventManager(EventManagerInterface $events)
 	{
-		$events->setIdentifiers('ZendOAuth2\Authentication\Adapter\ZendOAuth2');
+		$events->setIdentifiers(ZendOAuth2::class);
 		$this->events = $events;
 		return $this;
 	}

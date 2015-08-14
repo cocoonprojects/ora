@@ -42,17 +42,14 @@ TaskManagement.prototype = {
 			e.preventDefault();
 			that.createNewTask(e);
 		});
-		
+
 		$("#createStreamModal").on("show.bs.modal", function(e) {
 			var f = $(this).find("form");
 			f[0].reset();
 			$(this).find('div.alert').hide();
-		});
-		
-		$("#createStreamModal").on("shown.bs.modal", function(e) {
 			$("#createStreamModal :input:text:enabled:first").focus()
 		});
-		
+
 		$("#createTaskModal").on("shown.bs.modal", function(e) {
 			$("#createTaskModal :input:text:enabled:first").focus()
 		});
@@ -68,7 +65,7 @@ TaskManagement.prototype = {
 			$("#editTaskModal form").attr("action", url);
 			var subject = button.data('subject');
 			$('#editTaskSubject').val(subject);
-			$(this).find('div.alert').hide();			
+			$(this).find('div.alert').hide();
 		});
 
 		$("#editTaskModal").on("submit", "form", function(e){
@@ -112,7 +109,7 @@ TaskManagement.prototype = {
 			that.completeTask(e);
 		});
 
-		//BACK TO ONGOING			  
+		//BACK TO ONGOING
 		$("body").on("click", "a[data-action='executeTask']", function(e){
 			e.preventDefault();
 			that.executeTask(e);
@@ -127,7 +124,7 @@ TaskManagement.prototype = {
 		
 		$("#estimateTaskModal").on("show.bs.modal", function(e) {
 			var modal = $(this);
-			modal.find('div.alert').hide();			
+			modal.find('div.alert').hide();
 
 			var button = $(e.relatedTarget);
 			var url = button.data('href'); // Button that triggered the modal
@@ -158,7 +155,7 @@ TaskManagement.prototype = {
 		
 		$("#assignSharesModal").on("show.bs.modal", function(e) {
 			var modal = $(this);
-			modal.find('div.alert').hide();			
+			modal.find('div.alert').hide();
 
 			var button = $(e.relatedTarget) // Button that triggered the modal
 			var url = button.data('href');
@@ -204,6 +201,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'DELETE',
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
@@ -230,6 +230,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
@@ -253,6 +256,9 @@ TaskManagement.prototype = {
 		var url = $(e.relatedTarget).data('href');
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'GET'
 		})
 		.done(this.onTaskCompleted.bind(this));
@@ -276,6 +282,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'PUT',
 			data: form.serialize(),
 			dataType: 'json',
@@ -304,6 +313,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'DELETE',
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
@@ -326,6 +338,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data:{action:'accept'},
 			dataType: 'json',
@@ -352,6 +367,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data:{action:'complete'},
 			complete: function(xhr, textStatus) {
@@ -377,6 +395,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data:{action:'execute'},
 			dataType: 'json',
@@ -399,22 +420,33 @@ TaskManagement.prototype = {
 	listTasks: function()
 	{
 		that = this;
-		$.getJSON('task-management/tasks', function(data) {
-			that.data = data;
-			that.onListTasksCompleted();
-		});
+		$.ajax({
+			url: 'task-management/tasks',
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
+			method: 'GET'
+		}).done(that.onListTasksCompleted.bind(this));
 	},
 	
 	updateStreams: function()
 	{
 		that = this;
-		$.getJSON('task-management/streams', function(data) {
-			that.streamsData = data;
+		$.ajax({
+			url: 'task-management/streams',
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
+			method: 'GET',
+			success: function(data) {
+				that.streamsData = data;
+			}
 		});
 	},
 	
-	onListTasksCompleted: function()
+	onListTasksCompleted: function(json)
 	{
+		this.data = json;
 		if(this.data._links !== undefined && this.data._links['ora:create'] !== undefined) {
 			$("#createTaskModal form").attr("action", this.data._links['ora:create']['href']);
 			$("#createTaskBtn").show();
@@ -627,6 +659,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data: $('#createTaskModal form').serialize(),
 			dataType: 'json',
@@ -652,6 +687,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: form.attr('action'),
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data: form.serialize(),
 			success: function() {
@@ -672,6 +710,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: form.attr('action'),
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data: {value:-1},
 			success: function() {
@@ -703,6 +744,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: form.attr('action'),
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data: form.serialize(),
 			success: function() {
@@ -734,6 +778,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: form.attr('action'),
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data: {},
 			success: function() {
@@ -765,6 +812,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: form.attr('action'),
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data: form.serialize(),
 			success: function() {

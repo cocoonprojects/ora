@@ -34,8 +34,7 @@ class WithdrawalsController extends HATEOASRestfulController
 	}
 
 	public function invoke($id, $data) {
-		$identity = $this->identity()['user'];
-		if(is_null($identity)) {
+		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
@@ -53,14 +52,14 @@ class WithdrawalsController extends HATEOASRestfulController
 			return $this->response;
 		}
 
-		if(!$this->isAllowed($identity, $account, 'Accounting.Account.withdrawal')) {
+		if(!$this->isAllowed($this->identity(), $account, 'Accounting.Account.withdrawal')) {
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
 
 		$this->transaction()->begin();
 		try {
-			$account->withdraw(-$data['amount'], $identity, $description);
+			$account->withdraw(-$data['amount'], $this->identity(), $description);
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201); // Created
 			$this->response->getHeaders()->addHeaderLine(
@@ -78,14 +77,26 @@ class WithdrawalsController extends HATEOASRestfulController
 		return $this->response;
 	}
 
+	/**
+	 * @return AccountService
+	 * @codeCoverageIgnore
+	 */
 	public function getAccountService() {
 		return $this->accountService;
 	}
 
+	/**
+	 * @return array
+	 * @codeCoverageIgnore
+	 */
 	protected function getCollectionOptions() {
 		return self::$collectionOptions;
 	}
 
+	/**
+	 * @return array
+	 * @codeCoverageIgnore
+	 */
 	protected function getResourceOptions() {
 		return self::$resourceOptions;
 	}

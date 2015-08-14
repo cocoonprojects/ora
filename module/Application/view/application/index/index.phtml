@@ -1,28 +1,54 @@
-<div class="container">
+<?php $this->headMeta()
+	->appendName('google-signin-scope', 'profile email')
+	->appendName('google-signin-client_id', $this->providers['google']->getOptions()->getClientId()); ?>
+<?php
+$this->headScript()->setAllowArbitraryAttributes(true);
+$this->headScript()
+	->appendFile('https://apis.google.com/js/platform.js?onload=renderButton', 'text/javascript', [
+		'async' => 'async',
+		'defer' => 'defer'
+	]); ?>
 
-	<div class="row" style="margin-top: 40px">
-	
-	<?php if(!$this->identity()){?>    
-	    <div class="col-md-4 col-md-offset-4">
-			<div class="panel panel-default"
-				style="box-shadow: none; background-color: transparent;">
-				<div class="panel-heading" style="background-color: transparent;">
-					<h3 class="panel-title text-center">Sign in into O.R.A.</h3>
-				</div>
-				<div class="panel-body">
-	                <?php echo $this->LoginHelper();?>
-	            </div>
-			</div>
-		</div>
-	<?php }?>
-	
-	<?php
-	
-echo $this->partial ( 'layout/organizations-box.phtml', array (
-			'identity' => is_null ( $this->identity () ) ? null : $this->identity ()['user'] 
-	) );
-	?>
-	
-	
+<div class="container">
+	<div id="sign-in" class="center-block" style="max-width: 250px; text-align: center">
+		<h1>O.R.A.</h1>
+		<div id="g-signin2"></div>
+		<script>
+			function onSuccess(googleUser) {
+				var id_token = googleUser.getAuthResponse().id_token;
+				console.log("ID Token: " + id_token);
+
+				// Useful data for your client-side scripts:
+				var profile = googleUser.getBasicProfile();
+				$('div#sign-in').trigger('loggedIn', {
+					token:  id_token,
+					name:   profile.getName(),
+					avatar: profile.getImageUrl(),
+					email:  profile.getEmail()
+				});
+			};
+			function onFailure(error) {
+				console.log(error);
+			}
+			function renderButton() {
+				gapi.signin2.render('g-signin2', {
+//					'scope': 'https://www.googleapis.com/auth/plus.login',
+					'width': 250,
+					'height': 50,
+					'longtitle': true,
+					'theme': 'dark',
+					'onsuccess': onSuccess,
+					'onfailure': onFailure
+				});
+			}
+		</script>
+	</div>
+	<div id="organizations" style="display:none; max-width: 250px; text-align: center" class="center-block">
+		<h1>Choose an organization</h1>
+		<ul style="text-align: left;"></ul>
+		<ul style="margin-left:0; padding-left:0; list-style: none">
+			<li><button class="btn btn-primary" data-toggle="modal" data-target="#createOrganizationModal" type="button">New Organization</button></li>
+			<li><a class="btn btn-info" href="/organizations" role="button">Join Organization</a></li>
+		</ul>
 	</div>
 </div>

@@ -28,10 +28,15 @@ class TransitionsController extends HATEOASRestfulController
 		$this->intervalForCloseTasks = new \DateInterval('P7D');
 	}
 	
-	public function invoke($id, $data) {
-		
+	public function invoke($id, $data)
+	{
+		if(is_null($this->identity())) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+
 		$validator = new InArray(
-			['haystack' => array('complete', 'accept','execute', 'close')]
+			['haystack' => array('complete', 'accept', 'execute', 'close')]
 		);
 		if (!isset ($data['action']) || !$validator->isValid($data['action'])) {
 			$this->response->setStatusCode ( 400 );
@@ -53,7 +58,7 @@ class TransitionsController extends HATEOASRestfulController
 				}
 				$this->transaction()->begin();
 				try {
-					$task->complete($this->identity()['user']);
+					$task->complete($this->identity());
 					$this->transaction()->commit();
 					$this->response->setStatusCode ( 200 );
 				} catch ( IllegalStateException $e ) {
@@ -71,7 +76,7 @@ class TransitionsController extends HATEOASRestfulController
 				}
 				$this->transaction()->begin();
 				try {
-					$task->accept($this->identity()['user'], $this->getIntervalForCloseTasks());
+					$task->accept($this->identity(), $this->getIntervalForCloseTasks());
 					$this->transaction()->commit();
 					$this->response->setStatusCode ( 200 );
 				} catch ( IllegalStateException $e ) {
@@ -89,7 +94,7 @@ class TransitionsController extends HATEOASRestfulController
 				}
 				$this->transaction()->begin();
 				try {
-					$task->execute($this->identity()['user']);
+					$task->execute($this->identity());
 					$this->transaction()->commit();
 					$this->response->setStatusCode ( 200 );
 				} catch ( IllegalStateException $e ) {
@@ -108,22 +113,17 @@ class TransitionsController extends HATEOASRestfulController
 		return $this->response;
 	}
 	
-	public function create($data){
-		
-		$action = $data ["action"];
-		
-		if($this->identity() == null){
+	public function create($data)
+	{
+		if(is_null($this->identity())){
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		
-		$identity = $this->identity()['user'];
-		
-		switch ($action) {
-			
-			case "close":
 
-				if(!$this->isAllowed($identity, NULL, 'TaskManagement.Task.closeTasksCollection')){
+		switch ($data["action"])
+		{
+			case "close":
+				if(!$this->isAllowed($this->identity(), NULL, 'TaskManagement.Task.closeTasksCollection')) {
 					$this->response->setStatusCode(403);
 					return $this->response;
 				}
@@ -133,11 +133,10 @@ class TransitionsController extends HATEOASRestfulController
 				
 				foreach ($tasksFound as $taskFound){
 					
-					$taskToClose = $this->taskService->getTask($taskFound->getId());										
+					$taskToClose = $this->taskService->getTask($taskFound->getId());
 					$this->transaction()->begin();
 					try {
-						$taskToClose->close($identity);
-
+						$taskToClose->close($this->identity());
 						$this->transaction()->commit();
 					} catch ( IllegalStateException $e ) {
 						$this->transaction()->rollback();

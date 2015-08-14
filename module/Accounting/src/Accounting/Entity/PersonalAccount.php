@@ -8,6 +8,10 @@ use Doctrine\ORM\Mapping AS ORM;
  */
 class PersonalAccount extends Account
 {
+	/**
+	 * @return string
+	 * @codeCoverageIgnore
+	 */
 	public function getResourceId(){
 		return 'Ora\PersonalAccount';
 	}
