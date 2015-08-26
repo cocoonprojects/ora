@@ -86,11 +86,15 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testSendMail_EstimationAdded(){
+		$_SERVER['SERVER_NAME'] = 'oraproject.org';
 		$this->assertTrue($this->listener->sendEstimationAddedInfoMail($this->task, $this->member));
+		unset($_SERVER['SERVER_NAME']);
 	}
 	
 	public function testSendMail_SharesAssigned(){
+		$_SERVER['SERVER_NAME'] = 'oraproject.org';
 		$this->assertTrue($this->listener->sendSharesAssignedInfoMail($this->task, $this->member));
+		unset($_SERVER['SERVER_NAME']);
 	}
 	
 	public function testSendEmailNotificationForAssignmentOfShares()

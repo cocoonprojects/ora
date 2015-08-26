@@ -141,4 +141,28 @@ class NotifyMailListener implements ListenerAggregateInterface
 			$this->mailService->send();
 		}
 	}
+	
+	/**
+	 * Send email notification to all members with no estimation of $taskToNotify
+	 * @param Task $taskToNotify
+	 */
+	public function reminderAddEstimation(ReadModelTask $task){
+		$taskMembersWithNoEstimation = $task->findMembersWithNoEstimation();
+		
+		foreach ($taskMembersWithNoEstimation as $member){
+			$recipient = $this->userService->findUser($member);
+			
+			$message = $this->mailService->getMessage();
+			$message->setTo($recipient->getEmail());
+			
+			$this->mailService->setSubject ( "O.R.A. - your contribution is required!" );
+			
+			$this->mailService->setTemplate( 'mail/reminder-add-estimation.phtml', array(
+					'task' => $task,
+					'recipient'=> $recipient
+			));
+			
+			$this->mailService->send();
+		}
+	}
 }

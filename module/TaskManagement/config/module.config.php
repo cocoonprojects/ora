@@ -56,8 +56,7 @@ return array(
 						'controller' => 'Reminders'
 					),
 				),
-			)
-				
+			)	
 		),
 	),
 	'translator' => array(),
