@@ -1,52 +1,60 @@
 <?php
 namespace Accounting\Controller;
 
+use Accounting\Account;
+use Accounting\OrganizationAccount;
+use Accounting\Service\AccountService;
+use Application\Entity\User;
 use People\Organization;
 use ZFX\Test\Controller\ControllerTest;
-use Rhumsaa\Uuid\Uuid;
-use Application\Entity\User;
-use Application\Controller\Plugin\EventStoreTransactionPlugin;
-use Accounting\Account;
-use Accounting\Service\AccountService;
 
+/**
+ * Class DepositsControllerTest
+ * @package Accounting\Controller
+ * @group accounting
+ */
 class DepositsControllerTest extends ControllerTest
 {
+	/**
+	 * @var Account
+	 */
 	protected $account;
+	/**
+	 * @var User
+	 */
+	protected $user;
+	/**
+	 * @var User
+	 */
+	protected $creator;
 	
 	protected function setupController()
 	{
+		$this->user = User::create();
+		$this->creator = User::create();
+		$organization = Organization::create('Lorem Ipsum', $this->creator);
+		$this->account = OrganizationAccount::create($organization, $this->creator);
 		$accountService = $this->getMockBuilder(AccountService::class)->getMock();
+		$accountService
+			->expects($this->any())
+			->method('getAccount')
+			->with($this->account->getId())
+			->willReturn($this->account);
+
 		return new DepositsController($accountService);
 	}
 	
 	protected function setupRouteMatch()
 	{
-		return array('controller' => 'deposits');
+		return [
+			'controller' => 'deposits',
+			'id'         => $this->account->getId()
+		];
 	}
 
-	protected function setUp()
-	{
-		parent::setUp();
-		$user = User::create();
-		$this->setupLoggedUser($user);
-
-		$organization = Organization::create('Lorem Ipsum', $user);
-		
-		$this->account = Account::create($organization, $user);
-	}
-	
 	public function testInvoke() {
-		$this->controller->getAccountService()
-			->expects($this->once())
-			->method('getAccount')
-			->with($this->account->getId())
-			->willReturn($this->account);
-		
-		$this->controller->getAccountService()
-			->method('deposit')
-			->willReturn($this->account);
-		
-		$this->routeMatch->setParam('id', $this->account->getId());
+		$this->account->addHolder($this->user, $this->creator);
+		$this->setupLoggedUser($this->user);
 
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -61,17 +69,8 @@ class DepositsControllerTest extends ControllerTest
 	}
 
 	public function testInvokeWithFloatAmount() {
-		$this->controller->getAccountService()
-			->expects($this->once())
-			->method('getAccount')
-			->with($this->account->getId())
-			->willReturn($this->account);
-		
-		$this->controller->getAccountService()
-			->method('deposit')
-			->willReturn($this->account);
-		
-		$this->routeMatch->setParam('id', $this->account->getId());
+		$this->account->addHolder($this->user, $this->creator);
+		$this->setupLoggedUser($this->user);
 
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -85,8 +84,22 @@ class DepositsControllerTest extends ControllerTest
 		$this->assertNotEmpty($response->getHeaders()->get('Location'));
 	}
 
+	public function testInvokeAsNotHolder() {
+		$this->setupLoggedUser($this->user);
+
+		$this->request->setMethod('post');
+		$params = $this->request->getPost();
+		$params->set('amount', 100);
+		$params->set('description', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus iaculis.');
+
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+
+		$this->assertEquals(403, $response->getStatusCode());
+	}
+
 	public function testInvokeWith0Amount() {
-	   	$this->routeMatch->setParam('id', $this->account->getId());
+		$this->setupLoggedUser($this->user);
 
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -99,8 +112,9 @@ class DepositsControllerTest extends ControllerTest
 		$this->assertEquals(400, $response->getStatusCode());
 	}
 
-	public function testInvokeWithNoAmount() {
-		$this->routeMatch->setParam('id', $this->account->getId());
+	public function testInvokeWithNoAmount()
+	{
+		$this->setupLoggedUser($this->user);
 
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -112,8 +126,9 @@ class DepositsControllerTest extends ControllerTest
 		$this->assertEquals(400, $response->getStatusCode());
 	}
 
-	public function testInvokeWithNegativeAmount() {
-		$this->routeMatch->setParam('id', $this->account->getId());
+	public function testInvokeWithNegativeAmount()
+	{
+		$this->setupLoggedUser($this->user);
 
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
@@ -126,20 +141,18 @@ class DepositsControllerTest extends ControllerTest
 		$this->assertEquals(400, $response->getStatusCode());
 	}
 
-	public function testInvokeAsAnonymous() {
+	public function testInvokeAsAnonymous()
+	{
 		$this->setupAnonymous();
 
-		$this->routeMatch->setParam('id', $this->account->getId());
-		
 		$this->request->setMethod('post');
-		
 		$params = $this->request->getPost();
 		$params->set('amount', 100);
 		$params->set('description', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus iaculis.');
-				
+
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 		
-		$this->assertEquals(401, $response->getStatusCode());		 
+		$this->assertEquals(401, $response->getStatusCode());
 	}
 }

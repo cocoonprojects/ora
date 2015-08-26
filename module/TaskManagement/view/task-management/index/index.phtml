@@ -5,8 +5,15 @@
 	$this->headStyle()->appendStyle('ul.task-actions li { display: inline-block; }');
 	$this->headStyle()->appendStyle('.panel-heading a { cursor: pointer; }');
 	?>
-<div style="position: fixed; bottom: 2em; right: 2em">
-	<a class="btn btn-primary btn-fab btn-raised mdi-content-add" style="display:none" data-toggle="modal" data-target="#createTaskModal" id="createTaskBtn"></a>
+<div style="position: fixed; bottom: 2em; right: 2em" class="dropup">
+	<a class="btn btn-primary btn-fab btn-raised mdi-content-add"
+		style="display: none"
+		data-toggle="dropdown" role="button" aria-expanded="false"
+		id="createTaskBtn"></a>
+		<ul class="dropdown-menu" role="menu" style="left: -200%;">
+			<li><a href="#" data-toggle="modal" data-target="#createStreamModal">New Stream</a></li>
+			<li><a href="#" data-toggle="modal"	data-target="#createTaskModal">New Task</a></li>
+		</ul>
 </div>
 <div class="container" id="content">
 	<div class="page-header">

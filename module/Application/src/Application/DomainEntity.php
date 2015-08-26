@@ -31,9 +31,13 @@ class DomainEntity extends AggregateRoot {
 		return $this->id->toString();
 	}
 
+	/**
+	 * @return string
+	 */
 	public function __toString() {
 		return $this->getId();
 	}
+
 	/**
 	 * @param DomainEntity $object
 	 * @return bool

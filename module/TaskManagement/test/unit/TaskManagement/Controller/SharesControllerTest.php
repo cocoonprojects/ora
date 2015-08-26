@@ -230,12 +230,8 @@ class SharesControllerTest extends ControllerTest
 	public function testAssignSharesByNonMember()
 	{
 		$this->task->accept($this->owner, $this->intervalForCloseTasks);
-		$identity = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Identity')
-			->disableOriginalConstructor()
-			->getMock();
-		$identity->method('__invoke')->willReturn(['user' => User::create()]);
-		$this->controller->getPluginManager()->setService('identity', $identity);
-		 
+		$this->setupLoggedUser(User::create());
+
 		$service = $this->controller->getTaskService();
 		$service->method('getTask')
 			->willReturn($this->task);

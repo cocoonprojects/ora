@@ -14,6 +14,7 @@ use People\Organization;
 use People\Entity\OrganizationMembership;
 use TaskManagement\Stream;
 use TaskManagement\Entity\Stream as ReadModelStream;
+use People\Entity\Organization as ReadModelOrganization;
 
 /**
  * @author Giannotti Fabio
@@ -61,14 +62,15 @@ class EventSourcingStreamService extends AggregateRepository implements StreamSe
 		return $this->entityManager->find(ReadModelStream::class, $id);
 	}
 	
-	public function findStreams(User $user) {
+	public function findStreams(ReadModelOrganization $organization) {
 		$builder = $this->entityManager->createQueryBuilder();
-		$query = $builder->select('s')
+		
+		$query = $builder->select ( 's' )
 			->from(ReadModelStream::class, 's')
-			->leftJoin(OrganizationMembership::class, 'm', 'WITH', 'm.organization = s.organization')
-			->where('m.member = :user')
-			->setParameter('user', $user)
+			->where('s.organization = :organization')
+			->setParameter ( ':organization', $organization )	
 			->getQuery();
+		
 		return $query->getResult();
 	}
 } 

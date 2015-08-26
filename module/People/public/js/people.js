@@ -1,8 +1,4 @@
-var People = function(oranizations)
-{
-	this.bindEventsOn();
-	
-	this.organizations = organizations;
+var People = function(){
 };
 
 People.prototype = {
@@ -10,29 +6,22 @@ People.prototype = {
 	constructor: People,
 	classe : 'People',
 	data : [],
-	
-	bindEventsOn: function()
-	{
-		var that = this;
-
-		$("body").on("click", "a[data-action='loadPeople']", function(e){
-			e.preventDefault();
-			var anchor = $(e.target);
-			that.loadPeople(anchor.data('url'));
-		});
-	},
 
 	loadPeople: function(url)
 	{
 		that = this;
-		$.getJSON(url, function(data) {
-			that.data = data;
-			that.onLoadPeopleCompleted();
-		});
+		$.ajax({
+			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
+
+		}).done(that.onLoadPeopleCompleted.bind(this));
 	},
 
-	onLoadPeopleCompleted: function()
+	onLoadPeopleCompleted: function(json)
 	{
+		this.data = json;
 		var container = $('#people');
 		container.empty();
 
@@ -50,5 +39,6 @@ People.prototype = {
 };
 
 $().ready(function(e){
-	people = new People(organizations);
+	people = new People();
+	people.loadPeople($("#people-home").attr('href')+'/members')
 });

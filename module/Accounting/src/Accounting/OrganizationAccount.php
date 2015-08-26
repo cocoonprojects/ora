@@ -12,4 +12,14 @@ class OrganizationAccount extends Account
 		$organization->changeAccount($rv, $createdBy);
 		return $rv;
 	}
+
+	/**
+	 * Returns the string identifier of the Resource
+	 *
+	 * @return string
+	 */
+	public function getResourceId()
+	{
+		return 'Ora\OrganizationAccount';
+	}
 }

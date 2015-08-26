@@ -15,11 +15,6 @@ default:
             contexts:
                 - RestContext:
                     - http://oraprojecttest
-        login_features:
-            paths: 
-                - functional/features/login
-            contexts: 
-                - LoginContext
         mail_features:
             paths: 
                 - functional/features/mail

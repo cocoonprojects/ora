@@ -5,9 +5,12 @@ return array(
 	'router' => array(
 		'routes' => array(
 			'tasks-home' => array(
-				'type' => 'Zend\Mvc\Router\Http\Literal',
+				'type' => 'Segment',
 				'options' => array(
-					'route'	   => '/task-management',
+					'route'	   => '/:orgId/task-management',
+					'constraints' => array(
+						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+					),
 					'defaults' => array(
 						'controller' => 'TaskManagement\Controller\Index',
 						'action'	 => 'index',
@@ -17,56 +20,43 @@ return array(
 			'streams' => array(
 				'type' => 'Segment',
 				'options' => array(
-					'route'	   => '/task-management/streams[/:id]',
+					'route'	   => '/:orgId/task-management/streams[/:id]',
 					'constraints' => array(
 						'id' => '[0-9a-z\-]+',
+						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
 					),
 					'defaults' => array(
-						'controller' => 'TaskManagement\Controller\Streams'
+						'controller' => 'TaskManagement\Controller\Streams',
 					),
 				),
 			),
 			'tasks' => array(
 				'type' => 'Segment',
 				'options' => array(				
-					'route'	   => '/task-management/tasks[/:id][/:controller]',
+					'route'	   => '/:orgId/task-management/tasks[/:id][/:controller]',
 					'constraints' => array(
-							//'id' => '[0-9a-z\-]+'
-							'id' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+						'id' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
 					),
 					'defaults' => array(
 						'__NAMESPACE__' => 'TaskManagement\Controller',
-						'controller' => 'Tasks'
+						'controller' => 'Tasks',
 					),
 				),
 			),
 			'task-reminders' => array(
 				'type' => 'Zend\Mvc\Router\Http\Literal',
 				'options' => array(
-					'route'	   => '/task-management/tasks/reminders/:id',					
+					'route'	   => '/task-management/tasks/reminders/:id',
 					'constraints' => array(
-						'id' => '[a-zA-Z-]+',	
+						'id' => '[a-zA-Z-]+',
 					),
 					'defaults' => array(
 						'__NAMESPACE__' => 'TaskManagement\Controller',
 						'controller' => 'Reminders'
 					),
 				),
-			),
-			'mail' => array(
-				'type' => 'Segment',
-				'options' => array(
-					'route'	   => '/task-management/mail[/:id]',					
-					'constraints' => array(
-						//'id' => '[a-zA-Z-]+',	
-						'id' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
-					),
-					'defaults' => array(
-						'__NAMESPACE__' => 'TaskManagement\Controller',
-						'controller' => 'Mail'
-					),
-				),
-			)		
+			)	
 		),
 	),
 	'translator' => array(),

@@ -11,6 +11,6 @@ class MemberOfOrganizationAssertion implements AssertionInterface
 {
 	public function assert(Acl $acl, RoleInterface $user = null, ResourceInterface $resource = null, $privilege = null)
 	{
-		return $user->isMemberOf($resource);	
+		return $user->isMemberOf($resource);
 	}
 }

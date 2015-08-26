@@ -6,8 +6,9 @@ use Rhumsaa\Uuid\Uuid;
 use Application\DomainEntity;
 use Application\Entity\User;
 use Application\DuplicatedDomainEntityException;
+use Zend\Permissions\Acl\Resource\ResourceInterface;
 
-class Account extends DomainEntity
+class Account extends DomainEntity implements ResourceInterface
 {
 	/**
 	 * @var Uuid
@@ -55,17 +56,34 @@ class Account extends DomainEntity
 		if ($amount <= 0) {
 			throw new IllegalAmountException($amount);
 		}
-// 		if(!array_key_exists($holder->getId(), $this->holders)) {
-// 			throw new IllegalPayerException();
-// 		}
+//		if(!array_key_exists($holder->getId(), $this->holders)) {
+//			throw new IllegalPayerException();
+//		}
 
 		$this->recordThat(CreditsDeposited::occur($this->id->toString(), array(
-				'amount' => $amount,
-				'description' => $description,
-				'payer'	 => $holder->getId(),
-				'balance' => $this->balance->getValue() + $amount,
-				'prevBalance' => $this->balance->getValue(),
+			'amount'      => $amount,
+			'description' => $description,
+			'balance'     => $this->balance->getValue() + $amount,
+			'prevBalance' => $this->balance->getValue(),
+			'by'          => $holder->getId(),
 		)));
+		return $this;
+	}
+
+	public function withdraw($amount, User $holder, $description) {
+		if ($amount >= 0) {
+			throw new IllegalAmountException($amount);
+		}
+//		if(!array_key_exists($holder->getId(), $this->holders)) {
+//			throw new IllegalPayerException();
+//		}
+		$this->recordThat(CreditsWithdrawn::occur($this->id->toString(), [
+			'amount'      => $amount,
+			'description' => $description,
+			'balance'     => $this->balance->getValue() + $amount,
+			'prevBalance' => $this->balance->getValue(),
+			'by'          => $holder->getId(),
+		]));
 		return $this;
 	}
 	
@@ -98,7 +116,12 @@ class Account extends DomainEntity
 		)));
 		return $this;
 	}
-	
+
+	/**
+	 * @param User $holder
+	 * @param User $by
+	 * @return $this
+	 */
 	public function addHolder(User $holder, User $by) {
 		if(array_key_exists($holder->getId(), $this->holders)) {
 			throw new DuplicatedDomainEntityException($this, $holder);
@@ -111,7 +134,25 @@ class Account extends DomainEntity
 		)));
 		return $this;
 	}
-	
+
+	/**
+	 * @param User $user
+	 * @return bool
+	 */
+	public function isHeldBy(User $user) {
+		return array_key_exists($user->getId(), $this->holders);
+	}
+
+	/**
+	 * Returns the string identifier of the Resource
+	 *
+	 * @return string
+	 */
+	public function getResourceId()
+	{
+		return 'Ora\PersonalAccount';
+	}
+
 	protected function whenAccountCreated(AccountCreated $event) {
 		$this->id = Uuid::fromString($event->aggregateId());
 		$this->organizationId = Uuid::fromString($event->payload()['organization']);
@@ -130,7 +171,13 @@ class Account extends DomainEntity
 		$value = $e->payload()['amount'];
 		$this->balance = new Balance($current + $value, $e->occurredOn());
 	}
-	
+
+	protected function whenCreditsWithdrawn(CreditsWithdrawn $e) {
+		$current = $this->getBalance()->getValue();
+		$value = $e->payload()['amount'];
+		$this->balance = new Balance($current + $value, $e->occurredOn());
+	}
+
 	protected function whenIncomingCreditsTransferred(IncomingCreditsTransferred $e) {
 		$current = $this->getBalance()->getValue();
 		$value = $e->payload()['amount'];

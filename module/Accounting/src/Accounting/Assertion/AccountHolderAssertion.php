@@ -11,6 +11,6 @@ class AccountHolderAssertion implements AssertionInterface
 {
 	public function assert(Acl $acl, RoleInterface $user = null, ResourceInterface $resource = null, $privilege = null)
 	{
-		return $resource->isHeldBy($user);	
+		return $resource->isHeldBy($user);
 	}
 }

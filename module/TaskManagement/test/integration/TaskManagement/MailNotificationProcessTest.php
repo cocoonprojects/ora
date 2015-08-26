@@ -3,14 +3,15 @@ namespace TaskManagement;
 
 use Guzzle\Http\Client;
 use IntegrationTest\Bootstrap;
+use PHPUnit_Framework_TestCase;
 use Prooph\EventStore\EventStore;
+use TaskManagement\Controller\SharesController;
 use Zend\Http\Request;
 use Zend\Http\Response;
 use Zend\Mvc\MvcEvent;
-use Zend\Mvc\Router\RouteMatch;
 use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
-use PHPUnit_Framework_TestCase;
-use TaskManagement\Controller\SharesController;
+use Zend\Mvc\Router\RouteMatch;
+use ZFX\Test\Authentication\AdapterMock;
 use ZFX\Test\Authentication\OAuth2AdapterMock;
 
 class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
@@ -69,7 +70,7 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		$this->controller->setEvent($this->event);
 		$this->controller->setServiceLocator($serviceManager);
 
-		$adapter = new OAuth2AdapterMock();
+		$adapter = new AdapterMock();
 		$adapter->setEmail($this->owner->getEmail());
 		$this->authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
 		$this->authService->authenticate($adapter);

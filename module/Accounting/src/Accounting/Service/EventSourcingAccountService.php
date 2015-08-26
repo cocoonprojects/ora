@@ -12,6 +12,7 @@ use Rhumsaa\Uuid\Uuid;
 use Application\Entity\User;
 use People\Organization;
 use People\Entity\OrganizationMembership;
+use People\Entity\Organization as ReadModelOrganization;
 use Accounting\Account;
 use Accounting\OrganizationAccount;
 use Accounting\Entity\Account as ReadModelAccount;
@@ -77,19 +78,22 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	/**
 	 * @param string|Uuid
 	 * @return null|object
+	 * @codeCoverageIgnore
 	 */
 	public function getAccount($id) {
 		$aId = $id instanceof Uuid ? $id->toString() : $id;
 		return $this->getAggregateRoot($aId);
 	}
 	
-	public function findAccounts(User $holder) {
+	public function findAccounts(User $holder, ReadModelOrganization $organization) {
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('a')
 			->from(ReadModelAccount::class, 'a')
 			->leftJoin(OrganizationMembership::class, 'm', 'WITH', 'm.organization = a.organization')
 			->where($builder->expr()->orX(':user = m.member', ':user MEMBER OF a.holders'))
+			->andWhere('a.organization = :organization')
 			->setParameter('user', $holder)
+			->setParameter('organization', $organization)
 			->getQuery();
 		return $query->getResult();
 	}
@@ -97,26 +101,33 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	/**
 	 * @param string
 	 * @return null|object
+	 * @codeCoverageIgnore
 	 */
 	public function findAccount($id) {
 		return $this->entityManager->getRepository(ReadModelAccount::class)->find($id);
 	}
 
 	/**
+	 * Personal Account could be more than one in case of a join->unjoin->join of an organization. We do not remove old
+	 * account but we make it unacessible
+	 *
 	 * @param User|string $user
 	 * @param Organization|string $organization
 	 * @return Account
 	 * @throws \Doctrine\ORM\NoResultException
 	 * @throws \Doctrine\ORM\NonUniqueResultException
+	 * @codeCoverageIgnore
 	 */
 	public function findPersonalAccount($user, $organization) {
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('p')
 			->from(PersonalAccount::class, 'p')
 			->where($builder->expr()->andX(':user MEMBER OF p.holders', 'p.organization = :organization'))
+			->orderBy('p.createdAt', 'DESC')
 			->setParameter('user', $user)
 			->setParameter('organization', $organization)
 			->getQuery();
+		$query->setMaxResults(1);
 		
 		return $query->getSingleResult();
 	}
@@ -124,6 +135,7 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	/**
 	 * @param Organization|string $organization
 	 * @return null|object
+	 * @codeCoverageIgnore
 	 */
 	public function findOrganizationAccount($organization) {
 		return $this->entityManager->getRepository(ReadModelOrgAccount::class)->findOneBy(array('organization' => $organization));

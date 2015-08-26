@@ -40,4 +40,13 @@ class LoginContext extends MinkContext implements Context
 		$page = $this->getSession()->getPage();
 		$page->hasContent($arg1);		
 	}
+	
+	/**
+	 * @Then /^I should see "([^"]*)" login button$/
+	 */
+	public function iShouldSeeLoginButton($arg1)
+	{
+		$page = $this->getSession()->getPage();
+		$page->has('css', $arg1);
+	}
 }

@@ -3,9 +3,15 @@
 		<h1>Organizations</h1>
 	</div>
 	<div id="content">
-		<div class="alert" role="alert"></div>
+		<div class="alert" role="alert" style="display: none"></div>
 		<ol id="organizations">
 
 		</ol>
+		<a href="<?= $this->url('home') ?>" class="btn btn-default">Back</a>
 	</div>
 </div>
+<?php $this->inlineScript()->captureStart() ?>
+$(document).ready(function() {
+	organizations.loadOrganizations();
+});
+<?php $this->inlineScript()->captureEnd() ?>
