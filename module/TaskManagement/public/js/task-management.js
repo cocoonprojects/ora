@@ -511,7 +511,7 @@ TaskManagement.prototype = {
 				}
 				
 				if(task._links['ora:sendReminder'] != undefined && task.status == TASK_STATUS.get('ONGOING')){
-					actions.push('<a href="' + task._links['ora:sendReminder'] + '" data-action="add-estimation" class="btn">Send Reminder <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></a>');
+					actions.push('<a href="' + task._links['ora:sendReminder'] + '" data-task="'+task.id+'"data-action="add-estimation" class="btn">Send Reminder <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></a>');
 				}
 				
 				rv = that.renderTask(task);
@@ -857,8 +857,10 @@ TaskManagement.prototype = {
 	},
 	
 	sendReminder: function(e){
+		var modal = $(e.delegateTarget);
 		var url = $(e.target).attr('href');
-		var type = $(e.target).attr('data-action');
+		var taskId = $(e.target).attr('data-task');
+		var id = $(e.target).attr('data-action');
 		
 		$.ajax({
 			url: $(e.target).attr('href'),
@@ -866,7 +868,7 @@ TaskManagement.prototype = {
 				'GOOGLE-JWT': sessionStorage.token
 			},
 			method: 'POST',
-			data: {type: $(e.target).attr('data-action')},
+			data: {id:'add-estimation', taskId:$(e.target).attr('data-task')},
 			success: function() {
 				that.listTasks();
 			},

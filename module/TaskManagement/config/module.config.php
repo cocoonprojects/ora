@@ -56,20 +56,6 @@ return array(
 						'controller' => 'Reminders'
 					),
 				),
-			),
-			'mail' => array(
-				'type' => 'Segment',
-				'options' => array(
-					'route'	   => '/task-management/mail[/:id]',					
-					'constraints' => array(
-						//'id' => '[a-zA-Z-]+',	
-						'id' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
-					),
-					'defaults' => array(
-						'__NAMESPACE__' => 'TaskManagement\Controller',
-						'controller' => 'Mail'
-					),
-				),
 			)		
 		),
 	),
