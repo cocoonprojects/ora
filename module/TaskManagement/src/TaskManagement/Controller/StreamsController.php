@@ -6,12 +6,14 @@ use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
-use ZFX\Rest\Controller\HATEOASRestfulController;
-use People\Service\OrganizationService;
 use TaskManagement\View\StreamJsonModel;
 use TaskManagement\Service\StreamService;
+use Zend\Mvc\MvcEvent;
+use Zend\EventManager\EventManagerInterface;
+use Application\Controller\OrganizationAwareController;
+use People\Service\OrganizationService;
 
-class StreamsController extends HATEOASRestfulController
+class StreamsController extends OrganizationAwareController
 {
 	protected static $collectionOptions = array ('GET','POST');
 	protected static $resourceOptions = array ('DELETE','GET');
@@ -20,15 +22,10 @@ class StreamsController extends HATEOASRestfulController
 	 * @var StreamService
 	 */
 	protected $streamService;
-	/**
-	 * 
-	 * @var OrganizationService
-	 */
-	protected $organizationService;
 	
 	public function __construct(StreamService $streamService, OrganizationService $organizationService) {
+		parent::__construct($organizationService);
 		$this->streamService = $streamService;
-		$this->organizationService = $organizationService;
 	}
 	
 	public function get($id)
@@ -41,45 +38,38 @@ class StreamsController extends HATEOASRestfulController
 	
 	public function getList()
 	{
-		$identity = $this->identity();
-		if(is_null($identity)) {
+		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
-	   	}
-	   	$identity = $identity['user'];
+		}
 
-	   	$streams = $this->streamService->findStreams($identity);
-	   	$view = new StreamJsonModel($this->url(), $identity);
+	   	if(!$this->isAllowed($this->identity(), $this->organization, 'TaskManagement.Stream.list')){
+	   		$this->response->setStatusCode(403);
+	   		return $this->response;
+	   	}
+	   	
+	   	$streams = $this->streamService->findStreams($this->organization);
+	   	$view = new StreamJsonModel($this->url(), $this->identity(), $this->organization);
 	   	$view->setVariable('resource', $streams);
 		return $view;
 	}
 	
 	public function create($data)
 	{
-		$identity = $this->identity();
-		if(is_null($identity)) {
+		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		$identity = $identity['user'];
-		
-		if(!isset($data['organizationId'])) {
-			$this->response->setStatusCode(400);
-			return $this->response;
-		}
-		$organization = $this->organizationService->getOrganization($data['organizationId']);
-		if(is_null($organization)) {
-			$this->response->setStatusCode(404);
-			return $this->response;
-		}
+
 		$filters = new FilterChain();
 		$filters->attach(new StringTrim())
 				->attach(new StripNewlines())
 				->attach(new StripTags());
 		
 		$subject = isset($data['subject']) ? $filters->filter($data['subject']) : null;
-		$stream = $this->streamService->createStream($organization, $subject, $identity);
-		$url = $this->url()->fromRoute('streams', array('id' => $stream->getId()));
+		$organization = $this->getOrganizationService()->getOrganization($this->organization->getId());
+		$stream = $this->streamService->createStream($organization, $subject, $this->identity());
+		$url = $this->url()->fromRoute('streams', array('orgId' => $organization->getId(),'id' => $stream->getId()));
 		$this->response->getHeaders()->addHeaderLine('Location', $url);
 		$this->response->setStatusCode(201);
 		
@@ -123,11 +113,6 @@ class StreamsController extends HATEOASRestfulController
 		return $this->streamService;
 	}
 	
-	public function getOrganizationService()
-	{
-		return $this->organizationService;
-	}
-	
 	protected function getCollectionOptions()
 	{
 		return self::$collectionOptions;
@@ -137,5 +122,4 @@ class StreamsController extends HATEOASRestfulController
 	{
 		return self::$resourceOptions;
 	}
-	
 }

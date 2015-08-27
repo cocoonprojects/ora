@@ -1,66 +1,65 @@
 <?php
 namespace Accounting\Controller;
 
-use Zend\Authentication\AuthenticationServiceInterface;
-use Zend\Permissions\Acl\Acl;
-use ZFX\Rest\Controller\HATEOASRestfulController;
 use Accounting\Service\AccountService;
 use Accounting\View\AccountsJsonModel;
+use Application\Controller\OrganizationAwareController;
+use Application\Service\UserService;
+use People\Service\OrganizationService;
+use Zend\Permissions\Acl\Acl;
 
-class AccountsController extends HATEOASRestfulController
+class AccountsController extends OrganizationAwareController
 {
 	protected static $collectionOptions = ['GET'];
-	protected static $resourceOptions = ['GET'];
+	protected static $resourceOptions = [];
 	/**
-	 * 
 	 * @var AccountService
 	 */
 	protected $accountService;
 	/**
-	 * 
 	 * @var Acl
 	 */
 	private $acl;
+	/**
+	 * @var UserService
+	 */
+	private $userService;
 	
-	public function __construct(AccountService $accountService, Acl $acl) {
+	public function __construct(AccountService $accountService, UserService $userService, Acl $acl, OrganizationService $organizationService) {
+		parent::__construct($organizationService);
 		$this->accountService = $accountService;
 		$this->acl = $acl;
+		$this->userService = $userService;
 	}
 	
-	// Gets my credits accounts list
 	public function getList()
 	{
 		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		
-		$identity = $this->identity()['user'];
-		$accounts = $this->accountService->findAccounts($identity);
-		
-		$viewModel = new AccountsJsonModel($this->url(), $identity, $this->acl);
-		$viewModel->setVariable('resource', $accounts);
-		return $viewModel;
+		if(!$this->isAllowed($this->identity(), $this->organization, 'Accounting.Accounts.list')){
+			$this->response->setStatusCode(403);
+			return $this->response;
+		}
+
+		$email = $this->params()->fromQuery('email');
+		if(!empty($email)) {
+			$user = $this->userService->findUserByEmail($email);
+			$account = $this->accountService->findPersonalAccount($user, $this->organization);
+			$viewModel = new AccountsJsonModel($this->url(), $this->identity(), $this->acl, $this->organization);
+			$viewModel->setVariable('resource', [$account]);
+			return $viewModel;
+		}
+
+		$this->response->setStatusCode(400);
+		return $this->response;
 	}
 
-	public function get($id)
-	{
-		if(is_null($this->identity())) {
-			$this->response->setStatusCode(401);
-			return $this->response;
-		}
-		
-		$identity = $this->identity()['user'];
-		$rv = $this->accountService->findAccount($id);
-		if(is_null($rv)) {
-			$this->response->setStatusCode(404);
-			return $this->response;
-		}
-		$viewModel = new AccountsJsonModel($this->url(), $identity, $this->acl);
-		$viewModel->setVariable('resource', $rv);
-		return $viewModel;
+	public function getAccountService() {
+		return $this->accountService;
 	}
-	
+
 	protected function getCollectionOptions() {
 		return self::$collectionOptions;
 	}
@@ -68,5 +67,4 @@ class AccountsController extends HATEOASRestfulController
 	protected function getResourceOptions() {
 		return self::$resourceOptions;
 	}
-	
 }

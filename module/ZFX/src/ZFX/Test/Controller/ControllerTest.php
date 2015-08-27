@@ -3,6 +3,7 @@ namespace ZFX\Test\Controller;
 
 use UnitTest\Bootstrap;
 use Zend\Http\Request;
+use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\RouteMatch;
 use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
@@ -14,6 +15,9 @@ use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
 
 abstract class ControllerTest extends \PHPUnit_Framework_TestCase
 {
+	/**
+	 * @var AbstractRestfulController
+	 */
 	protected $controller;
 	/**
 	 * 
@@ -30,10 +34,15 @@ abstract class ControllerTest extends \PHPUnit_Framework_TestCase
 	 * @var MvcEvent
 	 */
 	protected $event;
+
+	protected $acl;
 	
 	protected function setUp()
 	{
 		$serviceManager = Bootstrap::getServiceManager();
+		$aclFactory = new AclFactory();
+		$this->acl = $aclFactory->createService($serviceManager);
+
 		$this->controller = $this->setupController();
 		$this->request	= new Request();
 		$this->routeMatch = new RouteMatch($this->setupRouteMatch());
@@ -52,10 +61,7 @@ abstract class ControllerTest extends \PHPUnit_Framework_TestCase
 			->setMethods(['begin', 'commit', 'rollback'])
 			->getMock();
 		$this->controller->getPluginManager()->setService('transaction', $transaction);
-
-		$aclFactory = new AclFactory();
-		$acl = $aclFactory->createService($serviceManager);
-		$this->controller->getPluginManager()->setService('isAllowed', new IsAllowed($acl));
+		$this->controller->getPluginManager()->setService('isAllowed', new IsAllowed($this->acl));
 
 		$this->setupMore();
 	}
@@ -79,10 +85,10 @@ abstract class ControllerTest extends \PHPUnit_Framework_TestCase
 		$identity = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Identity')
 			->disableOriginalConstructor()
 			->getMock();
-		$identity->method('__invoke')->willReturn(['user' => $user]);
+		$identity->method('__invoke')->willReturn($user);
 		$this->controller->getPluginManager()->setService('identity', $identity);
 	}
 	protected function getLoggedUser() {
-		return $this->controller->identity()['user'];
+		return $this->controller->identity();
 	}
 }

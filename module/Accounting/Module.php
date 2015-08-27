@@ -1,16 +1,21 @@
 <?php
 namespace Accounting;
 
-use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
-use Zend\ModuleManager\Feature\ConfigProviderInterface;
-use Accounting\Controller\IndexController;
 use Accounting\Controller\AccountsController;
 use Accounting\Controller\DepositsController;
+use Accounting\Controller\IncomingTransfersController;
+use Accounting\Controller\IndexController;
+use Accounting\Controller\OrganizationStatementController;
+use Accounting\Controller\OutgoingTransfersController;
+use Accounting\Controller\PersonalStatementController;
 use Accounting\Controller\StatementsController;
+use Accounting\Controller\WithdrawalsController;
+use Accounting\Service\AccountCommandsListener;
 use Accounting\Service\CreateOrganizationAccountListener;
 use Accounting\Service\CreatePersonalAccountListener;
-use Accounting\Service\AccountCommandsListener;
 use Accounting\Service\EventSourcingAccountService;
+use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
+use Zend\ModuleManager\Feature\ConfigProviderInterface;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {
@@ -18,14 +23,36 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 	{
 		return array(
 			'invokables' => array(
-				'Accounting\Controller\Index' => 'Accounting\Controller\IndexController',
 			),
-			'factories' => array(
+			'factories' => [
+				'Accounting\Controller\Index' => function($sm) {
+					$locator = $sm->getServiceLocator();
+					$organizationService = $locator->get('People\OrganizationService');
+					return new IndexController($organizationService);
+				},
 				'Accounting\Controller\Accounts' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$userService = $locator->get('Application\UserService');
+					$accountService = $locator->get('Accounting\CreditsAccountsService');
+					$acl = $locator->get('Application\Service\Acl');
+					$organizationService = $locator->get('People\OrganizationService');
+					$controller = new AccountsController($accountService, $userService, $acl, $organizationService);
+					return $controller;
+				},
+				'Accounting\Controller\PersonalStatement' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
 					$acl = $locator->get('Application\Service\Acl');
-					$controller = new AccountsController($accountService, $acl);
+					$organizationService = $locator->get('People\OrganizationService');
+					$controller = new PersonalStatementController($accountService, $acl, $organizationService);
+					return $controller;
+				},
+				'Accounting\Controller\OrganizationStatement' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$accountService = $locator->get('Accounting\CreditsAccountsService');
+					$acl = $locator->get('Application\Service\Acl');
+					$organizationService = $locator->get('People\OrganizationService');
+					$controller = new OrganizationStatementController($accountService, $acl, $organizationService);
 					return $controller;
 				},
 				'Accounting\Controller\Deposits' => function ($sm) {
@@ -34,14 +61,29 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$controller = new DepositsController($accountService);
 					return $controller;
 				},
-				'Accounting\Controller\Statement' => function ($sm) {
+				'Accounting\Controller\Withdrawals' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
-					$acl = $locator->get('Application\Service\Acl');
-					$controller = new StatementsController($accountService, $acl);
+					$controller = new WithdrawalsController($accountService);
 					return $controller;
 				},
-			)
+				'Accounting\Controller\IncomingTransfers' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$accountService = $locator->get('Accounting\CreditsAccountsService');
+					$userService = $locator->get('Application\UserService');
+					$organizationService = $locator->get('People\OrganizationService');
+					$controller = new IncomingTransfersController($accountService, $userService, $organizationService);
+					return $controller;
+				},
+				'Accounting\Controller\OutgoingTransfers' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$accountService = $locator->get('Accounting\CreditsAccountsService');
+					$userService = $locator->get('Application\UserService');
+					$organizationService = $locator->get('People\OrganizationService');
+					$controller = new OutgoingTransfersController($accountService, $userService, $organizationService);
+					return $controller;
+				},
+			]
 		);
 	}
 	

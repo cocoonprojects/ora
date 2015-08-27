@@ -11,29 +11,37 @@ Organizations.prototype = {
 	data: [],
 	
 	membershipsData: null,
-	
+
 	bindEventsOn: function()
 	{
 		var that = this;
-		
-		$('#userMenu').on('show.bs.dropdown', function(e) {
-			container = $(e.target);
-			$('li.membership').remove();
-			if(that.membershipsData == null) {
-				$('<li class="membership"><a href="#">Loading...</a></li>').insertBefore('#myOrgDevider');
-			} else {
-				$.each(that.membershipsData._embedded['ora:organization-membership'], function(i, object) {
-					$('<li class="membership"><a href="#" data-url="people/organizations/' + object.organization.id + '/members" data-action="loadPeople">' + object.organization.name + '</a></li>').insertBefore('#myOrgDevider');
-				});
-			}
+
+		$('div#sign-in').on('loggedIn', function(e, user) {
+			$(this).hide();
+			sessionStorage.setItem('token', user.token);
+			console.log("ID Token saved in client session");
+			sessionStorage.setItem('avatar', user.avatar);
+			sessionStorage.setItem('email', user.email);
+			that.init();
+			that.loadMyOrganizations();
 		});
-		
+
+		$('div#sign-in').on('loggedOut', function(e) {
+			sessionStorage.clear();
+			console.log("Client session cleared");
+			window.location = '/';
+		});
+
+		$("body").on("click", "a[data-action='loadOrganization']", function(e){
+			window.location = + e.target.href;
+		});
+
 		$("#createOrganizationModal").on("show.bs.modal", function(e) {
 			var modal = $(this);
 			modal.find('div.alert').hide();
 			modal.find("form")[0].reset();
 		});
-		
+
 		$("#createOrganizationModal").on("submit", "form", function(e){
 			e.preventDefault();
 			that.createOrganization(e);
@@ -50,6 +58,24 @@ Organizations.prototype = {
 		});
 	},
 
+	loadMyOrganizations: function () {
+		$.ajax({
+			url: '/memberships',
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			}
+		}).done(this.showMyOrganizations.bind(this));
+	},
+
+	showMyOrganizations: function(json)
+	{
+		var container = $('#organizations ul').first().empty();
+		$.each(json._embedded['ora:organization-membership'], function(i, object) {
+			container.append('<li><a href="' + object.organization._links['ora:task'].href + '" data-action="loadOrganization">' + object.organization.name + '</li>');
+		});
+		$('#organizations').show();
+	},
+	
 	createOrganization: function(e)
 	{
 		var form = $(e.target);
@@ -59,11 +85,14 @@ Organizations.prototype = {
 		
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data: form.serialize(),
 			success: function() {
 				modal.modal('hide');
-				that.init();
+				that.loadMyOrganizations();
 			},
 			error: function(jqHXR, textStatus, errorThrown) {
 				json = $.parseJSON(jqHXR.responseText);
@@ -84,12 +113,15 @@ Organizations.prototype = {
 
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			complete: function(xhr, textStatus) {
 				m = $('#content');
 				if (xhr.status === 201) {
 					that.show(m, 'success', 'You successfully joined the organization');
-					that.init();
+					that.loadOrganizations();
 				}
 				else if (xhr.status === 204) {
 					that.show(m, 'warning', 'You are already member of the organization');
@@ -109,12 +141,15 @@ Organizations.prototype = {
 
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'DELETE',
 			complete: function(xhr, textStatus) {
 				m = $('#content');
 				if (xhr.status === 200) {
 					that.show(m, 'success', 'You successfully unjoined the organization');
-					that.init();
+					that.loadOrganizations();
 				}
 				else if (xhr.status === 204) {
 					that.show(m, 'warning', 'You are already not a member of the organization');
@@ -124,28 +159,35 @@ Organizations.prototype = {
 				}
 			}
 		});
-
 	},
 
-	onLoadOrganizationsCompleted: function()
+	loadOrganizations: function () {
+		var that = this;
+
+		$.ajax({
+			url: 'people/organizations',
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
+			method: 'GET',
+		}).done(that.onLoadOrganizationsCompleted.bind(this));
+	},
+
+	onLoadOrganizationsCompleted: function(json)
 	{
 		var container = $('#organizations');
 		container.empty();
 
-		var organizations = this.data._embedded['ora:organization'];
-
-		if ($(organizations).length == 0) {
+		if (json.count.length == 0) {
 			container.append("<p>No organizations found</p>");
 		} else {
 			var that = this;
-			$.each(organizations, function(key, org) {
-				member = '<a href="people/organizations/' + org.id + '/members" class="btn btn-info" data-action="joinOrganization">Join</a>';
-				$.each(that.membershipsData._embedded['ora:organization-membership'], function(i, object) {
-					if(object.organization.id == org.id) {
-						member = '<a href="people/organizations/' + org.id + '/members" class="btn btn-warning" data-action="unjoinOrganization">Unjoin</a>';
-					}
-				});
-
+			$.each(json._embedded['ora:organization'], function(key, org) {
+				if(org.membership) {
+					member = '<a href="' + org._links['ora:member'].href + '" class="btn btn-warning" data-action="unjoinOrganization">Unjoin</a>';
+				} else {
+					member = '<a href="' + org._links['ora:member'].href + '" class="btn btn-info" data-action="joinOrganization">Join</a>';
+				}
 				container.append('<li style="margin-bottom: 5px"><span>' + org.name + '</span> ' + member + '</li>');
 			});
 		}
@@ -153,30 +195,16 @@ Organizations.prototype = {
 
 	init: function()
 	{
-		var that = this;
-		if($("ol#organizations").length) {
-			$.when($.ajax('people/organizations'), $.ajax('/memberships')).done(function(orgs, myorgs) {
-				that.setMembershipsData(myorgs[0]);
-				that.setOrganizationsData(orgs[0]);
-				that.onLoadOrganizationsCompleted();
-			});
-		} else {
-			$.getJSON('/memberships', function(data) { that.setMembershipsData(data); } );
+		if(sessionStorage.getItem('token')) {
+			$('#identityMenu p')
+				.text(sessionStorage.getItem('email'))
+				.prepend('<img src="' + sessionStorage.getItem('avatar') + '" alt="Avatar" style="max-width: 20px; max-height: 20px;" class="img-circle">');
+			$('#identityMenu').show();
 		}
 	},
 
-	setMembershipsData: function(data)
-	{
-		this.membershipsData = data;
-	},
-
-	setOrganizationsData: function(data)
-	{
-		this.data = data;
-	},
-	
 	show: function(container, level, message) {
-		alertDiv = container.find('div.alert');
+		var alertDiv = container.find('div.alert');
 		alertDiv.removeClass();
 		alertDiv.addClass('alert alert-' + level);
 		alertDiv.text(message);

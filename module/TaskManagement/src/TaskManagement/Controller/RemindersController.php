@@ -53,9 +53,14 @@ class RemindersController extends HATEOASRestfulController
 	 * @return HTTPStatusCode
 	 * 
 	 */
-	public function create($data){
-		
-		if(!(isset($this->identity()['user']) && $this->isAllowed($this->identity()['user'], NULL, 'TaskManagement.Reminder.createReminder'))){
+	public function create($data)
+	{
+		if(is_null($this->identity())) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+
+		if(!$this->isAllowed($this->identity(), NULL, 'TaskManagement.Reminder.createReminder')){
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
@@ -65,16 +70,15 @@ class RemindersController extends HATEOASRestfulController
 			return $this->response;
 		}
 
-
 		switch ($data['id']) {
 			case "assignment-of-shares":
 				
 				$tasksToNotify = $this->taskService->findAcceptedTasksBefore($this->getIntervalForRemindAssignmentOfShares());
 				
-				if(is_array($tasksToNotify) && count($tasksToNotify) > 0){				
+				if(is_array($tasksToNotify) && count($tasksToNotify) > 0){
 					foreach ($tasksToNotify as $taskToNotify){
 						$this->notifyMailListener->remindAssignmentOfShares($taskToNotify);
-					}		
+					}
 				}
 				break;
 			default:
