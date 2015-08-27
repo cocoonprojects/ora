@@ -862,6 +862,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: $(e.target).attr('href'),
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data: {type: $(e.target).attr('data-action')},
 			success: function() {

@@ -37,7 +37,7 @@ class MailController extends HATEOASRestfulController {
 			return $this->response;
 		}
 		
-		if (! (isset ( $this->identity ()['user'] ) && $this->isAllowed ( $this->identity ()['user'], $task, 'TaskManagement.Task.sendReminder' ))) {
+		if (! $this->isAllowed ( $this->identity (), $task, 'TaskManagement.Task.sendReminder' )) {
 			$this->response->setStatusCode ( 403 );
 			return $this->response;
 		}
