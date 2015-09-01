@@ -18,8 +18,8 @@ use Zend\View\Resolver\TemplateMapResolver;
 class RemindersController extends HATEOASRestfulController
 {
 
-	protected static $collectionOptions = ['POST'];
-	protected static $resourceOptions = [];
+	protected static $collectionOptions = [];
+	protected static $resourceOptions = ['POST'];
 	
 	/**
 	 *
@@ -53,7 +53,7 @@ class RemindersController extends HATEOASRestfulController
 	 * @return HTTPStatusCode
 	 * 
 	 */
-	public function create($data)
+	public function invoke($id, $data)
 	{
 		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
@@ -65,12 +65,12 @@ class RemindersController extends HATEOASRestfulController
 			return $this->response;
 		}
 		
-		if (!isset($data['id']) || $data['id'] == ''){
+		if (!isset($id) || $id == ''){
 			$this->response->setStatusCode(400);
 			return $this->response;
 		}
 
-		switch ($data['id']) {
+		switch ($id) {
 			case "assignment-of-shares":
 				
 				$tasksToNotify = $this->taskService->findAcceptedTasksBefore($this->getIntervalForRemindAssignmentOfShares());
