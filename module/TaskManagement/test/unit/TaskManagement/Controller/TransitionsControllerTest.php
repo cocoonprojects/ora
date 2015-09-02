@@ -8,7 +8,9 @@ use Application\Entity\User;
 use People\Organization;
 use TaskManagement\Stream;
 use TaskManagement\Task;
+use TaskManagement\Entity\Task as ReadModelTask;
 use TaskManagement\Service\TaskService;
+use TaskManagement\Service\NotifyMailListener;
 use TaskManagement\Controller\TransitionsController;
 
 class TransitionsControllerTest extends ControllerTest
@@ -47,7 +49,8 @@ class TransitionsControllerTest extends ControllerTest
 	protected function setupController()
 	{
 		$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
-		$controller = new TransitionsController($taskServiceStub); 
+		$notifyMailListenerStub = $this->getMockBuilder(NotifyMailListener::class)->disableOriginalConstructor()->getMock();
+		$controller = new TransitionsController($taskServiceStub, $notifyMailListenerStub); 
 		
 		return $controller;
 	}
@@ -77,7 +80,7 @@ class TransitionsControllerTest extends ControllerTest
 		$this->controller->getTaskService()
 			->expects($this->once())
 			->method('findAcceptedTasksBefore')
-			->willReturn(array($this->task));
+			->willReturn(array(new ReadModelTask($this->task->getId())));
 		 
 		$this->controller->getTaskService()
 			->expects($this->once())

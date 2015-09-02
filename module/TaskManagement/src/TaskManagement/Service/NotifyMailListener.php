@@ -161,7 +161,30 @@ class NotifyMailListener implements ListenerAggregateInterface
 					'task' => $task,
 					'recipient'=> $recipient
 			));
+		}
+	}
+	
+	/**
+	 * Send an email notification to the members of $taskToNotify to inform them that it has been closed
+	 * @param Task $taskToNotify
+	 */
+	public function taskClosedInfoMail(ReadModelTask $task){
+	
+		$taskMembers = $task->getMembers();
+	
+		foreach ($taskMembers as $taskMember){
 			
+			$member = $taskMember->getMember();
+	
+			$message = $this->mailService->getMessage();
+			$message->setTo($member->getEmail());
+	
+			$this->mailService->setSubject ( "O.R.A. - task has been closed!" );
+	
+			$this->mailService->setTemplate( 'mail/task-closed-info.phtml', array(
+					'task' => $task,
+					'recipient'=> $member
+			));
 			$this->mailService->send();
 		}
 	}

@@ -114,6 +114,24 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 
 		unset($_SERVER['SERVER_NAME']);
 	}
+	
+	public function testSendEmailNotificationForTaskClosed()
+	{
+		$_SERVER['SERVER_NAME'] = 'example.com';
+	
+		$taskToNotify = $this->setupTaskWithMember();
+		$this->listener->taskClosedInfoMail($taskToNotify);
+		$emails = $this->getEmailMessages();
+		$this->assertNotEmpty($emails);
+		$this->assertEquals(1, count($emails));
+		$this->assertEmailSubjectEquals('O.R.A. - task has been closed!', $emails[0]);
+		$this->assertEmailHtmlContains('new book', $emails[0]);
+		$this->assertEmailHtmlContains('http://example.com/22222ab-1111-1111-1111-11111111c500/task-management#11111ab-1111-1111-1111-11111111c500', $emails[0]);
+		$this->assertNotEmpty($emails[0]->recipients);
+		$this->assertEquals($emails[0]->recipients[0], '<doriangray@email.com>');
+	
+		unset($_SERVER['SERVER_NAME']);
+	}
 
 	protected function cleanEmailMessages()
 	{

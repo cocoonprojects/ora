@@ -53,13 +53,13 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				},
 				'TaskManagement\Controller\Transitions' => function ($sm) {
 					$locator = $sm->getServiceLocator();
-					$acl = $locator->get('Application\Service\Acl');
-					$taskService = $locator->get('TaskManagement\TaskService');					
-					$controller = new TransitionsController($taskService, $acl);
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$notifyMailListener = $locator->get('TaskManagement\NotifyMailListener');
+					$controller = new TransitionsController($taskService, $notifyMailListener);
 					if(array_key_exists('assignment_of_shares_timebox', $locator->get('Config'))){
 						$assignmentOfSharesTimebox = $locator->get('Config')['assignment_of_shares_timebox'];
 						$controller->setIntervalForCloseTasks($assignmentOfSharesTimebox);
-					}					
+					}
 					return $controller;
 				},
 				'TaskManagement\Controller\Estimations' => function ($sm) {
@@ -83,12 +83,11 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				},
 				'TaskManagement\Controller\Reminders' => function ($sm) {
 					$locator = $sm->getServiceLocator();
-					$acl = $locator->get('Application\Service\Acl');
 					$notifyMailListener = $locator->get('TaskManagement\NotifyMailListener');
 					$taskService = $locator->get('TaskManagement\TaskService');	
-					$controller = new RemindersController($notifyMailListener, $taskService, $acl);
-				  	return $controller;
-			  	}
+					$controller = new RemindersController($notifyMailListener, $taskService);
+					return $controller;
+				}
 			)
 		);
 	} 

@@ -5,6 +5,7 @@ use ZFX\Rest\Controller\HATEOASRestfulController;
 use Application\IllegalStateException;
 use Application\InvalidArgumentException;
 use TaskManagement\Service\TaskService;
+use TaskManagement\Service\NotifyMailListener;
 use TaskManagement\Task;
 use Zend\Validator\InArray;
 use Application\Entity\User;
@@ -22,10 +23,16 @@ class TransitionsController extends HATEOASRestfulController
 	 *@var \DateInterval
 	 */
 	protected $intervalForCloseTasks;
+	/**
+	 *
+	 * @var NotifyMailListener
+	 */
+	protected $notifyMailListener;
 
-	public function __construct(TaskService $taskService) {
+	public function __construct(TaskService $taskService, NotifyMailListener $notifyMailListener) {
 		$this->taskService = $taskService;
 		$this->intervalForCloseTasks = new \DateInterval('P7D');
+		$this->notifyMailListener = $notifyMailListener;
 	}
 	
 	public function invoke($id, $data)
@@ -138,6 +145,7 @@ class TransitionsController extends HATEOASRestfulController
 					try {
 						$taskToClose->close($this->identity());
 						$this->transaction()->commit();
+						$this->notifyMailListener->taskClosedInfoMail($taskFound);
 					} catch ( IllegalStateException $e ) {
 						$this->transaction()->rollback();
 						continue; //skip task
