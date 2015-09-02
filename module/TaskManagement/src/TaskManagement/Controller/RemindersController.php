@@ -60,10 +60,11 @@ class RemindersController extends HATEOASRestfulController
 			return $this->response;
 		}
 
-		if(!$this->isAllowed($this->identity(), NULL, 'TaskManagement.Reminder.createReminder')){
+		//TODO Delete it
+		/*if(!$this->isAllowed($this->identity(), NULL, 'TaskManagement.Reminder.createReminder')){
 			$this->response->setStatusCode(403);
 			return $this->response;
-		}
+		}*/
 		
 		if (!isset($id) || $id == ''){
 			$this->response->setStatusCode(400);
@@ -73,6 +74,11 @@ class RemindersController extends HATEOASRestfulController
 		switch ($id) {
 			case "assignment-of-shares":
 				
+				if(!$this->isAllowed($this->identity(), NULL, 'TaskManagement.Reminder.assignment-of-shares')){
+					$this->response->setStatusCode(403);
+					return $this->response;
+				}
+				
 				$tasksToNotify = $this->taskService->findAcceptedTasksBefore($this->getIntervalForRemindAssignmentOfShares());
 				
 				if(is_array($tasksToNotify) && count($tasksToNotify) > 0){
@@ -81,6 +87,21 @@ class RemindersController extends HATEOASRestfulController
 					}
 				}
 				break;
+			case "add-estimation":
+				$task = $this->taskService->findTask (  $data['taskId'] );
+				
+				if (is_null ( $task )) {
+					$this->response->setStatusCode ( 404 );
+					return $this->response;
+				}
+				
+				if (! $this->isAllowed ( $this->identity (), $task, 'TaskManagement.Reminder.add-estimation' )) {
+					$this->response->setStatusCode ( 403 );
+					return $this->response;
+				}
+				
+				$this->notifyMailListener->reminderAddEstimation ( $task );
+				break;	
 			default:
 				$this->response->setStatusCode(405);
 				break;
