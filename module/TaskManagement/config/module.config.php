@@ -66,7 +66,7 @@ return array(
 								'controller' => 'Transitions'
 						),
 				),
-			)	
+			)
 		),
 	),
 	'translator' => array(),
