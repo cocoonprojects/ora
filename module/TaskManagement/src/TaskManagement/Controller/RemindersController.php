@@ -65,11 +65,6 @@ class RemindersController extends HATEOASRestfulController
 			return $this->response;
 		}
 		
-		if (!isset($id) || $id == ''){
-			$this->response->setStatusCode(400);
-			return $this->response;
-		}
-
 		switch ($id) {
 			case "assignment-of-shares":
 				

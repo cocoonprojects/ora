@@ -8,6 +8,7 @@ use TaskManagement\Service\TaskService;
 use TaskManagement\Service\NotifyMailListener;
 use UnitTest\Bootstrap;
 use ZFX\Acl\Controller\Plugin\IsAllowed;
+use Zend\Mvc\Router\RouteMatch;
 
 class RemindersControllerTest extends ControllerTest
 {
@@ -31,15 +32,16 @@ class RemindersControllerTest extends ControllerTest
 	
 	protected function setupRouteMatch()
 	{
-		return ['controller' => 'reminders'];
+		return [];
 	}
 	
 	public function testCreateAsAnonymous(){
 		$this->setupAnonymous();
+		$this->routeMatch = new RouteMatch(['controller' => 'reminders', 'id' => 'assignment-of-shares']);
+		$this->event->setRouteMatch($this->routeMatch);
+		$this->controller->setEvent($this->event);
 		
 		$this->request->setMethod('post');
-		$params = $this->request->getPost();
-		$params->set('id', 'assignment-of-shares');
 		
 		$result = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
@@ -49,10 +51,11 @@ class RemindersControllerTest extends ControllerTest
  	public function testCreateAsSystemUser(){
  		
  		$this->setupLoggedUser($this->systemUser);
+ 		$this->routeMatch = new RouteMatch(['controller' => 'reminders', 'id' => 'assignment-of-shares']);
+ 		$this->event->setRouteMatch($this->routeMatch);
+ 		$this->controller->setEvent($this->event);
  		
  		$this->request->setMethod('post');
- 		$params = $this->request->getPost();
- 		$params->set('id', 'assignment-of-shares');
  		
  		$result = $this->controller->dispatch($this->request);
  		$response = $this->controller->getResponse();
@@ -62,10 +65,11 @@ class RemindersControllerTest extends ControllerTest
  	public function testCreateANonExistentReminder(){
  			
  		$this->setupLoggedUser($this->systemUser);
+ 		$this->routeMatch = new RouteMatch(['controller' => 'reminders', 'id' => 'random-reminder']);
+ 		$this->event->setRouteMatch($this->routeMatch);
+ 		$this->controller->setEvent($this->event);
  			
  		$this->request->setMethod('post');
- 		$params = $this->request->getPost();
- 		$params->set('id', 'random-reminder');
  			
  		$result = $this->controller->dispatch($this->request);
  		$response = $this->controller->getResponse();
@@ -75,12 +79,14 @@ class RemindersControllerTest extends ControllerTest
  	public function testCreateWithoutParam(){
  	
  		$this->setupLoggedUser($this->systemUser);
+ 		$this->routeMatch = new RouteMatch(['controller' => 'reminders']);
+ 		$this->event->setRouteMatch($this->routeMatch);
+ 		$this->controller->setEvent($this->event);
  	
  		$this->request->setMethod('post');
- 		$params = $this->request->getPost();
  	
  		$result = $this->controller->dispatch($this->request);
  		$response = $this->controller->getResponse();
- 		$this->assertEquals(400, $response->getStatusCode());
+ 		$this->assertEquals(405, $response->getStatusCode());
  	}
 }

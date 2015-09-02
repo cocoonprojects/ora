@@ -56,8 +56,17 @@ return array(
 						'controller' => 'Reminders'
 					),
 				),
+			),
+			'task-transitions' => array(
+				'type' => 'Segment',
+				'options' => array(
+						'route'	   => '/task-management/tasks/transitions',
+						'defaults' => array(
+								'__NAMESPACE__' => 'TaskManagement\Controller',
+								'controller' => 'Transitions'
+						),
+				),
 			)
-				
 		),
 	),
 	'translator' => array(),
