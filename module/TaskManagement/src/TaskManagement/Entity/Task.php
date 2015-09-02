@@ -285,4 +285,18 @@ class Task extends EditableEntity implements ResourceInterface
 		return $members;
 	}
 	
+	public function findMembersWithNoEstimation(){
+		
+		$members = array();
+		
+		$taskMembers = $this->getMembers();
+		foreach ($taskMembers as $taskMember){
+			$estimation = $taskMember->getEstimation()->getValue();
+			if($estimation===null && $this->getMemberRole($taskMember->getMember())===$this::ROLE_MEMBER){
+				$members[] = $taskMember->getMember();
+			}
+		}
+		return $members;
+	}
+	
 }
