@@ -510,8 +510,8 @@ TaskManagement.prototype = {
 					actions.push('<a href="' + task._links['ora:delete'] + '" data-action="deleteTask" class="btn btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>');
 				}
 				
-				if(task._links['ora:sendReminder'] != undefined && task.status == TASK_STATUS.get('ONGOING')){
-					actions.push('<a href="' + task._links['ora:sendReminder'] + '" data-task="'+task.id+'"data-action="add-estimation" class="btn">Send Reminder <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></a>');
+				if(task._links['ora:addEstimationReminder'] != undefined && task.status == TASK_STATUS.get('ONGOING')){
+					actions.push('<a href="' + task._links['ora:addEstimationReminder'] + '" data-task="'+task.id+'"data-action="add-estimation" class="btn">Send Reminder <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></a>');
 				}
 				
 				rv = that.renderTask(task);

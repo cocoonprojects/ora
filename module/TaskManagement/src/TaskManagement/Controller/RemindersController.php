@@ -74,7 +74,7 @@ class RemindersController extends HATEOASRestfulController
 		switch ($data['id']) {
 			case "assignment-of-shares":
 				
-				if(!$this->isAllowed($this->identity(), NULL, 'TaskManagement.Reminder.createReminder')){
+				if(!$this->isAllowed($this->identity(), NULL, 'TaskManagement.Reminder.assignment-of-shares')){
 					$this->response->setStatusCode(403);
 					return $this->response;
 				}
@@ -89,12 +89,13 @@ class RemindersController extends HATEOASRestfulController
 				break;
 			case "add-estimation":
 				$task = $this->taskService->findTask (  $data['taskId'] );
+				
 				if (is_null ( $task )) {
 					$this->response->setStatusCode ( 404 );
 					return $this->response;
 				}
 				
-				if (! $this->isAllowed ( $this->identity (), $task, 'TaskManagement.Task.sendReminder' )) {
+				if (! $this->isAllowed ( $this->identity (), $task, 'TaskManagement.Reminder.add-estimation' )) {
 					$this->response->setStatusCode ( 403 );
 					return $this->response;
 				}
