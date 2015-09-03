@@ -51,7 +51,6 @@ Feature: List tasks
     Then the response status code should be 200
     And the response should have a "_links" property
     And the response should have a "_links.self" property
-    And the response should have a "_links.ora:complete" property
     And the response should have a "_links.ora:delete" property
     And the response should have a "_links.ora:estimate" property
     And the response should have a "_links.ora:edit" property
@@ -63,7 +62,6 @@ Feature: List tasks
     Then the response status code should be 200
     And the response should have a "_links" property
     And the response should have a "_links.self" property
-    And the response should have a "_links.ora:estimate" property
     And the response should have a "_links.ora:execute" property
 
   Scenario: Successfully getting command list on an accepted tasks of a stream

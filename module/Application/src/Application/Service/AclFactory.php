@@ -1,24 +1,24 @@
 <?php
 namespace Application\Service;
 
+use Accounting\Assertion\AccountHolderAssertion;
 use Accounting\Assertion\MemberOfAccountOrganizationAssertion;
-use TaskManagement\Assertion\MemberOfStreamOrganizationAssertion;
-use Zend\ServiceManager\FactoryInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\Permissions\Acl\Acl;
+use Accounting\Assertion\MemberOfOrganizationOrAccountHolderAssertion;
 use Application\Entity\User;
 use People\Assertion\MemberOfOrganizationAssertion;
-use Accounting\Assertion\AccountHolderAssertion;
-use Accounting\Assertion\MemberOfOrganizationOrAccountHolderAssertion;
+use TaskManagement\Assertion\MemberOfOngoingTaskAssertion;
+use TaskManagement\Assertion\MemberOfStreamOrganizationAssertion;
 use TaskManagement\Assertion\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion;
-use TaskManagement\Assertion\MemberOfNotAcceptedTaskAssertion;
-use TaskManagement\Assertion\TaskMemberNotOwnerAndNotCompletedTaskAssertion;
-use TaskManagement\Assertion\TaskOwnerAndNotCompletedTaskAssertion;
 use TaskManagement\Assertion\OwnerOfOpenOrCompletedTaskAssertion;
-use TaskManagement\Assertion\TaskOwnerAndOngoingOrAcceptedTaskAssertion;
-use TaskManagement\Assertion\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion;
 use TaskManagement\Assertion\TaskMemberAndAcceptedTaskAssertion;
+use TaskManagement\Assertion\TaskMemberNotOwnerAndNotCompletedTaskAssertion;
+use TaskManagement\Assertion\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion;
+use TaskManagement\Assertion\TaskOwnerAndNotCompletedTaskAssertion;
+use TaskManagement\Assertion\TaskOwnerAndOngoingOrAcceptedTaskAssertion;
 use TaskManagement\Assertion\TaskOwnerAndOngoingTaskAssertion;
+use Zend\Permissions\Acl\Acl;
+use Zend\ServiceManager\FactoryInterface;
+use Zend\ServiceManager\ServiceLocatorInterface;
 
 class AclFactory implements FactoryInterface
 {
@@ -49,7 +49,7 @@ class AclFactory implements FactoryInterface
 		$acl->allow(User::ROLE_USER, null, 'TaskManagement.Task.create');
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.get', new MemberOfStreamOrganizationAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.join', new OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion());
-		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.estimate', new MemberOfNotAcceptedTaskAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.estimate', new MemberOfOngoingTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.unjoin', new TaskMemberNotOwnerAndNotCompletedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', ['TaskManagement.Task.edit', 'TaskManagement.Task.delete'], new TaskOwnerAndNotCompletedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.execute', new OwnerOfOpenOrCompletedTaskAssertion());

@@ -58,12 +58,12 @@ Scenario: Cannot estimate a not existing task
 	When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000888/estimations"
 	Then the response status code should be 404
 
-Scenario: Successfully estimating a completed task
+Scenario: Cannot estimate a completed task
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to make a new "Estimation"
 	And that its "value" is "150"
 	When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000001/estimations"
-	Then the response status code should be 201
+	Then the response status code should be 412
 
 Scenario: Cannot estimate an accepted task
 	Given that I am authenticated as "mark.rogers@ora.local"

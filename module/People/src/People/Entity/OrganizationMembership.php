@@ -13,13 +13,13 @@ class OrganizationMembership
 {	
 	const ROLE_ADMIN = "admin";
 	const ROLE_MEMBER = "member";
-		
+
 	/**
 	 * @ORM\Column(type="string")
 	 * @var string
 	 */
 	private $role;
-			
+
 	/**
 	 * @ORM\Id
 	 * @ORM\ManyToOne(targetEntity="Application\Entity\User", inversedBy="memberships")
