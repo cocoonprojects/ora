@@ -511,7 +511,7 @@ TaskManagement.prototype = {
 				}
 				
 				if(task._links['ora:addEstimationReminder'] != undefined && task.status == TASK_STATUS.get('ONGOING')){
-					actions.push('<a href="' + task._links['ora:addEstimationReminder'] + '" data-task="'+task.id+'"data-action="add-estimation" class="btn">Send Reminder <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></a>');
+					actions.push('<a href="' + task._links['ora:addEstimationReminder'] + '" data-task="'+task.id+'"data-action="add-estimation" class="btn">Send reminder to estimate <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span></a>');
 				}
 				
 				rv = that.renderTask(task);
@@ -521,7 +521,7 @@ TaskManagement.prototype = {
 
 				container.append(
 					'<li id= "'+task.id+'" class="panel panel-default">' +
-						'<div class="panel-heading">' + subject + '</div>' +
+						'<div class="panel-heading">' + subject + '<div class="stream-subject pull-right">' + task.stream.subject + '</div></div>' +
 						'<div class="panel-body">' + rv + '</div>' +
 					'</li>');
 			});
