@@ -11,6 +11,11 @@ use People\Service\OrganizationService;
 use ZFX\Rest\Controller\HATEOASRestfulController;
 use Application\View\OrganizationMembershipJsonModel;
 
+/**
+ * Class MembershipsController
+ * @package Application\Controller
+ * TODO: rename into IdentityController
+ */
 class MembershipsController extends HATEOASRestfulController
 {
 	protected static $collectionOptions = array('GET', 'POST');
