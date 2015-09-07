@@ -130,10 +130,13 @@ class RemindersControllerTest extends ControllerTest
  		$this->setupLoggedUser ( $this->owner );
  	
  		$this->taskServiceStub->method ( 'findTask' )->willReturn ( $this->readModelTask );
+ 		
+ 		$this->routeMatch = new RouteMatch(['controller' => 'reminders', 'id' => 'add-estimation']);
+ 		$this->event->setRouteMatch($this->routeMatch);
+ 		$this->controller->setEvent($this->event);
  	
  		$this->request->setMethod ( 'post' );
  		$params = $this->request->getPost ();
- 		$params->set ( 'id', 'add-estimation' );
  		$params->set ( 'taskId', 'taskID' );
  	
  		$result = $this->controller->dispatch ( $this->request );
@@ -149,9 +152,12 @@ class RemindersControllerTest extends ControllerTest
  		$this->setupAnonymous ();
  		$this->taskServiceStub->method ( 'findTask' )->willReturn ( $this->readModelTask );
  	
+ 		$this->routeMatch = new RouteMatch(['controller' => 'reminders', 'id' => 'add-estimation']);
+ 		$this->event->setRouteMatch($this->routeMatch);
+ 		$this->controller->setEvent($this->event);
+ 		
  		$this->request->setMethod ( 'post' );
  		$params = $this->request->getPost ();
- 		$params->set ( 'id', 'add-estimation' );
  		$params->set ( 'taskId', 'taskID' );
  	
  		$result = $this->controller->dispatch ( $this->request );
@@ -160,42 +166,17 @@ class RemindersControllerTest extends ControllerTest
  		$this->assertEquals ( 401, $response->getStatusCode () );
  	}
  	
- 	public function testSendReminderWithNoIdReminder() {
- 		$this->setupLoggedUser ( $this->owner );
- 	
- 		$this->taskServiceStub->method ( 'findTask' )->willReturn ( $this->readModelTask );
- 	
- 		$this->request->setMethod ( 'post' ); // Post with no params
- 	
- 		$result = $this->controller->dispatch ( $this->request );
- 		$response = $this->controller->getResponse ();
- 	
- 		$this->assertEquals ( 400, $response->getStatusCode () );
- 	}
- 	
- 	public function testSendReminderWithWrongParams() {
- 		$this->setupLoggedUser ( $this->owner );
- 	
- 		$this->taskServiceStub->method ( 'findTask' )->willReturn ( $this->readModelTask );
- 	
- 		$this->request->setMethod ( 'post' );
- 		$params = $this->request->getPost ();
- 		$params->set ( 'id', 'wrong-parameter' );
- 	
- 		$result = $this->controller->dispatch ( $this->request );
- 		$response = $this->controller->getResponse ();
- 	
- 		$this->assertEquals ( 405, $response->getStatusCode () );
- 	}
- 	
  	public function testSendReminderNoTask() {
  		$this->setupLoggedUser ( $this->owner );
  	
  		$this->taskServiceStub->method ( 'findTask' )->willReturn ( null );
+ 		
+ 		$this->routeMatch = new RouteMatch(['controller' => 'reminders', 'id' => 'add-estimation']);
+ 		$this->event->setRouteMatch($this->routeMatch);
+ 		$this->controller->setEvent($this->event);
  	
  		$this->request->setMethod ( 'post' );
  		$params = $this->request->getPost ();
- 		$params->set ( 'id', 'add-estimation' );
  		$params->set ( 'taskId', 'Fake_Task_ID' );
  	
  		$result = $this->controller->dispatch ( $this->request );
