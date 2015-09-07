@@ -161,6 +161,8 @@ class NotifyMailListener implements ListenerAggregateInterface
 					'task' => $task,
 					'recipient'=> $recipient
 			));
+			
+			$this->mailService->send();
 		}
 	}
 	
