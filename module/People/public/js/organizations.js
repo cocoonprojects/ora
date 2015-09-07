@@ -196,7 +196,7 @@ Organizations.prototype = {
 	init: function()
 	{
 		if(sessionStorage.getItem('token')) {
-			$('#identityMenu p')
+			$('#identityMenu li:first a')
 				.text(sessionStorage.getItem('email'))
 				.prepend('<img src="' + sessionStorage.getItem('avatar') + '" alt="Avatar" style="max-width: 20px; max-height: 20px;" class="img-circle">');
 			$('#identityMenu').show();

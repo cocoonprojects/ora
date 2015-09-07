@@ -185,7 +185,7 @@ class StreamsControllerTest extends ControllerTest
 			->expects($this->once())
 			->method('findOrganization')
 			->with($this->organization->getId())
-			->willReturn($this->organization);		
+			->willReturn($this->organization);
 		
 		$this->controller->getStreamService()
 			->expects($this->once())

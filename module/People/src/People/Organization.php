@@ -2,6 +2,7 @@
 
 namespace People;
 
+use People\Entity\OrganizationMembership;
 use Rhumsaa\Uuid\Uuid;
 use Application\Entity\User;
 use Application\DomainEntity;

@@ -2,10 +2,12 @@
 
 namespace Application\Entity;
 
+use Application\InvalidArgumentException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use People\Entity\Organization;
+use People\Entity\Organization as ReadModelOrganization;
 use People\Entity\OrganizationMembership;
+use People\Organization;
 use Rhumsaa\Uuid\Uuid;
 use Zend\Permissions\Acl\Role\RoleInterface;
 
@@ -87,7 +89,7 @@ class User implements RoleInterface
 	private $picture;
 	
 	/**
-	 * @ORM\OneToMany(targetEntity="People\Entity\OrganizationMembership", mappedBy="member", indexBy="organization_id", fetch="EAGER")
+	 * @ORM\OneToMany(targetEntity="People\Entity\OrganizationMembership", mappedBy="member", indexBy="organization_id", fetch="EAGER", cascade={"persist"})
 	 * @var OrganizationMembership[]
 	 */
 	private $memberships;
@@ -211,14 +213,34 @@ class User implements RoleInterface
 	}
 
 	/**
-	 * @param Organization $organization
+	 * @param ReadModelOrganization|Organization $organization
 	 * @param string $role
 	 * @return $this
 	 */
-	public function addMembership(Organization $organization, $role = OrganizationMembership::ROLE_MEMBER) {
-		$membership = new OrganizationMembership($this, $organization, $role);
-		$this->memberships->set($organization->getId(), $membership);
+	public function addMembership($organization, $role = OrganizationMembership::ROLE_MEMBER) {
+		$org = null;
+		if($organization instanceof Organization) {
+			$org = new ReadModelOrganization($organization->getId());
+			$org->setName($organization->getName());
+		} elseif ($organization instanceof ReadModelOrganization) {
+			$org = $organization;
+		} else {
+			throw new InvalidArgumentException('First argument must be of type People\\Organization or People\\Entity\\Organization: ' . get_class($organization) . ' given');
+		}
+		$membership = new OrganizationMembership($this, $org, $role);
+		$this->memberships->set($org->getId(), $membership);
 		return $this;
+	}
+
+	/**
+	 * @param ReadModelOrganization|Organization $organization
+	 * @return $this
+	 */
+	public function removeMembership($organization) {
+		if(!($organization instanceof Organization) && !($organization instanceof ReadModelOrganization)) {
+			throw new InvalidArgumentException('First argument must be of type People\\Organization or People\\Entity\\Organization: ' . get_class($organization) . ' given');
+		}
+		$this->memberships->remove($organization->getId());
 	}
 
 	public function setPicture($url) {
@@ -232,11 +254,14 @@ class User implements RoleInterface
 	
 	/**
 	 * 
-	 * @param string|Organization $organization
+	 * @param string|ReadModelOrganization|Organization $organization
 	 * @return bool
 	 */
 	public function isMemberOf($organization) {
-		$key = $organization instanceof Organization ? $organization->getId() : $organization;
+		$key = $organization;
+		if($organization instanceof Organization || $organization instanceof ReadModelOrganization) {
+			$key = $organization->getId();
+		}
 		return $this->memberships->containsKey($key);
 	}
 

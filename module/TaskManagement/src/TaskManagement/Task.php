@@ -91,6 +91,9 @@ class Task extends DomainEntity
 		if(!isset($this->members[$completedBy->getId()]) || $this->members[$completedBy->getId()]['role'] != self::ROLE_OWNER) {
 			throw new InvalidArgumentException('Only the owner can mark as completed the task');
 		}
+		if(is_null($this->getAverageEstimation())) {
+			throw new IllegalStateException('Cannot complete a task with missing estimations by members');
+		}
 		$this->recordThat(TaskCompleted::occur($this->id->toString(), array(
 			'prevStatus' => $this->getStatus(),
 			'by' => $completedBy->getId(),
@@ -101,9 +104,6 @@ class Task extends DomainEntity
 	public function accept(User $acceptedBy, \DateInterval $intervalForCloseTask) {
 		if($this->status != self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot accept a task in '.$this->status.' state');
-		}
-		if(is_null($this->getAverageEstimation())) {
-			throw new IllegalStateException('Cannot accept a task with missing estimations by members');
 		}
 		if(!isset($this->members[$acceptedBy->getId()]) || $this->members[$acceptedBy->getId()]['role'] != self::ROLE_OWNER) {
 			throw new InvalidArgumentException('Only the owner can accept the task');
@@ -217,7 +217,7 @@ class Task extends DomainEntity
 	}
 	
 	public function addEstimation($value, User $member) {
-		if(!in_array($this->status, [self::STATUS_ONGOING, self::STATUS_COMPLETED])) {
+		if(!in_array($this->status, [self::STATUS_ONGOING])) {
 			throw new IllegalStateException('Cannot estimate a task in the state '.$this->status.'.');
 		}
 		//check if the estimator is a task member

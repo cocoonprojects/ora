@@ -8,11 +8,11 @@ use Zend\Permissions\Acl\Resource\ResourceInterface;
 use Zend\Permissions\Acl\Assertion\AssertionInterface;
 use TaskManagement\Entity\Task;
 
-class MemberOfNotAcceptedTaskAssertion implements AssertionInterface
+class MemberOfOngoingTaskAssertion implements AssertionInterface
 {
 	public function assert(Acl $acl, RoleInterface $user = null, ResourceInterface $resource = null, $privilege = null)
 	{
-		return $resource->getStatus() < Task::STATUS_ACCEPTED
+		return $resource->getStatus() == Task::STATUS_ONGOING
 			&& $resource->hasMember($user);
 	}
 }
