@@ -1,7 +1,7 @@
 <p>Hi <?= $this->recipient->getFirstname()." ".$this->recipient->getLastname()?>,</p>
 <p><b>the time</b> available to assign shares to the item "<?= $this->task->getSubject()?>" <b>is over!</b></p> 
 <p>This task has been automatically closed.</p> 
-<p>Follow <a href="<?= 'http://'.$_SERVER['SERVER_NAME'].'/'.$this->task->getStream()->getOrganization()->getId().'/task-management#'.$this->task->getId()?>">this link</a> to find out shares calculations</p>
+<p>Follow <a href="<?= 'http://'.$this->server_name.'/'.$this->task->getStream()->getOrganization()->getId().'/task-management#'.$this->task->getId()?>">this link</a> to find out shares calculations</p>
 <br/> 
 <p>Thank you!</p>
 <p>;)</p>

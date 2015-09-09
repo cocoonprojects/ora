@@ -11,6 +11,7 @@ use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
 use Zend\Mvc\Router\RouteMatch;
 use ZFX\Test\Authentication\AdapterMock;
 use ZFX\Test\Authentication\OAuth2AdapterMock;
+use Behat\Testwork\Tester\Setup\Teardown;
 
 class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 {	
@@ -32,6 +33,7 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 
 	protected function setUp()
 	{
+		$_SERVER['SERVER_NAME'] = 'oraprojecttest';
 		$serviceManager = Bootstrap::getServiceManager();
 		$userService = $serviceManager->get('Application\UserService');
 		$this->owner = $userService->findUser('60000000-0000-0000-0000-000000000000');
@@ -86,15 +88,15 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 	
 	public function testAssignSharesAsLast() {
 		$this->routeMatch->setParam('id', $this->task->getId());
-		 
+
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
 		$params->set($this->owner->getId(), 50);
 		$params->set($this->member->getId(), 50);
-		
+
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-		
+
 		$readModelTask = $this->controller->getTaskService()->findTask($this->task->getId());
 		$this->assertEquals(201, $response->getStatusCode());
 		$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
@@ -103,15 +105,19 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 
 	public function testSkipSharesAsLast() {
 		$this->routeMatch->setParam('id', $this->task->getId());
-		 
+
 		$this->request->setMethod('post');
 		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-		
+
 		$readModelTask = $this->controller->getTaskService()->findTask($this->task->getId());
 		$this->assertEquals(201, $response->getStatusCode());
 		$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
 		$this->assertEquals(Task::STATUS_CLOSED, $readModelTask->getStatus());
+	}
+
+	public function tearDown(){
+		unset($_SERVER['SERVER_NAME']);
 	}
 }

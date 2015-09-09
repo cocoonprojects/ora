@@ -14,6 +14,7 @@ use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\Event;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\Mvc\Application;
+use TaskManagement\TaskClosed;
 
 class NotifyMailListener implements ListenerAggregateInterface
 {
@@ -50,6 +51,7 @@ class NotifyMailListener implements ListenerAggregateInterface
 		
 		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, SharesAssigned::class, array($this, 'processSharesAssigned'));
 		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, SharesSkipped::class, array($this, 'processSharesAssigned'));
+		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, TaskClosed::class, array($this, 'processTaskClosed'));
 	}
 	
 	public function detach(EventManagerInterface $events) {
@@ -67,6 +69,13 @@ class NotifyMailListener implements ListenerAggregateInterface
 		$memberId = $event->getParam ( 'by' );
 		$member = $this->userService->findUser($memberId);
 		$this->sendSharesAssignedInfoMail ( $task, $member );
+	}
+	
+	public function processTaskClosed(Event $event){
+		$streamEvent = $event->getTarget();
+		$taskId = $streamEvent->metadata()['aggregate_id'];
+		$task = $this->taskService->findTask($taskId);
+		$this->taskClosedInfoMail($task);
 	}
 	
 	public function sendEstimationAddedInfoMail(Task $task, User $member){
@@ -135,7 +144,8 @@ class NotifyMailListener implements ListenerAggregateInterface
 	
 			$this->mailService->setTemplate( 'mail/reminder-assignment-shares.phtml', array(
 					'task' => $task,
-					'recipient'=> $member
+					'recipient'=> $member,
+					'server_name' => $_SERVER['SERVER_NAME']
 			));
 				
 			$this->mailService->send();
@@ -159,7 +169,8 @@ class NotifyMailListener implements ListenerAggregateInterface
 			
 			$this->mailService->setTemplate( 'mail/reminder-add-estimation.phtml', array(
 					'task' => $task,
-					'recipient'=> $recipient
+					'recipient'=> $recipient,
+					'server_name' => $_SERVER['SERVER_NAME']
 			));
 			
 			$this->mailService->send();
@@ -171,9 +182,9 @@ class NotifyMailListener implements ListenerAggregateInterface
 	 * @param Task $taskToNotify
 	 */
 	public function taskClosedInfoMail(ReadModelTask $task){
-	
+
 		$taskMembers = $task->getMembers();
-	
+
 		foreach ($taskMembers as $taskMember){
 			
 			$member = $taskMember->getMember();
@@ -185,8 +196,10 @@ class NotifyMailListener implements ListenerAggregateInterface
 	
 			$this->mailService->setTemplate( 'mail/task-closed-info.phtml', array(
 					'task' => $task,
-					'recipient'=> $member
+					'recipient'=> $member,
+					'server_name' => $_SERVER['SERVER_NAME']
 			));
+			
 			$this->mailService->send();
 		}
 	}
