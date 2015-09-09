@@ -11,7 +11,7 @@ use ZFX\Acl\Controller\Plugin\IsAllowed;
 use TaskManagement\Entity\Task;
 use Zend\Mvc\Router\RouteMatch;
 
-class RemindersControllerTest extends ControllerTest
+class AssignmentOfSharesRemindersControllerTest extends ControllerTest
 {
 	/**
 	 * @var User
@@ -66,17 +66,13 @@ class RemindersControllerTest extends ControllerTest
 	
 	protected function setupRouteMatch()
 	{
-		return [];
+		return ['controller' => 'reminders', 'id' => 'assignment-of-shares'];
 	}
 	
 	public function testCreateAsAnonymous(){
 		$this->setupAnonymous();
-		$this->routeMatch = new RouteMatch(['controller' => 'reminders', 'id' => 'assignment-of-shares']);
-		$this->event->setRouteMatch($this->routeMatch);
-		$this->controller->setEvent($this->event);
 		
 		$this->request->setMethod('post');
-		
 		$result = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 		$this->assertEquals(401, $response->getStatusCode());
@@ -85,12 +81,8 @@ class RemindersControllerTest extends ControllerTest
  	public function testCreateAsSystemUser(){
  		
  		$this->setupLoggedUser($this->systemUser);
- 		$this->routeMatch = new RouteMatch(['controller' => 'reminders', 'id' => 'assignment-of-shares']);
- 		$this->event->setRouteMatch($this->routeMatch);
- 		$this->controller->setEvent($this->event);
  		
  		$this->request->setMethod('post');
- 		
  		$result = $this->controller->dispatch($this->request);
  		$response = $this->controller->getResponse();
  		$this->assertEquals(200, $response->getStatusCode());
@@ -102,9 +94,8 @@ class RemindersControllerTest extends ControllerTest
  		$this->routeMatch = new RouteMatch(['controller' => 'reminders', 'id' => 'random-reminder']);
  		$this->event->setRouteMatch($this->routeMatch);
  		$this->controller->setEvent($this->event);
- 			
+ 		
  		$this->request->setMethod('post');
- 			
  		$result = $this->controller->dispatch($this->request);
  		$response = $this->controller->getResponse();
  		$this->assertEquals(405, $response->getStatusCode());
@@ -118,70 +109,8 @@ class RemindersControllerTest extends ControllerTest
  		$this->controller->setEvent($this->event);
  	
  		$this->request->setMethod('post');
- 	
  		$result = $this->controller->dispatch($this->request);
  		$response = $this->controller->getResponse();
  		$this->assertEquals(405, $response->getStatusCode());
- 	}
- 	
- 	public function testSendReminder() {
- 		$_SERVER ['SERVER_NAME'] = 'oraproject.org';
- 	
- 		$this->setupLoggedUser ( $this->owner );
- 	
- 		$this->taskServiceStub->method ( 'findTask' )->willReturn ( $this->readModelTask );
- 		
- 		$this->routeMatch = new RouteMatch(['controller' => 'reminders', 'id' => 'add-estimation']);
- 		$this->event->setRouteMatch($this->routeMatch);
- 		$this->controller->setEvent($this->event);
- 	
- 		$this->request->setMethod ( 'post' );
- 		$params = $this->request->getPost ();
- 		$params->set ( 'taskId', 'taskID' );
- 	
- 		$result = $this->controller->dispatch ( $this->request );
- 		$response = $this->controller->getResponse ();
- 	
- 		$this->assertEquals ( 200, $response->getStatusCode () );
- 		$this->assertEquals ( Task::STATUS_ONGOING, $this->readModelTask->getStatus () );
- 	
- 		unset ( $_SERVER ['SERVER_NAME'] );
- 	}
- 	
- 	public function testSendReminderAsAnonymous() {
- 		$this->setupAnonymous ();
- 		$this->taskServiceStub->method ( 'findTask' )->willReturn ( $this->readModelTask );
- 	
- 		$this->routeMatch = new RouteMatch(['controller' => 'reminders', 'id' => 'add-estimation']);
- 		$this->event->setRouteMatch($this->routeMatch);
- 		$this->controller->setEvent($this->event);
- 		
- 		$this->request->setMethod ( 'post' );
- 		$params = $this->request->getPost ();
- 		$params->set ( 'taskId', 'taskID' );
- 	
- 		$result = $this->controller->dispatch ( $this->request );
- 		$response = $this->controller->getResponse ();
- 	
- 		$this->assertEquals ( 401, $response->getStatusCode () );
- 	}
- 	
- 	public function testSendReminderNoTask() {
- 		$this->setupLoggedUser ( $this->owner );
- 	
- 		$this->taskServiceStub->method ( 'findTask' )->willReturn ( null );
- 		
- 		$this->routeMatch = new RouteMatch(['controller' => 'reminders', 'id' => 'add-estimation']);
- 		$this->event->setRouteMatch($this->routeMatch);
- 		$this->controller->setEvent($this->event);
- 	
- 		$this->request->setMethod ( 'post' );
- 		$params = $this->request->getPost ();
- 		$params->set ( 'taskId', 'Fake_Task_ID' );
- 	
- 		$result = $this->controller->dispatch ( $this->request );
- 		$response = $this->controller->getResponse ();
- 	
- 		$this->assertEquals ( 404, $response->getStatusCode () );
  	}
 }

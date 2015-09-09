@@ -80,7 +80,7 @@ class TransitionsControllerTest extends ControllerTest
 		$this->controller->getTaskService()
 			->expects($this->once())
 			->method('findAcceptedTasksBefore')
-			->willReturn(array(new ReadModelTask($this->task->getId())));
+			->willReturn(array($this->task));
 		 
 		$this->controller->getTaskService()
 			->expects($this->once())
