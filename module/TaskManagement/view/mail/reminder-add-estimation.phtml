@@ -1,6 +1,6 @@
 <p>Hi <?= $this->recipient->getFirstname()." ".$this->recipient->getLastname()?>,<br>
 The item <b><?= $this->task->getSubject()?></b> is still on OnGoing status!</p>
-<p>Please follow <a href="<?= 'http://'.$this->server_name.'/'.$this->task->getStream()->getOrganization()->getId().'/task-management'?>"> this link</a> and add your estimation as soon as possible.</p>
+<p>Please follow <a href="<?= $this->url('tasks-home',array('orgId' => $this->task->getStream()->getOrganization()->getId()), array('force_canonical' => true))?>"> this link</a> and add your estimation as soon as possible.</p>
 <br/> 
 <p>Thank you!</p>
 <p>O.R.A.</p>

@@ -40,7 +40,7 @@ class AssignmentOfSharesRemindersControllerTest extends ControllerTest
 		
 		//Task Service Mock
 		$this->taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();	
-		$this->taskServiceStub->method ( 'findAcceptedTasksBefore' )->willReturn ( $this->readModelTask );
+		$this->taskServiceStub->method ( 'findAcceptedTasksBefore' )->willReturn ( [$this->readModelTask] );
 		
 		$notifyMailListenerStub = $this->getMockBuilder(NotifyMailListener::class)->disableOriginalConstructor()->getMock();
 		return new RemindersController($notifyMailListenerStub, $this->taskServiceStub);

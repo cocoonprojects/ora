@@ -12,6 +12,7 @@ use TaskManagement\Stream;
 use TaskManagement\Entity\Task as ReadModelTask;
 use TaskManagement\Entity\Stream as ReadModelStream;
 use TaskManagement\Entity\TaskMember;
+use Zend\Mail\Message;
 
 
 class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
@@ -86,51 +87,67 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testSendMail_EstimationAdded(){
-		$_SERVER['SERVER_NAME'] = 'oraproject.org';
 		$this->assertTrue($this->listener->sendEstimationAddedInfoMail($this->task, $this->member));
-		unset($_SERVER['SERVER_NAME']);
 	}
 	
 	public function testSendMail_SharesAssigned(){
-		$_SERVER['SERVER_NAME'] = 'oraproject.org';
 		$this->assertTrue($this->listener->sendSharesAssignedInfoMail($this->task, $this->member));
-		unset($_SERVER['SERVER_NAME']);
 	}
 	
 	public function testSendEmailNotificationForAssignmentOfShares()
 	{
-		$_SERVER['SERVER_NAME'] = 'example.com';
-		
 		$taskToNotify = $this->setupTaskWithMember();
-		$this->listener->remindAssignmentOfShares($taskToNotify);
-		$emails = $this->getEmailMessages();
-		$this->assertNotEmpty($emails);
-		$this->assertEquals(1, count($emails));
-		$this->assertEmailSubjectEquals('O.R.A. - your contribution is required!', $emails[0]);
-		$this->assertEmailHtmlContains('new book', $emails[0]);
-		$this->assertEmailHtmlContains('http://example.com/22222ab-1111-1111-1111-11111111c500/task-management#11111ab-1111-1111-1111-11111111c500', $emails[0]);
-		$this->assertNotEmpty($emails[0]->recipients);
-		$this->assertEquals($emails[0]->recipients[0], '<doriangray@email.com>');
-
-		unset($_SERVER['SERVER_NAME']);
+		
+		$mailService = $this->getMockBuilder(MailService::class)->disableOriginalConstructor()->getMock();
+		$mailService->expects($this->once())
+					->method('setSubject')
+					->with("O.R.A. - your contribution is required!");
+		$mailService->expects($this->once())
+					->method('setTemplate')
+					->with('mail/reminder-assignment-shares.phtml', 
+						array(
+							'task' => $taskToNotify,
+							'recipient'=> $taskToNotify->findMembersWithEmptyShares()[0]
+						)
+					);
+		$mailService->expects($this->once())->method('getMessage')->willReturn(new Message());
+		$mailService->expects($this->once())->method('send');
+		
+		$userService = $this->getMockBuilder(UserService::class)->getMock();
+		$userService->method('findUser')->willReturn($this->owner);
+		$taskService = $this->getMockBuilder(TaskService::class)->getMock();
+		
+		$listener = new NotifyMailListener($mailService, $userService, $taskService);
+		
+		$listener->remindAssignmentOfShares($taskToNotify);
 	}
 	
 	public function testSendEmailNotificationForTaskClosed()
 	{
-		$_SERVER['SERVER_NAME'] = 'example.com';
-	
 		$taskToNotify = $this->setupTaskWithMember();
-		$this->listener->sendTaskClosedInfoMail($taskToNotify);
-		$emails = $this->getEmailMessages();
-		$this->assertNotEmpty($emails);
-		$this->assertEquals(1, count($emails));
-		$this->assertEmailSubjectEquals('O.R.A. - task has been closed!', $emails[0]);
-		$this->assertEmailHtmlContains('new book', $emails[0]);
-		$this->assertEmailHtmlContains('http://example.com/22222ab-1111-1111-1111-11111111c500/task-management#11111ab-1111-1111-1111-11111111c500', $emails[0]);
-		$this->assertNotEmpty($emails[0]->recipients);
-		$this->assertEquals($emails[0]->recipients[0], '<doriangray@email.com>');
-	
-		unset($_SERVER['SERVER_NAME']);
+		
+		$mailService = $this->getMockBuilder(MailService::class)->disableOriginalConstructor()->getMock();
+		$mailService->expects($this->once())
+					->method('setSubject')
+					->with("O.R.A. - task has been closed!");
+		$mailService->expects($this->once())
+					->method('setTemplate')
+					->with('mail/task-closed-info.phtml',
+							array(
+									'task' => $taskToNotify,
+									'recipient'=> $taskToNotify->findMembersWithEmptyShares()[0]
+							)
+					);
+		$mailService->expects($this->once())->method('getMessage')->willReturn(new Message());
+		$mailService->expects($this->once())->method('send');
+		
+		$userService = $this->getMockBuilder(UserService::class)->getMock();
+		$userService->method('findUser')->willReturn($this->owner);
+		$taskService = $this->getMockBuilder(TaskService::class)->getMock();
+		
+		$listener = new NotifyMailListener($mailService, $userService, $taskService);
+		
+		$listener->sendTaskClosedInfoMail($taskToNotify);
 	}
 
 	protected function cleanEmailMessages()

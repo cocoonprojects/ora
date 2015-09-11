@@ -8,6 +8,7 @@ use Prooph\EventStore\EventStore;
 use TaskManagement\Controller\SharesController;
 use Zend\Http\Request;
 use Zend\Http\Response;
+use Zend\Uri\Http;
 use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
 use Zend\Mvc\Router\RouteMatch;
@@ -63,7 +64,8 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		$this->event	  = new MvcEvent();
 		$config = $serviceManager->get('Config');
 		$routerConfig = isset($config['router']) ? $config['router'] : array();
-		$router = HttpRouter::factory($routerConfig);
+		$router = $serviceManager->get('HttpRouter');
+		$router->setRequestUri(new Http("http://example.com"));
 		
 		$this->event->setRouter($router);
 		$this->event->setRouteMatch($this->routeMatch);
@@ -134,8 +136,6 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 	
 	public function testTaskClosedNotification(){
 		
-		$_SERVER['SERVER_NAME'] = 'example.com';
-		
 		$this->transactionManager->beginTransaction();
 		$this->task->addEstimation(1500, $this->owner);
 		$this->task->addEstimation(3100, $this->member);
@@ -160,7 +160,6 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals($email->recipients[0], '<mark.rogers@ora.local>');
 		
 		$this->cleanEmailMessages();
-		unset($_SERVER['SERVER_NAME']);
 		
 	}
 

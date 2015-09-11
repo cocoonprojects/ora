@@ -144,8 +144,7 @@ class NotifyMailListener implements ListenerAggregateInterface
 	
 			$this->mailService->setTemplate( 'mail/reminder-assignment-shares.phtml', array(
 					'task' => $task,
-					'recipient'=> $member,
-					'server_name' => $_SERVER['SERVER_NAME']
+					'recipient'=> $member
 			));
 				
 			$this->mailService->send();
@@ -196,8 +195,7 @@ class NotifyMailListener implements ListenerAggregateInterface
 	
 			$this->mailService->setTemplate( 'mail/task-closed-info.phtml', array(
 					'task' => $task,
-					'recipient'=> $member,
-					'server_name' => $_SERVER['SERVER_NAME']
+					'recipient'=> $member
 			));
 			
 			$this->mailService->send();
