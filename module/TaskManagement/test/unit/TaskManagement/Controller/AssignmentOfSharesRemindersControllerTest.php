@@ -30,10 +30,18 @@ class AssignmentOfSharesRemindersControllerTest extends ControllerTest
 	
 	protected function setupController()
 	{
+		$this->readModelTask = new Task('00000000000');
+		$this->owner = User::create()->setRole(User::ROLE_USER)->setEmail('taskowner@orateam.com');
+		$this->member = User::create()->setRole(User::ROLE_USER)->setEmail('taskmember@orateam.com');
+		
+		$this->readModelTask->addMember($this->owner, Task::ROLE_OWNER, $this->owner, new \DateTime())
+							->addMember($this->member, Task::ROLE_MEMBER, $this->member, new \DateTime())
+							->setStatus(Task::STATUS_ACCEPTED);
+		
 		//Task Service Mock
 		$this->taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();	
-
-		//$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
+		$this->taskServiceStub->method ( 'findAcceptedTasksBefore' )->willReturn ( $this->readModelTask );
+		
 		$notifyMailListenerStub = $this->getMockBuilder(NotifyMailListener::class)->disableOriginalConstructor()->getMock();
 		return new RemindersController($notifyMailListenerStub, $this->taskServiceStub);
 	}
