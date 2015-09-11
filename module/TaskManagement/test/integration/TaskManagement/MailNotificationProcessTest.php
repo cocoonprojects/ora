@@ -131,6 +131,38 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals($email->recipients[0], '<mark.rogers@ora.local>');
 		$this->cleanEmailMessages();
 	}
+	
+	public function testTaskClosedNotification(){
+		
+		$_SERVER['SERVER_NAME'] = 'example.com';
+		
+		$this->transactionManager->beginTransaction();
+		$this->task->addEstimation(1500, $this->owner);
+		$this->task->addEstimation(3100, $this->member);
+		$this->task->complete($this->owner);
+		$this->task->accept($this->owner, $this->intervalForCloseTasks);
+		$this->transactionManager->commit();
+		$this->cleanEmailMessages();
+		
+		$this->transactionManager->beginTransaction();
+		$this->task->close($this->owner);
+		$this->transactionManager->commit();
+		
+		$email = $this->getLastEmailMessage();
+		
+		$this->assertEquals($this->task->getStatus(), Task::STATUS_CLOSED);
+		$this->assertNotNull($email);
+		$this->assertEmailSubjectEquals("O.R.A. - task has been closed!", $email);
+		$this->assertEmailHtmlContains('This task has been automatically closed.', $email);
+		$this->assertEmailHtmlContains('http://example.com/00000000-0000-0000-1000-000000000000/task-management#'.$this->task->getId(), $email);
+		$this->assertEmailHtmlContains('This task has been automatically closed.', $email);
+		$this->assertNotEmpty($email->recipients);
+		$this->assertEquals($email->recipients[0], '<mark.rogers@ora.local>');
+		
+		$this->cleanEmailMessages();
+		unset($_SERVER['SERVER_NAME']);
+		
+	}
 
 	protected function cleanEmailMessages()
 	{
