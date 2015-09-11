@@ -49,8 +49,7 @@ class TransitionsControllerTest extends ControllerTest
 	protected function setupController()
 	{
 		$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
-		$notifyMailListenerStub = $this->getMockBuilder(NotifyMailListener::class)->disableOriginalConstructor()->getMock();
-		$controller = new TransitionsController($taskServiceStub, $notifyMailListenerStub); 
+		$controller = new TransitionsController($taskServiceStub); 
 		
 		return $controller;
 	}

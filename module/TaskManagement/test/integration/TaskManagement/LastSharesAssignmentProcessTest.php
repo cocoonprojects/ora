@@ -33,7 +33,7 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 
 	protected function setUp()
 	{
-		$_SERVER['SERVER_NAME'] = 'oraprojecttest';
+		$_SERVER['SERVER_NAME'] = 'example.com';
 		$serviceManager = Bootstrap::getServiceManager();
 		$userService = $serviceManager->get('Application\UserService');
 		$this->owner = $userService->findUser('60000000-0000-0000-0000-000000000000');

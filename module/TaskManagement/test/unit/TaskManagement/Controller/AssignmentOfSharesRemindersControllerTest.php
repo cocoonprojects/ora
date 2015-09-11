@@ -25,45 +25,19 @@ class AssignmentOfSharesRemindersControllerTest extends ControllerTest
 
 	public function setupMore()
 	{
-		$this->systemUser = $this->getMockBuilder(User::class)->getMock();
-		$this->systemUser->method('getRoleId')->willReturn(User::ROLE_SYSTEM);
+		$this->systemUser = User::create()->setRole(User::ROLE_SYSTEM);
 	}
 	
 	protected function setupController()
 	{
-		//Task Owner Mock
-		$this->owner = $this->getMockBuilder ( User::class )->getMock ();
-		$this->owner->method ( 'getId' )->willReturn ( '60000000-0000-0000-0000-000000000000' );
-		$this->owner->method ( 'isMemberOf' )->willReturn ( true );
-		$this->owner->method ( 'getRoleId' )->willReturn ( User::ROLE_USER );
-		
-		//Task Member Mock
-		$this->member = $this->getMockBuilder ( User::class )->getMock ();
-		$this->member->method ( 'getId' )->willReturn ( '70000000-0000-0000-0000-000000000000' );
-		$this->member->method ( 'isMemberOf' )->willReturn ( true );
-		$this->member->method('getEmail')->willReturn("task_member@oraproject.org");
-		$this->member->method ( 'getRoleId' )->willReturn ( User::ROLE_USER );
-		
-		//ReadModelTask Mock
-		$this->readModelTask = $this->getMockBuilder(Task::class)->disableOriginalConstructor()->getMock();
-		$this->readModelTask->method('findMembersWithNoEstimation')->willReturn(array($this->member->getId()));
-		$this->readModelTask->method('getId')->willReturn('taskID');
-		$this->readModelTask->method('getMemberRole')->willReturn(Task::ROLE_OWNER);
-		$this->readModelTask->method('getStatus')->willReturn(Task::STATUS_ONGOING);
-		$this->readModelTask->method('getResourceId')->willReturn("Ora\Task");
-		
-		//User Service Mock
-		$userServiceStub = $this->getMockBuilder(UserService::class)->getMock();
-		$userServiceStub->method('findUser')->willReturn($this->member);
-		
 		//Task Service Mock
 		$this->taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();	
-		
+
 		//$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
 		$notifyMailListenerStub = $this->getMockBuilder(NotifyMailListener::class)->disableOriginalConstructor()->getMock();
 		return new RemindersController($notifyMailListenerStub, $this->taskServiceStub);
 	}
-	
+
 	protected function setupRouteMatch()
 	{
 		return ['controller' => 'reminders', 'id' => 'assignment-of-shares'];

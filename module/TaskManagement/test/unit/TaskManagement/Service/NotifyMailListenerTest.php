@@ -120,7 +120,7 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 		$_SERVER['SERVER_NAME'] = 'example.com';
 	
 		$taskToNotify = $this->setupTaskWithMember();
-		$this->listener->taskClosedInfoMail($taskToNotify);
+		$this->listener->sendTaskClosedInfoMail($taskToNotify);
 		$emails = $this->getEmailMessages();
 		$this->assertNotEmpty($emails);
 		$this->assertEquals(1, count($emails));

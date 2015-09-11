@@ -75,7 +75,7 @@ class NotifyMailListener implements ListenerAggregateInterface
 		$streamEvent = $event->getTarget();
 		$taskId = $streamEvent->metadata()['aggregate_id'];
 		$task = $this->taskService->findTask($taskId);
-		$this->taskClosedInfoMail($task);
+		$this->sendTaskClosedInfoMail($task);
 	}
 	
 	public function sendEstimationAddedInfoMail(Task $task, User $member){
@@ -181,7 +181,7 @@ class NotifyMailListener implements ListenerAggregateInterface
 	 * Send an email notification to the members of $taskToNotify to inform them that it has been closed
 	 * @param Task $taskToNotify
 	 */
-	public function taskClosedInfoMail(ReadModelTask $task){
+	public function sendTaskClosedInfoMail(ReadModelTask $task){
 
 		$taskMembers = $task->getMembers();
 
