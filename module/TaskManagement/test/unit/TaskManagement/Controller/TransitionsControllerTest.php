@@ -8,9 +8,7 @@ use Application\Entity\User;
 use People\Organization;
 use TaskManagement\Stream;
 use TaskManagement\Task;
-use TaskManagement\Entity\Task as ReadModelTask;
 use TaskManagement\Service\TaskService;
-use TaskManagement\Service\NotifyMailListener;
 use TaskManagement\Controller\TransitionsController;
 
 class TransitionsControllerTest extends ControllerTest
