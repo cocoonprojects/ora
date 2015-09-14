@@ -168,8 +168,7 @@ class NotifyMailListener implements ListenerAggregateInterface
 			
 			$this->mailService->setTemplate( 'mail/reminder-add-estimation.phtml', array(
 					'task' => $task,
-					'recipient'=> $recipient,
-					'server_name' => $_SERVER['SERVER_NAME']
+					'recipient'=> $recipient
 			));
 			
 			$this->mailService->send();

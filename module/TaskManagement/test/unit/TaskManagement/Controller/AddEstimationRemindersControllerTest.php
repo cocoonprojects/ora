@@ -11,7 +11,7 @@ use ZFX\Acl\Controller\Plugin\IsAllowed;
 use TaskManagement\Entity\Task;
 use Zend\Mvc\Router\RouteMatch;
 
-class RemindersControllerTest extends ControllerTest
+class AddEstimationRemindersControllerTest extends ControllerTest
 {
 	/**
 	 * @var User
@@ -68,7 +68,6 @@ class RemindersControllerTest extends ControllerTest
  	}
  	
  	public function testSendReminder() {
- 		$_SERVER ['SERVER_NAME'] = 'example.com';
  	
  		$this->setupLoggedUser ( $this->owner );
  	
@@ -82,8 +81,6 @@ class RemindersControllerTest extends ControllerTest
  	
  		$this->assertEquals ( 200, $response->getStatusCode () );
  		$this->assertEquals ( Task::STATUS_ONGOING, $this->readModelTask->getStatus () );
- 	
- 		unset ( $_SERVER ['SERVER_NAME'] );
  	}
  	
  	public function testSendReminderAsAnonymous() {
