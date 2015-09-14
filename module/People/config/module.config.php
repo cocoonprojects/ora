@@ -52,7 +52,26 @@ return array(
 						'__NAMESPACE__' => 'People\Controller',
 					),
 				),
-			),	
+			),
+			'user-profile'	=> array(
+				'type' => 'Segment',
+				'options' => array(
+					'route'    => '/:orgId/user-profile/:userId',
+					'defaults' => array(
+						'controller' => 'People\Controller\Index',
+						'action'	 => 'profile',
+					),
+				),
+			),
+			'user-profile-detail'	=> array(
+				'type' => 'Segment',
+				'options' => array(
+					'route'    => '/:orgId/user-profile/:userId/details',
+					'defaults' => array(
+						'controller' => 'People\Controller\USerProfile'
+					),
+				),
+			),
 		),
 	),
 	'view_manager' => array(

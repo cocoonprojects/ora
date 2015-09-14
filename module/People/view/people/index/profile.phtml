@@ -1,0 +1,75 @@
+<?php
+$this->headScript ()->appendFile ( $this->basePath () . '/js/profile.js' );
+?>
+<div class="container" id="content">
+	<div class="page-header">
+		<h1>User Profile Page</h1>
+	</div>
+	<div id="profile-content"
+		user-id="<?php echo $this->layout()->getVariable('user')->getId();?>"
+		org-id="<?php echo $this->layout()->getVariable('organization')->getId();?>">
+		<div class="row">
+			<div id="user-info" class="col-md-6	">
+				<div class="row">
+					<div>
+						<img id="photo" class="img-thumbnail img-responsive" src=""
+							alt="User Profile Photo"
+							style="margin-left: 50px; max-height: 200px;">
+					</div>
+					<h3 id="name"></h3>
+					<p id="birthday"></p>
+					<address id="email"></address>
+					<p id="description"></p>
+				</div>
+				<div class="row">
+					<h2>Skills</h2>
+					<p>No Skill available</p>
+				</div>
+			</div>
+			<div id="other-info" class="col-md-6">
+				<div class="row">
+					<h2>Organization</h2>
+					<h4 id="orgMembership"></h4>
+				</div>
+				<div class="row">
+					<h2>Credits</h2>
+					<table class="table">
+						<caption>Generated credits</caption>
+						<thead>
+							<tr>
+								<th>Organization</th>
+								<th>Tot. Credits Generated</th>
+								<th>Available Credits</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td id="tdOrg">Unical Organization</td>
+								<td id="tdTotal">5000</td>
+								<td id="tdAvailable">2000</td>
+							</tr>
+						</tbody>
+					</table>
+					<hr>
+					<table class="table">
+						<caption>Credit Account History</caption>
+						<thead>
+							<tr>
+								<th>Last 3 months</th>
+								<th>Last 6 month</th>
+								<th>Rest of the year</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td id="td3Month">1500</td>
+								<td id="td6Month">3500</td>
+								<td id="tdRoY">5000</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
