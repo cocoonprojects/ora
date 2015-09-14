@@ -873,7 +873,7 @@ TaskManagement.prototype = {
 				'GOOGLE-JWT': sessionStorage.token
 			},
 			method: 'POST',
-			data: {id:'add-estimation', taskId:$(e.target).attr('data-task')},
+			data: {taskId:$(e.target).attr('data-task')},
 			success: function() {
 				that.listTasks();
 			},

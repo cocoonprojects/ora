@@ -141,9 +141,6 @@ class TransitionsController extends HATEOASRestfulController
 					} catch ( IllegalStateException $e ) {
 						$this->transaction()->rollback();
 						continue; //skip task
-					} catch ( InvalidArgumentException $e ) {
-						$this->transaction()->rollback();
-						continue; //skip task
 					}
 				}
 				

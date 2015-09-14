@@ -45,7 +45,7 @@ return array(
 				),
 			),
 			'task-reminders' => array(
-				'type' => 'Zend\Mvc\Router\Http\Literal',
+				'type' => 'Segment',
 				'options' => array(
 					'route'	   => '/task-management/tasks/reminders/:id',
 					'constraints' => array(
@@ -56,7 +56,17 @@ return array(
 						'controller' => 'Reminders'
 					),
 				),
-			)		
+			),
+			'task-transitions' => array(
+				'type' => 'Segment',
+				'options' => array(
+						'route'	   => '/task-management/tasks/transitions',
+						'defaults' => array(
+								'__NAMESPACE__' => 'TaskManagement\Controller',
+								'controller' => 'Transitions'
+						),
+				),
+			)
 		),
 	),
 	'translator' => array(),
@@ -97,6 +107,5 @@ return array(
 		'TaskManagement\TransferTaskSharesCreditsListener',
 		'TaskManagement\CloseTaskListener',
 	),
-		
 	'assignment_of_shares_timebox' => new \DateInterval('P7D'), 
 );
