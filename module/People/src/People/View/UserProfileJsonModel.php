@@ -15,6 +15,11 @@ class UserProfileJsonModel extends JsonModel
 		$organization = $this->getVariable('org-resource');
 		$user = $this->getVariable('user-resource');
 		$role = $this->getVariable('role-resource');
+		$balance = $this->getVariable('account-balance');
+		$incomingCredits = $this->getVariable('total-gen-credits');
+		$last3MonthCredits = $this->getVariable('last-3-month');
+		$last6MonthCredits = $this->getVariable('last-6-month');
+		$restOfYearCredits = $this->getVariable('rest-of-year');
 		
 		$rv = [
 				'OrgId' => $organization->getId(),
@@ -25,6 +30,11 @@ class UserProfileJsonModel extends JsonModel
 				'Lastname'=> $user->getLastname(),
 				'Email'=> $user->getEmail(),
 				'Avatar'=> $user->getPicture(),
+				'ActualBalance'=>$balance,
+				'TotGenCredits'=>$incomingCredits,
+				'Last3MonthCredits'=>$last3MonthCredits,
+				'Last6MonthCredits'=>$last6MonthCredits,
+				'RestOfTheYearCredits'=>$restOfYearCredits,
 		];
 		return Json::encode($rv);
 	}	

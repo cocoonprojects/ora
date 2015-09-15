@@ -56,7 +56,7 @@ return array(
 			'user-profile'	=> array(
 				'type' => 'Segment',
 				'options' => array(
-					'route'    => '/:orgId/user-profile/:userId',
+					'route'    => '/:orgId/user-profile[/:id]',
 					'defaults' => array(
 						'controller' => 'People\Controller\Index',
 						'action'	 => 'profile',
@@ -66,7 +66,7 @@ return array(
 			'user-profile-detail'	=> array(
 				'type' => 'Segment',
 				'options' => array(
-					'route'    => '/:orgId/user-profile/:userId/details',
+					'route'    => '/:orgId/user-profile[/:id]/details',
 					'defaults' => array(
 						'controller' => 'People\Controller\USerProfile'
 					),

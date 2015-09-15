@@ -7,6 +7,8 @@ use People\Service\OrganizationService;
 use Application\Controller\OrganizationAwareController;
 use Application\Service\UserService;
 use People\View\UserProfileJsonModel;
+use Accounting\Service\AccountService;
+use Accounting\Entity\PersonalAccount;
 
 class UserProfileController extends OrganizationAwareController
 {
@@ -15,31 +17,22 @@ class UserProfileController extends OrganizationAwareController
 	
 	private $orgService;
 	private $userService;
+	private $accountService;
 	
-	public function __construct(OrganizationService $orgService, UserService $userService) {
+	public function __construct(OrganizationService $orgService, UserService $userService, AccountService $accountService) {
 		$this->orgService = $orgService;
 		$this->userService = $userService;
+		$this->accountService = $accountService;
 	}
 	
 	public function get($id)
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(409);
-			
-		return $this->response;	
-	}
-	
-	public function getList()
-	{
+	{		
 		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		$userId = $this->params()->fromQuery('userId');
-		$user = $this->userService->findUser($userId);
-		
-		//$orgId = $this->params()->fromQuery('orgId');
-		//$organization = $this->orgService->findOrganization($orgId);
+		//$userId = $this->params()->fromQuery('id');
+		$user = $this->userService->findUser($id);
 		
 		$membership = $this->orgService->findUserOrganizationMemberships($user);
 		foreach ($membership as $m){
@@ -48,12 +41,59 @@ class UserProfileController extends OrganizationAwareController
 			}
 		}
 		
+		$account = $this->accountService->findPersonalAccount($user, $this->organization);
+		$actualBalance = $account->getBalance()->getValue();
+		
+		$transactions = $account->getTransactions();
+		$totalGeneratedCredits = 0;
+		
+		//Date Limits
+		$dateLimitThreeMonths = new \DateTime();
+		$dateLimitThreeMonths->modify('-3 month');//3 Months
+		
+		$dateLimitSixMonths = new \DateTime();
+		$dateLimitSixMonths->modify('-6 month');//6 Months
+		
+		$dateLimitOneYear = new \DateTime();
+		$dateLimitOneYear->modify('-1 year');//One Year
+		
+		$lastThreeMonthCredits = 0;
+		$lastSixMonthCredits = 0;
+		$restOfYearCredits = 0;
+		
+		foreach ($transactions as $t){
+			if($t->getAmount()>= 0){
+				$totalGeneratedCredits+=$t->getAmount();
+				if($t->getCreatedAt()>$dateLimitThreeMonths){
+					$lastThreeMonthCredits+=$t->getAmount();//3 Months
+				}
+				if($t->getCreatedAt()>$dateLimitSixMonths){
+					$lastSixMonthCredits+=$t->getAmount();//6 Months
+				}elseif ($t->getCreatedAt()>$dateLimitOneYear){
+					$restOfYearCredits+=$t->getAmount();//Rest of the year
+				}
+			}
+		}
+		
 		$view = new UserProfileJsonModel();
 		$view->setVariable('org-resource', $this->organization);
 		$view->setVariable('user-resource', $user);
 		$view->setVariable('role-resource', $role);
+		$view->setVariable('account-balance', $actualBalance);
+		$view->setVariable('total-gen-credits', $totalGeneratedCredits);
+		$view->setVariable('last-3-month', $lastThreeMonthCredits);
+		$view->setVariable('last-6-month', $lastSixMonthCredits);
+		$view->setVariable('rest-of-year', $restOfYearCredits);
 		
 		return $view;
+	}
+	
+	public function getList()
+	{
+		// HTTP STATUS CODE 405: Method not allowed
+		$this->response->setStatusCode(405);
+			
+		return $this->response;
 	}
 	
 	public function create($data)

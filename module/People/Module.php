@@ -34,7 +34,8 @@ class Module
 				$locator = $sm->getServiceLocator();
 				$orgService = $locator->get('People\OrganizationService');
 				$userService = $locator->get('Application\UserService');
-				$controller = new UserProfileController($orgService, $userService);
+				$accountService = $locator->get('Accounting\CreditsAccountsService');
+				$controller = new UserProfileController($orgService, $userService, $accountService);
 				return $controller;
 				},
 			)

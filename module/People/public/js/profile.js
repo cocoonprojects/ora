@@ -10,7 +10,7 @@ Profile.prototype = {
 	loadUserDetail : function(url) {
 		that = this;
 
-		var userId = $('#profile-content').attr("user-id");
+		//var userId = $('#profile-content').attr("user-id");
 		var url = document.URL + "/details";
 
 		$.ajax({
@@ -20,7 +20,7 @@ Profile.prototype = {
 			},
 			method : 'GET',
 			data : {
-				userId : userId
+				//id : userId
 			}
 		}).done(that.onLoadUserProfileCompleted.bind(this));
 	},
@@ -45,6 +45,16 @@ Profile.prototype = {
 		}
 
 		$('#orgMembership').html(json.MemberRole + " of " + json.OrgName);
+		
+		//Generated credits Table
+		$('#tdOrg').html(json.OrgName);
+		$('#tdTotal').html(json.TotGenCredits);
+		$('#tdAvailable').html(json.ActualBalance);
+		
+		//Credit Account History
+		$('#tdLast3Month').html(json.Last3MonthCredits);
+		$('#tdLast6Month').html(json.Last6MonthCredits);
+		$('#tdRestOfYear').html(json.RestOfTheYearCredits);
 
 		container.show();
 	}
