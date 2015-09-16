@@ -10,11 +10,10 @@ Profile.prototype = {
 	loadUserDetail : function(url) {
 		that = this;
 
-		//var userId = $('#profile-content').attr("user-id");
-		var url = document.URL + "/details";
+		var _url = window.location.protocol+"//"+window.location.host+url;
 
 		$.ajax({
-			url : url,
+			url : _url,
 			headers : {
 				'GOOGLE-JWT' : sessionStorage.token
 			},
@@ -28,33 +27,35 @@ Profile.prototype = {
 	onLoadUserProfileCompleted : function(json) {
 		var container = $('#profile-content');
 
-		$('#photo').attr('src', json.Avatar);
-		$('#name').html(json.Firstname + " " + json.Lastname);
-		$('#email').html(json.Email);
+		$('#photo').attr('src', json.picture);
+		$('#name').html(json.firstname + " " + json.lastname);
+		$('#email').html(json.email);
 
-		if (json.Birthday == null) {
+		if (json.birthday == null) {
 			$('#birthday').html("No Birthday Available");
 		} else {
 			$('#birthday').html(json.Birthday);// TODO Use this parameter's name
 		}
 
-		if (json.Description == null) {
+		if (json.description == null) {
 			$('#description').html("No User Profile Description Available");
 		} else {
 			$('#description').html(json.Birthday);// TODO Use this parameter's name
 		}
-
-		$('#orgMembership').html(json.MemberRole + " of " + json.OrgName);
 		
+		var orgData = json._embedded['organization'];
+		$('#orgMembership').html(orgData.role + " of " + orgData.name);
+		
+		var creditsData = json._embedded['credits'];
 		//Generated credits Table
-		$('#tdOrg').html(json.OrgName);
-		$('#tdTotal').html(json.TotGenCredits);
-		$('#tdAvailable').html(json.ActualBalance);
+		$('#tdOrg').html(orgData.name);
+		$('#tdTotal').html(creditsData.total);
+		$('#tdAvailable').html(creditsData.balance);
 		
 		//Credit Account History
-		$('#tdLast3Month').html(json.Last3MonthCredits);
-		$('#tdLast6Month').html(json.Last6MonthCredits);
-		$('#tdRestOfYear').html(json.RestOfTheYearCredits);
+		$('#tdLast3Month').html(creditsData.last3M);
+		$('#tdLast6Month').html(creditsData.last6M);
+		$('#tdLastYear').html(creditsData.lastY);
 
 		container.show();
 	}
@@ -63,9 +64,11 @@ Profile.prototype = {
 $().ready(function(e) {
 
 	profile = new Profile();
+	$('#profile-content').hide();
 	var elem = document.getElementById("profile-content");
-	$('#profile-content').hide()
-	var url = "user-profile-detail/" + elem.getAttribute("user-id");
+	var orgId = elem.getAttribute("org-id");
+	var userId = elem.getAttribute("user-id");
+	var url = "/"+orgId+"/user-profiles/"+userId;
 	profile.loadUserDetail(url);
 
 });

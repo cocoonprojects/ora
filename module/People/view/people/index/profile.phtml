@@ -6,7 +6,7 @@ $this->headScript ()->appendFile ( $this->basePath () . '/js/profile.js' );
 		<h1>User Profile Page</h1>
 	</div>
 	<div id="profile-content"
-		id="<?php echo $this->layout()->getVariable('user')->getId();?>"
+		user-id="<?php echo $this->layout()->getVariable('user')->getId();?>"
 		org-id="<?php echo $this->layout()->getVariable('organization')->getId();?>">
 		<div class="row">
 			<div id="user-info" class="col-md-6	">
@@ -64,7 +64,7 @@ $this->headScript ()->appendFile ( $this->basePath () . '/js/profile.js' );
 							<tr>
 								<td id="tdLast3Month" class="text-center"></td>
 								<td id="tdLast6Month" class="text-center"></td>
-								<td id="tdRestOfYear" class="text-center"></td>
+								<td id="tdLastYear" class="text-center"></td>
 							</tr>
 						</tbody>
 					</table>

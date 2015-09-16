@@ -16,25 +16,31 @@ class UserProfileJsonModel extends JsonModel
 		$user = $this->getVariable('user-resource');
 		$role = $this->getVariable('role-resource');
 		$balance = $this->getVariable('account-balance');
-		$incomingCredits = $this->getVariable('total-gen-credits');
-		$last3MonthCredits = $this->getVariable('last-3-month');
-		$last6MonthCredits = $this->getVariable('last-6-month');
-		$restOfYearCredits = $this->getVariable('rest-of-year');
+		$totalCredits = $this->getVariable('total-gen-credits');
+		$last3MonthsCredits = $this->getVariable('last-3-month');
+		$last6MonthsCredits = $this->getVariable('last-6-month');
+		$lastYearCredits = $this->getVariable('last-year');
 		
-		$rv = [
-				'OrgId' => $organization->getId(),
-				'OrgName'=> $organization->getName(),
-				'MemberRole'=>$role,
-				'UserId' => $user->getId(),
-				'Firstname' => $user->getFirstname(),
-				'Lastname'=> $user->getLastname(),
-				'Email'=> $user->getEmail(),
-				'Avatar'=> $user->getPicture(),
-				'ActualBalance'=>$balance,
-				'TotGenCredits'=>$incomingCredits,
-				'Last3MonthCredits'=>$last3MonthCredits,
-				'Last6MonthCredits'=>$last6MonthCredits,
-				'RestOfTheYearCredits'=>$restOfYearCredits,
+		$rv = [			
+				'id'=>$user->getId(),
+				'firstname' => $user->getFirstname(),
+				'lastname'=> $user->getLastname(),
+				'picture'=> $user->getPicture(),
+				'email'=> $user->getEmail(),
+				'_embedded'=>[
+						'organization'=>[
+								'id'=>$organization->getId(),
+								'name'=>$organization->getName(),
+								'role'=>$role
+						],
+						'credits'=>[
+								'balance'=>$balance,
+								'total'=>$totalCredits,
+								'last3M'=>$last3MonthsCredits,
+								'last6M'=>$last6MonthsCredits,
+								'lastY'=>$lastYearCredits
+						],
+				],
 		];
 		return Json::encode($rv);
 	}	

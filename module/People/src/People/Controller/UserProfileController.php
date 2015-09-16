@@ -31,15 +31,20 @@ class UserProfileController extends OrganizationAwareController
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		//$userId = $this->params()->fromQuery('id');
 		$user = $this->userService->findUser($id);
 		
-		$membership = $this->orgService->findUserOrganizationMemberships($user);
-		foreach ($membership as $m){
-			if($m->getOrganization()->getId()===$this->organization->getId()){
-				$role = $m->getRole();
-			}
+// 		$membership = $this->orgService->findUserOrganizationMemberships($user);//user->getMembership
+// 		foreach ($membership as $m){
+// 			if($m->getOrganization()->getId()===$this->organization->getId()){
+// 				$role = $m->getRole();
+// 			}
+// 		}
+		$membership = $user->getMembershipOf($this->organization->getId());
+		if(is_null($membership)){
+			$this->response->setStatusCode(404);
+			return $this->response;
 		}
+		$role = $membership->getRole();
 		
 		$account = $this->accountService->findPersonalAccount($user, $this->organization);
 		$actualBalance = $account->getBalance()->getValue();
@@ -57,20 +62,24 @@ class UserProfileController extends OrganizationAwareController
 		$dateLimitOneYear = new \DateTime();
 		$dateLimitOneYear->modify('-1 year');//One Year
 		
-		$lastThreeMonthCredits = 0;
-		$lastSixMonthCredits = 0;
-		$restOfYearCredits = 0;
+		$lastThreeMonthsCredits = 0;
+		$lastSixMonthsCredits = 0;
+		$lastYearCredits = 0;
 		
 		foreach ($transactions as $t){
+			if($t->getCreatedAt()<$dateLimitOneYear)
+				break;
+			
 			if($t->getAmount()>= 0){
 				$totalGeneratedCredits+=$t->getAmount();
 				if($t->getCreatedAt()>$dateLimitThreeMonths){
-					$lastThreeMonthCredits+=$t->getAmount();//3 Months
+					$lastThreeMonthsCredits+=$t->getAmount();//Last 3 Months
 				}
 				if($t->getCreatedAt()>$dateLimitSixMonths){
-					$lastSixMonthCredits+=$t->getAmount();//6 Months
-				}elseif ($t->getCreatedAt()>$dateLimitOneYear){
-					$restOfYearCredits+=$t->getAmount();//Rest of the year
+					$lastSixMonthsCredits+=$t->getAmount();//Last 6 Months
+				}
+				if ($t->getCreatedAt()>$dateLimitOneYear){
+					$lastYearCredits+=$t->getAmount();//Last year
 				}
 			}
 		}
@@ -81,9 +90,9 @@ class UserProfileController extends OrganizationAwareController
 		$view->setVariable('role-resource', $role);
 		$view->setVariable('account-balance', $actualBalance);
 		$view->setVariable('total-gen-credits', $totalGeneratedCredits);
-		$view->setVariable('last-3-month', $lastThreeMonthCredits);
-		$view->setVariable('last-6-month', $lastSixMonthCredits);
-		$view->setVariable('rest-of-year', $restOfYearCredits);
+		$view->setVariable('last-3-month', $lastThreeMonthsCredits);
+		$view->setVariable('last-6-month', $lastSixMonthsCredits);
+		$view->setVariable('last-year', $lastYearCredits);
 		
 		return $view;
 	}

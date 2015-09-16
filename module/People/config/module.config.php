@@ -53,20 +53,20 @@ return array(
 					),
 				),
 			),
-			'user-profile'	=> array(
+			'profiles'	=> array(
 				'type' => 'Segment',
 				'options' => array(
-					'route'    => '/:orgId/user-profile[/:id]',
+					'route'    => '/:orgId/profiles[/:id]',
 					'defaults' => array(
 						'controller' => 'People\Controller\Index',
 						'action'	 => 'profile',
 					),
 				),
 			),
-			'user-profile-detail'	=> array(
+			'user-profiles'	=> array(
 				'type' => 'Segment',
 				'options' => array(
-					'route'    => '/:orgId/user-profile[/:id]/details',
+					'route'    => '/:orgId/user-profiles[/:id]',
 					'defaults' => array(
 						'controller' => 'People\Controller\USerProfile'
 					),

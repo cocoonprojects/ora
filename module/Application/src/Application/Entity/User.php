@@ -264,6 +264,15 @@ class User implements RoleInterface
 		}
 		return $this->memberships->containsKey($key);
 	}
+	
+	public function getMembershipOf($organizationId){
+		foreach ($this->memberships as $m){
+			if($m->getOrganization()->getId()===$organizationId){
+				return $m;
+			}
+		}
+		return null;
+	}
 
 	public function setRole($role){
 		$this->role = $role;
