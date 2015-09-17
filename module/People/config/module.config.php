@@ -68,7 +68,7 @@ return array(
 				'options' => array(
 					'route'    => '/:orgId/user-profiles[/:id]',
 					'defaults' => array(
-						'controller' => 'People\Controller\USerProfile'
+						'controller' => 'People\Controller\UserProfile'
 					),
 				),
 			),

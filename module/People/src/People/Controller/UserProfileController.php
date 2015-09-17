@@ -31,14 +31,13 @@ class UserProfileController extends OrganizationAwareController
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		$user = $this->userService->findUser($id);
 		
-// 		$membership = $this->orgService->findUserOrganizationMemberships($user);//user->getMembership
-// 		foreach ($membership as $m){
-// 			if($m->getOrganization()->getId()===$this->organization->getId()){
-// 				$role = $m->getRole();
-// 			}
-// 		}
+		$user = $this->userService->findUser($id);
+		if(is_null($user)){
+			$this->response->setStatusCode(404);
+			return $this->response;
+		}
+		
 		$membership = $user->getMembershipOf($this->organization->getId());
 		if(is_null($membership)){
 			$this->response->setStatusCode(404);
@@ -153,6 +152,11 @@ class UserProfileController extends OrganizationAwareController
 	public function getUserService()
 	{
 		return $this->userService;
+	}
+	
+	public function getAccountService()
+	{
+		return $this->accountService;
 	}
 	
 	protected function getCollectionOptions()
