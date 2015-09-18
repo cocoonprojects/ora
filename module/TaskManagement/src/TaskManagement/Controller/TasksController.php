@@ -39,6 +39,11 @@ class TasksController extends OrganizationAwareController
 	 *@var \DateInterval
 	 */
 	protected $intervalForCloseTasks;
+	/**
+	 * 
+	 * @var unknown
+	 */
+	protected $pageSize;
 	
 	public function __construct(TaskService $taskService, StreamService $streamService, Acl $acl, OrganizationService $organizationService)
 	{
@@ -47,6 +52,7 @@ class TasksController extends OrganizationAwareController
 		$this->streamService = $streamService;
 		$this->acl = $acl;
 		$this->intervalForCloseTasks = new \DateInterval('P7D');
+		$this->pageSize = 10;
 	}
 	
 	public function get($id)
@@ -92,11 +98,16 @@ class TasksController extends OrganizationAwareController
 		}
 		
 		$streamID = $this->getRequest()->getQuery('streamID');
+		//TODO: controllare e formattare meglio il from e il to inviati dal client
+		$from = is_null($this->getRequest()->getQuery("from")) ? 0 : $this->getRequest()->getQuery("from");
+		$to = is_null($this->getRequest()->getQuery("to")) ? $this->getPageSize() : $this->getRequest()->getQuery("to"); 
 		
-		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization) : $this->taskService->findStreamTasks($streamID);
+		$totalTasks = $this->taskService->countOrganizationTasks($this->organization);
+		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $from, $to) : $this->taskService->findStreamTasks($streamID);
 
 		$view = new TaskJsonModel($this->url(), $this->identity(), $this->acl, $this->organization);
 		$view->setVariable('resource', $availableTasks);
+		$view->setVariable('total', $totalTasks);
 		
 		return $view;
 	}
@@ -270,5 +281,15 @@ class TasksController extends OrganizationAwareController
 
 	public function getIntervalForCloseTasks(){
 		return $this->intervalForCloseTasks;
+	}
+	
+	public function setPageSize($size){
+		if(is_int($size)){
+			$this->pageSize = $size;
+		}
+	}
+	
+	public function getPageSize(){
+		return $this->pageSize;
 	}
 }

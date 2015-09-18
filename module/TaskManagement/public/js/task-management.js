@@ -1,6 +1,21 @@
 var TaskManagement = function()
 {
+	var pageSize = 1;
+	var moreTasksCount = 1;
+	
+	this.getPageSize = function(){
+		return pageSize;
+	};
+	this.setPageSize = function(size){
+		pageSize = size;
+	};
+	this.getMoreTasksCount = function(){
+		return moreTasksCount;
+	}
 	this.bindEventsOn();
+	
+	var pollingFrequency = 10000;
+	this.pollingObject = this.createObjectForPolling(pollingFrequency, this.listTasks);
 };
 
 TaskManagement.prototype = {
@@ -197,6 +212,11 @@ TaskManagement.prototype = {
 			that.getTask(e);
 		});
 
+		// MORE TASKS
+		$("body").on("click", "a[data-action='moreTasks']", function(e){
+			e.preventDefault();
+			that.listMoreTasks(e);
+		});
 	},
 	
 	unjoinTask: function(e)
@@ -427,12 +447,12 @@ TaskManagement.prototype = {
 	{
 		that = this;
 		$.ajax({
-			url: 'task-management/tasks',
+			url: 'task-management/tasks?to='+that.getPageSize(),
 			headers: {
 				'GOOGLE-JWT': sessionStorage.token
 			},
 			method: 'GET'
-		}).done(that.onListTasksCompleted.bind(this));
+		}).done(that.onListTasksCompleted.bind(that));
 	},
 	
 	updateStreams: function()
@@ -470,7 +490,6 @@ TaskManagement.prototype = {
 			var that = this;
 			$.each(this.data._embedded['ora:task'], function(key, task) {
 				subject = task._links.self == undefined ? task.subject : '<a data-href="' + task._links.self.href + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
-
 				var primary_actions = [];
 				var secondary_actions = [];
 				if (task._links['ora:estimate']) {
@@ -542,6 +561,14 @@ TaskManagement.prototype = {
 						'<div class="panel-body">' + rv + '</div>' +
 					'</li>');
 			});
+			
+			if(this.data._links !== undefined && this.data._links["self"] !== undefined && this.data._links["self"]["next"] !== undefined) {
+				var tasksLimit = this.getPageSize() + this.getMoreTasksCount();
+				container.append(
+					'<div class="text-center">' +
+							'<a href="'+this.data._links["self"]["next"]+'?to=' + tasksLimit + '" data-action="moreTasks">More</a>' +
+					'</div>');
+			}
 		}
 	},
 	
@@ -906,8 +933,42 @@ TaskManagement.prototype = {
 			return ": "+daysLeft + " days left";
 		}
 		return "";
-	}
+	},
 	
+	listMoreTasks: function(e){
+		var url = $(e.target).attr('href');
+		var that = this;
+		$.ajax({
+			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
+			method: 'GET',
+			beforeSend: that.pollingObject.stopPoll.bind(that.pollingObject)(),
+		}).done(function(json){
+			that.setPageSize(json.count);
+			that.onListTasksCompleted.bind(that, json)();
+		}).always(function(){
+			that.pollingObject.poll.bind(that.pollingObject)();
+		});
+	},
+	
+	createObjectForPolling: function(frequency, pollingFunction){
+		
+		var that = this;
+		
+		var jqXHR = {
+			pollID: 0,
+			poll: function(){
+				this.pollID = setInterval(pollingFunction.bind(that), frequency);
+			},
+			stopPoll: function(){
+				return clearInterval(this.pollID);
+			}
+		};
+		
+		return jqXHR;
+	}
 };
 
 var TASK_STATUS = (function() {
@@ -941,4 +1002,5 @@ $().ready(function(e){
 	collaboration = new TaskManagement();
 	collaboration.listTasks();
 	collaboration.updateStreams();
+	collaboration.pollingObject.poll();
 });
