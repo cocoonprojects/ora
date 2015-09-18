@@ -107,6 +107,6 @@ return array(
 		'TaskManagement\TransferTaskSharesCreditsListener',
 		'TaskManagement\CloseTaskListener',
 	),
-	'assignment_of_shares_timebox' => new \DateInterval('P7D'), 
+	'assignment_of_shares_timebox' => new \DateInterval('P7D'),
 	'tasks_management_page_size' => 10
 );
