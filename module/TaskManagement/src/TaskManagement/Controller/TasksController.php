@@ -91,10 +91,7 @@ class TasksController extends OrganizationAwareController
 		}
 		
 		$streamID = $this->getRequest()->getQuery('streamID');
-		//TODO: controllare e formattare meglio il from e il to inviati dal client
-		$from = is_null($this->getRequest()->getQuery("from")) ? 0 : $this->getRequest()->getQuery("from");
-		$to = is_null($this->getRequest()->getQuery("to")) ? $this->getPageSize() : $this->getRequest()->getQuery("to"); 
-		
+
 		$validator = new ValidatorChain();
 		$validator->attach(new NotEmpty())
 			->attach(new Int())
