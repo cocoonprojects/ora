@@ -60,6 +60,12 @@ class TasksControllerTest extends ControllerTest {
 			->with($this->stream->getId())
 			->willReturn([]);
 
+		$this->controller->getTaskService()
+			->expects($this->once())
+			->method('countOrganizationTasks')
+			->with($this->organization)
+			->willReturn(0);
+		
 		$this->request->setMethod('get');
 		$params = $this->request->getQuery();
 		$params->set('streamID', $this->stream->getId());
@@ -87,6 +93,12 @@ class TasksControllerTest extends ControllerTest {
 			->method('findOrganization')
 			->with($this->organization->getId())
 			->willReturn($this->organization);
+		
+		$this->controller->getTaskService()
+			->expects($this->once())
+			->method('countOrganizationTasks')
+			->with($this->organization)
+			->willReturn(1);
 
 		$task = new Task('00001');
 		$task->setCreatedAt(new \DateTime());
@@ -197,6 +209,12 @@ class TasksControllerTest extends ControllerTest {
 			->expects($this->once())
 			->method('findTasks')
 			->willReturn(array());
+		
+		$this->controller->getTaskService()
+			->expects($this->once())
+			->method('countOrganizationTasks')
+			->with($this->organization)
+			->willReturn(0);
 
 		$this->routeMatch->setParam('orgId', $this->organization->getId());
 
@@ -221,7 +239,13 @@ class TasksControllerTest extends ControllerTest {
 			->method('findOrganization')
 			->with($this->organization->getId())
 			->willReturn($this->organization);
-
+		
+		$this->controller->getTaskService()
+			->expects($this->once())
+			->method('countOrganizationTasks')
+			->with($this->organization)
+			->willReturn(1);
+		
 		$task1 = new Task('1');
 		$task1->setSubject('Lorem ipsum')
 			->setCreatedAt(new \DateTime())
