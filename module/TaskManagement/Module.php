@@ -42,6 +42,10 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 						$assignmentOfSharesTimebox = $locator->get('Config')['assignment_of_shares_timebox'];
 						$controller->setIntervalForCloseTasks($assignmentOfSharesTimebox);
 					}
+					if(array_key_exists('page_size', $locator->get('Config'))){
+						$size = $locator->get('Config')['page_size'];
+						$controller->setPageSize($size);
+					}
 					return $controller;
 				},
 				'TaskManagement\Controller\Members' => function ($sm) {

@@ -25,12 +25,14 @@ interface TaskService
 	public function getTask($id);
 	
 	/**
-	 * Get the list of all available tasks
+	 * Get the list of all available tasks in the $from - $to interval
 	 *
 	 * @param Organization $organization
+	 * @param string $from
+	 * @param string $to
 	 * @return Task[]
 	 */
-	public function findTasks(Organization $organization);
+	public function findTasks(Organization $organization, $from, $to);
 
 	/**
 	 * @param string|Uuid $id
@@ -50,5 +52,11 @@ interface TaskService
 	 * @return array
 	 */
 	public function findAcceptedTasksBefore(\DateInterval $interval);
+	
+	/**
+	 * Get the number of tasks of an $organization
+	 * @param Organization $organization
+	 */
+	public function countOrganizationTasks(Organization $organization);
 
 }
