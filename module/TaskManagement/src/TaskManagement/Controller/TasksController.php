@@ -14,6 +14,9 @@ use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
 use Zend\Permissions\Acl\Acl;
 use Zend\Validator\NotEmpty;
+use Zend\I18n\Validator\Int;
+use Zend\Validator\ValidatorChain;
+use Zend\Validator\GreaterThan;
 
 class TasksController extends OrganizationAwareController
 {
@@ -40,7 +43,7 @@ class TasksController extends OrganizationAwareController
 	protected $intervalForCloseTasks;
 	/**
 	 * 
-	 * @var unknown
+	 * @var integer
 	 */
 	protected $pageSize;
 	
@@ -97,9 +100,14 @@ class TasksController extends OrganizationAwareController
 		}
 		
 		$streamID = $this->getRequest()->getQuery('streamID');
-		//TODO: controllare e formattare meglio il from e il to inviati dal client
-		$from = is_null($this->getRequest()->getQuery("from")) ? 0 : $this->getRequest()->getQuery("from");
-		$to = is_null($this->getRequest()->getQuery("to")) ? $this->getPageSize() : $this->getRequest()->getQuery("to"); 
+		
+		$validator = new ValidatorChain();
+		$validator->attach(new NotEmpty())
+			->attach(new Int())
+			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
+		
+		$from = $validator->isValid($this->getRequest()->getQuery("from")) ? $this->getRequest()->getQuery("from") : 0;
+		$to = $validator->isValid($this->getRequest()->getQuery("to")) ? $this->getRequest()->getQuery("to") : $this->getPageSize(); 
 		
 		$totalTasks = $this->taskService->countOrganizationTasks($this->organization);
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $from, $to) : $this->taskService->findStreamTasks($streamID);
