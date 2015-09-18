@@ -46,18 +46,38 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 
 	/**
 	 * @param Organization $organization
+	 * @param string $from
+	 * @param string $to
 	 * @return Task[]
 	 */
-	public function findTasks(Organization $organization)
+	public function findTasks(Organization $organization, $from, $to)
 	{
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('t')
 			->from(ReadModelTask::class, 't')
 			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
 			->orderBy('t.mostRecentEditAt', 'DESC')
+			->setFirstResult($from)
+			->setMaxResults($to)
 			->setParameter(':organization', $organization)
 			->getQuery();
 		return $query->getResult();
+	}
+	
+	/**
+	 * 
+	 * @param Organization $organization
+	 * @return \Doctrine\ORM\mixed
+	 */
+	public function countOrganizationTasks(Organization $organization){
+		
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('count(t)')
+			->from(ReadModelTask::class, 't')
+			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
+			->setParameter(':organization', $organization)
+			->getQuery();
+		return intval($query->getSingleScalarResult());
 	}
 	
 	public function findTask($id) {

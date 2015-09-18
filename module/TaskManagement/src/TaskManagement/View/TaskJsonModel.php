@@ -36,7 +36,10 @@ class TaskJsonModel extends JsonModel
 			}
 			$hal['_embedded']['ora:task'] = array_map(array($this, 'serializeOne'), $resource);
 			$hal['count'] = count($resource);
-			$hal['total'] = count($resource);
+			$hal['total'] = $this->getVariable('total');
+			if($hal['count'] < $hal['total']){
+				$hal['_links']['self']['next'] = $this->url->fromRoute('tasks', ['orgId' => $this->organization->getId()]);
+			}
 		} else {
 			$hal = $this->serializeOne($resource);
 			if ($this->controller->isAllowed($this->controller->identity(), NULL, 'TaskManagement.Task.create')) {
