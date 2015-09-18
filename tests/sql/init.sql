@@ -80,7 +80,7 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
 INSERT INTO accounts (id, organization_id, createdAt, mostRecentEditAt, balance_value, balance_date, createdBy_id, mostRecentEditBy_id, type)
 VALUES
   ('ccde992b-5aa9-4447-98ae-c8115906dcb7', '00000000-0000-0000-1000-000000000000', '2014-12-29T17:32:07.000000+0100',
-   '2014-12-29T17:32:07.000000+0100', 0, '2014-12-29T17:32:07.000000+0100', '60000000-0000-0000-0000-000000000000',
+   '2014-12-29T17:32:07.000000+0100', 1000, '2014-12-29T17:32:07.000000+0100', '60000000-0000-0000-0000-000000000000',
    '60000000-0000-0000-0000-000000000000', 'personalaccount');
 INSERT INTO account_holders (account_id, user_id) VALUES
   ('ccde992b-5aa9-4447-98ae-c8115906dcb7', '60000000-0000-0000-0000-000000000000');
@@ -424,3 +424,20 @@ INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt)
    '2014-11-12 19:07:59'),
   ('00000000-0000-0000-0000-000000000004', '20000000-0000-0000-0000-000000000000', 'member', '2014-11-12 19:07:59',
    '2014-11-12 19:07:59');
+
+#account transaction for UserProfileAPITest   
+INSERT INTO account_transactions (id, account_id, payer_id,payee_id, amount, description, balance, number, createdAt, createdBy_id, type ) 
+VALUES 
+('098a95a2-adc4-4155-b848-66dbfbcff5ca', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', NULL, 500, 'Description', 500, 1, '2015-02-18 10:48:13', '60000000-0000-0000-0000-000000000000', 'incomingtransfer');
+
+INSERT INTO account_transactions (id, account_id, payer_id,payee_id, amount, description, balance, number, createdAt, createdBy_id, type ) 
+VALUES 
+('098a95a2-adc4-4155-b848-66dbfbcff5cb', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', NULL, 1000, 'Description', 1000, 2, '2015-05-18 10:48:13', '60000000-0000-0000-0000-000000000000', 'incomingtransfer');
+
+INSERT INTO account_transactions (id, account_id, payer_id,payee_id, amount, description, balance, number, createdAt, createdBy_id, type ) 
+VALUES 
+('098a95a2-adc4-4155-b848-66dbfbcff5cc', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', NULL, 100, 'Description', 100, 3, '2015-09-18 10:48:13', '60000000-0000-0000-0000-000000000000', 'incomingtransfer');
+   
+INSERT INTO account_transactions (id, account_id, payer_id,payee_id, amount, description, balance, number, createdAt, createdBy_id, type ) 
+VALUES 
+('098a95a2-adc4-4155-b848-66dbfbcff5cd', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', NULL, 2000, 'Description', 2000, 1, '2014-02-18 10:48:13', '60000000-0000-0000-0000-000000000000', 'incomingtransfer');

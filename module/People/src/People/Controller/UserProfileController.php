@@ -32,6 +32,11 @@ class UserProfileController extends OrganizationAwareController
 			return $this->response;
 		}
 		
+		if(!$this->isAllowed($this->identity(), $this->organization, 'People.UserProfile.getProfile')) {
+			$this->response->setStatusCode(403);
+			return $this->response;
+		}
+		
 		$user = $this->userService->findUser($id);
 		if(is_null($user)){
 			$this->response->setStatusCode(404);
@@ -66,8 +71,9 @@ class UserProfileController extends OrganizationAwareController
 		$lastYearCredits = 0;
 		
 		foreach ($transactions as $t){
-			if($t->getCreatedAt()<$dateLimitOneYear)
-				break;
+//		Removed for Total Credits Generated 
+// 			if($t->getCreatedAt()<$dateLimitOneYear)
+// 				break;
 			
 			if($t->getAmount()>= 0){
 				$totalGeneratedCredits+=$t->getAmount();

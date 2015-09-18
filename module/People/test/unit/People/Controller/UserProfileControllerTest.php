@@ -30,11 +30,13 @@ class UserProfileControllerTest extends ControllerTest {
 	}
 	
 	public function testGetUserProfile() {
-		$user = User::create ();
-		$this->setupLoggedUser ( $user );
-		
+	
 		$organization = new ReadModelOrganization ( '1' );
 		$organization->setName ( "OrganizationName" );
+		
+		$user = User::create ();
+		$user->addMembership($organization, User::ROLE_USER);
+		$this->setupLoggedUser ( $user );
 		
 		$this->controller->getOrganizationService ()->expects ( $this->once () )->method ( 'findOrganization' )->with ( $organization->getId () )->willReturn ( $organization );
 		
@@ -156,10 +158,11 @@ class UserProfileControllerTest extends ControllerTest {
 	}
 	
 	public function testGetUserProfileWithWrongUserId() {
-		$user = User::create ();
-		$this->setupLoggedUser ( $user );
-		
 		$organization = new ReadModelOrganization ( '1' );
+		
+		$user = User::create ();
+		$user->addMembership($organization, User::ROLE_USER);
+		$this->setupLoggedUser ( $user );
 		
 		$this->controller->getOrganizationService ()->method ( 'findOrganization' )->with ( $organization->getId () )->willReturn ( $organization );
 		
@@ -178,10 +181,11 @@ class UserProfileControllerTest extends ControllerTest {
 	}
 	
 	public function testGetUserProfileWithNoMembership() {
-		$user = User::create ();
-		$this->setupLoggedUser ( $user );
-		
 		$organization = new ReadModelOrganization ( '1' );
+		
+		$user = User::create ();
+		$user->addMembership($organization, User::ROLE_USER);
+		$this->setupLoggedUser ( $user );
 		
 		$this->controller->getOrganizationService ()->method ( 'findOrganization' )->with ( $organization->getId () )->willReturn ( $organization );
 		
