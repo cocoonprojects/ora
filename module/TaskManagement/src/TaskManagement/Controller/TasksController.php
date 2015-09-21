@@ -104,7 +104,10 @@ class TasksController extends OrganizationAwareController
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit) : $this->taskService->findStreamTasks($streamID, $offset, $limit);
 
 		$view = new TaskJsonModel($this->url(), $this->identity(), $this->acl, $this->organization);
+		
 		$view->setVariables(['resource'=>$availableTasks, 'total'=>$totalTasks]);
+		
+		
 		return $view;
 	}
 
