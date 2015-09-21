@@ -108,5 +108,5 @@ return array(
 		'TaskManagement\CloseTaskListener',
 	),
 	'assignment_of_shares_timebox' => new \DateInterval('P7D'), 
-	'page_size' => 1
+	'tasks_management_page_size' => 10
 );
