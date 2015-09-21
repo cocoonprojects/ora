@@ -12,6 +12,7 @@ default:
                 - functional/features/estimations
                 - functional/features/shares
                 - functional/features/task
+                - functional/features/people
             contexts:
                 - RestContext:
                     - http://oraprojecttest
