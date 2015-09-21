@@ -1,6 +1,33 @@
 var Accounting = function()
 {
-	this.bindEventsOn(); 
+	var defaultPageSize = 1;
+	var pageSize = defaultPageSize;
+	var moreTransactionsCount = 1;
+	var pageOffset = 0;
+	
+	this.getPageSize = function(){
+		return pageSize;
+	};
+	this.setPageSize = function(size){
+		pageSize = size;
+	};
+	this.getMoreTransactionsCount = function(){
+		return moreTransactionsCount;
+	};
+	this.getPageOffset = function(){
+		return pageOffset;
+	};
+	this.setPageOffset = function(offset){
+		pageOffset = offset;
+	};
+	this.resetPageSize = function(){
+		pageSize = defaultPageSize;
+	}
+	
+	this.bindEventsOn();
+	
+	var pollingFrequency = 10000;
+	this.pollingObject = this.createObjectForPolling(pollingFrequency, this.listTransactions);
 };
 
 Accounting.prototype = {
@@ -16,6 +43,7 @@ Accounting.prototype = {
 			$("#accounts li[role='presentation']").removeClass('active');
 			var li = $(this).parent();
 			li.attr('class', 'active');
+			that.resetPageSize();
 			that.listTransactions(this.href);
 		});
 
@@ -74,13 +102,20 @@ Accounting.prototype = {
 			e.preventDefault();
 			that.transferOut(e);
 		});
+		
+		// MORE TRANSACTIONS
+		$("body").on("click", "a[data-action='moreTransactions']", function(e){
+			e.preventDefault();
+			that.listMoreTransactions(e);
+		});
 	},
 
 	listTransactions: function()
 	{
+		var that = this;
 		var url = $('a', $('#accounts li.active')).attr('href');
 		$.ajax({
-			url: url,
+			url: url+'?offset='+that.getPageOffset()+'&limit='+that.getPageSize(),
 			headers: {
 				'GOOGLE-JWT': sessionStorage.token
 			},
@@ -282,8 +317,19 @@ Accounting.prototype = {
 		if(json.transactions.length == 0) {
 			c.append('<tr><td colspan="4">No transactions in your history</td></tr>');
 		}
-
+		
 		container.show();
+		
+		$('div.text-center.next').remove();
+		if(json._links !== undefined && json._links["self"] !== undefined && json._links["self"]["next"] !== undefined) {
+			var transactionsLimit = this.getPageSize() + this.getMoreTransactionsCount();
+			var transactionsOffset = this.getPageOffset();
+			$('.container').append(
+				'<div class="text-center next">'+
+					'<a rel="next" href="'+json._links["self"]["next"]+'?offset=' + transactionsOffset + '&limit=' + transactionsLimit + '" data-action="moreTransactions">More</a>' +
+				'</div>' 
+			);
+		}
 	},
 
 	show: function(container, level, message) {
@@ -292,6 +338,39 @@ Accounting.prototype = {
 		alertDiv.addClass('alert alert-' + level);
 		alertDiv.text(message);
 		alertDiv.show();
+	},
+	
+	listMoreTransactions: function(e){
+		var url = $(e.target).attr('href');
+		var that = this;
+		$.ajax({
+			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
+			method: 'GET',
+			beforeSend: that.pollingObject.stopPolling.bind(that.pollingObject)(),
+		}).done(function(json){
+			that.setPageSize(json.count);
+			that.onListTransactionsCompleted.bind(that, json)();
+		}).always(function(){
+			that.pollingObject.startPolling.bind(that.pollingObject)();
+		});
+	},
+	
+	createObjectForPolling: function(frequency, pollingFunction){
+		
+		var that = this;
+		
+		return {
+			pollID: 0,
+			startPolling: function(){
+				this.pollID = setInterval(pollingFunction.bind(that), frequency);
+			},
+			stopPolling: function(){
+				return clearInterval(this.pollID);
+			}
+		};
 	}
 }
 
@@ -299,4 +378,5 @@ $().ready(function(e){
 	$('#firstLevelMenu li').eq(1).addClass('active');
 	accounting = new Accounting();
 	accounting.listTransactions();
+	accounting.pollingObject.startPolling();
 });

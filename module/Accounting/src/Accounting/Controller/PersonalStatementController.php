@@ -6,6 +6,10 @@ use Accounting\View\StatementJsonModel;
 use Application\Controller\OrganizationAwareController;
 use People\Service\OrganizationService;
 use Zend\Permissions\Acl\Acl;
+use Zend\Validator\NotEmpty;
+use Zend\I18n\Validator\Int;
+use Zend\Validator\ValidatorChain;
+use Zend\Validator\GreaterThan;
 
 class PersonalStatementController extends OrganizationAwareController
 {
@@ -21,11 +25,17 @@ class PersonalStatementController extends OrganizationAwareController
 	 * @var Acl
 	 */
 	private $acl;
+	/**
+	 *
+	 * @var integer
+	 */
+	protected $pageSize;
 	
 	public function __construct(AccountService $accountService, Acl $acl, OrganizationService $organizationService) {
 		parent::__construct($organizationService);
 		$this->accountService = $accountService;
 		$this->acl = $acl;
+		$this->pageSize = 10;
 	}
 
 	public function getList()
@@ -34,7 +44,15 @@ class PersonalStatementController extends OrganizationAwareController
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-
+		
+		$validator = new ValidatorChain();
+		$validator->attach(new NotEmpty())
+			->attach(new Int())
+			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
+		
+		$offset = $validator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
+		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getPageSize();
+		
 		$account = $this->accountService->findPersonalAccount($this->identity(), $this->organization);
 		if(is_null($account)) {
 			$this->response->setStatusCode(404);
@@ -47,7 +65,7 @@ class PersonalStatementController extends OrganizationAwareController
 		}
 
 		$viewModel = new StatementJsonModel($this->url(), $this->identity(), $this->acl);
-		$viewModel->setVariable('resource', $account);
+		$viewModel->setVariables(['resource'=>$account, 'offset'=>$offset, 'limit'=>$limit]);
 		return $viewModel;
 	}
 
@@ -74,6 +92,16 @@ class PersonalStatementController extends OrganizationAwareController
 	 */
 	protected function getResourceOptions() {
 		return self::$resourceOptions;
+	}
+	
+	public function setPageSize($size){
+		if(is_int($size)){
+			$this->pageSize = $size;
+		}
+	}
+	
+	public function getPageSize(){
+		return $this->pageSize;
 	}
 	
 }

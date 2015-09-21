@@ -79,5 +79,6 @@ return array(
 		'Accounting\AccountCommandsListener',
 		'Accounting\CreatePersonalAccountListener',
 		'Accounting\CreateOrganizationAccountListener'
-	)
+	),
+	'accounting_page_size' => 10
 );
