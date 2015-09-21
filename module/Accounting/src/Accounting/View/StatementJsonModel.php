@@ -10,6 +10,7 @@ use Accounting\Entity\Account;
 use Accounting\Entity\OrganizationAccount;
 use Accounting\Entity\AccountTransaction;
 use Accounting\Entity\Deposit;
+use DoctrineModule\Paginator\Adapter\Collection as CollectionAdapter;
 
 class StatementJsonModel extends JsonModel
 {
@@ -31,9 +32,17 @@ class StatementJsonModel extends JsonModel
 	public function serialize()
 	{
 		$account = $this->getVariable('resource');
+		$offset = $this->getVariable('offset');
+		$limit = $this->getVariable('limit');
+		
 		$rv['organization'] = $account->getOrganization()->getName();
-		$rv['transactions'] = array_map(array($this, 'serializeTransaction'), $account->getTransactions());
+		$rv['transactions'] = array_map(array($this, 'serializeTransaction'), array_slice($account->getTransactions(), $offset, $limit));
 		$rv['_links']       = $this->serializeLinks($account);
+		$rv['count'] 		= count($rv['transactions']);
+		$rv['total'] 		= count($account->getTransactions());
+		if($rv['count'] < $rv['total']){
+			$rv['_links']['self']['next'] = $rv['_links']['self']['href'];
+		}
 		return Json::encode($rv);
 	}
 	
