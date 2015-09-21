@@ -14,6 +14,7 @@ use ZFX\Test\Authentication\OAuth2AdapterMock;
 use Zend\Mvc\MvcEvent;
 use Accounting\Entity\AccountTransaction;
 use Accounting\Entity\Account;
+use Accounting\Entity\Balance;
 
 class UserProfileAPITest extends \PHPUnit_Framework_TestCase
 {
@@ -66,7 +67,8 @@ class UserProfileAPITest extends \PHPUnit_Framework_TestCase
 		$user = $this->userService->findUser('60000000-0000-0000-0000-000000000000');
 		$organization = $this->orgService->getOrganization('00000000-0000-0000-1000-000000000000');
 		$account = $this->accountService->findPersonalAccount($user, $organization);
-		$actualBalance = $account->getBalance()->getValue();
+		//$actualBalance = $account->getBalance()->getValue();
+		$account->setBalance(new Balance(1000, new \DateTime()));
 		
 		$this->request->setMethod('get');		
 		$result   = $this->controller->dispatch($this->request);
