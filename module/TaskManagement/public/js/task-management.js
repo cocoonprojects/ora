@@ -2,6 +2,7 @@ var TaskManagement = function()
 {
 	var pageSize = 1;
 	var moreTasksCount = 1;
+	var pageOffset = 0;
 	
 	this.getPageSize = function(){
 		return pageSize;
@@ -11,7 +12,14 @@ var TaskManagement = function()
 	};
 	this.getMoreTasksCount = function(){
 		return moreTasksCount;
+	};
+	this.getPageOffset = function(){
+		return pageOffset;
+	};
+	this.setPageOffset = function(offset){
+		pageOffset = offset;
 	}
+	
 	this.bindEventsOn();
 	
 	var pollingFrequency = 10000;
@@ -447,7 +455,7 @@ TaskManagement.prototype = {
 	{
 		that = this;
 		$.ajax({
-			url: 'task-management/tasks?to='+that.getPageSize(),
+			url: 'task-management/tasks?offset='+that.getPageOffset()+'&limit='+that.getPageSize(),
 			headers: {
 				'GOOGLE-JWT': sessionStorage.token
 			},
@@ -564,9 +572,10 @@ TaskManagement.prototype = {
 			
 			if(this.data._links !== undefined && this.data._links["self"] !== undefined && this.data._links["self"]["next"] !== undefined) {
 				var tasksLimit = this.getPageSize() + this.getMoreTasksCount();
+				var tasksOffset = this.getPageOffset();
 				container.append(
 					'<div class="text-center">' +
-							'<a href="'+this.data._links["self"]["next"]+'?to=' + tasksLimit + '" data-action="moreTasks">More</a>' +
+							'<a rel="next" href="'+this.data._links["self"]["next"]+'?offset=' + tasksOffset + '&limit=' + tasksLimit + '" data-action="moreTasks">More</a>' +
 					'</div>');
 			}
 		}
@@ -944,12 +953,12 @@ TaskManagement.prototype = {
 				'GOOGLE-JWT': sessionStorage.token
 			},
 			method: 'GET',
-			beforeSend: that.pollingObject.stopPoll.bind(that.pollingObject)(),
+			beforeSend: that.pollingObject.stopPolling.bind(that.pollingObject)(),
 		}).done(function(json){
 			that.setPageSize(json.count);
 			that.onListTasksCompleted.bind(that, json)();
 		}).always(function(){
-			that.pollingObject.poll.bind(that.pollingObject)();
+			that.pollingObject.startPolling.bind(that.pollingObject)();
 		});
 	},
 	
@@ -957,17 +966,15 @@ TaskManagement.prototype = {
 		
 		var that = this;
 		
-		var jqXHR = {
+		return {
 			pollID: 0,
-			poll: function(){
+			startPolling: function(){
 				this.pollID = setInterval(pollingFunction.bind(that), frequency);
 			},
-			stopPoll: function(){
+			stopPolling: function(){
 				return clearInterval(this.pollID);
 			}
 		};
-		
-		return jqXHR;
 	}
 };
 
@@ -1002,5 +1009,5 @@ $().ready(function(e){
 	collaboration = new TaskManagement();
 	collaboration.listTasks();
 	collaboration.updateStreams();
-	collaboration.pollingObject.poll();
+	collaboration.pollingObject.startPolling();
 });
