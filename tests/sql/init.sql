@@ -104,12 +104,33 @@ VALUES
 INSERT INTO account_holders (account_id, user_id) VALUES
   ('cdde992b-5aa9-4447-98ae-c8115906dcb7', '70000000-0000-0000-0000-000000000000');
 
+#Bruce Wayne Personal Account  
+INSERT INTO users (id, status, createdAt, mostRecentEditAt, firstname, lastname, email, role) VALUES
+  ('80000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', '2014-10-09 11:33:45', 'Bruce', 'Wayne',
+   'bruce.wayne@ora.local', 'user');  
+INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
+  ('74548e90-569c-4e1b-958f-5b744243210f', 5, 'People\\OrganizationMemberAdded',
+   'a:4:{s:6:"userId";s:36:"80000000-0000-0000-0000-000000000000";s:4:"role";s:6:"member";s:2:"by";s:36:"80000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-1000-000000000000";}',
+   '2015-03-11T13:35:32.000000+0100', 'People\\Organization', '00000000-0000-0000-1000-000000000000'),
+  ('45f1b89b-156b-4dbf-b5c9-9a0540460a0c', 1, 'Accounting\\AccountCreated',
+   'a:4:{s:12:\"organization\";s:36:\"00000000-0000-0000-1000-000000000000\";s:7:\"balance\";i:0;s:7:\"holders\";a:1:{s:36:\"80000000-0000-0000-0000-000000000000\";s:11:\"Bruce Wayne\";}s:12:\"aggregate_id\";s:36:\"cdde992b-5aa9-4447-98ae-c8115906dcb9\";}',
+   '2014-12-29T17:32:07.000000+0100', 'Accounting\\Account', 'cdde992b-5aa9-4447-98ae-c8115906dcb9');
+INSERT INTO organization_members (member_id, organization_id, role, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id)
+VALUES
+  ('80000000-0000-0000-0000-000000000000', '00000000-0000-0000-1000-000000000000', 'member', '2014-10-09 11:33:45',
+   '2014-10-09 11:33:45', '80000000-0000-0000-0000-000000000000', '80000000-0000-0000-0000-000000000000');
+INSERT INTO accounts (id, organization_id, createdAt, mostRecentEditAt, balance_value, balance_date, createdBy_id, mostRecentEditBy_id, type)
+VALUES
+  ('cdde992b-5aa9-4447-98ae-c8115906dcb9', '00000000-0000-0000-1000-000000000000', '2014-12-29T17:32:07.000000+0100',
+   '2014-12-29T17:32:07.000000+0100', 1000, '2014-12-29T17:32:07.000000+0100', '80000000-0000-0000-0000-000000000000',
+   '80000000-0000-0000-0000-000000000000', 'personalaccount');
+INSERT INTO account_holders (account_id, user_id) VALUES
+  ('cdde992b-5aa9-4447-98ae-c8115906dcb9', '80000000-0000-0000-0000-000000000000');
+
+
 INSERT INTO users (id, status, createdAt, mostRecentEditAt, firstname, lastname, email, role) VALUES
   ('20000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', '2014-10-09 11:33:45', 'Paul', 'Smith',
    'paul.smith@ora.local', 'user');
-INSERT INTO users (id, status, createdAt, mostRecentEditAt, firstname, lastname, email, role) VALUES
-  ('80000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', '2014-10-09 11:33:45', 'Bruce', 'Wayne',
-   'bruce.wayne@ora.local', 'user');
 INSERT INTO users (id, status, createdAt, mostRecentEditAt, firstname, lastname, email, role) VALUES
   ('90000000-0000-0000-0000-000000000000', 1, '2014-10-09 11:33:45', '2014-10-09 11:33:45', 'Peter', 'Parker',
    'spidey.web@dailybugle.local', 'user');
@@ -428,16 +449,16 @@ INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt)
 #account transaction for UserProfileAPITest   
 INSERT INTO account_transactions (id, account_id, payer_id,payee_id, amount, description, balance, number, createdAt, createdBy_id, type ) 
 VALUES 
-('098a95a2-adc4-4155-b848-66dbfbcff5ca', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', NULL, 500, 'Description', 500, 1, '2015-02-18 10:48:13', '60000000-0000-0000-0000-000000000000', 'incomingtransfer');
+('098a95a2-adc4-4155-b848-66dbfbcff5ca', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', NULL, 500, 'Description', 500, 1, '2015-02-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'incomingtransfer');
 
 INSERT INTO account_transactions (id, account_id, payer_id,payee_id, amount, description, balance, number, createdAt, createdBy_id, type ) 
 VALUES 
-('098a95a2-adc4-4155-b848-66dbfbcff5cb', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', NULL, 1000, 'Description', 1000, 2, '2015-05-18 10:48:13', '60000000-0000-0000-0000-000000000000', 'incomingtransfer');
+('098a95a2-adc4-4155-b848-66dbfbcff5cb', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', NULL, 1000, 'Description', 1000, 2, '2015-05-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'incomingtransfer');
 
 INSERT INTO account_transactions (id, account_id, payer_id,payee_id, amount, description, balance, number, createdAt, createdBy_id, type ) 
 VALUES 
-('098a95a2-adc4-4155-b848-66dbfbcff5cc', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', NULL, 100, 'Description', 100, 3, '2015-09-18 10:48:13', '60000000-0000-0000-0000-000000000000', 'incomingtransfer');
+('098a95a2-adc4-4155-b848-66dbfbcff5cc', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', NULL, 100, 'Description', 100, 3, '2015-09-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'incomingtransfer');
    
 INSERT INTO account_transactions (id, account_id, payer_id,payee_id, amount, description, balance, number, createdAt, createdBy_id, type ) 
 VALUES 
-('098a95a2-adc4-4155-b848-66dbfbcff5cd', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', NULL, 2000, 'Description', 2000, 1, '2014-02-18 10:48:13', '60000000-0000-0000-0000-000000000000', 'incomingtransfer');
+('098a95a2-adc4-4155-b848-66dbfbcff5cd', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', NULL, 2000, 'Description', 2000, 1, '2014-02-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'incomingtransfer');

@@ -14,7 +14,6 @@ use ZFX\Test\Authentication\OAuth2AdapterMock;
 use Zend\Mvc\MvcEvent;
 use Accounting\Entity\AccountTransaction;
 use Accounting\Entity\Account;
-use Accounting\Entity\Balance;
 
 class UserProfileAPITest extends \PHPUnit_Framework_TestCase
 {
@@ -62,13 +61,12 @@ class UserProfileAPITest extends \PHPUnit_Framework_TestCase
 	public function testGetUserProfilePage()
 	{
 		$this->routeMatch->setParam('orgId', '00000000-0000-0000-1000-000000000000');
-		$this->routeMatch->setParam('id', '60000000-0000-0000-0000-000000000000');
+		$this->routeMatch->setParam('id', '80000000-0000-0000-0000-000000000000');
 		
-		$user = $this->userService->findUser('60000000-0000-0000-0000-000000000000');
+		$user = $this->userService->findUser('80000000-0000-0000-0000-000000000000');
 		$organization = $this->orgService->getOrganization('00000000-0000-0000-1000-000000000000');
 		$account = $this->accountService->findPersonalAccount($user, $organization);
-		//$actualBalance = $account->getBalance()->getValue();
-		$account->setBalance(new Balance(1000, new \DateTime()));
+		$actualBalance = $account->getBalance()->getValue();
 		
 		$this->request->setMethod('get');		
 		$result   = $this->controller->dispatch($this->request);
@@ -89,10 +87,10 @@ class UserProfileAPITest extends \PHPUnit_Framework_TestCase
 		$this->assertArrayHasKey ( 'role', $arrayResult ['_embedded'] ['organization'] );
 		$this->assertEquals ( $organization->getId (), $arrayResult ['_embedded'] ['organization'] ['id'] );
 		$this->assertEquals ( $organization->getName (), $arrayResult ['_embedded'] ['organization'] ['name'] );
-		$this->assertEquals ( 'admin', $arrayResult ['_embedded'] ['organization'] ['role'] );
+		$this->assertEquals ( 'member', $arrayResult ['_embedded'] ['organization'] ['role'] );
 		
 		$this->assertNotEmpty ( $arrayResult ['_embedded'] ['credits'] );
-		$this->assertEquals ( 1000, $arrayResult ['_embedded'] ['credits'] ['balance'] );
+		$this->assertEquals ( $actualBalance, $arrayResult ['_embedded'] ['credits'] ['balance'] );
 		$this->assertEquals ( 3600, $arrayResult ['_embedded'] ['credits'] ['total'] );
 		$this->assertEquals ( 100, $arrayResult ['_embedded'] ['credits'] ['last3M'] );
 		$this->assertEquals ( 1100, $arrayResult ['_embedded'] ['credits'] ['last6M'] );
