@@ -14,6 +14,7 @@ use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\Event;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\Mvc\Application;
+use TaskManagement\TaskClosed;
 
 class NotifyMailListener implements ListenerAggregateInterface
 {
@@ -50,6 +51,7 @@ class NotifyMailListener implements ListenerAggregateInterface
 		
 		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, SharesAssigned::class, array($this, 'processSharesAssigned'));
 		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, SharesSkipped::class, array($this, 'processSharesAssigned'));
+		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, TaskClosed::class, array($this, 'processTaskClosed'));
 	}
 	
 	public function detach(EventManagerInterface $events) {
@@ -67,6 +69,13 @@ class NotifyMailListener implements ListenerAggregateInterface
 		$memberId = $event->getParam ( 'by' );
 		$member = $this->userService->findUser($memberId);
 		$this->sendSharesAssignedInfoMail ( $task, $member );
+	}
+	
+	public function processTaskClosed(Event $event){
+		$streamEvent = $event->getTarget();
+		$taskId = $streamEvent->metadata()['aggregate_id'];
+		$task = $this->taskService->findTask($taskId);
+		$this->sendTaskClosedInfoMail($task);
 	}
 	
 	public function sendEstimationAddedInfoMail(Task $task, User $member){
@@ -160,6 +169,32 @@ class NotifyMailListener implements ListenerAggregateInterface
 			$this->mailService->setTemplate( 'mail/reminder-add-estimation.phtml', array(
 					'task' => $task,
 					'recipient'=> $recipient
+			));
+			
+			$this->mailService->send();
+		}
+	}
+	
+	/**
+	 * Send an email notification to the members of $taskToNotify to inform them that it has been closed
+	 * @param Task $taskToNotify
+	 */
+	public function sendTaskClosedInfoMail(ReadModelTask $task){
+
+		$taskMembers = $task->getMembers();
+
+		foreach ($taskMembers as $taskMember){
+			
+			$member = $taskMember->getMember();
+	
+			$message = $this->mailService->getMessage();
+			$message->setTo($member->getEmail());
+	
+			$this->mailService->setSubject ( "O.R.A. - task has been closed!" );
+	
+			$this->mailService->setTemplate( 'mail/task-closed-info.phtml', array(
+					'task' => $task,
+					'recipient'=> $member
 			));
 			
 			$this->mailService->send();

@@ -9,8 +9,10 @@ use Zend\Http\Response;
 use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
 use Zend\Mvc\Router\RouteMatch;
+use Zend\Uri\Http;
 use ZFX\Test\Authentication\AdapterMock;
 use ZFX\Test\Authentication\OAuth2AdapterMock;
+use Behat\Testwork\Tester\Setup\Teardown;
 
 class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 {	
@@ -43,12 +45,14 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 		$taskService = $serviceManager->get('TaskManagement\TaskService');
 		$this->controller = new SharesController($taskService);
 		$this->request	= new Request();
+		
 		$this->routeMatch = new RouteMatch(array('controller' => 'shares'));
 		$this->event	  = new MvcEvent();
 		$config = $serviceManager->get('Config');
 		$routerConfig = isset($config['router']) ? $config['router'] : array();
-		$router = HttpRouter::factory($routerConfig);
-
+		$router = $serviceManager->get('HttpRouter');
+		$router->setRequestUri(new Http("http://example.com"));
+		
 		$this->event->setRouter($router);
 		$this->event->setRouteMatch($this->routeMatch);
 		$this->controller->setEvent($this->event);
@@ -66,6 +70,7 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 		
 		$transactionManager = $serviceManager->get('prooph.event_store');
 		$transactionManager->beginTransaction();
+		
 		try {
 			$task = Task::create($stream, 'Cras placerat libero non tempor', $this->owner);
 			$task->addMember($this->owner, Task::ROLE_OWNER);
@@ -86,15 +91,15 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 	
 	public function testAssignSharesAsLast() {
 		$this->routeMatch->setParam('id', $this->task->getId());
-		 
+
 		$this->request->setMethod('post');
 		$params = $this->request->getPost();
 		$params->set($this->owner->getId(), 50);
 		$params->set($this->member->getId(), 50);
-		
+
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-		
+
 		$readModelTask = $this->controller->getTaskService()->findTask($this->task->getId());
 		$this->assertEquals(201, $response->getStatusCode());
 		$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
@@ -103,12 +108,12 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 
 	public function testSkipSharesAsLast() {
 		$this->routeMatch->setParam('id', $this->task->getId());
-		 
+
 		$this->request->setMethod('post');
 		
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-		
+
 		$readModelTask = $this->controller->getTaskService()->findTask($this->task->getId());
 		$this->assertEquals(201, $response->getStatusCode());
 		$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
