@@ -126,6 +126,9 @@ class MembersControllerTest extends ControllerTest
 		$this->assertCount(0, $arrayResult['_embedded']['ora:organization-member']);
 		$this->assertEquals(0, $arrayResult['count']);
 		$this->assertEquals(0, $arrayResult['total']);
+		$this->assertArrayNotHasKey('next', $arrayResult['_links']);
+		$this->assertArrayHasKey('first', $arrayResult['_links']);
+		$this->assertArrayHasKey('last', $arrayResult['_links']);
 	}
 	
 	public function testGetList()
@@ -156,7 +159,16 @@ class MembersControllerTest extends ControllerTest
 			->expects($this->once())
 			->method('findOrganizationMemberships')
 			->with($this->equalTo($organization))
-			->willReturn($memberships);
+			->willReturn(array($memberships[0]));
+		
+		$this->controller->getOrganizationService()
+			->expects($this->once())
+			->method('countOrganizationMemberships')
+			->with($this->equalTo($organization))
+			->willReturn(sizeof($memberships));
+		
+		$params = $this->request->getQuery();
+		$params->set('limit', 1);
 		
 		$this->routeMatch->setParam('orgId', $organization->getId());
 		
@@ -166,9 +178,13 @@ class MembersControllerTest extends ControllerTest
 		$this->assertEquals(200, $response->getStatusCode());
 		
 		$arrayResult = json_decode($result->serialize(), true);
-		$this->assertCount(2, $arrayResult['_embedded']['ora:organization-member']);
-		$this->assertEquals(2, $arrayResult['count']);
+		$this->assertCount(1, $arrayResult['_embedded']['ora:organization-member']);
+		$this->assertEquals(1, $arrayResult['count']);
 		$this->assertEquals(2, $arrayResult['total']);
+		$this->assertArrayHasKey('next', $arrayResult['_links']);
+		$this->assertNotEmpty($arrayResult['_links']['next']['href']);
+		$this->assertArrayHasKey('first', $arrayResult['_links']);
+		$this->assertArrayHasKey('last', $arrayResult['_links']);
 		$this->assertArrayHasKey('id', $arrayResult['_embedded']['ora:organization-member'][0]);
 		$this->assertArrayHasKey('firstname', $arrayResult['_embedded']['ora:organization-member'][0]);
 		$this->assertArrayHasKey('lastname', $arrayResult['_embedded']['ora:organization-member'][0]);
