@@ -41,7 +41,8 @@ class StatementJsonModel extends JsonModel
 		$rv['count'] 		= count($rv['transactions']);
 		$rv['total'] 		= count($account->getTransactions());
 		if($rv['count'] < $rv['total']){
-			$rv['_links']['self']['next'] = $rv['_links']['self']['href'];
+			$controller = $account instanceof OrganizationAccount ? 'organization-statement' : 'personal-statement';
+			$rv['_links']['next']['href'] = $this->url->fromRoute('statements', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => $controller]);
 		}
 		return Json::encode($rv);
 	}

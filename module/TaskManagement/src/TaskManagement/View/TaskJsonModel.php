@@ -49,7 +49,7 @@ class TaskJsonModel extends JsonModel
 			$hal['count'] = count($resource);
 			$hal['total'] = $this->getVariable('total');
 			if($hal['count'] < $hal['total']){
-				$hal['_links']['self']['next'] = $this->url->fromRoute('tasks', ['orgId' => $this->organization->getId()]);
+				$hal['_links']['next']['href'] = $this->url->fromRoute('tasks', ['orgId' => $this->organization->getId()]);
 			}
 		} else {
 			$hal = $this->serializeOne($resource);

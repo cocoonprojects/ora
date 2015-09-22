@@ -27,6 +27,10 @@ class Module
 					$locator = $sm->getServiceLocator();
 					$orgService = $locator->get('People\OrganizationService');
 					$controller = new MembersController($orgService);
+					if(array_key_exists('members_page_size', $locator->get('Config'))){
+						$size = $locator->get('Config')['members_page_size'];
+						$controller->setPageSize($size);
+					}
 					return $controller;
 				},
 			)

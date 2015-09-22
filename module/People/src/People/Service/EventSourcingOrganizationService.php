@@ -82,14 +82,30 @@ class EventSourcingOrganizationService extends AggregateRepository implements Or
 
 	/**
 	 * @param ReadModelOrg $organization
+	 * @param integer $offset
+	 * @param integer $limit
 	 * @return array
 	 */
-	public function findOrganizationMemberships(ReadModelOrg $organization)
+	public function findOrganizationMemberships(ReadModelOrg $organization, $limit, $offset)
 	{
-		$rv = $this->entityManager->getRepository(OrganizationMembership::class)->findBy(['organization' => $organization], ['createdAt' => 'ASC']);
+		$rv = $this->entityManager->getRepository(OrganizationMembership::class)->findBy(['organization' => $organization], ['createdAt' => 'ASC'], $limit, $offset);
 		return $rv;
 	}
 
+	/**
+	 * @param ReadModelOrg $organization
+	 * @return integer
+	 */
+	public function countOrganizationMemberships(ReadModelOrg $organization){
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('count(om.member)')
+			->from(OrganizationMembership::class, 'om')
+			->where('om.organization = :organization')
+			->setParameter(':organization', $organization)
+			->getQuery();
+		return intval($query->getSingleScalarResult());
+	}
+	
 	/**
 	 * @return array
 	 */

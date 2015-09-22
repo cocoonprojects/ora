@@ -1,9 +1,9 @@
 var Accounting = function()
 {
-	var defaultPageSize = 1;
-	var pageSize = defaultPageSize;
-	var moreTransactionsCount = 1;
-	var pageOffset = 0;
+	var defaultPageSize = 10,
+		pageSize = defaultPageSize,
+		nextPageSize = defaultPageSize,
+		pageOffset = 0;
 	
 	this.getPageSize = function(){
 		return pageSize;
@@ -11,8 +11,8 @@ var Accounting = function()
 	this.setPageSize = function(size){
 		pageSize = size;
 	};
-	this.getMoreTransactionsCount = function(){
-		return moreTransactionsCount;
+	this.getNextPageSize = function(){
+		return nextPageSize;
 	};
 	this.getPageOffset = function(){
 		return pageOffset;
@@ -103,8 +103,7 @@ Accounting.prototype = {
 			that.transferOut(e);
 		});
 		
-		// MORE TRANSACTIONS
-		$("body").on("click", "a[data-action='moreTransactions']", function(e){
+		$("body").on("click", "a[data-action='nextPage']", function(e){
 			e.preventDefault();
 			that.listMoreTransactions(e);
 		});
@@ -321,12 +320,12 @@ Accounting.prototype = {
 		container.show();
 		
 		$('div.text-center.next').remove();
-		if(json._links !== undefined && json._links["self"] !== undefined && json._links["self"]["next"] !== undefined) {
-			var transactionsLimit = this.getPageSize() + this.getMoreTransactionsCount();
-			var transactionsOffset = this.getPageOffset();
+		if(json._links !== undefined && json._links["next"] !== undefined) {
+			var limit = this.getPageSize() + this.getNextPageSize();
+			var offset = this.getPageOffset();
 			$('.container').append(
 				'<div class="text-center next">'+
-					'<a rel="next" href="'+json._links["self"]["next"]+'?offset=' + transactionsOffset + '&limit=' + transactionsLimit + '" data-action="moreTransactions">More</a>' +
+					'<a rel="next" href="'+json._links["next"]["href"]+'?offset=' + offset + '&limit=' + limit + '" data-action="nextPage">More</a>' +
 				'</div>' 
 			);
 		}
