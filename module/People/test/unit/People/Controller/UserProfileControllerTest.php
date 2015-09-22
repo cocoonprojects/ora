@@ -28,38 +28,31 @@ class UserProfileControllerTest extends ControllerTest {
 				'controller' => 'user-profiles' 
 		);
 	}
-	
 	public function testGetUserProfile() {
-	
 		$organization = new ReadModelOrganization ( '1' );
 		$organization->setName ( "OrganizationName" );
 		
 		$user = User::create ();
-		$user->addMembership($organization, User::ROLE_USER);
+		$user->addMembership ( $organization, User::ROLE_ADMIN );
 		$this->setupLoggedUser ( $user );
 		
-		$this->controller->getOrganizationService ()->expects ( $this->once () )->method ( 'findOrganization' )->with ( $organization->getId () )->willReturn ( $organization );
+		$this->controller->getOrganizationService ()->method ( 'findOrganization' )->with ( $organization->getId () )->willReturn ( $organization );
 		
-		$membership = $this->getMockBuilder ( OrganizationMembership::class )->disableOriginalConstructor ()->getMock ();
-		$membership->method ( 'getRole' )->willReturn ( User::ROLE_ADMIN ); // Fake role
-		
-		$userProfile = $this->getMockBuilder ( User::class )->disableOriginalConstructor ()->getMock ();
-		$userProfile->method ( 'getId' )->willReturn ( '60000000-0000-0000-0000-000000000000' );
-		$userProfile->method ( 'getFirstname' )->willReturn ( 'userFirstname' );
-		$userProfile->method ( 'getLastname' )->willReturn ( 'userLastName' );
-		$userProfile->method ( 'getPicture' )->willReturn ( 'picture_url' );
-		$userProfile->method ( 'getEmail' )->willReturn ( 'userprofile@oraproject.org' );
-		$userProfile->method ( 'getMembershipOf' )->willReturn ( $membership );
+		$userProfile = User::create ();
+		$userProfile->setFirstname ( 'userFirstname' );
+		$userProfile->setLastname ( 'userLastName' );
+		$userProfile->setPicture ( 'picture_url' );
+		$userProfile->setEmail ( 'userprofile@oraproject.org' );
+		$userProfile->addMembership ( $organization, User::ROLE_USER );
 		
 		$this->controller->getUserService ()->method ( 'findUser' )->with ( $userProfile->getId () )->willReturn ( $userProfile );
 		
-		$actualBalance = 2000;
-		$balance = $this->getMockBuilder ( Balance::class )->disableOriginalConstructor ()->getMock ();
-		$balance->method ( 'getValue' )->willReturn ( $actualBalance );
+		$actualBalance = 2000; // Fake balance, not used
+		$balance = new Balance ( $actualBalance, new \DateTime () );
 		
-		$account = $this->getMockBuilder ( PersonalAccount::class )->disableOriginalConstructor ()->getMock ();
-		$account->method ( 'getBalance' )->willReturn ( $balance );
-		$account->method ( 'getTransactions' )->willReturn ( new ArrayCollection () );
+		$account = new PersonalAccount ( '1', $organization );
+		$account->setBalance ( $balance );
+		$account->addHolder ( $userProfile );
 		
 		$this->controller->getAccountService ()->method ( 'findPersonalAccount' )->willReturn ( $account );
 		
@@ -78,13 +71,16 @@ class UserProfileControllerTest extends ControllerTest {
 		$this->assertEquals ( $userProfile->getPicture (), $arrayResult ['picture'] );
 		$this->assertEquals ( $userProfile->getEmail (), $arrayResult ['email'] );
 		
-		$this->assertNotEmpty ( $arrayResult ['_embedded'] ['organization'] );
-		$this->assertArrayHasKey ( 'id', $arrayResult ['_embedded'] ['organization'] );
-		$this->assertArrayHasKey ( 'name', $arrayResult ['_embedded'] ['organization'] );
-		$this->assertArrayHasKey ( 'role', $arrayResult ['_embedded'] ['organization'] );
-		$this->assertEquals ( $organization->getId (), $arrayResult ['_embedded'] ['organization'] ['id'] );
-		$this->assertEquals ( $organization->getName (), $arrayResult ['_embedded'] ['organization'] ['name'] );
-		$this->assertEquals ( $membership->getRole (), $arrayResult ['_embedded'] ['organization'] ['role'] );
+		$this->assertNotEmpty ( $arrayResult ['_embedded'] ['ora:organization-membership'] ['organization'] );
+		$this->assertArrayHasKey ( 'id', $arrayResult ['_embedded'] ['ora:organization-membership'] ['organization'] );
+		$this->assertArrayHasKey ( 'name', $arrayResult ['_embedded'] ['ora:organization-membership'] ['organization'] );
+		$this->assertEquals ( $organization->getId (), $arrayResult ['_embedded'] ['ora:organization-membership'] ['organization'] ['id'] );
+		$this->assertEquals ( $organization->getName (), $arrayResult ['_embedded'] ['ora:organization-membership'] ['organization'] ['name'] );
+		$this->assertArrayHasKey ( 'role', $arrayResult ['_embedded'] ['ora:organization-membership'] );
+		$this->assertEquals ( User::ROLE_USER , $arrayResult ['_embedded'] ['ora:organization-membership'] ['role'] );
+		
+		$this->assertArrayHasKey ( 'createdAt', $arrayResult ['_embedded'] ['ora:organization-membership'] );
+		$this->assertArrayHasKey ( 'createdBy', $arrayResult ['_embedded'] ['ora:organization-membership'] );
 		
 		$this->assertNotEmpty ( $arrayResult ['_embedded'] ['credits'] );
 		$this->assertEquals ( $actualBalance, $arrayResult ['_embedded'] ['credits'] ['balance'] );
@@ -170,30 +166,6 @@ class UserProfileControllerTest extends ControllerTest {
 		$userProfile->method ( 'getId' )->willReturn ( '60000000-0000-0000-0000-000000000000' );
 		
 		$this->controller->getUserService ()->method ( 'findUser' )->with ( $userProfile->getId () )->willReturn ( null );
-		
-		$this->routeMatch->setParam ( 'orgId', $organization->getId () );
-		$this->routeMatch->setParam ( 'id', $userProfile->getId () );
-		
-		$result = $this->controller->dispatch ( $this->request );
-		$response = $this->controller->getResponse ();
-		
-		$this->assertEquals ( 404, $response->getStatusCode () );
-	}
-	
-	public function testGetUserProfileWithNoMembership() {
-		$organization = new ReadModelOrganization ( '1' );
-		
-		$user = User::create ();
-		$user->addMembership($organization, User::ROLE_USER);
-		$this->setupLoggedUser ( $user );
-		
-		$this->controller->getOrganizationService ()->method ( 'findOrganization' )->with ( $organization->getId () )->willReturn ( $organization );
-		
-		$userProfile = $this->getMockBuilder ( User::class )->disableOriginalConstructor ()->getMock ();
-		$userProfile->method ( 'getId' )->willReturn ( '60000000-0000-0000-0000-000000000000' );
-		$userProfile->method ( 'getMembershipOf' )->willReturn ( null );
-		
-		$this->controller->getUserService ()->method ( 'findUser' )->with ( $userProfile->getId () )->willReturn ( $userProfile );
 		
 		$this->routeMatch->setParam ( 'orgId', $organization->getId () );
 		$this->routeMatch->setParam ( 'id', $userProfile->getId () );

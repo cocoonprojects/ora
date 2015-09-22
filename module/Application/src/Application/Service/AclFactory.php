@@ -19,6 +19,7 @@ use TaskManagement\Assertion\TaskOwnerAndOngoingTaskAssertion;
 use Zend\Permissions\Acl\Acl;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use People\Assertion\CommonOrganizationAssertion;
 
 class AclFactory implements FactoryInterface
 {
@@ -34,7 +35,10 @@ class AclFactory implements FactoryInterface
 		$acl->addRole(User::ROLE_SYSTEM);
 
 		$acl->addResource('Ora\Organization');
-		$acl->allow(User::ROLE_USER, 'Ora\Organization', ['People.Organization.userList', 'TaskManagement.Task.list', 'TaskManagement.Stream.list', 'Accounting.Accounts.list', 'People.UserProfile.getProfile'], new MemberOfOrganizationAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\Organization', ['People.Organization.userList', 'TaskManagement.Task.list', 'TaskManagement.Stream.list', 'Accounting.Accounts.list'], new MemberOfOrganizationAssertion());
+		
+		$acl->addResource('Ora\User');
+		$acl->allow(User::ROLE_USER, 'Ora\User','People.UserProfile.profile', new CommonOrganizationAssertion());
 		
 		$acl->addResource('Ora\PersonalAccount');
 		$acl->addResource('Ora\OrganizationAccount');

@@ -6,7 +6,7 @@ $this->headScript ()->appendFile ( $this->basePath () . '/js/profile.js' );
 		<h1>User Profile Page</h1>
 	</div>
 	<div id="profile-content"
-		user-id="<?php echo $this->layout()->getVariable('user')->getId();?>"
+		user-id="<?php echo $this->layout()->getVariable('user');?>"
 		org-id="<?php echo $this->layout()->getVariable('organization')->getId();?>">
 		<div class="row">
 			<div id="user-info" class="col-md-6	">

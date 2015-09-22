@@ -31,13 +31,10 @@ class IndexController extends AbstractActionController
 			$this->response->setStatusCode(404);
 		}
 		if(is_null($this->params('id'))){
-			$this->response->setStatusCode(400);
+			$this->response->setStatusCode(404);
 		}
-				
-		$userService = $this->getServiceLocator()->get('Application\UserService');
-		$user = $userService->findUser($this->params('id'));
 		
 		$this->layout()->setVariable('organization', $organization);
-		$this->layout()->setVariable('user', $user);
+		$this->layout()->setVariable('user', $this->params('id'));
 	}
 }

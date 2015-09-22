@@ -13,7 +13,9 @@ Scenario: Successfully getting a user profile page
 	And the response should have a "firstname" property
 	And the response should have a "lastname" property
 	And the response should have a "email" property
-   	And the response should have a "_embedded.organization" property
+   	And the response should have a "_embedded.ora:organization-membership" property
+   	And the response should have a "_embedded.ora:organization-membership.organization" property
+   	And the response should have a "_embedded.ora:organization-membership.role" property
     And the response should have a "_embedded.credits" property
 
 Scenario: Cannot getting a user profile page as Fake user

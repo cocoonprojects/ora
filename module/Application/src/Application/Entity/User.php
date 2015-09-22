@@ -10,13 +10,14 @@ use People\Entity\OrganizationMembership;
 use People\Organization;
 use Rhumsaa\Uuid\Uuid;
 use Zend\Permissions\Acl\Role\RoleInterface;
+use Zend\Permissions\Acl\Resource\ResourceInterface;
 
 
 /**
  * @ORM\Entity @ORM\Table(name="users")
  *
  */
-class User implements RoleInterface
+class User implements RoleInterface, ResourceInterface
 {	   
 	CONST STATUS_ACTIVE = 1;
 	CONST ROLE_ADMIN = 'admin';
@@ -265,13 +266,8 @@ class User implements RoleInterface
 		return $this->memberships->containsKey($key);
 	}
 	
-	public function getMembershipOf($organizationId){
-		foreach ($this->memberships as $m){
-			if($m->getOrganization()->getId()===$organizationId){
-				return $m;
-			}
-		}
-		return null;
+	public function getMembership($organizationId){
+		return $this->memberships->get($organizationId);
 	}
 
 	public function setRole($role){
@@ -285,5 +281,10 @@ class User implements RoleInterface
 	
 	public function getRoleId(){
 		return $this->getRole();
+	}
+	
+	public function getResourceId()
+	{
+		return 'Ora\User';
 	}
 }

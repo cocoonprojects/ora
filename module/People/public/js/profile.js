@@ -42,13 +42,13 @@ Profile.prototype = {
 		} else {
 			$('#description').html(json.Birthday);// TODO Use this parameter's name
 		}
-		
-		var orgData = json._embedded['organization'];
-		$('#orgMembership').html(orgData.role + " of " + orgData.name);
+
+		var membData = json._embedded['ora:organization-membership'];
+		$('#orgMembership').html(membData.role + " of " + membData.organization.name);
 		
 		var creditsData = json._embedded['credits'];
 		//Generated credits Table
-		$('#tdOrg').html(orgData.name);
+		$('#tdOrg').html(membData.organization.name);
 		$('#tdTotal').html(creditsData.total);
 		$('#tdAvailable').html(creditsData.balance);
 		

@@ -81,13 +81,13 @@ class UserProfileAPITest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals ( $user->getPicture (), $arrayResult ['picture'] );
 		$this->assertEquals ( $user->getEmail (), $arrayResult ['email'] );
 		
-		$this->assertNotEmpty ( $arrayResult ['_embedded'] ['organization'] );
-		$this->assertArrayHasKey ( 'id', $arrayResult ['_embedded'] ['organization'] );
-		$this->assertArrayHasKey ( 'name', $arrayResult ['_embedded'] ['organization'] );
-		$this->assertArrayHasKey ( 'role', $arrayResult ['_embedded'] ['organization'] );
-		$this->assertEquals ( $organization->getId (), $arrayResult ['_embedded'] ['organization'] ['id'] );
-		$this->assertEquals ( $organization->getName (), $arrayResult ['_embedded'] ['organization'] ['name'] );
-		$this->assertEquals ( 'member', $arrayResult ['_embedded'] ['organization'] ['role'] );
+		$this->assertNotEmpty ( $arrayResult ['_embedded'] ['ora:organization-membership'] );
+		$this->assertArrayHasKey ( 'id', $arrayResult ['_embedded'] ['ora:organization-membership'] ['organization'] );
+		$this->assertArrayHasKey ( 'name', $arrayResult ['_embedded'] ['ora:organization-membership'] ['organization'] );
+		$this->assertArrayHasKey ( 'role', $arrayResult ['_embedded'] ['ora:organization-membership'] );
+		$this->assertEquals ( $organization->getId (), $arrayResult ['_embedded'] ['ora:organization-membership']['organization'] ['id'] );
+		$this->assertEquals ( $organization->getName (), $arrayResult ['_embedded']['ora:organization-membership'] ['organization'] ['name'] );
+		$this->assertEquals ( 'member', $arrayResult ['_embedded'] ['ora:organization-membership'] ['role'] );
 		
 		$this->assertNotEmpty ( $arrayResult ['_embedded'] ['credits'] );
 		$this->assertEquals ( $actualBalance, $arrayResult ['_embedded'] ['credits'] ['balance'] );

@@ -12,15 +12,14 @@ use Accounting\Entity\PersonalAccount;
 
 class UserProfileController extends OrganizationAwareController
 {
-	protected static $collectionOptions = array('GET');
-	protected static $resourceOptions = array('DELETE', 'POST', 'GET', 'PUT');
+	protected static $collectionOptions = array();
+	protected static $resourceOptions = array('GET');
 	
-	private $orgService;
 	private $userService;
 	private $accountService;
 	
 	public function __construct(OrganizationService $orgService, UserService $userService, AccountService $accountService) {
-		$this->orgService = $orgService;
+		parent::__construct($orgService);
 		$this->userService = $userService;
 		$this->accountService = $accountService;
 	}
@@ -32,18 +31,18 @@ class UserProfileController extends OrganizationAwareController
 			return $this->response;
 		}
 		
-		if(!$this->isAllowed($this->identity(), $this->organization, 'People.UserProfile.getProfile')) {
-			$this->response->setStatusCode(403);
-			return $this->response;
-		}
-		
 		$user = $this->userService->findUser($id);
 		if(is_null($user)){
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
 		
-		$membership = $user->getMembershipOf($this->organization->getId());
+		if(!$this->isAllowed($this->identity(), $user, 'People.UserProfile.profile')) {
+			$this->response->setStatusCode(403);
+			return $this->response;
+		}
+		
+		$membership = $user->getMembership($this->organization->getId());
 		if(is_null($membership)){
 			$this->response->setStatusCode(404);
 			return $this->response;
@@ -70,11 +69,7 @@ class UserProfileController extends OrganizationAwareController
 		$lastSixMonthsCredits = 0;
 		$lastYearCredits = 0;
 		
-		foreach ($transactions as $t){
-//		Removed for Total Credits Generated 
-// 			if($t->getCreatedAt()<$dateLimitOneYear)
-// 				break;
-			
+		foreach ($transactions as $t){			
 			if($t->getAmount()>= 0){
 				$totalGeneratedCredits+=$t->getAmount();
 				if($t->getCreatedAt()>$dateLimitThreeMonths){
@@ -93,6 +88,7 @@ class UserProfileController extends OrganizationAwareController
 		$view->setVariable('org-resource', $this->organization);
 		$view->setVariable('user-resource', $user);
 		$view->setVariable('role-resource', $role);
+		$view->setVariable('membership-resource', $membership);
 		$view->setVariable('account-balance', $actualBalance);
 		$view->setVariable('total-gen-credits', $totalGeneratedCredits);
 		$view->setVariable('last-3-month', $lastThreeMonthsCredits);
@@ -149,11 +145,6 @@ class UserProfileController extends OrganizationAwareController
 			
 		return $this->response;
 	}	
-	
-	public function getOrganizationService()
-	{
-		return $this->orgService;
-	}
 	
 	public function getUserService()
 	{

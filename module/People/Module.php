@@ -31,12 +31,12 @@ class Module
 					return $controller;
 				},
 				'People\Controller\UserProfile' => function ($sm) {
-				$locator = $sm->getServiceLocator();
-				$orgService = $locator->get('People\OrganizationService');
-				$userService = $locator->get('Application\UserService');
-				$accountService = $locator->get('Accounting\CreditsAccountsService');
-				$controller = new UserProfileController($orgService, $userService, $accountService);
-				return $controller;
+					$locator = $sm->getServiceLocator();
+					$orgService = $locator->get('People\OrganizationService');
+					$userService = $locator->get('Application\UserService');
+					$accountService = $locator->get('Accounting\CreditsAccountsService');
+					$controller = new UserProfileController($orgService, $userService, $accountService);
+					return $controller;
 				},
 			)
 		);

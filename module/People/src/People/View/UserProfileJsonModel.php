@@ -4,6 +4,7 @@ namespace People\View;
 use Zend\Json\Json;
 use People\Entity\Organization;
 use Application\Entity\User;
+use People\Entity\OrganizationMembership;
 use Zend\View\Model\JsonModel;
 
 class UserProfileJsonModel extends JsonModel
@@ -15,6 +16,7 @@ class UserProfileJsonModel extends JsonModel
 		$organization = $this->getVariable('org-resource');
 		$user = $this->getVariable('user-resource');
 		$role = $this->getVariable('role-resource');
+		$membership = $this->getVariable('membership-resource');
 		$balance = $this->getVariable('account-balance');
 		$totalCredits = $this->getVariable('total-gen-credits');
 		$last3MonthsCredits = $this->getVariable('last-3-month');
@@ -28,10 +30,14 @@ class UserProfileJsonModel extends JsonModel
 				'picture'=> $user->getPicture(),
 				'email'=> $user->getEmail(),
 				'_embedded'=>[
-						'organization'=>[
-								'id'=>$organization->getId(),
-								'name'=>$organization->getName(),
-								'role'=>$role
+						'ora:organization-membership'=>[
+								'organization'=>[
+									'id'=>$organization->getId(),
+									'name'=>$organization->getName(),
+								],
+								'role'=>$role,
+								'createdAt'=>$membership->getCreatedAt(),
+								'createdBy'=>$membership->getCreatedBy(),
 						],
 						'credits'=>[
 								'balance'=>$balance,
