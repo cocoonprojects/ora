@@ -53,7 +53,7 @@ class AccountTest extends \PHPUnit_Framework_TestCase {
 	public function testTransferIn() {
 		$payee = Account::create($this->organization, $this->holder);
 		
-		$user = new User();
+		$user = User::create();
 		$payer = Account::create($this->organization, $user);
 		
 		$payee->transferIn(100, $payer, 'Bonifico', $user);
@@ -66,7 +66,7 @@ class AccountTest extends \PHPUnit_Framework_TestCase {
 	public function testTransferInWithNegativeAmount() {
 		$payee = Account::create($this->organization, $this->holder);
 		
-		$user = new User();
+		$user = User::create();
 		$payer = Account::create($this->organization, $user);
 		
 		$payee->transferIn(-100, $payer, 'Bonifico', $user);
@@ -76,7 +76,7 @@ class AccountTest extends \PHPUnit_Framework_TestCase {
 	public function testTransferOut() {
 		$payer = Account::create($this->organization, $this->holder);
 		
-		$user = new User();
+		$user = User::create();
 		$payee = Account::create($this->organization, $user);
 		
 		$payer->transferOut(-100, $payee, 'Bonifico', $user);
@@ -89,7 +89,7 @@ class AccountTest extends \PHPUnit_Framework_TestCase {
 	public function testTransferOuWithNegativeAmount() {
 		$payer = Account::create($this->organization, $this->holder);
 		
-		$user = new User();
+		$user = User::create();
 		$payee = Account::create($this->organization, $user);
 		
 		$payer->transferOut(100, $payee, 'Bonifico', $user);

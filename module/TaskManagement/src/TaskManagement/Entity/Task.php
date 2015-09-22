@@ -1,40 +1,22 @@
 <?php
 namespace TaskManagement\Entity;
 
-use Zend\Permissions\Acl\Resource\ResourceInterface;
-use Doctrine\ORM\Mapping AS ORM;
-use Doctrine\Common\Collections\ArrayCollection;
-use Rhumsaa\Uuid\Uuid;
-use Application\IllegalStateException;
-use Application\DuplicatedDomainEntityException;
-use Application\DomainEntityUnavailableException;
-use Application\Entity\User;
+use Application\Entity\BasicUser;
 use Application\Entity\EditableEntity;
+use Application\Entity\User;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
+use TaskManagement\TaskInterface;
 
 /**
  * @ORM\Entity @ORM\Table(name="tasks")
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="type", type="string")
- *
+ * TODO: If no DiscriminatorMap annotation is specified, doctrine uses lower-case class name as default values. Remove
+ * TYPE use
  */
-
-// If no DiscriminatorMap annotation is specified, doctrine uses lower-case class name as default values
-
-class Task extends EditableEntity implements ResourceInterface
-{	
-	CONST STATUS_IDEA = 0;
-	CONST STATUS_OPEN = 10;
-	CONST STATUS_ONGOING = 20;
-	CONST STATUS_COMPLETED = 30;
-	CONST STATUS_ACCEPTED = 40;
-	CONST STATUS_CLOSED = 50;
-	CONST STATUS_DELETED = -10;
-	
-	CONST ROLE_MEMBER = 'member';
-	CONST ROLE_OWNER  = 'owner';
-
-	CONST TYPE = 'task';
-
+class Task extends EditableEntity implements TaskInterface
+{
 	/**
 	 * @ORM\Column(type="string")
 	 * @var string
@@ -78,11 +60,22 @@ class Task extends EditableEntity implements ResourceInterface
 		$this->id = $id;
 		$this->members = new ArrayCollection();
 	}
-	
+
+	/**
+	 * @return int
+	 */
 	public function getStatus() {
 		return $this->status;
 	}
-	
+
+	public function setStatus($status) {
+		$this->status = $status;
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getSubject() {
 		return $this->subject;
 	}
@@ -91,22 +84,38 @@ class Task extends EditableEntity implements ResourceInterface
 		$this->subject = $subject;
 		return $this;
 	}
-	
+
+	/**
+	 * @return Stream
+	 */
 	public function getStream() {
 		return $this->stream;
 	}
-	
+
+	/**
+	 * @return string
+	 */
+	public function getStreamId() {
+		if($this->stream) {
+			return $this->stream->getId();
+		}
+		return null;
+	}
+
+	/**
+	 * @param Stream $stream
+	 * @return $this
+	 */
 	public function setStream(Stream $stream) {
 		$this->stream = $stream;
 		return $this;
 	}
-	
-	public function setStatus($status) {
-		$this->status = $status;
-		return $this;
+
+	public function getOrganizationId() {
+		return $this->stream->getOrganization()->getId();
 	}
 	
-	public function addMember(User $user, $role, User $by, \DateTime $when) {
+	public function addMember(User $user, $role, BasicUser $by, \DateTime $when) {
 		$taskMember = new TaskMember($this, $user, $role);
 		$taskMember->setCreatedAt($when)
 			->setCreatedBy($by)
@@ -119,6 +128,7 @@ class Task extends EditableEntity implements ResourceInterface
 	/**
 	 * 
 	 * @param id|TaskMember $member
+	 * @return $this
 	 */
 	public function removeMember($member) {
 		if($member instanceof TaskMember) {
@@ -131,21 +141,21 @@ class Task extends EditableEntity implements ResourceInterface
 	
 	/**
 	 * 
-	 * @param id|User $user
+	 * @param id|BasicUser $user
 	 * @return TaskMember|NULL
 	 */
 	public function getMember($user) {
-		$key = $user instanceof User ? $user->getId() : $user;
+		$key = $user instanceof BasicUser ? $user->getId() : $user;
 			return $this->members->get($key);
 	}
 	
 	/**
 	 * 
-	 * @param id|User $user
+	 * @param id|BasicUser $user
 	 * @return boolean
 	 */
 	public function hasMember($user) {
-		$key = $user instanceof User ? $user->getId() : $user;
+		$key = $user instanceof BasicUser ? $user->getId() : $user;
 		return $this->members->containsKey($key);
 	}
 
@@ -155,10 +165,12 @@ class Task extends EditableEntity implements ResourceInterface
 	public function getMembers() {
 		return $this->members->toArray();
 	}
-	
+
+	/**
+	 * @return string
+	 */
 	public function getType(){
-			$c = get_called_class();
-			return $c::TYPE;
+		return 'task';
 	}
 	
 	/**
@@ -206,7 +218,7 @@ class Task extends EditableEntity implements ResourceInterface
 	}
 	
 	private function getMembersShare() {
-		$rv = array();
+		$rv = [];
 		foreach ($this->members as $member) {
 			$rv[$member->getMember()->getId()] = null;
 		}
@@ -220,7 +232,7 @@ class Task extends EditableEntity implements ResourceInterface
 			}
 		}
 		if($evaluators > 0) {
-			array_walk($rv, function(&$value, $key) use ($evaluators) {
+			array_walk($rv, function(&$value) use ($evaluators) {
 				$value = round($value / $evaluators, 4);
 			});
 		}
@@ -228,7 +240,7 @@ class Task extends EditableEntity implements ResourceInterface
 	}
 
 	public function getResourceId(){
-		return "Ora\Task";
+		return self::RESOURCE_ID;
 	}
 	
 	public function getMemberRole($user){
@@ -241,8 +253,10 @@ class Task extends EditableEntity implements ResourceInterface
 		
 		return null;
 	}
-	
-	
+
+	/**
+	 * @return \DateTime
+	 */
 	public function getAcceptedAt() {
 		return $this->acceptedAt;
 	}
@@ -265,38 +279,25 @@ class Task extends EditableEntity implements ResourceInterface
 	
 	
 	/**
-	 * Retrieve an array of members (Application\Entity\User) of this task that haven't assigned any share
+	 * Retrieve members that haven't assigned any share
 	 *
-	 * @return array of Application\Entity\User or empty array
+	 * @return TaskMember[]
 	 */
-	public function findMembersWithEmptyShares(){
-	
-		$members = array();
-	
-		$taskMembers = $this->getMembers();
-				
-		foreach($taskMembers as $taskMember){
-				
-			if(empty($taskMember->getShares())){
-				$members[] = $taskMember->getMember();
-			}
-		}
-
-		return $members;
+	public function findMembersWithEmptyShares()
+	{
+		return array_filter($this->getMembers(), function($member) {
+			return empty($member->getShares());
+		});
 	}
-	
-	public function findMembersWithNoEstimation(){
-		
-		$members = array();
-		
-		$taskMembers = $this->getMembers();
-		foreach ($taskMembers as $taskMember){
-			$estimation = $taskMember->getEstimation()->getValue();
-			if($estimation===null && $this->getMemberRole($taskMember->getMember())===$this::ROLE_MEMBER){
-				$members[] = $taskMember->getMember();
-			}
-		}
-		return $members;
+
+	/**
+	 * @return TaskMember[]
+	 */
+	public function findMembersWithNoEstimation()
+	{
+		return array_filter($this->getMembers(), function($member) {
+			return $member->getEstimation() == null || $member->getEstimation()->getValue() == null;
+		});
 	}
 	
 }

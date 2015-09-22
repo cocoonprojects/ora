@@ -8,4 +8,4 @@ Scenario: Seeing who already estimated a task
 	And that I want to find a "members who estimated a task"
 	When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
 	Then the response status code should be 200
-	And the response should have a "/estimation\.value$/" property
+	And the response should have a "/estimation$/" property

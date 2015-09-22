@@ -74,8 +74,8 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 
 		$adapter = new AdapterMock();
 		$adapter->setEmail($this->owner->getEmail());
-		$this->authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
-		$this->authService->authenticate($adapter);
+		$authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
+		$authService->authenticate($adapter);
 
 		$pluginManager = $serviceManager->get('ControllerPluginManager');
 		$this->controller->setPluginManager($pluginManager);
@@ -94,7 +94,6 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 	public function testEstimationAddedNotification() {
 		//Clean Messages
 		$this->cleanEmailMessages();
-		$emails = $this->getEmailMessages();
 
 		$this->transactionManager->beginTransaction();
 		$this->task->addEstimation(1500, $this->owner);//Owner addEstimation (No-Mail)
@@ -105,7 +104,7 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 
 		$this->assertNotEmpty($emails);
 		$this->assertEquals(1, count($emails));
-		$this->assertEmailSubjectEquals('A member just estimated "', $emails[0]);
+		$this->assertContains($this->task->getSubject(), $emails[0]->subject);
 		$this->assertEmailHtmlContains('estimation', $emails[0]);
 		$this->assertNotEmpty($emails[0]->recipients);
 		$this->assertEquals($emails[0]->recipients[0], '<mark.rogers@ora.local>');
@@ -127,7 +126,7 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		$email = $this->getLastEmailMessage();
 		
 		$this->assertNotNull($email);
-		$this->assertEmailSubjectEquals('A member just assigned its shares to "', $email);
+		$this->assertContains($this->task->getSubject(), $email->subject);
 		$this->assertEmailHtmlContains('shares', $email);
 		$this->assertNotEmpty($email->recipients);
 		$this->assertEquals($email->recipients[0], '<mark.rogers@ora.local>');
@@ -152,7 +151,7 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		
 		$this->assertEquals($this->task->getStatus(), Task::STATUS_CLOSED);
 		$this->assertNotNull($email);
-		$this->assertEmailSubjectEquals("O.R.A. - task has been closed!", $email);
+		$this->assertContains($this->task->getSubject(), $email->subject);
 		$this->assertEmailHtmlContains('This task has been automatically closed.', $email);
 		$this->assertEmailHtmlContains('http://example.com/00000000-0000-0000-1000-000000000000/task-management#'.$this->task->getId(), $email);
 		$this->assertEmailHtmlContains('This task has been automatically closed.', $email);
@@ -186,11 +185,7 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		// messages are in descending order
 		return reset($messages);
 	}
-	public function assertEmailSubjectEquals($expected, $email, $description = '')
-	{
-		$this->assertStringStartsWith($expected, $email->subject, $description);
-	}
-	
+
 	public function assertEmailHtmlContains($needle, $email, $description = '')
 	{
 		$request = $this->mailcatcher->get("/messages/{$email->id}.html");

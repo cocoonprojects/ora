@@ -3,11 +3,10 @@ namespace Application\Service;
 
 use Accounting\Assertion\AccountHolderAssertion;
 use Accounting\Assertion\MemberOfAccountOrganizationAssertion;
-use Accounting\Assertion\MemberOfOrganizationOrAccountHolderAssertion;
 use Application\Entity\User;
 use People\Assertion\MemberOfOrganizationAssertion;
+use TaskManagement\Assertion\MemberOfEntityOrganizationAssertion;
 use TaskManagement\Assertion\MemberOfOngoingTaskAssertion;
-use TaskManagement\Assertion\MemberOfStreamOrganizationAssertion;
 use TaskManagement\Assertion\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion;
 use TaskManagement\Assertion\OwnerOfOpenOrCompletedTaskAssertion;
 use TaskManagement\Assertion\TaskMemberAndAcceptedTaskAssertion;
@@ -24,9 +23,6 @@ class AclFactory implements FactoryInterface
 {
 	public function createService(ServiceLocatorInterface $serviceLocator)
 	{
-		$config = $serviceLocator->get('Config');
-		$env = getenv('APPLICATION_ENV') ? : "local";
-		
 		$acl = new Acl();
 		$acl->addRole(User::ROLE_GUEST);
 		$acl->addRole(User::ROLE_USER);
@@ -47,7 +43,7 @@ class AclFactory implements FactoryInterface
 
 		$acl->addResource('Ora\Task');
 		$acl->allow(User::ROLE_USER, null, 'TaskManagement.Task.create');
-		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.get', new MemberOfStreamOrganizationAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.get', new MemberOfEntityOrganizationAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.join', new OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.estimate', new MemberOfOngoingTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.unjoin', new TaskMemberNotOwnerAndNotCompletedTaskAssertion());

@@ -1,17 +1,17 @@
 <?php
 namespace TaskManagement\Service;
 
-use AcMailer\Service\MailService;
-use Application\Service\UserService;
+use AcMailer\Result\MailResult;
+use AcMailer\Service\MailServiceInterface;
 use Application\Entity\User;
-use TaskManagement\Task;
-use UnitTest\Bootstrap;
-use People\Organization;
+use Application\Service\UserService;
 use People\Entity\Organization as ReadModelOrganization;
-use TaskManagement\Stream;
-use TaskManagement\Entity\Task as ReadModelTask;
+use People\Organization;
 use TaskManagement\Entity\Stream as ReadModelStream;
+use TaskManagement\Entity\Task as ReadModelTask;
 use TaskManagement\Entity\TaskMember;
+use TaskManagement\Stream;
+use TaskManagement\Task;
 use Zend\Mail\Message;
 
 
@@ -21,184 +21,126 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 	 * @var NotifyMailListener
 	 */
 	protected $listener;
-	
-	protected $task;
-	protected $owner;
-	protected $member;
-	protected $trigger; // estimation or share
-	
 	/**
-	 * @var \Guzzle\Http\Client
+	 * @var Task
 	 */
-	private $mailcatcher;
-	
+	protected $task;
+	/**
+	 * @var User
+	 */
+	protected $owner;
+	/**
+	 * @var User
+	 */
+	protected $member;
+	/**
+	 * @var ReadModelTask
+	 */
+	protected $readModelTask;
+
 	protected function setUp(){
-			
-		$serviceManager = Bootstrap::getServiceManager();
-		
-		//Task Owner
-		$this->owner = $this->getMockBuilder(User::class)
-			->getMock();
-		$this->owner->method('getId')
-			->willReturn('60000000-0000-0000-0000-000000000000');
-		$this->owner->method('isMemberOf')
-			->willReturn(true);
-		$this->owner->method('getFirstname')
-			->willReturn("Owner_Firstname");
-		$this->owner->method('getEmail')
-			->willReturn("task_owner@oraproject.org");
-				
+		$this->owner = User::create();
+		$this->owner->setFirstname('John');
+		$this->owner->setLastname('Doe');
+		$this->owner->setEmail('john.doe@foo.com');
+
+		$organization = Organization::create('Organization_test', $this->owner);
+
+		$this->owner->addMembership($organization);
+
 		//Task Member
-		$this->member = $this->getMockBuilder(User::class)
-			->getMock();
-		$this->owner->method('getId')
-			->willReturn('70000000-0000-0000-0000-000000000000');
-		$this->owner->method('isMemberOf')
-			->willReturn(true);
-		$this->owner->method('getFirstname')
-			->willReturn("Member_Firstname");
-		$this->owner->method('getLastname')
-			->willReturn("Member_Lastname");
-		$this->owner->method('getEmail')
-			->willReturn("task_member@oraproject.org");
+		$this->member = User::create();
+		$this->member->setFirstname('Jane');
+		$this->member->setLastname('Doe');
+		$this->member->setEmail('jane.doe@foo.com');
+		$this->member->addMembership($organization);
 
 		//Organization & Stream for Task Creation
-		$organization = Organization::create('Organization_test', $this->owner);
-		$this->stream = Stream::create($organization, 'Steram_test', $this->owner);
+		$stream = Stream::create($organization, 'Steram_test', $this->owner);
 		
-		$this->task = Task::create($this->stream, 'Test TaskSubject', $this->owner);
+		$this->task = Task::create($stream, 'Lorem Ipsum Sic Dolor Amit', $this->owner);
 		$this->task->addMember($this->owner, Task::ROLE_OWNER);
-		//$this->task->addMember($this->member);
+		$this->task->addMember($this->member);
 		
-		$mailService = $serviceManager->get(MailService::class);
+		$mailService = $this->getMockBuilder(MailServiceInterface::class)->getMock();
+		$mailService->expects($this->once())
+			->method('send')
+			->willReturn(new MailResult(true));
+		$mailService->expects($this->once())
+			->method('getMessage')
+			->willReturn(new Message());
+
 		$userService = $this->getMockBuilder(UserService::class)->getMock();
 		$userService->method('findUser')->willReturn($this->owner);
+
 		$taskService = $this->getMockBuilder(TaskService::class)->getMock();
 
 		$this->listener = new NotifyMailListener($mailService, $userService, $taskService);
-		
-		$this->mailcatcher = new \Guzzle\Http\Client('http://127.0.0.1:1080');
-		$this->cleanEmailMessages();
-		
-	}
-	
-	protected function tearDown(){
-		$this->cleanEmailMessages();
-	}
-	
-	public function testSendMail_EstimationAdded(){
-		$this->assertTrue($this->listener->sendEstimationAddedInfoMail($this->task, $this->member));
-	}
-	
-	public function testSendMail_SharesAssigned(){
-		$this->assertTrue($this->listener->sendSharesAssignedInfoMail($this->task, $this->member));
-	}
-	
-	public function testSendEmailNotificationForAssignmentOfShares()
-	{
-		$taskToNotify = $this->setupTaskWithMember();
-		
-		$mailService = $this->getMockBuilder(MailService::class)->disableOriginalConstructor()->getMock();
-		$mailService->expects($this->once())
-					->method('setSubject')
-					->with("O.R.A. - your contribution is required!");
-		$mailService->expects($this->once())
-					->method('setTemplate')
-					->with('mail/reminder-assignment-shares.phtml', 
-						array(
-							'task' => $taskToNotify,
-							'recipient'=> $taskToNotify->findMembersWithEmptyShares()[0]
-						)
-					);
-		$mailService->expects($this->once())->method('getMessage')->willReturn(new Message());
-		$mailService->expects($this->once())->method('send');
-		
-		$userService = $this->getMockBuilder(UserService::class)->getMock();
-		$userService->method('findUser')->willReturn($this->owner);
-		$taskService = $this->getMockBuilder(TaskService::class)->getMock();
-		
-		$listener = new NotifyMailListener($mailService, $userService, $taskService);
-		
-		$listener->remindAssignmentOfShares($taskToNotify);
-	}
-	
-	public function testSendEmailNotificationForTaskClosed()
-	{
-		$taskToNotify = $this->setupTaskWithMember();
-		
-		$mailService = $this->getMockBuilder(MailService::class)->disableOriginalConstructor()->getMock();
-		$mailService->expects($this->once())
-					->method('setSubject')
-					->with("O.R.A. - task has been closed!");
-		$mailService->expects($this->once())
-					->method('setTemplate')
-					->with('mail/task-closed-info.phtml',
-							array(
-									'task' => $taskToNotify,
-									'recipient'=> $taskToNotify->findMembersWithEmptyShares()[0]
-							)
-					);
-		$mailService->expects($this->once())->method('getMessage')->willReturn(new Message());
-		$mailService->expects($this->once())->method('send');
-		
-		$userService = $this->getMockBuilder(UserService::class)->getMock();
-		$userService->method('findUser')->willReturn($this->owner);
-		$taskService = $this->getMockBuilder(TaskService::class)->getMock();
-		
-		$listener = new NotifyMailListener($mailService, $userService, $taskService);
-		
-		$listener->sendTaskClosedInfoMail($taskToNotify);
+
+		$this->readModelTask = new ReadModelTask($this->task->getId());
+		$this->readModelTask->setSubject($this->task->getSubject());
+		$this->readModelTask->addMember($this->member, TaskMember::ROLE_MEMBER, $this->member, new \DateTime());
+
+		$s = new ReadModelStream($stream->getId());
+		$organization = new ReadModelOrganization($organization);
+		$s->setOrganization($organization);
+		$this->readModelTask->setStream($s);
 	}
 
-	protected function cleanEmailMessages()
-	{
-		$this->mailcatcher->delete('/messages')->send();
+	public function testSendEstimationAddedInfoMail() {
+		$this->listener->getMailService()
+			->expects($this->once())
+			->method('setTemplate')
+			->with('mail/estimation-added-info.phtml', [
+				'task' => $this->task,
+				'recipient' => $this->owner,
+				'member' => $this->member
+			]);
+		$this->listener->sendEstimationAddedInfoMail($this->task, $this->member);
 	}
 	
-	protected function getEmailMessages()
-	{
-		$jsonResponse = $this->mailcatcher->get('/messages')->send();
-		return json_decode($jsonResponse->getBody());
+	public function testSendSharesAssignedInfoMail() {
+		$this->listener->getMailService()
+			->expects($this->once())
+			->method('setTemplate')
+			->with('mail/shares-assigned-info.phtml', [
+				'task' => $this->task,
+				'recipient' => $this->owner,
+				'member' => $this->member
+			]);
+		$this->listener->sendSharesAssignedInfoMail($this->task, $this->member);
 	}
 	
-	protected function getLastEmailMessage()
-	{
-		$messages = $this->getEmailMessages();
-		if (empty($messages)) {
-			$this->fail("No messages received");
-		}
-		// messages are in descending order
-		return reset($messages);
+	public function testRemindAssignmentOfShares() {
+		$this->listener->getMailService()
+			->expects($this->once())
+			->method('setTemplate')
+			->with('mail/reminder-assignment-shares.phtml', [
+				'task' => $this->readModelTask,
+				'recipient'=> $this->member
+			]);
+		$this->listener->remindAssignmentOfShares($this->readModelTask);
 	}
-	
-	protected function assertEmailSubjectEquals($expected, $email, $description = '')
-	{
-		$this->assertContains($expected, $email->subject, $description);
-	}
-	
-	protected function assertEmailHtmlContains($needle, $email, $description = '')
-	{
-		$response = $this->mailcatcher->get("/messages/{$email->id}.html")->send();
-		$this->assertContains($needle, (string)$response->getBody(), $description);
-	}	
-	
-	protected function setupTaskWithMember(){
-		 
-		$taskMember = User::create();
-		$taskMember->setFirstname('Gray');
-		$taskMember->setLastname('Dorian');
-		$taskMember->setEmail('doriangray@email.com');
-		 
-		$task = new ReadModelTask('11111ab-1111-1111-1111-11111111c500');
-		$task->setSubject('new book');
-		$task->addMember($taskMember, TaskMember::ROLE_MEMBER, $taskMember, new \DateTime());
-		
-		$stream = new ReadModelStream('00000ab-1111-1111-1111-11111111c500');
-		$organization = new ReadModelOrganization('22222ab-1111-1111-1111-11111111c500');
-		$stream->setOrganization($organization);
-		
-		$task->setStream($stream);
 
-		return $task;
+	public function testReminderAddEstimation() {
+		$this->listener->getMailService()
+			->expects($this->once())
+			->method('setTemplate')
+			->with('mail/reminder-add-estimation.phtml', [
+				'task' => $this->readModelTask,
+				'recipient'=> $this->member
+			]);
+		$this->listener->reminderAddEstimation($this->readModelTask);
+	}
+
+	public function testSendTaskClosedInfoMail() {
+		$this->listener->getMailService()
+			->expects($this->once())
+			->method('setTemplate')
+			->with('mail/task-closed-info.phtml', [
+				'task' => $this->readModelTask,
+				'recipient'=> $this->member
+			]);
+		$this->listener->sendTaskClosedInfoMail($this->readModelTask);
 	}
 }

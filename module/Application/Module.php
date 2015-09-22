@@ -27,7 +27,7 @@ class Module
 		$serviceManager = $application->getServiceManager();
 		//prepends the module name to the requested controller name. That's useful if you want to use controller short names in routing
 		$moduleRouteListener = new ModuleRouteListener();
-		$moduleRouteListener->attach($eventManager);	
+		$moduleRouteListener->attach($eventManager);
 		
 		$eventManager->attach(MvcEvent::EVENT_DISPATCH_ERROR, function($event) use($serviceManager) {
 			$error  = $event->getError();

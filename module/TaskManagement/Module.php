@@ -35,7 +35,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$streamService = $locator->get('TaskManagement\StreamService');
-					$organizationService = $locator->get('People\OrganizationService');
 					$acl = $locator->get('Application\Service\Acl');
 					$organizationService = $locator->get('People\OrganizationService');
 					$controller = new TasksController($taskService, $streamService, $acl, $organizationService);
@@ -63,8 +62,10 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				},
 				'TaskManagement\Controller\Estimations' => function ($sm) {
 					$locator = $sm->getServiceLocator();
+					$organizationService = $locator->get('People\OrganizationService');
 					$taskService = $locator->get('TaskManagement\TaskService');
-					$controller = new EstimationsController($taskService);
+					$acl = $locator->get('Application\Service\Acl');
+					$controller = new EstimationsController($organizationService, $taskService, $acl);
 					return $controller;
 				},
 				'TaskManagement\Controller\Shares' => function ($sm) {
