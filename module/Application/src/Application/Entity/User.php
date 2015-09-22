@@ -10,6 +10,7 @@ use People\Entity\OrganizationMembership;
 use People\Organization;
 use Rhumsaa\Uuid\Uuid;
 use Zend\Permissions\Acl\Role\RoleInterface;
+use Zend\Permissions\Acl\Resource\ResourceInterface;
 
 /**
  * @ORM\Entity
