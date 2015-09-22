@@ -46,19 +46,19 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 
 	/**
 	 * @param Organization $organization
-	 * @param string $from
-	 * @param string $to
+	 * @param integer $offset
+	 * @param integer $limit
 	 * @return Task[]
 	 */
-	public function findTasks(Organization $organization, $from, $to)
+	public function findTasks(Organization $organization, $offset, $limit)
 	{
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('t')
 			->from(ReadModelTask::class, 't')
 			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
 			->orderBy('t.mostRecentEditAt', 'DESC')
-			->setFirstResult($from)
-			->setMaxResults($to)
+			->setFirstResult($offset)
+			->setMaxResults($limit)
 			->setParameter(':organization', $organization)
 			->getQuery();
 		return $query->getResult();
@@ -84,9 +84,9 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		return $this->entityManager->find(ReadModelTask::class, $id);
 	}
 	
-	public function findStreamTasks($streamId) {
+	public function findStreamTasks($streamId, $offset, $limit) {
 		$repository = $this->entityManager->getRepository(ReadModelTask::class);
-		return $repository->findBy(array('stream' => $streamId));
+		return $repository->findBy(array('stream' => $streamId), [], $limit, $offset);
 	}
 	
 	/**

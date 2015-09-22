@@ -7,6 +7,7 @@ use Application\Entity\User;
 use People\Entity\Organization;
 use People\Service\OrganizationService;
 use ZFX\Test\Controller\ControllerTest;
+use Accounting\Entity\AccountTransaction;
 
 /**
  * Class OrganizationAccountControllerTest
@@ -91,6 +92,7 @@ class OrganizationStatementControllerTest extends ControllerTest
 		$this->assertNotEmpty($arrayResult['organization']);
 		$this->assertArrayHasKey('transactions', $arrayResult);
 		$this->assertNotEmpty($arrayResult['_links']['self']['href']);
+		$this->assertArrayNotHasKey('next', $arrayResult['_links']);
 		$this->assertArrayNotHasKey('ora:deposit', $arrayResult['_links']);
 		$this->assertArrayNotHasKey('ora:withdrawal', $arrayResult['_links']);
 		$this->assertArrayNotHasKey('ora:incoming-transfer', $arrayResult['_links']);
@@ -110,7 +112,40 @@ class OrganizationStatementControllerTest extends ControllerTest
 		$arrayResult = json_decode($result->serialize(), true);
 		$this->assertNotEmpty($arrayResult['organization']);
 		$this->assertArrayHasKey('transactions', $arrayResult);
+		$this->assertArrayHasKey('count', $arrayResult);
+		$this->assertArrayHasKey('total', $arrayResult);
+		$this->assertEquals($arrayResult['count'], $arrayResult['total']);
 		$this->assertNotEmpty($arrayResult['_links']['self']['href']);
+		$this->assertNotEmpty($arrayResult['_links']['ora:deposit']['href']);
+		$this->assertNotEmpty($arrayResult['_links']['ora:withdrawal']['href']);
+		$this->assertNotEmpty($arrayResult['_links']['ora:incoming-transfer']['href']);
+		$this->assertNotEmpty($arrayResult['_links']['ora:outgoing-transfer']['href']);
+	}
+	
+	public function testGetListWithPagination()
+	{
+		$this->user->addMembership($this->organization);
+		$this->account->addHolder($this->user);
+		$this->account->addTransaction(new AccountTransaction('1'));
+		$this->account->addTransaction(new AccountTransaction('2'));
+		$this->setupLoggedUser($this->user);
+	
+		$params = $this->request->getQuery();
+		$params->set('limit', 1);
+		
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+	
+		$this->assertEquals(200, $response->getStatusCode());
+		$arrayResult = json_decode($result->serialize(), true);
+		$this->assertNotEmpty($arrayResult['organization']);
+		$this->assertArrayHasKey('transactions', $arrayResult);
+		$this->assertArrayHasKey('next', $arrayResult['_links']);
+		$this->assertArrayHasKey('count', $arrayResult);
+		$this->assertArrayHasKey('total', $arrayResult);
+		$this->assertLessThan($arrayResult['total'], $arrayResult['count']);
+		$this->assertNotEmpty($arrayResult['_links']['self']['href']);
+		$this->assertNotEmpty($arrayResult['_links']['next']['href']);
 		$this->assertNotEmpty($arrayResult['_links']['ora:deposit']['href']);
 		$this->assertNotEmpty($arrayResult['_links']['ora:withdrawal']['href']);
 		$this->assertNotEmpty($arrayResult['_links']['ora:incoming-transfer']['href']);

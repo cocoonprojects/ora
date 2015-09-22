@@ -68,7 +68,7 @@ class MembersAPITest extends \PHPUnit_Framework_TestCase
 
 		$this->assertEquals(201, $response->getStatusCode());
 		$organization = $this->orgService->findOrganization('00000000-0000-0000-1000-000000000000');
-		$memberships = $this->orgService->findOrganizationMemberships($organization);
+		$memberships = $this->orgService->findOrganizationMemberships($organization, null, null);
 		$isMember = false;
 		foreach($memberships as $m) {
 			if($m->getMember()->getId() == $this->authService->getIdentity()->getId()) {
