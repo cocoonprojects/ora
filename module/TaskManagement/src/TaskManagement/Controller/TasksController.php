@@ -31,7 +31,6 @@ class TasksController extends OrganizationAwareController
 	 */
 	private $streamService;
 	/**
-	 * 
 	 * @var Acl
 	 */
 	private $acl;

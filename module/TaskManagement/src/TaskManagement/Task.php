@@ -1,54 +1,62 @@
 <?php
 namespace TaskManagement;
 
-use People\MissingOrganizationMembershipException;
-use Rhumsaa\Uuid\Uuid;
+use Application\DomainEntity;
+use Application\DomainEntityUnavailableException;
+use Application\DuplicatedDomainEntityException;
+use Application\Entity\BasicUser;
+use Application\Entity\User;
 use Application\IllegalStateException;
 use Application\InvalidArgumentException;
-use Application\DuplicatedDomainEntityException;
-use Application\DomainEntityUnavailableException;
-use Application\DomainEntity;
-use Application\Entity\User;
+use People\MissingOrganizationMembershipException;
+use Rhumsaa\Uuid\Uuid;
 
-class Task extends DomainEntity
-{	
-	CONST STATUS_DELETED   = -10;
-	CONST STATUS_IDEA      = 0;
-	CONST STATUS_OPEN      = 10;
-	CONST STATUS_ONGOING   = 20;
-	CONST STATUS_COMPLETED = 30;
-	CONST STATUS_ACCEPTED  = 40;
-	CONST STATUS_CLOSED    = 50;
-
-	CONST ROLE_MEMBER = 'member';
-	CONST ROLE_OWNER  = 'owner';
-	
+class Task extends DomainEntity implements TaskInterface
+{
 	CONST NOT_ESTIMATED = -1;
 	/**
 	 * @var string
 	 */
-	private $subject;
+	protected $subject;
 	/**
 	 * @var int
 	 */
-	private $status;
+	protected $status;
 	/**
 	 * @var Uuid
 	 */
-	private $streamId;
+	protected $streamId;
 	/**
 	 * @var Uuid
 	 */
-	private $organizationId;
+	protected $organizationId;
 	/**
 	 */
-	private $members = array();
-	
-	public static function create(Stream $stream, $subject, User $createdBy, array $options = null) {
+	protected $members = [];
+	/**
+	 * @var \DateTime
+	 */
+	protected $createdAt;
+	/**
+	 * @var BasicUser
+	 */
+	protected $createdBy;
+	/**
+	 * @var \DateTime
+	 */
+	protected $acceptedAt;
+	/**
+	 * @var \DateTime
+	 */
+	protected $sharesAssignmentExpiresAt;
+
+	public static function create(Stream $stream, $subject, BasicUser $createdBy, array $options = null) {
 		$rv = new self();
 		$rv->recordThat(TaskCreated::occur(Uuid::uuid4()->toString(), array(
 			'status' => self::STATUS_ONGOING,
 			'by' => $createdBy->getId(),
+			'by_firstname' => $createdBy->getFirstname(),
+			'by_lastname'  => $createdBy->getLastname(),
 			'organization' => $stream->getOrganizationId()->toString()
 		)));
 		$rv->setSubject($subject, $createdBy);
@@ -56,7 +64,7 @@ class Task extends DomainEntity
 		return $rv;
 	}
 	
-	public function delete(User $deletedBy) {
+	public function delete(BasicUser $deletedBy) {
 		if($this->getStatus() >= self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot delete a task in state '.$this->getStatus().'. Task '.$this->getId().' won\'t be deleted');
 		}
@@ -65,12 +73,15 @@ class Task extends DomainEntity
 			'by'  => $deletedBy->getId(),
 		)));
 	}
-	
+
+	/**
+	 * @return int
+	 */
 	public function getStatus() {
 		return $this->status;
 	}
 	
-	public function execute(User $executedBy) {
+	public function execute(BasicUser $executedBy) {
 		if(!in_array($this->status, [self::STATUS_OPEN, self::STATUS_COMPLETED])) {
 			throw new IllegalStateException('Cannot execute a task in '.$this->status.' state');
 		}
@@ -84,7 +95,7 @@ class Task extends DomainEntity
 		return $this;
 	}
 	
-	public function complete(User $completedBy) {
+	public function complete(BasicUser $completedBy) {
 		if(!in_array($this->status, [self::STATUS_ONGOING, self::STATUS_ACCEPTED])) {
 			throw new IllegalStateException('Cannot complete a task in '.$this->status.' state');
 		}
@@ -101,7 +112,7 @@ class Task extends DomainEntity
 		return $this;
 	}
 	
-	public function accept(User $acceptedBy, \DateInterval $intervalForCloseTask) {
+	public function accept(BasicUser $acceptedBy, \DateInterval $intervalForCloseTask) {
 		if($this->status != self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot accept a task in '.$this->status.' state');
 		}
@@ -116,7 +127,7 @@ class Task extends DomainEntity
 		return $this;
 	}
 	
-	public function close(User $closedBy) {
+	public function close(BasicUser $closedBy) {
 		if($this->status != self::STATUS_ACCEPTED) {
 			throw new IllegalStateException('Cannot close a task in '.$this->status.' state');
 		}
@@ -126,12 +137,15 @@ class Task extends DomainEntity
 		)));
 		return $this;
 	}
-	
+
+	/**
+	 * @return string
+	 */
 	public function getSubject() {
 		return $this->subject;
 	}
 	
-	public function setSubject($subject, User $updatedBy) {
+	public function setSubject($subject, BasicUser $updatedBy) {
 		$s = is_null($subject) ? null : trim($subject);
 		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
 			'subject' => $s,
@@ -140,7 +154,7 @@ class Task extends DomainEntity
 		return $this;
 	}
 	
-	public function changeStream(Stream $stream, User $updatedBy) {
+	public function changeStream(Stream $stream, BasicUser $updatedBy) {
 		if($this->status >= self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot set the task stream in '.$this->status.' state');
 		}
@@ -154,30 +168,36 @@ class Task extends DomainEntity
 		$this->recordThat(TaskStreamChanged::occur($this->id->toString(), $payload));
 		return $this;
 	}
-		
+
+	/**
+	 * @return string
+	 */
 	public function getStreamId() {
-		return $this->streamId;
+		return $this->streamId->toString();
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getOrganizationId() {
-		return $this->organizationId;
+		return $this->organizationId->toString();
 	}
 	
 	/**
 	 * 
 	 * @param User $user
 	 * @param string $role
-	 * @param User $addedBy
+	 * @param BasicUser $addedBy
 	 * @throws IllegalStateException
 	 * @throws MissingOrganizationMembershipException
 	 * @throws DuplicatedDomainEntityException
 	 */
-	public function addMember(User $user, $role = self::ROLE_MEMBER, User $addedBy = null)
+	public function addMember(User $user, $role = self::ROLE_MEMBER, BasicUser $addedBy = null)
 	{ 
 		if($this->status >= self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot add a member to a task in '.$this->status.' state');
 		}
-		if(!$user->isMemberOf($this->getOrganizationId()->toString())) {
+		if(!$user->isMemberOf($this->getOrganizationId())) {
 			throw new MissingOrganizationMembershipException($this->getOrganizationId(), $user->getId());
 		}
 		if (array_key_exists($user->getId(), $this->members)) {
@@ -193,8 +213,12 @@ class Task extends DomainEntity
 		)));
 		return $this;
 	}
-	
-	public function removeMember(User $member, User $removedBy = null)
+
+	/**
+	 * @param User $member
+	 * @param BasicUser|null $removedBy
+	 */
+	public function removeMember(User $member, BasicUser $removedBy = null)
 	{
 		if($this->status >= self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot remove a member from a task in '.$this->status.' state');
@@ -213,7 +237,7 @@ class Task extends DomainEntity
 		)));
 	}
 	
-	public function addEstimation($value, User $member) {
+	public function addEstimation($value, BasicUser $member) {
 		if(!in_array($this->status, [self::STATUS_ONGOING])) {
 			throw new IllegalStateException('Cannot estimate a task in the state '.$this->status.'.');
 		}
@@ -230,12 +254,12 @@ class Task extends DomainEntity
 	/**
 	 * 
 	 * @param array $shares Map of memberId and its share for each member
-	 * @param User $member
+	 * @param BasicUser $member
 	 * @throws IllegalStateException
 	 * @throws DomainEntityUnavailableException
 	 * @throws InvalidArgumentException
 	 */
-	public function assignShares(array $shares, User $member) {
+	public function assignShares(array $shares, BasicUser $member) {
 		if($this->status != self::STATUS_ACCEPTED) {
 			throw new IllegalStateException('Cannot assign shares in a task in status '.$this->status);
 		}
@@ -274,7 +298,7 @@ class Task extends DomainEntity
 		)));
 	}
 	
-	public function skipShares(User $member) {
+	public function skipShares(BasicUser $member) {
 		if($this->status != self::STATUS_ACCEPTED) {
 			throw new IllegalStateException('Cannot assign shares in a task in status '.$this->status);
 		}
@@ -287,7 +311,10 @@ class Task extends DomainEntity
 			'by' => $member->getId(),
 		)));
 	}
-	
+
+	/**
+	 * @return array
+	 */
 	public function getMembers() {
 		return $this->members;
 	}
@@ -321,22 +348,27 @@ class Task extends DomainEntity
 	
 	/**
 	 * 
-	 * @param id|User $user
+	 * @param id|BasicUser $user
+	 * @return boolean
 	 */
 	public function hasMember($user) {
-		$key = $user instanceof User ? $user->getId() : $user;
+		$key = $user instanceof BasicUser ? $user->getId() : $user;
 		return isset($this->members[$key]);
 	}
 	/**
 	 * 
-	 * @param unknown $role
-	 * @param id|User $user
+	 * @param string $role
+	 * @param id|BasicUser $user
+	 * @return boolean
 	 */
 	public function hasAs($role, $user) {
-		$key = $user instanceof User ? $user->getId() : $user;
+		$key = $user instanceof BasicUser ? $user->getId() : $user;
 		return isset($this->members[$key]) && $this->members[$key]['role'] == $role;
 	}
-	
+
+	/**
+	 * @return array|null
+	 */
 	public function getMembersCredits() {
 		$credits = $this->getAverageEstimation();
 		switch ($credits) {
@@ -363,26 +395,73 @@ class Task extends DomainEntity
 	}
 	
 	public function getMemberRole($user){
-		$key = $user instanceof User ? $user->getId() : $user;
+		$key = $user instanceof BasicUser ? $user->getId() : $user;
 		if(isset($this->members[$key])){
 			return $this->members[$key]['role'];
 		}
 		return null;
 	}
 	
-	public function getOwner(){	
-		foreach ($this->members as $key=>$member){
-			if($member['role']==self::ROLE_OWNER)
+	public function getOwner() {
+		foreach ($this->members as $key => $member){
+			if($member['role'] == self::ROLE_OWNER)
 				return $key;
 		}
-		return null;	
+		return null;
 	}
-	
+
+	/**
+	 * @return string
+	 */
+	public function getType()
+	{
+		return 'task';
+	}
+
+	/**
+	 * @return \DateTime
+	 */
+	public function getCreatedAt()
+	{
+		return $this->createdAt;
+	}
+
+	/**
+	 * @return \DateTime
+	 */
+	public function getAcceptedAt()
+	{
+		return $this->acceptedAt;
+	}
+
+	/**
+	 * @return BasicUser
+	 */
+	public function getCreatedBy()
+	{
+		return $this->createdBy;
+	}
+
+	/**
+	 * @return \DateTime
+	 */
+	public function getSharesAssignmentExpiresAt() {
+		return $this->sharesAssignmentExpiresAt;
+	}
+
 	protected function whenTaskCreated(TaskCreated $event)
 	{
 		$this->id = Uuid::fromString($event->aggregateId());
 		$this->status = $event->payload()['status'];
 		$this->organizationId = Uuid::fromString($event->payload()['organization']);
+		$this->createdAt = $event->occurredOn();
+		$this->createdBy = BasicUser::createBasicUser($event->payload()['by']);
+		if(isset($event->payload()['by_firstname'])) {
+			$this->createdBy->setFirstname($event->payload()['by_firstname']);
+		}
+		if(isset($event->payload()['by_lastname'])) {
+			$this->createdBy->setLastname($event->payload()['by_lastname']);
+		}
 	}
 	
 	protected function whenTaskOngoing(TaskOngoing $event) {
@@ -399,6 +478,12 @@ class Task extends DomainEntity
 	
 	protected function whenTaskAccepted(TaskAccepted $event) {
 		$this->status = self::STATUS_ACCEPTED;
+		$this->acceptedAt = $event->occurredOn();
+		$sharesAssignmentExpiresAt = clone $event->occurredOn();
+		if(isset($event->payload()['intervalForCloseTask'])) {
+			$sharesAssignmentExpiresAt->add($event->payload()['intervalForCloseTask']);
+			$this->sharesAssignmentExpiresAt = $sharesAssignmentExpiresAt;
+		}
 	}
 	
 	protected function whenTaskClosed(TaskClosed $event) {
@@ -419,7 +504,9 @@ class Task extends DomainEntity
 	protected function whenTaskMemberAdded(TaskMemberAdded $event) {
 		$p = $event->payload();
 		$id = $p['userId'];
+		$this->members[$id]['id'] = $id;
 		$this->members[$id]['role'] = $p['role'];
+		$this->members[$id]['createdAt'] = $event->occurredOn();
 	}
 
 	protected function whenTaskMemberRemoved(TaskMemberRemoved $event) {
@@ -437,6 +524,7 @@ class Task extends DomainEntity
 		$p = $event->payload();
 		$id = $p['by'];
 		$this->members[$id]['estimation'] = $p['value'];
+		$this->members[$id]['estimatedAt'] = $event->occurredOn();
 	}
 	
 	protected function whenSharesAssigned(SharesAssigned $event) {
@@ -447,6 +535,9 @@ class Task extends DomainEntity
 		if(count($shares) > 0) {
 			foreach ($shares as $key => $value) {
 				$this->members[$key]['share'] = $value;
+				if(isset($this->members[$key]['shares'][$key])) {
+					$this->members[$key]['delta'] = $this->members[$key]['shares'][$key] - $value;
+				}
 			}
 		}
 	}
@@ -483,4 +574,15 @@ class Task extends DomainEntity
 		}
 		return $rv;
 	}
+
+	/**
+	 * Returns the string identifier of the Resource
+	 *
+	 * @return string
+	 */
+	public function getResourceId()
+	{
+		return self::RESOURCE_ID;
+	}
+
 }

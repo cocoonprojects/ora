@@ -2,24 +2,24 @@
 
 namespace TaskManagement\Service;
 
-use AcMailer\Service\MailService;
-use Application\Service\UserService;
+use AcMailer\Service\MailServiceInterface;
 use Application\Entity\User;
-use TaskManagement\EstimationAdded;
+use Application\Service\UserService;
 use TaskManagement\Entity\Task as ReadModelTask;
+use TaskManagement\EstimationAdded;
 use TaskManagement\SharesAssigned;
 use TaskManagement\SharesSkipped;
 use TaskManagement\Task;
-use Zend\EventManager\EventManagerInterface;
+use TaskManagement\TaskClosed;
 use Zend\EventManager\Event;
+use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\Mvc\Application;
-use TaskManagement\TaskClosed;
 
 class NotifyMailListener implements ListenerAggregateInterface
 {
 	/**
-	 * @var MailService
+	 * @var MailServiceInterface
 	 */
 	private $mailService;
 	/**
@@ -33,7 +33,7 @@ class NotifyMailListener implements ListenerAggregateInterface
 	
 	protected $listeners = array ();
 	
-	public function __construct(MailService $mailService, UserService $userService, TaskService $taskService) {
+	public function __construct(MailServiceInterface $mailService, UserService $userService, TaskService $taskService) {
 		$this->mailService = $mailService;
 		$this->userService = $userService;
 		$this->taskService = $taskService;
@@ -77,7 +77,13 @@ class NotifyMailListener implements ListenerAggregateInterface
 		$task = $this->taskService->findTask($taskId);
 		$this->sendTaskClosedInfoMail($task);
 	}
-	
+
+	/**
+	 * @param Task $task
+	 * @param User $member
+	 * @return bool|void
+	 * @throws \AcMailer\Exception\MailException
+	 */
 	public function sendEstimationAddedInfoMail(Task $task, User $member){
 		//OwnerInfo
 		$ownerId = $task->getOwner();
@@ -92,16 +98,22 @@ class NotifyMailListener implements ListenerAggregateInterface
 		$message->setTo($owner->getEmail());
 		$message->setSubject ( 'A member just estimated "' . $task->getSubject() . '"');
 		
-		$this->mailService->setTemplate( 'mail/estimation-added-info.phtml', array(
+		$this->mailService->setTemplate( 'mail/estimation-added-info.phtml', [
 				'task' => $task,
 				'recipient'=> $owner,
 				'member'=> $member
-		));
+		]);
 		
 		$result = $this->mailService->send();
 		return $result->isValid();
 	}
 
+	/**
+	 * @param Task $task
+	 * @param User $member
+	 * @return bool|void
+	 * @throws \AcMailer\Exception\MailException
+	 */
 	public function sendSharesAssignedInfoMail(Task $task, User $member)
 	{
 		//OwnerInfo
@@ -117,11 +129,11 @@ class NotifyMailListener implements ListenerAggregateInterface
 		$message->setTo($owner->getEmail());
 		$message->setSubject ( 'A member just assigned its shares to "' . $task->getSubject() . '"' );
 
-		$this->mailService->setTemplate( 'mail/shares-assigned-info.phtml', array(
+		$this->mailService->setTemplate( 'mail/shares-assigned-info.phtml', [
 			'task' => $task,
 			'recipient'=> $owner,
 			'member'=> $member
-		));
+		]);
 
 		$result = $this->mailService->send();
 		return $result->isValid();
@@ -129,23 +141,21 @@ class NotifyMailListener implements ListenerAggregateInterface
 	
 	/**
 	 * Send email notification to all members with empty shares of $taskToNotify
-	 * @param Task $taskToNotify
+	 * @param ReadModelTask $task
 	 */
-	public function remindAssignmentOfShares(ReadModelTask $task){
-	
+	public function remindAssignmentOfShares(ReadModelTask $task)
+	{
 		$taskMembersWithEmptyShares = $task->findMembersWithEmptyShares();
-	
-		foreach ($taskMembersWithEmptyShares as $member){
-				
+		foreach ($taskMembersWithEmptyShares as $tm){
+			$member = $tm->getUser();
 			$message = $this->mailService->getMessage();
 			$message->setTo($member->getEmail());
-				
-			$this->mailService->setSubject ( "O.R.A. - your contribution is required!" );
-	
-			$this->mailService->setTemplate( 'mail/reminder-assignment-shares.phtml', array(
+			$message->setSubject("Assign your shares to " . $task->getSubject());
+
+			$this->mailService->setTemplate( 'mail/reminder-assignment-shares.phtml', [
 					'task' => $task,
 					'recipient'=> $member
-			));
+			]);
 				
 			$this->mailService->send();
 		}
@@ -153,23 +163,22 @@ class NotifyMailListener implements ListenerAggregateInterface
 	
 	/**
 	 * Send email notification to all members with no estimation of $taskToNotify
-	 * @param Task $taskToNotify
+	 * @param ReadModelTask $task
 	 */
-	public function reminderAddEstimation(ReadModelTask $task){
+	public function reminderAddEstimation(ReadModelTask $task)
+	{
 		$taskMembersWithNoEstimation = $task->findMembersWithNoEstimation();
 		
-		foreach ($taskMembersWithNoEstimation as $member){
-			$recipient = $this->userService->findUser($member);
-			
+		foreach ($taskMembersWithNoEstimation as $tm){
+			$member = $tm->getUser();
 			$message = $this->mailService->getMessage();
-			$message->setTo($recipient->getEmail());
+			$message->setTo($member->getEmail());
+			$message->setSubject("Estimate " . $task->getSubject());
 			
-			$this->mailService->setSubject ( "O.R.A. - your contribution is required!" );
-			
-			$this->mailService->setTemplate( 'mail/reminder-add-estimation.phtml', array(
-					'task' => $task,
-					'recipient'=> $recipient
-			));
+			$this->mailService->setTemplate( 'mail/reminder-add-estimation.phtml', [
+				'task' => $task,
+				'recipient'=> $member
+			]);
 			
 			$this->mailService->send();
 		}
@@ -177,7 +186,7 @@ class NotifyMailListener implements ListenerAggregateInterface
 	
 	/**
 	 * Send an email notification to the members of $taskToNotify to inform them that it has been closed
-	 * @param Task $taskToNotify
+	 * @param ReadModelTask $task
 	 */
 	public function sendTaskClosedInfoMail(ReadModelTask $task){
 
@@ -189,15 +198,21 @@ class NotifyMailListener implements ListenerAggregateInterface
 	
 			$message = $this->mailService->getMessage();
 			$message->setTo($member->getEmail());
+			$message->setSubject($task->getSubject() . " closed");
 	
-			$this->mailService->setSubject ( "O.R.A. - task has been closed!" );
-	
-			$this->mailService->setTemplate( 'mail/task-closed-info.phtml', array(
-					'task' => $task,
-					'recipient'=> $member
-			));
+			$this->mailService->setTemplate( 'mail/task-closed-info.phtml', [
+				'task' => $task,
+				'recipient'=> $member
+			]);
 			
 			$this->mailService->send();
 		}
+	}
+
+	/**
+	 * @return MailServiceInterface
+	 */
+	public function getMailService() {
+		return $this->mailService;
 	}
 }

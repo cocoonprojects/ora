@@ -12,7 +12,7 @@ class OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion extends NotCom
 	public function assert(Acl $acl, RoleInterface $user = null, ResourceInterface $resource = null, $privilege = null)
 	{
 		return parent::assert($acl, $user, $resource, $privilege)
-			&& $user->isMemberOf($resource->getStream()->getOrganization())
+			&& $user->isMemberOf($resource->getOrganizationId())
 			&& !$resource->hasMember($user);
 	}
 }

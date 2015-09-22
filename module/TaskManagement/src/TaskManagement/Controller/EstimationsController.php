@@ -2,35 +2,41 @@
 
 namespace TaskManagement\Controller;
 
-use Zend\Validator\ValidatorChain;
-use Zend\Validator\NotEmpty;
-use Zend\Validator\GreaterThan;
-use Zend\Validator\Identical;
-use Zend\I18n\Validator\Float;
-use ZFX\Rest\Controller\HATEOASRestfulController;
-use Application\DuplicatedDomainEntityException;
-use Application\IllegalStateException;
+use Application\Controller\OrganizationAwareController;
 use Application\DomainEntityUnavailableException;
+use Application\IllegalStateException;
 use Application\View\ErrorJsonModel;
+use People\Service\OrganizationService;
 use TaskManagement\Service\TaskService;
+use TaskManagement\View\TaskJsonModel;
+use Zend\I18n\Validator\Float;
+use Zend\Permissions\Acl\Acl;
+use Zend\Validator\GreaterThan;
+use Zend\Validator\NotEmpty;
+use Zend\Validator\ValidatorChain;
 
 /**
  * EstimationsController
  *
  */
-class EstimationsController extends HATEOASRestfulController {
+class EstimationsController extends OrganizationAwareController {
 
 	protected static $collectionOptions = array();
 	protected static $resourceOptions = array('POST');
 
 	/**
-	 *
 	 * @var TaskService
 	 */
 	protected $taskService;
-		
-	public function __construct(TaskService $taskService) {
+	/**
+	 * @var Acl
+	 */
+	private $acl;
+
+	public function __construct(OrganizationService $organizationService, TaskService $taskService, Acl $acl) {
+		parent::__construct($organizationService);
 		$this->taskService = $taskService;
+		$this->acl = $acl;
 	}
 	
 	public function invoke($id, $data)
@@ -61,7 +67,7 @@ class EstimationsController extends HATEOASRestfulController {
 			$error->setCode(400);
 			$error->addSecondaryErrors('value', $validator->getMessages());
 			$error->setDescription('Specified values are not valid');
-			$this->response->setStatusCode ( 400 );
+			$this->response->setStatusCode (400);
 			return $error;
 		}
 		
@@ -76,6 +82,9 @@ class EstimationsController extends HATEOASRestfulController {
 			$task->addEstimation($value, $this->identity());
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
+			$view = new TaskJsonModel($this->url(), $this->identity(), $this->acl, $this->organization);
+			$view->setVariable('resource', $task);
+			return $view;
 		} catch (DomainEntityUnavailableException $e) {
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(403);	// Forbidden because not a member

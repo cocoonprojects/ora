@@ -477,8 +477,8 @@ TaskManagement.prototype = {
 					$e = '';
 					for(var memberId in task.members) {
 						var info = task.members[memberId];
-						if(info.estimation && info.estimation.value != -2) {
-							$e = ' data-credits="' + info.estimation.value + '"';
+						if(info.estimation && info.estimation != -2) {
+							$e = ' data-credits="' + info.estimation + '"';
 						}
 					};
 					primary_actions.push('<a data-href="' + task._links['ora:estimate']	 + '"' + $e + ' data-toggle="modal" data-target="#estimateTaskModal" class="btn btn-primary">Estimate</a>');
@@ -560,14 +560,13 @@ TaskManagement.prototype = {
 			estimation = '<li>' + task.estimation + ' credits</li>';
 		}
 		
-		createdAt = new Date(Date.parse(task.createdAt));
+		var createdAt = new Date(Date.parse(task.createdAt));
 
-		rv = '<ul class="task-details">' +
+		var rv = '<ul class="task-details">' +
 				'<li>' + task.stream.subject + '</li>' +
 				'<li>Created at ' + createdAt.toLocaleString() + '</li>';
 		
 		if(task.acceptedAt !== null){
-			
 			acceptedAt = new Date(Date.parse(task.acceptedAt));
 			rv += '<li>Accepted at ' + acceptedAt.toLocaleString() + '</li>';
 		}
@@ -589,17 +588,18 @@ TaskManagement.prototype = {
 		$.map(task.members, function(member, memberId) {
 			rv += '<tr><th><img src="' + member.picture + '" style="max-width: 16px; max-height: 16px;" class="img-circle"> ' + member.firstname + ' ' + member.lastname + '</th>';
 			rv += '<td style="text-align: right">'
-			if(member.estimation != null) {
-				switch(member.estimation.value) {
-					case -2 : 
-						rv += '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>';
-						break;
-					case -1 :
-						rv += 'Skipped';
-						break;
-					default :
-						rv += member.estimation.value.toString();
-				}
+			switch(member.estimation) {
+				case undefined:
+				case null:
+					break;
+				case -2 :
+					rv += '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>';
+					break;
+				case -1 :
+					rv += 'Skipped';
+					break;
+				default :
+					rv += member.estimation.toString();
 			}
 			rv += '</td>';
 			//$.map(task.members, function(m) {

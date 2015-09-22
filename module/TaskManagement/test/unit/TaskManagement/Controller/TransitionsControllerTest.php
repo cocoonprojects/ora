@@ -28,10 +28,14 @@ class TransitionsControllerTest extends ControllerTest
 
 	public function setupMore()
 	{
-		$this->systemUser = $this->getMockBuilder(User::class)->getMock();
+		$this->systemUser = $this->getMockBuilder(User::class)
+			->disableOriginalConstructor()
+			->getMock();
 		$this->systemUser->method('getRoleId')->willReturn(User::ROLE_SYSTEM);
 		
-		$this->user = $this->getMockBuilder(User::class)->getMock();
+		$this->user = $this->getMockBuilder(User::class)
+			->disableOriginalConstructor()
+			->getMock();
 		$this->user->method('isMemberOf')->willReturn(true);
 		$this->user->method('getRoleId')->willReturn(User::ROLE_USER);		
 		

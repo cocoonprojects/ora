@@ -12,7 +12,6 @@ use People\Entity\Organization;
  * @ORM\Table(name="accounts")
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="type", type="string")
- * @author andreabandera
  */
 abstract class Account extends EditableEntity implements ResourceInterface {
 	
