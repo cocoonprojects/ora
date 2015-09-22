@@ -21,15 +21,33 @@ class KanbanizeTask extends Task
 	 */
 	private $taskId;
 
+	/**
+	 * @return string
+	 */
 	public function getBoardId() {
 		return $this->boardId;
 	}
-	
+
+	/**
+	 * @param $boardid string
+	 */
 	public function setBoardId($boardid){
 		$this->boardId=$boardid;
 	}
-	
+
+	/**
+	 * @return string
+	 */
 	public function getTaskId() {
 		return $this->taskId;
 	}
+
+	/**
+	 * @return string
+	 */
+	public function getType()
+	{
+		return 'kanbanizetask';
+	}
+
 }

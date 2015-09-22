@@ -11,13 +11,13 @@ use People\Organization;
 use Rhumsaa\Uuid\Uuid;
 use Zend\Permissions\Acl\Role\RoleInterface;
 
-
 /**
- * @ORM\Entity @ORM\Table(name="users")
+ * @ORM\Entity
+ * @ORM\Table(name="users")
  *
  */
-class User implements RoleInterface
-{	   
+class User extends BasicUser implements RoleInterface
+{
 	CONST STATUS_ACTIVE = 1;
 	CONST ROLE_ADMIN = 'admin';
 	CONST ROLE_GUEST = 'guest';
@@ -27,80 +27,56 @@ class User implements RoleInterface
 	CONST SYSTEM_USER = '00000000-0000-0000-0000-000000000000';
 	
 	CONST EVENT_CREATED = "User.Created";
-	
-	/**
-	 * @ORM\Id @ORM\Column(type="string") 
-	 * @var string
-	 */
-	protected $id;
-	
+
 	/**
 	 * @ORM\Column(type="datetime")
-	 * @var DateTime
+	 * @var \DateTime
 	 */
 	protected $createdAt;
-	
 	/**
 	 * @ORM\ManyToOne(targetEntity="User")
 	 * @ORM\JoinColumn(name="createdBy_id", referencedColumnName="id", nullable=TRUE)
+	 * @var BasicUser
 	 */
 	protected $createdBy;
-	
 	/**
 	 * @ORM\Column(type="datetime")
-	 * @var datetime
+	 * @var \DateTime
 	 */
 	protected $mostRecentEditAt;
-	
 	/**
 	 * @ORM\ManyToOne(targetEntity="User")
 	 * @ORM\JoinColumn(name="mostRecentEditBy_id", referencedColumnName="id", nullable=TRUE)
+	 * @var BasicUser
 	 */
 	protected $mostRecentEditBy;
-	
-	/**
-	 * @ORM\Column(type="string", length=100, nullable=TRUE)
-	 * @var string
-	 */
-	private $firstname;
-
-	/**
-	 * @ORM\Column(type="string", length=100, nullable=TRUE)
-	 * @var string
-	 */
-	private $lastname;
-
 	/**
 	 * @ORM\Column(type="string", length=200, unique=TRUE)
 	 * @var string
 	 */
 	private $email;
-	
-	/**
-	 * @ORM\Column(type="integer")
-	 * @var int
-	 */
-	private $status;
-	
 	/**
 	 * @ORM\Column(type="string", nullable=TRUE)
 	 * @var string
 	 */
 	private $picture;
-	
 	/**
-	 * @ORM\OneToMany(targetEntity="People\Entity\OrganizationMembership", mappedBy="member", indexBy="organization_id", fetch="EAGER", cascade={"persist"})
+	 * @ORM\Column(type="integer")
+	 * @var int
+	 */
+	private $status;
+	/**
+	 * @ORM\OneToMany(targetEntity="People\Entity\OrganizationMembership", mappedBy="member", indexBy="organization_id", cascade={"persist"})
 	 * @var OrganizationMembership[]
 	 */
 	private $memberships;
-
 	/**
 	 * @ORM\Column(type="string")
 	 * @var string 
 	 */
 	private $role = self::ROLE_USER;
 
-	public function __construct(){
+	private function __construct() {
 		$this->memberships = new ArrayCollection();
 	}
 	
@@ -115,93 +91,113 @@ class User implements RoleInterface
 		return $rv;
 	}
 
-	public function getId() {
-		return $this->id;
-	}
-	
+	/**
+	 * @return \DateTime
+	 */
 	public function getCreatedAt() {
 		return $this->createdAt;
 	}
-	
+
+	/**
+	 * @param \DateTime $when
+	 * @return $this
+	 */
 	public function setCreatedAt(\DateTime $when) {
 		$this->createdAt = $when;
-		return $this->createdAt;
+		return $this;
 	}
-	
+
+	/**
+	 * @return BasicUser
+	 */
 	public function getCreatedBy()
 	{
 		return $this->createdBy;
 	}
-	
-	public function setCreatedBy(User $user) {
+
+	/**
+	 * @param BasicUser $user
+	 * @return $this
+	 */
+	public function setCreatedBy(BasicUser $user) {
 		$this->createdBy = $user;
-		return $this->createdBy;
+		return $this;
 	}
 
+	/**
+	 * @return \DateTime
+	 */
 	public function getMostRecentEditAt() {
 		return $this->mostRecentEditAt;
 	}
-	
+
+	/**
+	 * @param \DateTime $when
+	 * @return $this
+	 */
 	public function setMostRecentEditAt(\DateTime $when) {
 		$this->mostRecentEditAt = $when;
-		return $this->mostRecentEditAt;
+		return $this;
 	}
-	
+
+	/**
+	 * @return BasicUser
+	 */
 	public function getMostRecentEditBy() {
 		return $this->mostRecentEditBy;
 	}
-	
-	public function setMostRecentEditBy(User $user) {
+
+	/**
+	 * @param BasicUser $user
+	 * @return $this
+	 */
+	public function setMostRecentEditBy(BasicUser $user) {
 		$this->mostRecentEditBy = $user;
-		return $this->mostRecentEditBy;
+		return $this;
 	}
 
+	/**
+	 * @param User|null $object
+	 * @return bool
+	 */
 	public function equals(User $object = null) {
 		if(is_null($object)) {
 			return false;
 		}
 		return $this->id == $object->getId();
 	}
-	
-	public function setFirstname($firstname)
-	{
-		$this->firstname = $firstname;
-		return $this;
-	}
-	
-	public function getFirstname()
-	{
-		return $this->firstname;
-	}
 
-	public function setLastname($lastname)
-	{
-		$this->lastname = $lastname;
-		return $this;
-	}
-	
-	public function getLastname()
-	{
-		return $this->lastname;
-	}
-
+	/**
+	 * @param $email
+	 * @return $this
+	 */
 	public function setEmail($email)
 	{
 		$this->email = $email;
 		return $this;
 	}
-	
+
+	/**
+	 * @return string
+	 */
 	public function getEmail()
 	{
 		return $this->email;
 	}
 
+	/**
+	 * @param $status
+	 * @return $this
+	 */
 	public function setStatus($status)
 	{
 		$this->status = $status;
 		return $this;
 	}
-	
+
+	/**
+	 * @return int
+	 */
 	public function getStatus()
 	{
 		return $this->status;

@@ -127,7 +127,7 @@ class TaskCommandsListener extends ReadModelProjector
 			return;
 		}
 		$id = $event->metadata()['aggregate_id'];
-		$taskMember = $this->entityManager->find(TaskMember::class, array('task' => $id, 'member' => $user));
+		$taskMember = $this->entityManager->find(TaskMember::class, ['task' => $id, 'user' => $user]);
 		
 		$value = $event->payload()['value'];
 
@@ -158,7 +158,7 @@ class TaskCommandsListener extends ReadModelProjector
 		$sharesAssignmentExpiresAt = clone $event->occurredOn();
 		$sharesAssignmentExpiresAt->add($event->payload()['intervalForCloseTask']);
 		$task->setSharesAssignmentExpiresAt($sharesAssignmentExpiresAt);
-		$this->entityManager->persist($task);		
+		$this->entityManager->persist($task);
 	}
 	
 	protected function onTaskClosed(StreamEvent $event) {

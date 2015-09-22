@@ -5,7 +5,6 @@ use Doctrine\ORM\Mapping AS ORM;
 
 /**
  * @ORM\MappedSuperclass
- * @author andreabandera
  *
  */
 abstract class DomainEntity {
@@ -25,7 +24,7 @@ abstract class DomainEntity {
 	/**
 	 * @ORM\ManyToOne(targetEntity="Application\Entity\User")
 	 * @ORM\JoinColumn(name="createdBy_id", referencedColumnName="id", nullable=TRUE)
-	 * @var User
+	 * @var BasicUser
 	 */
 	protected $createdBy;
 	
@@ -59,7 +58,7 @@ abstract class DomainEntity {
 	}
 	/**
 	 * 
-	 * @return User
+	 * @return BasicUser
 	 */
 	public function getCreatedBy()
 	{
@@ -67,10 +66,10 @@ abstract class DomainEntity {
 	}
 	/**
 	 * 
-	 * @param User $user
+	 * @param BasicUser $user
 	 * @return DomainEntity
 	 */
-	public function setCreatedBy(User $user) {
+	public function setCreatedBy(BasicUser $user) {
 		$this->createdBy = $user;
 		return $this;
 	}

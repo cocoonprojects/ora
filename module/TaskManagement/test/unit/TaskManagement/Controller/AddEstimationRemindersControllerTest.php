@@ -25,7 +25,9 @@ class AddEstimationRemindersControllerTest extends ControllerTest
 
 	public function setupMore()
 	{
-		$this->systemUser = $this->getMockBuilder(User::class)->getMock();
+		$this->systemUser = $this->getMockBuilder(User::class)
+			->disableOriginalConstructor()
+			->getMock();
 		$this->systemUser->method('getRoleId')->willReturn(User::ROLE_SYSTEM);
 	}
 	

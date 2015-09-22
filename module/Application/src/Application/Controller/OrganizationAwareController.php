@@ -21,7 +21,8 @@ abstract class OrganizationAwareController extends HATEOASRestfulController{
 	 */
 	protected $organization;
 	
-	public function __construct(OrganizationService $organizationService){
+	public function __construct(OrganizationService $organizationService)
+	{
 		$this->organizationService = $organizationService;
 	}
 	
