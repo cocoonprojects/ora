@@ -1,6 +1,5 @@
 var Accounting = function()
 {
-<<<<<<< HEAD
 	var defaultPageSize = 10,
 		pageSize = defaultPageSize,
 		nextPageSize = defaultPageSize,
