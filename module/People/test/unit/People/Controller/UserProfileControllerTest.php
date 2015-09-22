@@ -98,8 +98,7 @@ class UserProfileControllerTest extends ControllerTest {
 		$this->controller->getOrganizationService ()->expects ( $this->once () )->method ( 'findOrganization' )->with ( $organization->getId () )->willReturn ( $organization );
 		
 		// Target User
-		$userProfile = $this->getMockBuilder ( User::class )->getMock ();
-		$userProfile->method ( 'getId' )->willReturn ( '60000000-0000-0000-0000-000000000000' );
+		$userProfile = User::create();
 		
 		$this->routeMatch->setParam ( 'orgId', $organization->getId () );
 		$this->routeMatch->setParam ( 'id', $userProfile->getId () );
@@ -114,8 +113,7 @@ class UserProfileControllerTest extends ControllerTest {
 		$user = User::create ();
 		$this->setupLoggedUser ( $user );
 		
-		$userProfile = $this->getMockBuilder ( User::class )->disableOriginalConstructor ()->getMock ();
-		$userProfile->method ( 'getId' )->willReturn ( '60000000-0000-0000-0000-000000000000' );
+		$userProfile = User::create();
 		
 		$this->routeMatch->setParam ( 'id', $userProfile->getId () );
 		
