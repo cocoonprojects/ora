@@ -1,8 +1,9 @@
 var TaskManagement = function()
 {
-	var pageSize = 10;
-	var moreTasksCount = 10;
-	var pageOffset = 0;
+	var defaultPageSize = 10,
+		pageSize = defaultPageSize,
+		nextPageSize = defaultPageSize,
+		pageOffset = 0;
 	
 	this.getPageSize = function(){
 		return pageSize;
@@ -10,8 +11,8 @@ var TaskManagement = function()
 	this.setPageSize = function(size){
 		pageSize = size;
 	};
-	this.getMoreTasksCount = function(){
-		return moreTasksCount;
+	this.getNextPageSize = function(){
+		return nextPageSize;
 	};
 	this.getPageOffset = function(){
 		return pageOffset;
@@ -220,8 +221,7 @@ TaskManagement.prototype = {
 			that.getTask(e);
 		});
 
-		// MORE TASKS
-		$("body").on("click", "a[data-action='moreTasks']", function(e){
+		$("body").on("click", "a[data-action='nextPage']", function(e){
 			e.preventDefault();
 			that.listMoreTasks(e);
 		});
@@ -570,12 +570,12 @@ TaskManagement.prototype = {
 					'</li>');
 			});
 			
-			if(this.data._links !== undefined && this.data._links["self"] !== undefined && this.data._links["self"]["next"] !== undefined) {
-				var tasksLimit = this.getPageSize() + this.getMoreTasksCount();
-				var tasksOffset = this.getPageOffset();
+			if(this.data._links !== undefined && this.data._links["next"] !== undefined) {
+				var limit = this.getPageSize() + this.nextPageSize();
+				var offset = this.getPageOffset();
 				container.append(
 					'<div class="text-center">' +
-							'<a rel="next" href="'+this.data._links["self"]["next"]+'?offset=' + tasksOffset + '&limit=' + tasksLimit + '" data-action="moreTasks">More</a>' +
+							'<a rel="next" href="'+this.data._links["next"]["href"]+'?offset=' + offset + '&limit=' + limit + '" data-action="nextPage">More</a>' +
 					'</div>');
 			}
 		}
