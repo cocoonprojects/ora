@@ -7,6 +7,7 @@ use People\Controller\MembersController;
 use People\Service\EventSourcingOrganizationService;
 use People\Service\OrganizationCommandsListener;
 use People\Service\SendMailListener;
+use People\Controller\UserProfileController;
 
 class Module
 {
@@ -27,6 +28,14 @@ class Module
 					$locator = $sm->getServiceLocator();
 					$orgService = $locator->get('People\OrganizationService');
 					$controller = new MembersController($orgService);
+					return $controller;
+				},
+				'People\Controller\UserProfile' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$orgService = $locator->get('People\OrganizationService');
+					$userService = $locator->get('Application\UserService');
+					$accountService = $locator->get('Accounting\CreditsAccountsService');
+					$controller = new UserProfileController($orgService, $userService, $accountService);
 					return $controller;
 				},
 			)

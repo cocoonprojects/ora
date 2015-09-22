@@ -32,7 +32,7 @@ People.prototype = {
 		} else {
 			var that = this;
 			$.each(members, function(key, member) {
-				container.append('<li style="margin-bottom: 5px"><img src="' + member.picture + '" style="max-width: 60px; max-height: 60px;" class="img-circle"> <a href="#" data-url="people/users/' + member.id + '"><span class="firstname">' + member.firstname + '</span> <span class="lastname">' + member.lastname + '</span></a></li>')
+				container.append('<li style="margin-bottom: 5px"><img src="' + member.picture + '" style="max-width: 60px; max-height: 60px;" class="img-circle"> <a href="profiles/'+member.id+'" data-action="user-detail" data-user=' + member.id + '"><span class="firstname">' + member.firstname + '</span> <span class="lastname">' + member.lastname + '</span></a></li>')
 			});
 		}
 	}
@@ -40,5 +40,5 @@ People.prototype = {
 
 $().ready(function(e){
 	people = new People();
-	people.loadPeople($("#people-home").attr('href')+'/members')
+	people.loadPeople($("#people-home").attr('href')+'/members');
 });

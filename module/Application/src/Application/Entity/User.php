@@ -10,13 +10,14 @@ use People\Entity\OrganizationMembership;
 use People\Organization;
 use Rhumsaa\Uuid\Uuid;
 use Zend\Permissions\Acl\Role\RoleInterface;
+use Zend\Permissions\Acl\Resource\ResourceInterface;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="users")
  *
  */
-class User extends BasicUser implements RoleInterface
+class User extends BasicUser implements RoleInterface , ResourceInterface
 {
 	CONST STATUS_ACTIVE = 1;
 	CONST ROLE_ADMIN = 'admin';
@@ -260,6 +261,10 @@ class User extends BasicUser implements RoleInterface
 		}
 		return $this->memberships->containsKey($key);
 	}
+	
+	public function getMembership($organizationId){
+		return $this->memberships->get($organizationId);
+	}
 
 	public function setRole($role){
 		$this->role = $role;
@@ -272,5 +277,10 @@ class User extends BasicUser implements RoleInterface
 	
 	public function getRoleId(){
 		return $this->getRole();
+	}
+	
+	public function getResourceId()
+	{
+		return 'Ora\User';
 	}
 }
