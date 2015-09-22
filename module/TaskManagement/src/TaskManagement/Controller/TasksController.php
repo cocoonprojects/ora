@@ -111,7 +111,7 @@ class TasksController extends OrganizationAwareController
 		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getPageSize(); 
 		
 		$totalTasks = $this->taskService->countOrganizationTasks($this->organization);
-		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit) : $this->taskService->findStreamTasks($streamID);
+		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit) : $this->taskService->findStreamTasks($streamID, $offset, $limit);
 
 		$view = new TaskJsonModel($this->url(), $this->identity(), $this->acl, $this->organization);
 		$view->setVariables(['resource'=>$availableTasks, 'total'=>$totalTasks]);
