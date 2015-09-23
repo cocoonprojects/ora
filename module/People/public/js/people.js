@@ -25,7 +25,7 @@ var People = function(){
 	}
 	
 	var pollingFrequency = 10000;
-	this.pollingObject = this.createObjectForPolling(pollingFrequency, this.loadPeople);
+	this.pollingObject = this.setupPollingObject(pollingFrequency, this.loadPeople);
 	
 	this.bindEventsOn();
 };
@@ -48,7 +48,8 @@ People.prototype = {
 	
 	loadPeople: function(url)
 	{
-		that = this;
+		var that = this;
+		var url = this.getPageOffset() > 0 ? url+'?offset='+that.getPageOffset()+'&limit='+that.getPageSize() : url+'?limit='+that.getPageSize();
 		$.ajax({
 			url: url+'?offset='+that.getPageOffset()+'&limit='+that.getPageSize(),
 			headers: {
@@ -102,7 +103,7 @@ People.prototype = {
 		});
 	},
 	
-	createObjectForPolling: function(frequency, pollingFunction){
+	setupPollingObject: function(frequency, pollingFunction){
 		
 		var that = this;
 		
