@@ -499,7 +499,6 @@ TaskManagement.prototype = {
 			var that = this;
 			$.each(this.data._embedded['ora:task'], function(key, task) {
 				subject = task._links.self == undefined ? task.subject : '<a data-href="' + task._links.self.href + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
-				
 				var primary_actions = [];
 				var secondary_actions = [];
 				if (task._links['ora:estimate']) {
