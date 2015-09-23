@@ -6,7 +6,6 @@ use Accounting\View\StatementJsonModel;
 use Application\Controller\OrganizationAwareController;
 use People\Service\OrganizationService;
 use Zend\Permissions\Acl\Acl;
-use Zend\Validator\NotEmpty;
 use Zend\I18n\Validator\Int;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\GreaterThan;
@@ -46,8 +45,7 @@ class PersonalStatementController extends OrganizationAwareController
 		}
 		
 		$validator = new ValidatorChain();
-		$validator->attach(new NotEmpty())
-			->attach(new Int())
+		$validator->attach(new Int())
 			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
 		
 		$offset = $validator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;

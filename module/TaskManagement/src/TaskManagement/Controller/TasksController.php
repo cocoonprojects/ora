@@ -12,7 +12,7 @@ use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
-use Zend\Validator\NotEmpty;
+use Zend\Permissions\Acl\Acl;
 use Zend\I18n\Validator\Int;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\GreaterThan;
@@ -94,8 +94,7 @@ class TasksController extends OrganizationAwareController
 		$streamID = $this->getRequest()->getQuery('streamID');
 
 		$validator = new ValidatorChain();
-		$validator->attach(new NotEmpty())
-			->attach(new Int())
+		$validator->attach(new Int())
 			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
 		
 		$offset = $validator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
