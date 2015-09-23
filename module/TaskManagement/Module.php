@@ -46,6 +46,11 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 						$size = $locator->get('Config')['tasks_management_page_size'];
 						$controller->setPageSize($size);
 					}
+					if(array_key_exists('tasks_management_page_size', $locator->get('Config'))){
+						$size = $locator->get('Config')['tasks_management_page_size'];
+						$controller->setPageSize($size);
+					}
+					
 					return $controller;
 				},
 				'TaskManagement\Controller\Members' => function ($sm) {
