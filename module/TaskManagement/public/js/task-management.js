@@ -571,7 +571,7 @@ TaskManagement.prototype = {
 			});
 			
 			if(this.data._links !== undefined && this.data._links["next"] !== undefined) {
-				var limit = this.getPageSize() + this.nextPageSize();
+				var limit = this.getPageSize() + this.getNextPageSize();
 				var offset = this.getPageOffset();
 				container.append(
 					'<div class="text-center">' +
