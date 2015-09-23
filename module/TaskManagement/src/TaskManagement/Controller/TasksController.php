@@ -167,7 +167,6 @@ class TasksController extends OrganizationAwareController
 	 * @param array $id ID of the Task to update
 	 * @param array $data['subject'] Update Subject for the selected Task
 	 * @return HTTPStatusCode
-	 * @author Giannotti Fabio
 	 */
 	public function update($id, $data)
 	{
@@ -188,7 +187,7 @@ class TasksController extends OrganizationAwareController
 		}
 
 		// Definition of used Zend Validators
-		$validator_NotEmpty = new \Zend\Validator\NotEmpty();
+		$validator_NotEmpty = new NotEmpty();
 
 		// ...if exist check if subject it's empty
 		if (!$validator_NotEmpty->isValid($data['subject']))
@@ -204,6 +203,9 @@ class TasksController extends OrganizationAwareController
 			$this->transaction()->commit();
 			// HTTP STATUS CODE 202: Element Accepted
 			$this->response->setStatusCode(202);
+			$view = new TaskJsonModel($this->url(), $this->identity(), $this->acl, $this->organization);
+			$view->setVariable('resource', $task);
+			return $view;
 		} catch (\Exception $e) {
 			$this->transaction()->rollback();
 		}
