@@ -33,7 +33,7 @@ class OrganizationMembershipJsonModel extends JsonModel
 		if(is_array($resource)) {
 			$hal['count'] = count($resource);
 			$hal['total'] = count($resource);
-			$hal['_embedded']['ora:organization-member'] = array_map(array($this, 'serializeOne'), $resource);
+			$hal['_embedded']['ora:organization-member'] = array_column(array_map(array($this, 'serializeOne'), $resource), null, 'id');
 			$hal['_links'] = [
 				'self' => [
 					'href' => $this->url->fromRoute('organizations', ['controller' => 'members', 'orgId' => $organization->getId()]),
