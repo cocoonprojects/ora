@@ -49,9 +49,9 @@ People.prototype = {
 	loadPeople: function(url)
 	{
 		var that = this;
-		var url = this.getPageOffset() > 0 ? url+'?offset='+that.getPageOffset()+'&limit='+that.getPageSize() : url+'?limit='+that.getPageSize();
+		var u = this.getPageOffset() > 0 ? url+'?offset='+that.getPageOffset()+'&limit='+that.getPageSize() : url+'?limit='+that.getPageSize();
 		$.ajax({
-			url: url+'?offset='+that.getPageOffset()+'&limit='+that.getPageSize(),
+			url: u,
 			headers: {
 				'GOOGLE-JWT': sessionStorage.token
 			},

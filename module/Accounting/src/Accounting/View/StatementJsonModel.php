@@ -10,7 +10,6 @@ use Accounting\Entity\Account;
 use Accounting\Entity\OrganizationAccount;
 use Accounting\Entity\AccountTransaction;
 use Accounting\Entity\Deposit;
-use DoctrineModule\Paginator\Adapter\Collection as CollectionAdapter;
 
 class StatementJsonModel extends JsonModel
 {

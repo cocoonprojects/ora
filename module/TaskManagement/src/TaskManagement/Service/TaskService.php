@@ -25,7 +25,7 @@ interface TaskService
 	public function getTask($id);
 	
 	/**
-	 * Get the list of all available tasks in the $from - $to interval
+	 * Get the list of all available tasks in the $offset - $limit interval
 	 *
 	 * @param Organization $organization
 	 * @param integer $offset
