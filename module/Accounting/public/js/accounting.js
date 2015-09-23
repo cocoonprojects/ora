@@ -316,6 +316,7 @@ Accounting.prototype = {
 		if(json.transactions.length == 0) {
 			c.append('<tr><td colspan="4">No transactions in your history</td></tr>');
 		}
+		
 		container.show();
 		
 		$('div.text-center.next').remove();
