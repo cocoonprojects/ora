@@ -27,7 +27,7 @@ var Accounting = function()
 	this.bindEventsOn();
 	
 	var pollingFrequency = 10000;
-	this.pollingObject = this.createObjectForPolling(pollingFrequency, this.listTransactions);
+	this.pollingObject = this.setupPollingObject(pollingFrequency, this.listTransactions);
 };
 
 Accounting.prototype = {
@@ -112,9 +112,9 @@ Accounting.prototype = {
 	listTransactions: function()
 	{
 		var that = this;
-		var url = $('a', $('#accounts li.active')).attr('href');
+		var url = this.getPageOffset() > 0 ? $('a', $('#accounts li.active')).attr('href')+'?offset='+that.getPageOffset()+'&limit='+that.getPageSize() : $('a', $('#accounts li.active')).attr('href')+'?limit='+that.getPageSize();
 		$.ajax({
-			url: url+'?offset='+that.getPageOffset()+'&limit='+that.getPageSize(),
+			url: url,
 			headers: {
 				'GOOGLE-JWT': sessionStorage.token
 			},
@@ -316,7 +316,7 @@ Accounting.prototype = {
 		if(json.transactions.length == 0) {
 			c.append('<tr><td colspan="4">No transactions in your history</td></tr>');
 		}
-		
+
 		container.show();
 		
 		$('div.text-center.next').remove();
@@ -357,7 +357,7 @@ Accounting.prototype = {
 		});
 	},
 	
-	createObjectForPolling: function(frequency, pollingFunction){
+	setupPollingObject: function(frequency, pollingFunction){
 		
 		var that = this;
 		

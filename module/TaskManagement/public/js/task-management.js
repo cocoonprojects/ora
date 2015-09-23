@@ -24,7 +24,7 @@ var TaskManagement = function()
 	this.bindEventsOn();
 	
 	var pollingFrequency = 10000;
-	this.pollingObject = this.createObjectForPolling(pollingFrequency, this.listTasks);
+	this.pollingObject = this.setupPollingObject(pollingFrequency, this.listTasks);
 };
 
 TaskManagement.prototype = {
@@ -453,9 +453,10 @@ TaskManagement.prototype = {
 
 	listTasks: function()
 	{
-		that = this;
+		var that = this;
+		var url = this.getPageOffset() > 0 ? 'task-management/tasks?offset='+that.getPageOffset()+'&limit='+that.getPageSize() : 'task-management/tasks?limit='+that.getPageSize();
 		$.ajax({
-			url: 'task-management/tasks?offset='+that.getPageOffset()+'&limit='+that.getPageSize(),
+			url: url,
 			headers: {
 				'GOOGLE-JWT': sessionStorage.token
 			},
@@ -498,6 +499,7 @@ TaskManagement.prototype = {
 			var that = this;
 			$.each(this.data._embedded['ora:task'], function(key, task) {
 				subject = task._links.self == undefined ? task.subject : '<a data-href="' + task._links.self.href + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
+
 				var primary_actions = [];
 				var secondary_actions = [];
 				if (task._links['ora:estimate']) {
@@ -962,7 +964,7 @@ TaskManagement.prototype = {
 		});
 	},
 	
-	createObjectForPolling: function(frequency, pollingFunction){
+	setupPollingObject: function(frequency, pollingFunction){
 		
 		var that = this;
 		
