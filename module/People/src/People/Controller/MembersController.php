@@ -16,6 +16,7 @@ use Zend\Validator\GreaterThan;
 
 class MembersController extends OrganizationAwareController
 {
+	const DEFAULT_MEMBERS_LIMIT = 20;
 	protected static $collectionOptions = array('GET', 'DELETE', 'POST');
 	protected static $resourceOptions = array('DELETE', 'POST');
 	
@@ -23,11 +24,10 @@ class MembersController extends OrganizationAwareController
 	 *
 	 * @var integer
 	 */
-	protected $pageSize;
+	protected $listLimit = self::DEFAULT_MEMBERS_LIMIT;
 	
 	public function __construct(OrganizationService $organizationService){
 		parent::__construct($organizationService);
-		$this->pageSize = 20;
 	}
 
 	public function getList()
@@ -47,7 +47,7 @@ class MembersController extends OrganizationAwareController
 			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
 		
 		$offset = $validator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
-		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getPageSize();
+		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getListLimit();
 		
 		$memberships = $this->getOrganizationService()->findOrganizationMemberships($this->organization, $limit, $offset);
 		$totalMemberships = $this->getOrganizationService()->countOrganizationMemberships($this->organization);
@@ -117,13 +117,13 @@ class MembersController extends OrganizationAwareController
 		return self::$resourceOptions;
 	}
 	
-	public function setPageSize($size){
+	public function setListLimit($size){
 		if(is_int($size)){
-			$this->pageSize = $size;
+			$this->listLimit = $size;
 		}
 	}
 	
-	public function getPageSize(){
-		return $this->pageSize;
+	public function getListLimit(){
+		return $this->listLimit;
 	}
 }

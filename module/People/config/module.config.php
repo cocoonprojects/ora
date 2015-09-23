@@ -112,5 +112,5 @@ return array(
 		'People\OrganizationCommandsListener',
 		'People\SendMailListener'
 	),
-	'members_page_size' => 20
+	'default_members_limit' => 20
 );

@@ -80,5 +80,6 @@ return array(
 		'Accounting\CreatePersonalAccountListener',
 		'Accounting\CreateOrganizationAccountListener'
 	),
-	'accounting_page_size' => 10
+	'personal_transactions_default_limit' => 10,
+	'organization_transactions_default_limit' => 10
 );

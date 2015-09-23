@@ -45,9 +45,9 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$acl = $locator->get('Application\Service\Acl');
 					$organizationService = $locator->get('People\OrganizationService');
 					$controller = new PersonalStatementController($accountService, $acl, $organizationService);
-					if(array_key_exists('accounting_page_size', $locator->get('Config'))){
-						$size = $locator->get('Config')['accounting_page_size'];
-						$controller->setPageSize($size);
+					if(array_key_exists('personal_transactions_default_limit', $locator->get('Config'))){
+						$size = $locator->get('Config')['personal_transactions_default_limit'];
+						$controller->setDefaultTransactionsLimit($size);
 					}
 					return $controller;
 				},
@@ -57,9 +57,9 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$acl = $locator->get('Application\Service\Acl');
 					$organizationService = $locator->get('People\OrganizationService');
 					$controller = new OrganizationStatementController($accountService, $acl, $organizationService);
-					if(array_key_exists('page_size', $locator->get('Config'))){
-						$size = $locator->get('Config')['page_size'];
-						$controller->setPageSize($size);
+					if(array_key_exists('organization_transactions_default_limit', $locator->get('Config'))){
+						$size = $locator->get('Config')['organization_transactions_default_limit'];
+						$controller->setDefaultTransactionsLimit($size);
 					}
 					return $controller;
 				},
