@@ -28,9 +28,9 @@ class Module
 					$locator = $sm->getServiceLocator();
 					$orgService = $locator->get('People\OrganizationService');
 					$controller = new MembersController($orgService);
-					if(array_key_exists('members_page_size', $locator->get('Config'))){
-						$size = $locator->get('Config')['members_page_size'];
-						$controller->setPageSize($size);
+					if(array_key_exists('default_members_limit', $locator->get('Config'))){
+						$size = $locator->get('Config')['default_members_limit'];
+						$controller->setListLimit($size);
 					}
 					return $controller;
 				},
