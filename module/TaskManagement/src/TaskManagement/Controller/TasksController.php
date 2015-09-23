@@ -13,13 +13,13 @@ use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
 use Zend\Permissions\Acl\Acl;
-use Zend\Validator\NotEmpty;
 use Zend\I18n\Validator\Int;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\GreaterThan;
 
 class TasksController extends OrganizationAwareController
 {
+	const DEFAULT_TASKS_LIMIT = 10;
 	protected static $collectionOptions = ['GET', 'POST'];
 	protected static $resourceOptions = ['DELETE', 'GET', 'PUT'];
 
@@ -45,7 +45,7 @@ class TasksController extends OrganizationAwareController
 	 * 
 	 * @var integer
 	 */
-	protected $pageSize;
+	protected $listLimit = self::DEFAULT_TASKS_LIMIT;
 	
 	public function __construct(TaskService $taskService, StreamService $streamService, Acl $acl, OrganizationService $organizationService)
 	{
@@ -102,12 +102,11 @@ class TasksController extends OrganizationAwareController
 		$streamID = $this->getRequest()->getQuery('streamID');
 		
 		$validator = new ValidatorChain();
-		$validator->attach(new NotEmpty())
-			->attach(new Int())
+		$validator->attach(new Int())
 			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
 		
 		$offset = $validator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
-		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getPageSize(); 
+		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getListLimit(); 
 		
 		$totalTasks = $this->taskService->countOrganizationTasks($this->organization);
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit) : $this->taskService->findStreamTasks($streamID, $offset, $limit);
@@ -289,13 +288,13 @@ class TasksController extends OrganizationAwareController
 		return $this->intervalForCloseTasks;
 	}
 	
-	public function setPageSize($size){
+	public function setListLimit($size){
 		if(is_int($size)){
-			$this->pageSize = $size;
+			$this->listLimit = $size;
 		}
 	}
 	
-	public function getPageSize(){
-		return $this->pageSize;
+	public function getListLimit(){
+		return $this->listLimit;
 	}
 }

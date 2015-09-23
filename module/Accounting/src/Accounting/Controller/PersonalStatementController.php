@@ -6,13 +6,13 @@ use Accounting\View\StatementJsonModel;
 use Application\Controller\OrganizationAwareController;
 use People\Service\OrganizationService;
 use Zend\Permissions\Acl\Acl;
-use Zend\Validator\NotEmpty;
 use Zend\I18n\Validator\Int;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\GreaterThan;
 
 class PersonalStatementController extends OrganizationAwareController
 {
+	const DEFAULT_TRANSACTIONS_LIMIT = 10;
 	protected static $collectionOptions = ['GET'];
 	protected static $resourceOptions   = [];
 	/**
@@ -29,13 +29,12 @@ class PersonalStatementController extends OrganizationAwareController
 	 *
 	 * @var integer
 	 */
-	protected $pageSize;
+	protected $transactionsLimit = self::DEFAULT_TRANSACTIONS_LIMIT;
 	
 	public function __construct(AccountService $accountService, Acl $acl, OrganizationService $organizationService) {
 		parent::__construct($organizationService);
 		$this->accountService = $accountService;
 		$this->acl = $acl;
-		$this->pageSize = 10;
 	}
 
 	public function getList()
@@ -46,12 +45,11 @@ class PersonalStatementController extends OrganizationAwareController
 		}
 		
 		$validator = new ValidatorChain();
-		$validator->attach(new NotEmpty())
-			->attach(new Int())
+		$validator->attach(new Int())
 			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
 		
 		$offset = $validator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
-		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getPageSize();
+		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getDefaultTransactionsLimit();
 		
 		$account = $this->accountService->findPersonalAccount($this->identity(), $this->organization);
 		if(is_null($account)) {
@@ -94,14 +92,14 @@ class PersonalStatementController extends OrganizationAwareController
 		return self::$resourceOptions;
 	}
 	
-	public function setPageSize($size){
+	public function setDefaultTransactionsLimit($size){
 		if(is_int($size)){
-			$this->pageSize = $size;
+			$this->transactionsLimit = $size;
 		}
 	}
 	
-	public function getPageSize(){
-		return $this->pageSize;
+	public function getDefaultTransactionsLimit(){
+		return $this->transactionsLimit;
 	}
 	
 }
