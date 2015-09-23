@@ -13,6 +13,7 @@ use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
 use Zend\Permissions\Acl\Acl;
+use Zend\Validator\NotEmpty;
 use Zend\I18n\Validator\Int;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\GreaterThan;
