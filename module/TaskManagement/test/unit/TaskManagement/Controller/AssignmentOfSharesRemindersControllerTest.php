@@ -1,15 +1,14 @@
 <?php
 namespace TaskManagement\Controller;
 
-use ZFX\Test\Controller\ControllerTest;
 use Application\Entity\User;
-use Application\Service\AclFactory;
-use TaskManagement\Service\TaskService;
-use TaskManagement\Service\NotifyMailListener;
-use UnitTest\Bootstrap;
-use ZFX\Acl\Controller\Plugin\IsAllowed;
+use People\Entity\Organization;
+use TaskManagement\Entity\Stream;
 use TaskManagement\Entity\Task;
+use TaskManagement\Service\NotifyMailListener;
+use TaskManagement\Service\TaskService;
 use Zend\Mvc\Router\RouteMatch;
+use ZFX\Test\Controller\ControllerTest;
 
 class AssignmentOfSharesRemindersControllerTest extends ControllerTest
 {
@@ -18,7 +17,7 @@ class AssignmentOfSharesRemindersControllerTest extends ControllerTest
 	 */
 	private $systemUser;
 	
-	protected $readModelTask;
+	protected $task;
 	protected $owner;
 	protected $member;
 	protected $taskServiceStub;
@@ -30,17 +29,17 @@ class AssignmentOfSharesRemindersControllerTest extends ControllerTest
 	
 	protected function setupController()
 	{
-		$this->readModelTask = new Task('00000000000');
+		$this->task = new Task('1', new Stream('1', new Organization('1')));
 		$this->owner = User::create()->setRole(User::ROLE_USER)->setEmail('taskowner@orateam.com');
 		$this->member = User::create()->setRole(User::ROLE_USER)->setEmail('taskmember@orateam.com');
 		
-		$this->readModelTask->addMember($this->owner, Task::ROLE_OWNER, $this->owner, new \DateTime())
-							->addMember($this->member, Task::ROLE_MEMBER, $this->member, new \DateTime())
-							->setStatus(Task::STATUS_ACCEPTED);
+		$this->task->addMember($this->owner, Task::ROLE_OWNER, $this->owner, new \DateTime())
+					->addMember($this->member, Task::ROLE_MEMBER, $this->member, new \DateTime())
+					->setStatus(Task::STATUS_ACCEPTED);
 		
 		//Task Service Mock
 		$this->taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();	
-		$this->taskServiceStub->method ( 'findAcceptedTasksBefore' )->willReturn ( [$this->readModelTask] );
+		$this->taskServiceStub->method ( 'findAcceptedTasksBefore' )->willReturn ( [$this->task] );
 		
 		$notifyMailListenerStub = $this->getMockBuilder(NotifyMailListener::class)->disableOriginalConstructor()->getMock();
 		return new RemindersController($notifyMailListenerStub, $this->taskServiceStub);

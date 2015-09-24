@@ -2,6 +2,7 @@
 
 namespace TaskManagement\Controller;
 
+use TaskManagement\View\TaskJsonModel;
 use ZFX\Rest\Controller\HATEOASRestfulController;
 use Application\IllegalStateException;
 use Application\DuplicatedDomainEntityException;
@@ -12,8 +13,7 @@ use TaskManagement\Task;
 
 class MembersController extends HATEOASRestfulController
 {
-	protected static $collectionOptions = array();
-	protected static $resourceOptions = array('DELETE', 'POST');
+	protected static $resourceOptions = ['DELETE', 'POST'];
 
 	/**
 	 * 
@@ -43,6 +43,9 @@ class MembersController extends HATEOASRestfulController
 			$task->addMember($this->identity(), Task::ROLE_MEMBER);
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
+			$view = new TaskJsonModel($this);
+			$view->setVariable('resource', $task);
+			return $view;
 		} catch (DuplicatedDomainEntityException $e) {
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(204);
@@ -71,6 +74,9 @@ class MembersController extends HATEOASRestfulController
 			$task->removeMember($this->identity(), $this->identity());
 			$this->transaction()->commit();
 			$this->response->setStatusCode(200);
+			$view = new TaskJsonModel($this);
+			$view->setVariable('resource', $task);
+			return $view;
 		} catch (DomainEntityUnavailableException $e) {
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(204);	// No content = nothing changed
@@ -79,11 +85,6 @@ class MembersController extends HATEOASRestfulController
 			$this->response->setStatusCode(412);	// Preconditions failed
 		}
 		return $this->response;
-	}
-	
-	protected function getCollectionOptions()
-	{
-		return self::$collectionOptions;
 	}
 	
 	protected function getResourceOptions()

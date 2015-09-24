@@ -79,7 +79,7 @@ Feature: Move Task
     And that its "action" is "pippo"
     When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000108/transitions"
     Then the response status code should be 400
-  @wip
+
   Scenario: Cannot complete an ongoing task with incomplete estimation
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to make a new "Transaction"

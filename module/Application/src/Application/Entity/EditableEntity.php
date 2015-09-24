@@ -22,6 +22,9 @@ abstract class EditableEntity extends DomainEntity {
 	 * @return \DateTime
 	 */
 	public function getMostRecentEditAt() {
+		if(is_null($this->mostRecentEditAt)) {
+			$this->mostRecentEditAt = $this->getCreatedAt();
+		}
 		return $this->mostRecentEditAt;
 	}
 	/**

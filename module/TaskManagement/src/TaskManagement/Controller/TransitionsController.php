@@ -1,18 +1,18 @@
 <?php
 namespace TaskManagement\Controller;
 
-use ZFX\Rest\Controller\HATEOASRestfulController;
 use Application\IllegalStateException;
 use Application\InvalidArgumentException;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Task;
+use TaskManagement\View\TaskJsonModel;
 use Zend\Validator\InArray;
-use Application\Entity\User;
+use ZFX\Rest\Controller\HATEOASRestfulController;
 
 class TransitionsController extends HATEOASRestfulController
 {
-	protected static $resourceOptions = array ('POST');
-	protected static $collectionOptions= array ('POST');
+	protected static $resourceOptions = ['POST'];
+	protected static $collectionOptions= ['POST'];
 	
 	/**
 	 * @var TaskService
@@ -61,6 +61,9 @@ class TransitionsController extends HATEOASRestfulController
 					$task->complete($this->identity());
 					$this->transaction()->commit();
 					$this->response->setStatusCode ( 200 );
+					$view = new TaskJsonModel($this);
+					$view->setVariable('resource', $task);
+					return $view;
 				} catch ( IllegalStateException $e ) {
 					$this->transaction()->rollback();
 					$this->response->setStatusCode ( 412 ); // Preconditions failed
@@ -79,6 +82,9 @@ class TransitionsController extends HATEOASRestfulController
 					$task->accept($this->identity(), $this->getIntervalForCloseTasks());
 					$this->transaction()->commit();
 					$this->response->setStatusCode ( 200 );
+					$view = new TaskJsonModel($this);
+					$view->setVariable('resource', $task);
+					return $view;
 				} catch ( IllegalStateException $e ) {
 					$this->transaction()->rollback();
 					$this->response->setStatusCode ( 412 ); // Preconditions failed
@@ -97,6 +103,9 @@ class TransitionsController extends HATEOASRestfulController
 					$task->execute($this->identity());
 					$this->transaction()->commit();
 					$this->response->setStatusCode ( 200 );
+					$view = new TaskJsonModel($this);
+					$view->setVariable('resource', $task);
+					return $view;
 				} catch ( IllegalStateException $e ) {
 					$this->transaction()->rollback();
 					$this->response->setStatusCode ( 412 ); // Preconditions failed
@@ -132,7 +141,6 @@ class TransitionsController extends HATEOASRestfulController
 				$tasksFound = $this->taskService->findAcceptedTasksBefore($this->getIntervalForCloseTasks());
 				
 				foreach ($tasksFound as $taskFound){
-					
 					$taskToClose = $this->taskService->getTask($taskFound->getId());
 					$this->transaction()->begin();
 					try {
@@ -143,9 +151,7 @@ class TransitionsController extends HATEOASRestfulController
 						continue; //skip task
 					}
 				}
-				
 				$this->response->setStatusCode ( 200 );
-			
 				break;
 			default :
 				$this->response->setStatusCode ( 400 );

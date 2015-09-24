@@ -2,25 +2,22 @@
 
 namespace TaskManagement;
 
-use AcMailer\Service\MailService;
-use AcMailer\View\DefaultLayout;
-use TaskManagement\Service\CloseTaskListener;
-use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
-use Zend\ModuleManager\Feature\ConfigProviderInterface;
-use TaskManagement\Controller\MembersController;
-use TaskManagement\Controller\TasksController;
-use TaskManagement\Controller\TransitionsController;
 use TaskManagement\Controller\EstimationsController;
+use TaskManagement\Controller\MembersController;
+use TaskManagement\Controller\RemindersController;
 use TaskManagement\Controller\SharesController;
 use TaskManagement\Controller\StreamsController;
-use TaskManagement\Service\NotifyMailListener;
-use TaskManagement\Service\TransferTaskSharesCreditsListener;
-use TaskManagement\Service\StreamCommandsListener;
-use TaskManagement\Service\TaskCommandsListener;
+use TaskManagement\Controller\TasksController;
+use TaskManagement\Controller\TransitionsController;
+use TaskManagement\Service\CloseTaskListener;
 use TaskManagement\Service\EventSourcingStreamService;
 use TaskManagement\Service\EventSourcingTaskService;
-use TaskManagement\Controller\RemindersController;
-use TaskManagement\Controller\MailController;
+use TaskManagement\Service\NotifyMailListener;
+use TaskManagement\Service\StreamCommandsListener;
+use TaskManagement\Service\TaskCommandsListener;
+use TaskManagement\Service\TransferTaskSharesCreditsListener;
+use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
+use Zend\ModuleManager\Feature\ConfigProviderInterface;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
@@ -35,9 +32,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$streamService = $locator->get('TaskManagement\StreamService');
-					$acl = $locator->get('Application\Service\Acl');
 					$organizationService = $locator->get('People\OrganizationService');
-					$controller = new TasksController($taskService, $streamService, $acl, $organizationService);
+					$controller = new TasksController($taskService, $streamService, $organizationService);
 					if(array_key_exists('assignment_of_shares_timebox', $locator->get('Config'))){
 						$assignmentOfSharesTimebox = $locator->get('Config')['assignment_of_shares_timebox'];
 						$controller->setIntervalForCloseTasks($assignmentOfSharesTimebox);
@@ -62,10 +58,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				},
 				'TaskManagement\Controller\Estimations' => function ($sm) {
 					$locator = $sm->getServiceLocator();
-					$organizationService = $locator->get('People\OrganizationService');
 					$taskService = $locator->get('TaskManagement\TaskService');
-					$acl = $locator->get('Application\Service\Acl');
-					$controller = new EstimationsController($organizationService, $taskService, $acl);
+					$controller = new EstimationsController($taskService);
 					return $controller;
 				},
 				'TaskManagement\Controller\Shares' => function ($sm) {
@@ -83,9 +77,9 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				},
 				'TaskManagement\Controller\Reminders' => function ($sm) {
 					$locator = $sm->getServiceLocator();
-					$notifyMailListener = $locator->get('TaskManagement\NotifyMailListener');
+					$notificationService = $locator->get('TaskManagement\NotifyMailListener');
 					$taskService = $locator->get('TaskManagement\TaskService');	
-					$controller = new RemindersController($notifyMailListener, $taskService);
+					$controller = new RemindersController($notificationService, $taskService);
 					return $controller;
 				}
 			)

@@ -1,15 +1,14 @@
 <?php
 namespace TaskManagement\Controller;
 
-use ZFX\Test\Controller\ControllerTest;
 use Application\Entity\User;
-use Application\Service\AclFactory;
-use TaskManagement\Service\TaskService;
-use TaskManagement\Service\NotifyMailListener;
-use UnitTest\Bootstrap;
-use ZFX\Acl\Controller\Plugin\IsAllowed;
+use People\Entity\Organization;
+use TaskManagement\Entity\Stream;
 use TaskManagement\Entity\Task;
+use TaskManagement\Service\NotifyMailListener;
+use TaskManagement\Service\TaskService;
 use Zend\Mvc\Router\RouteMatch;
+use ZFX\Test\Controller\ControllerTest;
 
 class AddEstimationRemindersControllerTest extends ControllerTest
 {
@@ -18,7 +17,7 @@ class AddEstimationRemindersControllerTest extends ControllerTest
 	 */
 	private $systemUser;
 	
-	protected $readModelTask;
+	protected $task;
 	protected $owner;
 	protected $member;
 	protected $taskServiceStub;
@@ -35,17 +34,14 @@ class AddEstimationRemindersControllerTest extends ControllerTest
 	{
 		$this->owner = User::create()->setRole(User::ROLE_USER);
 		$this->member = User::create()->setRole(User::ROLE_USER);
-		
-		//ReadModelTask
-		$this->readModelTask = new Task('0000000000');
-		$this->readModelTask->addMember($this->owner, Task::ROLE_OWNER, $this->owner, new \DateTime())
-							->addMember($this->member, Task::ROLE_MEMBER, $this->member, new \DateTime())
-							->setStatus(Task::STATUS_ONGOING);
+
+		$this->task = new Task('1', new Stream('1', new Organization('1')));
+		$this->task->addMember($this->owner, Task::ROLE_OWNER, $this->owner, new \DateTime())
+					->addMember($this->member, Task::ROLE_MEMBER, $this->member, new \DateTime())
+					->setStatus(Task::STATUS_ONGOING);
 		
 		//Task Service Mock
-		$this->taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();	
-		
-		//$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
+		$this->taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
 		$notifyMailListenerStub = $this->getMockBuilder(NotifyMailListener::class)->disableOriginalConstructor()->getMock();
 		return new RemindersController($notifyMailListenerStub, $this->taskServiceStub);
 	}
@@ -73,7 +69,7 @@ class AddEstimationRemindersControllerTest extends ControllerTest
  	
  		$this->setupLoggedUser ( $this->owner );
  	
- 		$this->taskServiceStub->method ( 'findTask' )->willReturn ( $this->readModelTask );
+ 		$this->taskServiceStub->method ( 'findTask' )->willReturn ( $this->task );
  		$this->request->setMethod ( 'post' );
  		$params = $this->request->getPost ();
  		$params->set ( 'taskId', 'taskID' );
@@ -82,12 +78,12 @@ class AddEstimationRemindersControllerTest extends ControllerTest
  		$response = $this->controller->getResponse ();
  	
  		$this->assertEquals ( 200, $response->getStatusCode () );
- 		$this->assertEquals ( Task::STATUS_ONGOING, $this->readModelTask->getStatus () );
+ 		$this->assertEquals ( Task::STATUS_ONGOING, $this->task->getStatus () );
  	}
  	
  	public function testSendReminderAsAnonymous() {
  		$this->setupAnonymous ();
- 		$this->taskServiceStub->method ( 'findTask' )->willReturn ( $this->readModelTask );
+ 		$this->taskServiceStub->method ( 'findTask' )->willReturn ( $this->task );
  		$this->request->setMethod ( 'post' );
  		$params = $this->request->getPost ();
  		$params->set ( 'taskId', 'taskID' );

@@ -2,19 +2,18 @@
 
 namespace TaskManagement\Service;
 
-use Prooph\EventStore\EventStore;
+use Application\Entity\User;
+use Doctrine\ORM\EntityManager;
+use People\Entity\Organization as ReadModelOrganization;
+use People\Organization;
+use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Prooph\EventStore\Aggregate\AggregateRepository;
 use Prooph\EventStore\Aggregate\AggregateType;
+use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Stream\SingleStreamStrategy;
-use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
-use Doctrine\ORM\EntityManager;
 use Rhumsaa\Uuid\Uuid;
-use Application\Entity\User;
-use People\Organization;
-use People\Entity\OrganizationMembership;
-use TaskManagement\Stream;
 use TaskManagement\Entity\Stream as ReadModelStream;
-use People\Entity\Organization as ReadModelOrganization;
+use TaskManagement\Stream;
 
 /**
  * @author Giannotti Fabio
@@ -41,6 +40,7 @@ class EventSourcingStreamService extends AggregateRepository implements StreamSe
 			$this->addAggregateRoot($rv);
 			$this->eventStore->commit();
 		} catch (\Exception $e) {
+			var_dump($e);
 			$this->eventStore->rollback();
 			throw $e;
 		}
@@ -48,27 +48,38 @@ class EventSourcingStreamService extends AggregateRepository implements StreamSe
 	}
 
 	/**
-	 * @param string
-	 * @return null|object
+	 * @param string $id
+	 * @return null|Stream
 	 */
 	public function getStream($id)
 	{
 		$sId = $id instanceof Uuid ? $id->toString() : $id;
 		return $this->getAggregateRoot($sId);
 	}
-		
+
+	/**
+	 * @param string $id
+	 * @return null|ReadModelStream
+	 * @throws \Doctrine\ORM\ORMException
+	 * @throws \Doctrine\ORM\OptimisticLockException
+	 * @throws \Doctrine\ORM\TransactionRequiredException
+	 */
 	public function findStream($id)
 	{
 		return $this->entityManager->find(ReadModelStream::class, $id);
 	}
-	
+
+	/**
+	 * @param ReadModelOrganization $organization
+	 * @return ReadModelStream[]
+	 */
 	public function findStreams(ReadModelOrganization $organization) {
 		$builder = $this->entityManager->createQueryBuilder();
 		
 		$query = $builder->select ( 's' )
 			->from(ReadModelStream::class, 's')
 			->where('s.organization = :organization')
-			->setParameter ( ':organization', $organization )	
+			->setParameter ( ':organization', $organization )
 			->getQuery();
 		
 		return $query->getResult();
