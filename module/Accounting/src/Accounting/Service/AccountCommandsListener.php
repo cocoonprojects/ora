@@ -6,8 +6,7 @@ use Accounting\Entity\Account;
 use Accounting\Entity\Balance;
 use Accounting\Entity\Deposit;
 use Accounting\Entity\OrganizationAccount;
-use Accounting\Entity\IncomingTransfer;
-use Accounting\Entity\OutgoingTransfer;
+use Accounting\Entity\Transfer;
 use Accounting\Entity\Withdrawal;
 use Application\Entity\User;
 use Application\Service\ReadModelProjector;
@@ -49,59 +48,55 @@ class AccountCommandsListener extends ReadModelProjector {
 	
 	protected function onCreditsDeposited(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$entity = $this->entityManager->find(Account::class, $id);
+		$payee = $this->entityManager->find(Account::class, $id);
 		
 		$amount = $event->payload()['amount'];
 		$balance = $event->payload()['balance'];
 		
 		$by = $this->entityManager->find(User::class, $event->payload()['by']);
 
-		$transaction = new Deposit($event->eventId());
-		$transaction->setAccount($entity)
-			->setAmount($amount)
+		$transaction = new Deposit($event->eventId(), $payee);
+		$transaction->setAmount($amount)
 			->setBalance($balance)
 			->setDescription($event->payload()['description'])
 			->setCreatedAt($event->occurredOn())
-			->setCreatedBy($by)
-			->setNumber($event->version());
-		$entity->addTransaction($transaction);
+			->setCreatedBy($by);
+		$this->entityManager->persist($transaction);
 		
 		$balance = new Balance($transaction->getBalance(), $event->occurredOn());
-		$entity->setBalance($balance);
-		$entity->setMostRecentEditAt($event->occurredOn());
-		$entity->setMostRecentEditBy($by);
-		$this->entityManager->persist($entity);
+		$payee->setBalance($balance);
+		$payee->setMostRecentEditAt($event->occurredOn());
+		$payee->setMostRecentEditBy($by);
+		$this->entityManager->persist($payee);
 	}
 
 	protected function onCreditsWithdrawn(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$entity = $this->entityManager->find(Account::class, $id);
+		$payer = $this->entityManager->find(Account::class, $id);
 
 		$amount = $event->payload()['amount'];
 		$balance = $event->payload()['balance'];
 
 		$by = $this->entityManager->find(User::class, $event->payload()['by']);
 
-		$transaction = new Withdrawal($event->eventId());
-		$transaction->setAccount($entity)
-			->setAmount($amount)
+		$transaction = new Withdrawal($event->eventId(), $payer);
+		$transaction->setAmount($amount)
 			->setBalance($balance)
 			->setDescription($event->payload()['description'])
 			->setCreatedAt($event->occurredOn())
-			->setCreatedBy($by)
-			->setNumber($event->version());
-		$entity->addTransaction($transaction);
+			->setCreatedBy($by);
+		$this->entityManager->persist($transaction);
 
 		$balance = new Balance($transaction->getBalance(), $event->occurredOn());
-		$entity->setBalance($balance);
-		$entity->setMostRecentEditAt($event->occurredOn());
-		$entity->setMostRecentEditBy($by);
-		$this->entityManager->persist($entity);
+		$payer->setBalance($balance);
+		$payer->setMostRecentEditAt($event->occurredOn());
+		$payer->setMostRecentEditBy($by);
+		$this->entityManager->persist($payer);
 	}
 
 	protected function onIncomingCreditsTransferred(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$entity = $this->entityManager->find(Account::class, $id);
+		$payee = $this->entityManager->find(Account::class, $id);
 		
 		$payerId = $event->payload()['payer'];
 		$payer = $this->entityManager->find(Account::class, $payerId);
@@ -110,27 +105,24 @@ class AccountCommandsListener extends ReadModelProjector {
 
 		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
 
-		$transaction = new IncomingTransfer($event->eventId());
-		$transaction->setAccount($entity)
-			->setPayer($payer)
-			->setAmount($amount)
-			->setBalance($entity->getBalance()->getValue() + $amount)
+		$transaction = new Transfer($event->eventId(), $payer, $payee);
+		$transaction->setAmount($amount)
+			->setBalance($payee->getBalance()->getValue() + $amount)
 			->setDescription($event->payload()['description'])
 			->setCreatedAt($event->occurredOn())
-			->setCreatedBy($createdBy)
-			->setNumber($event->version());
-		$entity->addTransaction($transaction);
+			->setCreatedBy($createdBy);
+		$this->entityManager->persist($transaction);
 		
 		$balance = new Balance($transaction->getBalance(), $event->occurredOn());
-		$entity->setBalance($balance);
-		$entity->setMostRecentEditAt($event->occurredOn());
-		$entity->setMostRecentEditBy($createdBy);
-		$this->entityManager->persist($entity);
+		$payee->setBalance($balance);
+		$payee->setMostRecentEditAt($event->occurredOn());
+		$payee->setMostRecentEditBy($createdBy);
+		$this->entityManager->persist($payee);
 	}
 	
 	protected function onOutgoingCreditsTransferred(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$entity = $this->entityManager->find(Account::class, $id);
+		$payer = $this->entityManager->find(Account::class, $id);
 		
 		$payeeId = $event->payload()['payee'];
 		$payee = $this->entityManager->find(Account::class, $payeeId);
@@ -139,22 +131,19 @@ class AccountCommandsListener extends ReadModelProjector {
 
 		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
 
-		$transaction = new OutgoingTransfer($event->eventId());
-		$transaction->setAccount($entity)
-			->setPayee($payee)
-			->setAmount($amount)
-			->setBalance($entity->getBalance()->getValue() + $amount)
+		$transaction = new Transfer($event->eventId(), $payer, $payee);
+		$transaction->setAmount($amount)
+			->setBalance($payer->getBalance()->getValue() + $amount)
 			->setDescription($event->payload()['description'])
 			->setCreatedAt($event->occurredOn())
-			->setCreatedBy($createdBy)
-			->setNumber($event->version());
-		$entity->addTransaction($transaction);
+			->setCreatedBy($createdBy);
+		$this->entityManager->persist($transaction);
 		
 		$balance = new Balance($transaction->getBalance(), $event->occurredOn());
-		$entity->setBalance($balance);
-		$entity->setMostRecentEditAt($event->occurredOn());
-		$entity->setMostRecentEditBy($createdBy);
-		$this->entityManager->persist($entity);
+		$payer->setBalance($balance);
+		$payer->setMostRecentEditAt($event->occurredOn());
+		$payer->setMostRecentEditBy($createdBy);
+		$this->entityManager->persist($payer);
 	}
 	
 	protected function getPackage() {

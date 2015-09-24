@@ -5,19 +5,25 @@ use Doctrine\ORM\Mapping AS ORM;
 use Application\Entity\DomainEntity;
 
 /**
- * @ORM\Entity @ORM\Table(name="account_transactions")
+ * @ORM\Entity @ORM\Table(name="transactions")
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="type", type="string")
  *
  */
-class AccountTransaction extends DomainEntity {
+abstract class Transaction extends DomainEntity {
 	
 	/**
-	 * @ORM\ManyToOne(targetEntity="Account", inversedBy="transactions")
-	 * @ORM\JoinColumn(name="account_id", referencedColumnName="id")
+	 * @ORM\ManyToOne(targetEntity="Account")
+	 * @ORM\JoinColumn(name="payer_id", referencedColumnName="id")
 	 * @var Account
 	 */
-	protected $account;
+	protected $payer;
+	/**
+	 * @ORM\ManyToOne(targetEntity="Account")
+	 * @ORM\JoinColumn(name="payee_id", referencedColumnName="id")
+	 * @var Account
+	 */
+	protected $payee;
 	/**
 	 * @ORM\Column(type="float")
 	 * @var float
@@ -33,19 +39,14 @@ class AccountTransaction extends DomainEntity {
 	 * @var float
 	 */
 	protected $balance;
-	/**
-	 * @ORM\Column(type="integer")
-	 * @var integer
-	 */
-	private $number = 1;
 	
-	public function setAccount(Account $account) {
-		$this->account = $account;
-		return $this;
+	
+	public function getPayer() {
+		return $this->payer;
 	}
 	
-	public function getAccount() {
-		return $this->account;
+	public function getPayee() {
+		return $this->payee;
 	}
 	
 	public function setAmount($amount) {
@@ -76,19 +77,16 @@ class AccountTransaction extends DomainEntity {
 	}
 	
 	public function getPayerName() {
+		if($this->payer instanceof Account){
+			return $this->payer->getName();
+		}
 		return null;
 	}
 
 	public function getPayeeName() {
+		if($this->payee instanceof Account){
+			return $this->payee->getName();
+		}
 		return null;
-	}
-	
-	public function setNumber($number) {
-		$this->number = $number;
-		return $this;
-	}
-	
-	public function getNumber() {
-		return $this->number;
 	}
 }

@@ -7,10 +7,11 @@ use Application\Entity\User;
 use People\Entity\Organization;
 use People\Service\OrganizationService;
 use ZFX\Test\Controller\ControllerTest;
-use Accounting\Entity\AccountTransaction;
+use Accounting\Entity\Deposit;
+use Accounting\Entity\Accounting\Entity;
 
 /**
- * Class OrganizationAccountControllerTest
+ * Class OrganizationStatementControllerTest
  * @package Accounting\Controller
  * @group accounting
  */
@@ -84,6 +85,15 @@ class OrganizationStatementControllerTest extends ControllerTest
 		$this->user->addMembership($this->organization);
 		$this->setupLoggedUser($this->user);
 
+		$deposit = new Deposit('1', $this->account);
+		$deposit->setCreatedBy($this->user);
+
+		$this->controller->getAccountService()
+			->expects($this->once())
+			->method('findTransactions')
+			->with($this->account)
+			->willReturn([$deposit]);
+
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 
@@ -104,6 +114,21 @@ class OrganizationStatementControllerTest extends ControllerTest
 		$this->user->addMembership($this->organization);
 		$this->account->addHolder($this->user);
 		$this->setupLoggedUser($this->user);
+
+		$deposit = new Deposit('1', $this->account);
+		$deposit->setCreatedBy($this->user);
+
+		$this->controller->getAccountService()
+			->expects($this->once())
+			->method('findTransactions')
+			->with($this->account)
+			->willReturn([$deposit]);
+
+		$this->controller->getAccountService()
+			->expects($this->once())
+			->method('countTransactions')
+			->with($this->account)
+			->willReturn(1);
 
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
@@ -126,13 +151,26 @@ class OrganizationStatementControllerTest extends ControllerTest
 	{
 		$this->user->addMembership($this->organization);
 		$this->account->addHolder($this->user);
-		$this->account->addTransaction(new AccountTransaction('1'));
-		$this->account->addTransaction(new AccountTransaction('2'));
 		$this->setupLoggedUser($this->user);
 	
 		$params = $this->request->getQuery();
 		$params->set('limit', 1);
 		
+		$this->controller->getAccountService()
+			->expects($this->once())
+			->method('countTransactions')
+			->with($this->account)
+			->willReturn(2);
+
+		$deposit = new Deposit('1', $this->account);
+		$deposit->setCreatedBy($this->user);
+
+		$this->controller->getAccountService()
+			->expects($this->once())
+			->method('findTransactions')
+			->with($this->account)
+			->willReturn([$deposit]);
+
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 	
