@@ -67,8 +67,11 @@ class OrganizationStatementController extends OrganizationAwareController
 			return $this->response;
 		}
 
+		$transactions = $this->accountService->findTransactions($account, $limit, $offset);
+		$totalTransactions = $this->accountService->countTransactions($account);
+
 		$viewModel = new StatementJsonModel($this->url(), $this->identity(), $this->acl);
-		$viewModel->setVariables(['resource'=>$account, 'offset'=>$offset, 'limit'=>$limit]);
+		$viewModel->setVariables(['resource'=>$account, 'transactions'=>$transactions, 'totalTransactions' => $totalTransactions]);
 		return $viewModel;
 	}
 
