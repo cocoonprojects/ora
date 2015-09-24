@@ -7,7 +7,8 @@ use Application\Entity\User;
 use People\Entity\Organization;
 use People\Service\OrganizationService;
 use ZFX\Test\Controller\ControllerTest;
-use Accounting\Entity\AccountTransaction;
+use Accounting\Entity\Deposit;
+use Accounting\Entity\Accounting\Entity;
 
 /**
  * Class PersonalStatementControllerTest
@@ -109,6 +110,18 @@ class PersonalStatementControllerTest extends ControllerTest
 			->with($this->user, $this->organization)
 			->willReturn($this->account);
 
+		$this->controller->getAccountService()
+			->expects($this->once())
+			->method('findTransactions')
+			->with($this->account)
+			->willReturn([new Deposit('1', $this->account)]);
+
+		$this->controller->getAccountService()
+			->expects($this->once())
+			->method('countTransactions')
+			->with($this->account)
+			->willReturn(1);
+
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 
@@ -130,8 +143,6 @@ class PersonalStatementControllerTest extends ControllerTest
 	public function testGetListWithPagination(){
 		
 		$this->account->addHolder($this->user);
-		$this->account->addTransaction(new AccountTransaction('1'));
-		$this->account->addTransaction(new AccountTransaction('2'));
 		$this->setupLoggedUser($this->user);
 		
 		$params = $this->request->getQuery();
@@ -142,10 +153,22 @@ class PersonalStatementControllerTest extends ControllerTest
 			->method('findPersonalAccount')
 			->with($this->user, $this->organization)
 			->willReturn($this->account);
-		
+
+		$this->controller->getAccountService()
+			->expects($this->once())
+			->method('countTransactions')
+			->with($this->account)
+			->willReturn(2);
+
+		$this->controller->getAccountService()
+			->expects($this->once())
+			->method('findTransactions')
+			->with($this->account)
+			->willReturn([new Deposit('1', $this->account)]);
+
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-		
+
 		$this->assertEquals(200, $response->getStatusCode());
 		$arrayResult = json_decode($result->serialize(), true);
 		$this->assertNotEmpty($arrayResult['organization']);

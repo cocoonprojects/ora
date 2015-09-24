@@ -5,7 +5,6 @@ use Accounting\Service\AccountService;
 use Application\Entity\User;
 use Application\Service\UserService;
 use People\Service\OrganizationService;
-use Prooph\EventStore\EventStore;
 use TaskManagement\Task;
 use TaskManagement\TaskClosed;
 use Zend\EventManager\ListenerAggregateInterface;
@@ -31,19 +30,14 @@ class TransferTaskSharesCreditsListener implements ListenerAggregateInterface
 	 * @var UserService
 	 */
 	private $userService;
-	/**
-	 * @var EventStore
-	 */
-	private $transactionManager;
 
 	protected $listeners = array();
 	
-	public function __construct(TaskService $taskService, OrganizationService $organizationService, AccountService $accountService, UserService $userService, EventStore $transactionManager) {
+	public function __construct(TaskService $taskService, OrganizationService $organizationService, AccountService $accountService, UserService $userService) {
 		$this->taskService = $taskService;
 		$this->organizationService = $organizationService;
 		$this->accountService = $accountService;
 		$this->userService = $userService;
-		$this->transactionManager = $transactionManager;
 	}
 	
 	public function attach(EventManagerInterface $events) {
@@ -68,22 +62,14 @@ class TransferTaskSharesCreditsListener implements ListenerAggregateInterface
 	public function execute(Task $task, User $by) {
 		$organization = $this->organizationService->getOrganization($task->getOrganizationId());
 		$payer = $this->accountService->getAccount($organization->getAccountId());
-
- 		$this->transactionManager->beginTransaction();
 		$credits = $task->getMembersCredits();
-		try{
-			foreach ($credits as $memberId => $amount) {
-				if($amount > 0) {
-					$account = $this->accountService->findPersonalAccount($memberId, $organization);
-					$payee = $this->accountService->getAccount($account->getId());
-					$payer->transferOut(-$amount, $payee, "Item '" . $task->getSubject() . "' (#" . $task->getId() .") credits share", $by);
-					$payee->transferIn($amount, $payer, "Item '" . $task->getSubject() . "' (#" . $task->getId() .") credits share", $by);
-				}
+		
+		foreach ($credits as $memberId => $amount) {
+			if($amount > 0) {
+				$account = $this->accountService->findPersonalAccount($memberId, $organization);
+				$payee = $this->accountService->getAccount($account->getId());
+				$this->accountService->transfer($payer, $payee, $amount, "Item '" . $task->getSubject() . "' (#" . $task->getId() .") credits share", $by);
 			}
-	 		$this->transactionManager->commit();
-		}catch(\Exception $e){
-			$this->transactionManager->rollback();
-			throw $e;
 		}
 	}
 }

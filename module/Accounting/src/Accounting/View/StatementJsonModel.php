@@ -8,7 +8,7 @@ use Zend\Permissions\Acl\Acl;
 use Application\Entity\User;
 use Accounting\Entity\Account;
 use Accounting\Entity\OrganizationAccount;
-use Accounting\Entity\AccountTransaction;
+use Accounting\Entity\Transaction;
 use Accounting\Entity\Deposit;
 
 class StatementJsonModel extends JsonModel
@@ -31,14 +31,14 @@ class StatementJsonModel extends JsonModel
 	public function serialize()
 	{
 		$account = $this->getVariable('resource');
-		$offset = $this->getVariable('offset');
-		$limit = $this->getVariable('limit');
+		$transactions = $this->getVariable('transactions');
+		$totalTransactions = $this->getVariable('totalTransactions');
 		
 		$rv['organization'] = $account->getOrganization()->getName();
-		$rv['transactions'] = array_map(array($this, 'serializeTransaction'), array_slice($account->getTransactions(), $offset, $limit));
+		$rv['transactions'] = array_map(array($this, 'serializeTransaction'), $transactions);
 		$rv['_links']       = $this->serializeLinks($account);
-		$rv['count'] 		= count($rv['transactions']);
-		$rv['total'] 		= count($account->getTransactions());
+		$rv['count'] 		= count($transactions);
+		$rv['total'] 		= $totalTransactions;
 		if($rv['count'] < $rv['total']){
 			$controller = $account instanceof OrganizationAccount ? 'organization-statement' : 'personal-statement';
 			$rv['_links']['next']['href'] = $this->url->fromRoute('statements', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => $controller]);
@@ -68,7 +68,7 @@ class StatementJsonModel extends JsonModel
 		return $rv;
 	}
 	
-	protected function serializeTransaction(AccountTransaction $transaction) {
+	protected function serializeTransaction(Transaction $transaction) {
 		$className = get_class($transaction);
 		$rv = array(
 			'date' => date_format($transaction->getCreatedAt(), 'c'),

@@ -50,7 +50,6 @@ class CreateOrganizationProcessTest extends \PHPUnit_Framework_TestCase
 		$this->assertCount(1, $account->getHolders());
 		$this->assertEquals($this->user, $account->getHolders()->first());
 		$this->assertEquals(0, $account->getBalance()->getValue());
-		$this->assertEmpty($account->getTransactions());
 		$this->assertEquals($organization->getId(), $account->getOrganization()->getId());
 	}
 }

@@ -21,11 +21,12 @@ CREATE TABLE IF NOT EXISTS `event_stream` (
 DELETE FROM task_members;
 DELETE FROM tasks;
 DELETE FROM streams;
-DELETE FROM account_transactions;
+DELETE FROM transactions;
 DELETE FROM accounts;
 DELETE FROM organizations;
 DELETE FROM event_stream;
 DELETE FROM users;
+
 
 # user 60000000-0000-0000-0000-000000000000 Mark Rogers
 INSERT INTO users (id, status, createdAt, mostRecentEditAt, firstname, lastname, email, role) VALUES
@@ -416,19 +417,19 @@ INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt)
   ('00000000-0000-0000-0000-000000000004', '20000000-0000-0000-0000-000000000000', 'member', '2014-11-12 19:07:59',
    '2014-11-12 19:07:59');
 
-#account transaction for UserProfileAPITest   
-INSERT INTO account_transactions (id, account_id, payer_id,payee_id, amount, description, balance, number, createdAt, createdBy_id, type ) 
+#transactions for UserProfileAPITest   
+INSERT INTO transactions (id, payer_id, payee_id, amount, description, balance, createdAt, createdBy_id, type ) 
 VALUES 
-('098a95a2-adc4-4155-b848-66dbfbcff5ca', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', NULL, 500, 'Description', 500, 1, '2015-02-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'incomingtransfer');
+('098a95a2-adc4-4155-b848-66dbfbcff5ca', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 500, 'Description', 500, '2015-02-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'transfer');
 
-INSERT INTO account_transactions (id, account_id, payer_id,payee_id, amount, description, balance, number, createdAt, createdBy_id, type ) 
+INSERT INTO transactions (id, payer_id,payee_id, amount, description, balance, createdAt, createdBy_id, type ) 
 VALUES 
-('098a95a2-adc4-4155-b848-66dbfbcff5cb', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', NULL, 1000, 'Description', 1000, 2, '2015-05-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'incomingtransfer');
+('098a95a2-adc4-4155-b848-66dbfbcff5cb', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 1000, 'Description', 1000, '2015-05-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'transfer');
 
-INSERT INTO account_transactions (id, account_id, payer_id,payee_id, amount, description, balance, number, createdAt, createdBy_id, type ) 
+INSERT INTO transactions (id, payer_id,payee_id, amount, description, balance, createdAt, createdBy_id, type ) 
 VALUES 
-('098a95a2-adc4-4155-b848-66dbfbcff5cc', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', NULL, 100, 'Description', 100, 3, '2015-09-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'incomingtransfer');
+('098a95a2-adc4-4155-b848-66dbfbcff5cc', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 100, 'Description', 100, '2015-09-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'transfer');
    
-INSERT INTO account_transactions (id, account_id, payer_id,payee_id, amount, description, balance, number, createdAt, createdBy_id, type ) 
+INSERT INTO transactions (id, payer_id,payee_id, amount, description, balance, createdAt, createdBy_id, type ) 
 VALUES 
-('098a95a2-adc4-4155-b848-66dbfbcff5cd', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', NULL, 2000, 'Description', 2000, 1, '2014-02-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'incomingtransfer');
+('098a95a2-adc4-4155-b848-66dbfbcff5cd', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 2000, 'Description', 2000,  '2014-02-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'transfer');
