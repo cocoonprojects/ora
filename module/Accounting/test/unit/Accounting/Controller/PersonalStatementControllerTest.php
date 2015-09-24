@@ -172,6 +172,7 @@ class PersonalStatementControllerTest extends ControllerTest
 			->with($this->account)
 			->willReturn([$deposit]);
 
+
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 
