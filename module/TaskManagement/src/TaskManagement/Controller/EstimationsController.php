@@ -2,41 +2,32 @@
 
 namespace TaskManagement\Controller;
 
-use Application\Controller\OrganizationAwareController;
 use Application\DomainEntityUnavailableException;
 use Application\IllegalStateException;
 use Application\View\ErrorJsonModel;
-use People\Service\OrganizationService;
 use TaskManagement\Service\TaskService;
 use TaskManagement\View\TaskJsonModel;
 use Zend\I18n\Validator\Float;
-use Zend\Permissions\Acl\Acl;
 use Zend\Validator\GreaterThan;
 use Zend\Validator\NotEmpty;
 use Zend\Validator\ValidatorChain;
+use ZFX\Rest\Controller\HATEOASRestfulController;
 
 /**
  * EstimationsController
  *
  */
-class EstimationsController extends OrganizationAwareController {
+class EstimationsController extends HATEOASRestfulController {
 
-	protected static $collectionOptions = array();
-	protected static $resourceOptions = array('POST');
+	protected static $resourceOptions = ['POST'];
 
 	/**
 	 * @var TaskService
 	 */
 	protected $taskService;
-	/**
-	 * @var Acl
-	 */
-	private $acl;
 
-	public function __construct(OrganizationService $organizationService, TaskService $taskService, Acl $acl) {
-		parent::__construct($organizationService);
+	public function __construct(TaskService $taskService) {
 		$this->taskService = $taskService;
-		$this->acl = $acl;
 	}
 	
 	public function invoke($id, $data)
@@ -82,7 +73,7 @@ class EstimationsController extends OrganizationAwareController {
 			$task->addEstimation($value, $this->identity());
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
-			$view = new TaskJsonModel($this->url(), $this->identity(), $this->acl, $this->organization);
+			$view = new TaskJsonModel($this);
 			$view->setVariable('resource', $task);
 			return $view;
 		} catch (DomainEntityUnavailableException $e) {
@@ -95,11 +86,6 @@ class EstimationsController extends OrganizationAwareController {
 		return $this->response;
 	}
 
-	protected function getCollectionOptions()
-	{
-		return self::$collectionOptions;
-	}
-	
 	protected function getResourceOptions()
 	{
 		return self::$resourceOptions;

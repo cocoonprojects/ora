@@ -2,18 +2,10 @@
 
 namespace TaskManagement\Controller;
 
-use ZFX\Rest\Controller\HATEOASRestfulController;
-use TaskManagement\Service\NotifyMailListener;
+use TaskManagement\Service\NotificationService;
 use TaskManagement\Service\TaskService;
-use TaskManagement\Entity\Task;
-use TaskManagement\Entity\TaskMember;
-use Zend\View\Model\ViewModel;
+use ZFX\Rest\Controller\HATEOASRestfulController;
 
-
-
-
-use Zend\View\Renderer\PhpRenderer;
-use Zend\View\Resolver\TemplateMapResolver;
 
 class RemindersController extends HATEOASRestfulController
 {
@@ -23,9 +15,9 @@ class RemindersController extends HATEOASRestfulController
 	
 	/**
 	 *
-	 * @var NotifyMailListener
+	 * @var NotificationService
 	 */
-	protected $notifyMailListener;
+	protected $notificationService;
 	/**
 	 *
 	 * @var TaskService
@@ -38,9 +30,9 @@ class RemindersController extends HATEOASRestfulController
 	protected $intervalForRemindAssignmentOfShares;
 	
 
- 	public function __construct(NotifyMailListener $notifyMailListener, TaskService $taskService) {
+ 	public function __construct(NotificationService $notificationService, TaskService $taskService) {
  		
- 		$this->notifyMailListener = $notifyMailListener;
+ 		$this->notificationService = $notificationService;
  		$this->taskService = $taskService;
  		$this->intervalForRemindAssignmentOfShares = self::getDefaultIntervalToRemindAssignmentOfShares();
  	}
@@ -78,7 +70,7 @@ class RemindersController extends HATEOASRestfulController
 				
 				if(is_array($tasksToNotify) && count($tasksToNotify) > 0){
 					foreach ($tasksToNotify as $taskToNotify){
-						$this->notifyMailListener->remindAssignmentOfShares($taskToNotify);
+						$this->notificationService->remindAssignmentOfShares($taskToNotify);
 					}
 				}
 				break;
@@ -95,8 +87,8 @@ class RemindersController extends HATEOASRestfulController
 					return $this->response;
 				}
 				
-				$this->notifyMailListener->reminderAddEstimation ( $task );
-				break;	
+				$this->notificationService->remindEstimation( $task );
+				break;
 			default:
 				$this->response->setStatusCode(405);
 				break;

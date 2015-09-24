@@ -50,7 +50,7 @@ abstract class DomainEntity {
 	/**
 	 * 
 	 * @param \DateTime $when
-	 * @return DomainEntity
+	 * @return $this
 	 */
 	public function setCreatedAt(\DateTime $when) {
 		$this->createdAt = $when;
@@ -67,7 +67,7 @@ abstract class DomainEntity {
 	/**
 	 * 
 	 * @param BasicUser $user
-	 * @return DomainEntity
+	 * @return $this
 	 */
 	public function setCreatedBy(BasicUser $user) {
 		$this->createdBy = $user;

@@ -1,39 +1,40 @@
 <?php
 namespace TaskManagement\Service;
 
-use Doctrine\ORM\EntityManager;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use Prooph\EventStore\Stream\StreamEvent;
-use Kanbanize\Entity\KanbanizeTask;
 use Application\Entity\User;
 use Application\Service\ReadModelProjector;
-use TaskManagement\Entity\Task;
+use Kanbanize\Entity\KanbanizeTask;
+use Prooph\EventStore\Stream\StreamEvent;
 use TaskManagement\Entity\Estimation;
-use TaskManagement\Entity\Share;
 use TaskManagement\Entity\Stream;
+use TaskManagement\Entity\Task;
 use TaskManagement\Entity\TaskMember;
 
 class TaskCommandsListener extends ReadModelProjector
 {
 	protected function onTaskCreated(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$status = $event->payload()['status'];
+		$stream = $this->entityManager->find(Stream::class, $event->payload()['streamId']);
+		if(is_null($stream)) {
+			return;
+		}
+
 		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
 		
 		switch($event->metadata()['aggregate_type']) {
 			case KanbanizeTask::class :
-				$entity = new KanbanizeTask($id);
+				$entity = new KanbanizeTask($id, $stream);
 				$entity->setBoardId($event->payload()['kanbanizeBoardId']);
 				$entity->setTaskId($event->payload()['kanbanizeTaskId']);
 				break;
 			default:
-				$entity = new Task($id);
+				$entity = new Task($id, $stream);
 		}
-		$entity->setStatus($status);
-		$entity->setCreatedAt($event->occurredOn());
-		$entity->setCreatedBy($createdBy);
-		$entity->setMostRecentEditAt($event->occurredOn());
-		$entity->setMostRecentEditBy($createdBy);
+		$entity->setStatus($event->payload()['status'])
+			   ->setCreatedAt($event->occurredOn())
+			   ->setCreatedBy($createdBy)
+			   ->setMostRecentEditAt($event->occurredOn())
+			   ->setMostRecentEditBy($createdBy);
 		$this->entityManager->persist($entity);
 	}
 	

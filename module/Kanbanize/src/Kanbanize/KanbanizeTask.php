@@ -43,14 +43,15 @@ class KanbanizeTask extends Task {
 		$rv = new self();
 		$rv->id = Uuid::uuid4();
 		$rv->status = self::STATUS_ONGOING;
-		$rv->recordThat(TaskCreated::occur($rv->id->toString(), array(
-				'status' => $rv->status,
-				'kanbanizeBoadId' => $options['kanbanizeBoardId'],
-				'kanbanizeTaskId' => $options['kanbanizeTaskId'],
-				'by' => $createdBy->getId(),
-		)));
+		$rv->recordThat(TaskCreated::occur($rv->id->toString(), [
+			'status' => $rv->status,
+			'kanbanizeBoadId' => $options['kanbanizeBoardId'],
+			'kanbanizeTaskId' => $options['kanbanizeTaskId'],
+			'organizationId' => $stream->getOrganizationId(),
+			'streamId' => $stream->getId(),
+			'by' => $createdBy->getId(),
+		]));
 		$rv->setSubject($subject, $createdBy);
-		$rv->changeStream($stream, $createdBy);
 		return $rv;
 	}
 	

@@ -3,14 +3,12 @@ namespace TaskManagement\Controller;
 
 use Application\Entity\User;
 use People\Entity\Organization;
-use People\Entity\OrganizationMembership;
 use People\Service\OrganizationService;
-use TaskManagement\Entity\Task;
 use TaskManagement\Entity\Stream;
-use TaskManagement\Service\TaskService;
+use TaskManagement\Entity\Task;
 use TaskManagement\Service\StreamService;
+use TaskManagement\Service\TaskService;
 use ZFX\Test\Controller\ControllerTest;
-use Zend\Permissions\Acl\Acl;
 
 class TasksControllerTest extends ControllerTest {
 	
@@ -25,7 +23,7 @@ class TasksControllerTest extends ControllerTest {
 		$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
 		$streamServiceStub = $this->getMockBuilder(StreamService::class)->getMock();
 		$organizationServiceStub = $this->getMockBuilder(OrganizationService::class)->getMock();
-		return new TasksController($taskServiceStub, $streamServiceStub, $this->acl, $organizationServiceStub);
+		return new TasksController($taskServiceStub, $streamServiceStub, $organizationServiceStub);
 	}
 
 	protected function setupRouteMatch()
@@ -39,8 +37,7 @@ class TasksControllerTest extends ControllerTest {
 		$this->user->setLastname('Doe');
 		$this->user->setRole(User::ROLE_USER);
 		$this->organization = new Organization('00000');
-		$this->stream = new Stream('00000');
-		$this->stream->setOrganization($this->organization);
+		$this->stream = new Stream('00000', $this->organization);
 	}
 	
 	public function testGetEmptyListFromAStream()
@@ -88,9 +85,7 @@ class TasksControllerTest extends ControllerTest {
 			->with($this->organization->getId())
 			->willReturn($this->organization);
 
-		$task = new Task('00001');
-		$task->setCreatedAt(new \DateTime());
-		$task->setStream($this->stream);
+		$task = new Task('00001', $this->stream);
 
 		$this->controller->getTaskService()
 			->expects($this->once())
@@ -196,7 +191,7 @@ class TasksControllerTest extends ControllerTest {
 		$this->controller->getTaskService()
 			->expects($this->once())
 			->method('findTasks')
-			->willReturn(array());
+			->willReturn([]);
 
 		$this->routeMatch->setParam('orgId', $this->organization->getId());
 
@@ -222,13 +217,10 @@ class TasksControllerTest extends ControllerTest {
 			->with($this->organization->getId())
 			->willReturn($this->organization);
 
-		$task1 = new Task('1');
+		$task1 = new Task('1', $this->stream);
 		$task1->setSubject('Lorem ipsum')
-			->setCreatedAt(new \DateTime())
-			->setCreatedBy($this->user);
-		$task1->setMostRecentEditAt($task1->getCreatedAt())
-			->setMostRecentEditBy($task1->getCreatedBy());
-		$task1->setStream($this->stream)
+			->setCreatedBy($this->user)
+			->setMostRecentEditBy($task1->getCreatedBy())
 			->addMember($this->user, Task::ROLE_OWNER, $this->user, $task1->getCreatedAt());
 
 		$this->controller->getTaskService()

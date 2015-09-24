@@ -19,9 +19,8 @@ class StreamCommandsListener extends ReadModelProjector {
 		}
 		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
 		
-		$stream = new Stream($id);
-		$stream->setOrganization($organization)
-			   ->setCreatedAt($event->occurredOn())
+		$stream = new Stream($id, $organization);
+		$stream->setCreatedAt($event->occurredOn())
 			   ->setCreatedBy($createdBy)
 			   ->setMostRecentEditAt($event->occurredOn())
 			   ->setMostRecentEditBy($createdBy);

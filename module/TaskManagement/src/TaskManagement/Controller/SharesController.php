@@ -1,23 +1,21 @@
 <?php
 namespace TaskManagement\Controller;
 
-use Zend\Validator\ValidatorChain;
-use Zend\Validator\NotEmpty;
+use Application\DomainEntityUnavailableException;
+use Application\IllegalStateException;
+use Application\InvalidArgumentException;
+use Application\View\ErrorJsonModel;
+use TaskManagement\Service\TaskService;
+use TaskManagement\View\TaskJsonModel;
 use Zend\I18n\Validator\Float;
 use Zend\Validator\Between;
+use Zend\Validator\NotEmpty;
+use Zend\Validator\ValidatorChain;
 use ZFX\Rest\Controller\HATEOASRestfulController;
-use Application\View\ErrorJsonModel;
-use Application\InvalidArgumentException;
-use Application\IllegalStateException;
-use Application\DomainEntityUnavailableException;
-use TaskManagement\Service\TaskService;
-use TaskManagement\Task;
-use TaskManagement\StreamService;
 
 class SharesController extends HATEOASRestfulController {
 	
-	protected static $collectionOptions = array();
-	protected static $resourceOptions = array('POST');
+	protected static $resourceOptions = ['POST'];
 	
 	/**
 	 *
@@ -49,7 +47,9 @@ class SharesController extends HATEOASRestfulController {
 				$task->skipShares($this->identity());
 				$this->transaction()->commit();
 				$this->response->setStatusCode(201);
-				return $this->response;
+				$view = new TaskJsonModel($this);
+				$view->setVariable('resource', $task);
+				return $view;
 			} catch (DomainEntityUnavailableException $e) {
 				$this->transaction()->rollback();
 				$this->response->setStatusCode(403);
@@ -91,7 +91,9 @@ class SharesController extends HATEOASRestfulController {
 			$task->assignShares($data, $this->identity());
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
-			return $this->response;
+			$view = new TaskJsonModel($this);
+			$view->setVariable('resource', $task);
+			return $view;
 		} catch (InvalidArgumentException $e) {
 			$this->transaction()->rollback();
 			$error->setCode(ErrorJsonModel::$ERROR_INPUT_VALIDATION);
@@ -111,11 +113,6 @@ class SharesController extends HATEOASRestfulController {
 	
 	public function getTaskService() {
 		return $this->taskService;
-	}
-	
-	protected function getCollectionOptions()
-	{
-		return self::$collectionOptions;
 	}
 	
 	protected function getResourceOptions()

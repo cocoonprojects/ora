@@ -32,14 +32,12 @@ abstract class HATEOASRestfulController extends AbstractRestfulController
 		} else {
 			$options = $this->getCollectionOptions();
 		}
-
-		$method = $e->getRequest()->getMethod();
-		
-		if (in_array($method, $options) || $method == 'OPTIONS') {
-			// HTTP method is allowed!
-			return;
+		if(!is_null($options)) {
+			$method = $e->getRequest()->getMethod();
+			if (in_array($method, $options) || $method == 'OPTIONS') {
+				return; // HTTP method is allowed!
+			}
 		}
-		
 		$response = $this->getResponse();
 		$response->getHeaders()->addHeaderLine('Content-Type', 'application/hal+json');
 		$response->setStatusCode(405); // Method Not Allowed
@@ -114,7 +112,7 @@ abstract class HATEOASRestfulController extends AbstractRestfulController
 		return $this->invoke($id, $data);
 	}
 	
-	protected abstract function getCollectionOptions();
+	protected function getCollectionOptions() { return null; }
 	
-	protected abstract function getResourceOptions();
+	protected function getResourceOptions() { return null; }
 }

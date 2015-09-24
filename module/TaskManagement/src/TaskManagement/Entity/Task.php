@@ -55,9 +55,9 @@ class Task extends EditableEntity implements TaskInterface
 	protected $sharesAssignmentExpiresAt;
 	
 	
-	public function __construct($id) 
-	{
-		$this->id = $id;
+	public function __construct($id, Stream $stream) {
+		parent::__construct($id);
+		$this->stream = $stream;
 		$this->members = new ArrayCollection();
 	}
 
@@ -148,7 +148,18 @@ class Task extends EditableEntity implements TaskInterface
 		$key = $user instanceof BasicUser ? $user->getId() : $user;
 			return $this->members->get($key);
 	}
-	
+
+	/**
+	 * @return null|TaskMember
+	 */
+	public function getOwner() {
+		foreach ($this->members as $key => $member){
+			if($member->getRole() == self::ROLE_OWNER)
+				return $member;
+		}
+		return null;
+	}
+
 	/**
 	 * 
 	 * @param id|BasicUser $user

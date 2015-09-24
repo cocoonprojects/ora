@@ -12,7 +12,6 @@ use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
-use Zend\Permissions\Acl\Acl;
 use Zend\Validator\NotEmpty;
 
 class TasksController extends OrganizationAwareController
@@ -21,30 +20,23 @@ class TasksController extends OrganizationAwareController
 	protected static $resourceOptions = ['DELETE', 'GET', 'PUT'];
 
 	/**
-	 * 
 	 * @var TaskService
 	 */
 	private $taskService;
 	/**
-	 *
 	 * @var StreamService
 	 */
 	private $streamService;
-	/**
-	 * @var Acl
-	 */
-	private $acl;
 	/**
 	 *@var \DateInterval
 	 */
 	protected $intervalForCloseTasks;
 	
-	public function __construct(TaskService $taskService, StreamService $streamService, Acl $acl, OrganizationService $organizationService)
+	public function __construct(TaskService $taskService, StreamService $streamService, OrganizationService $organizationService)
 	{
 		parent::__construct($organizationService);
 		$this->taskService = $taskService;
 		$this->streamService = $streamService;
-		$this->acl = $acl;
 		$this->intervalForCloseTasks = new \DateInterval('P7D');
 	}
 	
@@ -67,7 +59,7 @@ class TasksController extends OrganizationAwareController
 		}
 
 		$this->response->setStatusCode(200);
-		$view = new TaskJsonModel($this->url(), $this->identity(), $this->acl, $this->organization);
+		$view = new TaskJsonModel($this);
 		$view->setVariable('resource', $task);
 		return $view;
 	}
@@ -94,7 +86,7 @@ class TasksController extends OrganizationAwareController
 		
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization) : $this->taskService->findStreamTasks($streamID);
 
-		$view = new TaskJsonModel($this->url(), $this->identity(), $this->acl, $this->organization);
+		$view = new TaskJsonModel($this, $this->organization);
 		$view->setVariable('resource', $availableTasks);
 		
 		return $view;
@@ -149,15 +141,17 @@ class TasksController extends OrganizationAwareController
 			$this->taskService->addTask($task);
 			$this->transaction()->commit();
 
-			$url = $this->url()->fromRoute('tasks', array('orgId' => $this->organization->getId(), 'id' => $task->getId()));
+			$url = $this->url()->fromRoute('tasks', array('orgId' => $task->getOrganizationId(), 'id' => $task->getId()));
 			$this->response->getHeaders()->addHeaderLine('Location', $url);
 			$this->response->setStatusCode(201);
-			return $this->response;
+			$view = new TaskJsonModel($this);
+			$view->setVariable('resource', $task);
+			return $view;
 		} catch (\Exception $e) {
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(500);
-			return $this->response;
 		}
+		return $this->response;
 	}
 
 	/**
@@ -203,10 +197,11 @@ class TasksController extends OrganizationAwareController
 			$this->transaction()->commit();
 			// HTTP STATUS CODE 202: Element Accepted
 			$this->response->setStatusCode(202);
-			$view = new TaskJsonModel($this->url(), $this->identity(), $this->acl, $this->organization);
+			$view = new TaskJsonModel($this);
 			$view->setVariable('resource', $task);
 			return $view;
 		} catch (\Exception $e) {
+			$this->response->setStatusCode(500);
 			$this->transaction()->rollback();
 		}
 

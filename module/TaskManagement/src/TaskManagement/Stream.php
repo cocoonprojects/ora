@@ -55,7 +55,7 @@ class Stream extends DomainEntity
 	}
 	
 	public function getOrganizationId() {
-		return $this->organizationId;
+		return $this->organizationId->toString();
 	}
 	
 	protected function whenStreamCreated(StreamCreated $event) {

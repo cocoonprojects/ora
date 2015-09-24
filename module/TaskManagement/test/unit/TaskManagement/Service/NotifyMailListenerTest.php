@@ -5,22 +5,19 @@ use AcMailer\Result\MailResult;
 use AcMailer\Service\MailServiceInterface;
 use Application\Entity\User;
 use Application\Service\UserService;
-use People\Entity\Organization as ReadModelOrganization;
-use People\Organization;
-use TaskManagement\Entity\Stream as ReadModelStream;
-use TaskManagement\Entity\Task as ReadModelTask;
+use People\Entity\Organization;
+use TaskManagement\Entity\Stream;
+use TaskManagement\Entity\Task;
 use TaskManagement\Entity\TaskMember;
-use TaskManagement\Stream;
-use TaskManagement\Task;
 use Zend\Mail\Message;
 
 
 class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 
 	/**
-	 * @var NotifyMailListener
+	 * @var NotificationService
 	 */
-	protected $listener;
+	protected $service;
 	/**
 	 * @var Task
 	 */
@@ -33,62 +30,42 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 	 * @var User
 	 */
 	protected $member;
-	/**
-	 * @var ReadModelTask
-	 */
-	protected $readModelTask;
 
-	protected function setUp(){
+	protected function setUp() {
+		$organization = new Organization('1');
+
 		$this->owner = User::create();
 		$this->owner->setFirstname('John');
 		$this->owner->setLastname('Doe');
 		$this->owner->setEmail('john.doe@foo.com');
-
-		$organization = Organization::create('Organization_test', $this->owner);
-
 		$this->owner->addMembership($organization);
 
-		//Task Member
 		$this->member = User::create();
 		$this->member->setFirstname('Jane');
 		$this->member->setLastname('Doe');
 		$this->member->setEmail('jane.doe@foo.com');
 		$this->member->addMembership($organization);
 
-		//Organization & Stream for Task Creation
-		$stream = Stream::create($organization, 'Steram_test', $this->owner);
-		
-		$this->task = Task::create($stream, 'Lorem Ipsum Sic Dolor Amit', $this->owner);
-		$this->task->addMember($this->owner, Task::ROLE_OWNER);
-		$this->task->addMember($this->member);
-		
+		$this->task = new Task('1', new Stream('1', $organization));
+		$this->task->setSubject('Lorem Ipsum Sic Dolor Amit');
+		$this->task->addMember($this->owner, TaskMember::ROLE_OWNER, $this->owner, new \DateTime());
+		$this->task->addMember($this->member, TaskMember::ROLE_MEMBER, $this->member, new \DateTime());
+
 		$mailService = $this->getMockBuilder(MailServiceInterface::class)->getMock();
-		$mailService->expects($this->once())
+		$mailService->expects($this->atLeastOnce())
 			->method('send')
 			->willReturn(new MailResult(true));
-		$mailService->expects($this->once())
+		$mailService->expects($this->atLeastOnce())
 			->method('getMessage')
 			->willReturn(new Message());
 
 		$userService = $this->getMockBuilder(UserService::class)->getMock();
-		$userService->method('findUser')->willReturn($this->owner);
-
 		$taskService = $this->getMockBuilder(TaskService::class)->getMock();
-
-		$this->listener = new NotifyMailListener($mailService, $userService, $taskService);
-
-		$this->readModelTask = new ReadModelTask($this->task->getId());
-		$this->readModelTask->setSubject($this->task->getSubject());
-		$this->readModelTask->addMember($this->member, TaskMember::ROLE_MEMBER, $this->member, new \DateTime());
-
-		$s = new ReadModelStream($stream->getId());
-		$organization = new ReadModelOrganization($organization);
-		$s->setOrganization($organization);
-		$this->readModelTask->setStream($s);
+		$this->service = new NotifyMailListener($mailService, $userService, $taskService);
 	}
 
 	public function testSendEstimationAddedInfoMail() {
-		$this->listener->getMailService()
+		$this->service->getMailService()
 			->expects($this->once())
 			->method('setTemplate')
 			->with('mail/estimation-added-info.phtml', [
@@ -96,11 +73,11 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 				'recipient' => $this->owner,
 				'member' => $this->member
 			]);
-		$this->listener->sendEstimationAddedInfoMail($this->task, $this->member);
+		$this->service->sendEstimationAddedInfoMail($this->task, $this->member);
 	}
 	
 	public function testSendSharesAssignedInfoMail() {
-		$this->listener->getMailService()
+		$this->service->getMailService()
 			->expects($this->once())
 			->method('setTemplate')
 			->with('mail/shares-assigned-info.phtml', [
@@ -108,39 +85,60 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 				'recipient' => $this->owner,
 				'member' => $this->member
 			]);
-		$this->listener->sendSharesAssignedInfoMail($this->task, $this->member);
+		$this->service->sendSharesAssignedInfoMail($this->task, $this->member);
 	}
 	
 	public function testRemindAssignmentOfShares() {
-		$this->listener->getMailService()
-			->expects($this->once())
+		$this->service->getMailService()
+			->expects($this->at(1))
 			->method('setTemplate')
 			->with('mail/reminder-assignment-shares.phtml', [
-				'task' => $this->readModelTask,
+				'task' => $this->task,
+				'recipient'=> $this->owner
+			]);
+		$this->service->getMailService()
+			->expects($this->at(4))
+			->method('setTemplate')
+			->with('mail/reminder-assignment-shares.phtml', [
+				'task' => $this->task,
 				'recipient'=> $this->member
 			]);
-		$this->listener->remindAssignmentOfShares($this->readModelTask);
+		$this->service->remindAssignmentOfShares($this->task);
 	}
 
-	public function testReminderAddEstimation() {
-		$this->listener->getMailService()
-			->expects($this->once())
+	public function testRemindEstimation() {
+		$this->service->getMailService()
+			->expects($this->at(1))
 			->method('setTemplate')
 			->with('mail/reminder-add-estimation.phtml', [
-				'task' => $this->readModelTask,
+				'task' => $this->task,
+				'recipient'=> $this->owner
+			]);
+		$this->service->getMailService()
+			->expects($this->at(4))
+			->method('setTemplate')
+			->with('mail/reminder-add-estimation.phtml', [
+				'task' => $this->task,
 				'recipient'=> $this->member
 			]);
-		$this->listener->reminderAddEstimation($this->readModelTask);
+		$this->service->remindEstimation($this->task);
 	}
 
 	public function testSendTaskClosedInfoMail() {
-		$this->listener->getMailService()
-			->expects($this->once())
+		$this->service->getMailService()
+			->expects($this->at(1))
 			->method('setTemplate')
 			->with('mail/task-closed-info.phtml', [
-				'task' => $this->readModelTask,
+				'task' => $this->task,
+				'recipient'=> $this->owner
+			]);
+		$this->service->getMailService()
+			->expects($this->at(4))
+			->method('setTemplate')
+			->with('mail/task-closed-info.phtml', [
+				'task' => $this->task,
 				'recipient'=> $this->member
 			]);
-		$this->listener->sendTaskClosedInfoMail($this->readModelTask);
+		$this->service->sendTaskClosedInfoMail($this->task);
 	}
 }

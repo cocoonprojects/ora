@@ -52,15 +52,13 @@ class Task extends DomainEntity implements TaskInterface
 
 	public static function create(Stream $stream, $subject, BasicUser $createdBy, array $options = null) {
 		$rv = new self();
-		$rv->recordThat(TaskCreated::occur(Uuid::uuid4()->toString(), array(
+		$rv->recordThat(TaskCreated::occur(Uuid::uuid4()->toString(), [
 			'status' => self::STATUS_ONGOING,
-			'by' => $createdBy->getId(),
-			'by_firstname' => $createdBy->getFirstname(),
-			'by_lastname'  => $createdBy->getLastname(),
-			'organization' => $stream->getOrganizationId()->toString()
-		)));
+			'organizationId' => $stream->getOrganizationId(),
+			'streamId' => $stream->getId(),
+			'by' => $createdBy->getId()
+		]));
 		$rv->setSubject($subject, $createdBy);
-		$rv->changeStream($stream, $createdBy);
 		return $rv;
 	}
 	
@@ -452,16 +450,12 @@ class Task extends DomainEntity implements TaskInterface
 	protected function whenTaskCreated(TaskCreated $event)
 	{
 		$this->id = Uuid::fromString($event->aggregateId());
-		$this->status = $event->payload()['status'];
-		$this->organizationId = Uuid::fromString($event->payload()['organization']);
+		$p = $event->payload();
+		$this->status = $p['status'];
+		$this->organizationId = Uuid::fromString($p['organizationId']);
+		$this->streamId = Uuid::fromString($p['streamId']);
 		$this->createdAt = $event->occurredOn();
-		$this->createdBy = BasicUser::createBasicUser($event->payload()['by']);
-		if(isset($event->payload()['by_firstname'])) {
-			$this->createdBy->setFirstname($event->payload()['by_firstname']);
-		}
-		if(isset($event->payload()['by_lastname'])) {
-			$this->createdBy->setLastname($event->payload()['by_lastname']);
-		}
+		$this->createdBy = BasicUser::createBasicUser($p['by']);
 	}
 	
 	protected function whenTaskOngoing(TaskOngoing $event) {
