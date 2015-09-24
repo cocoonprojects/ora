@@ -85,11 +85,14 @@ class OrganizationStatementControllerTest extends ControllerTest
 		$this->user->addMembership($this->organization);
 		$this->setupLoggedUser($this->user);
 
+		$deposit = new Deposit('1', $this->account);
+		$deposit->setCreatedBy($this->user);
+
 		$this->controller->getAccountService()
 			->expects($this->once())
 			->method('findTransactions')
 			->with($this->account)
-			->willReturn([new Deposit('1', $this->account)]);
+			->willReturn([$deposit]);
 
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
@@ -112,11 +115,14 @@ class OrganizationStatementControllerTest extends ControllerTest
 		$this->account->addHolder($this->user);
 		$this->setupLoggedUser($this->user);
 
+		$deposit = new Deposit('1', $this->account);
+		$deposit->setCreatedBy($this->user);
+
 		$this->controller->getAccountService()
 			->expects($this->once())
 			->method('findTransactions')
 			->with($this->account)
-			->willReturn([new Deposit('1', $this->account)]);
+			->willReturn([$deposit]);
 
 		$this->controller->getAccountService()
 			->expects($this->once())
@@ -156,11 +162,14 @@ class OrganizationStatementControllerTest extends ControllerTest
 			->with($this->account)
 			->willReturn(2);
 
+		$deposit = new Deposit('1', $this->account);
+		$deposit->setCreatedBy($this->user);
+
 		$this->controller->getAccountService()
 			->expects($this->once())
 			->method('findTransactions')
 			->with($this->account)
-			->willReturn([new Deposit('1', $this->account)]);
+			->willReturn([$deposit]);
 
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
