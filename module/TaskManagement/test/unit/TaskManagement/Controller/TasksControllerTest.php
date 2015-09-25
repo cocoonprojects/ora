@@ -244,7 +244,7 @@ class TasksControllerTest extends ControllerTest {
 			->with($this->organization)
 			->willReturn(1);
 		
-		$task1 = new Task('1');
+		$task1 = new Task('1', $this->stream);
 		$task1->setSubject('Lorem ipsum')
 			->setCreatedBy($this->user)
 			->setMostRecentEditBy($task1->getCreatedBy())
@@ -302,23 +302,21 @@ class TasksControllerTest extends ControllerTest {
 		->with($this->organization)
 		->willReturn(2);
 		
-		$task1 = new Task('1');
+		$task1 = new Task('1', $this->stream);
 		$task1->setSubject('Lorem ipsum')
 			->setCreatedAt(new \DateTime())
-			->setCreatedBy($this->user);
-		$task1->setMostRecentEditAt($task1->getCreatedAt())
-		->setMostRecentEditBy($task1->getCreatedBy());
-		$task1->setStream($this->stream)
-		->addMember($this->user, Task::ROLE_OWNER, $this->user, $task1->getCreatedAt());
+			->setCreatedBy($this->user)
+			->setMostRecentEditAt($task1->getCreatedAt())
+			->setMostRecentEditBy($task1->getCreatedBy())
+			->addMember($this->user, Task::ROLE_OWNER, $this->user, $task1->getCreatedAt());
 		
-		$task2 = new Task('2');
+		$task2 = new Task('2', $this->stream);
 		$task2->setSubject('dolor sit amet')
 			->setCreatedAt(new \DateTime())
-			->setCreatedBy($this->user);
-		$task2->setMostRecentEditAt($task1->getCreatedAt())
-			->setMostRecentEditBy($task1->getCreatedBy());
-		$task2->setStream($this->stream)
-			->addMember($this->user, Task::ROLE_OWNER, $this->user, $task1->getCreatedAt());
+			->setCreatedBy($this->user)
+			->setMostRecentEditAt($task2->getCreatedAt())
+			->setMostRecentEditBy($task2->getCreatedBy())
+			->addMember($this->user, Task::ROLE_OWNER, $this->user, $task2->getCreatedAt());
 		
 		$this->controller->getTaskService()
 			->expects($this->once())

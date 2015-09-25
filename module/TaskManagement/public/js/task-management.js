@@ -1,8 +1,7 @@
 var TaskManagement = function()
 {
-	var defaultPageSize = 10,
-		pageSize = defaultPageSize,
-		nextPageSize = defaultPageSize,
+	var pageSize = 10,
+		nextPageSize = 10,
 		pageOffset = 0;
 	
 	this.getPageSize = function(){

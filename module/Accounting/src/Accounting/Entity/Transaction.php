@@ -5,7 +5,7 @@ use Doctrine\ORM\Mapping AS ORM;
 use Application\Entity\DomainEntity;
 
 /**
- * @ORM\Entity @ORM\Table(name="transactions")
+ * @ORM\Entity @ORM\Table(name="account_transactions")
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="type", type="string")
  *

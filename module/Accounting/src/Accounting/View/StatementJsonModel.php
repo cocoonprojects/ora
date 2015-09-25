@@ -69,10 +69,9 @@ class StatementJsonModel extends JsonModel
 	}
 	
 	protected function serializeTransaction(Transaction $transaction) {
-		$className = get_class($transaction);
 		$rv = array(
 			'date' => date_format($transaction->getCreatedAt(), 'c'),
-			'type' => substr($className, strrpos($className, '\\') + 1),
+			'type' => $this->evaluateTransactionType($transaction),
 			'amount' => $transaction->getAmount(),
 			'description' => $transaction->getDescription(),
 			'balance' => $transaction->getBalance(),
@@ -84,5 +83,15 @@ class StatementJsonModel extends JsonModel
 			$rv['payer'] = $transaction->getPayerName();
 		}
 		return $rv;
+	}
+	
+	private function evaluateTransactionType(Transaction $transaction){
+		$account = $this->getVariable('resource');
+		if($transaction->getPayer() != null && $transaction->getPayer()->getId() == $account->getId()){
+			return 'OutgoingTransfer';
+		}else if ($transaction->getPayee() != null && $transaction->getPayee()->getId() == $account->getId()){
+			return 'IncomingTransfer';
+		}
+		return '';
 	}
 }

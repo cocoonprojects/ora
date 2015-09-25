@@ -36,9 +36,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$streamService = $locator->get('TaskManagement\StreamService');
 					$organizationService = $locator->get('People\OrganizationService');
-					$acl = $locator->get('Application\Service\Acl');
-					$organizationService = $locator->get('People\OrganizationService');
-					$controller = new TasksController($taskService, $streamService, $acl, $organizationService);
+					$controller = new TasksController($taskService, $streamService, $organizationService);
 					if(array_key_exists('assignment_of_shares_timebox', $locator->get('Config'))){
 						$assignmentOfSharesTimebox = $locator->get('Config')['assignment_of_shares_timebox'];
 						$controller->setIntervalForCloseTasks($assignmentOfSharesTimebox);

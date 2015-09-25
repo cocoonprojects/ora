@@ -297,8 +297,11 @@ Accounting.prototype = {
 				case 'Withdrawal':
 					source = 'Withdrawal by ' + transaction.payee;
 					break;
-				case 'Transfer':
-					source = 'Transfer from ' + transaction.payer + ' to ' + transaction.payee;
+				case 'IncomingTransfer':
+					source = 'Incoming Transfer from ' + transaction.payer;
+					break;
+				case 'OutgoingTransfer':
+					source = 'Outgoing Transfer to ' + transaction.payee;
 					break;
 				case 'Deposit':
 					source = 'Deposit by ' + transaction.payer;

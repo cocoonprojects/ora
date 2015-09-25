@@ -12,7 +12,7 @@ use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
-use Zend\Permissions\Acl\Acl;
+use Zend\Validator\NotEmpty;
 use Zend\I18n\Validator\Int;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\GreaterThan;
@@ -103,11 +103,11 @@ class TasksController extends OrganizationAwareController
 		$totalTasks = $this->taskService->countOrganizationTasks($this->organization);
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit) : $this->taskService->findStreamTasks($streamID, $offset, $limit);
 
-		$view = new TaskJsonModel($this->url(), $this->identity(), $this->acl, $this->organization);
-		
+		$view = new TaskJsonModel($this, $this->organization);
+
 		$view->setVariables(['resource'=>$availableTasks, 'total'=>$totalTasks]);
 		
-		
+
 		return $view;
 	}
 

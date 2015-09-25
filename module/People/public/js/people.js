@@ -1,8 +1,7 @@
 var People = function(){
 	
-	var defaultPageSize = 20,
-		pageSize = defaultPageSize,
-		nextPageSize = defaultPageSize,
+	var pageSize = 20,
+		nextPageSize = 20,
 		pageOffset = 0;
 	
 	this.getPageSize = function(){
@@ -20,9 +19,6 @@ var People = function(){
 	this.setPageOffset = function(offset){
 		pageOffset = offset;
 	};
-	this.resetPageSize = function(){
-		pageSize = defaultPageSize;
-	}
 	
 	var pollingFrequency = 10000;
 	this.pollingObject = this.setupPollingObject(pollingFrequency, this.loadPeople);
