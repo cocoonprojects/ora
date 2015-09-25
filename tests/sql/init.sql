@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `event_stream` (
 DELETE FROM task_members;
 DELETE FROM tasks;
 DELETE FROM streams;
-DELETE FROM transactions;
+DELETE FROM account_transactions;
 DELETE FROM accounts;
 DELETE FROM organizations;
 DELETE FROM event_stream;
