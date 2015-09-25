@@ -18,8 +18,7 @@ var TaskManagement = function()
 	};
 	this.setPageOffset = function(offset){
 		pageOffset = offset;
-	}
-
+	};
 	this.bindEventsOn();
 	
 	var pollingFrequency = 10000;
@@ -965,7 +964,6 @@ TaskManagement.prototype = {
 	setupPollingObject: function(frequency, pollingFunction){
 		
 		var that = this;
-
 		return {
 			pollID: 0,
 			startPolling: function(){
