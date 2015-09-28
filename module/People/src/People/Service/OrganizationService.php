@@ -37,12 +37,20 @@ interface OrganizationService
 	/**
 	 * 
 	 * @param OrganizationReadModel $organization
+	 * @param integer $limit
+	 * @param integer $offset
 	 * @return OrganizationMembership[]
 	 */
-	public function findOrganizationMemberships(OrganizationReadModel $organization);
+	public function findOrganizationMemberships(OrganizationReadModel $organization, $limit, $offset);
 
 	/**
 	 * @return OrganizationReadModel[]
 	 */
 	public function findOrganizations();
+	
+	/**
+	 * @param OrganizationReadModel $organization
+	 * @return integer
+	 */
+	public function countOrganizationMemberships(OrganizationReadModel $organization);
 }

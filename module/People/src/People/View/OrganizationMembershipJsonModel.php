@@ -32,20 +32,24 @@ class OrganizationMembershipJsonModel extends JsonModel
 		$resource = $this->getVariable('resource');
 		if(is_array($resource)) {
 			$hal['count'] = count($resource);
-			$hal['total'] = count($resource);
-			$hal['_embedded']['ora:organization-member'] = array_column(array_map(array($this, 'serializeOne'), $resource), null, 'id');
+			$hal['total'] = $this->getVariable('totalMemberships');
+			$hal['_embedded']['ora:organization-member'] = array_map(array($this, 'serializeOne'), $resource);
 			$hal['_links'] = [
 				'self' => [
-					'href' => $this->url->fromRoute('organizations', ['controller' => 'members', 'orgId' => $organization->getId()]),
+					'href' => $this->url->fromRoute('organizations-entities', ['controller' => 'members', 'orgId' => $organization->getId()]),
 				],
-// TODO: Introduce 'first' and 'last' only when pagination is implemented
-// 				'first' => [
-// 					'href' => $this->url->fromRoute('organization-membership'),
-// 				],
-// 				'last' => [
-// 					'href' => $this->url->fromRoute('organization-membership'),
-// 				]
+				'first' => [
+					'href' => $this->url->fromRoute('organizations-entities', ['controller' => 'members', 'orgId' => $organization->getId()]),
+				],
+				'last' => [
+					'href' => $this->url->fromRoute('organizations-entities', ['controller' => 'members', 'orgId' => $organization->getId()]),
+				]
 			];
+			if($hal['count'] < $hal['total']){
+				$hal['_links']['next'] = [
+					'href' => $this->url->fromRoute('organizations-entities', ['controller' => 'members', 'orgId' => $organization->getId()]),
+				];
+			}
 		} else {
 			$hal = $this->serializeOne($resource);
 		}

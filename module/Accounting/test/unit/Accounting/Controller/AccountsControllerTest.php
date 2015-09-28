@@ -113,6 +113,7 @@ class AccountsControllerTest extends ControllerTest
 		$this->assertNotEmpty($arrayResult['_links']['self']['href']);
 		$this->assertEquals(1, $arrayResult['count']);
 		$this->assertEquals(1, $arrayResult['total']);
+		$this->assertArrayNotHasKey('next', $arrayResult['_links']);
 		$this->assertArrayNotHasKey('ora:deposit', $arrayResult['_embedded']['ora:account'][0]['_links']);
 		$this->assertArrayNotHasKey('ora:withdrawal', $arrayResult['_embedded']['ora:account'][0]['_links']);
 		$this->assertArrayNotHasKey('ora:incoming-transfer', $arrayResult['_embedded']['ora:account'][0]['_links']);

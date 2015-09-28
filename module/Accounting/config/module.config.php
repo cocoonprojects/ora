@@ -79,5 +79,7 @@ return array(
 		'Accounting\AccountCommandsListener',
 		'Accounting\CreatePersonalAccountListener',
 		'Accounting\CreateOrganizationAccountListener'
-	)
+	),
+	'personal_transactions_default_limit' => 10,
+	'organization_transactions_default_limit' => 10
 );

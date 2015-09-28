@@ -1,6 +1,33 @@
 var Accounting = function()
 {
-	this.bindEventsOn(); 
+	var defaultPageSize = 10,
+		pageSize = defaultPageSize,
+		nextPageSize = defaultPageSize,
+		pageOffset = 0;
+	
+	this.getPageSize = function(){
+		return pageSize;
+	};
+	this.setPageSize = function(size){
+		pageSize = size;
+	};
+	this.getNextPageSize = function(){
+		return nextPageSize;
+	};
+	this.getPageOffset = function(){
+		return pageOffset;
+	};
+	this.setPageOffset = function(offset){
+		pageOffset = offset;
+	};
+	this.resetPageSize = function(){
+		pageSize = defaultPageSize;
+	}
+	
+	this.bindEventsOn();
+	
+	var pollingFrequency = 10000;
+	this.pollingObject = this.setupPollingObject(pollingFrequency, this.listTransactions);
 };
 
 Accounting.prototype = {
@@ -16,6 +43,7 @@ Accounting.prototype = {
 			$("#accounts li[role='presentation']").removeClass('active');
 			var li = $(this).parent();
 			li.attr('class', 'active');
+			that.resetPageSize();
 			that.listTransactions(this.href);
 		});
 
@@ -74,11 +102,17 @@ Accounting.prototype = {
 			e.preventDefault();
 			that.transferOut(e);
 		});
+		
+		$("body").on("click", "a[data-action='nextPage']", function(e){
+			e.preventDefault();
+			that.listMoreTransactions(e);
+		});
 	},
 
 	listTransactions: function()
 	{
-		var url = $('a', $('#accounts li.active')).attr('href');
+		var that = this;
+		var url = this.getPageOffset() > 0 ? $('a', $('#accounts li.active')).attr('href')+'?offset='+that.getPageOffset()+'&limit='+that.getPageSize() : $('a', $('#accounts li.active')).attr('href')+'?limit='+that.getPageSize();
 		$.ajax({
 			url: url,
 			headers: {
@@ -284,6 +318,17 @@ Accounting.prototype = {
 		}
 
 		container.show();
+		
+		$('div.text-center.next').remove();
+		if(json._links !== undefined && json._links["next"] !== undefined) {
+			var limit = this.getPageSize() + this.getNextPageSize();
+			var offset = this.getPageOffset();
+			$('.container').append(
+				'<div class="text-center next">'+
+					'<a rel="next" href="'+json._links["next"]["href"]+'?offset=' + offset + '&limit=' + limit + '" data-action="nextPage">More</a>' +
+				'</div>' 
+			);
+		}
 	},
 
 	show: function(container, level, message) {
@@ -292,6 +337,39 @@ Accounting.prototype = {
 		alertDiv.addClass('alert alert-' + level);
 		alertDiv.text(message);
 		alertDiv.show();
+	},
+	
+	listMoreTransactions: function(e){
+		var url = $(e.target).attr('href');
+		var that = this;
+		$.ajax({
+			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
+			method: 'GET',
+			beforeSend: that.pollingObject.stopPolling.bind(that.pollingObject)(),
+		}).done(function(json){
+			that.setPageSize(json.count);
+			that.onListTransactionsCompleted.bind(that, json)();
+		}).always(function(){
+			that.pollingObject.startPolling.bind(that.pollingObject)();
+		});
+	},
+	
+	setupPollingObject: function(frequency, pollingFunction){
+		
+		var that = this;
+		
+		return {
+			pollID: 0,
+			startPolling: function(){
+				this.pollID = setInterval(pollingFunction.bind(that), frequency);
+			},
+			stopPolling: function(){
+				return clearInterval(this.pollID);
+			}
+		};
 	}
 }
 
@@ -299,4 +377,5 @@ $().ready(function(e){
 	$('#firstLevelMenu li').eq(1).addClass('active');
 	accounting = new Accounting();
 	accounting.listTransactions();
+	accounting.pollingObject.startPolling();
 });

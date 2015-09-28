@@ -5,9 +5,11 @@ namespace Accounting\Service;
 use Accounting\Account;
 use Accounting\Entity\OrganizationAccount;
 use Accounting\Entity\PersonalAccount;
+use Accounting\Entity\Account as ReadModelAccount;
 use Application\Entity\User;
 use People\Entity\Organization as ReadModelOrganization;
 use People\Organization;
+use Accounting\Entity\Transaction;
 
 interface AccountService
 {
@@ -42,4 +44,25 @@ interface AccountService
 	 * @return OrganizationAccount
 	 */
 	public function findOrganizationAccount($organization);
+	/**
+	 * @param Account $account
+	 * @param integer $limit
+	 * @param integer $offset
+	 * @return Transaction[]
+	 */
+	public function findTransactions(ReadModelAccount $account, $limit, $offset);
+	/**
+	 * @param ReadModelAccount $account
+	 * @return integer
+	 */
+	public function countTransactions(ReadModelAccount $account);
+	/**
+	 *
+	 * @param ReadModelAccount $payer
+	 * @param ReadModelAccount $payee
+	 * @param string $amount
+	 * @param string $description
+	 * @param User $by
+	 */
+	public function transfer(Account $payer, Account $payee, $amount, $description, User $by);
 }

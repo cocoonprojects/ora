@@ -19,6 +19,7 @@ use Accounting\Entity\Account as ReadModelAccount;
 use Accounting\Entity\OrganizationAccount as ReadModelOrgAccount;
 use Zend\Db\TableGateway\Exception\RuntimeException;
 use Accounting\Entity\PersonalAccount;
+use Accounting\Entity\Transaction;
 
 class EventSourcingAccountService extends AggregateRepository implements AccountService
 {
@@ -139,5 +140,53 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	 */
 	public function findOrganizationAccount($organization) {
 		return $this->entityManager->getRepository(ReadModelOrgAccount::class)->findOneBy(array('organization' => $organization));
+	}
+
+	/**
+	 * (non-PHPdoc)
+	 * @see \Accounting\Service\AccountService::findTransactions()
+	 */
+	public function findTransactions(ReadModelAccount $account, $limit, $offset){
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('t')
+			->from(Transaction::class, 't')
+			->where($builder->expr()->orX(':account = t.payee AND t.amount > 0', ':account = t.payer  AND t.amount < 0'))
+			->setMaxResults($limit)
+			->setFirstResult($offset)
+			->setParameter('account', $account)
+			->addOrderBy('t.createdAt', 'DESC')
+			->addOrderBy('t.id', 'DESC')
+			->getQuery();
+		return $query->getResult();
+	}
+
+	/**
+	 * (non-PHPdoc)
+	 * @see \Accounting\Service\AccountService::countTransactions()
+	 */
+	public function countTransactions(ReadModelAccount $account){
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('count(t)')
+			->from(Transaction::class, 't')
+			->where($builder->expr()->orX(':account = t.payee AND t.amount > 0', ':account = t.payer  AND t.amount < 0'))
+			->setParameter('account', $account)
+			->getQuery();
+		return intval($query->getSingleScalarResult());
+	}
+
+	/**
+	 * (non-PHPdoc)
+	 * @see \Accounting\Service\AccountService::transfer()
+	 */
+	public function transfer(Account $payer,Account $payee, $amount, $description, User $by){
+		$this->eventStore->beginTransaction();
+		try {
+			$payer->transferOut(-$amount, $payee, $description, $by);
+			$payee->transferIn($amount, $payer, $description, $by);
+			$this->eventStore->commit();
+		}catch (\Exception $e) {
+			$this->eventStore->rollback();
+			throw $e;
+		}
 	}
 }

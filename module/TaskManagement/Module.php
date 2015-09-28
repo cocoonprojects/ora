@@ -2,22 +2,25 @@
 
 namespace TaskManagement;
 
-use TaskManagement\Controller\EstimationsController;
-use TaskManagement\Controller\MembersController;
-use TaskManagement\Controller\RemindersController;
-use TaskManagement\Controller\SharesController;
-use TaskManagement\Controller\StreamsController;
-use TaskManagement\Controller\TasksController;
-use TaskManagement\Controller\TransitionsController;
+use AcMailer\Service\MailService;
+use AcMailer\View\DefaultLayout;
 use TaskManagement\Service\CloseTaskListener;
-use TaskManagement\Service\EventSourcingStreamService;
-use TaskManagement\Service\EventSourcingTaskService;
-use TaskManagement\Service\NotifyMailListener;
-use TaskManagement\Service\StreamCommandsListener;
-use TaskManagement\Service\TaskCommandsListener;
-use TaskManagement\Service\TransferTaskSharesCreditsListener;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
+use TaskManagement\Controller\MembersController;
+use TaskManagement\Controller\TasksController;
+use TaskManagement\Controller\TransitionsController;
+use TaskManagement\Controller\EstimationsController;
+use TaskManagement\Controller\SharesController;
+use TaskManagement\Controller\StreamsController;
+use TaskManagement\Service\NotifyMailListener;
+use TaskManagement\Service\TransferTaskSharesCreditsListener;
+use TaskManagement\Service\StreamCommandsListener;
+use TaskManagement\Service\TaskCommandsListener;
+use TaskManagement\Service\EventSourcingStreamService;
+use TaskManagement\Service\EventSourcingTaskService;
+use TaskManagement\Controller\RemindersController;
+use TaskManagement\Controller\MailController;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
@@ -38,6 +41,11 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 						$assignmentOfSharesTimebox = $locator->get('Config')['assignment_of_shares_timebox'];
 						$controller->setIntervalForCloseTasks($assignmentOfSharesTimebox);
 					}
+					if(array_key_exists('default_tasks_limit', $locator->get('Config'))){
+						$size = $locator->get('Config')['default_tasks_limit'];
+						$controller->setListLimit($size);
+					}
+					
 					return $controller;
 				},
 				'TaskManagement\Controller\Members' => function ($sm) {

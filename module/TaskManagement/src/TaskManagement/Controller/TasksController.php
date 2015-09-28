@@ -13,9 +13,13 @@ use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
 use Zend\Validator\NotEmpty;
+use Zend\I18n\Validator\Int;
+use Zend\Validator\ValidatorChain;
+use Zend\Validator\GreaterThan;
 
 class TasksController extends OrganizationAwareController
 {
+	const DEFAULT_TASKS_LIMIT = 10;
 	protected static $collectionOptions = ['GET', 'POST'];
 	protected static $resourceOptions = ['DELETE', 'GET', 'PUT'];
 
@@ -31,6 +35,10 @@ class TasksController extends OrganizationAwareController
 	 *@var \DateInterval
 	 */
 	protected $intervalForCloseTasks;
+	/**
+	 * @var integer
+	 */
+	protected $listLimit = self::DEFAULT_TASKS_LIMIT;
 	
 	public function __construct(TaskService $taskService, StreamService $streamService, OrganizationService $organizationService)
 	{
@@ -38,6 +46,7 @@ class TasksController extends OrganizationAwareController
 		$this->taskService = $taskService;
 		$this->streamService = $streamService;
 		$this->intervalForCloseTasks = new \DateInterval('P7D');
+		$this->pageSize = 10;
 	}
 	
 	public function get($id)
@@ -83,12 +92,22 @@ class TasksController extends OrganizationAwareController
 		}
 		
 		$streamID = $this->getRequest()->getQuery('streamID');
+
+		$validator = new ValidatorChain();
+		$validator->attach(new Int())
+			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
 		
-		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization) : $this->taskService->findStreamTasks($streamID);
+		$offset = $validator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
+		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getListLimit(); 
+		
+		$totalTasks = $this->taskService->countOrganizationTasks($this->organization);
+		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit) : $this->taskService->findStreamTasks($streamID, $offset, $limit);
 
 		$view = new TaskJsonModel($this, $this->organization);
-		$view->setVariable('resource', $availableTasks);
+
+		$view->setVariables(['resource'=>$availableTasks, 'total'=>$totalTasks]);
 		
+
 		return $view;
 	}
 
@@ -266,5 +285,15 @@ class TasksController extends OrganizationAwareController
 
 	public function getIntervalForCloseTasks(){
 		return $this->intervalForCloseTasks;
+	}
+	
+	public function setListLimit($size){
+		if(is_int($size)){
+			$this->listLimit = $size;
+		}
+	}
+	
+	public function getListLimit(){
+		return $this->listLimit;
 	}
 }

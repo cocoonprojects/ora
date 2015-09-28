@@ -52,7 +52,7 @@ class UserProfileController extends OrganizationAwareController
 		$account = $this->accountService->findPersonalAccount($user, $this->organization);
 		$actualBalance = $account->getBalance()->getValue();
 		
-		$transactions = $account->getTransactions();
+		$transactions = $this->accountService->findTransactions($account, null, null);
 		$totalGeneratedCredits = 0;
 		
 		//Date Limits

@@ -55,6 +55,7 @@ class UserProfileControllerTest extends ControllerTest {
 		$account->addHolder ( $userProfile );
 		
 		$this->controller->getAccountService ()->method ( 'findPersonalAccount' )->willReturn ( $account );
+		$this->controller->getAccountService ()->method ( 'findTransactions' )->willReturn ( [] );
 		
 		$this->routeMatch->setParam ( 'orgId', $organization->getId () );
 		$this->routeMatch->setParam ( 'id', $userProfile->getId () );

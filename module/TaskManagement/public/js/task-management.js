@@ -1,6 +1,28 @@
 var TaskManagement = function()
 {
+	var pageSize = 10,
+		nextPageSize = 10,
+		pageOffset = 0;
+	
+	this.getPageSize = function(){
+		return pageSize;
+	};
+	this.setPageSize = function(size){
+		pageSize = size;
+	};
+	this.getNextPageSize = function(){
+		return nextPageSize;
+	};
+	this.getPageOffset = function(){
+		return pageOffset;
+	};
+	this.setPageOffset = function(offset){
+		pageOffset = offset;
+	};
 	this.bindEventsOn();
+	
+	var pollingFrequency = 10000;
+	this.pollingObject = this.setupPollingObject(pollingFrequency, this.listTasks);
 };
 
 TaskManagement.prototype = {
@@ -197,6 +219,10 @@ TaskManagement.prototype = {
 			that.getTask(e);
 		});
 
+		$("body").on("click", "a[data-action='nextPage']", function(e){
+			e.preventDefault();
+			that.listMoreTasks(e);
+		});
 	},
 	
 	unjoinTask: function(e)
@@ -425,14 +451,15 @@ TaskManagement.prototype = {
 
 	listTasks: function()
 	{
-		that = this;
+		var that = this;
+		var url = this.getPageOffset() > 0 ? 'task-management/tasks?offset='+that.getPageOffset()+'&limit='+that.getPageSize() : 'task-management/tasks?limit='+that.getPageSize();
 		$.ajax({
-			url: 'task-management/tasks',
+			url: url,
 			headers: {
 				'GOOGLE-JWT': sessionStorage.token
 			},
 			method: 'GET'
-		}).done(that.onListTasksCompleted.bind(this));
+		}).done(that.onListTasksCompleted.bind(that));
 	},
 	
 	updateStreams: function()
@@ -470,7 +497,6 @@ TaskManagement.prototype = {
 			var that = this;
 			$.each(this.data._embedded['ora:task'], function(key, task) {
 				subject = task._links.self == undefined ? task.subject : '<a data-href="' + task._links.self.href + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
-
 				var primary_actions = [];
 				var secondary_actions = [];
 				if (task._links['ora:estimate']) {
@@ -542,6 +568,15 @@ TaskManagement.prototype = {
 						'<div class="panel-body">' + rv + '</div>' +
 					'</li>');
 			});
+			
+			if(this.data._links !== undefined && this.data._links["next"] !== undefined) {
+				var limit = this.getPageSize() + this.getNextPageSize();
+				var offset = this.getPageOffset();
+				container.append(
+					'<div class="text-center">' +
+							'<a rel="next" href="'+this.data._links["next"]["href"]+'?offset=' + offset + '&limit=' + limit + '" data-action="nextPage">More</a>' +
+					'</div>');
+			}
 		}
 	},
 	
@@ -906,8 +941,39 @@ TaskManagement.prototype = {
 			return ": "+daysLeft + " days left";
 		}
 		return "";
-	}
+	},
 	
+	listMoreTasks: function(e){
+		var url = $(e.target).attr('href');
+		var that = this;
+		$.ajax({
+			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
+			method: 'GET',
+			beforeSend: that.pollingObject.stopPolling.bind(that.pollingObject)(),
+		}).done(function(json){
+			that.setPageSize(json.count);
+			that.onListTasksCompleted.bind(that, json)();
+		}).always(function(){
+			that.pollingObject.startPolling.bind(that.pollingObject)();
+		});
+	},
+	
+	setupPollingObject: function(frequency, pollingFunction){
+		
+		var that = this;
+		return {
+			pollID: 0,
+			startPolling: function(){
+				this.pollID = setInterval(pollingFunction.bind(that), frequency);
+			},
+			stopPolling: function(){
+				return clearInterval(this.pollID);
+			}
+		};
+	}
 };
 
 var TASK_STATUS = (function() {
@@ -941,4 +1007,5 @@ $().ready(function(e){
 	collaboration = new TaskManagement();
 	collaboration.listTasks();
 	collaboration.updateStreams();
+	collaboration.pollingObject.startPolling();
 });

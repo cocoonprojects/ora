@@ -111,5 +111,6 @@ return array(
 	'listeners' => array(
 		'People\OrganizationCommandsListener',
 		'People\SendMailListener'
-	)
+	),
+	'default_members_limit' => 20
 );

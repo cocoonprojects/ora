@@ -8,7 +8,7 @@ use Zend\Permissions\Acl\Acl;
 use Application\Entity\User;
 use Accounting\Entity\Account;
 use Accounting\Entity\OrganizationAccount;
-use Accounting\Entity\AccountTransaction;
+use Accounting\Entity\Transaction;
 use Accounting\Entity\Deposit;
 
 class StatementJsonModel extends JsonModel
@@ -31,9 +31,18 @@ class StatementJsonModel extends JsonModel
 	public function serialize()
 	{
 		$account = $this->getVariable('resource');
+		$transactions = $this->getVariable('transactions');
+		$totalTransactions = $this->getVariable('totalTransactions');
+		
 		$rv['organization'] = $account->getOrganization()->getName();
-		$rv['transactions'] = array_map(array($this, 'serializeTransaction'), $account->getTransactions());
+		$rv['transactions'] = array_map(array($this, 'serializeTransaction'), $transactions);
 		$rv['_links']       = $this->serializeLinks($account);
+		$rv['count'] 		= count($transactions);
+		$rv['total'] 		= $totalTransactions;
+		if($rv['count'] < $rv['total']){
+			$controller = $account instanceof OrganizationAccount ? 'organization-statement' : 'personal-statement';
+			$rv['_links']['next']['href'] = $this->url->fromRoute('statements', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => $controller]);
+		}
 		return Json::encode($rv);
 	}
 	
@@ -59,11 +68,10 @@ class StatementJsonModel extends JsonModel
 		return $rv;
 	}
 	
-	protected function serializeTransaction(AccountTransaction $transaction) {
-		$className = get_class($transaction);
+	protected function serializeTransaction(Transaction $transaction) {
 		$rv = array(
 			'date' => date_format($transaction->getCreatedAt(), 'c'),
-			'type' => substr($className, strrpos($className, '\\') + 1),
+			'type' => $this->evaluateTransactionType($transaction),
 			'amount' => $transaction->getAmount(),
 			'description' => $transaction->getDescription(),
 			'balance' => $transaction->getBalance(),
@@ -75,5 +83,15 @@ class StatementJsonModel extends JsonModel
 			$rv['payer'] = $transaction->getPayerName();
 		}
 		return $rv;
+	}
+	
+	private function evaluateTransactionType(Transaction $transaction){
+		$account = $this->getVariable('resource');
+		if($transaction->getPayer() != null && $transaction->getPayer()->getId() == $account->getId()){
+			return 'OutgoingTransfer';
+		}else if ($transaction->getPayee() != null && $transaction->getPayee()->getId() == $account->getId()){
+			return 'IncomingTransfer';
+		}
+		return '';
 	}
 }

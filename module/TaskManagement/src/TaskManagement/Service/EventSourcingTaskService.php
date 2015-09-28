@@ -46,27 +46,47 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 
 	/**
 	 * @param Organization $organization
+	 * @param integer $offset
+	 * @param integer $limit
 	 * @return Task[]
 	 */
-	public function findTasks(Organization $organization)
+	public function findTasks(Organization $organization, $offset, $limit)
 	{
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('t')
 			->from(ReadModelTask::class, 't')
 			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
 			->orderBy('t.mostRecentEditAt', 'DESC')
+			->setFirstResult($offset)
+			->setMaxResults($limit)
 			->setParameter(':organization', $organization)
 			->getQuery();
 		return $query->getResult();
+	}
+	
+	/**
+	 * 
+	 * @param Organization $organization
+	 * @return \Doctrine\ORM\mixed
+	 */
+	public function countOrganizationTasks(Organization $organization){
+		
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('count(t)')
+			->from(ReadModelTask::class, 't')
+			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
+			->setParameter(':organization', $organization)
+			->getQuery();
+		return intval($query->getSingleScalarResult());
 	}
 	
 	public function findTask($id) {
 		return $this->entityManager->find(ReadModelTask::class, $id);
 	}
 	
-	public function findStreamTasks($streamId) {
+	public function findStreamTasks($streamId, $offset, $limit) {
 		$repository = $this->entityManager->getRepository(ReadModelTask::class);
-		return $repository->findBy(array('stream' => $streamId));
+		return $repository->findBy(array('stream' => $streamId), [], $limit, $offset);
 	}
 	
 	/**

@@ -29,12 +29,6 @@ abstract class Account extends EditableEntity implements ResourceInterface {
 	 */
 	protected $holders;
 	/**
-	 * @ORM\OneToMany(targetEntity="AccountTransaction", mappedBy="account", cascade="persist", fetch="LAZY")
-	 * @ORM\OrderBy({"number" = "DESC"})
-	 * @var AccountTransaction[]
-	 */
-	protected $transactions;
-	/**
 	 * @ORM\OneToOne(targetEntity="People\Entity\Organization")
 	 * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", onDelete="CASCADE")
 	 * @var Organization
@@ -45,7 +39,6 @@ abstract class Account extends EditableEntity implements ResourceInterface {
 		parent::__construct($id);
 		$this->organization = $organization;
 		$this->holders = new ArrayCollection();
-		$this->transactions = new ArrayCollection();
 	}
 	
 	public function setBalance(Balance $balance) {
@@ -66,15 +59,6 @@ abstract class Account extends EditableEntity implements ResourceInterface {
 	
 	public function addHolder(User $holder) {
 		$this->holders->set($holder->getId(), $holder);
-		return $this;
-	}
-	
-	public function getTransactions() {
-		return $this->transactions->toArray();
-	}
-	
-	public function addTransaction(AccountTransaction $transaction) {
-		$this->transactions->add($transaction);
 		return $this;
 	}
 	
