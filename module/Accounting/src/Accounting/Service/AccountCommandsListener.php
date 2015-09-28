@@ -60,7 +60,8 @@ class AccountCommandsListener extends ReadModelProjector {
 			->setBalance($balance)
 			->setDescription($event->payload()['description'])
 			->setCreatedAt($event->occurredOn())
-			->setCreatedBy($by);
+			->setCreatedBy($by)
+			->setNumber($event->version());
 		$this->entityManager->persist($transaction);
 		
 		$balance = new Balance($transaction->getBalance(), $event->occurredOn());
@@ -84,7 +85,8 @@ class AccountCommandsListener extends ReadModelProjector {
 			->setBalance($balance)
 			->setDescription($event->payload()['description'])
 			->setCreatedAt($event->occurredOn())
-			->setCreatedBy($by);
+			->setCreatedBy($by)
+			->setNumber($event->version());
 		$this->entityManager->persist($transaction);
 
 		$balance = new Balance($transaction->getBalance(), $event->occurredOn());
@@ -110,7 +112,8 @@ class AccountCommandsListener extends ReadModelProjector {
 			->setBalance($payee->getBalance()->getValue() + $amount)
 			->setDescription($event->payload()['description'])
 			->setCreatedAt($event->occurredOn())
-			->setCreatedBy($createdBy);
+			->setCreatedBy($createdBy)
+			->setNumber($event->version());
 		$this->entityManager->persist($transaction);
 		
 		$balance = new Balance($transaction->getBalance(), $event->occurredOn());
@@ -136,7 +139,8 @@ class AccountCommandsListener extends ReadModelProjector {
 			->setBalance($payer->getBalance()->getValue() + $amount)
 			->setDescription($event->payload()['description'])
 			->setCreatedAt($event->occurredOn())
-			->setCreatedBy($createdBy);
+			->setCreatedBy($createdBy)
+			->setNumber($event->version());
 		$this->entityManager->persist($transaction);
 		
 		$balance = new Balance($transaction->getBalance(), $event->occurredOn());

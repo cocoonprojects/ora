@@ -39,6 +39,11 @@ abstract class Transaction extends DomainEntity {
 	 * @var float
 	 */
 	protected $balance;
+	/**
+	 * @ORM\Column(type="integer")
+	 * @var integer
+	 */
+	protected $number = 1;
 	
 	
 	public function getPayer() {
@@ -88,5 +93,14 @@ abstract class Transaction extends DomainEntity {
 			return $this->payee->getName();
 		}
 		return null;
+	}
+
+	public function setNumber($number) {
+		$this->number = $number;
+		return $this;
+	}
+
+	public function getNumber() {
+		return $this->number;
 	}
 }
