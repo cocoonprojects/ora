@@ -49,7 +49,7 @@ class PersonalStatementController extends OrganizationAwareController
 			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
 		
 		$offset = $validator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
-		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getDefaultTransactionsLimit();
+		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getTransactionsLimit();
 		
 		$account = $this->accountService->findPersonalAccount($this->identity(), $this->organization);
 		if(is_null($account)) {
@@ -95,13 +95,13 @@ class PersonalStatementController extends OrganizationAwareController
 		return self::$resourceOptions;
 	}
 	
-	public function setDefaultTransactionsLimit($size){
+	public function setTransactionsLimit($size){
 		if(is_int($size)){
 			$this->transactionsLimit = $size;
 		}
 	}
 	
-	public function getDefaultTransactionsLimit(){
+	public function getTransactionsLimit(){
 		return $this->transactionsLimit;
 	}
 	

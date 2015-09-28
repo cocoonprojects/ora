@@ -154,7 +154,8 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 			->setMaxResults($limit)
 			->setFirstResult($offset)
 			->setParameter('account', $account)
-			->orderBy('t.createdAt', 'DESC')
+			->addOrderBy('t.createdAt', 'DESC')
+			->addOrderBy('t.id', 'DESC')
 			->getQuery();
 		return $query->getResult();
 	}
