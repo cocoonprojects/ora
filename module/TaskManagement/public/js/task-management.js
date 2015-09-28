@@ -601,7 +601,7 @@ TaskManagement.prototype = {
 				'<li>' + task.stream.subject + '</li>' +
 				'<li>Created at ' + createdAt.toLocaleString() + '</li>';
 		
-		if(task.acceptedAt !== null){
+		if(task.acceptedAt){
 			acceptedAt = new Date(Date.parse(task.acceptedAt));
 			rv += '<li>Accepted at ' + acceptedAt.toLocaleString() + '</li>';
 		}
@@ -687,7 +687,7 @@ TaskManagement.prototype = {
 		var rv = '<ul class="task-details">' +
 				'<li>Created at ' + createdAt.toLocaleString() + '</li>';
 		
-		if(task.acceptedAt !== null) {
+		if(task.acceptedAt) {
 			acceptedAt = new Date(Date.parse(task.acceptedAt));
 			rv += '<li>Accepted at ' + acceptedAt.toLocaleString() + '</li>';
 		}
