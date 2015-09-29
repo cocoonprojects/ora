@@ -37,7 +37,7 @@ class Task extends EditableEntity implements TaskInterface
 	private $stream;
 
 	/**
-	 * @ORM\OneToMany(targetEntity="TaskMember", mappedBy="task", cascade={"PERSIST", "REMOVE"}, indexBy="member_id")
+	 * @ORM\OneToMany(targetEntity="TaskMember", mappedBy="task", cascade={"PERSIST", "REMOVE"}, orphanRemoval=TRUE, indexBy="member_id")
 	 * @var TaskMember[]
 	 */
 	private $members;
@@ -127,15 +127,12 @@ class Task extends EditableEntity implements TaskInterface
 	
 	/**
 	 * 
-	 * @param id|TaskMember $member
+	 * @param id|User $member
 	 * @return $this
 	 */
 	public function removeMember($member) {
-		if($member instanceof TaskMember) {
-			$this->members->removeElement($member);
-		} else {
-			$this->members->remove($member);
-		}
+		$id = $member instanceof User ? $member->getId() : $member;
+		$this->members->remove($id);
 		return $this;
 	}
 	
@@ -254,14 +251,12 @@ class Task extends EditableEntity implements TaskInterface
 		return self::RESOURCE_ID;
 	}
 	
-	public function getMemberRole($user){
-		
+	public function getMemberRole($user)
+	{
 		$memberFound = $this->getMember($user);
-
-		if($memberFound instanceof TaskMember){
+		if($memberFound instanceof TaskMember) {
 			return $memberFound->getRole();
 		}
-		
 		return null;
 	}
 
