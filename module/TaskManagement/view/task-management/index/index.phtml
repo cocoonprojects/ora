@@ -27,6 +27,14 @@
 	<ul id="tasks" style="list-style: none; padding: 0; margin: 0">
 	</ul>
 </div>
+<script>
+function onLoad() {
+	gapi.load('auth2', function() {
+    gapi.auth2.init();
+	});
+}
+</script>
+<script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
 <?php echo $this->partial('task-management/index/create-task-modal.phtml') ?>
 <?php echo $this->partial('task-management/index/edit-task-modal.phtml') ?>
 <?php echo $this->partial('task-management/index/estimate-task-modal.phtml') ?>
