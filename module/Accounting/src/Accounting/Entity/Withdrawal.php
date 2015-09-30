@@ -9,8 +9,7 @@ use Doctrine\ORM\Mapping AS ORM;
  */
 class Withdrawal extends Transaction
 {
-	public function __construct($id, Account $payer){
-		parent::__construct($id);
+	public function __construct(Account $payer){
 		$this->payer = $payer;
 	}
 

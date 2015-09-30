@@ -76,39 +76,23 @@ class TaskCommandsListener extends ReadModelProjector
 	protected function onTaskMemberAdded(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$entity = $this->entityManager->find(Task::class, $id);
-		if(is_null($entity)) {
-			return;
-        }
-
-		$memberId = $event->payload()['userId'];
-		$user = $this->entityManager->find(User::class, $memberId);
-		if(is_null($user)) {
-			return;
-        }        
-        $role = $event->payload()['role'];
+		$user = $this->entityManager->find(User::class, $event->payload()['userId']);
 		$addedBy = $this->entityManager->find(User::class, $event->payload()['by']);
-		$entity->addMember($user, $role, $addedBy, $event->occurredOn());
-		$entity->setMostRecentEditAt($event->occurredOn());
-		$entity->setMostRecentEditBy($addedBy);
+		$role = $event->payload()['role'];
+		$entity->addMember($user, $role, $addedBy, $event->occurredOn())
+			->setMostRecentEditAt($event->occurredOn())
+			->setMostRecentEditBy($addedBy);
 		$this->entityManager->persist($entity);
 	}
 	
-    protected function onTaskMemberRemoved(StreamEvent $event) {
+	protected function onTaskMemberRemoved(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$entity = $this->entityManager->find(Task::class, $id);
-		if(is_null($entity)) {
-			return;
-        }               
-
-        $member = $this->entityManager->find('Application\Entity\User', $event->payload()['userId']);
-        $taskMember = $this->entityManager->getRepository(TaskMember::class)->findOneBy(array('member' => $member, 'task'=> $entity)); 
-        
-        $entity->removeMember($taskMember);
-        $this->entityManager->remove($taskMember); 
-        
-		$entity->setMostRecentEditAt($event->occurredOn());
+		$member = $this->entityManager->find(User::class, $event->payload()['userId']);
 		$removedBy = $this->entityManager->find(User::class, $event->payload()['by']);
-		$entity->setMostRecentEditBy($removedBy);
+		$entity->removeMember($member)
+			->setMostRecentEditAt($event->occurredOn())
+			->setMostRecentEditBy($removedBy);
 		$this->entityManager->persist($entity);
 	}
 	
@@ -141,7 +125,7 @@ class TaskCommandsListener extends ReadModelProjector
 		$task = $this->entityManager->find(Task::class, $id);
 		$task->setStatus(Task::STATUS_COMPLETED);
 		$task->resetShares();
-        $user = $this->entityManager->find(User::class, $event->payload()['by']);
+		$user = $this->entityManager->find(User::class, $event->payload()['by']);
 		$task->setMostRecentEditBy($user);
 		$task->setMostRecentEditAt($event->occurredOn());
 		$task->resetAcceptedAt();

@@ -204,4 +204,9 @@ class TaskMember
 	public function getDelta() {
 		return $this->delta;
 	}
+
+	public function removeTask() {
+		$this->task = null;
+		return $this;
+	}
 }
