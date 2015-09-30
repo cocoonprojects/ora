@@ -85,7 +85,7 @@ class OrganizationStatementControllerTest extends ControllerTest
 		$this->user->addMembership($this->organization);
 		$this->setupLoggedUser($this->user);
 
-		$deposit = new Deposit('1', $this->account);
+		$deposit = new Deposit($this->account);
 		$deposit->setCreatedBy($this->user);
 
 		$this->controller->getAccountService()
@@ -115,7 +115,7 @@ class OrganizationStatementControllerTest extends ControllerTest
 		$this->account->addHolder($this->user);
 		$this->setupLoggedUser($this->user);
 
-		$deposit = new Deposit('1', $this->account);
+		$deposit = new Deposit($this->account);
 		$deposit->setCreatedBy($this->user);
 
 		$this->controller->getAccountService()
@@ -162,7 +162,7 @@ class OrganizationStatementControllerTest extends ControllerTest
 			->with($this->account)
 			->willReturn(2);
 
-		$deposit = new Deposit('1', $this->account);
+		$deposit = new Deposit($this->account);
 		$deposit->setCreatedBy($this->user);
 
 		$this->controller->getAccountService()

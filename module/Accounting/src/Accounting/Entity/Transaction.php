@@ -2,16 +2,24 @@
 namespace Accounting\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
-use Application\Entity\DomainEntity;
+use Application\Entity\BasicUser;
 
 /**
  * @ORM\Entity @ORM\Table(name="account_transactions")
+ * @ORM\MappedSuperclass
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="type", type="string")
  *
  */
-abstract class Transaction extends DomainEntity {
-	
+abstract class Transaction{
+
+	/**
+	 * @ORM\Id
+	 * @ORM\Column(type="integer")
+	 * @ORM\GeneratedValue
+	 * @var integer
+	 */
+	protected $id;
 	/**
 	 * @ORM\ManyToOne(targetEntity="Account")
 	 * @ORM\JoinColumn(name="payer_id", referencedColumnName="id")
@@ -39,7 +47,60 @@ abstract class Transaction extends DomainEntity {
 	 * @var float
 	 */
 	protected $balance;
+	/**
+	 * @ORM\Column(type="datetime")
+	 * @var \DateTime
+	 */
+	protected $createdAt;
+	/**
+	 * @ORM\ManyToOne(targetEntity="Application\Entity\User")
+	 * @ORM\JoinColumn(name="createdBy_id", referencedColumnName="id", nullable=TRUE)
+	 * @var BasicUser
+	 */
+	protected $createdBy;
 	
+	/**
+	 * @return string
+	 */
+	public function getId() {
+		return $this->id;
+	}
+	/**
+	 *
+	 * @return \DateTime
+	 */
+	public function getCreatedAt() {
+		if(is_null($this->createdAt)) {
+			$this->createdAt = new \DateTime();
+		}
+		return $this->createdAt;
+	}
+	/**
+	 *
+	 * @param \DateTime $when
+	 * @return $this
+	 */
+	public function setCreatedAt(\DateTime $when) {
+		$this->createdAt = $when;
+		return $this;
+	}
+	/**
+	 *
+	 * @return BasicUser
+	 */
+	public function getCreatedBy()
+	{
+		return $this->createdBy;
+	}
+	/**
+	 *
+	 * @param BasicUser $user
+	 * @return $this
+	 */
+	public function setCreatedBy(BasicUser $user) {
+		$this->createdBy = $user;
+		return $this;
+	}
 	
 	public function getPayer() {
 		return $this->payer;

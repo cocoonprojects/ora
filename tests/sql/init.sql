@@ -420,16 +420,16 @@ INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt)
 #account_transactions for UserProfileAPITest   
 INSERT INTO account_transactions (id, payer_id, payee_id, amount, description, balance, createdAt, createdBy_id, type ) 
 VALUES 
-('098a95a2-adc4-4155-b848-66dbfbcff5ca', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 500, 'Description', 500, '2015-02-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'transfer');
+('1', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 500, 'Description', 500, '2015-02-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'transfer');
 
 INSERT INTO account_transactions (id, payer_id,payee_id, amount, description, balance, createdAt, createdBy_id, type ) 
 VALUES 
-('098a95a2-adc4-4155-b848-66dbfbcff5cb', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 1000, 'Description', 1000, '2015-05-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'transfer');
+('2', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 1000, 'Description', 1000, '2015-05-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'transfer');
 
 INSERT INTO account_transactions (id, payer_id,payee_id, amount, description, balance, createdAt, createdBy_id, type ) 
 VALUES 
-('098a95a2-adc4-4155-b848-66dbfbcff5cc', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 100, 'Description', 100, '2015-09-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'transfer');
+('3', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 100, 'Description', 100, '2015-09-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'transfer');
    
 INSERT INTO account_transactions (id, payer_id,payee_id, amount, description, balance, createdAt, createdBy_id, type ) 
 VALUES 
-('098a95a2-adc4-4155-b848-66dbfbcff5cd', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 2000, 'Description', 2000,  '2014-02-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'transfer');
+('4', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 2000, 'Description', 2000,  '2014-02-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'transfer');

@@ -9,8 +9,7 @@ use Doctrine\ORM\Mapping AS ORM;
  */
 class Deposit extends Transaction
 {
-	public function __construct($id, Account $payee){
-		parent::__construct($id);
+	public function __construct(Account $payee){
 		$this->payee = $payee;
 	}
 
