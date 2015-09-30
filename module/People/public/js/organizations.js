@@ -33,6 +33,8 @@ Organizations.prototype = {
 		});
 
 		$("body").on("click", "a[data-action='loadOrganization']", function(e){
+			var googleID = $("meta[name='google-signin-client_id']").attr('content');
+			sessionStorage.setItem('googleid', googleID );
 			window.location = + e.target.href;
 		});
 

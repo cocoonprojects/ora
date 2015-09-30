@@ -44,6 +44,14 @@
 		</tfoot>
 	</table>
 </div>
+<script>
+function onLoad() {
+	gapi.load('auth2', function() {
+    gapi.auth2.init();
+	});
+}
+</script>
+<script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
 <?php echo $this->partial('accounting/index/deposit-modal.phtml') ?>
 <?php echo $this->partial('accounting/index/withdrawal-modal.phtml') ?>
 <?php echo $this->partial('accounting/index/incoming-transfer-modal.phtml') ?>

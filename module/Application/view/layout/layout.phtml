@@ -76,8 +76,12 @@
 							console.log('User signed out.');
 							$('div#sign-in').trigger('loggedOut');
 						});
+						sessionStorage.clear();
+						console.log("Client session cleared");
+						window.location = '/';
 					}
 				</script>
+
 			</div><!--/.nav-collapse -->
 		</div>
 	</nav>

@@ -374,6 +374,8 @@ Accounting.prototype = {
 }
 
 $().ready(function(e){
+	var googleID = sessionStorage.googleid;
+	$('head').append( '<meta name="google-signin-client_id" content="'+googleID+'">' );
 	$('#firstLevelMenu li').eq(1).addClass('active');
 	accounting = new Accounting();
 	accounting.listTransactions();

@@ -1002,6 +1002,8 @@ var TASK_STATUS = (function() {
 })();
 
 $().ready(function(e){
+	var googleID = sessionStorage.googleid;
+	$('head').append( '<meta name="google-signin-client_id" content="'+googleID+'">' );
 	$('#content div.alert').hide();
 	$('#firstLevelMenu li').eq(0).addClass('active');
 	collaboration = new TaskManagement();
