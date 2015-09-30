@@ -55,13 +55,12 @@ class AccountCommandsListener extends ReadModelProjector {
 		
 		$by = $this->entityManager->find(User::class, $event->payload()['by']);
 
-		$transaction = new Deposit($event->eventId(), $payee);
+		$transaction = new Deposit($payee);
 		$transaction->setAmount($amount)
 			->setBalance($balance)
 			->setDescription($event->payload()['description'])
 			->setCreatedAt($event->occurredOn())
-			->setCreatedBy($by)
-			->setNumber($event->version());
+			->setCreatedBy($by);
 		$this->entityManager->persist($transaction);
 		
 		$balance = new Balance($transaction->getBalance(), $event->occurredOn());
@@ -80,13 +79,12 @@ class AccountCommandsListener extends ReadModelProjector {
 
 		$by = $this->entityManager->find(User::class, $event->payload()['by']);
 
-		$transaction = new Withdrawal($event->eventId(), $payer);
+		$transaction = new Withdrawal($payer);
 		$transaction->setAmount($amount)
 			->setBalance($balance)
 			->setDescription($event->payload()['description'])
 			->setCreatedAt($event->occurredOn())
-			->setCreatedBy($by)
-			->setNumber($event->version());
+			->setCreatedBy($by);
 		$this->entityManager->persist($transaction);
 
 		$balance = new Balance($transaction->getBalance(), $event->occurredOn());
@@ -107,13 +105,12 @@ class AccountCommandsListener extends ReadModelProjector {
 
 		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
 
-		$transaction = new Transfer($event->eventId(), $payer, $payee);
+		$transaction = new Transfer($payer, $payee);
 		$transaction->setAmount($amount)
 			->setBalance($payee->getBalance()->getValue() + $amount)
 			->setDescription($event->payload()['description'])
 			->setCreatedAt($event->occurredOn())
-			->setCreatedBy($createdBy)
-			->setNumber($event->version());
+			->setCreatedBy($createdBy);
 		$this->entityManager->persist($transaction);
 		
 		$balance = new Balance($transaction->getBalance(), $event->occurredOn());
@@ -134,13 +131,12 @@ class AccountCommandsListener extends ReadModelProjector {
 
 		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
 
-		$transaction = new Transfer($event->eventId(), $payer, $payee);
+		$transaction = new Transfer($payer, $payee);
 		$transaction->setAmount($amount)
 			->setBalance($payer->getBalance()->getValue() + $amount)
 			->setDescription($event->payload()['description'])
 			->setCreatedAt($event->occurredOn())
-			->setCreatedBy($createdBy)
-			->setNumber($event->version());
+			->setCreatedBy($createdBy);
 		$this->entityManager->persist($transaction);
 		
 		$balance = new Balance($transaction->getBalance(), $event->occurredOn());

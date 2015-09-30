@@ -110,7 +110,7 @@ class PersonalStatementControllerTest extends ControllerTest
 			->with($this->user, $this->organization)
 			->willReturn($this->account);
 
-		$deposit = new Deposit('1', $this->account);
+		$deposit = new Deposit($this->account);
 		$deposit->setCreatedBy($this->user);
 
 		$this->controller->getAccountService()
@@ -163,7 +163,7 @@ class PersonalStatementControllerTest extends ControllerTest
 			->with($this->account)
 			->willReturn(2);
 
-		$deposit = new Deposit('1', $this->account);
+		$deposit = new Deposit($this->account);
 		$deposit->setCreatedBy($this->user);
 
 		$this->controller->getAccountService()

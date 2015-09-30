@@ -155,7 +155,7 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 			->setFirstResult($offset)
 			->setParameter('account', $account)
 			->addOrderBy('t.createdAt', 'DESC')
-			->addOrderBy('t.number', 'DESC')
+			->addOrderBy('t.id', 'DESC')
 			->getQuery();
 		return $query->getResult();
 	}
