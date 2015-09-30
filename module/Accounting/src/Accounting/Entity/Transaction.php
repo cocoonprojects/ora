@@ -15,9 +15,9 @@ abstract class Transaction{
 
 	/**
 	 * @ORM\Id
-	 * @ORM\Column(type="integer")
+	 * @ORM\Column(type="bigint")
 	 * @ORM\GeneratedValue
-	 * @var integer
+	 * @var bigint
 	 */
 	protected $id;
 	/**
