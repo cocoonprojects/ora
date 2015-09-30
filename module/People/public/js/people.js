@@ -117,6 +117,8 @@ People.prototype = {
 
 $().ready(function(e){
 	people = new People();
+	var googleID = sessionStorage.googleid;
+	$('head').append( '<meta name="google-signin-client_id" content="'+googleID+'">' );
 	people.loadPeople($("#people-home").attr('href')+'/members');
 	people.pollingObject.startPolling();
 });

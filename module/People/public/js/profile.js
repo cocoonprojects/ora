@@ -62,7 +62,8 @@ Profile.prototype = {
 };
 
 $().ready(function(e) {
-
+	var googleID = sessionStorage.googleid;
+	$('head').append( '<meta name="google-signin-client_id" content="'+googleID+'">' );
 	profile = new Profile();
 	$('#profile-content').hide();
 	var elem = document.getElementById("profile-content");

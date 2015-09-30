@@ -1,6 +1,8 @@
 <?php
 	$this->headScript()->appendFile($this->basePath() . '/js/people.js');
 ?>
+<meta name="google-signin-client_id" content="">
+
 <div class="container" id="content">
 	<div class="page-header">
 		<h1>People</h1>
@@ -9,3 +11,11 @@
 
 	</ol>
 </div>
+<script>
+function onLoad() {
+	gapi.load('auth2', function() {
+    gapi.auth2.init();
+	});
+}
+</script>
+<script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
