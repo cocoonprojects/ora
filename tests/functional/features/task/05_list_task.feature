@@ -65,16 +65,26 @@ Feature: List tasks
     And the response shouldn't have a "_links.next" property
     And the response should have a "_links.ora:execute" property
 
-  Scenario: Successfully getting command list on an accepted tasks of a stream
+  Scenario: Successfully getting command list on an accepted tasks of a stream for the task owner that have assigned shares on that task
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
     When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000002"
     Then the response status code should be 200
     And the response should have a "_links" property
     And the response should have a "_links.self" property
+    And the response shouldn't have a "_links.ora:assignShares" property
+    And the response should have a "_links.ora:complete" property
+
+  Scenario: Successfully getting command list on an accepted tasks of a stream for the task owner that haven't assigned shares on that task
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000106"
+    Then the response status code should be 200
+    And the response should have a "_links" property
+    And the response should have a "_links.self" property
     And the response should have a "_links.ora:assignShares" property
     And the response should have a "_links.ora:complete" property
-    
+
   Scenario: Successfully getting a paginated list of available tasks without any parameters
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
