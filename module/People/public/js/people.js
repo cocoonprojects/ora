@@ -42,7 +42,7 @@ People.prototype = {
 		});
 	},
 	
-	loadPeople: function(url)
+	loadPeople: function(url, redirectURL)
 	{
 		var that = this;
 		var u = this.getPageOffset() > 0 ? url+'?offset='+that.getPageOffset()+'&limit='+that.getPageSize() : url+'?limit='+that.getPageSize();
@@ -52,6 +52,12 @@ People.prototype = {
 				'GOOGLE-JWT': sessionStorage.token
 			},
 
+		}).fail(function( jqXHR, textStatus ) {
+			var errorCode = jqXHR.status;
+			if(errorCode === 401){
+				sessionStorage.setItem('redirectURL', redirectURL);
+				window.location = '/';
+			}
 		}).done(that.onLoadPeopleCompleted.bind(this));
 	},
 
@@ -119,6 +125,6 @@ $().ready(function(e){
 	people = new People();
 	var googleID = sessionStorage.googleid;
 	$('head').append( '<meta name="google-signin-client_id" content="'+googleID+'">' );
-	people.loadPeople($("#people-home").attr('href')+'/members');
+	people.loadPeople($("#people-home").attr('href')+'/members',$("#people-home").attr('href'));
 	people.pollingObject.startPolling();
 });
