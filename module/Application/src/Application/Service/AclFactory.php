@@ -5,11 +5,11 @@ use Accounting\Assertion\AccountHolderAssertion;
 use Accounting\Assertion\MemberOfAccountOrganizationAssertion;
 use Application\Entity\User;
 use People\Assertion\MemberOfOrganizationAssertion;
+use TaskManagement\Assertion\AcceptedTaskAndMemberSharesNotAssignedAssertion;
 use TaskManagement\Assertion\MemberOfEntityOrganizationAssertion;
 use TaskManagement\Assertion\MemberOfOngoingTaskAssertion;
 use TaskManagement\Assertion\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion;
 use TaskManagement\Assertion\OwnerOfOpenOrCompletedTaskAssertion;
-use TaskManagement\Assertion\TaskMemberAndAcceptedTaskAssertion;
 use TaskManagement\Assertion\TaskMemberNotOwnerAndNotCompletedTaskAssertion;
 use TaskManagement\Assertion\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion;
 use TaskManagement\Assertion\TaskOwnerAndNotCompletedTaskAssertion;
@@ -55,7 +55,7 @@ class AclFactory implements FactoryInterface
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.execute', new OwnerOfOpenOrCompletedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.complete', new TaskOwnerAndOngoingOrAcceptedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.accept', new TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion());
-		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.assignShares', new TaskMemberAndAcceptedTaskAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.assignShares', new AcceptedTaskAndMemberSharesNotAssignedAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Reminder.add-estimation', new TaskOwnerAndOngoingTaskAssertion());
 		
 		$acl->allow(User::ROLE_SYSTEM, null, array('TaskManagement.Task.closeTasksCollection', 'TaskManagement.Reminder.assignment-of-shares'));

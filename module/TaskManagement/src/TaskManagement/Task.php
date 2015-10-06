@@ -578,5 +578,14 @@ class Task extends DomainEntity implements TaskInterface
 	{
 		return self::RESOURCE_ID;
 	}
+	/**
+	 *
+	 * @param id|BasicUser $user
+	 * @return boolean
+	 */
+	public function areSharesAssignedFromMember($user){
+		$key = $user instanceof BasicUser ? $user->getId() : $user;
+		return isset($this->members[$key]['shares']);
+	}
 
 }
