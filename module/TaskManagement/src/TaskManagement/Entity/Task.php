@@ -305,5 +305,16 @@ class Task extends EditableEntity implements TaskInterface
 			return $member->getEstimation() == null || $member->getEstimation()->getValue() == null;
 		});
 	}
-	
+
+	/**
+	 * @param id|BasicUser $user
+	 * @return boolean|null
+	 */
+	public function areSharesAssignedFromMember($user) {
+		$taskMember = $this->getMember($user);
+		if($taskMember != null){
+			return !empty($taskMember->getShares());
+		}
+		return null;
+	}
 }
