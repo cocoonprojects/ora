@@ -120,6 +120,10 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 				->setParameter('memberEmail', $queryOptions["memberEmail"]);
 			}
 		}
+		if($memberId != null){
+			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
+			->setParameter('memberId', $memberId);
+		}
 		return intval($query->getQuery()->getSingleScalarResult());
 	}
 	
@@ -153,6 +157,10 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 					->innerJoin('m.user', 'u', 'WITH', 'u.email = :memberEmail')
 					->setParameter('memberEmail', $queryOptions["memberEmail"]);
 			}
+		}
+		if($memberId != null){
+			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
+			->setParameter('memberId', $memberId);
 		}
 		return $query->getQuery()->getResult();
 	}

@@ -20,7 +20,6 @@ use Zend\Validator\Date as DateValidator;
 use Zend\Validator\Regex as UserIdValidator;
 use Zend\Validator\EmailAddress as EmailAddressValidator;
 
-
 class TasksController extends OrganizationAwareController
 {
 	const DEFAULT_TASKS_LIMIT = 10;
@@ -115,16 +114,14 @@ class TasksController extends OrganizationAwareController
 		}
 		if($dateValidator->isValid($this->getRequest()->getQuery("startOn"))){
 			$startOn = \DateTime::createFromFormat($dateValidator->getFormat(), $this->getRequest()->getQuery("startOn"));
+		}else if($endOn instanceof \DateTime){
+			$startOn = $this->getDefaultStartOn($endOn);
 		}
+		$uuidValidator = new UserIdValidator(array('pattern' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})'));
 		$memberId = $uuidValidator->isValid($this->getRequest()->getQuery("memberId")) ? $this->getRequest()->getQuery("memberId") : null;
-		$memberEmail = $emailValidator->isValid($this->getRequest()->getQuery("memberEmail")) ? $this->getRequest()->getQuery("memberEmail") : null;
 
-		$queryOptions["endOn"] = $endOn->format("Y-m-d")." 23:59:59";
-		$queryOptions["startOn"] = $startOn->format("Y-m-d")." 00:00:00";
-		$queryOptions["memberId"] = $memberId;
-		$queryOptions["memberEmail"] = $memberEmail;
-
-		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit, $queryOptions) : $this->taskService->findStreamTasks($streamID, $offset, $limit, $queryOptions);
+		$totalTasks = $this->taskService->countOrganizationTasks($this->organization, $startOn, $endOn, $memberId);
+		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit, $startOn, $endOn, $memberId) : $this->taskService->findStreamTasks($streamID, $offset, $limit, $startOn, $endOn, $memberId);
 
 		$view = new TaskJsonModel($this, $this->organization);
 		if(!is_null($memberId)){

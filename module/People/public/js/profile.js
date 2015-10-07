@@ -42,7 +42,6 @@ var Profile = function(taskUtils) {
 	this.getOrgId = function(){
 		return orgId;
 	};
-
 	this.bindEventsOn();
 };
 
@@ -51,6 +50,31 @@ Profile.prototype = {
 	constructor : Profile,
 	classe : 'Profile',
 	data : [],
+	tasks_data : [],
+	userId : '',
+	orgId : '',
+	TASK_ROLE_OWNER : 'OWNER',
+
+	bindEventsOn: function(){
+		var that = this;
+
+		$("#chooseIntervalForTasks").on("click", "button", function(e){
+			e.preventDefault();
+
+			var inputFrom = $("#inputFrom").val() !== "" ? $("#inputFrom").val().split("/", 3) : "";
+			var inputTo = $("#inputTo").val() !== "" ? $("#inputTo").val().split("/", 3) : "";
+			var from = "";
+			var to = that.getCurrentDate();
+			if(inputFrom.length == 3){
+				from = inputFrom[2]+"-"+inputFrom[1]+"-"+inputFrom[0];
+			}
+			if(inputTo.length == 3){
+				to = inputTo[2]+"-"+inputTo[1]+"-"+inputTo[0];
+			}
+			var url = "/"+profile.getOrgId()+"/task-management/tasks?endOn="+to+"&startOn="+from+"&memberId="+that.getUserId();
+			that.listTasks(url);
+		});
+	},
 
 	bindEventsOn: function(){
 		var that = this;
