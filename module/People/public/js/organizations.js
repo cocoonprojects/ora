@@ -15,7 +15,6 @@ Organizations.prototype = {
 	bindEventsOn: function()
 	{
 		var that = this;
-
 		$('div#sign-in').on('loggedIn', function(e, user) {
 			$(this).hide();
 			sessionStorage.setItem('token', user.token);
@@ -23,7 +22,12 @@ Organizations.prototype = {
 			sessionStorage.setItem('avatar', user.avatar);
 			sessionStorage.setItem('email', user.email);
 			that.init();
-			that.loadMyOrganizations();
+			if(sessionStorage.redirectURL){
+				window.location = sessionStorage.redirectURL;
+				sessionStorage.removeItem('redirectURL');
+			}else{
+				that.loadMyOrganizations();
+			}
 		});
 
 		$('div#sign-in').on('loggedOut', function(e) {
@@ -65,6 +69,12 @@ Organizations.prototype = {
 			url: '/memberships',
 			headers: {
 				'GOOGLE-JWT': sessionStorage.token
+			}
+		}).fail(function( jqXHR, textStatus ) {
+			var errorCode = jqXHR.status;
+			if(errorCode === 401){
+				sessionStorage.setItem('redirectURL', '/memberships');
+				window.location = '/';
 			}
 		}).done(this.showMyOrganizations.bind(this));
 	},

@@ -459,6 +459,13 @@ TaskManagement.prototype = {
 				'GOOGLE-JWT': sessionStorage.token
 			},
 			method: 'GET'
+		}).fail(function( jqXHR, textStatus ) {
+			var errorCode = jqXHR.status;
+			var redirectURL = window.location.href;
+			if(errorCode === 401){
+				sessionStorage.setItem('redirectURL', redirectURL);
+				window.location = '/';
+			}
 		}).done(that.onListTasksCompleted.bind(that));
 	},
 	

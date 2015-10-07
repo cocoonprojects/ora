@@ -120,8 +120,14 @@ Accounting.prototype = {
 			},
 			method: 'GET',
 			dataType: 'json'
-		})
-		.done(this.onListTransactionsCompleted.bind(this));
+		}).fail(function( jqXHR, textStatus ) {
+			var errorCode = jqXHR.status;
+			var redirectURL = window.location.href;
+			if(errorCode === 401){
+				sessionStorage.setItem('redirectURL', redirectURL);
+				window.location = '/';
+			}
+		}).done(this.onListTransactionsCompleted.bind(this));
 	},
 
 	depositCredits: function(e)

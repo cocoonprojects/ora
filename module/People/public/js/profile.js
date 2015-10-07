@@ -7,10 +7,10 @@ Profile.prototype = {
 	classe : 'Profile',
 	data : [],
 
-	loadUserDetail : function(url) {
+	loadUserDetail : function(url, redirectURL) {
 		that = this;
 
-		var _url = window.location.protocol+"//"+window.location.host+url;
+		var _url = window.location.protocol + "//" + window.location.host + url;
 
 		$.ajax({
 			url : _url,
@@ -19,7 +19,13 @@ Profile.prototype = {
 			},
 			method : 'GET',
 			data : {
-				//id : userId
+			// id : userId
+			}
+		}).fail(function( jqXHR, textStatus ) {
+			var errorCode = jqXHR.status;
+			if(errorCode === 401){
+				sessionStorage.setItem('redirectURL', redirectURL);
+				window.location = '/';
 			}
 		}).done(that.onLoadUserProfileCompleted.bind(this));
 	},
@@ -70,6 +76,7 @@ $().ready(function(e) {
 	var orgId = elem.getAttribute("org-id");
 	var userId = elem.getAttribute("user-id");
 	var url = "/"+orgId+"/user-profiles/"+userId;
-	profile.loadUserDetail(url);
+	var redirectURL = "/"+orgId+"/profiles/"+userId;
+	profile.loadUserDetail(url, redirectURL);
 
 });
