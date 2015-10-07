@@ -48,11 +48,12 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @param Organization $organization
 	 * @param integer $offset
 	 * @param integer $limit
-	 * @param \DateTime $startOn
-	 * @param \DateTime $endOn
+	 * @param \DateTime | null $startOn
+	 * @param \DateTime | null $endOn
+	 * @param Uuid | null $memberId
 	 * @return Task[]
 	 */
-	public function findTasks(Organization $organization, $offset, $limit, \DateTime $startOn = null, \DateTime $endOn = null)
+	public function findTasks(Organization $organization, $offset, $limit, \DateTime $startOn = null, \DateTime $endOn = null, $memberId = null)
 	{
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('t')
@@ -71,15 +72,22 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			$query->andWhere('t.createdAt <= :endOn')
 				->setParameter('endOn', $endOn->format("Y-m-d")." 23:59:59");
 		}
+		if($memberId != null){
+			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
+				->setParameter('memberId', $memberId);
+		}
 		return $query->getQuery()->getResult();
 	}
 	
 	/**
 	 * 
 	 * @param Organization $organization
+	 * @param \DateTime | null $startOn
+	 * @param \DateTime | null $endOn
+	 * @param Uuid | null $memberId
 	 * @return \Doctrine\ORM\mixed
 	 */
-	public function countOrganizationTasks(Organization $organization, \DateTime $startOn = null, \DateTime $endOn = null ){
+	public function countOrganizationTasks(Organization $organization, \DateTime $startOn = null, \DateTime $endOn = null, $memberId = null){
 		
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('count(t)')
@@ -94,6 +102,10 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			$query->andWhere('t.createdAt <= :endOn')
 				->setParameter('endOn', $endOn->format("Y-m-d"));
 		}
+		if($memberId != null){
+			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
+			->setParameter('memberId', $memberId);
+		}
 		return intval($query->getQuery()->getSingleScalarResult());
 	}
 	
@@ -101,7 +113,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		return $this->entityManager->find(ReadModelTask::class, $id);
 	}
 	
-	public function findStreamTasks($streamId, $offset, $limit, \DateTime $startOn = null, \DateTime $endOn = null) {
+	public function findStreamTasks($streamId, $offset, $limit, \DateTime $startOn = null, \DateTime $endOn = null, $memberId = null) {
 		
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('t')
@@ -115,6 +127,10 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		if($endOn != null){
 			$query->andWhere('t.createdAt <= :endOn')
 			->setParameter('endOn', $endOn->format("Y-m-d"));
+		}
+		if($memberId != null){
+			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
+			->setParameter('memberId', $memberId);
 		}
 		return $query->getQuery()->getResult();
 	}

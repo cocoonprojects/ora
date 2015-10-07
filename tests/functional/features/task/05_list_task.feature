@@ -97,8 +97,8 @@ Feature: List tasks
   Scenario: Successfully getting an empty list of tasks in a date interval
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
-    Given that its "endOn" is "31/10/2015"
-    Given that its "startOn" is "01/10/2015"
+    Given that its "endOn" is "2000-10-31"
+    Given that its "startOn" is "2000-10-01"
     When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property

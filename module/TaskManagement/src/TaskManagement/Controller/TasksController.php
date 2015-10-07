@@ -17,6 +17,7 @@ use Zend\I18n\Validator\Int;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\GreaterThan;
 use Zend\Validator\Date as DateValidator;
+use Zend\Validator\Regex as UserIdValidator;
 
 class TasksController extends OrganizationAwareController
 {
@@ -105,11 +106,17 @@ class TasksController extends OrganizationAwareController
 		$dateValidator = new DateValidator();
 		if($dateValidator->isValid($this->getRequest()->getQuery("endOn"))){
 			$endOn = \DateTime::createFromFormat($dateValidator->getFormat(), $this->getRequest()->getQuery("endOn"));
-			$startOn = $dateValidator->isValid($this->getRequest()->getQuery("startOn")) ? \DateTime::createFromFormat($dateValidator->getFormat(), $this->getRequest()->getQuery("startOn")) : $this->getDefaultStartOn($endOn);
 		}
-		
-		$totalTasks = $this->taskService->countOrganizationTasks($this->organization, $startOn, $endOn);
-		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit, $startOn, $endOn) : $this->taskService->findStreamTasks($streamID, $offset, $limit, $startOn, $endOn);
+		if($dateValidator->isValid($this->getRequest()->getQuery("startOn"))){
+			$startOn = \DateTime::createFromFormat($dateValidator->getFormat(), $this->getRequest()->getQuery("startOn"));
+		}else if($endOn instanceof \DateTime){
+			$startOn = $this->getDefaultStartOn($endOn);
+		}
+		$uuidValidator = new UserIdValidator(array('pattern' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})'));
+		$memberId = $uuidValidator->isValid($this->getRequest()->getQuery("memberId")) ? $this->getRequest()->getQuery("memberId") : null;
+
+		$totalTasks = $this->taskService->countOrganizationTasks($this->organization, $startOn, $endOn, $memberId);
+		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit, $startOn, $endOn, $memberId) : $this->taskService->findStreamTasks($streamID, $offset, $limit, $startOn, $endOn, $memberId);
 
 		$view = new TaskJsonModel($this, $this->organization);
 
@@ -306,8 +313,7 @@ class TasksController extends OrganizationAwareController
 	}
 	
 	public function getDefaultStartOn(\DateTime $endOn){
-		
-		$dateRef = clone $endOn;
-		return $dateRef->sub(new \DateInterval('P1Y'));
+		$startOn = clone $endOn;
+		return $startOn->sub(new \DateInterval('P1Y'));
 	}
 }
