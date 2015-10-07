@@ -48,9 +48,11 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @param Organization $organization
 	 * @param integer $offset
 	 * @param integer $limit
+	 * @param \DateTime $startOn
+	 * @param \DateTime $endOn
 	 * @return Task[]
 	 */
-	public function findTasks(Organization $organization, $offset, $limit)
+	public function findTasks(Organization $organization, $offset, $limit, \DateTime $startOn = null, \DateTime $endOn = null)
 	{
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('t')
@@ -59,9 +61,17 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->orderBy('t.mostRecentEditAt', 'DESC')
 			->setFirstResult($offset)
 			->setMaxResults($limit)
-			->setParameter(':organization', $organization)
-			->getQuery();
-		return $query->getResult();
+			->setParameter(':organization', $organization);
+
+		if($startOn != null){
+			$query->andWhere('t.createdAt >= :startOn')
+				->setParameter('startOn', $startOn->format("Y-m-d")." 00:00:00");
+		}
+		if($endOn != null){
+			$query->andWhere('t.createdAt <= :endOn')
+				->setParameter('endOn', $endOn->format("Y-m-d")." 23:59:59");
+		}
+		return $query->getQuery()->getResult();
 	}
 	
 	/**
@@ -69,24 +79,44 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @param Organization $organization
 	 * @return \Doctrine\ORM\mixed
 	 */
-	public function countOrganizationTasks(Organization $organization){
+	public function countOrganizationTasks(Organization $organization, \DateTime $startOn = null, \DateTime $endOn = null ){
 		
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('count(t)')
 			->from(ReadModelTask::class, 't')
 			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
-			->setParameter(':organization', $organization)
-			->getQuery();
-		return intval($query->getSingleScalarResult());
+			->setParameter(':organization', $organization);
+		if($startOn != null){
+			$query->andWhere('t.createdAt >= :startOn')
+				->setParameter('startOn', $startOn->format("Y-m-d"));
+		}
+		if($endOn != null){
+			$query->andWhere('t.createdAt <= :endOn')
+				->setParameter('endOn', $endOn->format("Y-m-d"));
+		}
+		return intval($query->getQuery()->getSingleScalarResult());
 	}
 	
 	public function findTask($id) {
 		return $this->entityManager->find(ReadModelTask::class, $id);
 	}
 	
-	public function findStreamTasks($streamId, $offset, $limit) {
-		$repository = $this->entityManager->getRepository(ReadModelTask::class);
-		return $repository->findBy(array('stream' => $streamId), [], $limit, $offset);
+	public function findStreamTasks($streamId, $offset, $limit, \DateTime $startOn = null, \DateTime $endOn = null) {
+		
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('t')
+			->from(ReadModelTask::class, 't')
+			->where('t.stream = :streamId')
+			->setParameter(':streamId', $streamId);
+		if($startOn != null){
+			$query->andWhere('t.createdAt >= :startOn')
+			->setParameter('startOn', $startOn->format("Y-m-d"));
+		}
+		if($endOn != null){
+			$query->andWhere('t.createdAt <= :endOn')
+			->setParameter('endOn', $endOn->format("Y-m-d"));
+		}
+		return $query->getQuery()->getResult();
 	}
 	
 	/**

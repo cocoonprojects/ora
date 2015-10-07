@@ -16,6 +16,7 @@ use Zend\Validator\NotEmpty;
 use Zend\I18n\Validator\Int;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\GreaterThan;
+use Zend\Validator\Date as DateValidator;
 
 class TasksController extends OrganizationAwareController
 {
@@ -46,7 +47,6 @@ class TasksController extends OrganizationAwareController
 		$this->taskService = $taskService;
 		$this->streamService = $streamService;
 		$this->intervalForCloseTasks = new \DateInterval('P7D');
-		$this->pageSize = 10;
 	}
 	
 	public function get($id)
@@ -93,15 +93,23 @@ class TasksController extends OrganizationAwareController
 		
 		$streamID = $this->getRequest()->getQuery('streamID');
 
-		$validator = new ValidatorChain();
-		$validator->attach(new Int())
+		$integerValidator = new ValidatorChain();
+		$integerValidator->attach(new Int())
 			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
 		
-		$offset = $validator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
-		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getListLimit(); 
+		$offset = $integerValidator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
+		$limit = $integerValidator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getListLimit(); 
 		
-		$totalTasks = $this->taskService->countOrganizationTasks($this->organization);
-		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit) : $this->taskService->findStreamTasks($streamID, $offset, $limit);
+		$startOn = null;
+		$endOn = null;
+		$dateValidator = new DateValidator();
+		if($dateValidator->isValid($this->getRequest()->getQuery("endOn"))){
+			$endOn = \DateTime::createFromFormat($dateValidator->getFormat(), $this->getRequest()->getQuery("endOn"));
+			$startOn = $dateValidator->isValid($this->getRequest()->getQuery("startOn")) ? \DateTime::createFromFormat($dateValidator->getFormat(), $this->getRequest()->getQuery("startOn")) : $this->getDefaultStartOn($endOn);
+		}
+		
+		$totalTasks = $this->taskService->countOrganizationTasks($this->organization, $startOn, $endOn);
+		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit, $startOn, $endOn) : $this->taskService->findStreamTasks($streamID, $offset, $limit, $startOn, $endOn);
 
 		$view = new TaskJsonModel($this, $this->organization);
 
@@ -295,5 +303,11 @@ class TasksController extends OrganizationAwareController
 	
 	public function getListLimit(){
 		return $this->listLimit;
+	}
+	
+	public function getDefaultStartOn(\DateTime $endOn){
+		
+		$dateRef = clone $endOn;
+		return $dateRef->sub(new \DateInterval('P1Y'));
 	}
 }

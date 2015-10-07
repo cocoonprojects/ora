@@ -341,4 +341,70 @@ class TasksControllerTest extends ControllerTest {
 		$this->assertEquals(1, $arrayResult['count']);
 		$this->assertEquals(2, $arrayResult['total']);
 	}
+
+	public function testGetListWithDateInterval(){
+
+		$this->user->addMembership($this->organization);
+		$this->setupLoggedUser($this->user);
+
+		$this->controller->getOrganizationService()
+		->expects($this->once())
+		->method('findOrganization')
+		->with($this->organization->getId())
+		->willReturn($this->organization);
+
+		$this->controller->getTaskService()
+		->expects($this->once())
+		->method('countOrganizationTasks')
+		->with($this->organization)
+		->willReturn(2);
+
+		$task1 = new Task('1', $this->stream);
+		$task1->setSubject('Lorem ipsum')
+		->setCreatedAt(new \DateTime('2000-01-01'))
+		->setCreatedBy($this->user)
+		->setMostRecentEditAt($task1->getCreatedAt())
+		->setMostRecentEditBy($task1->getCreatedBy())
+		->addMember($this->user, Task::ROLE_OWNER, $this->user, $task1->getCreatedAt());
+
+		$task2 = new Task('2', $this->stream);
+		$task2->setSubject('dolor sit amet')
+		->setCreatedAt(new \DateTime('2015-12-31'))
+		->setCreatedBy($this->user)
+		->setMostRecentEditAt($task2->getCreatedAt())
+		->setMostRecentEditBy($task2->getCreatedBy())
+		->addMember($this->user, Task::ROLE_OWNER, $this->user, $task2->getCreatedAt());
+
+		$task3 = new Task('3', $this->stream);
+		$task3->setSubject('consectetur adipiscing elit')
+		->setCreatedAt(new \DateTime('2015-10-01'))
+		->setCreatedBy($this->user)
+		->setMostRecentEditAt($task3->getCreatedAt())
+		->setMostRecentEditBy($task3->getCreatedBy())
+		->addMember($this->user, Task::ROLE_OWNER, $this->user, $task3->getCreatedAt());
+
+		$this->controller->getTaskService()
+		->expects($this->once())
+		->method('findTasks')
+		->willReturn([
+				$task2,
+				$task3
+		]);
+
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+
+		$params = $this->request->getQuery();
+		$params->set('endOn', '31/12/2015');
+
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+
+		$this->assertEquals(200, $response->getStatusCode());
+		$arrayResult = json_decode($result->serialize(), true);
+		$this->assertCount(2, $arrayResult['_embedded']['ora:task']);
+		$this->assertNotEmpty($arrayResult['_links']['self']['href']);
+		$this->assertArrayNotHasKey('next', $arrayResult['_links']);
+		$this->assertEquals(2, $arrayResult['count']);
+		$this->assertEquals(2, $arrayResult['total']);
+	}
 }
