@@ -49,8 +49,6 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @param Organization $organization
 	 * @param integer $offset
 	 * @param integer $limit
-	 * @param \DateTime | null $startOn
-	 * @param \DateTime | null $endOn
 	 * @param array $queryOptions
 	 * @return Task[]
 	 */
@@ -84,7 +82,6 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 					->setParameter('memberEmail', $queryOptions["memberEmail"]);
 			}
 		}
-
 		return $query->getQuery()->getResult();
 	}
 	
@@ -129,7 +126,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	public function findTask($id) {
 		return $this->entityManager->find(ReadModelTask::class, $id);
 	}
-	
+
 	public function findStreamTasks($streamId, $offset, $limit, $queryOptions){
 		
 		$builder = $this->entityManager->createQueryBuilder();
