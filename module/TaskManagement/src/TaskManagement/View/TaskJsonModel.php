@@ -48,73 +48,114 @@ class TaskJsonModel extends JsonModel
 		}
 		return Json::encode($hal);
 	}
-
 	protected function serializeOne(TaskInterface $task) {
+		$links = [ ];
 		
-		$links = [];
-		if($this->controller->isAllowed($this->controller->identity(), $task, 'TaskManagement.Task.get')){
-			$links['self']['href'] = $this->controller->url()->fromRoute('tasks', ['id' => $task->getId(), 'orgId' => $task->getOrganizationId()]);
-		}
-
-		if($this->controller->isAllowed($this->controller->identity(), $task, 'TaskManagement.Task.edit')){
-			$links['ora:edit'] = $this->controller->url()->fromRoute('tasks', ['id' => $task->getId(), 'orgId' => $task->getOrganizationId()]);
-		}
-
-		if($this->controller->isAllowed($this->controller->identity(), $task, 'TaskManagement.Task.delete')){
-			$links['ora:delete'] = $this->controller->url()->fromRoute('tasks', ['id' => $task->getId(), 'orgId' => $task->getOrganizationId()]);
-		}
-
-		if($this->controller->isAllowed($this->controller->identity(), $task, 'TaskManagement.Task.join')){
-			$links['ora:join'] = $this->controller->url()->fromRoute('tasks', ['id' => $task->getId(), 'orgId' => $task->getOrganizationId(), 'controller' => 'members']);
-		}
-
-		if ($this->controller->isAllowed($this->controller->identity(), $task, 'TaskManagement.Task.unjoin')) {
-			$links['ora:unjoin'] = $this->controller->url()->fromRoute('tasks', ['id' => $task->getId(), 'orgId' => $task->getOrganizationId(), 'controller' => 'members']);
-		}
-
-		if ($this->controller->isAllowed($this->controller->identity(), $task, 'TaskManagement.Task.estimate')) {
-			$links['ora:estimate'] = $this->controller->url()->fromRoute('tasks', ['id' => $task->getId(), 'orgId' => $task->getOrganizationId(), 'controller' => 'estimations']);
-		}
-
-		if ($this->controller->isAllowed($this->controller->identity(), $task, 'TaskManagement.Task.execute')) {
-			$links['ora:execute'] = $this->controller->url()->fromRoute('tasks', ['id' => $task->getId(), 'orgId' => $task->getOrganizationId(), 'controller' => 'transitions']);
-		}
-
-		if ($this->controller->isAllowed($this->controller->identity(), $task, 'TaskManagement.Task.complete')) {
-			$links['ora:complete'] = $this->controller->url()->fromRoute('tasks', ['id' => $task->getId(), 'orgId' => $task->getOrganizationId(), 'controller' => 'transitions']);
-		}
-
-		if ($this->controller->isAllowed($this->controller->identity(), $task, 'TaskManagement.Task.accept')) {
-			$links['ora:accept'] = $this->controller->url()->fromRoute('tasks', ['id' => $task->getId(), 'orgId' => $task->getOrganizationId(), 'controller' => 'transitions']);
-		}
-
-		if ($this->controller->isAllowed($this->controller->identity(), $task, 'TaskManagement.Task.assignShares')) {
-			$links['ora:assignShares'] = $this->controller->url()->fromRoute('tasks', ['id' => $task->getId(), 'orgId' => $task->getOrganizationId(), 'controller' => 'shares']);
-		}
-
-		if($this->controller->isAllowed($this->controller->identity(), $task,'TaskManagement.Reminder.add-estimation')){
-			$links['ora:remindEstimation'] = $this->controller->url()->fromRoute('task-reminders', ['id'=>'add-estimation']);
+		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.get' )) {
+			$links ['self'] ['href'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+					'id' => $task->getId (),
+					'orgId' => $task->getOrganizationId () 
+			] );
 		}
 		
-		$rv = [
-			'id' => $task->getId (),
-			'subject' => $task->getSubject(),
-			'createdAt' => date_format($task->getCreatedAt(), 'c'),
-			'createdBy' => is_null ( $task->getCreatedBy () ) ? "" : $task->getCreatedBy ()->getFirstname () . " " . $task->getCreatedBy ()->getLastname (),
-			'type' => $task->getType (),
-			'status' => $task->getStatus(),
-			'stream' => $this->getStream($task),
-			'members' => array_map(array($this, 'serializeOneMember'), $task->getMembers()),
+		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.edit' )) {
+			$links ['ora:edit'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+					'id' => $task->getId (),
+					'orgId' => $task->getOrganizationId () 
+			] );
+		}
+		
+		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.delete' )) {
+			$links ['ora:delete'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+					'id' => $task->getId (),
+					'orgId' => $task->getOrganizationId () 
+			] );
+		}
+		
+		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.join' )) {
+			$links ['ora:join'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+					'id' => $task->getId (),
+					'orgId' => $task->getOrganizationId (),
+					'controller' => 'members' 
+			] );
+		}
+		
+		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.unjoin' )) {
+			$links ['ora:unjoin'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+					'id' => $task->getId (),
+					'orgId' => $task->getOrganizationId (),
+					'controller' => 'members' 
+			] );
+		}
+		
+		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.estimate' )) {
+			$links ['ora:estimate'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+					'id' => $task->getId (),
+					'orgId' => $task->getOrganizationId (),
+					'controller' => 'estimations' 
+			] );
+		}
+		
+		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.execute' )) {
+			$links ['ora:execute'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+					'id' => $task->getId (),
+					'orgId' => $task->getOrganizationId (),
+					'controller' => 'transitions' 
+			] );
+		}
+		
+		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.complete' )) {
+			$links ['ora:complete'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+					'id' => $task->getId (),
+					'orgId' => $task->getOrganizationId (),
+					'controller' => 'transitions' 
+			] );
+		}
+		
+		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.accept' )) {
+			$links ['ora:accept'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+					'id' => $task->getId (),
+					'orgId' => $task->getOrganizationId (),
+					'controller' => 'transitions' 
+			] );
+		}
+		
+		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.assignShares' )) {
+			$links ['ora:assignShares'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+					'id' => $task->getId (),
+					'orgId' => $task->getOrganizationId (),
+					'controller' => 'shares' 
+			] );
+		}
+		
+		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Reminder.add-estimation' )) {
+			$links ['ora:remindEstimation'] = $this->controller->url ()->fromRoute ( 'task-reminders', [ 
+					'id' => 'add-estimation' 
+			] );
+		}
+		
+		$rv = [ 
+				'id' => $task->getId (),
+				'subject' => $task->getSubject (),
+				'createdAt' => date_format ( $task->getCreatedAt (), 'c' ),
+				'createdBy' => is_null ( $task->getCreatedBy () ) ? "" : $task->getCreatedBy ()->getFirstname () . " " . $task->getCreatedBy ()->getLastname (),
+				'type' => $task->getType (),
+				'status' => $task->getStatus (),
+				'stream' => $this->getStream ( $task ),
+				'members' => array_map ( array (
+						$this,
+						'serializeOneMember' 
+				), $task->getMembers () ) 
 		];
 		
-		if($task->getStatus() >= Task::STATUS_ONGOING) {
-			$rv['estimation'] = $task->getAverageEstimation();
+		if ($task->getStatus () >= Task::STATUS_ONGOING) {
+			$rv ['estimation'] = $task->getAverageEstimation ();
 		}
-		if($task->getStatus() >= Task::STATUS_ACCEPTED) {
-			$rv['acceptedAt'] = is_null($task->getAcceptedAt()) ? null : date_format($task->getAcceptedAt(), 'c');
-			$rv['daysRemainingToAssignShares'] = $this->getDaysLeftForAssignShares($task);
+		if ($task->getStatus () >= Task::STATUS_ACCEPTED) {
+			$rv ['acceptedAt'] = is_null ( $task->getAcceptedAt () ) ? null : date_format ( $task->getAcceptedAt (), 'c' );
+			$rv ['daysRemainingToAssignShares'] = $this->getDaysLeftForAssignShares ( $task );
 		}
-		$rv['_links'] = $links;
+		$rv ['_links'] = $links;
 		return $rv;
 	}
 	

@@ -6,6 +6,7 @@ use Zend\Permissions\Acl\Acl;
 use Zend\Permissions\Acl\Resource\ResourceInterface;
 use Zend\Permissions\Acl\Role\RoleInterface;
 use Application\Entity\User;
+use TaskManagement\Entity\Task;
 
 class OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion extends NotCompletedTaskAssertion
 {
@@ -13,6 +14,6 @@ class OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion extends NotCom
 	{
 		return parent::assert($acl, $user, $resource, $privilege)
 			&& $user->isMemberOf($resource->getOrganizationId())
-			&& !$resource->hasMember($user);
+			&& !$resource->hasMember($user) && $resource->getStatus() != Task::STATUS_IDEA ;
 	}
 }

@@ -4,6 +4,8 @@ namespace TaskManagement\Service;
 
 use Application\Entity\User;
 use TaskManagement\Entity\Task;
+use People\Entity\Organization;
+use TaskManagement\Stream;
 
 interface NotificationService
 {
@@ -43,4 +45,15 @@ interface NotificationService
 	 * @return void
 	 */
 	public function sendTaskClosedInfoMail(Task $task);
+	
+	/**
+	 * Send notification to members that a new Work Item Idea has been created
+	 * @param Task $task
+	 * @param User $member
+	 * @param $membership
+	 * @param Organization $org
+	 * @param Stream $stream
+	 * @return void
+	 */
+	public function sendWorkItemIdeaCreatedMail(Task $task, User $member, $membership, Organization $org, Stream $stream);
 }

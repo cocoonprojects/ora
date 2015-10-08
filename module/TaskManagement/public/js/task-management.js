@@ -80,6 +80,28 @@ TaskManagement.prototype = {
 			e.preventDefault();
 			that.createNewStream(e);
 		});
+		//Create Work Item Idea Modal
+		$("#createIdeaModal").on("show.bs.modal", function(e) {
+			var form = $(this).find("form");
+			form[0].reset();
+			$(this).find('div.alert').hide();
+			
+			var select = form.find("#createIdeaStreamID");
+			select.empty();
+			select.append('<option></option>');
+			$.each(that.streamsData._embedded['ora:stream'], function(i, object) {
+				select.append('<option value="' + object.id + '">' + object.subject + '</option>');
+			});
+		});
+		
+		$("#createTaskModal").on("shown.bs.modal", function(e) {
+			$("#createIdeaModal :input:text:enabled:first").focus()
+		});
+		
+		$("#createIdeaModal").on("submit", "form", function(e){
+			e.preventDefault();
+			that.createNewIdea(e);
+		});
 		
 		$("#editTaskModal").on("show.bs.modal", function(e) {
 			var button = $(e.relatedTarget) // Button that triggered the modal
@@ -489,9 +511,11 @@ TaskManagement.prototype = {
 		this.data = json;
 		if(this.data._links !== undefined && this.data._links['ora:create'] !== undefined) {
 			$("#createTaskModal form").attr("action", this.data._links['ora:create']['href']);
+			$("#createIdeaModal form").attr("action", this.data._links['ora:create']['href']);
 			$("#createTaskBtn").show();
 		} else {
 			$("#createTaskModal form").attr("action", null);
+			$("#createIdeaModal form").attr("action", null);
 			$("#createTaskBtn").hide();
 		}
 
@@ -755,6 +779,29 @@ TaskManagement.prototype = {
 			},
 			error: function(jqHXR, textStatus, errorThrown) {
 				that.show(modal, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to create the stream');
+			}
+		});
+	},
+	
+	createNewIdea: function(e)
+	{
+		var modal = $(e.delegateTarget);
+		var form  = $(e.target);
+
+		var that = this;
+		$.ajax({
+			url: form.attr('action'),
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
+			method: 'POST',
+			data: form.serialize(),
+			success: function() {
+				modal.modal('hide');
+				that.listTasks();
+			},
+			error: function(jqHXR, textStatus, errorThrown) {
+				that.show(modal, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to create the work item idea');
 			}
 		});
 	},

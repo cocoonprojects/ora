@@ -13,6 +13,7 @@
 		<ul class="dropdown-menu" role="menu" style="left: -200%;">
 			<li><a href="#" data-toggle="modal" data-target="#createStreamModal">New Stream</a></li>
 			<li><a href="#" data-toggle="modal"	data-target="#createTaskModal">New Task</a></li>
+			<li><a href="#" data-toggle="modal"	data-target="#createIdeaModal">New Work Item Idea</a></li>
 		</ul>
 </div>
 <div class="container" id="content">
@@ -41,3 +42,4 @@ function onLoad() {
 <?php echo $this->partial('task-management/index/assign-shares-modal.phtml') ?>
 <?php echo $this->partial('task-management/index/task-detail-modal.phtml') ?>
 <?php echo $this->partial('task-management/index/create-stream-modal.phtml') ?>
+<?php echo $this->partial('task-management/index/create-idea-modal.phtml') ?>

@@ -51,14 +51,17 @@ class Task extends DomainEntity implements TaskInterface
 	protected $sharesAssignmentExpiresAt;
 
 	public static function create(Stream $stream, $subject, BasicUser $createdBy, array $options = null) {
+		$status = is_null($options) ? self::STATUS_ONGOING : $options['status'];
 		$rv = new self();
 		$rv->recordThat(TaskCreated::occur(Uuid::uuid4()->toString(), [
-			'status' => self::STATUS_ONGOING,
+			//'status' => self::STATUS_ONGOING,
+			'status' => $status,
 			'organizationId' => $stream->getOrganizationId(),
 			'streamId' => $stream->getId(),
 			'by' => $createdBy->getId()
 		]));
 		$rv->setSubject($subject, $createdBy);
+
 		return $rv;
 	}
 	

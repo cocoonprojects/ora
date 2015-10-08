@@ -21,6 +21,8 @@ use TaskManagement\Service\EventSourcingStreamService;
 use TaskManagement\Service\EventSourcingTaskService;
 use TaskManagement\Controller\RemindersController;
 use TaskManagement\Controller\MailController;
+use People\OrganizationService;
+use TaskManagement\Service\StreamService;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
@@ -109,7 +111,9 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$mailService = $locator->get('AcMailer\Service\MailService');
 					$userService = $locator->get('Application\UserService');
 					$taskService = $locator->get('TaskManagement\TaskService');
-					$rv = new NotifyMailListener($mailService, $userService, $taskService);
+					$orgService = $locator->get('People\OrganizationService');
+					$streamService = $locator->get('TaskManagement\StreamService');
+					$rv = new NotifyMailListener($mailService, $userService, $taskService, $orgService, $streamService);
 					return $rv;
 				},
 				'TaskManagement\TaskService' => function ($locator) {
