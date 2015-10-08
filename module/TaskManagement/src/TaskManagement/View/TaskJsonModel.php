@@ -177,7 +177,7 @@ class TaskJsonModel extends JsonModel
 				'lastname' => $member->getLastname(),
 				'picture' => $member->getPicture(),
 				'role' => $tm->getRole(),
-				'createdAt' => date_format($tm->getCreatedAt(), 'c'),
+				'createdAt' => date_format($tm->getCreatedAt(), 'c')
 			];
 			if(!(is_null($tm->getEstimation()) || is_null($tm->getEstimation()->getValue()))) {
 				$rv['estimation'] = $tm->getEstimation()->getValue();
@@ -187,6 +187,7 @@ class TaskJsonModel extends JsonModel
 			if($tm->getShare() != null && $tm->getTask()->getStatus() >= Task::STATUS_CLOSED) {
 				$rv['share'] = $tm->getShare();
 				$rv['delta'] = $tm->getDelta();
+				$rv['credits'] = $tm->getCredits();
 			}
 			foreach ($tm->getShares() as $key => $share) {
 				$rv['shares'][$key] = array(

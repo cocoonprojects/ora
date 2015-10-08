@@ -209,4 +209,8 @@ class TaskMember
 		$this->task = null;
 		return $this;
 	}
+
+	public function getCredits(){
+		return round($this->task->getAverageEstimation() * $this->share,2);
+	}
 }
