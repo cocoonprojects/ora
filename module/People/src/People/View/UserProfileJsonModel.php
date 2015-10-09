@@ -36,7 +36,7 @@ class UserProfileJsonModel extends JsonModel
 									'name'=>$organization->getName(),
 								],
 								'role'=>$role,
-								'createdAt'=>$membership->getCreatedAt(),
+								'createdAt'=>$membership->getCreatedAt()->format("d/m/Y"),
 								'createdBy'=>$membership->getCreatedBy(),
 						],
 						'credits'=>[

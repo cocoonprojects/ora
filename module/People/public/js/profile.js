@@ -128,7 +128,8 @@ Profile.prototype = {
 		}
 
 		var membData = json._embedded['ora:organization-membership'];
-		$('#orgMembership').html(membData.role + " of " + membData.organization.name);
+		$('#orgName').html(membData.organization.name);
+		$('#orgMembership').html(membData.role + " since " + membData.createdAt);
 		
 		var creditsData = json._embedded['credits'];
 		//Generated credits Table
