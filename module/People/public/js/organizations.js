@@ -182,6 +182,12 @@ Organizations.prototype = {
 				'GOOGLE-JWT': sessionStorage.token
 			},
 			method: 'GET',
+		}).fail(function( jqXHR, textStatus ) {
+			var errorCode = jqXHR.status;
+			if(errorCode === 401){
+				sessionStorage.setItem('redirectURL', '/organizations');
+				window.location = '/';
+			}
 		}).done(that.onLoadOrganizationsCompleted.bind(this));
 	},
 
