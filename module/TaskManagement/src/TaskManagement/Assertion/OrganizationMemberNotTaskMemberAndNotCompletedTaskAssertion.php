@@ -14,6 +14,6 @@ class OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion extends NotCom
 	{
 		return parent::assert($acl, $user, $resource, $privilege)
 			&& $user->isMemberOf($resource->getOrganizationId())
-			&& !$resource->hasMember($user) && $resource->getStatus() != Task::STATUS_IDEA ;
+			&& !$resource->hasMember($user) && $resource->getStatus() > Task::STATUS_IDEA ;
 	}
 }
