@@ -3,7 +3,6 @@ namespace TaskManagement\Controller;
 
 use Application\Controller\OrganizationAwareController;
 use Application\IllegalStateException;
-use Application\Service\UserService;
 use People\Service\OrganizationService;
 use TaskManagement\Service\StreamService;
 use TaskManagement\Service\TaskService;
@@ -43,18 +42,13 @@ class TasksController extends OrganizationAwareController
 	 * @var integer
 	 */
 	protected $listLimit = self::DEFAULT_TASKS_LIMIT;
-	/**
-	 * @var UserService
-	 */
-	private $userService;
 	
-	public function __construct(TaskService $taskService, StreamService $streamService, OrganizationService $organizationService, UserService $userService)
+	public function __construct(TaskService $taskService, StreamService $streamService, OrganizationService $organizationService)
 	{
 		parent::__construct($organizationService);
 		$this->taskService = $taskService;
 		$this->streamService = $streamService;
 		$this->intervalForCloseTasks = new \DateInterval('P7D');
-		$this->userService = $userService;
 	}
 	
 	public function get($id)
@@ -101,6 +95,7 @@ class TasksController extends OrganizationAwareController
 		
 		$streamID = $this->getRequest()->getQuery('streamID');
 
+		$filterOptions = [];
 		$integerValidator = new ValidatorChain();
 		$integerValidator->attach(new Int())
 			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
@@ -110,29 +105,24 @@ class TasksController extends OrganizationAwareController
 		
 		$offset = $integerValidator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
 		$limit = $integerValidator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getListLimit();
-		$startOn = null;
-		$endOn = null;
+		$endOn = new \DateTime();
+		$startOn = $this->getDefaultStartOn($endOn);
 		if($dateValidator->isValid($this->getRequest()->getQuery("endOn"))){
 			$endOn = \DateTime::createFromFormat($dateValidator->getFormat(), $this->getRequest()->getQuery("endOn"));
 		}
 		if($dateValidator->isValid($this->getRequest()->getQuery("startOn"))){
 			$startOn = \DateTime::createFromFormat($dateValidator->getFormat(), $this->getRequest()->getQuery("startOn"));
-		}else if($endOn instanceof \DateTime){
-			$startOn = $this->getDefaultStartOn($endOn);
 		}
 		$memberId = $uuidValidator->isValid($this->getRequest()->getQuery("memberId")) ? $this->getRequest()->getQuery("memberId") : null;
+		$memberEmail = $emailValidator->isValid($this->getRequest()->getQuery("memberEmail")) ? $this->getRequest()->getQuery("memberEmail") : null;
 
-		if($emailValidator->isValid($this->getRequest()->getQuery("memberEmail"))){
-			$member = $this->userService->findUserByEmail($this->getRequest()->getQuery("memberEmail"));
-			if($member != null){
-				$memberId = $member->getId();
-			}else{
-				$memberId = "";
-			}
-		}
+		$queryOptions["endOn"] = $endOn->format("Y-m-d")." 23:59:59";
+		$queryOptions["startOn"] = $startOn->format("Y-m-d")." 00:00:00";
+		$queryOptions["memberId"] = $memberId;
+		$queryOptions["memberEmail"] = $memberEmail;
 
-		$totalTasks = $this->taskService->countOrganizationTasks($this->organization, $startOn, $endOn, $memberId);
-		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit, $startOn, $endOn, $memberId) : $this->taskService->findStreamTasks($streamID, $offset, $limit, $startOn, $endOn, $memberId);
+		$totalTasks = $this->taskService->countOrganizationTasks($this->organization, $queryOptions);
+		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit, $queryOptions) : $this->taskService->findStreamTasks($streamID, $offset, $limit, $queryOptions);
 
 		$view = new TaskJsonModel($this, $this->organization);
 

@@ -50,10 +50,10 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @param integer $limit
 	 * @param \DateTime | null $startOn
 	 * @param \DateTime | null $endOn
-	 * @param Uuid | null $memberId
+	 * @param array $queryOptions
 	 * @return Task[]
 	 */
-	public function findTasks(Organization $organization, $offset, $limit, \DateTime $startOn = null, \DateTime $endOn = null, $memberId = null)
+	public function findTasks(Organization $organization, $offset, $limit, $queryOptions)
 	{
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('t')
@@ -64,18 +64,26 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->setMaxResults($limit)
 			->setParameter(':organization', $organization);
 
-		if($startOn !== null){
-			$query->andWhere('t.createdAt >= :startOn')
-				->setParameter('startOn', $startOn->format("Y-m-d")." 00:00:00");
+		if(is_array($queryOptions)){
+			if(isset($queryOptions["startOn"]) && !empty($queryOptions["startOn"])){
+				$query->andWhere('t.createdAt >= :startOn')
+					->setParameter('startOn', $queryOptions["startOn"]);
+			}
+			if(isset($queryOptions["endOn"]) && !empty($queryOptions["endOn"])){
+				$query->andWhere('t.createdAt <= :endOn')
+					->setParameter('endOn', $queryOptions["endOn"]);
+			}
+			if(isset($queryOptions["memberId"]) && !empty($queryOptions["memberId"])){
+				$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
+					->setParameter('memberId', $queryOptions["memberId"]);
+			}
+			if(isset($queryOptions["memberEmail"]) && !empty($queryOptions["memberEmail"])){
+				$query->innerJoin('t.members', 'm')
+					->innerJoin('m.user', 'u', 'WITH', 'u.email = :memberEmail')
+					->setParameter('memberEmail', $queryOptions["memberEmail"]);
+			}
 		}
-		if($endOn !== null){
-			$query->andWhere('t.createdAt <= :endOn')
-				->setParameter('endOn', $endOn->format("Y-m-d")." 23:59:59");
-		}
-		if($memberId !== null){
-			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
-				->setParameter('memberId', $memberId);
-		}
+
 		return $query->getQuery()->getResult();
 	}
 	
@@ -84,27 +92,37 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @param Organization $organization
 	 * @param \DateTime | null $startOn
 	 * @param \DateTime | null $endOn
-	 * @param Uuid | null $memberId
+	 * @param array $queryOptions
 	 * @return \Doctrine\ORM\mixed
 	 */
-	public function countOrganizationTasks(Organization $organization, \DateTime $startOn = null, \DateTime $endOn = null, $memberId = null){
+	public function countOrganizationTasks(Organization $organization, $queryOptions){
 		
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('count(t)')
 			->from(ReadModelTask::class, 't')
 			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
 			->setParameter(':organization', $organization);
-		if($startOn !== null){
-			$query->andWhere('t.createdAt >= :startOn')
-				->setParameter('startOn', $startOn->format("Y-m-d")." 00:00:00");
-		}
-		if($endOn !== null){
-			$query->andWhere('t.createdAt <= :endOn')
-				->setParameter('endOn', $endOn->format("Y-m-d")." 23:59:59");
-		}
-		if($memberId !== null){
-			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
-			->setParameter('memberId', $memberId);
+
+		if(is_array($queryOptions)){
+			if(isset($options["startOn"]) && !empty($queryOptions["startOn"])){
+				$query->andWhere('t.createdAt >= :startOn')
+				->setParameter('startOn', $queryOptions["startOn"]);
+			}
+			if(isset($queryOptions["endOn"]) && !empty($queryOptions["endOn"])){
+				$query->andWhere('t.createdAt <= :endOn')
+				->setParameter('endOn', $queryOptions["endOn"]);
+			}
+			if(isset($queryOptions["memberId"]) && !empty($queryOptions["memberId"])){
+				//$query->addSelect('m.role')
+				$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
+				->setParameter('memberId', $queryOptions["memberId"]);
+				//->groupBy("m.role");
+			}
+			if(isset($queryOptions["memberEmail"]) && !empty($queryOptions["memberEmail"])){
+				$query->innerJoin('t.members', 'm')
+				->innerJoin('m.user', 'u', 'WITH', 'u.email = :memberEmail')
+				->setParameter('memberEmail', $queryOptions["memberEmail"]);
+			}
 		}
 		return intval($query->getQuery()->getSingleScalarResult());
 	}
@@ -113,24 +131,32 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		return $this->entityManager->find(ReadModelTask::class, $id);
 	}
 	
-	public function findStreamTasks($streamId, $offset, $limit, \DateTime $startOn = null, \DateTime $endOn = null, $memberId = null) {
+	public function findStreamTasks($streamId, $offset, $limit, $queryOptions){
 		
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('t')
 			->from(ReadModelTask::class, 't')
 			->where('t.stream = :streamId')
 			->setParameter(':streamId', $streamId);
-		if($startOn !== null){
-			$query->andWhere('t.createdAt >= :startOn')
-			->setParameter('startOn', $startOn->format("Y-m-d")." 00:00:00");
-		}
-		if($endOn !== null){
-			$query->andWhere('t.createdAt <= :endOn')
-			->setParameter('endOn', $endOn->format("Y-m-d")." 23:59:59");
-		}
-		if($memberId !== null){
-			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
-			->setParameter('memberId', $memberId);
+
+		if(is_array($queryOptions)){
+			if(isset($queryOptions["startOn"]) && !empty($queryOptions["startOn"])){
+				$query->andWhere('t.createdAt >= :startOn')
+					->setParameter('startOn', $queryOptions["startOn"]);
+			}
+			if(isset($queryOptions["endOn"]) && !empty($queryOptions["endOn"])){
+				$query->andWhere('t.createdAt <= :endOn')
+					->setParameter('endOn', $queryOptions["endOn"]);
+			}
+			if(isset($queryOptions["memberId"]) && !empty($queryOptions["memberId"])){
+				$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
+					->setParameter('memberId', $queryOptions["memberId"]);
+			}
+			if(isset($queryOptions["memberEmail"]) && !empty($queryOptions["memberEmail"])){
+				$query->innerJoin('t.members', 'm')
+					->innerJoin('m.user', 'u', 'WITH', 'u.email = :memberEmail')
+					->setParameter('memberEmail', $queryOptions["memberEmail"]);
+			}
 		}
 		return $query->getQuery()->getResult();
 	}

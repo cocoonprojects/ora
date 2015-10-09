@@ -1,4 +1,5 @@
 <?php
+$this->headScript ()->appendFile ( $this->basePath () . '/js/task-utils.js' );
 $this->headScript ()->appendFile ( $this->basePath () . '/js/profile.js' );
 ?>
 <div class="container" id="content">
@@ -75,21 +76,17 @@ $this->headScript ()->appendFile ( $this->basePath () . '/js/profile.js' );
 			<div class="col-md-12">
 					<h2>Tasks</h2>
 			</div>
-			<div class="row">
-				<form class="form-horizontal" id="tasksFilter">
-					<div class="form-group">
-						<label for="inputFrom" class="col-lg-1 control-label">From</label>
-						<div class="col-lg-2">
-							<input type="text" class="form-control" id="inputFrom" placeholder="gg/mm/aaaa">
-						</div>
-						<label for="inputTo" class="col-lg-1 control-label">To</label>
-						<div class="col-lg-2">
-							<input type="text" class="form-control" id="inputTo" placeholder="gg/mm/aaaa">
-						</div>
-						<div class="col-lg-2">
-							<button type="submit" class="btn btn-primary btn-sm">Filter</button>
-						</div>
+			<div class="col-md-12">
+				<form class="form-inline" id="tasksFilter">
+					<div class="text-left form-group">
+						<label for="inputFrom" class="control-label">From</label>
+						<input type="text" class="form-control" id="startOn" placeholder="gg/mm/aaaa">
 					</div>
+					<div class="text-left form-group">
+						<label for="inputTo" class="control-label">To</label>
+						<input type="text" class="form-control" id="endOn" placeholder="gg/mm/aaaa">
+					</div>
+					<button type="submit" class="btn btn-primary btn-sm">Filter</button>
 				</form>
 			</div>
 			<div id="task-metrics"></div>
@@ -104,3 +101,4 @@ function onLoad() {
 }
 </script>
 <script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
+<?php echo $this->partial('task-management/index/task-detail-modal.phtml') ?>

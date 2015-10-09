@@ -1,4 +1,5 @@
 <?php
+	$this->headScript()->appendFile($this->basePath() . '/js/task-utils.js');
 	$this->headScript()->appendFile($this->basePath() . '/js/task-management.js');
 	$this->headStyle()->appendStyle('ul.task-details { list-style: none; margin:0; padding: 0; }');
 	$this->headStyle()->appendStyle('ul.task-actions { list-style: none; margin:0; padding: 0; }');
@@ -19,25 +20,23 @@
 	<div class="page-header">
 		<h1>Items</h1>
 		<div class="row">
-			<form class="form-horizontal" id="tasksFilter">
-				<div class="form-group">
-					<label for="inputFrom" class="col-lg-1 control-label">From</label>
-					<div class="col-lg-2">
-						<input type="text" class="form-control" id="inputFrom" placeholder="gg/mm/aaaa">
+			<div class="col-md-12">
+				<form class="form-inline" id="tasksFilter">
+					<div class="form-group">
+						<label for="inputFrom" class="control-label">From</label>
+						<input type="text" class="form-control" id="startOn" placeholder="gg/mm/aaaa">
 					</div>
-					<label for="inputTo" class="col-lg-1 control-label">To</label>
-					<div class="col-lg-2">
-						<input type="text" class="form-control" id="inputTo" placeholder="gg/mm/aaaa">
+					<div class="form-group">
+						<label for="inputTo" class="control-label">To</label>
+						<input type="text" class="form-control" id="endOn" placeholder="gg/mm/aaaa">
 					</div>
-					<label for="inputMember" class="col-lg-1 control-label">Member</label>
-					<div class="col-lg-2">
-						<input type="email" class="form-control" id="inputMember" placeholder="example@ora.com">
+					<div class="form-group">
+						<label for="inputMember" class="control-label">Member</label>
+						<input type="email" class="form-control" id="memberEmail" placeholder="example@ora.com">
 					</div>
-					<div class="col-lg-2">
-						<button type="submit" class="btn btn-primary btn-sm">Filter</button>
-					</div>
-				</div>
-			</form>
+					<button type="submit" class="btn btn-primary btn-sm">Filter</button>
+				</form>
+			</div>
 		</div>
 	</div>
 	<div class="alert" role="alert">

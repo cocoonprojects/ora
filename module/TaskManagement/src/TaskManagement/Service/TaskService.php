@@ -30,12 +30,10 @@ interface TaskService
 	 * @param Organization $organization
 	 * @param integer $offset
 	 * @param integer $limit
-	 * @param \DateTime |null $startOn
-	 * @param \DateTime | null $endOn
-	 * @param Uuid | null $memberId
+	 * @param array $filterOptions
 	 * @return Task[]
 	 */
-	public function findTasks(Organization $organization, $offset, $limit, \DateTime $startOn = null, \DateTime  $endOn = null, $memberId = null);
+	public function findTasks(Organization $organization, $offset, $limit, $filterOptions);
 
 	/**
 	 * @param string|Uuid $id
@@ -47,12 +45,10 @@ interface TaskService
 	 * @param string|Uuid $streamId
 	 * @params integer $offset
 	 * @params integer $limit
-	 * @param \DateTime | null $startOn
-	 * @param \DateTime | null $endOn
-	 * @param Uuid | null $memberId
+	 * @param array $filterOptions
 	 * @return Task[]
 	 */
-	public function findStreamTasks($streamId, $offset, $limit, \DateTime $startOn = null, \DateTime $endOn = null, $memberId = null);
+	public function findStreamTasks($streamId, $offset, $limit, $filterOptions);
 
 	/**
 	 * Find accepted tasks with accepted date before $interval days from now
@@ -64,11 +60,9 @@ interface TaskService
 	/**
 	 * Get the number of tasks of an $organization
 	 * @param Organization $organization
-	 * @param \DateTime | null $startOn
-	 * @param \DateTime | null $endOn
-	 * @param Uuid | null $memberId
+	 * @param array $filterOptions
 	 * @return integer
 	 */
-	public function countOrganizationTasks(Organization $organization, \DateTime $startOn = null, \DateTime $endOn = null, $memberId = null);
+	public function countOrganizationTasks(Organization $organization, $filterOptions);
 
 }
