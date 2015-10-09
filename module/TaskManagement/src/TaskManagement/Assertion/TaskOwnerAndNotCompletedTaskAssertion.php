@@ -12,6 +12,6 @@ class TaskOwnerAndNotCompletedTaskAssertion extends NotCompletedTaskAssertion
 	public function assert(Acl $acl, RoleInterface $user = null, ResourceInterface $resource = null, $privilege = null)
 	{
 		return parent::assert($acl, $user, $resource, $privilege)
-			&& $resource->getMemberRole($user) == Task::ROLE_OWNER && $resource->getStatus() == Task::STATUS_IDEA;
+			&& $resource->getMemberRole($user) == Task::ROLE_OWNER && $resource->getStatus() >= Task::STATUS_IDEA;
 	}
 }
