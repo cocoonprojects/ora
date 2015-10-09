@@ -2,6 +2,7 @@
 namespace TaskManagement\Controller;
 
 use Application\Entity\User;
+use Application\Service\UserService;
 use People\Entity\Organization;
 use People\Service\OrganizationService;
 use TaskManagement\Entity\Stream;
@@ -23,7 +24,8 @@ class TasksControllerTest extends ControllerTest {
 		$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
 		$streamServiceStub = $this->getMockBuilder(StreamService::class)->getMock();
 		$organizationServiceStub = $this->getMockBuilder(OrganizationService::class)->getMock();
-		return new TasksController($taskServiceStub, $streamServiceStub, $organizationServiceStub);
+		$userServiceStub = $this->getMockBuilder(UserService::class)->getMock();
+		return new TasksController($taskServiceStub, $streamServiceStub, $organizationServiceStub, $userServiceStub);
 	}
 
 	protected function setupRouteMatch()

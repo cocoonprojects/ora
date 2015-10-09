@@ -64,15 +64,15 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->setMaxResults($limit)
 			->setParameter(':organization', $organization);
 
-		if($startOn != null){
+		if($startOn !== null){
 			$query->andWhere('t.createdAt >= :startOn')
 				->setParameter('startOn', $startOn->format("Y-m-d")." 00:00:00");
 		}
-		if($endOn != null){
+		if($endOn !== null){
 			$query->andWhere('t.createdAt <= :endOn')
 				->setParameter('endOn', $endOn->format("Y-m-d")." 23:59:59");
 		}
-		if($memberId != null){
+		if($memberId !== null){
 			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
 				->setParameter('memberId', $memberId);
 		}
@@ -94,15 +94,15 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->from(ReadModelTask::class, 't')
 			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
 			->setParameter(':organization', $organization);
-		if($startOn != null){
+		if($startOn !== null){
 			$query->andWhere('t.createdAt >= :startOn')
-				->setParameter('startOn', $startOn->format("Y-m-d"));
+				->setParameter('startOn', $startOn->format("Y-m-d")." 00:00:00");
 		}
-		if($endOn != null){
+		if($endOn !== null){
 			$query->andWhere('t.createdAt <= :endOn')
-				->setParameter('endOn', $endOn->format("Y-m-d"));
+				->setParameter('endOn', $endOn->format("Y-m-d")." 23:59:59");
 		}
-		if($memberId != null){
+		if($memberId !== null){
 			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
 			->setParameter('memberId', $memberId);
 		}
@@ -120,15 +120,15 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->from(ReadModelTask::class, 't')
 			->where('t.stream = :streamId')
 			->setParameter(':streamId', $streamId);
-		if($startOn != null){
+		if($startOn !== null){
 			$query->andWhere('t.createdAt >= :startOn')
-			->setParameter('startOn', $startOn->format("Y-m-d"));
+			->setParameter('startOn', $startOn->format("Y-m-d")." 00:00:00");
 		}
-		if($endOn != null){
+		if($endOn !== null){
 			$query->andWhere('t.createdAt <= :endOn')
-			->setParameter('endOn', $endOn->format("Y-m-d"));
+			->setParameter('endOn', $endOn->format("Y-m-d")." 23:59:59");
 		}
-		if($memberId != null){
+		if($memberId !== null){
 			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
 			->setParameter('memberId', $memberId);
 		}

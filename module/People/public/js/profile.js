@@ -1,4 +1,52 @@
 var Profile = function() {
+
+	this.getCurrentDate = function(){
+		var currentDate = new Date();
+		return currentDate.toJSON().slice(0, 10);
+	};
+
+	var tasksPageSize = 10,
+		nextTasksPageSize = 10,
+		endOn = this.getCurrentDate(),
+		startOn = "",
+		userId = "",
+		orgId = "";
+
+	this.TASK_ROLE_OWNER = 'OWNER';
+	this.setTasksPageSize = function(size){
+		tasksPageSize = size;
+	};
+	this.getTasksPageSize = function(){
+		return tasksPageSize;
+	};
+	this.getNextTasksPageSize = function(){
+		return nextTasksPageSize;
+	};
+	this.setStartOn = function(date){
+		startOn = date;
+	};
+	this.getStartOn = function(){
+		return startOn;
+	};
+	this.setEndOn = function(date){
+		endOn = date;
+	};
+	this.getEndOn = function(){
+		return endOn;
+	};
+	this.setUserId = function(id){
+		userId = id;
+	};
+	this.getUserId = function(){
+		return userId;
+	};
+	this.setOrgId = function(id){
+		orgId = id;
+	};
+	this.getOrgId = function(){
+		return orgId;
+	};
+
 	this.bindEventsOn();
 };
 
@@ -7,29 +55,33 @@ Profile.prototype = {
 	constructor : Profile,
 	classe : 'Profile',
 	data : [],
-	tasks_data : [],
-	userId : '',
-	orgId : '',
-	TASK_ROLE_OWNER : 'OWNER',
 
 	bindEventsOn: function(){
 		var that = this;
 
-		$("#chooseIntervalForTasks").on("click", "button", function(e){
+		$("#tasksFilter").on("click", "button", function(e){
 			e.preventDefault();
 
 			var inputFrom = $("#inputFrom").val() !== "" ? $("#inputFrom").val().split("/", 3) : "";
 			var inputTo = $("#inputTo").val() !== "" ? $("#inputTo").val().split("/", 3) : "";
-			var from = "";
-			var to = that.getCurrentDate();
+
 			if(inputFrom.length == 3){
-				from = inputFrom[2]+"-"+inputFrom[1]+"-"+inputFrom[0];
+				that.setStartOn(inputFrom[2]+"-"+inputFrom[1]+"-"+inputFrom[0]);
+			}else{
+				that.setStartOn("");
 			}
 			if(inputTo.length == 3){
-				to = inputTo[2]+"-"+inputTo[1]+"-"+inputTo[0];
+				that.setEndOn(inputTo[2]+"-"+inputTo[1]+"-"+inputTo[0]);
+			}else{
+				that.setEndOn(that.getCurrentDate());
 			}
-			var url = "/"+profile.getOrgId()+"/task-management/tasks?endOn="+to+"&startOn="+from+"&memberId="+that.getUserId();
+			var url = "/"+profile.getOrgId()+"/task-management/tasks?endOn="+that.getEndOn()+"&startOn="+that.getStartOn()+"&memberId="+that.getUserId();
 			that.listTasks(url);
+		});
+
+		$("body").on("click", "a[data-action='nextPage']", function(e){
+			e.preventDefault();
+			that.listMoreTasks(e);
 		});
 	},
 
@@ -111,32 +163,17 @@ Profile.prototype = {
 		}).done(that.onListTasksCompleted.bind(that));
 	},
 
-	onListTasksCompleted: function(json){
-		var tableObject = this.createTaskMetricsObject(json._embedded['ora:task']);
-		this.createTaskMetricsTable(tableObject);
-	},
-
-	getCurrentDate: function(){
-		var currentDate = new Date();
-		return currentDate.toJSON().slice(0, 10);
-	},
-
-	setUserId : function(id){
-		this.userId = id;
-		return this;
-	},
-
-	getUserId : function(){
-		return this.userId;
-	},
-
-	setOrgId : function(id){
-		this.orgId = id;
-		return this;
-	},
-
-	getOrgId : function(){
-		return this.orgId;
+	onListTasksCompleted: function(data){
+		var tableObject = this.createTaskMetricsObject(data._embedded['ora:task']);
+		var container = this.createTaskMetricsTable(tableObject);
+		if(data._links !== undefined && data._links["next"] !== undefined) {
+			var limit = this.getTasksPageSize() + this.getNextTasksPageSize();
+			container.append(
+				'<div class="text-center">' +
+						'<a rel="next" href="'+data._links["next"]["href"]+'?limit=' + limit + '" data-action="nextPage">More</a>' +
+				'</div>'
+			);
+		}
 	},
 
 	createTaskMetricsObject(tasks){
@@ -236,6 +273,30 @@ Profile.prototype = {
 
 		container.html(html);
 		return container;
+	},
+
+	listMoreTasks: function(e){
+		var url = $(e.target).attr('href');
+		if(this.getEndOn()){
+			url += "&endOn="+this.getEndOn();
+		}
+		if(this.getStartOn()){
+			url += "&startOn="+this.getStartOn();
+		}
+		if(this.getUserId()){
+			url += "&memberId="+this.getUserId();
+		}
+		var that = this;
+		$.ajax({
+			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
+			method: 'GET',
+		}).done(function(json){
+			that.setTasksPageSize(json.count);
+			that.onListTasksCompleted.bind(that, json)();
+		});
 	}
 };
 

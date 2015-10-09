@@ -18,6 +18,27 @@
 <div class="container" id="content">
 	<div class="page-header">
 		<h1>Items</h1>
+		<div class="row">
+			<form class="form-horizontal" id="tasksFilter">
+				<div class="form-group">
+					<label for="inputFrom" class="col-lg-1 control-label">From</label>
+					<div class="col-lg-2">
+						<input type="text" class="form-control" id="inputFrom" placeholder="gg/mm/aaaa">
+					</div>
+					<label for="inputTo" class="col-lg-1 control-label">To</label>
+					<div class="col-lg-2">
+						<input type="text" class="form-control" id="inputTo" placeholder="gg/mm/aaaa">
+					</div>
+					<label for="inputMember" class="col-lg-1 control-label">Member</label>
+					<div class="col-lg-2">
+						<input type="email" class="form-control" id="inputMember" placeholder="example@ora.com">
+					</div>
+					<div class="col-lg-2">
+						<button type="submit" class="btn btn-primary btn-sm">Filter</button>
+					</div>
+				</div>
+			</form>
+		</div>
 	</div>
 	<div class="alert" role="alert">
 		<button type="button" class="close" data-dismiss="alert" aria-label="Close">

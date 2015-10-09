@@ -2,7 +2,10 @@ var TaskManagement = function()
 {
 	var pageSize = 10,
 		nextPageSize = 10,
-		pageOffset = 0;
+		pageOffset = 0,
+		endOn = "",
+		startOn = "",
+		memberEmail = "";
 	
 	this.getPageSize = function(){
 		return pageSize;
@@ -19,8 +22,34 @@ var TaskManagement = function()
 	this.setPageOffset = function(offset){
 		pageOffset = offset;
 	};
+	this.setStartOn = function(date){
+		startOn = date;
+	};
+	this.getStartOn = function(){
+		return startOn;
+	};
+	this.setEndOn = function(date){
+		endOn = date;
+	};
+	this.getEndOn = function(){
+		return endOn;
+	};
+	this.setMemberEmail = function(email){
+		memberEmail = email;
+	};
+	this.getMemberEmail = function(){
+		return memberEmail;
+	};
+	this.resetPageSize = function(){
+		pageSize = 10;
+	};
+	this.getCurrentDate = function(){
+		var currentDate = new Date();
+		return currentDate.toJSON().slice(0, 10);
+	};
+
 	this.bindEventsOn();
-	
+
 	var pollingFrequency = 10000;
 	this.pollingObject = this.setupPollingObject(pollingFrequency, this.listTasks);
 };
@@ -229,6 +258,29 @@ TaskManagement.prototype = {
 			e.preventDefault();
 			that.listMoreTasks(e);
 		});
+
+		$("#tasksFilter").on("click", "button", function(e){
+			e.preventDefault();
+			that.resetPageSize();
+			var inputFrom = $("#inputFrom").val() !== "" ? $("#inputFrom").val().split("/", 3) : "";
+			var inputTo = $("#inputTo").val() !== "" ? $("#inputTo").val().split("/", 3) : "";
+			var from = "";
+			var to = that.getCurrentDate();
+			if(inputFrom.length == 3){
+				from = inputFrom[2]+"-"+inputFrom[1]+"-"+inputFrom[0];
+				that.setStartOn(from);
+			}else{
+				that.setStartOn("");
+			}
+			if(inputTo.length == 3){
+				to = inputTo[2]+"-"+inputTo[1]+"-"+inputTo[0];
+				that.setEndOn(to);
+			}else{
+				that.setEndOn("");
+			}
+			that.setMemberEmail($("#inputMember").val());
+			that.listTasks();
+		});
 	},
 	
 	unjoinTask: function(e)
@@ -400,9 +452,9 @@ TaskManagement.prototype = {
 
 	completeTask: function(e){
 		var url = $(e.target).attr('href');
-		
+
 		var that = this;
-		
+
 		$.ajax({
 			url: url,
 			headers: {
@@ -458,7 +510,20 @@ TaskManagement.prototype = {
 	listTasks: function()
 	{
 		var that = this;
-		var url = this.getPageOffset() > 0 ? 'task-management/tasks?offset='+that.getPageOffset()+'&limit='+that.getPageSize() : 'task-management/tasks?limit='+that.getPageSize();
+		var url = 'task-management/tasks?limit='+that.getPageSize();
+
+		if(that.getPageOffset() > 0){
+			url+= "&offset="+that.getPageOffset();
+		}
+		if(that.getEndOn()){
+			url += "&endOn="+that.getEndOn();
+		}
+		if(that.getStartOn()){
+			url += "&startOn="+that.getStartOn();
+		}
+		if(that.getMemberEmail()){
+			url += "&memberEmail="+that.getMemberEmail();
+		}
 		$.ajax({
 			url: url,
 			headers: {
@@ -962,6 +1027,15 @@ TaskManagement.prototype = {
 	
 	listMoreTasks: function(e){
 		var url = $(e.target).attr('href');
+		if(this.getEndOn()){
+			url += "&endOn="+this.getEndOn();
+		}
+		if(this.getStartOn()){
+			url += "&startOn="+this.getStartOn();
+		}
+		if(this.getMemberEmail()){
+			url += "&memberEmail="+this.getMemberEmail();
+		}
 		var that = this;
 		$.ajax({
 			url: url,
