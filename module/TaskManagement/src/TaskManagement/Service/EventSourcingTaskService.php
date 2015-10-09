@@ -62,7 +62,6 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->setFirstResult($offset)
 			->setMaxResults($limit)
 			->setParameter(':organization', $organization);
-
 		if(is_array($queryOptions)){
 			if(isset($queryOptions["startOn"]) && !empty($queryOptions["startOn"])){
 				$query->andWhere('t.createdAt >= :startOn')
@@ -126,7 +125,6 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	public function findTask($id) {
 		return $this->entityManager->find(ReadModelTask::class, $id);
 	}
-
 	public function findStreamTasks($streamId, $offset, $limit, $queryOptions){
 		
 		$builder = $this->entityManager->createQueryBuilder();
