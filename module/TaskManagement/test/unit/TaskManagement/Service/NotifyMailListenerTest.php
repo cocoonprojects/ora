@@ -10,6 +10,8 @@ use TaskManagement\Entity\Stream;
 use TaskManagement\Entity\Task;
 use TaskManagement\Entity\TaskMember;
 use Zend\Mail\Message;
+use People\Service\OrganizationService;
+use TaskManagement\Service\StreamService;
 
 
 class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
@@ -61,7 +63,9 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 
 		$userService = $this->getMockBuilder(UserService::class)->getMock();
 		$taskService = $this->getMockBuilder(TaskService::class)->getMock();
-		$this->service = new NotifyMailListener($mailService, $userService, $taskService);
+		$orgService = $this->getMockBuilder(OrganizationService::class)->getMock();
+		$streamService = $this->getMockBuilder(StreamService::class)->getMock();
+		$this->service = new NotifyMailListener($mailService, $userService, $taskService, $orgService, $streamService);
 	}
 
 	public function testSendEstimationAddedInfoMail() {
