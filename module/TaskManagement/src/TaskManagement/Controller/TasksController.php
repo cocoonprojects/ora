@@ -3,6 +3,7 @@ namespace TaskManagement\Controller;
 
 use Application\Controller\OrganizationAwareController;
 use Application\IllegalStateException;
+use Application\Service\UserService;
 use People\Service\OrganizationService;
 use TaskManagement\Service\StreamService;
 use TaskManagement\Service\TaskService;
@@ -42,13 +43,18 @@ class TasksController extends OrganizationAwareController
 	 * @var integer
 	 */
 	protected $listLimit = self::DEFAULT_TASKS_LIMIT;
+	/**
+	 * @var UserService
+	 */
+	private $userService;
 	
-	public function __construct(TaskService $taskService, StreamService $streamService, OrganizationService $organizationService)
+	public function __construct(TaskService $taskService, StreamService $streamService, OrganizationService $organizationService, UserService $userService)
 	{
 		parent::__construct($organizationService);
 		$this->taskService = $taskService;
 		$this->streamService = $streamService;
 		$this->intervalForCloseTasks = new \DateInterval('P7D');
+		$this->userService = $userService;
 	}
 	
 	public function get($id)
@@ -117,8 +123,16 @@ class TasksController extends OrganizationAwareController
 		}else if($endOn instanceof \DateTime){
 			$startOn = $this->getDefaultStartOn($endOn);
 		}
-		$uuidValidator = new UserIdValidator(array('pattern' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})'));
 		$memberId = $uuidValidator->isValid($this->getRequest()->getQuery("memberId")) ? $this->getRequest()->getQuery("memberId") : null;
+
+		if($emailValidator->isValid($this->getRequest()->getQuery("memberEmail"))){
+			$member = $this->userService->findUserByEmail($this->getRequest()->getQuery("memberEmail"));
+			if($member != null){
+				$memberId = $member->getId();
+			}else{
+				$memberId = "";
+			}
+		}
 
 		$totalTasks = $this->taskService->countOrganizationTasks($this->organization, $startOn, $endOn, $memberId);
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit, $startOn, $endOn, $memberId) : $this->taskService->findStreamTasks($streamID, $offset, $limit, $startOn, $endOn, $memberId);

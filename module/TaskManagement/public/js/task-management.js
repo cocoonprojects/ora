@@ -8,7 +8,6 @@ var TaskManagement = function(taskUtils)
 		memberEmail = "";
 
 	this.utils = taskUtils;
-
 	this.getPageSize = function(){
 		return pageSize;
 	};
