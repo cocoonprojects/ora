@@ -12,6 +12,16 @@
 </div>
 <?php $this->inlineScript()->captureStart() ?>
 $(document).ready(function() {
+	var googleID = sessionStorage.googleid;
+	$('head').append( '<meta name="google-signin-client_id" content="'+googleID+'">' );
 	organizations.loadOrganizations();
 });
 <?php $this->inlineScript()->captureEnd() ?>
+<script>
+function onLoad() {
+	gapi.load('auth2', function() {
+    gapi.auth2.init();
+	});
+}
+</script>
+<script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
