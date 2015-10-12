@@ -1,18 +1,14 @@
-var Profile = function() {
-
-	this.getCurrentDate = function(){
-		var currentDate = new Date();
-		return currentDate.toJSON().slice(0, 10);
-	};
+var Profile = function(taskUtils) {
 
 	var tasksPageSize = 10,
 		nextTasksPageSize = 10,
-		endOn = this.getCurrentDate(),
+		endOn = "",
 		startOn = "",
 		userId = "",
 		orgId = "";
 
-	this.TASK_ROLE_OWNER = 'OWNER';
+	this.taskUtils = taskUtils;
+
 	this.setTasksPageSize = function(size){
 		tasksPageSize = size;
 	};
@@ -62,18 +58,19 @@ Profile.prototype = {
 		$("#tasksFilter").on("click", "button", function(e){
 			e.preventDefault();
 
-			var inputFrom = $("#inputFrom").val() !== "" ? $("#inputFrom").val().split("/", 3) : "";
-			var inputTo = $("#inputTo").val() !== "" ? $("#inputTo").val().split("/", 3) : "";
+			//TODO: da rivedere
+			var start = $("#startOn").val() !== "" ? $("#startOn").val().split("/", 3) : "";
+			var end = $("#endOn").val() !== "" ? $("#endOn").val().split("/", 3) : "";
 
-			if(inputFrom.length == 3){
-				that.setStartOn(inputFrom[2]+"-"+inputFrom[1]+"-"+inputFrom[0]);
+			if(start.length == 3){
+				that.setStartOn(start[2]+"-"+start[1]+"-"+start[0]);
 			}else{
 				that.setStartOn("");
 			}
-			if(inputTo.length == 3){
-				that.setEndOn(inputTo[2]+"-"+inputTo[1]+"-"+inputTo[0]);
+			if(end.length == 3){
+				that.setEndOn(end[2]+"-"+end[1]+"-"+end[0]);
 			}else{
-				that.setEndOn(that.getCurrentDate());
+				that.setEndOn("");
 			}
 			var url = "/"+profile.getOrgId()+"/task-management/tasks?endOn="+that.getEndOn()+"&startOn="+that.getStartOn()+"&memberId="+that.getUserId();
 			that.listTasks(url);
@@ -165,8 +162,7 @@ Profile.prototype = {
 	},
 
 	onListTasksCompleted: function(data){
-		var tableObject = this.createTaskMetricsObject(data._embedded['ora:task']);
-		var container = this.createTaskMetricsTable(tableObject);
+		var container = this.createTaskMetricsTable(data._embedded['ora:task']);
 		if(data._links !== undefined && data._links["next"] !== undefined) {
 			var limit = this.getTasksPageSize() + this.getNextTasksPageSize();
 			container.append(
@@ -177,101 +173,49 @@ Profile.prototype = {
 		}
 	},
 
-	createTaskMetricsObject(tasks){
-
-		var that = this;
-		var tableObject = {};
-		tableObject.rows = [];
-		var row_total = {
-				id : 'total',
-				countOwners : 0,
-				countTasks : 0,
-				sumCredits : 0,
-				sumDeltas : 0,
-				deltaAverage : 0,
-				countTasksWithShares: 0
-		};
-		$.each(tasks, function(key, task) {
-			row_total.countTasks++;
-			var row = {
-				id : task.id,
-				credits : 0,
-				subject : task.subject,
-				delta : null,
-				owner : false,
-				link : task._links.self
-			};
-			for(var memberId in task.members) {
-				var info = task.members[memberId];
-				if(memberId == that.getUserId()){
-					if(info.role.toUpperCase() == that.TASK_ROLE_OWNER.toUpperCase()) {
-						row.owner = true;
-						row_total.countOwners++;
-					}
-					if(info.delta !== undefined){
-						row.delta = parseFloat(info.delta);
-						row_total.sumDeltas += row.delta;
-						row.delta = (row.delta * 100).toFixed(2) + '%';
-						row_total.countTasksWithShares++;
-					}
-					row.credits = info.credits !== undefined ? info.credits : 0;
-					row_total.sumCredits += row.credits;
-				}
-			}
-
-			tableObject.rows.push(row);
-		});
-		if(row_total.sumDeltas !== 0){
-			row_total.deltaAverage = (row_total.sumDeltas / row_total.countTasksWithShares * 100).toFixed(2) + '%';
-		}
-		tableObject.rows.push(row_total);
-		return tableObject;
-	},
-
-	createTaskMetricsTable(tableObject){
+	createTaskMetricsTable(tasks){
 		var container = $('#task-metrics');
+		var that = this;
 		var html = "";
-		html += "<table class=\"table table-hover text-center\">";
-
-		if(Object.keys(tableObject.rows).length > 1){
-
-			html += "<thead>" +
-						"<tr>" +
-							"<th class=\"text-center col-md-1\"></th>" +
-							"<th class=\"text-center col-md-7\">Subject</th>" +
-							"<th class=\"text-center col-md-2\">Credits</th>" +
-							"<th class=\"text-center col-md-2\">&Delta; shares" +
-						"</tr>" +
-					"</thead>";
-			html += "<tbody>";
-			for(var key in tableObject.rows){
-				var row = tableObject.rows[key];
-				if(row.id == 'total'){
-					html += "<tr style=\"border-top: 2px solid darkgray;\" data-id='"+row.id+"'>" +
-								"<td>"+row.countOwners+"</td>" +
-								"<td>"+row.countTasks+"</td>" +
-								"<td>"+row.sumCredits+"</td>" +
-								"<td>AVERAGE: "+row.deltaAverage+"</td>";
-				}else{
-					html += "<tr data-id='"+row.id+"'>";
-					if(row.owner){
-						html += "<td><i class=\"mdi-action-grade\" title=\"owner\"></i></td>";
-					}else{
-						html += "<td></td>";
+		html += "<table class=\"table table-hover\">";
+		html += "<thead>" +
+					"<tr>" +
+						"<th class=\"text-center\" style=\"width: 3em\"></th>" +
+						"<th class=\"text-left\">Subject</th>" +
+						"<th class=\"text-right\" style=\"width: 6em\">Credits</th>" +
+						"<th class=\"text-right\" style=\"width: 6em\">&Delta; shares" +
+					"</tr>" +
+				"</thead>";
+		html += "<tbody>";
+		if(!$.isEmptyObject(tasks)){
+			$.each(tasks, function(key, task) {
+				html += "<tr data-id='"+task.id+"'>";
+				var isOwner = false;
+				var delta = null;
+				var credits = null;
+				$.each(task.members, function(memberId, info){
+					if(memberId == that.getUserId()){
+						isOwner = that.taskUtils.isTaskOwner(info.role);
+						if(info.delta !== undefined){
+							delta = (parseFloat(info.delta) * 100).toFixed(2) + " %";
+						}
+						if(info.credits !== undefined){
+							credits = info.credits;
+						}
 					}
-
-					html += "<td>"+row.subject+"</td>" +
-							"<td>"+row.credits+"</td>";
-					html += row.delta !== null ? "<td>"+row.delta+"</td>" : "<td></td>";
-				}
+				});
+				html += isOwner ? "<td class=\"text-center\"><i class=\"mdi-action-grade\" title=\"owner\"></i></td>" : "<td></td>";
+				var subject = task._links.self == undefined ? task.subject : '<a style="cursor:pointer" data-href="' + task._links.self.href + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
+				html += "<td class=\"text-left\">"+subject+"</td>";
+				html += credits !== null ? "<td class=\"text-right\">"+credits+"</td>" : "<td></td>";
+				html += delta !== null ? "<td class=\"text-right\">"+delta+"</td>" : "<td></td>";
 				html += "</tr>";
-			}
-			html += "</tbody>";
+			});
 		}else{
-			html += "<tr><td>No Tasks metrics available</td></tr>";
-			html += "</tbody></table>";
+			html += "<tr><td colspan=\"4\">No Tasks metrics available</td></tr>";
 		}
-
+		html += "</tbody>" +
+			"</table>";
 		container.html(html);
 		return container;
 	},
@@ -304,7 +248,7 @@ Profile.prototype = {
 $().ready(function(e) {
 	var googleID = sessionStorage.googleid;
 	$('head').append( '<meta name="google-signin-client_id" content="'+googleID+'">' );
-	profile = new Profile();
+	profile = new Profile(taskUtils);
 	$('#profile-content').hide();
 	var elem = document.getElementById("profile-content");
 	profile.setOrgId(elem.getAttribute("org-id"));
@@ -312,5 +256,5 @@ $().ready(function(e) {
 	var url = "/"+profile.getOrgId()+"/user-profiles/"+profile.getUserId();
 	var redirectURL = "/"+profile.getOrgId()+"/profiles/"+profile.getUserId();
 	profile.loadUserDetail(url, redirectURL);
-	profile.listTasks("/"+profile.getOrgId()+"/task-management/tasks?endOn="+profile.getCurrentDate()+"&memberId="+profile.getUserId());
+	profile.listTasks("/"+profile.getOrgId()+"/task-management/tasks?memberId="+profile.getUserId());
 });
