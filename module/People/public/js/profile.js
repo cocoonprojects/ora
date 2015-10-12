@@ -58,18 +58,19 @@ Profile.prototype = {
 		$("#tasksFilter").on("click", "button", function(e){
 			e.preventDefault();
 
-			var inputFrom = $("#inputFrom").val() !== "" ? $("#inputFrom").val().split("/", 3) : "";
-			var inputTo = $("#inputTo").val() !== "" ? $("#inputTo").val().split("/", 3) : "";
+			//TODO: da rivedere
+			var start = $("#startOn").val() !== "" ? $("#startOn").val().split("/", 3) : "";
+			var end = $("#endOn").val() !== "" ? $("#endOn").val().split("/", 3) : "";
 
-			if(inputFrom.length == 3){
-				that.setStartOn(inputFrom[2]+"-"+inputFrom[1]+"-"+inputFrom[0]);
+			if(start.length == 3){
+				that.setStartOn(start[2]+"-"+start[1]+"-"+start[0]);
 			}else{
 				that.setStartOn("");
 			}
-			if(inputTo.length == 3){
-				that.setEndOn(inputTo[2]+"-"+inputTo[1]+"-"+inputTo[0]);
+			if(end.length == 3){
+				that.setEndOn(end[2]+"-"+end[1]+"-"+end[0]);
 			}else{
-				that.setEndOn(that.getCurrentDate());
+				that.setEndOn("");
 			}
 			var url = "/"+profile.getOrgId()+"/task-management/tasks?endOn="+that.getEndOn()+"&startOn="+that.getStartOn()+"&memberId="+that.getUserId();
 			that.listTasks(url);
@@ -193,7 +194,6 @@ Profile.prototype = {
 	onListTasksCompleted: function(data){
 
 		var container = this.createTaskMetricsTable(data);
-
 		if(data._links !== undefined && data._links["next"] !== undefined) {
 			var limit = this.getTasksPageSize() + this.getNextTasksPageSize();
 			container.append(

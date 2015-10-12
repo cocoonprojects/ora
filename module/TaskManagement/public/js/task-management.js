@@ -8,6 +8,7 @@ var TaskManagement = function(taskUtils)
 		memberEmail = "";
 
 	this.utils = taskUtils;
+
 	this.getPageSize = function(){
 		return pageSize;
 	};
@@ -637,13 +638,13 @@ TaskManagement.prototype = {
 			rv += '<li>Accepted at ' + acceptedAt.toLocaleString() + '</li>';
 		}
 		
-		rv += '<li>' + this.statuses[task.status];
+		rv += '<li>' + this.utils.statuses[task.status];
 		
-		if(task.status == TASK_STATUS.get('IDEA')){
+		if(task.status == this.utils.TASK_STATUS.get('IDEA')){
 			return rv;
 		}
 		
-		if(task.status == TASK_STATUS.get('ACCEPTED')){
+		if(task.status == this.utils.TASK_STATUS.get('ACCEPTED')){
 			rv += this.getLabelForAssignShares(task.daysRemainingToAssignShares);
 		}
 		
