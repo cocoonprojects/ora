@@ -14,15 +14,15 @@ return array(
 					),
 				),
 			),
-			'login' => array(
-				'type' => 'Zend\Mvc\Router\Http\Segment',
-				'options' => array(
-						'route'	   => '/auth/:action[/:id]',
-						'defaults' => array(
-							'controller'	=> 'Application\Controller\Auth'
-						),
-				),
-			),
+//			'login' => array(
+//				'type' => 'Zend\Mvc\Router\Http\Segment',
+//				'options' => array(
+//						'route'	   => '/auth/:action[/:id]',
+//						'defaults' => array(
+//							'controller'	=> 'Application\Controller\Auth'
+//						),
+//				),
+//			),
 			'memberships' => array(
 				'type' => 'Segment',
 				'options' => array(

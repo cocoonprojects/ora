@@ -3,6 +3,7 @@
 namespace ZFX\Authentication;
 
 
+use Namshi\JOSE\SimpleJWS;
 use Zend\Authentication\Adapter\AdapterInterface;
 use Zend\Authentication\Result;
 use Zend\EventManager\EventManager;
@@ -16,9 +17,13 @@ class JWTAdapter implements AdapterInterface, EventManagerAwareInterface
 	 */
 	private $token;
 	/**
-	 * @var JWTBuilder
+	 * @var string
 	 */
-	private $parser;
+	private $publicKey;
+	/**
+	 * @var string
+	 */
+	private $algorithm = 'RS256';
 	/**
 	 * @var EventManagerInterface
 	 */
@@ -26,11 +31,11 @@ class JWTAdapter implements AdapterInterface, EventManagerAwareInterface
 
 	/**
 	 * JWTAdapter constructor.
-	 * @param JWTBuilder $parser
+	 * @param string $publicKey
 	 */
-	public function __construct(JWTBuilder $parser)
+	public function __construct($publicKey)
 	{
-		$this->parser = $parser;
+		$this->publicKey = $publicKey;
 	}
 
 	/**
@@ -48,10 +53,12 @@ class JWTAdapter implements AdapterInterface, EventManagerAwareInterface
 	 */
 	public function authenticate()
 	{
-		$payload = $this->parser->parsePayload($this->token);
-		if(is_null($payload)) {
+		$jws = SimpleJWS::load($this->token);
+		if(!$jws->isValid($this->publicKey, $this->algorithm)) {
 			return new Result(Result::FAILURE_CREDENTIAL_INVALID, null); // Expired token or broken sign
 		}
+
+		$payload = $jws->getPayload();
 		$args['code']     = Result::SUCCESS;
 		$args['info']     = $payload;
 		$args['token']    = $this->token;
@@ -92,5 +99,23 @@ class JWTAdapter implements AdapterInterface, EventManagerAwareInterface
 			$this->setEventManager(new EventManager());
 		}
 		return $this->eventManager;
+	}
+
+	/**
+	 * @param string $algorithm
+	 * @return JWTBuilder
+	 */
+	public function setAlgorithm($algorithm)
+	{
+		$this->algorithm = $algorithm;
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAlgorithm()
+	{
+		return $this->algorithm;
 	}
 }
