@@ -20,21 +20,15 @@ class JWTBuilder
 	 * @var string
 	 */
 	private $privateKey;
-	/**
-	 * @var string
-	 */
-	private $publicKey;
 
 	/**
 	 * JWTBuilder constructor.
 	 *
 	 * @param string $privateKey
-	 * @param string $publicKey
 	 */
-	public function __construct($privateKey, $publicKey)
+	public function __construct($privateKey)
 	{
 		$this->privateKey = $privateKey;
-		$this->publicKey = $publicKey;
 	}
 	public function buildJWT(User $identity)
 	{
@@ -51,13 +45,6 @@ class JWTBuilder
 		]);
 		$jwt->sign($this->privateKey);
 		return $jwt->getTokenString();
-	}
-	public function parsePayload($token)
-	{
-		$jws = SimpleJWS::load($token);
-		if($jws->isValid($this->publicKey, $this->algorithm)) {
-			return $jws->getPayload();
-		}
 	}
 
 	/**
@@ -102,14 +89,6 @@ class JWTBuilder
 	public function getPrivateKey()
 	{
 		return $this->privateKey;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getPublicKey()
-	{
-		return $this->publicKey;
 	}
 
 }

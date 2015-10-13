@@ -17,9 +17,17 @@ use Zend\Authentication\Result;
 class JWTAdapterTest extends \PHPUnit_Framework_TestCase
 {
 	/**
-	 * @var JWTBuilder
+	 * @var string
 	 */
-	private $builder;
+	private $publicKey = "-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA8SJjXkniIeE6mEOvOuB9
+40kni2v0E+UwqNrrmdJ49quZP48d55k7t+OI9OFgQYLV7DW6u0tMGrvnuC+MD7nr
+FrwbSk74mO95C0C7TuU0k5S3OXFhe72z34aibVXX+3oR0m1FU6qAuKqXkP8+Z5zJ
+vSKy1i+EUD1zhkjdFhJ4z6ZsoHEpVrnkI0QrUnWkKancw+e5BcR4uFbi3hgXdkIL
+Hsf4L4YeW9Tds4MOUEymm/hAcc4JXn95cDbOO51/Z+C6YPyjkWdzUHQ7TDaaboQT
+WY2YYeEi31dEvdcFM+ASmDkvcnftAbZVmDi8oJzksztA1nmUoD8XQzTXxBOTSFGS
+nwIDAQAB
+-----END PUBLIC KEY-----";
 	/**
 	 * @var JWTAdapter
 	 */
@@ -28,6 +36,10 @@ class JWTAdapterTest extends \PHPUnit_Framework_TestCase
 	 * @var LoadLocalProfileListener
 	 */
 	private $listener;
+	/**
+	 * @var JWTBuilder
+	 */
+	private $builder;
 
 	protected function setUp()
 	{
@@ -58,16 +70,8 @@ yZYw6P1gPCiOs+Ml7BZ8jvGdQfwW3oVCaj0i/Otn9miQgCl9AQ4ZBAnWkaZ/68Lf
 +5CSRfkCgYEAngpwml1MunLUO1gFYk5PS0Elq6bjR7bEe8JegvqfqeM8IILpSyXo
 NIWpPWGtI3X48gQiw0BdbrQkDJI76Qa/xcn0yIt+Z1dw5Uhxf2PsKJEhBaLvToTz
 oGYZDHe7A05BzL5PD8vI3SeazAlpLidU6L40eZUeYj3+S7cthNr9MVU=
------END RSA PRIVATE KEY-----", "-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA8SJjXkniIeE6mEOvOuB9
-40kni2v0E+UwqNrrmdJ49quZP48d55k7t+OI9OFgQYLV7DW6u0tMGrvnuC+MD7nr
-FrwbSk74mO95C0C7TuU0k5S3OXFhe72z34aibVXX+3oR0m1FU6qAuKqXkP8+Z5zJ
-vSKy1i+EUD1zhkjdFhJ4z6ZsoHEpVrnkI0QrUnWkKancw+e5BcR4uFbi3hgXdkIL
-Hsf4L4YeW9Tds4MOUEymm/hAcc4JXn95cDbOO51/Z+C6YPyjkWdzUHQ7TDaaboQT
-WY2YYeEi31dEvdcFM+ASmDkvcnftAbZVmDi8oJzksztA1nmUoD8XQzTXxBOTSFGS
-nwIDAQAB
------END PUBLIC KEY-----");
-		$this->adapter = new JWTAdapter($this->builder);
+-----END RSA PRIVATE KEY-----");
+		$this->adapter = new JWTAdapter($this->publicKey);
 		$googleClient = new \Google_Client();
 		$userService = $this->getMockBuilder(UserService::class)->getMock();
 		$this->listener = new LoadLocalProfileListener($userService, $googleClient);
@@ -127,6 +131,36 @@ nwIDAQAB
 		$result = $this->adapter->authenticate();
 
 		$this->assertEquals(Result::FAILURE_IDENTITY_NOT_FOUND, $result->getCode());
+		$this->assertNull($result->getIdentity());
+	}
+
+	public function testParseCorruptedToken()
+	{
+		$jwt = new SimpleJWS([
+			'alg' => $this->builder->getAlgorithm()
+		]);
+
+		$expireAt = new \DateTime();
+		$expireAt->add(new \DateInterval('P1D'));
+
+		$jwt->setPayload([
+			'uid' => '1',
+			'exp' => $expireAt->format('U')
+		]);
+		$jwt->sign($this->builder->getPrivateKey());
+		$token = $jwt->getTokenString();
+
+		$jwt->setPayload([
+			'uid' => '2',
+		]);
+		$editedToken = $jwt->getTokenString();
+
+		$token = substr($editedToken, 0, strrpos($editedToken, '.')) . substr($token, strrpos($token, '.'));
+
+		$this->adapter->setToken($token);
+		$result = $this->adapter->authenticate();
+
+		$this->assertEquals(Result::FAILURE_CREDENTIAL_INVALID, $result->getCode());
 		$this->assertNull($result->getIdentity());
 	}
 }

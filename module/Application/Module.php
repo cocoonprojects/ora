@@ -41,10 +41,8 @@ class Module
 		$request = $e->getRequest();
  		$eventManager->attach(MvcEvent::EVENT_DISPATCH, function($event) use($serviceManager, $request) {
 			if($token = $request->getHeaders('ORA-JWT')) {
-				$builder = $serviceManager->get('Application\JWTBuilder');
-				$adapter = new JWTAdapter($builder);
+				$adapter = $serviceManager->get('Application\JWTAdapter');
 				$adapter->setToken($token->getFieldValue());
-
 				$authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
 				$result = $authService->authenticate($adapter);
 			} elseif($token = $request->getHeaders('GOOGLE-JWT')) {
@@ -69,8 +67,24 @@ class Module
 					$locator = $sm->getServiceLocator();
 					$resolver = $locator->get('Application\Service\AdapterResolver');
 					$authService = $locator->get('Zend\Authentication\AuthenticationService');
-					$builder = $locator->get('Application\JWTBuilder');
-					$controller = new AuthController($authService, $resolver, $builder);
+					$config = $locator->get('Config');
+					if(!isset($config['jwt'])) {
+						throw new \Exception('JWT config not found');
+					}
+					$jwt = $config['jwt'];
+					if(!isset($jwt['private-key'])) {
+						throw new \Exception('JWT private-key config not found');
+					}
+					if(!($privateKey = openssl_pkey_get_private($jwt['private-key']))) {
+						throw new \Exception('Error loading private key ' . $jwt['private-key'] . ':' . openssl_error_string());
+					}
+					$controller = new AuthController($authService, $resolver, $privateKey);
+					if(isset($jwt['time-to-live'])) {
+						$controller->setTimeToLive($jwt['time-to-live']);
+					}
+					if(isset($jwt['algorithm'])) {
+						$controller->setAlgorithm($jwt['algorithm']);
+					}
 					return $controller;
 				},
 				'Application\Controller\Memberships' => function ($sm) {
@@ -108,7 +122,7 @@ class Module
 				'Application\DomainEventDispatcher' => DomainEventDispatcher::class
 			),
 			'factories' => array(
-				'Zend\Authentication\AuthenticationService' => function ($serviceLocator) {
+				'Zend\Authentication\AuthenticationService' => function () {
 					$rv = new AuthenticationService();
 					$rv->setStorage(new NonPersistent());
 					return $rv;
@@ -140,28 +154,19 @@ class Module
 					$rv->setApplicationName('O.R.A. Platform');
 					return $rv;
 				},
-				'Application\JWTBuilder' => function($serviceLocator) {
+				'Application\JWTAdapter' => function($serviceLocator) {
 					$config = $serviceLocator->get('Config');
 					if(!isset($config['jwt'])) {
 						throw new \Exception('JWT config not found');
 					}
 					$jwt = $config['jwt'];
-					if(!isset($jwt['private-key'])) {
-						throw new \Exception('JWT private-key config not found');
-					}
-					if(!($privateKey = openssl_pkey_get_private($jwt['private-key']))) {
-						throw new \Exception('Error loading private key ' . $jwt['private-key'] . ':' . openssl_error_string());
-					}
 					if(!isset($jwt['public-key'])) {
 						throw new \Exception('JWT public-key config not found');
 					}
 					if(!($publicKey = openssl_pkey_get_public($jwt['public-key']))) {
 						throw new \Exception('Error loading public key ' . $jwt['public-key'] . ':' . openssl_error_string());
 					}
-					$rv = new JWTBuilder($privateKey, $publicKey);
-					if(isset($jwt['time-to-live'])) {
-						$rv->setTimeToLive($jwt['time-to-live']);
-					}
+					$rv = new JWTAdapter($publicKey);
 					if(isset($jwt['algorithm'])) {
 						$rv->setAlgorithm($jwt['algorithm']);
 					}
