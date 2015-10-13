@@ -192,7 +192,6 @@ Profile.prototype = {
 	},
 
 	onListTasksCompleted: function(data){
-
 		var container = this.createTaskMetricsTable(data);
 		if(data._links !== undefined && data._links["next"] !== undefined) {
 			var limit = this.getTasksPageSize() + this.getNextTasksPageSize();

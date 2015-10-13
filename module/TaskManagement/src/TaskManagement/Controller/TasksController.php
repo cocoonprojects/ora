@@ -94,7 +94,6 @@ class TasksController extends OrganizationAwareController
 		}
 		
 		$streamID = $this->getRequest()->getQuery('streamID');
-
 		$queryOptions = [];
 		$stats = [];
 

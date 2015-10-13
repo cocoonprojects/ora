@@ -406,6 +406,7 @@ class TasksControllerTest extends ControllerTest {
 		$this->assertCount(2, $arrayResult['_embedded']['ora:task']);
 		$this->assertNotEmpty($arrayResult['_links']['self']['href']);
 		$this->assertArrayNotHasKey('next', $arrayResult['_links']);
+		$this->assertArrayNotHasKey('stats', $arrayResult['_embedded']['ora:task']);
 		$this->assertEquals(2, $arrayResult['count']);
 		$this->assertEquals(2, $arrayResult['total']);
 	}
