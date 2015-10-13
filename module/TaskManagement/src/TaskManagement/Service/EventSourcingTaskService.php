@@ -13,6 +13,7 @@ use Rhumsaa\Uuid\Uuid;
 use TaskManagement\Task;
 use TaskManagement\Entity\Task as ReadModelTask;
 use TaskManagement\Entity\Stream as ReadModelStream;
+use TaskManagement\Entity\TaskMember;
 
 class EventSourcingTaskService extends AggregateRepository implements TaskService
 {
@@ -104,7 +105,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->setParameter(':organization', $organization);
 
 		if(is_array($queryOptions)){
-			if(isset($options["startOn"]) && !empty($queryOptions["startOn"])){
+			if(isset($queryOptions["startOn"]) && !empty($queryOptions["startOn"])){
 				$query->andWhere('t.createdAt >= :startOn')
 				->setParameter('startOn', $queryOptions["startOn"]);
 			}
@@ -113,10 +114,8 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 				->setParameter('endOn', $queryOptions["endOn"]);
 			}
 			if(isset($queryOptions["memberId"]) && !empty($queryOptions["memberId"])){
-				//$query->addSelect('m.role')
 				$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
 				->setParameter('memberId', $queryOptions["memberId"]);
-				//->groupBy("m.role");
 			}
 			if(isset($queryOptions["memberEmail"]) && !empty($queryOptions["memberEmail"])){
 				$query->innerJoin('t.members', 'm')
@@ -178,5 +177,87 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->getQuery();
 		
 		return $query->getResult();
+	}
+
+	public function getStatsForMember(Organization $org, $memberId, $queryOptions){
+
+		$countTasksOwner = $this->countTasksOwner($org, $memberId, $queryOptions);
+		$taskMemberInClosedTasks = $this->findTaskMemberInClosedTasks($org, $memberId, $queryOptions);
+		$sumTasksCredits = 0;
+		$averageOfDeltaShares = null;
+		if(!empty($taskMemberInClosedTasks)){
+			$countDeltaShares = 0;
+			$sumOfDeltaShares = 0;
+			foreach ($taskMemberInClosedTasks as $member){
+				$sumTasksCredits += $member->getCredits();
+				if(!is_null($member->getDelta())){
+					$sumOfDeltaShares += $member->getDelta();
+					$countDeltaShares++;
+				}
+			}
+			$averageOfDeltaShares = $countDeltaShares > 0 ? $sumOfDeltaShares / $countDeltaShares : null;
+		}
+		return[
+				"countTasksOwner" => $countTasksOwner,
+				"sumTasksCredits" => $sumTasksCredits,
+				"averageOfDeltaShares" => $averageOfDeltaShares
+		];
+	}
+
+	public function countTasksOwner(Organization $org, $memberId, $queryOptions){
+		if(is_null($memberId)){
+			return 0;
+		}
+
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('count(t)')
+			->from(ReadModelTask::class, 't')
+			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
+			->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
+			->where('m.role = :memberRole')
+			->setParameter('organization', $org)
+			->setParameter('memberId', $memberId)
+			->setParameter('memberRole', TaskMember::ROLE_OWNER);
+
+		if(is_array($queryOptions)){
+			if(isset($queryOptions["startOn"]) && !empty($queryOptions["startOn"])){
+				$query->andWhere('t.createdAt >= :startOn')
+				->setParameter('startOn', $queryOptions["startOn"]);
+			}
+			if(isset($queryOptions["endOn"]) && !empty($queryOptions["endOn"])){
+				$query->andWhere('t.createdAt <= :endOn')
+				->setParameter('endOn', $queryOptions["endOn"]);
+			}
+		}
+		return intval($query->getQuery()->getSingleScalarResult());
+	}
+
+	public function findTaskMemberInClosedTasks(Organization $org, $memberId, $queryOptions){
+		if(is_null($memberId)){
+			return [];
+		}
+
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('m')
+			->from(TaskMember::class, 'm')
+			->innerJoin('m.task', 't')
+			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
+			->innerjoin('m.user', 'u', 'WITH', 'u.id = :memberId')
+			->where('t.status = :taskStatus')
+			->setParameter('organization', $org)
+			->setParameter('memberId', $memberId)
+			->setParameter('taskStatus', Task::STATUS_CLOSED);
+
+		if(is_array($queryOptions)){
+			if(isset($queryOptions["startOn"]) && !empty($queryOptions["startOn"])){
+				$query->andWhere('t.createdAt >= :startOn')
+				->setParameter('startOn', $queryOptions["startOn"]);
+			}
+			if(isset($queryOptions["endOn"]) && !empty($queryOptions["endOn"])){
+				$query->andWhere('t.createdAt <= :endOn')
+				->setParameter('endOn', $queryOptions["endOn"]);
+			}
+		}
+		return $query->getQuery()->getResult();
 	}
 }

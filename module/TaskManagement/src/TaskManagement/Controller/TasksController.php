@@ -95,14 +95,16 @@ class TasksController extends OrganizationAwareController
 		
 		$streamID = $this->getRequest()->getQuery('streamID');
 
-		$filterOptions = [];
+		$queryOptions = [];
+		$stats = [];
+
 		$integerValidator = new ValidatorChain();
 		$integerValidator->attach(new Int())
 			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
 		$dateValidator = new DateValidator();
 		$uuidValidator = new UserIdValidator(array('pattern' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})'));
 		$emailValidator = new EmailAddressValidator(array('useDomainCheck' => false));
-		
+
 		$offset = $integerValidator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
 		$limit = $integerValidator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getListLimit();
 		$endOn = new \DateTime();
@@ -121,13 +123,16 @@ class TasksController extends OrganizationAwareController
 		$queryOptions["memberId"] = $memberId;
 		$queryOptions["memberEmail"] = $memberEmail;
 
-		$totalTasks = $this->taskService->countOrganizationTasks($this->organization, $queryOptions);
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit, $queryOptions) : $this->taskService->findStreamTasks($streamID, $offset, $limit, $queryOptions);
 
 		$view = new TaskJsonModel($this, $this->organization);
+		if(!is_null($memberId)){
+			$stats = $this->taskService->getStatsForMember($this->organization, $memberId, $queryOptions);
+			$view->setVariable("stats", $stats);
+		}
 
-		$view->setVariables(['resource'=>$availableTasks, 'total'=>$totalTasks]);
-		
+		$totalTasks = $this->taskService->countOrganizationTasks($this->organization, $queryOptions);
+		$view->setVariables(['resource'=>$availableTasks, 'totalTasks'=>$totalTasks]);
 
 		return $view;
 	}

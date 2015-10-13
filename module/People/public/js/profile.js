@@ -162,7 +162,7 @@ Profile.prototype = {
 	},
 
 	onListTasksCompleted: function(data){
-		var container = this.createTaskMetricsTable(data._embedded['ora:task']);
+		var container = this.createTaskMetricsTable(data);
 		if(data._links !== undefined && data._links["next"] !== undefined) {
 			var limit = this.getTasksPageSize() + this.getNextTasksPageSize();
 			container.append(
@@ -173,7 +173,8 @@ Profile.prototype = {
 		}
 	},
 
-	createTaskMetricsTable(tasks){
+	createTaskMetricsTable(data){
+		var tasks = data._embedded['ora:task'];
 		var container = $('#task-metrics');
 		var that = this;
 		var html = "";
@@ -183,32 +184,44 @@ Profile.prototype = {
 						"<th class=\"text-center\" style=\"width: 3em\"></th>" +
 						"<th class=\"text-left\">Subject</th>" +
 						"<th class=\"text-right\" style=\"width: 6em\">Credits</th>" +
-						"<th class=\"text-right\" style=\"width: 6em\">&Delta; shares" +
+						"<th class=\"text-right\" style=\"width: 8em\">&Delta; shares" +
 					"</tr>" +
 				"</thead>";
 		html += "<tbody>";
 		if(!$.isEmptyObject(tasks)){
 			$.each(tasks, function(key, task) {
-				html += "<tr data-id='"+task.id+"'>";
-				var isOwner = false;
-				var delta = null;
-				var credits = null;
-				$.each(task.members, function(memberId, info){
-					if(memberId == that.getUserId()){
-						isOwner = that.taskUtils.isTaskOwner(info.role);
-						if(info.delta !== undefined){
-							delta = (parseFloat(info.delta) * 100).toFixed(2) + " %";
+				if(key.toUpperCase() == 'STATS'){
+					var countTasksOwner = task.countTasksOwner;
+					var countTasksMember = data.total;
+					var sumTasksCredits = task.sumTasksCredits;
+					var averageOfDeltaShares = task.averageOfDeltaShares;
+					html += "<tr style=\"border-top: 2px solid darkgray;\">" +
+								"<td class=\"text-center\">"+countTasksOwner+"</td>" +
+								"<td class=\"text-left\">"+countTasksMember+"</td>" +
+								"<td class=\"text-right\">"+sumTasksCredits+"</td>" +
+								"<td class=\"text-right\">AVG:&nbsp&nbsp"+(averageOfDeltaShares* 100).toFixed(2)+" %</td>";
+				}else{
+					html += "<tr data-id='"+task.id+"'>";
+					var isOwner = false;
+					var delta = null;
+					var credits = null;
+					$.each(task.members, function(memberId, info){
+						if(memberId == that.getUserId()){
+							isOwner = that.taskUtils.isTaskOwner(info.role);
+							if(info.delta !== undefined){
+								delta = (parseFloat(info.delta) * 100).toFixed(2) + " %";
+							}
+							if(info.credits !== undefined){
+								credits = info.credits;
+							}
 						}
-						if(info.credits !== undefined){
-							credits = info.credits;
-						}
+					});
+					html += isOwner ? "<td class=\"text-center\"><i class=\"mdi-action-grade\" title=\"owner\"></i></td>" : "<td></td>";
+					var subject = task._links.self == undefined ? task.subject : '<a style="cursor:pointer" data-href="' + task._links.self.href + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
+					html += "<td class=\"text-left\">"+subject+"</td>";
+					html += credits !== null ? "<td class=\"text-right\">"+credits+"</td>" : "<td></td>";
+					html += delta !== null ? "<td class=\"text-right\">"+delta+"</td>" : "<td></td>";
 					}
-				});
-				html += isOwner ? "<td class=\"text-center\"><i class=\"mdi-action-grade\" title=\"owner\"></i></td>" : "<td></td>";
-				var subject = task._links.self == undefined ? task.subject : '<a style="cursor:pointer" data-href="' + task._links.self.href + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
-				html += "<td class=\"text-left\">"+subject+"</td>";
-				html += credits !== null ? "<td class=\"text-right\">"+credits+"</td>" : "<td></td>";
-				html += delta !== null ? "<td class=\"text-right\">"+delta+"</td>" : "<td></td>";
 				html += "</tr>";
 			});
 		}else{
