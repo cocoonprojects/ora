@@ -96,6 +96,14 @@ class TaskJsonModel extends JsonModel
 			] );
 		}
 		
+		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.start' )) {
+			$links ['ora:start'] = $this->controller->url ()->fromRoute ( 'tasks', [
+					'id' => $task->getId (),
+					'orgId' => $task->getOrganizationId (),
+					'controller' => 'transitions'
+			] );
+		}
+		
 		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.execute' )) {
 			$links ['ora:execute'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
 					'id' => $task->getId (),

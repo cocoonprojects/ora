@@ -19,6 +19,7 @@ use People\Service\OrganizationService;
 use People\Entity\Organization;
 use TaskManagement\Stream;
 use TaskManagement\TaskCreated;
+use People\Entity\OrganizationMembership;
 
 class NotifyMailListener implements NotificationService, ListenerAggregateInterface
 {
@@ -105,10 +106,8 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 			$member = $this->userService->findUser ( $memberId );
 			$orgId = $task->getOrganizationId ();
 			$org = $this->orgService->findOrganization ( $orgId );
-			$membership = $this->orgService->findOrganizationMemberships($org,null,null);
-			$streamId = $task->getStreamId ();
-			$stream = $this->streamService->getStream ( $streamId );
-			$this->sendWorkItemIdeaCreatedMail ( $task, $member, $membership, $org, $stream );
+			$memberships = $this->orgService->findOrganizationMemberships($org,null,null);
+			$this->sendWorkItemIdeaCreatedMail ( $task, $member, $memberships);
 		}
 	}
 
@@ -243,12 +242,16 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 	 * Send an email notification to the organization members to inform them that a new Work Item Idea has been created
 	 * @param Task $task
 	 * @param User $member
-	 * @param $membership
-	 * @param Organization $org
-	 * @param Stream $stream
+	 * @param OrganizationMembership[] $memberships
 	 */
-	public function sendWorkItemIdeaCreatedMail(Task $task, User $member, $membership, Organization $org, Stream $stream){
-		foreach ($membership as $m){
+	public function sendWorkItemIdeaCreatedMail(Task $task, User $member, $memberships){
+		$orgId = $task->getOrganizationId ();
+		$org = $this->orgService->findOrganization ( $orgId );
+		
+		$streamId = $task->getStreamId ();
+		$stream = $this->streamService->getStream ( $streamId );
+		
+		foreach ($memberships as $m){
 			$recipient = $m->getMember();
 			
 			$message = $this->mailService->getMessage();
@@ -271,5 +274,13 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 	 */
 	public function getMailService() {
 		return $this->mailService;
+	}
+
+	public function getOrganizationService(){
+		return $this->orgService;
+	}
+	
+	public function getStreamService(){
+		return $this->streamService;
 	}
 }

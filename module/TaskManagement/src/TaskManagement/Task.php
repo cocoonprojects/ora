@@ -51,11 +51,9 @@ class Task extends DomainEntity implements TaskInterface
 	protected $sharesAssignmentExpiresAt;
 
 	public static function create(Stream $stream, $subject, BasicUser $createdBy, array $options = null) {
-		$status = is_null($options) ? self::STATUS_ONGOING : $options['status'];
 		$rv = new self();
 		$rv->recordThat(TaskCreated::occur(Uuid::uuid4()->toString(), [
-			//'status' => self::STATUS_ONGOING,
-			'status' => $status,
+			'status' => self::STATUS_IDEA,
 			'organizationId' => $stream->getOrganizationId(),
 			'streamId' => $stream->getId(),
 			'by' => $createdBy->getId()
@@ -80,6 +78,20 @@ class Task extends DomainEntity implements TaskInterface
 	 */
 	public function getStatus() {
 		return $this->status;
+	}
+	
+	public function start(BasicUser $startedBy){
+		if($this->status != self::STATUS_IDEA){
+			throw new IllegalStateException('Cannot start a task in '.$this->status.' state');
+		}
+		if(!isset($this->members[$startedBy->getId()]) || $this->members[$startedBy->getId()]['role'] != self::ROLE_OWNER) {
+			throw new InvalidArgumentException('Only the owner can put in execution the task');
+		}
+		$this->recordThat(TaskOngoing::occur($this->id->toString(), array(
+				'prevStatus' => $this->getStatus(),
+				'by' => $startedBy->getId(),
+		)));
+		return $this;
 	}
 	
 	public function execute(BasicUser $executedBy) {
@@ -448,6 +460,11 @@ class Task extends DomainEntity implements TaskInterface
 	 */
 	public function getSharesAssignmentExpiresAt() {
 		return $this->sharesAssignmentExpiresAt;
+	}
+	
+	protected function whenTaskStarted (TaskStarted $event)
+	{
+		$this->status = self::STATUS_ONGOING;
 	}
 
 	protected function whenTaskCreated(TaskCreated $event)

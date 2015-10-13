@@ -31,7 +31,7 @@ TaskManagement.prototype = {
 	classe: 'TaskManagement',
 	
 	statuses: {
-			0: 'Idea',
+			0: 'Work Item Idea',
 			10: 'Open',
 			20: 'Ongoing',
 			30: 'Completed',
@@ -79,19 +79,6 @@ TaskManagement.prototype = {
 		$("#createStreamModal").on("submit", "form", function(e){
 			e.preventDefault();
 			that.createNewStream(e);
-		});
-		//Create Work Item Idea Modal
-		$("#createIdeaModal").on("show.bs.modal", function(e) {
-			var form = $(this).find("form");
-			form[0].reset();
-			$(this).find('div.alert').hide();
-			
-			var select = form.find("#createIdeaStreamID");
-			select.empty();
-			select.append('<option></option>');
-			$.each(that.streamsData._embedded['ora:stream'], function(i, object) {
-				select.append('<option value="' + object.id + '">' + object.subject + '</option>');
-			});
 		});
 		
 		$("#createTaskModal").on("shown.bs.modal", function(e) {
@@ -145,6 +132,12 @@ TaskManagement.prototype = {
 		$("body").on("click", "a[data-action='add-estimation']", function(e){
 			e.preventDefault();
 			that.sendReminder(e);
+		});
+		
+		//START IDEA
+		$("body").on("click", "a[data-action='startIdea']", function(e){
+			e.preventDefault();
+			that.startIdea(e);
 		});
 
 		$("body").on("click", "a[data-action='completeTask']", function(e){
@@ -385,6 +378,34 @@ TaskManagement.prototype = {
 		});
 	},
 	
+	startIdea: function(e){
+		var url = $(e.target).attr('href');
+		
+		var that = this;
+		
+		$.ajax({
+			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
+			method: 'POST',
+			data:{action:'start'},
+			complete: function(xhr, textStatus) {
+				m = $('#content');
+				if (xhr.status === 200) {
+					that.show(m, 'success', 'You have successfully started the work item idea');
+					that.listTasks();
+				}
+				else if (xhr.status === 204) {
+					that.show(m, 'warning', 'The task is already started');
+				}
+				else {
+					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to start the idea');
+				}
+			}
+		});
+	},
+	
 	acceptTask: function(e){
 		var url = $(e.target).attr('href');
 		
@@ -540,6 +561,9 @@ TaskManagement.prototype = {
 					};
 					primary_actions.push('<a data-href="' + task._links['ora:estimate']	 + '"' + $e + ' data-toggle="modal" data-target="#estimateTaskModal" class="btn btn-primary">Estimate</a>');
 				}
+				if(task._links['ora:start']){
+					primary_actions.push('<a href="' + task._links['ora:start'] + '" class="btn btn-default" data-action="startIdea">Start Idea</a>');
+				}
 				if (task._links['ora:complete']) {
 					if(task.status > TASK_STATUS.get('COMPLETED')) {
 						secondary_actions.push('<a href="' + task._links['ora:complete'] + '" data-task="' + key + '" data-action="completeTask">Revert to completed</a>');
@@ -638,6 +662,10 @@ TaskManagement.prototype = {
 		}
 		
 		rv += '<li>' + this.statuses[task.status];
+		
+		if(task.status == TASK_STATUS.get('IDEA')){
+			return rv;
+		}
 		
 		if(task.status == TASK_STATUS.get('ACCEPTED')){
 			rv += this.getLabelForAssignShares(task.daysRemainingToAssignShares);
@@ -779,29 +807,6 @@ TaskManagement.prototype = {
 			},
 			error: function(jqHXR, textStatus, errorThrown) {
 				that.show(modal, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to create the stream');
-			}
-		});
-	},
-	
-	createNewIdea: function(e)
-	{
-		var modal = $(e.delegateTarget);
-		var form  = $(e.target);
-
-		var that = this;
-		$.ajax({
-			url: form.attr('action'),
-			headers: {
-				'GOOGLE-JWT': sessionStorage.token
-			},
-			method: 'POST',
-			data: form.serialize(),
-			success: function() {
-				modal.modal('hide');
-				that.listTasks();
-			},
-			error: function(jqHXR, textStatus, errorThrown) {
-				that.show(modal, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to create the work item idea');
 			}
 		});
 	},

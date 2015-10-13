@@ -6,6 +6,7 @@ use Application\Entity\User;
 use TaskManagement\Entity\Task;
 use People\Entity\Organization;
 use TaskManagement\Stream;
+use People\Entity\OrganizationMembership;
 
 interface NotificationService
 {
@@ -50,10 +51,8 @@ interface NotificationService
 	 * Send notification to members that a new Work Item Idea has been created
 	 * @param Task $task
 	 * @param User $member
-	 * @param $membership
-	 * @param Organization $org
-	 * @param Stream $stream
+	 * @param OrganizationMembership[] $memberships
 	 * @return void
 	 */
-	public function sendWorkItemIdeaCreatedMail(Task $task, User $member, $membership, Organization $org, Stream $stream);
+	public function sendWorkItemIdeaCreatedMail(Task $task, User $member, $memberships);
 }

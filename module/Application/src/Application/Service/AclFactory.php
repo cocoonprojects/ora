@@ -19,6 +19,7 @@ use Zend\Permissions\Acl\Acl;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use People\Assertion\CommonOrganizationAssertion;
+use TaskManagement\Assertion\OwnerOfWorkItemIdeaAssertion;
 
 class AclFactory implements FactoryInterface
 {
@@ -47,6 +48,7 @@ class AclFactory implements FactoryInterface
 
 		$acl->addResource('Ora\Task');
 		$acl->allow(User::ROLE_USER, null, 'TaskManagement.Task.create');
+		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.start', new OwnerOfWorkItemIdeaAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.get', new MemberOfEntityOrganizationAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.join', new OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.estimate', new MemberOfOngoingTaskAssertion());
