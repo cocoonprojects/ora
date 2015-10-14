@@ -40,8 +40,6 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 	protected $stream;
 	
 	protected $orgService;
-	
-	protected $streamService;
 
 	protected function setUp() {
 		$this->organization = new Organization('1');
@@ -78,8 +76,7 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 		$userService = $this->getMockBuilder(UserService::class)->getMock();
 		$taskService = $this->getMockBuilder(TaskService::class)->getMock();
 		$this->orgService = $this->getMockBuilder(OrganizationService::class)->getMock();
-		$this->streamService = $this->getMockBuilder(StreamService::class)->getMock();
-		$this->service = new NotifyMailListener($mailService, $userService, $taskService, $this->orgService, $this->streamService);
+		$this->service = new NotifyMailListener($mailService, $userService, $taskService, $this->orgService);
 	}
 
 	public function testSendEstimationAddedInfoMail() {
@@ -162,7 +159,6 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testSendWorkItemIdeaCreatedMail(){
 		$this->orgService->method('findOrganization')->with($this->task->getOrganizationId())->willReturn($this->organization);
-		$this->streamService->method('getStream')->with($this->task->getStreamId())->willReturn($this->stream);
 		
 		$m1 = new \People\Entity\OrganizationMembership($this->owner, $this->organization);
 		$m2 = new \People\Entity\OrganizationMembership($this->member, $this->organization);

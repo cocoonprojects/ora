@@ -81,10 +81,6 @@ TaskManagement.prototype = {
 			that.createNewStream(e);
 		});
 		
-		$("#createTaskModal").on("shown.bs.modal", function(e) {
-			$("#createIdeaModal :input:text:enabled:first").focus()
-		});
-		
 		$("#editTaskModal").on("show.bs.modal", function(e) {
 			var button = $(e.relatedTarget) // Button that triggered the modal
 			var url = button.data('href');
@@ -373,34 +369,6 @@ TaskManagement.prototype = {
 		});
 	},
 	
-	startIdea: function(e){
-		var url = $(e.target).attr('href');
-		
-		var that = this;
-		
-		$.ajax({
-			url: url,
-			headers: {
-				'GOOGLE-JWT': sessionStorage.token
-			},
-			method: 'POST',
-			data:{action:'execute'},
-			complete: function(xhr, textStatus) {
-				m = $('#content');
-				if (xhr.status === 200) {
-					that.show(m, 'success', 'You have successfully started the work item idea');
-					that.listTasks();
-				}
-				else if (xhr.status === 204) {
-					that.show(m, 'warning', 'The task is already started');
-				}
-				else {
-					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to start the idea');
-				}
-			}
-		});
-	},
-	
 	acceptTask: function(e){
 		var url = $(e.target).attr('href');
 		
@@ -527,11 +495,9 @@ TaskManagement.prototype = {
 		this.data = json;
 		if(this.data._links !== undefined && this.data._links['ora:create'] !== undefined) {
 			$("#createTaskModal form").attr("action", this.data._links['ora:create']['href']);
-			$("#createIdeaModal form").attr("action", this.data._links['ora:create']['href']);
 			$("#createTaskBtn").show();
 		} else {
 			$("#createTaskModal form").attr("action", null);
-			$("#createIdeaModal form").attr("action", null);
 			$("#createTaskBtn").hide();
 		}
 
@@ -556,9 +522,6 @@ TaskManagement.prototype = {
 					};
 					primary_actions.push('<a data-href="' + task._links['ora:estimate']	 + '"' + $e + ' data-toggle="modal" data-target="#estimateTaskModal" class="btn btn-primary">Estimate</a>');
 				}
-				if(task._links['ora:start']){
-					primary_actions.push('<a href="' + task._links['ora:start'] + '" class="btn btn-default" data-action="startIdea">Start Idea</a>');
-				}
 				if (task._links['ora:complete']) {
 					if(task.status > TASK_STATUS.get('COMPLETED')) {
 						secondary_actions.push('<a href="' + task._links['ora:complete'] + '" data-task="' + key + '" data-action="completeTask">Revert to completed</a>');
@@ -578,7 +541,7 @@ TaskManagement.prototype = {
 					if(task.status > TASK_STATUS.get('ONGOING')) {
 						secondary_actions.push('<a href="' + task._links['ora:execute'] + '" data-action="executeTask">Revert to ongoing</a>');
 					} else {
-						primary_actions.push('<a href="' + task._links['ora:execute'] + '" data-action="executeTask" class="btn btn-default btn-raised">Mark as ongoing</a>');
+						primary_actions.push('<a href="' + task._links['ora:execute'] + '" data-action="executeTask" class="btn btn-default btn-raised">Start Idea</a>');
 					}
 				}
 				if (task._links['ora:join']) {

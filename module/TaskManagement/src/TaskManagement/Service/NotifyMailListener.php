@@ -270,8 +270,4 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 	public function getOrganizationService(){
 		return $this->orgService;
 	}
-	
-	public function getStreamService(){
-		return $this->streamService;
-	}
 }

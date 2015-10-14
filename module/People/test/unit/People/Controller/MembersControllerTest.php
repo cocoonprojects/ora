@@ -185,9 +185,9 @@ class MembersControllerTest extends ControllerTest
 		$this->assertNotEmpty($arrayResult['_links']['next']['href']);
 		$this->assertArrayHasKey('first', $arrayResult['_links']);
 		$this->assertArrayHasKey('last', $arrayResult['_links']);
-		$this->assertArrayHasKey('id', $arrayResult['_embedded']['ora:organization-member'][0]);
-		$this->assertArrayHasKey('firstname', $arrayResult['_embedded']['ora:organization-member'][0]);
-		$this->assertArrayHasKey('lastname', $arrayResult['_embedded']['ora:organization-member'][0]);
+		$this->assertArrayHasKey('id', $arrayResult['_embedded']['ora:organization-member'][$user->getId()]);
+		$this->assertArrayHasKey('firstname', $arrayResult['_embedded']['ora:organization-member'][$user->getId()]);
+		$this->assertArrayHasKey('lastname', $arrayResult['_embedded']['ora:organization-member'][$user->getId()]);
 	}
 
 	public function testCreateAsAnonymous()
