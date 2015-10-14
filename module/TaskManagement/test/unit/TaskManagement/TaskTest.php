@@ -168,7 +168,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$task->addMember($this->user1, Task::ROLE_OWNER);
 		$task->addMember($this->user2);
 		
-		$task->start($this->user1);
+		$task->execute($this->user1);
 		
 		$task->addEstimation(20, $this->user1);
 		$task->addEstimation(1000, $this->user2);
@@ -184,7 +184,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	public function testClose() {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
-		$task->start($this->owner);
+		$task->execute($this->owner);
 		$task->addEstimation(1, $this->owner);
 		$task->complete($this->owner);
 		$task->accept($this->owner, new \DateInterval('P7D'));
@@ -218,7 +218,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	public function testCompleteWithThreeEstimation() {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
-		$task->start($this->owner);
+		$task->execute($this->owner);
 		$task->addMember($this->user1);
 		$task->addMember($this->user2);
 		$task->addEstimation(1, $this->owner);
