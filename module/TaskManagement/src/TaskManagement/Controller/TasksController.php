@@ -155,12 +155,6 @@ class TasksController extends OrganizationAwareController
 
 		$this->transaction()->begin();
 		try {
-			/*if(isset($data['status'])){
-				$options = array('status'=>$data['status']);
-				$task = Task::create($stream, $subject, $this->identity(),$options );
-			}else{
-				$task = Task::create($stream, $subject, $this->identity());
-			}*/
 			$task = Task::create($stream, $subject, $this->identity());
 			$task->addMember($this->identity(), Task::ROLE_OWNER);
 			$this->taskService->addTask($task);

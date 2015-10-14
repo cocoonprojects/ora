@@ -39,19 +39,15 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 	 * @var OrganizationService
 	 */
 	private $orgService;
-	/**
-	 * @var StreamService
-	 */
-	private $streamService;
+
 	
 	protected $listeners = [];
 	
-	public function __construct(MailServiceInterface $mailService, UserService $userService, TaskService $taskService, OrganizationService $orgService, StreamService $streamService) {
+	public function __construct(MailServiceInterface $mailService, UserService $userService, TaskService $taskService, OrganizationService $orgService) {
 		$this->mailService = $mailService;
 		$this->userService = $userService;
 		$this->taskService = $taskService;
 		$this->orgService = $orgService;
-		$this->streamService = $streamService;
 	
 	}
 	
@@ -100,12 +96,10 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 		$streamEvent = $event->getTarget ();
 		$taskId = $streamEvent->metadata ()['aggregate_id'];
 		$task = $this->taskService->findTask ( $taskId );
-		
 		if ($task->getStatus() == Task::STATUS_IDEA) {
 			$memberId = $event->getParam ( 'by' );
-			$member = $this->userService->findUser ( $memberId );
-			$orgId = $task->getOrganizationId ();
-			$org = $this->orgService->findOrganization ( $orgId );
+			$member = $task->getMember($memberId)->getUser();
+			$org = $task->getStream()->getOrganization();
 			$memberships = $this->orgService->findOrganizationMemberships($org,null,null);
 			$this->sendWorkItemIdeaCreatedMail ( $task, $member, $memberships);
 		}
@@ -245,11 +239,8 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 	 * @param OrganizationMembership[] $memberships
 	 */
 	public function sendWorkItemIdeaCreatedMail(Task $task, User $member, $memberships){
-		$orgId = $task->getOrganizationId ();
-		$org = $this->orgService->findOrganization ( $orgId );
-		
-		$streamId = $task->getStreamId ();
-		$stream = $this->streamService->getStream ( $streamId );
+		$org = $task->getStream()->getOrganization();
+		$stream = $task->getStream();
 		
 		foreach ($memberships as $m){
 			$recipient = $m->getMember();

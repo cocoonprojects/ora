@@ -80,22 +80,9 @@ class Task extends DomainEntity implements TaskInterface
 		return $this->status;
 	}
 	
-	public function start(BasicUser $startedBy){
-		if($this->status != self::STATUS_IDEA){
-			throw new IllegalStateException('Cannot start a task in '.$this->status.' state');
-		}
-		if(!isset($this->members[$startedBy->getId()]) || $this->members[$startedBy->getId()]['role'] != self::ROLE_OWNER) {
-			throw new InvalidArgumentException('Only the owner can put in execution the task');
-		}
-		$this->recordThat(TaskOngoing::occur($this->id->toString(), array(
-				'prevStatus' => $this->getStatus(),
-				'by' => $startedBy->getId(),
-		)));
-		return $this;
-	}
-	
 	public function execute(BasicUser $executedBy) {
-		if(!in_array($this->status, [self::STATUS_OPEN, self::STATUS_COMPLETED])) {
+		//The status IDEA is provisional
+		if(!in_array($this->status, [self::STATUS_IDEA, self::STATUS_OPEN, self::STATUS_COMPLETED])) {
 			throw new IllegalStateException('Cannot execute a task in '.$this->status.' state');
 		}
 		if(!isset($this->members[$executedBy->getId()]) || $this->members[$executedBy->getId()]['role'] != self::ROLE_OWNER) {
@@ -460,11 +447,6 @@ class Task extends DomainEntity implements TaskInterface
 	 */
 	public function getSharesAssignmentExpiresAt() {
 		return $this->sharesAssignmentExpiresAt;
-	}
-	
-	protected function whenTaskStarted (TaskStarted $event)
-	{
-		$this->status = self::STATUS_ONGOING;
 	}
 
 	protected function whenTaskCreated(TaskCreated $event)

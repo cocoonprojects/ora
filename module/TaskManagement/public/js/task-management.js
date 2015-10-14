@@ -85,11 +85,6 @@ TaskManagement.prototype = {
 			$("#createIdeaModal :input:text:enabled:first").focus()
 		});
 		
-		$("#createIdeaModal").on("submit", "form", function(e){
-			e.preventDefault();
-			that.createNewIdea(e);
-		});
-		
 		$("#editTaskModal").on("show.bs.modal", function(e) {
 			var button = $(e.relatedTarget) // Button that triggered the modal
 			var url = button.data('href');
@@ -389,7 +384,7 @@ TaskManagement.prototype = {
 				'GOOGLE-JWT': sessionStorage.token
 			},
 			method: 'POST',
-			data:{action:'start'},
+			data:{action:'execute'},
 			complete: function(xhr, textStatus) {
 				m = $('#content');
 				if (xhr.status === 200) {

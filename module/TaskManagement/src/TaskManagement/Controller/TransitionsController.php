@@ -36,7 +36,7 @@ class TransitionsController extends HATEOASRestfulController
 		}
 
 		$validator = new InArray(
-			['haystack' => array('start','complete', 'accept', 'execute', 'close')]
+			['haystack' => array('complete', 'accept', 'execute', 'close')]
 		);
 		if (!isset ($data['action']) || !$validator->isValid($data['action'])) {
 			$this->response->setStatusCode ( 400 );
@@ -51,27 +51,6 @@ class TransitionsController extends HATEOASRestfulController
 		
 		$action = $data ["action"];
 		switch ($action) {
-			case "start":
-				if($task->getStatus()==Task::STATUS_ONGOING){
-					$this->response->setStatusCode(204);
-					break;
-				}
-				$this->transaction()->begin();
-				try {
-					$task->start($this->identity());
-					$this->transaction()->commit();
-					$this->response->setStatusCode ( 200 );
-					$view = new TaskJsonModel($this);
-					$view->setVariable('resource', $task);
-					return $view;
-				} catch ( IllegalStateException $e ) {
-					$this->transaction()->rollback();
-					$this->response->setStatusCode ( 412 ); // Preconditions failed
-				} catch ( InvalidArgumentException $e ) {
-					$this->transaction()->rollback();
-					$this->response->setStatusCode ( 403 );
-				}			
-				break;
 			case "complete":
 				if($task->getStatus() == Task::STATUS_COMPLETED) {
 					$this->response->setStatusCode ( 204 );

@@ -112,8 +112,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$userService = $locator->get('Application\UserService');
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$orgService = $locator->get('People\OrganizationService');
-					$streamService = $locator->get('TaskManagement\StreamService');
-					$rv = new NotifyMailListener($mailService, $userService, $taskService, $orgService, $streamService);
+					$rv = new NotifyMailListener($mailService, $userService, $taskService, $orgService);
 					return $rv;
 				},
 				'TaskManagement\TaskService' => function ($locator) {
