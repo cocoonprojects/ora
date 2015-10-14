@@ -31,7 +31,7 @@ TaskManagement.prototype = {
 	classe: 'TaskManagement',
 	
 	statuses: {
-			0: 'Idea',
+			0: 'Work Item Idea',
 			10: 'Open',
 			20: 'Ongoing',
 			30: 'Completed',
@@ -123,6 +123,12 @@ TaskManagement.prototype = {
 		$("body").on("click", "a[data-action='add-estimation']", function(e){
 			e.preventDefault();
 			that.sendReminder(e);
+		});
+		
+		//START IDEA
+		$("body").on("click", "a[data-action='startIdea']", function(e){
+			e.preventDefault();
+			that.startIdea(e);
 		});
 
 		$("body").on("click", "a[data-action='completeTask']", function(e){
@@ -535,7 +541,7 @@ TaskManagement.prototype = {
 					if(task.status > TASK_STATUS.get('ONGOING')) {
 						secondary_actions.push('<a href="' + task._links['ora:execute'] + '" data-action="executeTask">Revert to ongoing</a>');
 					} else {
-						primary_actions.push('<a href="' + task._links['ora:execute'] + '" data-action="executeTask" class="btn btn-default btn-raised">Mark as ongoing</a>');
+						primary_actions.push('<a href="' + task._links['ora:execute'] + '" data-action="executeTask" class="btn btn-default btn-raised">Start Idea</a>');
 					}
 				}
 				if (task._links['ora:join']) {
@@ -614,6 +620,10 @@ TaskManagement.prototype = {
 		}
 		
 		rv += '<li>' + this.statuses[task.status];
+		
+		if(task.status == TASK_STATUS.get('IDEA')){
+			return rv;
+		}
 		
 		if(task.status == TASK_STATUS.get('ACCEPTED')){
 			rv += this.getLabelForAssignShares(task.daysRemainingToAssignShares);

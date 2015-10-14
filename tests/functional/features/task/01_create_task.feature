@@ -48,3 +48,14 @@ Scenario: Cannot create a task without a subject
 	And that its "streamID" is "00000000-1000-0000-0000-000000000000"
 	When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
 	Then the response status code should be 406
+	
+Scenario: Successfully creating a work item idea into a stream and with a subject
+	Given that I am authenticated as "mark.rogers@ora.local"
+	And that I want to make a new "Work Item Idea"
+	And that its "subject" is "My First Task"
+	And that its "streamID" is "00000000-1000-0000-0000-000000000000"
+	And that its "status" is "0"
+	When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
+	Then the response status code should be 201
+	And the header "Location" should be "/task-management/tasks/[0-9a-z\-]+"
+

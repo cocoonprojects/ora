@@ -47,6 +47,7 @@ class TaskAssignShareTest extends \PHPUnit_Framework_TestCase
 		$this->task->addMember($this->owner, Task::ROLE_OWNER);
 		$this->task->addMember($this->user1);
 		$this->task->addMember($this->user2);
+		$this->task->execute($this->owner);
 		$this->task->addEstimation(1000, $this->user1);
 		$this->task->addEstimation(2500, $this->user2);
 		$this->task->addEstimation(3200, $this->owner);

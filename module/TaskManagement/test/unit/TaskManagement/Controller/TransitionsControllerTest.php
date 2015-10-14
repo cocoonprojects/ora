@@ -43,6 +43,7 @@ class TransitionsControllerTest extends ControllerTest
 		$stream = Stream::create($organization, 'Really useful stream', $this->user);
 		$this->task = Task::create($stream, 'task subject', $this->user);
 		$this->task->addMember($this->user, Task::ROLE_OWNER);
+		$this->task->execute($this->user);
 		$this->task->addEstimation(1, $this->user);
 		$this->task->complete($this->user);
 		$this->task->accept($this->user, $this->controller->getIntervalForCloseTasks());

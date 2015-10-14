@@ -52,7 +52,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$task = Task::create($this->stream, 'Test subject', $this->owner);
 		$this->assertNotNull($task->getId());
 		$this->assertEquals('Test subject', $task->getSubject());
-		$this->assertEquals(Task::STATUS_ONGOING, $task->getStatus());
+		$this->assertEquals(Task::STATUS_IDEA, $task->getStatus());
 		$this->assertEquals($this->stream->getId(), $task->getStreamId());
 	}
 	
@@ -60,7 +60,25 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$task = Task::create($this->stream, null, $this->owner);
 		$this->assertNotNull($task->getId());
 		$this->assertNull($task->getSubject());
-		$this->assertEquals(Task::STATUS_ONGOING, $task->getStatus());
+		$this->assertEquals(Task::STATUS_IDEA, $task->getStatus());
+		$this->assertEquals($this->stream->getId(), $task->getStreamId());
+	}
+	
+	public function testCreateWorkItemIdea(){
+		$options = array('status'=>Task::STATUS_IDEA);
+		$task = Task::create($this->stream, 'Work Item Idea subject', $this->owner, $options);
+		$this->assertNotNull($task->getId());
+		$this->assertEquals('Work Item Idea subject', $task->getSubject());
+		$this->assertEquals(Task::STATUS_IDEA, $task->getStatus());
+		$this->assertEquals($this->stream->getId(), $task->getStreamId());
+	}
+	
+	public function testCreateWorkItemIdeaWithNoSubject(){
+		$options = array('status'=>Task::STATUS_IDEA);
+		$task = Task::create($this->stream, null, $this->owner, $options);
+		$this->assertNotNull($task->getId());
+		$this->assertNull($task->getSubject());
+		$this->assertEquals(Task::STATUS_IDEA, $task->getStatus());
 		$this->assertEquals($this->stream->getId(), $task->getStreamId());
 	}
 	
@@ -147,8 +165,10 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	
 	public function testAddEstimation() {
 		$task = Task::create($this->stream, null, $this->owner);
-		$task->addMember($this->user1);
+		$task->addMember($this->user1, Task::ROLE_OWNER);
 		$task->addMember($this->user2);
+		
+		$task->execute($this->user1);
 		
 		$task->addEstimation(20, $this->user1);
 		$task->addEstimation(1000, $this->user2);
@@ -164,6 +184,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	public function testClose() {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
+		$task->execute($this->owner);
 		$task->addEstimation(1, $this->owner);
 		$task->complete($this->owner);
 		$task->accept($this->owner, new \DateInterval('P7D'));
@@ -197,6 +218,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	public function testCompleteWithThreeEstimation() {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
+		$task->execute($this->owner);
 		$task->addMember($this->user1);
 		$task->addMember($this->user2);
 		$task->addEstimation(1, $this->owner);

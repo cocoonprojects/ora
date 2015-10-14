@@ -14,6 +14,12 @@ use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\Mvc\Application;
+use TaskManagement\WorkItemIdeaCreated;
+use People\Service\OrganizationService;
+use People\Entity\Organization;
+use TaskManagement\Stream;
+use TaskManagement\TaskCreated;
+use People\Entity\OrganizationMembership;
 
 class NotifyMailListener implements NotificationService, ListenerAggregateInterface
 {
@@ -29,13 +35,20 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 	 * @var TaskService
 	 */
 	private $taskService;
+	/**
+	 * @var OrganizationService
+	 */
+	private $orgService;
+
 	
 	protected $listeners = [];
 	
-	public function __construct(MailServiceInterface $mailService, UserService $userService, TaskService $taskService) {
+	public function __construct(MailServiceInterface $mailService, UserService $userService, TaskService $taskService, OrganizationService $orgService) {
 		$this->mailService = $mailService;
 		$this->userService = $userService;
 		$this->taskService = $taskService;
+		$this->orgService = $orgService;
+	
 	}
 	
 	public function attach(EventManagerInterface $events) {
@@ -43,6 +56,7 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, SharesAssigned::class, array($this, 'processSharesAssigned'));
 		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, SharesSkipped::class, array($this, 'processSharesAssigned'));
 		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, TaskClosed::class, array($this, 'processTaskClosed'));
+		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, TaskCreated::class, array($this, 'processWorkItemIdeaCreated'));
 	}
 	
 	public function detach(EventManagerInterface $events) {
@@ -76,6 +90,19 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 		$taskId = $streamEvent->metadata()['aggregate_id'];
 		$task = $this->taskService->findTask($taskId);
 		$this->sendTaskClosedInfoMail($task);
+	}
+	
+	public function processWorkItemIdeaCreated(Event $event) {
+		$streamEvent = $event->getTarget ();
+		$taskId = $streamEvent->metadata ()['aggregate_id'];
+		$task = $this->taskService->findTask ( $taskId );
+		if ($task->getStatus() == Task::STATUS_IDEA) {
+			$memberId = $event->getParam ( 'by' );
+			$member = $task->getMember($memberId)->getUser();
+			$org = $task->getStream()->getOrganization();
+			$memberships = $this->orgService->findOrganizationMemberships($org,null,null);
+			$this->sendWorkItemIdeaCreatedMail ( $task, $member, $memberships);
+		}
 	}
 
 	/**
@@ -204,11 +231,43 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 			$this->mailService->send();
 		}
 	}
+	
+	/**
+	 * Send an email notification to the organization members to inform them that a new Work Item Idea has been created
+	 * @param Task $task
+	 * @param User $member
+	 * @param OrganizationMembership[] $memberships
+	 */
+	public function sendWorkItemIdeaCreatedMail(Task $task, User $member, $memberships){
+		$org = $task->getStream()->getOrganization();
+		$stream = $task->getStream();
+		
+		foreach ($memberships as $m){
+			$recipient = $m->getMember();
+			
+			$message = $this->mailService->getMessage();
+			$message->setTo($recipient->getEmail());
+			$message->setSubject("A new Work Item Idea has been proposed.");
+			
+			$this->mailService->setTemplate( 'mail/work-item-idea-created.phtml', [
+					'task' => $task,
+					'member' =>$member,
+					'recipient'=> $recipient,
+					'organization'=> $org,
+					'stream'=> $stream
+			]);
+			$this->mailService->send();
+		}
+	}
 
 	/**
 	 * @return MailServiceInterface
 	 */
 	public function getMailService() {
 		return $this->mailService;
+	}
+
+	public function getOrganizationService(){
+		return $this->orgService;
 	}
 }

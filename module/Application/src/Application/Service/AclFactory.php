@@ -9,7 +9,7 @@ use TaskManagement\Assertion\AcceptedTaskAndMemberSharesNotAssignedAssertion;
 use TaskManagement\Assertion\MemberOfEntityOrganizationAssertion;
 use TaskManagement\Assertion\MemberOfOngoingTaskAssertion;
 use TaskManagement\Assertion\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion;
-use TaskManagement\Assertion\OwnerOfOpenOrCompletedTaskAssertion;
+use TaskManagement\Assertion\OwnerOfWorkItemIdeaOrOpenOrCompletedTaskAssertion;
 use TaskManagement\Assertion\TaskMemberNotOwnerAndNotCompletedTaskAssertion;
 use TaskManagement\Assertion\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion;
 use TaskManagement\Assertion\TaskOwnerAndNotCompletedTaskAssertion;
@@ -52,7 +52,7 @@ class AclFactory implements FactoryInterface
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.estimate', new MemberOfOngoingTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.unjoin', new TaskMemberNotOwnerAndNotCompletedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', ['TaskManagement.Task.edit', 'TaskManagement.Task.delete'], new TaskOwnerAndNotCompletedTaskAssertion());
-		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.execute', new OwnerOfOpenOrCompletedTaskAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.execute', new OwnerOfWorkItemIdeaOrOpenOrCompletedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.complete', new TaskOwnerAndOngoingOrAcceptedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.accept', new TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.assignShares', new AcceptedTaskAndMemberSharesNotAssignedAssertion());

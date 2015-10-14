@@ -6,10 +6,14 @@ use AcMailer\Service\MailServiceInterface;
 use Application\Entity\User;
 use Application\Service\UserService;
 use People\Entity\Organization;
-use TaskManagement\Entity\Stream;
 use TaskManagement\Entity\Task;
+use TaskManagement\Entity\Stream;
 use TaskManagement\Entity\TaskMember;
 use Zend\Mail\Message;
+use People\Service\OrganizationService;
+use TaskManagement\Service\StreamService;
+use TaskManagement\Entity\TaskManagement\Entity;
+use People\Entity\OrganizationMembership;
 
 
 class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
@@ -30,23 +34,33 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 	 * @var User
 	 */
 	protected $member;
+	
+	protected $organization;
+	
+	protected $stream;
+	
+	protected $orgService;
 
 	protected function setUp() {
-		$organization = new Organization('1');
+		$this->organization = new Organization('1');
+		$this->organization->setName('Organization Name');
+		
+		$this->stream = new Stream('1', $this->organization);
+		$this->stream->setSubject("Stream subject");
 
 		$this->owner = User::create();
 		$this->owner->setFirstname('John');
 		$this->owner->setLastname('Doe');
 		$this->owner->setEmail('john.doe@foo.com');
-		$this->owner->addMembership($organization);
+		$this->owner->addMembership($this->organization);
 
 		$this->member = User::create();
 		$this->member->setFirstname('Jane');
 		$this->member->setLastname('Doe');
 		$this->member->setEmail('jane.doe@foo.com');
-		$this->member->addMembership($organization);
+		$this->member->addMembership($this->organization);
 
-		$this->task = new Task('1', new Stream('1', $organization));
+		$this->task = new Task('1', $this->stream);
 		$this->task->setSubject('Lorem Ipsum Sic Dolor Amit');
 		$this->task->addMember($this->owner, TaskMember::ROLE_OWNER, $this->owner, new \DateTime());
 		$this->task->addMember($this->member, TaskMember::ROLE_MEMBER, $this->member, new \DateTime());
@@ -61,7 +75,8 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 
 		$userService = $this->getMockBuilder(UserService::class)->getMock();
 		$taskService = $this->getMockBuilder(TaskService::class)->getMock();
-		$this->service = new NotifyMailListener($mailService, $userService, $taskService);
+		$this->orgService = $this->getMockBuilder(OrganizationService::class)->getMock();
+		$this->service = new NotifyMailListener($mailService, $userService, $taskService, $this->orgService);
 	}
 
 	public function testSendEstimationAddedInfoMail() {
@@ -141,4 +156,36 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 			]);
 		$this->service->sendTaskClosedInfoMail($this->task);
 	}
+	
+	public function testSendWorkItemIdeaCreatedMail(){
+		$this->orgService->method('findOrganization')->with($this->task->getOrganizationId())->willReturn($this->organization);
+		
+		$m1 = new \People\Entity\OrganizationMembership($this->owner, $this->organization);
+		$m2 = new \People\Entity\OrganizationMembership($this->member, $this->organization);
+		$memberships = array($m1, $m2);
+
+		$this->service->getMailService()
+		->expects($this->at(1))
+		->method('setTemplate')
+		->with('mail/work-item-idea-created.phtml', [
+				'task' => $this->task,
+				'member' =>$this->owner,
+				'recipient'=> $this->owner,
+				'organization'=> $this->organization,
+				'stream'=> $this->stream
+		]);
+		$this->service->getMailService()
+		->expects($this->at(4))
+		->method('setTemplate')
+		->with('mail/work-item-idea-created.phtml', [
+				'task' => $this->task,
+				'member' =>$this->owner,
+				'recipient'=> $this->member,
+				'organization'=> $this->organization,
+				'stream'=> $this->stream
+		]);
+		
+		$this->service->sendWorkItemIdeaCreatedMail($this->task, $this->owner, $memberships);
+	}
+	
 }

@@ -53,12 +53,13 @@ class Task extends DomainEntity implements TaskInterface
 	public static function create(Stream $stream, $subject, BasicUser $createdBy, array $options = null) {
 		$rv = new self();
 		$rv->recordThat(TaskCreated::occur(Uuid::uuid4()->toString(), [
-			'status' => self::STATUS_ONGOING,
+			'status' => self::STATUS_IDEA,
 			'organizationId' => $stream->getOrganizationId(),
 			'streamId' => $stream->getId(),
 			'by' => $createdBy->getId()
 		]));
 		$rv->setSubject($subject, $createdBy);
+
 		return $rv;
 	}
 	
@@ -80,7 +81,8 @@ class Task extends DomainEntity implements TaskInterface
 	}
 	
 	public function execute(BasicUser $executedBy) {
-		if(!in_array($this->status, [self::STATUS_OPEN, self::STATUS_COMPLETED])) {
+		//The status IDEA is provisional
+		if(!in_array($this->status, [self::STATUS_IDEA, self::STATUS_OPEN, self::STATUS_COMPLETED])) {
 			throw new IllegalStateException('Cannot execute a task in '.$this->status.' state');
 		}
 		if(!isset($this->members[$executedBy->getId()]) || $this->members[$executedBy->getId()]['role'] != self::ROLE_OWNER) {

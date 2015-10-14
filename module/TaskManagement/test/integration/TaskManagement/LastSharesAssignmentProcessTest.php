@@ -74,6 +74,7 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 		try {
 			$task = Task::create($stream, 'Cras placerat libero non tempor', $this->owner);
 			$task->addMember($this->owner, Task::ROLE_OWNER);
+			$task->execute($this->owner);
 			$task->addEstimation(1500, $this->owner);
 			$task->addMember($this->member, Task::ROLE_MEMBER);
 			$task->addEstimation(3100, $this->member);
