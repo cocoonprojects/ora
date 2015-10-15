@@ -2,7 +2,6 @@
 namespace TaskManagement\Controller;
 
 use Application\Entity\User;
-use Application\Service\UserService;
 use People\Entity\Organization;
 use People\Service\OrganizationService;
 use TaskManagement\Entity\Stream;
@@ -24,8 +23,7 @@ class TasksControllerTest extends ControllerTest {
 		$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
 		$streamServiceStub = $this->getMockBuilder(StreamService::class)->getMock();
 		$organizationServiceStub = $this->getMockBuilder(OrganizationService::class)->getMock();
-		$userServiceStub = $this->getMockBuilder(UserService::class)->getMock();
-		return new TasksController($taskServiceStub, $streamServiceStub, $organizationServiceStub, $userServiceStub);
+		return new TasksController($taskServiceStub, $streamServiceStub, $organizationServiceStub);
 	}
 
 	protected function setupRouteMatch()
@@ -406,7 +404,6 @@ class TasksControllerTest extends ControllerTest {
 		$this->assertCount(2, $arrayResult['_embedded']['ora:task']);
 		$this->assertNotEmpty($arrayResult['_links']['self']['href']);
 		$this->assertArrayNotHasKey('next', $arrayResult['_links']);
-		$this->assertArrayNotHasKey('stats', $arrayResult['_embedded']['ora:task']);
 		$this->assertEquals(2, $arrayResult['count']);
 		$this->assertEquals(2, $arrayResult['total']);
 	}

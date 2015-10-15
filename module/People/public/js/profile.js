@@ -42,6 +42,9 @@ var Profile = function(taskUtils) {
 	this.getOrgId = function(){
 		return orgId;
 	};
+	this.getStatsTaskUrl = function(){
+		return "/"+this.getOrgId()+"/users/"+this.getUserId()+"/task-stats";
+	}
 
 	this.bindEventsOn();
 };
@@ -78,7 +81,43 @@ Profile.prototype = {
 
 		$("body").on("click", "a[data-action='nextPage']", function(e){
 			e.preventDefault();
-			that.listMoreTasks(e);
+			var url = $(e.target).attr('href');
+			if(that.getEndOn()){
+				url += "&endOn="+that.getEndOn();
+			}
+			if(that.getStartOn()){
+				url += "&startOn="+that.getStartOn();
+			}
+			if(that.getUserId()){
+				url += "&memberId="+that.getUserId();
+			}
+			that.getTaskMetrics(url);
+		});
+	},
+
+	getTaskMetrics: function(listTaskUrl){
+		var that = this;
+		var listTasksRequest = this.listTasks(listTaskUrl);
+		var taskStatsRequest = this.getTaskStats(this.getStatsTaskUrl());
+
+		var listTaskResponse = listTasksRequest.then(function(json) {
+			that.setTasksPageSize(json.count);
+			return json;
+		});
+		var taskStatsResponse = taskStatsRequest.then(function(json) {
+			return json;
+		});
+		$.when(listTaskResponse, taskStatsResponse)
+		.done(function(listTasks, taskStats) {
+			var container = that.createTaskMetricsTable(listTasks, taskStats);
+			if(listTasks._links !== undefined && listTasks._links["next"] !== undefined) {
+				var limit = that.getTasksPageSize() + that.getNextTasksPageSize();
+				container.append(
+					'<div class="text-center">' +
+							'<a rel="next" href="'+listTasks._links["next"]["href"]+'?limit=' + limit + '" data-action="nextPage">More</a>' +
+					'</div>'
+				);
+			}
 		});
 	},
 
@@ -113,7 +152,7 @@ Profile.prototype = {
 	},
 
 	loadUserDetail : function(url, redirectURL) {
-		that = this;
+		var that = this;
 
 		var _url = window.location.protocol + "//" + window.location.host + url;
 
@@ -155,8 +194,9 @@ Profile.prototype = {
 		}
 
 		var membData = json._embedded['ora:organization-membership'];
+		var memberSince = new Date(Date.parse(membData.createdAt));
 		$('#orgName').html(membData.organization.name);
-		$('#orgMembership').html(membData.role + " since " + membData.createdAt);
+		$('#orgMembership').html(membData.role + " since " + memberSince.toLocaleDateString());
 		
 		var creditsData = json._embedded['credits'];
 		//Generated credits Table
@@ -172,43 +212,29 @@ Profile.prototype = {
 		container.show();
 	},
 
-	listTasks: function(url)
-	{
-		var that = this;
-		$.ajax({
-			url: url,
-			headers: {
-				'GOOGLE-JWT': sessionStorage.token
-			},
-			method: 'GET'
-		}).fail(function( jqXHR, textStatus ) {
-			var errorCode = jqXHR.status;
-			var redirectURL = window.location.href;
-			if(errorCode === 401){
-				sessionStorage.setItem('redirectURL', redirectURL);
-				window.location = '/';
-			}
-		}).done(that.onListTasksCompleted.bind(that));
+	listTasks: function(url){
+		return $.ajax({
+				url: url,
+				headers: {
+					'GOOGLE-JWT': sessionStorage.token
+				},
+				method: 'GET'
+			}).fail(function( jqXHR, textStatus ) {
+				var errorCode = jqXHR.status;
+				var redirectURL = window.location.href;
+				if(errorCode === 401){
+					sessionStorage.setItem('redirectURL', redirectURL);
+					window.location = '/';
+				}
+			});
 	},
 
-	onListTasksCompleted: function(data){
-		var container = this.createTaskMetricsTable(data);
-		if(data._links !== undefined && data._links["next"] !== undefined) {
-			var limit = this.getTasksPageSize() + this.getNextTasksPageSize();
-			container.append(
-				'<div class="text-center">' +
-						'<a rel="next" href="'+data._links["next"]["href"]+'?limit=' + limit + '" data-action="nextPage">More</a>' +
-				'</div>'
-			);
-		}
-	},
-
-	createTaskMetricsTable(data){
-		var tasks = data._embedded['ora:task'];
+	createTaskMetricsTable(listTasks, taskStats){
+		var tasks = listTasks._embedded['ora:task'];
+		var stats = taskStats._embedded['ora:task'];
 		var container = $('#task-metrics');
 		var that = this;
-		var html = "";
-		html += "<table class=\"table table-hover\">";
+		var html = "<table class=\"table table-hover\">";
 		html += "<thead>" +
 					"<tr>" +
 						"<th class=\"text-center\" style=\"width: 3em\"></th>" +
@@ -218,44 +244,42 @@ Profile.prototype = {
 					"</tr>" +
 				"</thead>";
 		html += "<tbody>";
-		if(!$.isEmptyObject(tasks)){
-			$.each(tasks, function(key, task) {
-				if(key.toUpperCase() == 'STATS'){
-					var countTasksOwner = task.countTasksOwner;
-					var countTasksMember = data.total;
-					var sumTasksCredits = task.sumTasksCredits;
-					var averageOfDeltaShares = task.averageOfDeltaShares;
-					html += "<tr style=\"border-top: 2px solid darkgray;\">" +
-								"<td class=\"text-center\">"+countTasksOwner+"</td>" +
-								"<td class=\"text-left\">"+countTasksMember+"</td>" +
-								"<td class=\"text-right\">"+sumTasksCredits+"</td>" +
-								"<td class=\"text-right\">AVG:&nbsp&nbsp"+(averageOfDeltaShares* 100).toFixed(2)+" %</td>";
-				}else{
-					html += "<tr data-id='"+task.id+"'>";
-					var isOwner = false;
-					var delta = null;
-					var credits = null;
-					$.each(task.members, function(memberId, info){
-						if(memberId == that.getUserId()){
-							isOwner = that.taskUtils.isTaskOwner(info.role);
-							if(info.delta !== undefined){
-								delta = (parseFloat(info.delta) * 100).toFixed(2) + " %";
-							}
-							if(info.credits !== undefined){
-								credits = info.credits;
-							}
-						}
-					});
-					html += isOwner ? "<td class=\"text-center\"><i class=\"mdi-action-grade\" title=\"owner\"></i></td>" : "<td></td>";
-					var subject = task._links.self == undefined ? task.subject : '<a style="cursor:pointer" data-href="' + task._links.self.href + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
-					html += "<td class=\"text-left\">"+subject+"</td>";
-					html += credits !== null ? "<td class=\"text-right\">"+credits+"</td>" : "<td></td>";
-					html += delta !== null ? "<td class=\"text-right\">"+delta+"</td>" : "<td></td>";
+		$.each(tasks, function(key, task) {
+			html += "<tr data-id='"+task.id+"'>";
+			var isOwner = false;
+			var delta = null;
+			var credits = null;
+			$.each(task.members, function(memberId, info){
+				if(memberId == that.getUserId()){
+					isOwner = that.taskUtils.isTaskOwner(info.role);
+					if(info.delta !== undefined){
+						delta = (parseFloat(info.delta) * 100).toFixed(2) + " %";
 					}
-				html += "</tr>";
+					if(info.credits !== undefined){
+						credits = info.credits;
+					}
+				}
 			});
-		}else{
+			html += isOwner ? "<td class=\"text-center\"><i class=\"mdi-action-grade\" title=\"owner\"></i></td>" : "<td></td>";
+			var subject = task._links.self == undefined ? task.subject : '<a style="cursor:pointer" data-href="' + task._links.self.href + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
+			html += "<td class=\"text-left\">"+subject+"</td>";
+			html += credits !== null ? "<td class=\"text-right\">"+credits+"</td>" : "<td></td>";
+			html += delta !== null ? "<td class=\"text-right\">"+delta+"</td>" : "<td></td>";
+			html += "</tr>";
+		});
+		if($.isEmptyObject(tasks)){
 			html += "<tr><td colspan=\"4\">No Tasks metrics available</td></tr>";
+		}else{
+			var ownershipsCount = stats.ownershipsCount;
+			var countTasksMember = listTasks.total;
+			var creditsCount = stats.creditsCount;
+			var averageDelta = stats.averageDelta;
+			html += "<tr style=\"border-top: 2px solid darkgray;\">" +
+						"<td class=\"text-center\">"+ownershipsCount+"</td>" +
+						"<td class=\"text-left\">"+countTasksMember+"</td>" +
+						"<td class=\"text-right\">"+creditsCount+"</td>" +
+						"<td class=\"text-right\">AVG:&nbsp&nbsp"+(averageDelta* 100).toFixed(2)+" %</td>";
+			html += "</tr>";
 		}
 		html += "</tbody>" +
 			"</table>";
@@ -263,28 +287,21 @@ Profile.prototype = {
 		return container;
 	},
 
-	listMoreTasks: function(e){
-		var url = $(e.target).attr('href');
-		if(this.getEndOn()){
-			url += "&endOn="+this.getEndOn();
-		}
-		if(this.getStartOn()){
-			url += "&startOn="+this.getStartOn();
-		}
-		if(this.getUserId()){
-			url += "&memberId="+this.getUserId();
-		}
-		var that = this;
-		$.ajax({
-			url: url,
-			headers: {
-				'GOOGLE-JWT': sessionStorage.token
-			},
-			method: 'GET',
-		}).done(function(json){
-			that.setTasksPageSize(json.count);
-			that.onListTasksCompleted.bind(that, json)();
-		});
+	getTaskStats: function(url){
+		return $.ajax({
+				url: url,
+				headers: {
+					'GOOGLE-JWT': sessionStorage.token
+				},
+				method: 'GET'
+			}).fail(function( jqXHR, textStatus ) {
+				var errorCode = jqXHR.status;
+				var redirectURL = window.location.href;
+				if(errorCode === 401){
+					sessionStorage.setItem('redirectURL', redirectURL);
+					window.location = '/';
+				}
+			});
 	}
 };
 
@@ -299,5 +316,6 @@ $().ready(function(e) {
 	var url = "/"+profile.getOrgId()+"/user-profiles/"+profile.getUserId();
 	var redirectURL = "/"+profile.getOrgId()+"/profiles/"+profile.getUserId();
 	profile.loadUserDetail(url, redirectURL);
-	profile.listTasks("/"+profile.getOrgId()+"/task-management/tasks?memberId="+profile.getUserId());
+	var listTaskUrl = "/"+profile.getOrgId()+"/task-management/tasks?memberId="+profile.getUserId();
+	profile.getTaskMetrics(listTaskUrl);
 });

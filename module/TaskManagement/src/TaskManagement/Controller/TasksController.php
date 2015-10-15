@@ -92,9 +92,9 @@ class TasksController extends OrganizationAwareController
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
-		
 		$streamID = $this->getRequest()->getQuery('streamID');
-		$queryOptions = [];
+
+		$filters = [];
 		$stats = [];
 
 		$integerValidator = new ValidatorChain();
@@ -107,7 +107,7 @@ class TasksController extends OrganizationAwareController
 		$offset = $integerValidator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
 		$limit = $integerValidator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getListLimit();
 		$endOn = new \DateTime();
-		$startOn = $this->getDefaultStartOn($endOn);
+		$startOn = self::getDefaultStartOn($endOn);
 		if($dateValidator->isValid($this->getRequest()->getQuery("endOn"))){
 			$endOn = \DateTime::createFromFormat($dateValidator->getFormat(), $this->getRequest()->getQuery("endOn"));
 		}
@@ -119,21 +119,16 @@ class TasksController extends OrganizationAwareController
 		$memberId = $uuidValidator->isValid($this->getRequest()->getQuery("memberId")) ? $this->getRequest()->getQuery("memberId") : null;
 		$memberEmail = $emailValidator->isValid($this->getRequest()->getQuery("memberEmail")) ? $this->getRequest()->getQuery("memberEmail") : null;
 
-		$queryOptions["endOn"] = $endOn->format("Y-m-d")." 23:59:59";
-		$queryOptions["startOn"] = $startOn->format("Y-m-d")." 00:00:00";
-		$queryOptions["memberId"] = $memberId;
-		$queryOptions["memberEmail"] = $memberEmail;
+		$filters["endOn"] = $endOn->format("Y-m-d")." 23:59:59";
+		$filters["startOn"] = $startOn->format("Y-m-d")." 00:00:00";
+		$filters["memberId"] = $memberId;
+		$filters["memberEmail"] = $memberEmail;
 
-		$totalTasks = $this->taskService->countOrganizationTasks($this->organization, $queryOptions);
-		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit, $queryOptions) : $this->taskService->findStreamTasks($streamID, $offset, $limit, $queryOptions);
+		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit, $filters) : $this->taskService->findStreamTasks($streamID, $offset, $limit, $filters);
 
 		$view = new TaskJsonModel($this, $this->organization);
-		if(!is_null($memberId)){
-			$stats = $this->taskService->getStatsForMember($this->organization, $memberId, $queryOptions);
-			$view->setVariable("stats", $stats);
-		}
 
-		$totalTasks = $this->taskService->countOrganizationTasks($this->organization, $queryOptions);
+		$totalTasks = $this->taskService->countOrganizationTasks($this->organization, $filters);
 		$view->setVariables(['resource'=>$availableTasks, 'totalTasks'=>$totalTasks]);
 
 		return $view;
@@ -325,7 +320,7 @@ class TasksController extends OrganizationAwareController
 		return $this->listLimit;
 	}
 	
-	public function getDefaultStartOn(\DateTime $endOn){
+	public static function getDefaultStartOn(\DateTime $endOn){
 		$startOn = clone $endOn;
 		return $startOn->sub(new \DateInterval('P1Y'));
 	}

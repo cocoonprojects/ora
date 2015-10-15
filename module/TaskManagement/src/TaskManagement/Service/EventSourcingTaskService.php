@@ -49,10 +49,12 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @param Organization $organization
 	 * @param integer $offset
 	 * @param integer $limit
-	 * @param array $queryOptions
+	 * @param \DateTime | null $startOn
+	 * @param \DateTime | null $endOn
+	 * @param array $filters
 	 * @return Task[]
 	 */
-	public function findTasks(Organization $organization, $offset, $limit, $queryOptions)
+	public function findTasks(Organization $organization, $offset, $limit, $filters)
 	{
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('t')
@@ -62,23 +64,24 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->setFirstResult($offset)
 			->setMaxResults($limit)
 			->setParameter(':organization', $organization);
-		if(is_array($queryOptions)){
-			if(isset($queryOptions["startOn"]) && !empty($queryOptions["startOn"])){
+
+		if(is_array($filters)){
+			if(!empty($filters["startOn"])){
 				$query->andWhere('t.createdAt >= :startOn')
-					->setParameter('startOn', $queryOptions["startOn"]);
+					->setParameter('startOn', $filters["startOn"]);
 			}
-			if(isset($queryOptions["endOn"]) && !empty($queryOptions["endOn"])){
+			if(!empty($filters["endOn"])){
 				$query->andWhere('t.createdAt <= :endOn')
-					->setParameter('endOn', $queryOptions["endOn"]);
+					->setParameter('endOn', $filters["endOn"]);
 			}
-			if(isset($queryOptions["memberId"]) && !empty($queryOptions["memberId"])){
+			if(!empty($filters["memberId"])){
 				$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
-					->setParameter('memberId', $queryOptions["memberId"]);
+					->setParameter('memberId', $filters["memberId"]);
 			}
-			if(isset($queryOptions["memberEmail"]) && !empty($queryOptions["memberEmail"])){
+			if(!empty($filters["memberEmail"])){
 				$query->innerJoin('t.members', 'm')
 					->innerJoin('m.user', 'u', 'WITH', 'u.email = :memberEmail')
-					->setParameter('memberEmail', $queryOptions["memberEmail"]);
+					->setParameter('memberEmail', $filters["memberEmail"]);
 			}
 		}
 		return $query->getQuery()->getResult();
@@ -89,10 +92,10 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @param Organization $organization
 	 * @param \DateTime | null $startOn
 	 * @param \DateTime | null $endOn
-	 * @param array $queryOptions
+	 * @param array $filters
 	 * @return \Doctrine\ORM\mixed
 	 */
-	public function countOrganizationTasks(Organization $organization, $queryOptions){
+	public function countOrganizationTasks(Organization $organization, $filters){
 		
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('count(t)')
@@ -100,23 +103,23 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
 			->setParameter(':organization', $organization);
 
-		if(is_array($queryOptions)){
-			if(isset($queryOptions["startOn"]) && !empty($queryOptions["startOn"])){
+		if(is_array($filters)){
+			if(!empty($filters["startOn"])){
 				$query->andWhere('t.createdAt >= :startOn')
-				->setParameter('startOn', $queryOptions["startOn"]);
+				->setParameter('startOn', $filters["startOn"]);
 			}
-			if(isset($queryOptions["endOn"]) && !empty($queryOptions["endOn"])){
+			if(!empty($filters["endOn"])){
 				$query->andWhere('t.createdAt <= :endOn')
-				->setParameter('endOn', $queryOptions["endOn"]);
+				->setParameter('endOn', $filters["endOn"]);
 			}
-			if(isset($queryOptions["memberId"]) && !empty($queryOptions["memberId"])){
+			if(!empty($filters["memberId"])){
 				$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
-				->setParameter('memberId', $queryOptions["memberId"]);
+				->setParameter('memberId', $filters["memberId"]);
 			}
-			if(isset($queryOptions["memberEmail"]) && !empty($queryOptions["memberEmail"])){
+			if(!empty($filters["memberEmail"])){
 				$query->innerJoin('t.members', 'm')
 				->innerJoin('m.user', 'u', 'WITH', 'u.email = :memberEmail')
-				->setParameter('memberEmail', $queryOptions["memberEmail"]);
+				->setParameter('memberEmail', $filters["memberEmail"]);
 			}
 		}
 		return intval($query->getQuery()->getSingleScalarResult());
@@ -125,7 +128,8 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	public function findTask($id) {
 		return $this->entityManager->find(ReadModelTask::class, $id);
 	}
-	public function findStreamTasks($streamId, $offset, $limit, $queryOptions){
+	
+	public function findStreamTasks($streamId, $offset, $limit, $filters){
 		
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('t')
@@ -133,23 +137,23 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->where('t.stream = :streamId')
 			->setParameter(':streamId', $streamId);
 
-		if(is_array($queryOptions)){
-			if(isset($queryOptions["startOn"]) && !empty($queryOptions["startOn"])){
+		if(is_array($filters)){
+			if(!empty($filters["startOn"])){
 				$query->andWhere('t.createdAt >= :startOn')
-					->setParameter('startOn', $queryOptions["startOn"]);
+					->setParameter('startOn', $filters["startOn"]);
 			}
-			if(isset($queryOptions["endOn"]) && !empty($queryOptions["endOn"])){
+			if(!empty($filters["endOn"])){
 				$query->andWhere('t.createdAt <= :endOn')
-					->setParameter('endOn', $queryOptions["endOn"]);
+					->setParameter('endOn', $filters["endOn"]);
 			}
-			if(isset($queryOptions["memberId"]) && !empty($queryOptions["memberId"])){
+			if(!empty($filters["memberId"])){
 				$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
-					->setParameter('memberId', $queryOptions["memberId"]);
+					->setParameter('memberId', $filters["memberId"]);
 			}
-			if(isset($queryOptions["memberEmail"]) && !empty($queryOptions["memberEmail"])){
+			if(!empty($filters["memberEmail"])){
 				$query->innerJoin('t.members', 'm')
 					->innerJoin('m.user', 'u', 'WITH', 'u.email = :memberEmail')
-					->setParameter('memberEmail', $queryOptions["memberEmail"]);
+					->setParameter('memberEmail', $filters["memberEmail"]);
 			}
 		}
 		return $query->getQuery()->getResult();
@@ -174,32 +178,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		return $query->getResult();
 	}
 
-	public function getStatsForMember(Organization $org, $memberId, $queryOptions){
-
-		$countTasksOwner = $this->countTasksOwner($org, $memberId, $queryOptions);
-		$taskMemberInClosedTasks = $this->findTaskMemberInClosedTasks($org, $memberId, $queryOptions);
-		$sumTasksCredits = 0;
-		$averageOfDeltaShares = null;
-		if(!empty($taskMemberInClosedTasks)){
-			$countDeltaShares = 0;
-			$sumOfDeltaShares = 0;
-			foreach ($taskMemberInClosedTasks as $member){
-				$sumTasksCredits += $member->getCredits();
-				if(!is_null($member->getDelta())){
-					$sumOfDeltaShares += $member->getDelta();
-					$countDeltaShares++;
-				}
-			}
-			$averageOfDeltaShares = $countDeltaShares > 0 ? $sumOfDeltaShares / $countDeltaShares : null;
-		}
-		return[
-				"countTasksOwner" => $countTasksOwner,
-				"sumTasksCredits" => $sumTasksCredits,
-				"averageOfDeltaShares" => $averageOfDeltaShares
-		];
-	}
-
-	public function countTasksOwner(Organization $org, $memberId, $queryOptions){
+	public function countTasksOwnership(Organization $org, $memberId, $filters){
 		if(is_null($memberId)){
 			return 0;
 		}
@@ -214,20 +193,20 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->setParameter('memberId', $memberId)
 			->setParameter('memberRole', TaskMember::ROLE_OWNER);
 
-		if(is_array($queryOptions)){
-			if(isset($queryOptions["startOn"]) && !empty($queryOptions["startOn"])){
+		if(is_array($filters)){
+			if(!empty($filters["startOn"])){
 				$query->andWhere('t.createdAt >= :startOn')
-				->setParameter('startOn', $queryOptions["startOn"]);
+				->setParameter('startOn', $filters["startOn"]);
 			}
-			if(isset($queryOptions["endOn"]) && !empty($queryOptions["endOn"])){
+			if(!empty($filters["endOn"])){
 				$query->andWhere('t.createdAt <= :endOn')
-				->setParameter('endOn', $queryOptions["endOn"]);
+				->setParameter('endOn', $filters["endOn"]);
 			}
 		}
 		return intval($query->getQuery()->getSingleScalarResult());
 	}
 
-	public function findTaskMemberInClosedTasks(Organization $org, $memberId, $queryOptions){
+	public function findTaskMemberInClosedTasks(Organization $org, $memberId, $filters){
 		if(is_null($memberId)){
 			return [];
 		}
@@ -243,14 +222,14 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->setParameter('memberId', $memberId)
 			->setParameter('taskStatus', Task::STATUS_CLOSED);
 
-		if(is_array($queryOptions)){
-			if(isset($queryOptions["startOn"]) && !empty($queryOptions["startOn"])){
+		if(is_array($filters)){
+			if(!empty($filters["startOn"])){
 				$query->andWhere('t.createdAt >= :startOn')
-				->setParameter('startOn', $queryOptions["startOn"]);
+				->setParameter('startOn', $filters["startOn"]);
 			}
-			if(isset($queryOptions["endOn"]) && !empty($queryOptions["endOn"])){
+			if(!empty($filters["endOn"])){
 				$query->andWhere('t.createdAt <= :endOn')
-				->setParameter('endOn', $queryOptions["endOn"]);
+				->setParameter('endOn', $filters["endOn"]);
 			}
 		}
 		return $query->getQuery()->getResult();

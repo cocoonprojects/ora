@@ -30,10 +30,10 @@ interface TaskService
 	 * @param Organization $organization
 	 * @param integer $offset
 	 * @param integer $limit
-	 * @param array $filterOptions
+	 * @param array $filters
 	 * @return Task[]
 	 */
-	public function findTasks(Organization $organization, $offset, $limit, $filterOptions);
+	public function findTasks(Organization $organization, $offset, $limit, $filters);
 
 	/**
 	 * @param string|Uuid $id
@@ -45,10 +45,10 @@ interface TaskService
 	 * @param string|Uuid $streamId
 	 * @params integer $offset
 	 * @params integer $limit
-	 * @param array $filterOptions
+	 * @param array $filters
 	 * @return Task[]
 	 */
-	public function findStreamTasks($streamId, $offset, $limit, $filterOptions);
+	public function findStreamTasks($streamId, $offset, $limit, $filters);
 
 	/**
 	 * Find accepted tasks with accepted date before $interval days from now
@@ -56,13 +56,30 @@ interface TaskService
 	 * @return array
 	 */
 	public function findAcceptedTasksBefore(\DateInterval $interval);
-	
+
 	/**
 	 * Get the number of tasks of an $organization
 	 * @param Organization $organization
-	 * @param array $filterOptions
+	 * @param array $filters
 	 * @return integer
 	 */
-	public function countOrganizationTasks(Organization $organization, $filterOptions);
+	public function countOrganizationTasks(Organization $organization, $filters);
+
+	/**
+	 * Get the number of tasks ownership of an organization member
+	 * @param Organization $org
+	 * @param Uuid $memberId
+	 * @param array $filters
+	 * @return integer
+	 */
+	public function countTasksOwnership(Organization $organization, $memberId, $filters);
+
+	/**
+	 * @param Organization $organization
+	 * @param Uuid $memberId
+	 * @param array $filters
+	 * @return TaskMember[]
+	 */
+	public function findTaskMemberInClosedTasks(Organization $organization, $memberId, $filters);
 
 }
