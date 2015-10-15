@@ -40,9 +40,6 @@ class TaskJsonModel extends JsonModel
 			if($hal['count'] < $hal['total']){
 				$hal['_links']['next']['href'] = $this->controller->url()->fromRoute('tasks', ['orgId' => $this->organization->getId()]);
 			}
-			if(!is_null($this->getVariable('stats'))){
-				$hal['_embedded']['ora:task']['stats'] = $this->getVariable('stats');
-			}
 
 		} else {
 			$hal = $this->serializeOne($resource);
