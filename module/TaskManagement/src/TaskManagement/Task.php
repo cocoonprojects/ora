@@ -86,7 +86,7 @@ class Task extends DomainEntity implements TaskInterface
 			throw new IllegalStateException('Cannot execute a task in '.$this->status.' state');
 		}
 		if(!isset($this->members[$executedBy->getId()]) || $this->members[$executedBy->getId()]['role'] != self::ROLE_OWNER) {
-			throw new InvalidArgumentException('Only the owner can put in execution the task');
+			throw new InvalidArgumentException('Cannot mark a task as ongoing if not the task owner');
 		}
 		$this->recordThat(TaskOngoing::occur($this->id->toString(), array(
 				'prevStatus' => $this->getStatus(),
@@ -100,7 +100,7 @@ class Task extends DomainEntity implements TaskInterface
 			throw new IllegalStateException('Cannot complete a task in '.$this->status.' state');
 		}
 		if(!isset($this->members[$completedBy->getId()]) || $this->members[$completedBy->getId()]['role'] != self::ROLE_OWNER) {
-			throw new InvalidArgumentException('Only the owner can mark as completed the task');
+			throw new InvalidArgumentException("Cannot mark a task as completed if not the task owner");
 		}
 		if(is_null($this->getAverageEstimation())) {
 			throw new IllegalStateException('Cannot complete a task with missing estimations by members');
@@ -117,7 +117,7 @@ class Task extends DomainEntity implements TaskInterface
 			throw new IllegalStateException('Cannot accept a task in '.$this->status.' state');
 		}
 		if(!isset($this->members[$acceptedBy->getId()]) || $this->members[$acceptedBy->getId()]['role'] != self::ROLE_OWNER) {
-			throw new InvalidArgumentException('Only the owner can accept the task');
+			throw new InvalidArgumentException("Cannot mark a task as accepted if not the task owner");
 		}
 		$this->recordThat(TaskAccepted::occur($this->id->toString(), array(
 			'prevStatus' => $this->getStatus(),
