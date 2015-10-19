@@ -33,10 +33,11 @@ return array(
 			'tasks' => array(
 				'type' => 'Segment',
 				'options' => array(
-					'route'	   => '/:orgId/task-management/tasks[/:id][/:controller]',
+					'route'	   => '/:orgId/task-management/tasks[/:id][/:controller][/:type]',
 					'constraints' => array(
 						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
 						'id' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+						'type' => '[a-zA-Z-]+',
 					),
 					'defaults' => array(
 						'__NAMESPACE__' => 'TaskManagement\Controller',
@@ -47,9 +48,9 @@ return array(
 			'task-reminders' => array(
 				'type' => 'Segment',
 				'options' => array(
-					'route'	   => '/task-management/tasks/reminders/:id',
+					'route'	   => '/task-management/tasks/reminders/:type',
 					'constraints' => array(
-						'id' => '[a-zA-Z-]+',
+						'type' => '[a-zA-Z-]+',
 					),
 					'defaults' => array(
 						'__NAMESPACE__' => 'TaskManagement\Controller',

@@ -3,23 +3,22 @@
 namespace TaskManagement\Service;
 
 use AcMailer\Service\MailServiceInterface;
+use Application\Entity\BasicUser;
 use Application\Entity\User;
 use Application\Service\UserService;
+use People\Entity\OrganizationMembership;
+use People\Service\OrganizationService;
 use TaskManagement\Entity\Task;
 use TaskManagement\EstimationAdded;
 use TaskManagement\SharesAssigned;
 use TaskManagement\SharesSkipped;
 use TaskManagement\TaskClosed;
+use TaskManagement\TaskCreated;
+use TaskManagement\WorkItemIdeaCreated;
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\Mvc\Application;
-use TaskManagement\WorkItemIdeaCreated;
-use People\Service\OrganizationService;
-use People\Entity\Organization;
-use TaskManagement\Stream;
-use TaskManagement\TaskCreated;
-use People\Entity\OrganizationMembership;
 
 class NotifyMailListener implements NotificationService, ListenerAggregateInterface
 {
@@ -108,16 +107,17 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 	/**
 	 * @param Task $task
 	 * @param User $member
-	 * @return bool
+	 * @return BasicUser[] receivers
 	 * @throws \AcMailer\Exception\MailException
 	 */
 	public function sendEstimationAddedInfoMail(Task $task, User $member)
 	{
+		$rv = [];
 		$owner = $task->getOwner()->getUser();
 
 		//No mail to Owner for his actions
 		if(strcmp($owner->getId(), $member->getId())==0){
-			return;
+			return $rv;
 		}
 		
 		$message = $this->mailService->getMessage();
@@ -130,23 +130,25 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 				'member'=> $member
 		]);
 		
-		$result = $this->mailService->send();
-		return $result->isValid();
+		$this->mailService->send();
+		$rv[] = $owner;
+		return $rv;
 	}
 
 	/**
 	 * @param Task $task
 	 * @param User $member
-	 * @return bool|void
+	 * @return BasicUser[] receivers
 	 * @throws \AcMailer\Exception\MailException
 	 */
 	public function sendSharesAssignedInfoMail(Task $task, User $member)
 	{
+		$rv = [];
 		$owner = $task->getOwner()->getUser();
 
 		//No mail to Owner for his actions
 		if(strcmp($owner->getId(), $member->getId())==0){
-			return;
+			return $rv;
 		}
 
 		$message = $this->mailService->getMessage();
@@ -159,16 +161,19 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 			'member'=> $member
 		]);
 
-		$result = $this->mailService->send();
-		return $result->isValid();
+		$this->mailService->send();
+		$rv[] = $owner;
+		return $rv;
 	}
 	
 	/**
 	 * Send email notification to all members with empty shares of $taskToNotify
 	 * @param Task $task
+	 * @return BasicUser[] receivers
 	 */
 	public function remindAssignmentOfShares(Task $task)
 	{
+		$rv = [];
 		$taskMembersWithEmptyShares = $task->findMembersWithEmptyShares();
 		foreach ($taskMembersWithEmptyShares as $tm){
 			$member = $tm->getUser();
@@ -180,19 +185,22 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 					'task' => $task,
 					'recipient'=> $member
 			]);
-				
+
 			$this->mailService->send();
+			$rv[] = $member;
 		}
+		return $rv;
 	}
 	
 	/**
 	 * Send email notification to all members with no estimation of $taskToNotify
 	 * @param Task $task
+	 * @return BasicUser[] receivers
 	 */
 	public function remindEstimation(Task $task)
 	{
+		$rv = [];
 		$taskMembersWithNoEstimation = $task->findMembersWithNoEstimation();
-		
 		foreach ($taskMembersWithNoEstimation as $tm){
 			$member = $tm->getUser();
 			$message = $this->mailService->getMessage();
@@ -205,18 +213,21 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 			]);
 			
 			$this->mailService->send();
+			$rv[] = $member;
 		}
+		return $rv;
 	}
 	
 	/**
 	 * Send an email notification to the members of $taskToNotify to inform them that it has been closed
 	 * @param Task $task
+	 * @return BasicUser[] receivers
 	 */
 	public function sendTaskClosedInfoMail(Task $task)
 	{
+		$rv = [];
 		$taskMembers = $task->getMembers();
-		foreach ($taskMembers as $taskMember){
-			
+		foreach ($taskMembers as $taskMember) {
 			$member = $taskMember->getMember();
 	
 			$message = $this->mailService->getMessage();
@@ -229,7 +240,9 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 			]);
 			
 			$this->mailService->send();
+			$rv[] = $member;
 		}
+		return $rv;
 	}
 	
 	/**
@@ -237,12 +250,14 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 	 * @param Task $task
 	 * @param User $member
 	 * @param OrganizationMembership[] $memberships
+	 * @return BasicUser[] receivers
 	 */
 	public function sendWorkItemIdeaCreatedMail(Task $task, User $member, $memberships){
+		$rv = [];
 		$org = $task->getStream()->getOrganization();
 		$stream = $task->getStream();
 		
-		foreach ($memberships as $m){
+		foreach ($memberships as $m) {
 			$recipient = $m->getMember();
 			
 			$message = $this->mailService->getMessage();
@@ -257,7 +272,9 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 					'stream'=> $stream
 			]);
 			$this->mailService->send();
+			$rv[] = $recipient;
 		}
+		return $rv;
 	}
 
 	/**

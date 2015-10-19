@@ -4,13 +4,14 @@ namespace TaskManagement\Controller;
 
 use TaskManagement\Service\NotificationService;
 use TaskManagement\Service\TaskService;
+use Zend\View\Model\JsonModel;
 use ZFX\Rest\Controller\HATEOASRestfulController;
 
 
 class RemindersController extends HATEOASRestfulController
 {
 
-	protected static $collectionOptions = [];
+	protected static $collectionOptions = ['POST'];
 	protected static $resourceOptions = ['POST'];
 	
 	/**
@@ -36,14 +37,11 @@ class RemindersController extends HATEOASRestfulController
  		$this->taskService = $taskService;
  		$this->intervalForRemindAssignmentOfShares = self::getDefaultIntervalToRemindAssignmentOfShares();
  	}
-	
+
 	/**
-	 * Create a new reminder
-	 * @method POST
-	 * @link http://oraproject/task-management/tasks/reminders/
-	 * @param array $data['reminder'] 
-	 * @return HTTPStatusCode
-	 * 
+	 * @param string $id
+	 * @param array $data
+	 * @return \Zend\Stdlib\ResponseInterface
 	 */
 	public function invoke($id, $data)
 	{
@@ -52,51 +50,76 @@ class RemindersController extends HATEOASRestfulController
 			return $this->response;
 		}
 
-		//TODO Delete it
-		/*if(!$this->isAllowed($this->identity(), NULL, 'TaskManagement.Reminder.createReminder')){
-			$this->response->setStatusCode(403);
+		$task = $this->taskService->findTask($id);
+		if(is_null($task)) {
+			$this->response->setStatusCode(404);
 			return $this->response;
-		}*/
-		
-		switch ($id) {
-			case "assignment-of-shares":
-				
-				if(!$this->isAllowed($this->identity(), NULL, 'TaskManagement.Reminder.assignment-of-shares')){
-					$this->response->setStatusCode(403);
-					return $this->response;
-				}
-				
-				$tasksToNotify = $this->taskService->findAcceptedTasksBefore($this->getIntervalForRemindAssignmentOfShares());
-				
-				if(is_array($tasksToNotify) && count($tasksToNotify) > 0){
-					foreach ($tasksToNotify as $taskToNotify){
-						$this->notificationService->remindAssignmentOfShares($taskToNotify);
-					}
-				}
-				break;
+		}
+
+		switch ($this->params('type')) {
 			case "add-estimation":
-				$task = $this->taskService->findTask (  $data['taskId'] );
-				
-				if (is_null ( $task )) {
-					$this->response->setStatusCode ( 404 );
-					return $this->response;
-				}
-				
 				if (! $this->isAllowed ( $this->identity (), $task, 'TaskManagement.Reminder.add-estimation' )) {
 					$this->response->setStatusCode ( 403 );
 					return $this->response;
 				}
 				
-				$this->notificationService->remindEstimation( $task );
-				break;
+				$receivers = $this->notificationService->remindEstimation($task);
+				$this->response->setStatusCode(201);
+				$view = new JsonModel();
+				$view->setVariables([
+					'count' => count($receivers),
+					'_embedded' => array_map(function($value) {
+						return [
+							'id'        => $value->getId(),
+							'firstname' => $value->getFirstname(),
+							'lastname'  => $value->getLastname(),
+							'email'     => $value->getEmail()
+						];
+					}, $receivers)
+				]);
+				return $view;
 			default:
-				$this->response->setStatusCode(405);
-				break;
+				$this->response->setStatusCode(404);
 		}
 
 		return $this->response;
 	}
-	
+
+	/**
+	 * Create a new resource
+	 *
+	 * @param  mixed $data
+	 * @return mixed
+	 */
+	public function create($data)
+	{
+		if(is_null($this->identity())) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+
+		switch ($this->params('type')) {
+			case "assignment-of-shares":
+				if(!$this->isAllowed($this->identity(), NULL, 'TaskManagement.Reminder.assignment-of-shares')){
+					$this->response->setStatusCode(403);
+					return $this->response;
+				}
+
+				$tasksToNotify = $this->taskService->findAcceptedTasksBefore($this->getIntervalForRemindAssignmentOfShares());
+
+				foreach ($tasksToNotify as $task){
+					$this->notificationService->remindAssignmentOfShares($task);
+				}
+				$this->response->setStatusCode(201);
+				break;
+			default:
+				$this->response->setStatusCode(404);
+		}
+
+		return $this->response;
+	}
+
+
 	public function setIntervalForRemindAssignmentOfShares(\DateInterval $interval){
 		$this->intervalForRemindAssignmentOfShares = $interval;
 	}

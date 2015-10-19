@@ -6,12 +6,12 @@ use Zend\Json\Json;
 
 class ErrorJsonModel extends JsonModel {
 	
-	public static $ERROR_INPUT_VALIDATION = 1024;
+	public static $ERROR_INPUT_VALIDATION = 422;
 	
 	private static $ERROR_MESSAGES = [
 		403 => 'Forbidden',
 		412 => 'Precondition failed',
-		1024 => 'Input validation failed',
+		422 => 'Unprocessable Entity',
 	];
 	
 	private $errors = array();

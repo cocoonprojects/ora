@@ -855,7 +855,7 @@ TaskManagement.prototype = {
 				that.listTasks();
 			},
 			statusCode: {
-				400 : function(jqHXR, textStatus, errorThrown){
+				422 : function(jqHXR, textStatus, errorThrown){
 					json = $.parseJSON(jqHXR.responseText);
 					if(json.description != undefined) {
 						that.show(modal, 'danger', json.description);
@@ -889,7 +889,7 @@ TaskManagement.prototype = {
 				that.listTasks();
 			},
 			statusCode: {
-				400 : function(jqHXR, textStatus, errorThrown){
+				422 : function(jqHXR, textStatus, errorThrown){
 					json = $.parseJSON(jqHXR.responseText);
 					if(json.description != undefined) {
 						that.show(modal, 'danger', json.description);

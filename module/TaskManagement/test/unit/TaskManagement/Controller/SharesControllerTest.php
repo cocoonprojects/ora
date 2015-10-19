@@ -150,7 +150,7 @@ class SharesControllerTest extends ControllerTest
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 	
-		$this->assertEquals(400, $response->getStatusCode());
+		$this->assertEquals(422, $response->getStatusCode());
 	}
 	
 	public function testAssignSharesWithLessThan0Share()
@@ -170,7 +170,7 @@ class SharesControllerTest extends ControllerTest
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 	
-		$this->assertEquals(400, $response->getStatusCode());
+		$this->assertEquals(422, $response->getStatusCode());
 	}
 	
 	public function testAssignSharesWithMoreThan100TotalShares()
@@ -190,7 +190,7 @@ class SharesControllerTest extends ControllerTest
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 	
-		$this->assertEquals(400, $response->getStatusCode());
+		$this->assertEquals(422, $response->getStatusCode());
 	}
 	
 	public function testAssignSharesWithUnexistingTask()
@@ -228,7 +228,7 @@ class SharesControllerTest extends ControllerTest
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 	
-		$this->assertEquals(400, $response->getStatusCode());
+		$this->assertEquals(422, $response->getStatusCode());
 	}
 	
 	public function testAssignSharesByNonMember()
@@ -290,7 +290,7 @@ class SharesControllerTest extends ControllerTest
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 		
-		$this->assertEquals(400, $response->getStatusCode());
+		$this->assertEquals(422, $response->getStatusCode());
 	}
 
 	public function testAssignSharesToANonMembersExtraShares()

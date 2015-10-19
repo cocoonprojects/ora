@@ -282,7 +282,7 @@ class Task extends DomainEntity implements TaskInterface
 		*/
 
 		if(array_sum($membersShares) != 1) {
-			throw new InvalidArgumentException('The total amout of shares must be 100. Check the sum of assigned shares');
+			throw new InvalidArgumentException('The total amount of shares must be 100');
 		}
 
 		$missing = array_diff_key($this->members, $membersShares);

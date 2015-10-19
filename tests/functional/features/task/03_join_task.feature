@@ -3,12 +3,10 @@ Feature: Join a task
   I want to join an ongoing task
   in order to be part of the team that will accomplish the task and estimate it
 
-  @wip
   Scenario: Successfully joining an ongoing task as logged user
     Given that I am authenticated as "phil.toledo@ora.local"
     And that I want to make a new "Member"
     When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000000/members"
-    Then echo last response
     Then the response status code should be 201
 
   Scenario: Joining an ongoing task the logged user is already member of is invariant

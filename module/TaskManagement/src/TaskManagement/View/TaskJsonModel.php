@@ -129,7 +129,12 @@ class TaskJsonModel extends JsonModel
 		}
 		
 		if($this->controller->isAllowed($this->controller->identity(), $task,'TaskManagement.Reminder.add-estimation')){
-			$links['ora:remindEstimation'] = $this->controller->url()->fromRoute('task-reminders', ['id'=>'add-estimation']);
+			$links['ora:remindEstimation'] = $this->controller->url()->fromRoute('tasks', [
+				'id' => $task->getId (),
+				'orgId' => $task->getOrganizationId (),
+				'controller' => 'reminders',
+				'type'=>'add-estimation'
+			]);
 		}
 		
 		$rv = [

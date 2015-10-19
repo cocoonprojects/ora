@@ -53,12 +53,14 @@ class SharesController extends HATEOASRestfulController {
 			} catch (DomainEntityUnavailableException $e) {
 				$this->transaction()->rollback();
 				$this->response->setStatusCode(403);
-				return $this->response;
-			} catch (IllegalStateException $e) {
-				$error->setCode(412);
+				$error->setCode(403);
 				$error->setDescription($e->getMessage());
+				return $error;
+			} catch (IllegalStateException $e) {
 				$this->transaction()->rollback();
 				$this->response->setStatusCode(412);
+				$error->setCode(412);
+				$error->setDescription($e->getMessage());
 				return $error;
 			}
 		}
@@ -66,23 +68,20 @@ class SharesController extends HATEOASRestfulController {
 		$validator = new ValidatorChain();
 		$validator->attach(new NotEmpty(), true)
 				  ->attach(new Float(), true)
-				  ->attach(new Between(array('min' => 0, 'max' => 100), true));
+				  ->attach(new Between(['min' => 0, 'max' => 100], true));
 		
-		$total = 0;
 		foreach ($data as $key => $value) {
-			if($validator->isValid($value)) {
-				$total += $value;
-			} else {
+			if(!$validator->isValid($value)) {
 				$error->addSecondaryErrors($key, $validator->getMessages());
 			}
 		}
 		if($error->hasErrors()) {
 			$error->setCode(ErrorJsonModel::$ERROR_INPUT_VALIDATION);
-			$this->response->setStatusCode(400);
+			$this->response->setStatusCode(422);
 			return $error;
 		}
 		
-		array_walk($data, function(&$value, $key) {
+		array_walk($data, function(&$value) {
 			$value /= 100;
 		});
 		
@@ -96,17 +95,19 @@ class SharesController extends HATEOASRestfulController {
 			return $view;
 		} catch (InvalidArgumentException $e) {
 			$this->transaction()->rollback();
+			$this->response->setStatusCode(422);
 			$error->setCode(ErrorJsonModel::$ERROR_INPUT_VALIDATION);
 			$error->setDescription($e->getMessage());
-			$this->response->setStatusCode(400);
 		} catch (DomainEntityUnavailableException $e) {
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(403);
-		} catch (IllegalStateException $e) {
-			$error->setCode(412);
+			$error->setCode(403);
 			$error->setDescription($e->getMessage());
+		} catch (IllegalStateException $e) {
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(412);
+			$error->setCode(412);
+			$error->setDescription($e->getMessage());
 		}
 		return $error;
 	}
