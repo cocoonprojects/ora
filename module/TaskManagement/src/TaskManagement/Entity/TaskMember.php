@@ -85,6 +85,12 @@ class TaskMember
 	 */
 	protected $mostRecentEditBy;
 
+	/**
+	 * @ORM\Column(type="float", nullable=true)
+	 * @var float
+	 */
+	private $credits;
+
 	public function __construct(Task $task, User $user, $role){
 		$this->task = $task;
 		$this->user = $user;
@@ -211,6 +217,10 @@ class TaskMember
 	}
 
 	public function getCredits(){
-		return round($this->task->getAverageEstimation() * $this->share,2);
+		return $this->credits;
+	}
+
+	public function setCredits($credits){
+		$this->credits = $credits;
 	}
 }
