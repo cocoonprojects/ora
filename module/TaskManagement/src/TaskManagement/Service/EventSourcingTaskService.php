@@ -48,9 +48,10 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @param Organization $organization
 	 * @param integer $offset
 	 * @param integer $limit
+	 * @param array $filters
 	 * @return Task[]
 	 */
-	public function findTasks(Organization $organization, $offset, $limit)
+	public function findTasks(Organization $organization, $offset, $limit, $filters = null)
 	{
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('t')
@@ -59,9 +60,15 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->orderBy('t.mostRecentEditAt', 'DESC')
 			->setFirstResult($offset)
 			->setMaxResults($limit)
-			->setParameter(':organization', $organization)
-			->getQuery();
-		return $query->getResult();
+			->setParameter(':organization', $organization);
+		
+		if(is_array($filters)){
+			if($filters["status"]>=0){
+				$query->andWhere('t.status = :status')->setParameter('status', $filters["status"]);
+			}
+		}
+			
+		return $query->getQuery()->getResult();
 	}
 	
 	/**

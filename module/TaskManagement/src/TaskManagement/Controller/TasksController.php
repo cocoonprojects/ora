@@ -92,6 +92,8 @@ class TasksController extends OrganizationAwareController
 		}
 		
 		$streamID = $this->getRequest()->getQuery('streamID');
+		
+		$filters = [];
 
 		$validator = new ValidatorChain();
 		$validator->attach(new Int())
@@ -100,8 +102,10 @@ class TasksController extends OrganizationAwareController
 		$offset = $validator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
 		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getListLimit(); 
 		
+		$filters["status"] = $this->getRequest()->getQuery('status');
+		
 		$totalTasks = $this->taskService->countOrganizationTasks($this->organization);
-		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit) : $this->taskService->findStreamTasks($streamID, $offset, $limit);
+		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit, $filters) : $this->taskService->findStreamTasks($streamID, $offset, $limit, $filters);
 
 		$view = new TaskJsonModel($this, $this->organization);
 

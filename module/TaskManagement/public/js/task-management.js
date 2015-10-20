@@ -2,7 +2,8 @@ var TaskManagement = function()
 {
 	var pageSize = 10,
 		nextPageSize = 10,
-		pageOffset = 0;
+		pageOffset = 0
+		statusFilter = -1;
 	
 	this.getPageSize = function(){
 		return pageSize;
@@ -19,6 +20,13 @@ var TaskManagement = function()
 	this.setPageOffset = function(offset){
 		pageOffset = offset;
 	};
+	this.setStatusFilter = function(status){
+		statusFilter = status;
+	};
+	this.getStatusFilter = function(){
+		return statusFilter;
+	};
+	
 	this.bindEventsOn();
 	
 	var pollingFrequency = 10000;
@@ -228,6 +236,19 @@ TaskManagement.prototype = {
 		$("body").on("click", "a[data-action='nextPage']", function(e){
 			e.preventDefault();
 			that.listMoreTasks(e);
+		});
+		
+		$("#tasksFilter").on("click", "button", function(e){
+			e.preventDefault();
+			that.listTasks();
+		});
+		
+		$(".dropdown-menu li a").click(function(){
+			var button =  $(this).parents(".dropdown").find('.btn');
+			var status = $(this).attr("status")
+			button.html($(this).text() + ' <span class="caret"></span>');
+			button.attr('status', status); 
+			that.setStatusFilter(status);
 		});
 	},
 	
@@ -459,6 +480,11 @@ TaskManagement.prototype = {
 	{
 		var that = this;
 		var url = this.getPageOffset() > 0 ? 'task-management/tasks?offset='+that.getPageOffset()+'&limit='+that.getPageSize() : 'task-management/tasks?limit='+that.getPageSize();
+		
+		if(that.getStatusFilter() >= 0){
+			url+="&status="+that.getStatusFilter();
+		}
+		
 		$.ajax({
 			url: url,
 			headers: {

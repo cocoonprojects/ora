@@ -30,9 +30,10 @@ interface TaskService
 	 * @param Organization $organization
 	 * @param integer $offset
 	 * @param integer $limit
+	 * @param array $filters
 	 * @return Task[]
 	 */
-	public function findTasks(Organization $organization, $offset, $limit);
+	public function findTasks(Organization $organization, $offset, $limit, $filters);
 
 	/**
 	 * @param string|Uuid $id
