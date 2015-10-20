@@ -542,22 +542,22 @@ TaskManagement.prototype = {
 					primary_actions.push('<a data-href="' + task._links['ora:estimate']	 + '"' + $e + ' data-toggle="modal" data-target="#estimateTaskModal" class="btn btn-primary">Estimate</a>');
 				}
 				if (task._links['ora:complete']) {
-					if(task.status > this.utils.TASK_STATUS.get('COMPLETED')) {
+					if(task.status > that.utils.TASK_STATUS.get('COMPLETED')) {
 						secondary_actions.push('<a href="' + task._links['ora:complete'] + '" data-task="' + key + '" data-action="completeTask">Revert to completed</a>');
 					} else {
 						primary_actions.push('<a href="' + task._links['ora:complete'] + '" data-task="' + key + '" data-action="completeTask" class="btn btn-default btn-raised">Mark as completed</a>');
 					}
 				}
 				if (task._links['ora:accept']) {
-					if(task.status > this.utils.TASK_STATUS.get('ACCEPTED')) {
+					if(task.status > that.utils.TASK_STATUS.get('ACCEPTED')) {
 						secondary_actions.push('<a href="' + task._links['ora:accept'] + '" data-action="acceptTask">Revert to accepted</a>');
 					} else {
 						primary_actions.push('<a href="' + task._links['ora:accept'] + '" data-action="acceptTask" class="btn btn-default btn-raised">Mark as accepted</a>');
 					}
 				}
 				if (task._links['ora:execute']) {
-					var label = task.status > this.utils.TASK_STATUS.get('ONGOING') ? 'Revert to ongoing' : 'Start';
-					if(task.status > this.utils.TASK_STATUS.get('ONGOING')) {
+					var label = task.status > that.utils.TASK_STATUS.get('ONGOING') ? 'Revert to ongoing' : 'Start';
+					if(task.status > that.utils.TASK_STATUS.get('ONGOING')) {
 						secondary_actions.push('<a href="' + task._links['ora:execute'] + '" data-action="executeTask">Revert to ongoing</a>');
 					} else {
 						primary_actions.push('<a href="' + task._links['ora:execute'] + '" data-action="executeTask" class="btn btn-default btn-raised">Start Idea</a>');

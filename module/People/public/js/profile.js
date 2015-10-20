@@ -76,7 +76,7 @@ Profile.prototype = {
 				that.setEndOn("");
 			}
 			var url = "/"+profile.getOrgId()+"/task-management/tasks?endOn="+that.getEndOn()+"&startOn="+that.getStartOn()+"&memberId="+that.getUserId();
-			that.listTasks(url);
+			that.getTaskMetrics(url);
 		});
 
 		$("body").on("click", "a[data-action='nextPage']", function(e){
@@ -142,12 +142,22 @@ Profile.prototype = {
 				that.setEndOn("");
 			}
 			var url = "/"+profile.getOrgId()+"/task-management/tasks?endOn="+that.getEndOn()+"&startOn="+that.getStartOn()+"&memberId="+that.getUserId();
-			that.listTasks(url);
+			that.getTaskMetrics(url);
 		});
 
 		$("body").on("click", "a[data-action='nextPage']", function(e){
 			e.preventDefault();
-			that.listMoreTasks(e);
+			var url = $(e.target).attr('href');
+			if(that.getEndOn()){
+				url += "&endOn="+that.getEndOn();
+			}
+			if(that.getStartOn()){
+				url += "&startOn="+that.getStartOn();
+			}
+			if(that.getUserId()){
+				url += "&memberId="+that.getUserId();
+			}
+			that.getTaskMetrics(url);
 		});
 	},
 
@@ -231,7 +241,6 @@ Profile.prototype = {
 
 	createTaskMetricsTable(listTasks, taskStats){
 		var tasks = listTasks._embedded['ora:task'];
-		var stats = taskStats._embedded['ora:task'];
 		var container = $('#task-metrics');
 		var that = this;
 		var html = "<table class=\"table table-hover\">";
@@ -270,13 +279,13 @@ Profile.prototype = {
 		if($.isEmptyObject(tasks)){
 			html += "<tr><td colspan=\"4\">No Tasks metrics available</td></tr>";
 		}else{
-			var ownershipsCount = stats.ownershipsCount;
-			var countTasksMember = listTasks.total;
-			var creditsCount = stats.creditsCount;
-			var averageDelta = stats.averageDelta;
+			var ownershipsCount = taskStats.ownershipsCount;
+			var membershipsCount = taskStats.membershipsCount;
+			var creditsCount = taskStats.creditsCount;
+			var averageDelta = taskStats.averageDelta;
 			html += "<tr style=\"border-top: 2px solid darkgray;\">" +
 						"<td class=\"text-center\">"+ownershipsCount+"</td>" +
-						"<td class=\"text-left\">"+countTasksMember+"</td>" +
+						"<td class=\"text-left\">"+membershipsCount+"</td>" +
 						"<td class=\"text-right\">"+creditsCount+"</td>" +
 						"<td class=\"text-right\">AVG:&nbsp&nbsp"+(averageDelta* 100).toFixed(2)+" %</td>";
 			html += "</tr>";

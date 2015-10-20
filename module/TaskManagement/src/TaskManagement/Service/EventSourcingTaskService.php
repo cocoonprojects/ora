@@ -14,6 +14,7 @@ use TaskManagement\Task;
 use TaskManagement\Entity\Task as ReadModelTask;
 use TaskManagement\Entity\Stream as ReadModelStream;
 use TaskManagement\Entity\TaskMember;
+use Doctrine\ORM\Query;
 
 class EventSourcingTaskService extends AggregateRepository implements TaskService
 {
@@ -178,60 +179,37 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		return $query->getResult();
 	}
 
-	public function countTasksOwnership(Organization $org, $memberId, $filters){
-		if(is_null($memberId)){
-			return 0;
-		}
-
-		$builder = $this->entityManager->createQueryBuilder();
-		$query = $builder->select('count(t)')
-			->from(ReadModelTask::class, 't')
-			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
-			->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
-			->where('m.role = :memberRole')
-			->setParameter('organization', $org)
-			->setParameter('memberId', $memberId)
-			->setParameter('memberRole', TaskMember::ROLE_OWNER);
-
-		if(is_array($filters)){
-			if(!empty($filters["startOn"])){
-				$query->andWhere('t.createdAt >= :startOn')
-				->setParameter('startOn', $filters["startOn"]);
-			}
-			if(!empty($filters["endOn"])){
-				$query->andWhere('t.createdAt <= :endOn')
-				->setParameter('endOn', $filters["endOn"]);
-			}
-		}
-		return intval($query->getQuery()->getSingleScalarResult());
-	}
-
-	public function findTaskMemberInClosedTasks(Organization $org, $memberId, $filters){
+	/**
+	 * @see \TaskManagement\Service\TaskService::findStatsForMember()
+	 */
+	public function findStatsForMember(Organization $org, $memberId, $filters){
 		if(is_null($memberId)){
 			return [];
 		}
 
 		$builder = $this->entityManager->createQueryBuilder();
-		$query = $builder->select('m')
+		$query = $builder->select('SUM( CASE WHEN m.role=:role THEN 1 ELSE 0 END ) as ownershipsCount')
+			->addSelect('COUNT(m.task) as membershipsCount')
+			->addSelect('SUM(m.credits) as creditsCount')
+			->addSelect('AVG(m.delta) as averageDelta')
 			->from(TaskMember::class, 'm')
 			->innerJoin('m.task', 't')
 			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
 			->innerjoin('m.user', 'u', 'WITH', 'u.id = :memberId')
-			->where('t.status = :taskStatus')
-			->setParameter('organization', $org)
+			->setParameter('role', TaskMember::ROLE_OWNER)
 			->setParameter('memberId', $memberId)
-			->setParameter('taskStatus', Task::STATUS_CLOSED);
+			->setParameter('organization', $org->getId());
 
 		if(is_array($filters)){
 			if(!empty($filters["startOn"])){
 				$query->andWhere('t.createdAt >= :startOn')
-				->setParameter('startOn', $filters["startOn"]);
+					->setParameter('startOn', $filters["startOn"]);
 			}
 			if(!empty($filters["endOn"])){
 				$query->andWhere('t.createdAt <= :endOn')
-				->setParameter('endOn', $filters["endOn"]);
+					->setParameter('endOn', $filters["endOn"]);
 			}
 		}
-		return $query->getQuery()->getResult();
+		return $query->getQuery()->getResult()[0];
 	}
 }

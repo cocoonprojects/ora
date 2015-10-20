@@ -6,7 +6,6 @@ use Application\Controller\OrganizationAwareController;
 use Application\Service\UserService;
 use People\Service\OrganizationService;
 use People\View\TaskStatsJsonModel;
-use TaskManagement\Controller\TasksController;
 use TaskManagement\Service\TaskService;
 use Zend\Validator\Date as DateValidator;
 
@@ -48,24 +47,22 @@ class TaskStatsController extends OrganizationAwareController{
 		}
 		$dateValidator = new DateValidator();
 
-		$endOn = new \DateTime();
-		$startOn = TasksController::getDefaultStartOn($endOn);
+		$endOn = (new \DateTime())->setTime(23, 59, 59);
 		if($dateValidator->isValid($this->getRequest()->getQuery("endOn"))){
 			$endOn = \DateTime::createFromFormat($dateValidator->getFormat(), $this->getRequest()->getQuery("endOn"));
 		}
 		if($dateValidator->isValid($this->getRequest()->getQuery("startOn"))){
 			$startOn = \DateTime::createFromFormat($dateValidator->getFormat(), $this->getRequest()->getQuery("startOn"));
+		}else{
+			$startOn = $this->getDefaultStartOn($endOn);
 		}
 
-		$filters["endOn"] = $endOn->format("Y-m-d")." 23:59:59";
-		$filters["startOn"] = $startOn->format("Y-m-d")." 00:00:00";
-		$ownershipsCount = $this->taskService->countTasksOwnership($this->organization, $memberId, $filters);
-		$taskMemberInClosedTasks = $this->taskService->findTaskMemberInClosedTasks($this->organization, $memberId, $filters);
+		$filters["endOn"] = $endOn->format("Y-m-d H:i:s");
+		$filters["startOn"] = $startOn->format("Y-m-d H:i:s");
 
+		$stats = $this->taskService->findStatsForMember($this->organization, $memberId, $filters);
 		$view = new TaskStatsJsonModel();
-		$view->setVariables(['ownershipsCount'=>$ownershipsCount,
-				'taskMemberInClosedTasks'=>$taskMemberInClosedTasks,
-		]);
+		$view->setVariables(['resource' => $stats]);
 
 		return $view;
 	}
@@ -84,5 +81,10 @@ class TaskStatsController extends OrganizationAwareController{
 
 	public function getTaskService(){
 		return $this->taskService;
+	}
+
+	private function getDefaultStartOn(\DateTime $endOn){
+		$startOn = clone $endOn;
+		return $startOn->sub(new \DateInterval('P1Y'))->setTime(0, 0, 0);
 	}
 }

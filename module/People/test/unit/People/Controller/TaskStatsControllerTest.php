@@ -12,7 +12,6 @@ use TaskManagement\Entity\TaskMember;
 use TaskManagement\Entity\Task;
 use TaskManagement\Service\TaskService;
 use ZFX\Test\Controller\ControllerTest;
-use TaskManagement\Controller\TasksController;
 
 
 class TaskStatsControllerTest extends ControllerTest{
@@ -41,34 +40,23 @@ class TaskStatsControllerTest extends ControllerTest{
 		$orgMember = User::create();
 		$orgMember->addMembership ( $organization, OrganizationMembership::ROLE_MEMBER );
 
-		$endOn = (new \DateTime())->format("Y-m-d")." 23:59:59";
-		$startOn = TasksController::getDefaultStartOn(new \DateTime())->format("Y-m-d")." 00:00:00";
+		$endOn = (new \DateTime())->setTime(23, 59, 59);
+		$startOn = clone $endOn;
+		$startOn->sub(new \DateInterval('P1Y'))->setTime(0, 0, 0);
 		$this->controller->getOrganizationService ()
 			->method ( 'findOrganization' )
 			->with ( $organization->getId () )
 			->willReturn ( $organization );
 
 		$this->controller->getTaskService()
-			->method ( 'countTasksOwnership' )
-			->with ( $organization, $orgOwner->getId(), ["startOn" => $startOn, "endOn"=>$endOn])
-			->willReturn ( 5 );
-
-		$closedTask = new Task('1', new Stream('1', $organization));
-		$closedTask->setSubject('Lorem Ipsum');
-		$closedTask->addMember($orgOwner, TaskMember::ROLE_OWNER, $orgOwner, new \DateTime());
-		$closedTask->addMember($orgMember, TaskMember::ROLE_MEMBER, $orgMember, new \DateTime());
-		$estimation1 = new Estimation(800, new \DateTime());
-		$estimation2 = new Estimation(1000, new \DateTime());
-		$closedTask->getMember($orgOwner)->setEstimation($estimation1);
-		$closedTask->getMember($orgMember)->setEstimation($estimation2);
-		$closedTask->getMember($orgOwner)->setShare(0.5, new \DateTime());
-		$closedTask->getMember($orgMember)->setShare(0.5, new \DateTime());
-		$closedTask->setStatus(Task::STATUS_CLOSED);
-
-		$this->controller->getTaskService()
-			->method ( 'findTaskMemberInClosedTasks' )
-			->with ( $organization, $orgOwner->getId(), ["startOn" => $startOn, "endOn"=>$endOn])
-			->willReturn ( [$closedTask->getMember($orgOwner)] );
+			->method ( 'findStatsForMember' )
+			->with ( $organization, $orgOwner->getId(), ["startOn" => $startOn->format("Y-m-d H:i:s"), "endOn"=>$endOn->format("Y-m-d H:i:s")])
+			->willReturn ([
+				'membershipsCount' => 5,
+				'ownershipsCount' => 2,
+				'creditsCount' => 10000,
+				'averageDelta' => -0.0017
+			]);
 
 		$this->controller->getUserService()
 			->method ( 'findUser' )
@@ -83,15 +71,14 @@ class TaskStatsControllerTest extends ControllerTest{
 
 		$this->assertEquals ( 200, $response->getStatusCode () );
 		$arrayResult = json_decode ( $result->serialize (), true );
-		$this->assertArrayHasKey ( '_embedded', $arrayResult );
-		$this->assertArrayHasKey ( 'ora:task', $arrayResult ['_embedded'] );
-		$this->assertCount(3, $arrayResult ['_embedded'] ['ora:task'] );
-		$this->assertArrayHasKey ( 'ownershipsCount', $arrayResult ['_embedded'] ['ora:task'] );
-		$this->assertArrayHasKey ( 'creditsCount', $arrayResult ['_embedded'] ['ora:task'] );
-		$this->assertArrayHasKey ( 'averageDelta', $arrayResult ['_embedded'] ['ora:task'] );
-		$this->assertEquals( 5, $arrayResult ['_embedded'] ['ora:task'] ['ownershipsCount'] );
-		$this->assertEquals ( 450, $arrayResult ['_embedded'] ['ora:task'] ['creditsCount'] );
-		$this->assertNull( $arrayResult ['_embedded'] ['ora:task'] ['averageDelta'] );
+		$this->assertArrayHasKey ( 'membershipsCount', $arrayResult);
+		$this->assertArrayHasKey ( 'ownershipsCount', $arrayResult);
+		$this->assertArrayHasKey ( 'creditsCount', $arrayResult);
+		$this->assertArrayHasKey ( 'averageDelta', $arrayResult);
+		$this->assertEquals( 2, $arrayResult['ownershipsCount'] );
+		$this->assertEquals( 5, $arrayResult['membershipsCount'] );
+		$this->assertEquals ( 10000, $arrayResult['creditsCount'] );
+		$this->assertEquals ( -0.0017, $arrayResult['averageDelta'] );
 
 	}
 }

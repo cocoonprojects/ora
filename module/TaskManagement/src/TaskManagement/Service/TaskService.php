@@ -66,20 +66,10 @@ interface TaskService
 	public function countOrganizationTasks(Organization $organization, $filters);
 
 	/**
-	 * Get the number of tasks ownership of an organization member
+	 * Get tasks statistics for $memberId 
 	 * @param Organization $org
 	 * @param Uuid $memberId
 	 * @param array $filters
-	 * @return integer
 	 */
-	public function countTasksOwnership(Organization $organization, $memberId, $filters);
-
-	/**
-	 * @param Organization $organization
-	 * @param Uuid $memberId
-	 * @param array $filters
-	 * @return TaskMember[]
-	 */
-	public function findTaskMemberInClosedTasks(Organization $organization, $memberId, $filters);
-
+	public function findStatsForMember(Organization $org, $memberId, $filters);
 }

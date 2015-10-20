@@ -106,21 +106,20 @@ class TasksController extends OrganizationAwareController
 
 		$offset = $integerValidator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
 		$limit = $integerValidator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getListLimit();
-		$endOn = new \DateTime();
-		$startOn = self::getDefaultStartOn($endOn);
+		$endOn = (new \DateTime())->setTime(23, 59, 59);
 		if($dateValidator->isValid($this->getRequest()->getQuery("endOn"))){
 			$endOn = \DateTime::createFromFormat($dateValidator->getFormat(), $this->getRequest()->getQuery("endOn"));
 		}
 		if($dateValidator->isValid($this->getRequest()->getQuery("startOn"))){
 			$startOn = \DateTime::createFromFormat($dateValidator->getFormat(), $this->getRequest()->getQuery("startOn"));
-		}else if($endOn instanceof \DateTime){
+		}else{
 			$startOn = $this->getDefaultStartOn($endOn);
 		}
 		$memberId = $uuidValidator->isValid($this->getRequest()->getQuery("memberId")) ? $this->getRequest()->getQuery("memberId") : null;
 		$memberEmail = $emailValidator->isValid($this->getRequest()->getQuery("memberEmail")) ? $this->getRequest()->getQuery("memberEmail") : null;
 
-		$filters["endOn"] = $endOn->format("Y-m-d")." 23:59:59";
-		$filters["startOn"] = $startOn->format("Y-m-d")." 00:00:00";
+		$filters["endOn"] = $endOn->format("Y-m-d H:i:s");
+		$filters["startOn"] = $startOn->format("Y-m-d H:i:s");
 		$filters["memberId"] = $memberId;
 		$filters["memberEmail"] = $memberEmail;
 
@@ -319,9 +318,9 @@ class TasksController extends OrganizationAwareController
 	public function getListLimit(){
 		return $this->listLimit;
 	}
-	
-	public static function getDefaultStartOn(\DateTime $endOn){
+
+	private function getDefaultStartOn(\DateTime $endOn){
 		$startOn = clone $endOn;
-		return $startOn->sub(new \DateInterval('P1Y'));
+		return $startOn->sub(new \DateInterval('P1Y'))->setTime(0, 0, 0);
 	}
 }
