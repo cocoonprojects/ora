@@ -91,6 +91,9 @@ class TaskAssignShareTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals(0.32, $this->task->getMembers()[$this->owner->getId()]['share']);
 		$this->assertEquals(0.3733, $this->task->getMembers()[$this->user1->getId()]['share']);
 		$this->assertEquals(0.3067, $this->task->getMembers()[$this->user2->getId()]['share']);
+		$this->assertEquals(714.67, $this->task->getMembersCredits()[$this->owner->getId()]);
+		$this->assertEquals(833.70, $this->task->getMembersCredits()[$this->user1->getId()]);
+		$this->assertEquals(684.96, $this->task->getMembersCredits()[$this->user2->getId()]);
 	}
 
 	public function testEveryMemberAssign0SharesToAMember() {
@@ -187,5 +190,15 @@ class TaskAssignShareTest extends \PHPUnit_Framework_TestCase
 		], $this->user2);
 
 		$this->assertTrue($this->task->isSharesAssignmentCompleted());
+	}
+
+	public function testGetMembersCreditsWhenEverybodySkip() {
+		$this->task->skipShares($this->owner);
+		$this->task->skipShares($this->user1);
+		$this->task->skipShares($this->user2);
+
+		$this->assertEquals(0, $this->task->getMembersCredits()[$this->owner->getId()]);
+		$this->assertEquals(0, $this->task->getMembersCredits()[$this->user1->getId()]);
+		$this->assertEquals(0, $this->task->getMembersCredits()[$this->user2->getId()]);
 	}
 }

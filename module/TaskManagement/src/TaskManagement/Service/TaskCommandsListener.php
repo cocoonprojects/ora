@@ -154,8 +154,6 @@ class TaskCommandsListener extends ReadModelProjector
 		$task->setMostRecentEditBy($user);
 		$task->setMostRecentEditAt($event->occurredOn());
 		$this->entityManager->persist($task);
-		//calcolo i credits per ogni membro del task
-		$this->setMemberCredits($task);
 	}
 	
 	protected function onTaskOngoing(StreamEvent $event) {
@@ -192,25 +190,17 @@ class TaskCommandsListener extends ReadModelProjector
 		$this->entityManager->persist($task);
 	}
 
-	protected function getPackage() {
-		return 'TaskManagement';
+	protected function onCreditsAssigned(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$task = $this->entityManager->find(Task::class, $id);
+		$credits = $event->payload()['credits'];
+		foreach($task->getMembers() as $member) {
+			$member->setCredits($credits[$member->getUser()->getId()]);
+			$this->entityManager->persist($member);
+		}
 	}
 
-	public function setMemberCredits(Task $task){
-
-		$credits = $task->getAverageEstimation();
-		switch ($credits) {
-			case null :
-				break;
-			case Estimation::NOT_ESTIMATED :
-				$credits = 0;
-				break;
-		}
-		foreach ($task->getMembers() as $member){
-			if(!is_null($credits)){
-				$member->setCredits(round($credits * $member->getShare(),2));
-				$this->entityManager->persist($member);
-			}
-		}
+	protected function getPackage() {
+		return 'TaskManagement';
 	}
 }

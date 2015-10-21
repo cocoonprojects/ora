@@ -188,7 +188,6 @@ class TaskJsonModel extends JsonModel
 			if($tm->getShare() != null && $tm->getTask()->getStatus() >= Task::STATUS_CLOSED) {
 				$rv['share'] = $tm->getShare();
 				$rv['delta'] = $tm->getDelta();
-				$rv['credits'] = $tm->getCredits();
 			}
 			foreach ($tm->getShares() as $key => $share) {
 				$rv['shares'][$key] = array(

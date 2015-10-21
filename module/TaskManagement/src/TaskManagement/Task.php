@@ -370,8 +370,17 @@ class Task extends DomainEntity implements TaskInterface
 	 * @return array|null
 	 */
 	public function getMembersCredits() {
+		$credits = $this->getAverageEstimation();
+		switch ($credits) {
+			case null :
+				return null;
+			case self::NOT_ESTIMATED :
+				$credits = 0;
+		}
+
+		$rv = array();
 		foreach ($this->members as $id => $info) {
-			$rv[$id] = $info['credits'];
+			$rv[$id] = isset($info['share']) ? round($credits * $info['share'], 2) : 0;
 		}
 		return $rv;
 	}
@@ -475,20 +484,6 @@ class Task extends DomainEntity implements TaskInterface
 	
 	protected function whenTaskClosed(TaskClosed $event) {
 		$this->status = self::STATUS_CLOSED;
-		//calcolo i credits per ogni membro del task
-		$credits = $this->getAverageEstimation();
-		switch ($credits) {
-			case null :
-				break;
-			case self::NOT_ESTIMATED :
-				$credits = 0;
-				break;
-		}
-		foreach ($this->members as $id => $info) {
-			if(!is_null($credits)){
-				$this->members[$id]['credits'] = isset($info['share']) ? round($credits * $info['share'], 2) : 0;
-			}
-		}
 	}
 	
 	protected function whenTaskDeleted(TaskDeleted $event) {
@@ -508,7 +503,6 @@ class Task extends DomainEntity implements TaskInterface
 		$this->members[$id]['id'] = $id;
 		$this->members[$id]['role'] = $p['role'];
 		$this->members[$id]['createdAt'] = $event->occurredOn();
-		$this->members[$id]['credits'] = null;
 	}
 
 	protected function whenTaskMemberRemoved(TaskMemberRemoved $event) {
@@ -594,6 +588,17 @@ class Task extends DomainEntity implements TaskInterface
 	public function areSharesAssignedFromMember($user){
 		$key = $user instanceof BasicUser ? $user->getId() : $user;
 		return isset($this->members[$key]['shares']);
+	}
+
+	public function assignCredits(BasicUser $by){
+		$this->recordThat(CreditsAssigned::occur($this->id->toString(), array(
+				'credits' => $this->getMembersCredits(),
+				'by'=>$by->getId()
+		)));
+		return $this;
+	}
+
+	protected function whenCreditsAssigned(CreditsAssigned $event){
 	}
 
 }

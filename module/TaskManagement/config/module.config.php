@@ -105,8 +105,9 @@ return array(
 		'TaskManagement\StreamCommandsListener',
 
 		'TaskManagement\TaskCommandsListener',
-		'TaskManagement\TransferTaskSharesCreditsListener',
+		'TaskManagement\TransferCreditsListener',
 		'TaskManagement\CloseTaskListener',
+		'TaskManagement\AssignCreditsListener',
 	),
 	'assignment_of_shares_timebox' => new \DateInterval('P7D'), 
 	'default_tasks_limit' => 10

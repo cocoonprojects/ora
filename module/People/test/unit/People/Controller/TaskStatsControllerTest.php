@@ -50,7 +50,7 @@ class TaskStatsControllerTest extends ControllerTest{
 
 		$this->controller->getTaskService()
 			->method ( 'findStatsForMember' )
-			->with ( $organization, $orgOwner->getId(), ["startOn" => $startOn->format("Y-m-d H:i:s"), "endOn"=>$endOn->format("Y-m-d H:i:s")])
+			->with ( $organization, $orgOwner->getId(), ["startOn" => $startOn, "endOn"=>$endOn])
 			->willReturn ([
 				'membershipsCount' => 5,
 				'ownershipsCount' => 2,
