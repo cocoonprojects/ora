@@ -28,7 +28,7 @@ class TaskJsonModel extends JsonModel
 	public function serialize()
 	{
 		$resource = $this->getVariable('resource');
-		
+
 		if(is_array($resource)) {
 			$hal['_links']['self']['href'] = $this->controller->url()->fromRoute('tasks', ['orgId' => $this->organization->getId()]);
 			if ($this->controller->isAllowed($this->controller->identity(), NULL, 'TaskManagement.Task.create')) {
@@ -36,10 +36,11 @@ class TaskJsonModel extends JsonModel
 			}
 			$hal['_embedded']['ora:task'] = array_map(array($this, 'serializeOne'), $resource);
 			$hal['count'] = count($resource);
-			$hal['total'] = $this->getVariable('total');
+			$hal['total'] = $this->getVariable('totalTasks');
 			if($hal['count'] < $hal['total']){
 				$hal['_links']['next']['href'] = $this->controller->url()->fromRoute('tasks', ['orgId' => $this->organization->getId()]);
 			}
+
 		} else {
 			$hal = $this->serializeOne($resource);
 			if ($this->controller->isAllowed($this->controller->identity(), NULL, 'TaskManagement.Task.create')) {
@@ -177,7 +178,7 @@ class TaskJsonModel extends JsonModel
 				'lastname' => $member->getLastname(),
 				'picture' => $member->getPicture(),
 				'role' => $tm->getRole(),
-				'createdAt' => date_format($tm->getCreatedAt(), 'c'),
+				'createdAt' => date_format($tm->getCreatedAt(), 'c')
 			];
 			if(!(is_null($tm->getEstimation()) || is_null($tm->getEstimation()->getValue()))) {
 				$rv['estimation'] = $tm->getEstimation()->getValue();

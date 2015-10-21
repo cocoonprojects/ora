@@ -13,8 +13,9 @@ use TaskManagement\Controller\TransitionsController;
 use TaskManagement\Controller\EstimationsController;
 use TaskManagement\Controller\SharesController;
 use TaskManagement\Controller\StreamsController;
+use TaskManagement\Service\AssignCreditsListener;
 use TaskManagement\Service\NotifyMailListener;
-use TaskManagement\Service\TransferTaskSharesCreditsListener;
+use TaskManagement\Service\TransferCreditsListener;
 use TaskManagement\Service\StreamCommandsListener;
 use TaskManagement\Service\TaskCommandsListener;
 use TaskManagement\Service\EventSourcingStreamService;
@@ -128,19 +129,25 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
 					return new StreamCommandsListener($entityManager);
 				},
-				'TaskManagement\TransferTaskSharesCreditsListener' => function ($locator) {
+				'TaskManagement\TransferCreditsListener' => function ($locator) {
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$transactionManager = $locator->get('prooph.event_store');
 					$organizationService = $locator->get('People\OrganizationService');
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
 					$userService = $locator->get('Application\UserService');
-					return new TransferTaskSharesCreditsListener($taskService, $organizationService, $accountService, $userService, $transactionManager);
+					return new TransferCreditsListener($taskService, $organizationService, $accountService, $userService, $transactionManager);
 				},
 				'TaskManagement\CloseTaskListener' => function ($locator) {
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$userService = $locator->get('Application\UserService');
 					$transactionManager = $locator->get('prooph.event_store');
 					return new CloseTaskListener($taskService, $userService, $transactionManager);
+				},
+				'TaskManagement\AssignCreditsListener' => function ($locator) {
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$userService = $locator->get('Application\UserService');
+					$transactionManager = $locator->get('prooph.event_store');
+					return new AssignCreditsListener($taskService, $userService, $transactionManager);
 				}
 			),
 		);

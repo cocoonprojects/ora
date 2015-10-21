@@ -36,7 +36,7 @@ Scenario: Cannot getting a user profile page with wrong UserId
 	When I request "/00000000-0000-0000-1000-000000000000/user-profiles/80000000-0000-0000-0000-0000000000xx"
 	Then the response status code should be 404
 	
-Scenario: Cannot getting a user profile page with wrojg OrgId
+Scenario: Cannot getting a user profile page with wrong OrgId
 	Given that I am authenticated as "mark.rogers@ora.local" 
 	And that I want to find a "UserProfilePage"
 	When I request "/00000000-0000-0000-1000-0000000000xx/user-profiles/80000000-0000-0000-0000-000000000000"

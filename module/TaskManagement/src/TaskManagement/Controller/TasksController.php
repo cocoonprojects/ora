@@ -16,6 +16,9 @@ use Zend\Validator\NotEmpty;
 use Zend\I18n\Validator\Int;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\GreaterThan;
+use Zend\Validator\Date as DateValidator;
+use Zend\Validator\Regex as UserIdValidator;
+use Zend\Validator\EmailAddress as EmailAddressValidator;
 
 class TasksController extends OrganizationAwareController
 {
@@ -46,7 +49,6 @@ class TasksController extends OrganizationAwareController
 		$this->taskService = $taskService;
 		$this->streamService = $streamService;
 		$this->intervalForCloseTasks = new \DateInterval('P7D');
-		$this->pageSize = 10;
 	}
 	
 	public function get($id)
@@ -90,23 +92,49 @@ class TasksController extends OrganizationAwareController
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
-		
 		$streamID = $this->getRequest()->getQuery('streamID');
 
-		$validator = new ValidatorChain();
-		$validator->attach(new Int())
+		$filters = [];
+		$stats = [];
+
+		$integerValidator = new ValidatorChain();
+		$integerValidator->attach(new Int())
 			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
-		
-		$offset = $validator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
-		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getListLimit(); 
-		
-		$totalTasks = $this->taskService->countOrganizationTasks($this->organization);
-		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit) : $this->taskService->findStreamTasks($streamID, $offset, $limit);
+		$dateValidator = new DateValidator();
+		$uuidValidator = new UserIdValidator(array('pattern' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})'));
+		$emailValidator = new EmailAddressValidator(array('useDomainCheck' => false));
+
+		$offset = $integerValidator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
+		$limit = $integerValidator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getListLimit();
+
+		$endOn = $this->getRequest()->getQuery("endOn");
+		$startOn = $this->getRequest()->getQuery("startOn");
+		if($dateValidator->isValid($endOn)){
+			$endOn = \DateTime::createFromFormat($dateValidator->getFormat(), $endOn);
+			$endOn->setTime(23, 59, 59);
+		}else{
+			$endOn = (new \DateTime())->setTime(23, 59, 59);
+		}
+		if($dateValidator->isValid($startOn)){
+			$startOn = \DateTime::createFromFormat($dateValidator->getFormat(), $startOn);
+			$startOn->setTime(0, 0, 0);
+		}else{
+			$startOn = $this->getDefaultStartOn($endOn);
+		}
+		$memberId = $uuidValidator->isValid($this->getRequest()->getQuery("memberId")) ? $this->getRequest()->getQuery("memberId") : null;
+		$memberEmail = $emailValidator->isValid($this->getRequest()->getQuery("memberEmail")) ? $this->getRequest()->getQuery("memberEmail") : null;
+
+		$filters["endOn"] = $endOn;
+		$filters["startOn"] = $startOn;
+		$filters["memberId"] = $memberId;
+		$filters["memberEmail"] = $memberEmail;
+
+		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit, $filters) : $this->taskService->findStreamTasks($streamID, $offset, $limit, $filters);
 
 		$view = new TaskJsonModel($this, $this->organization);
 
-		$view->setVariables(['resource'=>$availableTasks, 'total'=>$totalTasks]);
-		
+		$totalTasks = $this->taskService->countOrganizationTasks($this->organization, $filters);
+		$view->setVariables(['resource'=>$availableTasks, 'totalTasks'=>$totalTasks]);
 
 		return $view;
 	}
@@ -295,5 +323,10 @@ class TasksController extends OrganizationAwareController
 	
 	public function getListLimit(){
 		return $this->listLimit;
+	}
+
+	private function getDefaultStartOn(\DateTime $endOn){
+		$startOn = clone $endOn;
+		return $startOn->sub(new \DateInterval('P1Y'))->setTime(0, 0, 0);
 	}
 }

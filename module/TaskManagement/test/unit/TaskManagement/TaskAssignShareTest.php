@@ -200,4 +200,5 @@ class TaskAssignShareTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals(0, $this->task->getMembersCredits()[$this->owner->getId()]);
 		$this->assertEquals(0, $this->task->getMembersCredits()[$this->user1->getId()]);
 		$this->assertEquals(0, $this->task->getMembersCredits()[$this->user2->getId()]);
-	}}
+	}
+}

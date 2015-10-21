@@ -85,6 +85,12 @@ class TaskMember
 	 */
 	protected $mostRecentEditBy;
 
+	/**
+	 * @ORM\Column(type="float", nullable=true)
+	 * @var float
+	 */
+	private $credits;
+
 	public function __construct(Task $task, User $user, $role){
 		$this->task = $task;
 		$this->user = $user;
@@ -208,5 +214,13 @@ class TaskMember
 	public function removeTask() {
 		$this->task = null;
 		return $this;
+	}
+
+	public function getCredits(){
+		return $this->credits;
+	}
+
+	public function setCredits($credits){
+		$this->credits = $credits;
 	}
 }
