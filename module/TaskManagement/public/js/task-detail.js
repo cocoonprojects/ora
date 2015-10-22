@@ -100,9 +100,10 @@ TaskDetail.prototype = {
 		rv += '<th style="text-align: center">Avg</th><th style="text-align: center">&Delta;</th></tr></thead><tbody>';
 		$.map(task.members, function(member, memberId) {
 			var isOwner = that.utils.isTaskOwner(member.role);
+			var picture = member.picture || "";
 			rv += "<tr>";
 			rv += isOwner ? "<td class=\"text-center\"><i class=\"mdi-action-grade\" title=\"owner\"></i></td>" : "<td></td>";
-			rv += '<th><img src="' + member.picture + '" style="max-width: 16px; max-height: 16px;" class="img-circle"> ' + member.firstname + ' ' + member.lastname + '</th>';
+			rv += '<th><img src="' + picture + '" style="max-width: 16px; max-height: 16px;" class="img-circle"> ' + member.firstname + ' ' + member.lastname + '</th>';
 			rv += '<td style="text-align: right">'
 			switch(member.estimation) {
 				case undefined:

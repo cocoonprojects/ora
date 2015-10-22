@@ -74,7 +74,8 @@ People.prototype = {
 		} else {
 			var that = this;
 			$.each(members, function(key, member) {
-				container.append('<li style="margin-bottom: 5px"><img src="' + member.picture + '" style="max-width: 60px; max-height: 60px;" class="img-circle"> <a href="profiles/'+member.id+'" data-action="user-detail" data-user=' + member.id + '"><span class="firstname">' + member.firstname + '</span> <span class="lastname">' + member.lastname + '</span></a></li>')
+				var picture = member.picture || "";
+				container.append('<li style="margin-bottom: 5px"><img src="' + picture + '" style="max-width: 60px; max-height: 60px;" class="img-circle"> <a href="profiles/'+member.id+'" data-action="user-detail" data-user=' + member.id + '"><span class="firstname">' + member.firstname + '</span> <span class="lastname">' + member.lastname + '</span></a></li>')
 			});
 			if(this.data._links !== undefined && this.data._links["next"] !== undefined) {
 				var limit = this.getPageSize() + this.getNextPageSize();
