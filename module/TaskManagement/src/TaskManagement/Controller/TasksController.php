@@ -19,6 +19,8 @@ use Zend\Validator\GreaterThan;
 use Zend\Validator\Date as DateValidator;
 use Zend\Validator\Regex as UserIdValidator;
 use Zend\Validator\EmailAddress as EmailAddressValidator;
+use Zend\Validator\InArray as StatusValidator;
+use Zend\Validator\Zend\Validator;
 
 class TasksController extends OrganizationAwareController
 {
@@ -103,6 +105,9 @@ class TasksController extends OrganizationAwareController
 		$dateValidator = new DateValidator();
 		$uuidValidator = new UserIdValidator(array('pattern' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})'));
 		$emailValidator = new EmailAddressValidator(array('useDomainCheck' => false));
+		$statusValidator = new StatusValidator(array(
+         'haystack' => array(Task::STATUS_IDEA,Task::STATUS_OPEN, Task::STATUS_ONGOING,Task::STATUS_COMPLETED, Task::STATUS_ACCEPTED, Task::STATUS_CLOSED),
+   		 ));
 
 		$offset = $integerValidator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
 		$limit = $integerValidator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getListLimit();
@@ -123,12 +128,13 @@ class TasksController extends OrganizationAwareController
 		}
 		$memberId = $uuidValidator->isValid($this->getRequest()->getQuery("memberId")) ? $this->getRequest()->getQuery("memberId") : null;
 		$memberEmail = $emailValidator->isValid($this->getRequest()->getQuery("memberEmail")) ? $this->getRequest()->getQuery("memberEmail") : null;
+		$status = $statusValidator->isValid($this->getRequest()->getQuery('status')) ? $this->getRequest()->getQuery('status') : null;
 
 		$filters["endOn"] = $endOn;
 		$filters["startOn"] = $startOn;
 		$filters["memberId"] = $memberId;
 		$filters["memberEmail"] = $memberEmail;
-		$filters["status"] = $this->getRequest()->getQuery('status');
+		$filters["status"] = $status;
 
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit, $filters) : $this->taskService->findStreamTasks($streamID, $offset, $limit, $filters);
 

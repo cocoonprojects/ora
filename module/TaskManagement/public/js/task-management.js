@@ -493,7 +493,7 @@ TaskManagement.prototype = {
 		if(that.getMemberEmail()){
 			url += "&memberEmail="+that.getMemberEmail();
 		}
-		if(that.getStatusFilter() >= 0){
+		if(that.getStatusFilter() != -1){
 			url+="&status="+that.getStatusFilter();
 		}
 		$.ajax({
