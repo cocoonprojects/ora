@@ -93,3 +93,34 @@ Feature: List tasks
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
     And the response should have a "_links.next" property
+
+  Scenario: Successfully getting an empty list of tasks filtered by date interval
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    Given that its "endOn" is "2000-10-31"
+    Given that its "startOn" is "2000-10-01"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
+    Then the response status code should be 200
+    And the response should have a "_embedded.ora:task" property
+    And the response shouldn't have a "_links.next" property
+    And the "count" property should be "0"
+
+  Scenario: Successfully getting an empty list of tasks filtered by user email
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    Given that its "memberEmail" is "example@ora.org"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
+    Then the response status code should be 200
+    And the response should have a "_embedded.ora:task" property
+    And the response shouldn't have a "_links.next" property
+    And the "count" property should be "0"
+
+  Scenario: Successfully getting a list of tasks filtered by user id
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    Given that its "memberId" is "80000000-0000-0000-0000-000000000000"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
+    Then the response status code should be 200
+    And the response should have a "_embedded.ora:task" property
+    And the response shouldn't have a "_links.next" property
+    And the "count" property should be "2"

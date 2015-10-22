@@ -1,13 +1,13 @@
 <?php
 namespace People;
 
-use AcMailer\View\DefaultLayout;
 use People\Controller\OrganizationsController;
 use People\Controller\MembersController;
+use People\Controller\TaskStatsController;
+use People\Controller\UserProfileController;
 use People\Service\EventSourcingOrganizationService;
 use People\Service\OrganizationCommandsListener;
 use People\Service\SendMailListener;
-use People\Controller\UserProfileController;
 
 class Module
 {
@@ -42,6 +42,14 @@ class Module
 					$controller = new UserProfileController($orgService, $userService, $accountService);
 					return $controller;
 				},
+				'People\Controller\TaskStats' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$orgService = $locator->get('People\OrganizationService');
+					$userService = $locator->get('Application\UserService');
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$controller = new TaskStatsController($orgService, $taskService, $userService);
+					return $controller;
+				}
 			)
 		);
 	}

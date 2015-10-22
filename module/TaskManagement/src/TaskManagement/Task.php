@@ -377,7 +377,7 @@ class Task extends DomainEntity implements TaskInterface
 			case self::NOT_ESTIMATED :
 				$credits = 0;
 		}
-		
+
 		$rv = array();
 		foreach ($this->members as $id => $info) {
 			$rv[$id] = isset($info['share']) ? round($credits * $info['share'], 2) : 0;
@@ -588,6 +588,17 @@ class Task extends DomainEntity implements TaskInterface
 	public function areSharesAssignedFromMember($user){
 		$key = $user instanceof BasicUser ? $user->getId() : $user;
 		return isset($this->members[$key]['shares']);
+	}
+
+	public function assignCredits(BasicUser $by){
+		$this->recordThat(CreditsAssigned::occur($this->id->toString(), array(
+				'credits' => $this->getMembersCredits(),
+				'by'=>$by->getId()
+		)));
+		return $this;
+	}
+
+	protected function whenCreditsAssigned(CreditsAssigned $event){
 	}
 
 }

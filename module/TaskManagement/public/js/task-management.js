@@ -1,10 +1,15 @@
-var TaskManagement = function()
+var TaskManagement = function(taskUtils)
 {
 	var pageSize = 10,
 		nextPageSize = 10,
-		pageOffset = 0
+		pageOffset = 0,
+		endOn = "",
+		startOn = "",
+		memberEmail = "";
 		statusFilter = -1;
-	
+
+	this.utils = taskUtils;
+
 	this.getPageSize = function(){
 		return pageSize;
 	};
@@ -20,15 +25,36 @@ var TaskManagement = function()
 	this.setPageOffset = function(offset){
 		pageOffset = offset;
 	};
+	this.setStartOn = function(date){
+		startOn = date;
+	};
+	this.getStartOn = function(){
+		return startOn;
+	};
+	this.setEndOn = function(date){
+		endOn = date;
+	};
+	this.getEndOn = function(){
+		return endOn;
+	};
+	this.setMemberEmail = function(email){
+		memberEmail = email;
+	};
+	this.getMemberEmail = function(){
+		return memberEmail;
+	};
 	this.setStatusFilter = function(status){
 		statusFilter = status;
 	};
 	this.getStatusFilter = function(){
 		return statusFilter;
 	};
-	
+	this.resetPageSize = function(){
+		pageSize = 10;
+	};
+
 	this.bindEventsOn();
-	
+
 	var pollingFrequency = 10000;
 	this.pollingObject = this.setupPollingObject(pollingFrequency, this.listTasks);
 };
@@ -37,20 +63,9 @@ TaskManagement.prototype = {
 
 	constructor: TaskManagement,
 	classe: 'TaskManagement',
-	
-	statuses: {
-			0: 'Work Item Idea',
-			10: 'Open',
-			20: 'Ongoing',
-			30: 'Completed',
-			40: 'Shares assignment in progress',
-			50: 'Closed'
-	},
-	
 	data: [],
-	
 	streamsData: [],
-	
+
 	bindEventsOn: function()
 	{
 		var that = this;
@@ -224,22 +239,29 @@ TaskManagement.prototype = {
 			that.assignShares(e);
 		});
 
-		$("#taskDetailModal").on("show.bs.modal", function(e) {
-			container = $('#taskDetailModal h4');
-			container.empty();
-			container = $('#taskDetailModal .modal-body');
-			container.empty();
-
-			that.getTask(e);
-		});
-
 		$("body").on("click", "a[data-action='nextPage']", function(e){
 			e.preventDefault();
 			that.listMoreTasks(e);
 		});
-		
+
 		$("#tasksFilter").on("click", "button", function(e){
 			e.preventDefault();
+			that.resetPageSize();
+			//TODO: da rivedere
+			var start = $("#startOn").val() !== "" ? $("#startOn").val().split("/", 3) : "";
+			var end = $("#endOn").val() !== "" ? $("#endOn").val().split("/", 3) : "";
+
+			if(start.length == 3){
+				that.setStartOn(start[2]+"-"+start[1]+"-"+start[0]);
+			}else{
+				that.setStartOn("");
+			}
+			if(end.length == 3){
+				that.setEndOn(end[2]+"-"+end[1]+"-"+end[0]);
+			}else{
+				that.setEndOn("");
+			}
+			that.setMemberEmail($("#memberEmail").val());
 			that.listTasks();
 		});
 		
@@ -308,28 +330,6 @@ TaskManagement.prototype = {
 				}
 			}
 		});
-	},
-	
-	getTask: function(e)
-	{
-		var url = $(e.relatedTarget).data('href');
-		$.ajax({
-			url: url,
-			headers: {
-				'GOOGLE-JWT': sessionStorage.token
-			},
-			method: 'GET'
-		})
-		.done(this.onTaskCompleted.bind(this));
-		
-	},
-	
-	onTaskCompleted: function(json) {
-		var container = $('#taskDetailModal h4');
-		container.text(json.subject);
-		
-		container = $('#taskDetailModal .modal-body');
-		container.append(this.renderTaskDetail(json));
 	},
 	
 	editTask: function(e)
@@ -421,9 +421,9 @@ TaskManagement.prototype = {
 
 	completeTask: function(e){
 		var url = $(e.target).attr('href');
-		
+
 		var that = this;
-		
+
 		$.ajax({
 			url: url,
 			headers: {
@@ -479,12 +479,23 @@ TaskManagement.prototype = {
 	listTasks: function()
 	{
 		var that = this;
-		var url = this.getPageOffset() > 0 ? 'task-management/tasks?offset='+that.getPageOffset()+'&limit='+that.getPageSize() : 'task-management/tasks?limit='+that.getPageSize();
-		
+		var url = 'task-management/tasks?limit='+that.getPageSize();
+
+		if(that.getPageOffset() > 0){
+			url+= "&offset="+that.getPageOffset();
+		}
+		if(that.getEndOn()){
+			url += "&endOn="+that.getEndOn();
+		}
+		if(that.getStartOn()){
+			url += "&startOn="+that.getStartOn();
+		}
+		if(that.getMemberEmail()){
+			url += "&memberEmail="+that.getMemberEmail();
+		}
 		if(that.getStatusFilter() >= 0){
 			url+="&status="+that.getStatusFilter();
 		}
-		
 		$.ajax({
 			url: url,
 			headers: {
@@ -549,22 +560,22 @@ TaskManagement.prototype = {
 					primary_actions.push('<a data-href="' + task._links['ora:estimate']	 + '"' + $e + ' data-toggle="modal" data-target="#estimateTaskModal" class="btn btn-primary">Estimate</a>');
 				}
 				if (task._links['ora:complete']) {
-					if(task.status > TASK_STATUS.get('COMPLETED')) {
+					if(task.status > that.utils.TASK_STATUS.get('COMPLETED')) {
 						secondary_actions.push('<a href="' + task._links['ora:complete'] + '" data-task="' + key + '" data-action="completeTask">Revert to completed</a>');
 					} else {
 						primary_actions.push('<a href="' + task._links['ora:complete'] + '" data-task="' + key + '" data-action="completeTask" class="btn btn-default btn-raised">Mark as completed</a>');
 					}
 				}
 				if (task._links['ora:accept']) {
-					if(task.status > TASK_STATUS.get('ACCEPTED')) {
+					if(task.status > that.utils.TASK_STATUS.get('ACCEPTED')) {
 						secondary_actions.push('<a href="' + task._links['ora:accept'] + '" data-action="acceptTask">Revert to accepted</a>');
 					} else {
 						primary_actions.push('<a href="' + task._links['ora:accept'] + '" data-action="acceptTask" class="btn btn-default btn-raised">Mark as accepted</a>');
 					}
 				}
 				if (task._links['ora:execute']) {
-					var label = task.status > TASK_STATUS.get('ONGOING') ? 'Revert to ongoing' : 'Start';
-					if(task.status > TASK_STATUS.get('ONGOING')) {
+					var label = task.status > that.utils.TASK_STATUS.get('ONGOING') ? 'Revert to ongoing' : 'Start';
+					if(task.status > that.utils.TASK_STATUS.get('ONGOING')) {
 						secondary_actions.push('<a href="' + task._links['ora:execute'] + '" data-action="executeTask">Revert to ongoing</a>');
 					} else {
 						primary_actions.push('<a href="' + task._links['ora:execute'] + '" data-action="executeTask" class="btn btn-default btn-raised">Start Idea</a>');
@@ -645,13 +656,13 @@ TaskManagement.prototype = {
 			rv += '<li>Accepted at ' + acceptedAt.toLocaleString() + '</li>';
 		}
 		
-		rv += '<li>' + this.statuses[task.status];
+		rv += '<li>' + this.utils.statuses[task.status];
 		
-		if(task.status == TASK_STATUS.get('IDEA')){
+		if(task.status == this.utils.TASK_STATUS.get('IDEA')){
 			return rv;
 		}
 		
-		if(task.status == TASK_STATUS.get('ACCEPTED')){
+		if(task.status == this.utils.TASK_STATUS.get('ACCEPTED')){
 			rv += this.getLabelForAssignShares(task.daysRemainingToAssignShares);
 		}
 		
@@ -735,9 +746,9 @@ TaskManagement.prototype = {
 			rv += '<li>Accepted at ' + acceptedAt.toLocaleString() + '</li>';
 		}
 		
-		rv += '<li>' + this.statuses[task.status];
+		rv += '<li>' + this.utils.statuses[task.status];
 		
-		if(task.status == TASK_STATUS.get('ACCEPTED')){
+		if(task.status == this.utils.TASK_STATUS.get('ACCEPTED')){
 			rv += this.getLabelForAssignShares(task.daysRemainingToAssignShares);
 		}
 
@@ -988,6 +999,15 @@ TaskManagement.prototype = {
 	
 	listMoreTasks: function(e){
 		var url = $(e.target).attr('href');
+		if(this.getEndOn()){
+			url += "&endOn="+this.getEndOn();
+		}
+		if(this.getStartOn()){
+			url += "&startOn="+this.getStartOn();
+		}
+		if(this.getMemberEmail()){
+			url += "&memberEmail="+this.getMemberEmail();
+		}
 		var that = this;
 		$.ajax({
 			url: url,
@@ -1019,37 +1039,12 @@ TaskManagement.prototype = {
 	}
 };
 
-var TASK_STATUS = (function() {
-	var labels = {
-		0: 'Idea',
-		10: 'Open',
-		20: 'Ongoing',
-		30: 'Completed',
-		40: 'Shares assignment in progress',
-		50: 'Closed'
-	};
-	
-	var values = {
-		'IDEA':			0,
-		'OPEN':			10,
-		'ONGOING':		20,
-		'COMPLETED':	30,
-		'ACCEPTED':		40,
-		'CLOSED':		50
-	}
-	
-	return {
-		get: function(name) { return values[name]; },
-		label: function(name) { return labels[name]; }
-	};
-})();
-
 $().ready(function(e){
 	var googleID = sessionStorage.googleid;
 	$('head').append( '<meta name="google-signin-client_id" content="'+googleID+'">' );
 	$('#content div.alert').hide();
 	$('#firstLevelMenu li').eq(0).addClass('active');
-	collaboration = new TaskManagement();
+	collaboration = new TaskManagement(taskUtils);
 	collaboration.listTasks();
 	collaboration.updateStreams();
 	collaboration.pollingObject.startPolling();

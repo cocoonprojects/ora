@@ -1,4 +1,7 @@
-<div class="modal fade" id="taskDetailModal" tabindex="-1" role="dialog" aria-labelledby="taskDetailModalLabel" aria-hidden="true">
+<?php
+$this->headScript()->appendFile($this->basePath() . '/js/task-utils.js');
+$this->headScript()->appendFile($this->basePath() . '/js/task-detail.js');?>
+<div id="taskDetailModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="taskDetailModalLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -13,3 +16,6 @@
 		</div>
 	</div>
 </div>
+<script>
+	var taskDetail = new TaskDetail(taskUtils);
+</script>

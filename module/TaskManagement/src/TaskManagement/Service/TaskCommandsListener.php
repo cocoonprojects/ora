@@ -190,6 +190,16 @@ class TaskCommandsListener extends ReadModelProjector
 		$this->entityManager->persist($task);
 	}
 
+	protected function onCreditsAssigned(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$task = $this->entityManager->find(Task::class, $id);
+		$credits = $event->payload()['credits'];
+		foreach($task->getMembers() as $member) {
+			$member->setCredits($credits[$member->getUser()->getId()]);
+			$this->entityManager->persist($member);
+		}
+	}
+
 	protected function getPackage() {
 		return 'TaskManagement';
 	}

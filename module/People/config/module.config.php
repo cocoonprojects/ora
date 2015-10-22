@@ -72,6 +72,18 @@ return array(
 					),
 				),
 			),
+			'task-stats'=>array(
+				'type' => 'Segment',
+				'options' => array(
+					'route'    => '/:orgId/users/:id/task-stats',
+					'constraints' => array(
+						'id' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+					),
+					'defaults' => array(
+							'controller' => 'People\Controller\TaskStats'
+					),
+				),
+			),
 		),
 	),
 	'view_manager' => array(

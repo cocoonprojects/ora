@@ -13,6 +13,8 @@ use Rhumsaa\Uuid\Uuid;
 use TaskManagement\Task;
 use TaskManagement\Entity\Task as ReadModelTask;
 use TaskManagement\Entity\Stream as ReadModelStream;
+use TaskManagement\Entity\TaskMember;
+use Doctrine\ORM\Query;
 
 class EventSourcingTaskService extends AggregateRepository implements TaskService
 {
@@ -45,13 +47,9 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	}
 
 	/**
-	 * @param Organization $organization
-	 * @param integer $offset
-	 * @param integer $limit
-	 * @param array $filters
-	 * @return Task[]
+	 * @see \TaskManagement\Service\TaskService::findTasks()
 	 */
-	public function findTasks(Organization $organization, $offset, $limit, $filters = null)
+	public function findTasks(Organization $organization, $offset, $limit, $filters)
 	{
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('t')
@@ -61,39 +59,96 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->setFirstResult($offset)
 			->setMaxResults($limit)
 			->setParameter(':organization', $organization);
-		
+
+		if(!empty($filters["startOn"])){
+			$query->andWhere('t.createdAt >= :startOn')
+				->setParameter('startOn', $filters["startOn"]);
+		}
+		if(!empty($filters["endOn"])){
+			$query->andWhere('t.createdAt <= :endOn')
+				->setParameter('endOn', $filters["endOn"]);
+		}
+		if(!empty($filters["memberId"])){
+			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
+				->setParameter('memberId', $filters["memberId"]);
+		}
+		if(!empty($filters["memberEmail"])){
+			$query->innerJoin('t.members', 'm')
+				->innerJoin('m.user', 'u', 'WITH', 'u.email = :memberEmail')
+				->setParameter('memberEmail', $filters["memberEmail"]);
+		}
 		if(is_array($filters)){
 			if($filters["status"]>=0){
 				$query->andWhere('t.status = :status')->setParameter('status', $filters["status"]);
 			}
 		}
-			
 		return $query->getQuery()->getResult();
 	}
 	
 	/**
-	 * 
-	 * @param Organization $organization
-	 * @return \Doctrine\ORM\mixed
+	 * @see \TaskManagement\Service\TaskService::countOrganizationTasks()
 	 */
-	public function countOrganizationTasks(Organization $organization){
+	public function countOrganizationTasks(Organization $organization, $filters){
 		
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('count(t)')
 			->from(ReadModelTask::class, 't')
 			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
-			->setParameter(':organization', $organization)
-			->getQuery();
-		return intval($query->getSingleScalarResult());
+			->setParameter(':organization', $organization);
+
+		if(!empty($filters["startOn"])){
+			$query->andWhere('t.createdAt >= :startOn')
+			->setParameter('startOn', $filters["startOn"]);
+		}
+		if(!empty($filters["endOn"])){
+			$query->andWhere('t.createdAt <= :endOn')
+			->setParameter('endOn', $filters["endOn"]);
+		}
+		if(!empty($filters["memberId"])){
+			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
+			->setParameter('memberId', $filters["memberId"]);
+		}
+		if(!empty($filters["memberEmail"])){
+			$query->innerJoin('t.members', 'm')
+			->innerJoin('m.user', 'u', 'WITH', 'u.email = :memberEmail')
+			->setParameter('memberEmail', $filters["memberEmail"]);
+		}
+		return intval($query->getQuery()->getSingleScalarResult());
 	}
 	
 	public function findTask($id) {
 		return $this->entityManager->find(ReadModelTask::class, $id);
 	}
 	
-	public function findStreamTasks($streamId, $offset, $limit) {
-		$repository = $this->entityManager->getRepository(ReadModelTask::class);
-		return $repository->findBy(array('stream' => $streamId), [], $limit, $offset);
+	/**
+	 * @see \TaskManagement\Service\TaskService::findStreamTasks()
+	 */
+	public function findStreamTasks($streamId, $offset, $limit, $filters){
+		
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('t')
+			->from(ReadModelTask::class, 't')
+			->where('t.stream = :streamId')
+			->setParameter(':streamId', $streamId);
+
+		if(!empty($filters["startOn"])){
+			$query->andWhere('t.createdAt >= :startOn')
+				->setParameter('startOn', $filters["startOn"]);
+		}
+		if(!empty($filters["endOn"])){
+			$query->andWhere('t.createdAt <= :endOn')
+				->setParameter('endOn', $filters["endOn"]);
+		}
+		if(!empty($filters["memberId"])){
+			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
+				->setParameter('memberId', $filters["memberId"]);
+		}
+		if(!empty($filters["memberEmail"])){
+			$query->innerJoin('t.members', 'm')
+				->innerJoin('m.user', 'u', 'WITH', 'u.email = :memberEmail')
+				->setParameter('memberEmail', $filters["memberEmail"]);
+		}
+		return $query->getQuery()->getResult();
 	}
 	
 	/**
@@ -113,5 +168,38 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->getQuery();
 		
 		return $query->getResult();
+	}
+
+	/**
+	 * @see \TaskManagement\Service\TaskService::findStatsForMember()
+	 */
+	public function findStatsForMember(Organization $org, $memberId, $filters){
+		if(is_null($memberId)){
+			return [];
+		}
+
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('SUM( CASE WHEN m.role=:role THEN 1 ELSE 0 END ) as ownershipsCount')
+			->addSelect('COUNT(m.task) as membershipsCount')
+			->addSelect('SUM(m.credits) as creditsCount')
+			->addSelect('AVG(m.delta) as averageDelta')
+			->from(TaskMember::class, 'm')
+			->innerJoin('m.task', 't')
+			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
+			->innerjoin('m.user', 'u', 'WITH', 'u.id = :memberId')
+			->setParameter('role', TaskMember::ROLE_OWNER)
+			->setParameter('memberId', $memberId)
+			->setParameter('organization', $org->getId());
+
+		if(!empty($filters["startOn"])){
+			$query->andWhere('t.createdAt >= :startOn')
+				->setParameter('startOn', $filters["startOn"]);
+		}
+		if(!empty($filters["endOn"])){
+			$query->andWhere('t.createdAt <= :endOn')
+				->setParameter('endOn', $filters["endOn"]);
+		}
+
+		return $query->getQuery()->getResult()[0];
 	}
 }

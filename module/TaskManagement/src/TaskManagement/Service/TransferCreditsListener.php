@@ -6,13 +6,13 @@ use Application\Entity\User;
 use Application\Service\UserService;
 use People\Service\OrganizationService;
 use TaskManagement\Task;
-use TaskManagement\TaskClosed;
+use TaskManagement\CreditsAssigned;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\Event;
 use Zend\Mvc\Application;
 
-class TransferTaskSharesCreditsListener implements ListenerAggregateInterface
+class TransferCreditsListener implements ListenerAggregateInterface
 {
 	/**
 	 * @var TaskService
@@ -41,14 +41,15 @@ class TransferTaskSharesCreditsListener implements ListenerAggregateInterface
 	}
 	
 	public function attach(EventManagerInterface $events) {
-		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskClosed::class,
+		$this->listeners[] = $events->getSharedManager()->attach(Application::class, CreditsAssigned::class,
 			function(Event $event) {
 				$streamEvent = $event->getTarget();
 				$taskId = $streamEvent->metadata()['aggregate_id'];
 				$task = $this->taskService->getTask($taskId);
 				$byId = $event->getParam('by');
 				$by = $this->userService->findUser($byId);
-				$this->execute($task, $by);
+				$credits = $event->getParam('credits');
+				$this->execute($task, $by, $credits);
 			});
 	}
 	
@@ -59,11 +60,9 @@ class TransferTaskSharesCreditsListener implements ListenerAggregateInterface
 		}
 	}
 
-	public function execute(Task $task, User $by) {
+	public function execute(Task $task, User $by, $credits) {
 		$organization = $this->organizationService->getOrganization($task->getOrganizationId());
 		$payer = $this->accountService->getAccount($organization->getAccountId());
-		$credits = $task->getMembersCredits();
-		
 		foreach ($credits as $memberId => $amount) {
 			if($amount > 0) {
 				$account = $this->accountService->findPersonalAccount($memberId, $organization);
