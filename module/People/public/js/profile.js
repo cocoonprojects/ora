@@ -261,7 +261,7 @@ Profile.prototype = {
 			$.each(task.members, function(memberId, info){
 				if(memberId == that.getUserId()){
 					isOwner = that.taskUtils.isTaskOwner(info.role);
-					if(info.delta !== undefined){
+					if(info.delta !== undefined && info.delta !== null){
 						delta = (parseFloat(info.delta) * 100).toFixed(2) + " %";
 					}
 					if(info.credits !== undefined){
