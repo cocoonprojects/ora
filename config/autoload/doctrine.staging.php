@@ -14,7 +14,7 @@ return array (
 										'port' => getenv ( 'DB_PORT' ),
 										'user' => getenv ( 'DB_USERNAME' ),
 										'password' => getenv ( 'DB_PASSWORD' ),
-										'dbname' => getenv ( 'DB_NAME' ),
+										'dbname' => 'oradb',
 										'driverOptions' => array (
 												\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8' 
 										) 
