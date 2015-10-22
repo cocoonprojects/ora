@@ -146,6 +146,7 @@ class TaskJsonModel extends JsonModel
 			'type' => $task->getType (),
 			'status' => $task->getStatus(),
 			'stream' => $this->getStream($task),
+			'organization' => $this->getOrganization($task),
 			'members' => array_map([$this, 'serializeOneMember'], $task->getMembers()),
 		];
 		
@@ -168,7 +169,11 @@ class TaskJsonModel extends JsonModel
 		$rv['_links']['self']['href'] = $this->controller->url()->fromRoute('streams', ['id' => $task->getStreamId(), 'orgId' => $task->getOrganizationId()]);
 		return $rv;
 	}
-	
+
+	private function getOrganization(TaskInterface $task) {
+		$rv['id'] = $task->getOrganizationId();
+		return $rv;
+	}
 	protected function serializeOneMember($tm) {
 		if($tm instanceof TaskMember) {
 			$member = $tm->getMember();
