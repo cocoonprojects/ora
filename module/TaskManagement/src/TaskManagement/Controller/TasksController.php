@@ -128,8 +128,17 @@ class TasksController extends OrganizationAwareController
 		}
 		$memberId = $uuidValidator->isValid($this->getRequest()->getQuery("memberId")) ? $this->getRequest()->getQuery("memberId") : null;
 		$memberEmail = $emailValidator->isValid($this->getRequest()->getQuery("memberEmail")) ? $this->getRequest()->getQuery("memberEmail") : null;
-		$status = $statusValidator->isValid($this->getRequest()->getQuery('status')) ? $this->getRequest()->getQuery('status') : null;
-
+	
+		if(! $statusValidator->isValid($this->getRequest()->getQuery('status'))){
+			$view = new TaskJsonModel($this, $this->organization);
+			$availableTasks = array();
+			$totalTasks = 0;
+			$view->setVariables(['resource'=>$availableTasks, 'totalTasks'=>$totalTasks]);
+			return $view;
+		}else{
+			$status = $this->getRequest()->getQuery('status');
+		}
+		
 		$filters["endOn"] = $endOn;
 		$filters["startOn"] = $startOn;
 		$filters["memberId"] = $memberId;
@@ -139,7 +148,6 @@ class TasksController extends OrganizationAwareController
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit, $filters) : $this->taskService->findStreamTasks($streamID, $offset, $limit, $filters);
 
 		$view = new TaskJsonModel($this, $this->organization);
-
 		$totalTasks = $this->taskService->countOrganizationTasks($this->organization, $filters);
 		$view->setVariables(['resource'=>$availableTasks, 'totalTasks'=>$totalTasks]);
 

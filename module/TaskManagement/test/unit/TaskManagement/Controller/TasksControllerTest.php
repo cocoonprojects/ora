@@ -407,4 +407,132 @@ class TasksControllerTest extends ControllerTest {
 		$this->assertEquals(2, $arrayResult['count']);
 		$this->assertEquals(2, $arrayResult['total']);
 	}
+	
+	public function testGetEmptyListWithWrongFilter()
+	{
+		$this->user->addMembership($this->organization);
+		$this->setupLoggedUser($this->user);
+		
+		$this->controller->getOrganizationService()
+		->expects($this->once())
+		->method('findOrganization')
+		->with($this->organization->getId())
+		->willReturn($this->organization);
+		
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+		$params = $this->request->getQuery();
+		$params->set('status', "Pippo");
+		
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+		
+		$this->assertEquals(200, $response->getStatusCode());
+		$arrayResult = json_decode($result->serialize(), true);
+		$this->assertCount(0, $arrayResult['_embedded']['ora:task']);
+		$this->assertNotEmpty($arrayResult['_links']['self']['href']);
+		$this->assertArrayNotHasKey('next', $arrayResult['_links']);
+		$this->assertEquals(0, $arrayResult['count']);
+		$this->assertEquals(0, $arrayResult['total']);
+	}
+	
+	public function testGetEmptyListWithFiltering()
+	{
+		$this->user->addMembership($this->organization);
+		$this->setupLoggedUser($this->user);
+	
+		$this->controller->getOrganizationService()
+		->expects($this->once())
+		->method('findOrganization')
+		->with($this->organization->getId())
+		->willReturn($this->organization);
+	
+		$this->controller->getTaskService()
+		->expects($this->once())
+		->method('findTasks')
+		->willReturn([]);
+	
+		$this->controller->getTaskService()
+		->expects($this->once())
+		->method('countOrganizationTasks')
+		->with($this->organization)
+		->willReturn(0);
+	
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+		$params = $this->request->getQuery();
+		$params->set('status', Task::STATUS_ONGOING);
+	
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+	
+		$this->assertEquals(200, $response->getStatusCode());
+		$arrayResult = json_decode($result->serialize(), true);
+		$this->assertCount(0, $arrayResult['_embedded']['ora:task']);
+		$this->assertNotEmpty($arrayResult['_links']['self']['href']);
+		$this->assertArrayNotHasKey('next', $arrayResult['_links']);
+		$this->assertEquals(0, $arrayResult['count']);
+		$this->assertEquals(0, $arrayResult['total']);
+	}
+	
+	public function testGetListWithFiltering()
+	{
+		$this->user->addMembership($this->organization);
+		$this->setupLoggedUser($this->user);
+		
+		$this->controller->getOrganizationService()
+		->expects($this->once())
+		->method('findOrganization')
+		->with($this->organization->getId())
+		->willReturn($this->organization);
+		
+		$this->controller->getTaskService()
+		->expects($this->once())
+		->method('countOrganizationTasks')
+		->with($this->organization)
+		->willReturn(2);
+		
+		$task1 = new Task('1', $this->stream);
+		$task1->setStatus(Task::STATUS_OPEN);
+		$task1->setSubject('Lorem ipsum')
+		->setCreatedBy($this->user)
+		->setMostRecentEditBy($task1->getCreatedBy())
+		->addMember($this->user, Task::ROLE_OWNER, $this->user, $task1->getCreatedAt());
+		
+		$task2 = new Task('2', $this->stream);
+		$task2->setStatus(Task::STATUS_OPEN);
+		$task2->setSubject('Lorem ipsum 2')
+		->setCreatedBy($this->user)
+		->setMostRecentEditBy($task2->getCreatedBy())
+		->addMember($this->user, Task::ROLE_OWNER, $this->user, $task2->getCreatedAt());
+		
+		$this->controller->getTaskService()
+		->expects($this->once())
+		->method('findTasks')
+		->willReturn([
+				$task1,
+				$task2
+		]);
+		
+		$this->routeMatch->setParam('orgId', $this->organization->getId());
+		
+		$params = $this->request->getQuery();
+		$params->set('status', Task::STATUS_OPEN);
+		
+		$result   = $this->controller->dispatch($this->request);
+		$response = $this->controller->getResponse();
+		
+		$this->assertEquals(200, $response->getStatusCode());
+		$arrayResult = json_decode($result->serialize(), true);
+		$this->assertCount(2, $arrayResult['_embedded']['ora:task']);
+		$this->assertNotEmpty($arrayResult['_links']['self']['href']);
+		$this->assertArrayNotHasKey('next', $arrayResult['_links']);
+		$this->assertEquals(2, $arrayResult['count']);
+		$this->assertEquals(2, $arrayResult['total']);
+		
+		$t1 = $arrayResult['_embedded']['ora:task'][0];
+		$this->assertEquals(Task::STATUS_OPEN, $t1['status']);
+		
+		$t2 = $arrayResult['_embedded']['ora:task'][1];
+		$this->assertEquals(Task::STATUS_OPEN, $t2['status']);
+	}
+	
 }

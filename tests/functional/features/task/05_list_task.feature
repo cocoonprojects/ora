@@ -124,3 +124,31 @@ Feature: List tasks
     And the response should have a "_embedded.ora:task" property
     And the response shouldn't have a "_links.next" property
     And the "count" property should be "2"
+  
+  Scenario: Successfully getting an empty list of tasks filtered by status
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    Given that its "status" is "10"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
+    Then the response status code should be 200
+    And the response should have a "_embedded.ora:task" property
+    And the "count" property should be "0"
+    
+  Scenario: Successfully getting an empty list of tasks filtered by wrong status
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    Given that its "status" is "Pippo"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
+    Then the response status code should be 200
+    And the response should have a "_embedded.ora:task" property
+    And the response shouldn't have a "_links.next" property
+    And the "count" property should be "0"
+
+  Scenario: Successfully getting a list of tasks filtered by status
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    Given that its "status" is "20"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
+    Then the response status code should be 200
+    And the response should have a "_embedded.ora:task" property
+    And the "count" property should be "3"
