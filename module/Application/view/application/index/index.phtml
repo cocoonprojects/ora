@@ -23,7 +23,7 @@ $this->headScript()
 				$('div#sign-in').trigger('loggedIn', {
 					token:  id_token,
 					name:   profile.getName(),
-					avatar: profile.getImageUrl(),
+					avatar: profile.getImageUrl() || "",
 					email:  profile.getEmail()
 				});
 			};
