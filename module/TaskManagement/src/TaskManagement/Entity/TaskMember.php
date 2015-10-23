@@ -86,8 +86,8 @@ class TaskMember
 	protected $mostRecentEditBy;
 
 	/**
-	 * @ORM\Column(type="float", nullable=true)
-	 * @var float
+	 * @ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
+	 * @var decimal
 	 */
 	private $credits;
 

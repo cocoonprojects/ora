@@ -248,6 +248,7 @@ Profile.prototype = {
 					"<tr>" +
 						"<th class=\"text-center\" style=\"width: 3em\"></th>" +
 						"<th class=\"text-left\">Subject</th>" +
+						"<th class=\"text-center\" style=\"width: 16em\">Status</th>" +
 						"<th class=\"text-right\" style=\"width: 6em\">Credits</th>" +
 						"<th class=\"text-right\" style=\"width: 8em\">&Delta; shares" +
 					"</tr>" +
@@ -272,6 +273,7 @@ Profile.prototype = {
 			html += isOwner ? "<td class=\"text-center\"><i class=\"mdi-action-grade\" title=\"owner\"></i></td>" : "<td></td>";
 			var subject = task._links.self == undefined ? task.subject : '<a style="cursor:pointer" data-href="' + task._links.self.href + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
 			html += "<td class=\"text-left\">"+subject+"</td>";
+			html += "<td class=\"text-center\">"+that.taskUtils.statuses[task.status]+"</td>";
 			html += credits !== null ? "<td class=\"text-right\">"+credits+"</td>" : "<td></td>";
 			html += delta !== null ? "<td class=\"text-right\">"+delta+"</td>" : "<td></td>";
 			html += "</tr>";
@@ -286,6 +288,7 @@ Profile.prototype = {
 			html += "<tr style=\"border-top: 2px solid darkgray;\">" +
 						"<td class=\"text-center\">"+ownershipsCount+"</td>" +
 						"<td class=\"text-left\">"+membershipsCount+"</td>" +
+						"<td class=\"text-left\"></td>" +
 						"<td class=\"text-right\">"+creditsCount+"</td>" +
 						"<td class=\"text-right\">AVG:&nbsp&nbsp"+(averageDelta* 100).toFixed(2)+" %</td>";
 			html += "</tr>";

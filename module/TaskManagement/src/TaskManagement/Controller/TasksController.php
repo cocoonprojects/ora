@@ -117,14 +117,10 @@ class TasksController extends OrganizationAwareController
 		if($dateValidator->isValid($endOn)){
 			$endOn = \DateTime::createFromFormat($dateValidator->getFormat(), $endOn);
 			$endOn->setTime(23, 59, 59);
-		}else{
-			$endOn = (new \DateTime())->setTime(23, 59, 59);
 		}
 		if($dateValidator->isValid($startOn)){
 			$startOn = \DateTime::createFromFormat($dateValidator->getFormat(), $startOn);
 			$startOn->setTime(0, 0, 0);
-		}else{
-			$startOn = $this->getDefaultStartOn($endOn);
 		}
 		$memberId = $uuidValidator->isValid($this->getRequest()->getQuery("memberId")) ? $this->getRequest()->getQuery("memberId") : null;
 		$memberEmail = $emailValidator->isValid($this->getRequest()->getQuery("memberEmail")) ? $this->getRequest()->getQuery("memberEmail") : null;
@@ -338,10 +334,5 @@ class TasksController extends OrganizationAwareController
 	
 	public function getListLimit(){
 		return $this->listLimit;
-	}
-
-	private function getDefaultStartOn(\DateTime $endOn){
-		$startOn = clone $endOn;
-		return $startOn->sub(new \DateInterval('P1Y'))->setTime(0, 0, 0);
 	}
 }

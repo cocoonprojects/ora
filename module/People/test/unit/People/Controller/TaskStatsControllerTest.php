@@ -40,9 +40,6 @@ class TaskStatsControllerTest extends ControllerTest{
 		$orgMember = User::create();
 		$orgMember->addMembership ( $organization, OrganizationMembership::ROLE_MEMBER );
 
-		$endOn = (new \DateTime())->setTime(23, 59, 59);
-		$startOn = clone $endOn;
-		$startOn->sub(new \DateInterval('P1Y'))->setTime(0, 0, 0);
 		$this->controller->getOrganizationService ()
 			->method ( 'findOrganization' )
 			->with ( $organization->getId () )
@@ -50,7 +47,7 @@ class TaskStatsControllerTest extends ControllerTest{
 
 		$this->controller->getTaskService()
 			->method ( 'findStatsForMember' )
-			->with ( $organization, $orgOwner->getId(), ["startOn" => $startOn, "endOn"=>$endOn])
+			->with ( $organization, $orgOwner->getId())
 			->willReturn ([
 				'membershipsCount' => 5,
 				'ownershipsCount' => 2,
