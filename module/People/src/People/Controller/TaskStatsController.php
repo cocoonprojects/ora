@@ -52,14 +52,10 @@ class TaskStatsController extends OrganizationAwareController{
 		if($dateValidator->isValid($endOn)){
 			$endOn = \DateTime::createFromFormat($dateValidator->getFormat(), $endOn);
 			$endOn->setTime(23, 59, 59);
-		}else{
-			$endOn = (new \DateTime())->setTime(23, 59, 59);
 		}
 		if($dateValidator->isValid($startOn)){
 			$startOn = \DateTime::createFromFormat($dateValidator->getFormat(), $startOn);
 			$startOn->setTime(0, 0, 0);
-		}else{
-			$startOn = $this->getDefaultStartOn($endOn);
 		}
 
 		$filters["endOn"] = $endOn;
@@ -86,10 +82,5 @@ class TaskStatsController extends OrganizationAwareController{
 
 	public function getTaskService(){
 		return $this->taskService;
-	}
-
-	private function getDefaultStartOn(\DateTime $endOn){
-		$startOn = clone $endOn;
-		return $startOn->sub(new \DateInterval('P1Y'))->setTime(0, 0, 0);
 	}
 }
