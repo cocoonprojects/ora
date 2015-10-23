@@ -117,10 +117,12 @@ class TasksController extends OrganizationAwareController
 		if($dateValidator->isValid($endOn)){
 			$endOn = \DateTime::createFromFormat($dateValidator->getFormat(), $endOn);
 			$endOn->setTime(23, 59, 59);
+			$filters["endOn"] = $endOn;
 		}
 		if($dateValidator->isValid($startOn)){
 			$startOn = \DateTime::createFromFormat($dateValidator->getFormat(), $startOn);
 			$startOn->setTime(0, 0, 0);
+			$filters["startOn"] = $startOn;
 		}
 		$memberId = $uuidValidator->isValid($this->getRequest()->getQuery("memberId")) ? $this->getRequest()->getQuery("memberId") : null;
 		$memberEmail = $emailValidator->isValid($this->getRequest()->getQuery("memberEmail")) ? $this->getRequest()->getQuery("memberEmail") : null;
@@ -134,9 +136,6 @@ class TasksController extends OrganizationAwareController
 		}else{
 			$status = $this->getRequest()->getQuery('status');
 		}
-		
-		$filters["endOn"] = $endOn;
-		$filters["startOn"] = $startOn;
 		$filters["memberId"] = $memberId;
 		$filters["memberEmail"] = $memberEmail;
 		$filters["status"] = $status;
