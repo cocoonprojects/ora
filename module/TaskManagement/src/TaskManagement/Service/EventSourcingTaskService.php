@@ -112,6 +112,9 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->innerJoin('m.user', 'u', 'WITH', 'u.email = :memberEmail')
 			->setParameter('memberEmail', $filters["memberEmail"]);
 		}
+		if(isset($filters["status"])){
+			$query->andWhere('t.status = :status')->setParameter('status', $filters["status"]);
+		}
 		return intval($query->getQuery()->getSingleScalarResult());
 	}
 	
