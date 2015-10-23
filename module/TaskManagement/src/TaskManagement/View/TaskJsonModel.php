@@ -183,7 +183,8 @@ class TaskJsonModel extends JsonModel
 				'lastname' => $member->getLastname(),
 				'picture' => $member->getPicture(),
 				'role' => $tm->getRole(),
-				'createdAt' => date_format($tm->getCreatedAt(), 'c')
+				'createdAt' => date_format($tm->getCreatedAt(), 'c'),
+				'credits' => $tm->getCredits()
 			];
 			if(!(is_null($tm->getEstimation()) || is_null($tm->getEstimation()->getValue()))) {
 				$rv['estimation'] = $tm->getEstimation()->getValue();
