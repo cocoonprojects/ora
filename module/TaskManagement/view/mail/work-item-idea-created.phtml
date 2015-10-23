@@ -1,5 +1,5 @@
 <p>Hi <?php echo $this->recipient->getFirstname()?> <?php echo $this->recipient->getLastname()?>,<br>
-	the  <?php echo $this->stream->getSubject()?> has a new <b> work item idea</b> proposed by <?php echo $this->member->getFirstname()?> <?php echo $this->member->getLastname()?>.</p>
+	the  <?php echo $this->stream->getSubject()?> <b>stream</b> has a new <b> work item idea</b> proposed by <?php echo $this->member->getFirstname()?> <?php echo $this->member->getLastname()?>: <b><?= $this->task->getSubject()?></b>.</p>
 <p>Check it out!</p>
 <p>O.R.A.</p>
 <hr>
