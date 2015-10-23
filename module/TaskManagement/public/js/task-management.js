@@ -6,6 +6,7 @@ var TaskManagement = function(taskUtils)
 		endOn = "",
 		startOn = "",
 		memberEmail = "";
+		statusFilter = -1;
 
 	this.utils = taskUtils;
 
@@ -41,6 +42,12 @@ var TaskManagement = function(taskUtils)
 	};
 	this.getMemberEmail = function(){
 		return memberEmail;
+	};
+	this.setStatusFilter = function(status){
+		statusFilter = status;
+	};
+	this.getStatusFilter = function(){
+		return statusFilter;
 	};
 	this.resetPageSize = function(){
 		pageSize = 10;
@@ -256,6 +263,14 @@ TaskManagement.prototype = {
 			}
 			that.setMemberEmail($("#memberEmail").val());
 			that.listTasks();
+		});
+		
+		$(".dropdown-menu li a").click(function(){
+			var button =  $(this).parents(".dropdown").find('.btn');
+			var status = $(this).attr("status")
+			button.html($(this).text() + ' <span class="caret"></span>');
+			button.attr('status', status); 
+			that.setStatusFilter(status);
 		});
 	},
 	
@@ -477,6 +492,9 @@ TaskManagement.prototype = {
 		}
 		if(that.getMemberEmail()){
 			url += "&memberEmail="+that.getMemberEmail();
+		}
+		if(that.getStatusFilter() != -1){
+			url+="&status="+that.getStatusFilter();
 		}
 		$.ajax({
 			url: url,
