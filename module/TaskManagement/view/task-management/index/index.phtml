@@ -37,19 +37,16 @@ $this->headStyle ()->appendStyle ( '.panel-heading a { cursor: pointer; }' );
 						type="email" class="form-control" id="memberEmail"
 						placeholder="example@ora.com">
 				</div>
-				<div class="dropdown col-md-2">
-					<button class="btn btn-default dropdown-toggle" type="button"
-						status="" id="dropdownMenu1" data-toggle="dropdown"
-						aria-haspopup="true" aria-expanded="true">
-						Task Status <span class="caret"></span>
-					</button>
-					<ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-						<li><a status="0">Idea</a></li>
-						<li><a status="20">OnGoing</a></li>
-						<li><a status="30">Completed</a></li>
-						<li><a status="40">Accepted</a></li>
-						<li><a status="50">Closed</a></li>
-					</ul>
+				<div class="col-md-2">
+					<label for="statusFilter" class="control-label" style="margin-bottom: 6px;">Task Status Filter</label>
+					<select class="form-control" id="statusFilter">
+						<option value="-1">All Statuses</option>
+						<option value="0">Idea</option>
+						<option value="20">OnGoing</option>
+						<option value="30">Completed</option>
+						<option value="40">Accepted</option>
+						<option value="50">Closed</option>
+					</select>
 				</div>
 				<div class="col-md-4">
 					<button type="submit" class="btn btn-primary btn-sm">Filter</button>
