@@ -122,7 +122,7 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 		
 		$message = $this->mailService->getMessage();
 		$message->setTo($owner->getEmail());
-		$message->setSubject ( 'A member just estimated "' . $task->getSubject() . '"');
+		$message->setSubject ( 'Estimation added to "' . $task->getSubject() . '"');
 		
 		$this->mailService->setTemplate( 'mail/estimation-added-info.phtml', [
 				'task' => $task,
@@ -153,7 +153,7 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 
 		$message = $this->mailService->getMessage();
 		$message->setTo($owner->getEmail());
-		$message->setSubject ( 'A member just assigned its shares to "' . $task->getSubject() . '"' );
+		$message->setSubject ( 'Shares assigned to "' . $task->getSubject() . '"' );
 
 		$this->mailService->setTemplate( 'mail/shares-assigned-info.phtml', [
 			'task' => $task,
@@ -179,7 +179,7 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 			$member = $tm->getUser();
 			$message = $this->mailService->getMessage();
 			$message->setTo($member->getEmail());
-			$message->setSubject("Assign your shares to " . $task->getSubject());
+			$message->setSubject('Assign your shares to "' . $task->getSubject() . '"');
 
 			$this->mailService->setTemplate( 'mail/reminder-assignment-shares.phtml', [
 					'task' => $task,
