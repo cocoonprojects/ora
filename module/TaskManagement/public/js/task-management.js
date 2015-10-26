@@ -6,7 +6,7 @@ var TaskManagement = function(taskUtils)
 		endOn = "",
 		startOn = "",
 		memberEmail = "";
-		statusFilter = -1;
+		statusFilter = null;
 
 	this.utils = taskUtils;
 
@@ -265,11 +265,8 @@ TaskManagement.prototype = {
 			that.listTasks();
 		});
 		
-		$(".dropdown-menu li a").click(function(){
-			var button =  $(this).parents(".dropdown").find('.btn');
-			var status = $(this).attr("status")
-			button.html($(this).text() + ' <span class="caret"></span>');
-			button.attr('status', status); 
+		$("#statusFilter").click(function(){
+			var status = $("#statusFilter").val();
 			that.setStatusFilter(status);
 		});
 	},
@@ -493,7 +490,7 @@ TaskManagement.prototype = {
 		if(that.getMemberEmail()){
 			url += "&memberEmail="+that.getMemberEmail();
 		}
-		if(that.getStatusFilter() != -1){
+		if(that.getStatusFilter()){
 			url+="&status="+that.getStatusFilter();
 		}
 		$.ajax({
