@@ -184,12 +184,14 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		$query = $builder->select('SUM( CASE WHEN m.role=:role THEN 1 ELSE 0 END ) as ownershipsCount')
 			->addSelect('COUNT(m.task) as membershipsCount')
 			->addSelect('SUM(m.credits) as creditsCount')
-			->addSelect('AVG(m.delta) as averageDelta')
+			->addSelect('AVG( CASE WHEN t.status >=:taskStatus THEN m.delta ELSE :value END ) as averageDelta')
 			->from(TaskMember::class, 'm')
 			->innerJoin('m.task', 't')
 			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
 			->innerjoin('m.user', 'u', 'WITH', 'u.id = :memberId')
 			->setParameter('role', TaskMember::ROLE_OWNER)
+			->setParameter('taskStatus', Task::STATUS_CLOSED)
+			->setParameter('value', NULL)
 			->setParameter('memberId', $memberId)
 			->setParameter('organization', $org->getId());
 
