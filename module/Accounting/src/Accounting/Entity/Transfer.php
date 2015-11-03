@@ -9,8 +9,9 @@ use Doctrine\ORM\Mapping AS ORM;
  */
 class Transfer extends Transaction
 {
-	public function __construct(Account $payer, Account $payee){
+	public function __construct(Account $payer, Account $payee, $amount = 0){
 		$this->payer = $payer;
 		$this->payee = $payee;
+		$this->amount = $amount;
 	}
 }

@@ -2,96 +2,80 @@
 $this->headScript ()->appendFile ( $this->basePath () . '/js/task-utils.js' );
 $this->headScript ()->appendFile ( $this->basePath () . '/js/profile.js' );
 ?>
-<div class="container" id="content">
-	<div class="page-header">
-		<h1>User Profile Page</h1>
-	</div>
-	<div id="profile-content"
+<div class="container" id="profile-content"
 		user-id="<?php echo $this->layout()->getVariable('user');?>"
 		org-id="<?php echo $this->layout()->getVariable('organization')->getId();?>">
-		<div class="row">
-			<div id="user-info" class="col-md-6	">
-				<div class="row">
-					<div>
-						<img id="photo" class="img-thumbnail img-responsive" src=""
-							alt="User Profile Photo"
-							style="margin-left: 50px; max-height: 200px;">
-					</div>
+	<div class="row">
+		<div class="col-md-6">
+			<div class="row">
+				<div class="col-md-4">
+					<img id="photo" class="img-thumbnail img-responsive img-circle" src="" alt="Avatar">
+				</div>
+				<div id="user-info" class="col-md-8">
 					<h3 id="name"></h3>
 					<p id="birthday"></p>
 					<address id="email"></address>
-					<p id="description"></p>
 				</div>
-				<div class="row">
-					<h2>Skills</h2>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<p id="description"></p>
+					<h4>Skills</h4>
 					<p>No Skill available</p>
 				</div>
 			</div>
-			<div id="other-info" class="col-md-6">
-				<div class="row">
-					<h1 id="orgName"></h1>
-					<h4 id="orgMembership"></h4>
-				</div>
-				<div class="row">
-					<h2>Credits</h2>
-					<table class="table" >
-						<caption>Generated credits</caption>
-						<thead>
-							<tr>
-								<th class="text-center">Organization</th>
-								<th class="text-center">Tot. Generated Credits</th>
-								<th class="text-center">Available Credits</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td id="tdOrg" class="text-center"></td>
-								<td id="tdTotal" class="text-center"></td>
-								<td id="tdAvailable" class="text-center"></td>
-							</tr>
-						</tbody>
-					</table>
-					<hr>
-					<table class="table">
-						<caption>Credit Account History</caption>
-						<thead>
-							<tr>
-								<th class="text-center">Last 3 months</th>
-								<th class="text-center">Last 6 months</th>
-								<th class="text-center">Last Year</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td id="tdLast3Month" class="text-center"></td>
-								<td id="tdLast6Month" class="text-center"></td>
-								<td id="tdLastYear" class="text-center"></td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
 		</div>
-		<div class="row">
-			<div class="col-md-12">
-					<h2>Tasks contribution</h2>
-			</div>
-			<div class="col-md-12">
-				<form class="form-inline" id="tasksFilter">
-					<div class="text-left form-group">
-						<label for="startOn" class="control-label">From</label>
-						<input type="text" class="form-control" id="startOn" placeholder="gg/mm/aaaa">
-					</div>
-					<div class="text-left form-group">
-						<label for="endOn" class="control-label">To</label>
-						<input type="text" class="form-control" id="endOn" placeholder="gg/mm/aaaa">
-					</div>
-					<button type="submit" class="btn btn-primary btn-sm">Filter</button>
-				</form>
-			</div>
-			<div class="col-md-12" id="task-metrics"></div>
+		<div id="other-info" class="col-md-6">
+			<p id="orgMembership"></p>
+			<h4>Credits</h4>
+			<table class="table">
+				<caption>Generated credits</caption>
+				<thead>
+					<tr>
+						<th class="text-center">Tot. Generated Credits</th>
+						<th class="text-center">Available Credits</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td id="tdTotal" class="text-center"></td>
+						<td id="tdAvailable" class="text-center"></td>
+					</tr>
+				</tbody>
+			</table>
+			<hr>
+			<table class="table">
+				<caption>Credit Account History</caption>
+				<thead>
+					<tr>
+						<th class="text-center">Last 3 months</th>
+						<th class="text-center">Last 6 months</th>
+						<th class="text-center">Last Year</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td id="tdLast3Month" class="text-center"></td>
+						<td id="tdLast6Month" class="text-center"></td>
+						<td id="tdLastYear" class="text-center"></td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
 	</div>
+	<h4>Tasks contribution</h4>
+	<form class="form-inline" id="tasksFilter">
+		<div class="text-left form-group">
+			<label for="startOn" class="control-label">From</label>
+			<input type="text" class="form-control" id="startOn" placeholder="gg/mm/aaaa">
+		</div>
+		<div class="text-left form-group">
+			<label for="endOn" class="control-label">To</label>
+			<input type="text" class="form-control" id="endOn" placeholder="gg/mm/aaaa">
+		</div>
+		<button type="submit" class="btn btn-primary btn-sm">Filter</button>
+	</form>
+	<div id="task-metrics"></div>
 </div>
 <script>
 function onLoad() {
