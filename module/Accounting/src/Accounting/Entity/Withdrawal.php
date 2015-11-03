@@ -9,8 +9,9 @@ use Doctrine\ORM\Mapping AS ORM;
  */
 class Withdrawal extends Transaction
 {
-	public function __construct(Account $payer){
+	public function __construct(Account $payer, $amount = 0){
 		$this->payer = $payer;
+		$this->amount = $amount;
 	}
 
 	public function getPayeeName() {

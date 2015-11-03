@@ -34,10 +34,10 @@ return array(
 			'statements' => [
 				'type'    => 'Segment',
 				'options' => [
-					'route'       => '/:orgId/accounting/:controller',
+					'route'       => '/:orgId/accounting/:controller[/:id]',
 					'constraints' => [
 						'orgId'      => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
-						'controller' => 'personal-statement|organization-statement'
+						'controller' => 'personal-statement|organization-statement|members'
 					],
 					'defaults'    => [
 						'__NAMESPACE__' => 'Accounting\Controller'

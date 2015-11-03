@@ -5,10 +5,12 @@ use Accounting\Controller\AccountsController;
 use Accounting\Controller\DepositsController;
 use Accounting\Controller\IncomingTransfersController;
 use Accounting\Controller\IndexController;
+use Accounting\Controller\MembersController;
 use Accounting\Controller\OrganizationStatementController;
 use Accounting\Controller\OutgoingTransfersController;
 use Accounting\Controller\PersonalStatementController;
 use Accounting\Controller\StatementsController;
+use Accounting\Controller\StatsController;
 use Accounting\Controller\WithdrawalsController;
 use Accounting\Service\AccountCommandsListener;
 use Accounting\Service\CreateOrganizationAccountListener;
@@ -34,9 +36,15 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$locator = $sm->getServiceLocator();
 					$userService = $locator->get('Application\UserService');
 					$accountService = $locator->get('Accounting\CreditsAccountsService');
-					$acl = $locator->get('Application\Service\Acl');
 					$organizationService = $locator->get('People\OrganizationService');
-					$controller = new AccountsController($accountService, $userService, $acl, $organizationService);
+					$controller = new AccountsController($organizationService, $accountService, $userService);
+					return $controller;
+				},
+				'Accounting\Controller\Members' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$accountService = $locator->get('Accounting\CreditsAccountsService');
+					$organizationService = $locator->get('People\OrganizationService');
+					$controller = new MembersController($organizationService, $accountService);
 					return $controller;
 				},
 				'Accounting\Controller\PersonalStatement' => function ($sm) {
@@ -89,6 +97,14 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$userService = $locator->get('Application\UserService');
 					$organizationService = $locator->get('People\OrganizationService');
 					$controller = new OutgoingTransfersController($accountService, $userService, $organizationService);
+					return $controller;
+				},
+				'Accounting\Controller\Stats' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$orgService = $locator->get('People\OrganizationService');
+					$userService = $locator->get('Application\UserService');
+					$accountService = $locator->get('Accounting\CreditsAccountsService');
+					$controller = new StatsController($orgService, $userService, $accountService);
 					return $controller;
 				},
 			]

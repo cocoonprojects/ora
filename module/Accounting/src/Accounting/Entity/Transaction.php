@@ -11,8 +11,8 @@ use Application\Entity\BasicUser;
  * @ORM\DiscriminatorColumn(name="type", type="string")
  *
  */
-abstract class Transaction{
-
+abstract class Transaction
+{
 	/**
 	 * @ORM\Id
 	 * @ORM\Column(type="bigint")
