@@ -41,18 +41,20 @@ return array(
 					),
 				),
 			),	
-			'organizations-entities' => array(
+			'members' => [
 				'type' => 'Segment',
-				'options' => array(
-					'route' => '/:orgId/people/:controller[/:id]',
-					'constraints' => array(
+				'options' => [
+					'route' => '/:orgId/people/members[/:id][/:controller]',
+					'constraints' => [
 						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
-					),
-					'defaults' => array(
+						'id'    => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})'
+					],
+					'defaults' => [
 						'__NAMESPACE__' => 'People\Controller',
-					),
-				),
-			),
+						'controller'    => 'Members'
+					],
+				],
+			],
 			'profiles'	=> array(
 				'type' => 'Segment',
 				'options' => array(
@@ -60,15 +62,6 @@ return array(
 					'defaults' => array(
 						'controller' => 'People\Controller\Index',
 						'action'	 => 'profile',
-					),
-				),
-			),
-			'user-profiles'	=> array(
-				'type' => 'Segment',
-				'options' => array(
-					'route'    => '/:orgId/user-profiles[/:id]',
-					'defaults' => array(
-						'controller' => 'People\Controller\UserProfile'
 					),
 				),
 			),
