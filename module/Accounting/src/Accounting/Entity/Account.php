@@ -34,77 +34,42 @@ abstract class Account extends EditableEntity implements ResourceInterface {
 	 * @var Organization
 	 */
 	protected $organization;
-
-	/**
-	 * @param $id
-	 * @param Organization $organization
-	 */
+	
 	public function __construct($id, Organization $organization) {
 		parent::__construct($id);
 		$this->organization = $organization;
 		$this->holders = new ArrayCollection();
 	}
-
-	/**
-	 * @param Balance $balance
-	 * @return $this
-	 */
+	
 	public function setBalance(Balance $balance) {
 		$this->balance = $balance;
 		return $this;
 	}
-
-	/**
-	 * @return Balance
-	 */
+	
 	public function getBalance() {
 		if(is_null($this->balance)) {
 			$this->balance = new Balance(0, $this->getCreatedAt());
 		}
 		return $this->balance;
 	}
-
-	/**
-	 * @return \Application\Entity\User[]
-	 */
+	
 	public function getHolders() {
-		return $this->holders->toArray();
+		return $this->holders;
 	}
-
-	/**
-	 * @param User $holder
-	 * @return $this
-	 */
+	
 	public function addHolder(User $holder) {
 		$this->holders->set($holder->getId(), $holder);
 		return $this;
 	}
-
-	/**
-	 * @param User $user
-	 * @return bool
-	 */
+	
 	public function isHeldBy(User $user) {
 		return $this->holders->containsKey($user->getId());
 	}
 
-	/**
-	 * @return Organization
-	 */
 	public function getOrganization() {
 		return $this->organization;
 	}
 
-	/**
-	 * @return string
-	 */
-	public function getOrganizationId() {
-		return $this->getOrganization()->getId();
-	}
-
-	/**
-	 * @return string
-	 */
 	public function getName() {
 		if($this->holders->count() > 0) {
 			$holder = $this->holders->first();

@@ -53,7 +53,7 @@ class OrganizationMembershipJsonModel extends JsonModel
 		} else {
 			$hal = $this->serializeOne($resource);
 		}
-		return Json::encode($hal);
+		return Json::encode($hal);		
 	}
 
 	protected function serializeOne(OrganizationMembership $membership) {
@@ -76,7 +76,7 @@ class OrganizationMembershipJsonModel extends JsonModel
 					'href' => $this->url->fromRoute('organizations', ['id' => $org->getId()]),
 				],
 				'ora:organization-member' => [
-					'href' => $this->url->fromRoute('members', ['orgId' => $org->getId()])
+					'href' => $this->url->fromRoute('organizations-entities', ['orgId' => $org->getId(), 'controller' => 'members'])
 				],
 				'ora:task' => [
 //					'href' => $this->url->fromRoute('tasks', ['orgId' => $org->getId()])

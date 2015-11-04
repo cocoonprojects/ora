@@ -3,11 +3,10 @@ namespace Application\Service;
 
 use Accounting\Assertion\AccountHolderAssertion;
 use Accounting\Assertion\MemberOfAccountOrganizationAssertion;
-use Application\Assertion\MemberOfEntityOrganizationAssertion;
 use Application\Entity\User;
-use People\Assertion\CommonOrganizationAssertion;
 use People\Assertion\MemberOfOrganizationAssertion;
 use TaskManagement\Assertion\AcceptedTaskAndMemberSharesNotAssignedAssertion;
+use TaskManagement\Assertion\MemberOfEntityOrganizationAssertion;
 use TaskManagement\Assertion\MemberOfOngoingTaskAssertion;
 use TaskManagement\Assertion\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion;
 use TaskManagement\Assertion\OwnerOfWorkItemIdeaOrOpenOrCompletedTaskAssertion;
@@ -19,6 +18,7 @@ use TaskManagement\Assertion\TaskOwnerAndOngoingTaskAssertion;
 use Zend\Permissions\Acl\Acl;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use People\Assertion\CommonOrganizationAssertion;
 
 class AclFactory implements FactoryInterface
 {
@@ -34,11 +34,10 @@ class AclFactory implements FactoryInterface
 		$acl->allow(User::ROLE_USER, 'Ora\Organization', ['People.Organization.userList', 'TaskManagement.Task.list', 'TaskManagement.Stream.list', 'Accounting.Accounts.list'], new MemberOfOrganizationAssertion());
 		
 		$acl->addResource('Ora\User');
-		$acl->allow(User::ROLE_USER, 'Ora\User',['People.Member.get', 'People.User.taskMetrics'], new CommonOrganizationAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\User',['People.UserProfile.profile', 'People.User.taskMetrics'], new CommonOrganizationAssertion());
 		
 		$acl->addResource('Ora\PersonalAccount');
 		$acl->addResource('Ora\OrganizationAccount');
-		$acl->allow(User::ROLE_USER, 'Ora\PersonalAccount', 'Accounting.Account.get', new MemberOfEntityOrganizationAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\PersonalAccount','Accounting.Account.statement', new AccountHolderAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\OrganizationAccount','Accounting.Account.statement', new MemberOfAccountOrganizationAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\OrganizationAccount','Accounting.Account.deposit', new AccountHolderAssertion());

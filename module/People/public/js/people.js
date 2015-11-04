@@ -67,7 +67,7 @@ People.prototype = {
 		var container = $('#people');
 		container.empty();
 
-		var members = this.data._embedded['ora:member'];
+		var members = this.data._embedded['ora:organization-member'];
 
 		if ($(members).length == 0) {
 			container.append("<p>No members found</p>");
