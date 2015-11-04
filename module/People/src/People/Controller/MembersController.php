@@ -2,38 +2,31 @@
 
 namespace People\Controller;
 
-use Application\Controller\OrganizationAwareController;
 use Application\DomainEntityUnavailableException;
 use Application\DuplicatedDomainEntityException;
-use Application\Service\UserService;
-use People\Entity\OrganizationMembership;
+use People\View\OrganizationMembershipJsonModel;
+use Zend\Mvc\MvcEvent;
+use Zend\EventManager\EventManagerInterface;
+use Application\Controller\OrganizationAwareController;
 use People\Service\OrganizationService;
 use Zend\I18n\Validator\Int;
-use Zend\Validator\GreaterThan;
 use Zend\Validator\ValidatorChain;
-use Zend\View\Model\JsonModel;
+use Zend\Validator\GreaterThan;
 
 class MembersController extends OrganizationAwareController
 {
-	protected static $collectionOptions = ['GET', 'DELETE', 'POST'];
-	protected static $resourceOptions = ['GET'];
-
 	const DEFAULT_MEMBERS_LIMIT = 20;
-
+	protected static $collectionOptions = array('GET', 'DELETE', 'POST');
+	protected static $resourceOptions = array('DELETE', 'POST');
+	
 	/**
 	 *
 	 * @var integer
 	 */
 	protected $listLimit = self::DEFAULT_MEMBERS_LIMIT;
-	/**
-	 * @var UserService
-	 */
-	protected $userService;
-
-	public function __construct(OrganizationService $organizationService, UserService $userService)
-	{
+	
+	public function __construct(OrganizationService $organizationService){
 		parent::__construct($organizationService);
-		$this->userService = $userService;
 	}
 
 	public function getList()
@@ -57,28 +50,9 @@ class MembersController extends OrganizationAwareController
 		$memberships = $this->getOrganizationService()->findOrganizationMemberships($this->organization, $limit, $offset);
 		$totalMemberships = $this->getOrganizationService()->countOrganizationMemberships($this->organization);
 		
-		$hal = [
-			'count' => count($memberships),
-			'total' => $totalMemberships,
-			'_embedded' => [
-				'ora:member' => array_column(array_map([$this, 'serializeOne'], $memberships), null, 'id')
-			],
-			'_links' => [
-				'self' => [
-					'href' => $this->url()->fromRoute('members', ['orgId' => $this->organization->getId()]),
-				],
-				'first' => [
-					'href' => $this->url()->fromRoute('members', ['orgId' => $this->organization->getId()]),
-				],
-				'last' => [
-					'href' => $this->url()->fromRoute('members', ['orgId' => $this->organization->getId()]),
-				]
-			]
-		];
-		if($hal['count'] < $hal['total']){
-			$hal['_links']['next']['href'] = $this->url()->fromRoute('members', ['orgId' => $this->organization->getId()]);
-		}
-		return new JsonModel($hal);
+		$view = new OrganizationMembershipJsonModel($this->url(), $this->identity());
+		$view->setVariables(['organization' => $this->organization, 'resource' => $memberships, 'totalMemberships' => $totalMemberships]);
+		return $view;
 	}
 	
 	public function create($data)
@@ -130,91 +104,24 @@ class MembersController extends OrganizationAwareController
 		}
 		return $this->response;
 	}
-
-	/**
-	 * Return single resource
-	 *
-	 * @param  mixed $id
-	 * @return mixed
-	 */
-	public function get($id)
+	
+	protected function getCollectionOptions()
 	{
-		if(is_null($this->identity())) {
-			$this->response->setStatusCode(401);
-			return $this->response;
-		}
-
-		$user = $this->userService->findUser($id);
-		if(is_null($user)){
-			$this->response->setStatusCode(404);
-			return $this->response;
-		}
-
-		if(!$this->isAllowed($this->identity(), $user, 'People.Member.get')) {
-			$this->response->setStatusCode(403);
-			return $this->response;
-		}
-
-		$membership = $user->getMembership($this->organization);
-		return is_null($membership) ? new JsonModel([new \stdClass()]) : new JsonModel($this->serializeOne($membership));
+		return self::$collectionOptions;
 	}
-
-	/**
-	 * @return UserService
-	 */
-	public function getUserService()
+	
+	protected function getResourceOptions()
 	{
-		return $this->userService;
+		return self::$resourceOptions;
 	}
-
-	/**
-	 * @param int $size
-	 */
+	
 	public function setListLimit($size){
 		if(is_int($size)){
 			$this->listLimit = $size;
 		}
 	}
-
-	/**
-	 * @return int
-	 */
+	
 	public function getListLimit(){
 		return $this->listLimit;
 	}
-
-	protected function getCollectionOptions()
-	{
-		return self::$collectionOptions;
-	}
-
-	protected function getResourceOptions()
-	{
-		return self::$resourceOptions;
-	}
-
-	protected function serializeOne(OrganizationMembership $membership) {
-		return [
-			'id'        => $membership->getMember()->getId(),
-			'firstname' => $membership->getMember()->getFirstname(),
-			'lastname'  => $membership->getMember()->getLastname(),
-			'email'     => $membership->getMember()->getEmail(),
-			'picture'   => $membership->getMember()->getPicture(),
-			'role'      => $membership->getRole(),
-			'createdAt' => date_format($membership->getCreatedAt(), 'c'),
-			'createdBy' => is_null ( $membership->getCreatedBy() ) ? "" : $membership->getCreatedBy ()->getFirstname () . " " . $membership->getCreatedBy ()->getLastname (),
-			'_links' => [
-				'self' => [
-					'href' => $this->url()->fromRoute('members', ['orgId' => $membership->getOrganization()->getId(), 'id' => $membership->getMember()->getId()])
-				],
-				'ora:account' => [
-					'href' => $this->url()->fromRoute('statements', ['orgId' => $membership->getOrganization()->getId(), 'id' => $membership->getMember()->getId(), 'controller' => 'members'])
-				],
-//				'ora:task-stats' => [
-//
-//				]
-			]
-		];
-	}
-
 }

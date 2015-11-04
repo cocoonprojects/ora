@@ -1,6 +1,6 @@
 <?php
 
-namespace Application\Assertion;
+namespace TaskManagement\Assertion;
 
 use Zend\Permissions\Acl\Acl;
 use Zend\Permissions\Acl\Role\RoleInterface;

@@ -55,7 +55,7 @@ class UserSubscriptionProcessTest extends \PHPUnit_Framework_TestCase
 		$account = $this->accountService->findPersonalAccount($user, $this->organization);
 		$this->assertNotNull($account);
 		$this->assertCount(1, $account->getHolders());
-		$this->assertArrayHasKey($user->getId(), $account->getHolders());
+		$this->assertEquals($user, $account->getHolders()->first());
 		$this->assertEquals(0, $account->getBalance()->getValue());
 	}
 }

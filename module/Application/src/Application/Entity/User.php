@@ -261,14 +261,9 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 		}
 		return $this->memberships->containsKey($key);
 	}
-
-	/**
-	 * @param string|ReadModelOrganization|Organization $organization
-	 * @return OrganizationMembership|null
-	 */
-	public function getMembership($organization){
-		$id = is_object($organization) ? $organization->getId() : $organization;
-		return $this->memberships->get($id);
+	
+	public function getMembership($organizationId){
+		return $this->memberships->get($organizationId);
 	}
 
 	public function setRole($role){

@@ -3,17 +3,29 @@ $this->headScript ()->appendFile ( $this->basePath () . '/js/task-utils.js' );
 $this->headScript ()->appendFile ( $this->basePath () . '/js/profile.js' );
 ?>
 <div class="container" id="content">
+	<div class="page-header">
+		<h1>User Profile Page</h1>
+	</div>
 	<div id="profile-content"
 		user-id="<?php echo $this->layout()->getVariable('user');?>"
 		org-id="<?php echo $this->layout()->getVariable('organization')->getId();?>">
 		<div class="row">
-			<div class="col-md-2">
-				<img id="photo" class="img-thumbnail img-responsive img-circle" src="" alt="Avatar">
-			</div>
-			<div id="user-info" class="col-md-4">
-				<h3 id="name"></h3>
-				<p id="birthday"></p>
-				<address id="email"></address>
+			<div id="user-info" class="col-md-6	">
+				<div class="row">
+					<div>
+						<img id="photo" class="img-thumbnail img-responsive" src=""
+							alt="User Profile Photo"
+							style="margin-left: 50px; max-height: 200px;">
+					</div>
+					<h3 id="name"></h3>
+					<p id="birthday"></p>
+					<address id="email"></address>
+					<p id="description"></p>
+				</div>
+				<div class="row">
+					<h2>Skills</h2>
+					<p>No Skill available</p>
+				</div>
 			</div>
 			<div id="other-info" class="col-md-6">
 				<div class="row">
@@ -26,12 +38,14 @@ $this->headScript ()->appendFile ( $this->basePath () . '/js/profile.js' );
 						<caption>Generated credits</caption>
 						<thead>
 							<tr>
+								<th class="text-center">Organization</th>
 								<th class="text-center">Tot. Generated Credits</th>
 								<th class="text-center">Available Credits</th>
 							</tr>
 						</thead>
 						<tbody>
 							<tr>
+								<td id="tdOrg" class="text-center"></td>
 								<td id="tdTotal" class="text-center"></td>
 								<td id="tdAvailable" class="text-center"></td>
 							</tr>
@@ -57,13 +71,6 @@ $this->headScript ()->appendFile ( $this->basePath () . '/js/profile.js' );
 					</table>
 				</div>
 			</div>
-		</div>
-		<div class="row">
-			<div class="col-md-12">
-				<p id="description"></p>
-			<h2>Skills</h2>
-			<p>No Skill available</p>
-				</div>
 		</div>
 		<div class="row">
 			<div class="col-md-12">

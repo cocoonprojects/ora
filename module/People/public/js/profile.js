@@ -164,35 +164,24 @@ Profile.prototype = {
 	loadUserDetail : function(url, redirectURL) {
 		var that = this;
 
+		var _url = window.location.protocol + "//" + window.location.host + url;
+
 		$.ajax({
-			url : url,
+			url : _url,
 			headers : {
 				'GOOGLE-JWT' : sessionStorage.token
+			},
+			method : 'GET',
+			data : {
+			// id : userId
 			}
-		})
-		.done(that.onLoadUserProfileCompleted.bind(this));
-	},
-
-	loadAccountStats : function (url) {
-		console.log(url);
-		var that = this;
-		$.ajax({
-			url: url,
-			headers : {
-				'GOOGLE-JWT' : sessionStorage.token
+		}).fail(function( jqXHR, textStatus ) {
+			var errorCode = jqXHR.status;
+			if(errorCode === 401){
+				sessionStorage.setItem('redirectURL', redirectURL);
+				window.location = '/';
 			}
-		})
-			.done(that.onLoadAccountStats.bind(that));
-	},
-
-	onLoadAccountStats : function(data) {
-		$('#tdTotal').html(data.total);
-		$('#tdAvailable').html(data.balance);
-		//Credit Account History
-		$('#tdLast3Month').html(data.last3M);
-		$('#tdLast6Month').html(data.last6M);
-		$('#tdLastYear').html(data.last1Y);
-
+		}).done(that.onLoadUserProfileCompleted.bind(this));
 	},
 
 	onLoadUserProfileCompleted : function(json) {
@@ -205,20 +194,32 @@ Profile.prototype = {
 		if (json.birthday == null) {
 			$('#birthday').html("No Birthday Available");
 		} else {
-			$('#birthday').html(json.birthday);// TODO Use this parameter's name
+			$('#birthday').html(json.Birthday);// TODO Use this parameter's name
 		}
 
 		if (json.description == null) {
 			$('#description').html("No User Profile Description Available");
 		} else {
-			$('#description').html(json.description);// TODO Use this parameter's name
+			$('#description').html(json.Birthday);// TODO Use this parameter's name
 		}
 
-		var memberSince = new Date(Date.parse(json.createdAt));
-		$('#orgMembership').html(json.role + " since " + memberSince.toLocaleDateString());
+		var membData = json._embedded['ora:organization-membership'];
+		var memberSince = new Date(Date.parse(membData.createdAt));
+		$('#orgName').html(membData.organization.name);
+		$('#orgMembership').html(membData.role + " since " + memberSince.toLocaleDateString());
 		
+		var creditsData = json._embedded['credits'];
+		//Generated credits Table
+		$('#tdOrg').html(membData.organization.name);
+		$('#tdTotal').html(creditsData.total);
+		$('#tdAvailable').html(creditsData.balance);
+		
+		//Credit Account History
+		$('#tdLast3Month').html(creditsData.last3M);
+		$('#tdLast6Month').html(creditsData.last6M);
+		$('#tdLastYear').html(creditsData.lastY);
+
 		container.show();
-		this.loadAccountStats(json._links['ora:account'].href);
 	},
 
 	listTasks: function(url){
@@ -238,7 +239,7 @@ Profile.prototype = {
 			});
 	},
 
-	createTaskMetricsTable: function(listTasks, taskStats) {
+	createTaskMetricsTable(listTasks, taskStats){
 		var tasks = listTasks._embedded['ora:task'];
 		var container = $('#task-metrics');
 		var that = this;
@@ -324,7 +325,7 @@ $().ready(function(e) {
 	var elem = document.getElementById("profile-content");
 	profile.setOrgId(elem.getAttribute("org-id"));
 	profile.setUserId(elem.getAttribute("user-id"));
-	var url = "/"+profile.getOrgId()+"/people/members/"+profile.getUserId();
+	var url = "/"+profile.getOrgId()+"/user-profiles/"+profile.getUserId();
 	var redirectURL = "/"+profile.getOrgId()+"/profiles/"+profile.getUserId();
 	profile.loadUserDetail(url, redirectURL);
 	var listTaskUrl = "/"+profile.getOrgId()+"/task-management/tasks?memberId="+profile.getUserId();

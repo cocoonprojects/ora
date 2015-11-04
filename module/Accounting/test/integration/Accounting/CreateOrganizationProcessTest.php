@@ -48,7 +48,7 @@ class CreateOrganizationProcessTest extends \PHPUnit_Framework_TestCase
 		$this->assertInstanceOf(OrganizationAccountReadModel::class, $account);
 		$this->assertEquals($org->getAccountId()->toString(), $account->getId());
 		$this->assertCount(1, $account->getHolders());
-		$this->assertArrayHasKey($this->user->getId(), $account->getHolders());
+		$this->assertEquals($this->user, $account->getHolders()->first());
 		$this->assertEquals(0, $account->getBalance()->getValue());
 		$this->assertEquals($organization->getId(), $account->getOrganization()->getId());
 	}
