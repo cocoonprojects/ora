@@ -36,7 +36,7 @@ class StreamJsonModel extends JsonModel
 	{
 		$resource = $this->getVariable('resource');
 		if(is_array($resource)) {
-			$hal['_links']['self']['href'] = $this->url->fromRoute('streams', ['orgId'=>$this->organization->getId()]);
+			$hal['_links']['self']['href'] = $this->url->fromRoute('collaboration', ['orgId'=>$this->organization->getId(), 'controller' => 'streams']);
 			$hal['_embedded']['ora:stream'] = array_column(array_map(array($this, 'serializeOne'), $resource), null, 'id');
 			$hal['count'] = count($resource);
 			$hal['total'] = count($resource);
@@ -53,7 +53,7 @@ class StreamJsonModel extends JsonModel
 			'createdAt' => date_format($stream->getCreatedAt(), 'c'),
 			'createdBy' => is_null ( $stream->getCreatedBy () ) ? "" : $stream->getCreatedBy ()->getFirstname () . " " . $stream->getCreatedBy ()->getLastname (),
 			'_links' => [
-				'self' => $this->url->fromRoute('streams', ['id' => $stream->getId(), 'orgId'=>$this->organization->getId()]),
+				'self' => $this->url->fromRoute('collaboration', ['id' => $stream->getId(), 'orgId'=>$this->organization->getId(), 'controller' => 'streams']),
 			],
 		];
 

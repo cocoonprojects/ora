@@ -80,7 +80,7 @@ class OrganizationMembershipJsonModel extends JsonModel
 				],
 				'ora:task' => [
 //					'href' => $this->url->fromRoute('tasks', ['orgId' => $org->getId()])
-					'href' => $this->url->fromRoute('tasks-home', ['orgId' => $org->getId()])
+					'href' => $this->url->fromRoute('collaboration-home', ['orgId' => $org->getId()])
 				]
 			]
 		];

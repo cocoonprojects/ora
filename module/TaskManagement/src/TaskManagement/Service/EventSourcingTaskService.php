@@ -173,9 +173,13 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	}
 
 	/**
-	 * @see \TaskManagement\Service\TaskService::findStatsForMember()
+	 * @see \TaskManagement\Service\TaskService::findMemberStats()
+	 * @param Organization $org
+	 * @param string $memberId
+	 * @param \DateTime $filters
+	 * @return array
 	 */
-	public function findStatsForMember(Organization $org, $memberId, $filters){
+	public function findMemberStats(Organization $org, $memberId, $filters){
 		if(is_null($memberId)){
 			return [];
 		}
@@ -183,8 +187,8 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('SUM( CASE WHEN m.role=:role THEN 1 ELSE 0 END ) as ownershipsCount')
 			->addSelect('COUNT(m.task) as membershipsCount')
-			->addSelect('SUM(m.credits) as creditsCount')
-			->addSelect('AVG( CASE WHEN t.status >=:taskStatus THEN m.delta ELSE :value END ) as averageDelta')
+			->addSelect('COALESCE(SUM(m.credits),0) as creditsCount')
+			->addSelect('COALESCE(AVG( CASE WHEN t.status >=:taskStatus THEN m.delta ELSE :value END ),0) as averageDelta')
 			->from(TaskMember::class, 'm')
 			->innerJoin('m.task', 't')
 			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')

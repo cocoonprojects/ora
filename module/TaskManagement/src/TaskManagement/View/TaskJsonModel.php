@@ -166,7 +166,7 @@ class TaskJsonModel extends JsonModel
 		if($task instanceof Task) {
 			$rv['subject'] = $task->getStream()->getSubject();	// temporary backward compatibility
 		}
-		$rv['_links']['self']['href'] = $this->controller->url()->fromRoute('streams', ['id' => $task->getStreamId(), 'orgId' => $task->getOrganizationId()]);
+		$rv['_links']['self']['href'] = $this->controller->url()->fromRoute('collaboration', ['id' => $task->getStreamId(), 'orgId' => $task->getOrganizationId(), 'controller' => 'streams']);
 		return $rv;
 	}
 

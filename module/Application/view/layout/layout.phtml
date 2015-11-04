@@ -57,14 +57,30 @@
 			</div>
 			
 			<div class="collapse navbar-collapse">
-				<ul class="nav navbar-nav" id="firstLevelMenu" role="menu">
 				<?php if($this->organization){?>
-					<li><a id="tasks-home" href="<?php echo $this->url('tasks-home', array('orgId'=>$this->organization->getId())); ?>"><?php echo $this->translate('Items') ?></a></li>
-					<li><a id="accounting-home" href="<?php echo $this->url('accounting-home', array('orgId'=>$this->organization->getId())); ?>"><?php echo $this->translate('Credits') ?></a></li>
-					<li><a id="decisions-home" href=""><?php echo $this->translate('Decisions') ?></a></li>
-					<li><a id="people-home"href="<?php echo $this->url('people-home', array('orgId'=>$this->organization->getId())); ?>"><?php echo $this->translate('People') ?></a></li>
-					<?php }?>
+				<ul class="nav navbar-nav" id="firstLevelMenu" role="menu">
+					<li>
+						<a id="tasks-home" href="<?= $this->url('collaboration-home', ['orgId'=>$this->organization->getId()]) ?>">
+							<?= $this->translate('Items') ?>
+						</a>
+					</li>
+					<li>
+						<a id="accounting-home" href="<?= $this->url('accounting-home', ['orgId'=>$this->organization->getId()]) ?>">
+							<?= $this->translate('Credits') ?>
+						</a>
+					</li>
+					<li>
+						<a id="decisions-home" href="">
+							<?= $this->translate('Decisions') ?>
+						</a>
+					</li>
+					<li>
+						<a id="people-home"href="<?= $this->url('people-home', ['orgId'=>$this->organization->getId()]) ?>">
+							<?php echo $this->translate('People') ?>
+						</a>
+					</li>
 				</ul>
+				<?php }?>
 				<ul class="nav navbar-nav navbar-right" id="identityMenu" style="display: none">
 					<li><a href="#"></a></li>
 					<li><a href="#" onclick="signOut();">Logout</a></li>

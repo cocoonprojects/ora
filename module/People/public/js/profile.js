@@ -43,7 +43,7 @@ var Profile = function(taskUtils) {
 		return orgId;
 	};
 	this.getStatsTaskUrl = function(){
-		return "/"+this.getOrgId()+"/users/"+this.getUserId()+"/task-stats?startOn="+this.getStartOn()+"&endOn="+this.getEndOn();
+		return "/"+this.getOrgId()+"/task-management/member-stats/"+this.getUserId()+"?startOn="+this.getStartOn()+"&endOn="+this.getEndOn();
 	}
 
 	this.bindEventsOn();

@@ -2,74 +2,52 @@
 namespace TaskManagement;
 
 return array(
-	'router' => array(
-		'routes' => array(
-			'tasks-home' => array(
+	'router' => [
+		'routes' => [
+			'collaboration-home' => [
 				'type' => 'Segment',
-				'options' => array(
-					'route'	   => '/:orgId/task-management',
-					'constraints' => array(
+				'options' => [
+					'route' => '/:orgId/task-management',
+					'constraints' => [
 						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
-					),
-					'defaults' => array(
+					],
+					'defaults' => [
 						'controller' => 'TaskManagement\Controller\Index',
-						'action'	 => 'index',
-					),
-				),
-			),
-			'streams' => array(
+						'action' => 'index',
+					],
+				],
+			],
+			'collaboration' => [
 				'type' => 'Segment',
-				'options' => array(
-					'route'	   => '/:orgId/task-management/streams[/:id]',
-					'constraints' => array(
-						'id' => '[0-9a-z\-]+',
+				'options' => [
+					'route'	   => '/:orgId/task-management/:controller[/:id]',
+					'constraints' => [
+						'id' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
 						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
-					),
-					'defaults' => array(
-						'controller' => 'TaskManagement\Controller\Streams',
-					),
-				),
-			),
-			'tasks' => array(
+					],
+					'defaults' => [
+						'__NAMESPACE__' => 'TaskManagement\Controller',
+						'controller' => 'Index',
+					],
+				],
+			],
+			'tasks' => [
 				'type' => 'Segment',
-				'options' => array(
+				'options' => [
 					'route'	   => '/:orgId/task-management/tasks[/:id][/:controller][/:type]',
-					'constraints' => array(
+					'constraints' => [
 						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
 						'id' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
-						'type' => '[a-zA-Z-]+',
-					),
-					'defaults' => array(
+						'type' => '[a-zA-Z-]+'
+					],
+					'defaults' => [
 						'__NAMESPACE__' => 'TaskManagement\Controller',
-						'controller' => 'Tasks',
-					),
-				),
-			),
-			'task-reminders' => array(
-				'type' => 'Segment',
-				'options' => array(
-					'route'	   => '/task-management/tasks/reminders/:type',
-					'constraints' => array(
-						'type' => '[a-zA-Z-]+',
-					),
-					'defaults' => array(
-						'__NAMESPACE__' => 'TaskManagement\Controller',
-						'controller' => 'Reminders'
-					),
-				),
-			),
-			'task-transitions' => array(
-				'type' => 'Segment',
-				'options' => array(
-						'route'	   => '/task-management/tasks/transitions',
-						'defaults' => array(
-								'__NAMESPACE__' => 'TaskManagement\Controller',
-								'controller' => 'Transitions'
-						),
-				),
-			)
-		),
-	),
+						'controller' => 'Tasks'
+					],
+				],
+			],
+		],
+	],
 	'translator' => array(),
 	'view_manager' => array(
 		'strategies' => array(
@@ -100,15 +78,14 @@ return array(
 			)
 		)
 	),
-	'listeners' => array(
-		'TaskManagement\NotifyMailListener',	
+	'listeners' => [
+		'TaskManagement\NotifyMailListener',
 		'TaskManagement\StreamCommandsListener',
-
 		'TaskManagement\TaskCommandsListener',
 		'TaskManagement\TransferCreditsListener',
 		'TaskManagement\CloseTaskListener',
 		'TaskManagement\AssignCreditsListener',
-	),
+	],
 	'assignment_of_shares_timebox' => new \DateInterval('P7D'), 
 	'default_tasks_limit' => 10
 );

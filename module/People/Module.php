@@ -1,10 +1,8 @@
 <?php
 namespace People;
 
-use People\Controller\OrganizationsController;
 use People\Controller\MembersController;
-use People\Controller\ProfileController;
-use People\Controller\TaskStatsController;
+use People\Controller\OrganizationsController;
 use People\Service\EventSourcingOrganizationService;
 use People\Service\OrganizationCommandsListener;
 use People\Service\SendMailListener;
@@ -13,11 +11,11 @@ class Module
 {
 	public function getControllerConfig() 
 	{
-		return array(
-			'invokables' => array(
+		return [
+			'invokables' => [
 				'People\Controller\Index' => 'People\Controller\IndexController',
-			),
-			'factories' => array(
+			],
+			'factories' => [
 				'People\Controller\Organizations' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$orgService = $locator->get('People\OrganizationService');
@@ -34,17 +32,9 @@ class Module
 						$controller->setListLimit($size);
 					}
 					return $controller;
-				},
-				'People\Controller\TaskStats' => function ($sm) {
-					$locator = $sm->getServiceLocator();
-					$orgService = $locator->get('People\OrganizationService');
-					$userService = $locator->get('Application\UserService');
-					$taskService = $locator->get('TaskManagement\TaskService');
-					$controller = new TaskStatsController($orgService, $taskService, $userService);
-					return $controller;
 				}
-			)
-		);
+			]
+		];
 	}
 	
 	public function getServiceConfig()

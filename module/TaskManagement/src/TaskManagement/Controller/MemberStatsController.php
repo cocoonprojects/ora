@@ -1,6 +1,6 @@
 <?php
 
-namespace People\Controller;
+namespace TaskManagement\Controller;
 
 use Application\Controller\OrganizationAwareController;
 use Application\Service\UserService;
@@ -8,8 +8,9 @@ use People\Service\OrganizationService;
 use People\View\TaskStatsJsonModel;
 use TaskManagement\Service\TaskService;
 use Zend\Validator\Date as DateValidator;
+use Zend\View\Model\JsonModel;
 
-class TaskStatsController extends OrganizationAwareController{
+class MemberStatsController extends OrganizationAwareController{
 	
 	protected static $collectionOptions = [];
 	protected static $resourceOptions = ['GET'];
@@ -28,44 +29,40 @@ class TaskStatsController extends OrganizationAwareController{
 		$this->taskService = $taskService;
 		$this->userService = $userService;
 	}
-	
-	public function get($memberId){
 
+	public function get($id)
+	{
 		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		$user = $this->userService->findUser($memberId);
+		if(!$this->isAllowed($this->identity(), $this->organization, 'TaskManagement.Task.stats')) {
+			$this->response->setStatusCode(403);
+			return $this->response;
+		}
+
+		$user = $this->userService->findUser($id);
 		if(is_null($user)){
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-		
-		if(!$this->isAllowed($this->identity(), $user, 'People.User.taskMetrics')) {
-			$this->response->setStatusCode(403);
-			return $this->response;
-		}
-		$dateValidator = new DateValidator();
 
 		$filters = [];
+		$dateValidator = new DateValidator();
 		$endOn = $this->getRequest()->getQuery("endOn");
-		$startOn = $this->getRequest()->getQuery("startOn");
 		if($dateValidator->isValid($endOn)){
 			$endOn = \DateTime::createFromFormat($dateValidator->getFormat(), $endOn);
 			$endOn->setTime(23, 59, 59);
 			$filters["endOn"] = $endOn;
 		}
+		$startOn = $this->getRequest()->getQuery("startOn");
 		if($dateValidator->isValid($startOn)){
 			$startOn = \DateTime::createFromFormat($dateValidator->getFormat(), $startOn);
 			$startOn->setTime(0, 0, 0);
 			$filters["startOn"] = $startOn;
 		}
-
-		$stats = $this->taskService->findStatsForMember($this->organization, $memberId, $filters);
-		$view = new TaskStatsJsonModel();
-		$view->setVariables(['resource' => $stats]);
-
-		return $view;
+		$stats = $this->taskService->findMemberStats($this->organization, $id, $filters);
+		return new JsonModel($stats);
 	}
 
 	protected function getCollectionOptions(){

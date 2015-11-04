@@ -210,9 +210,9 @@ class MembersController extends OrganizationAwareController
 				'ora:account' => [
 					'href' => $this->url()->fromRoute('statements', ['orgId' => $membership->getOrganization()->getId(), 'id' => $membership->getMember()->getId(), 'controller' => 'members'])
 				],
-//				'ora:task-stats' => [
-//
-//				]
+				'ora:member-stats' => [
+					'href' => $this->url()->fromRoute('collaboration', ['orgId' => $membership->getOrganization()->getId(), 'id' => $membership->getMember()->getId(), 'controller' => 'member-stats'])
+				]
 			]
 		];
 	}
