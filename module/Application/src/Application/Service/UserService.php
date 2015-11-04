@@ -38,4 +38,11 @@ interface UserService
 	 */
 	public function findUserByEmail($email);
 	
+	/**
+	 * Find a User by Kanbanize username
+	 *
+	 * @param string $email
+	 * @return User
+	 */
+	public function findByKanbanizeUsername($username);
 }

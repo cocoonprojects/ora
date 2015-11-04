@@ -6,33 +6,34 @@ use TaskManagement\Entity\Task;
 
 /**
  * @ORM\Entity
+ * @ORM\Table(name="kanbanizetasks")
  */
 class KanbanizeTask extends Task
 {
 	/**
-	 * @ORM\Column(type="string")
-	 * @var string
-	 */
-	private $boardId;
-
-	/**
-	 *  @ORM\Column(type="string")
+	 *  @ORM\Column(type="string", nullable=true)
 	 * @var string
 	 */
 	private $taskId;
 
 	/**
-	 * @return string
+	 *  @ORM\Column(type="string", nullable=true)
+	 * @var string
 	 */
-	public function getBoardId() {
-		return $this->boardId;
-	}
+	private $columnName;
 
 	/**
-	 * @param $boardid string
+	 *  @ORM\Column(type="string", nullable=true)
+	 * @var string
 	 */
-	public function setBoardId($boardid){
-		$this->boardId=$boardid;
+	private $assignee;
+
+	/**
+	 * @param string $taskId
+	 */
+	public function setTaskId($taskId){
+		$this->taskId = $taskId;
+		return $this;
 	}
 
 	/**
@@ -40,6 +41,36 @@ class KanbanizeTask extends Task
 	 */
 	public function getTaskId() {
 		return $this->taskId;
+	}
+
+	/**
+	 * @param string $columnName
+	 */
+	public function setColumnName($columnName){
+		$this->columnName = $columnName;
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getColumnName() {
+		return $this->columnName;
+	}
+
+	/**
+	 * @param string $assignee
+	 */
+	public function setAssignee($assignee){
+		$this->assignee = $assignee;
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAssignee() {
+		return $this->assignee;
 	}
 
 	/**

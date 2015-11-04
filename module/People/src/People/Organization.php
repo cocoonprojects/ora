@@ -8,12 +8,14 @@ use Application\Entity\User;
 use Application\DomainEntity;
 use Application\DuplicatedDomainEntityException;
 use Application\DomainEntityUnavailableException;
+use Application\InvalidArgumentException;
 use Accounting\Account;
 
 class Organization extends DomainEntity
 {
 	CONST ROLE_MEMBER = 'member';
 	CONST ROLE_ADMIN  = 'admin';
+	CONST SETTING_KANBANIZE_SUBDOMAIN = "kanbanizeSubdomain";
 	/**
 	 * @var string
 	 */
@@ -30,6 +32,11 @@ class Organization extends DomainEntity
 	 * @var \DateTime
 	 */
 	private $createdAt;
+	/**
+	 *
+	 * @var array
+	 */
+	private $settings;
 		
 	public static function create($name, User $createdBy) {
 		$rv = new self();
@@ -50,6 +57,26 @@ class Organization extends DomainEntity
 		return $this;
 	}
 	
+	public function setSetting($key, $value, User $updatedBy){
+		if(is_null($key)){
+			throw new InvalidArgumentException('Cannot address setting without key');
+		}
+		$this->recordThat(OrganizationUpdated::occur($this->id->toString(), array(
+			'key' => trim($key),
+			'value' => trim($value),
+			'by' => $updatedBy->getId(),
+		)));
+		return $this;
+	}
+
+	public function getSettings(){
+		return $this->settings;
+	}
+
+	public function getSetting($key){
+		return $this->settings[$key];
+	}
+
 	public function getName() {
 		return $this->name;
 	}
@@ -121,14 +148,17 @@ class Organization extends DomainEntity
 		$this->id = Uuid::fromString($event->aggregateId());
 		$this->createdAt = $event->occurredOn();
 	}
-	
+
 	protected function whenOrganizationUpdated(OrganizationUpdated $event) {
 		$pl = $event->payload();
 		if(array_key_exists('name', $pl)) {
 			$this->name = $pl['name'];
 		}
+		if(array_key_exists('key', $pl) && array_key_exists('value', $pl)) {
+			$this->settings[$pl['key']] = $pl['value'];
+		}
 	}
-	
+
 	protected function whenOrganizationAccountChanged(OrganizationAccountChanged $event) {
 		$p = $event->payload();
 		$this->accountId = Uuid::fromString($p['accountId']);

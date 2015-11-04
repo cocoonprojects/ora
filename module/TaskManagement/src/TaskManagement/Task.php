@@ -313,6 +313,25 @@ class Task extends DomainEntity implements TaskInterface
 	}
 
 	/**
+	 * @param BasicUser $ex_owner
+	 * @param BasicUser $new_owner
+	 * @throws IllegalStateException
+	 */
+	public function changeOwner(BasicUser $ex_owner, BasicUser $new_owner, BasiUser $by){
+		if(!$new_owner->isMemberOf($this->getOrganizationId())) {
+			throw new MissingOrganizationMembershipException($this->getOrganizationId(), $new_owner->getId());
+		}
+		if (!array_key_exists($new_owner->getId(), $this->members)) {
+			throw new DomainEntityUnavailableException($this, $new_owner);
+		}
+		$this->recordThat(OwnerChanged::occur($this->id->toString(), array(
+			'ex_owner' => $ex_owner->getId(),
+			'new_owner' => $new_owner->getId(),
+			'by' => $by->getId()
+		)));
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getMembers() {
@@ -475,8 +494,8 @@ class Task extends DomainEntity implements TaskInterface
 	protected function whenTaskAccepted(TaskAccepted $event) {
 		$this->status = self::STATUS_ACCEPTED;
 		$this->acceptedAt = $event->occurredOn();
-		$sharesAssignmentExpiresAt = clone $event->occurredOn();
 		if(isset($event->payload()['intervalForCloseTask'])) {
+			$sharesAssignmentExpiresAt = clone $event->occurredOn();
 			$sharesAssignmentExpiresAt->add($event->payload()['intervalForCloseTask']);
 			$this->sharesAssignmentExpiresAt = $sharesAssignmentExpiresAt;
 		}
@@ -601,4 +620,12 @@ class Task extends DomainEntity implements TaskInterface
 	protected function whenCreditsAssigned(CreditsAssigned $event){
 	}
 
+	protected function whenOwnerChanged(OwnerChanged $event){
+		$p = $event->payload();
+		$ex_owner = $p['ex_owner'];
+		$new_owner = $p['new_owner'];
+
+		$this->members[$new_owner]['role'] = self::ROLE_OWNER;
+		$this->members[$ex_owner]['role'] = self::ROLE_MEMBER;
+	}
 }

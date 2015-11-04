@@ -81,4 +81,9 @@ class EventSourcingUserService implements UserService, EventManagerAwareInterfac
 		}
 		return $this->events;
 	}
+
+	public function findByKanbanizeUsername($username){
+		return $this->entityManager->getRepository(User::class)
+				->findOneBy(array("kanbanizeUsername" => $username));
+	}
 }

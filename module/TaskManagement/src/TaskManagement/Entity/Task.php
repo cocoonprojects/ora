@@ -10,7 +10,7 @@ use TaskManagement\TaskInterface;
 
 /**
  * @ORM\Entity @ORM\Table(name="tasks")
- * @ORM\InheritanceType("SINGLE_TABLE")
+ * @ORM\InheritanceType("JOINED")
  * @ORM\DiscriminatorColumn(name="type", type="string")
  * TODO: If no DiscriminatorMap annotation is specified, doctrine uses lower-case class name as default values. Remove
  * TYPE use
