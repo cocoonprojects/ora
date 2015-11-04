@@ -283,7 +283,6 @@ class TasksControllerTest extends ControllerTest {
 		$this->assertEquals(Task::ROLE_OWNER, $m['role']);
 		$this->assertEquals('John', $m['firstname']);
 		$this->assertEquals('Doe', $m['lastname']);
-		$this->assertArrayHasKey('credits', $m);
 	}
 	
 	public function testGetListWithPagination(){

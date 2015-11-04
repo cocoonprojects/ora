@@ -2,28 +2,26 @@
 
 namespace TaskManagement;
 
-use AcMailer\Service\MailService;
-use AcMailer\View\DefaultLayout;
-use TaskManagement\Service\CloseTaskListener;
-use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
-use Zend\ModuleManager\Feature\ConfigProviderInterface;
-use TaskManagement\Controller\MembersController;
-use TaskManagement\Controller\TasksController;
-use TaskManagement\Controller\TransitionsController;
+use People\OrganizationService;
 use TaskManagement\Controller\EstimationsController;
+use TaskManagement\Controller\MailController;
+use TaskManagement\Controller\MembersController;
+use TaskManagement\Controller\MemberStatsController;
+use TaskManagement\Controller\RemindersController;
 use TaskManagement\Controller\SharesController;
 use TaskManagement\Controller\StreamsController;
+use TaskManagement\Controller\TasksController;
+use TaskManagement\Controller\TransitionsController;
 use TaskManagement\Service\AssignCreditsListener;
-use TaskManagement\Service\NotifyMailListener;
-use TaskManagement\Service\TransferCreditsListener;
-use TaskManagement\Service\StreamCommandsListener;
-use TaskManagement\Service\TaskCommandsListener;
+use TaskManagement\Service\CloseTaskListener;
 use TaskManagement\Service\EventSourcingStreamService;
 use TaskManagement\Service\EventSourcingTaskService;
-use TaskManagement\Controller\RemindersController;
-use TaskManagement\Controller\MailController;
-use People\OrganizationService;
-use TaskManagement\Service\StreamService;
+use TaskManagement\Service\NotifyMailListener;
+use TaskManagement\Service\StreamCommandsListener;
+use TaskManagement\Service\TaskCommandsListener;
+use TaskManagement\Service\TransferCreditsListener;
+use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
+use Zend\ModuleManager\Feature\ConfigProviderInterface;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
@@ -92,7 +90,16 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$taskService = $locator->get('TaskManagement\TaskService');	
 					$controller = new RemindersController($notificationService, $taskService);
 					return $controller;
+				},
+				'TaskManagement\Controller\MemberStats' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$orgService = $locator->get('People\OrganizationService');
+					$userService = $locator->get('Application\UserService');
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$controller = new MemberStatsController($orgService, $taskService, $userService);
+					return $controller;
 				}
+
 			)
 		);
 	} 

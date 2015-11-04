@@ -69,7 +69,7 @@ class StreamsController extends OrganizationAwareController
 		$subject = isset($data['subject']) ? $filters->filter($data['subject']) : null;
 		$organization = $this->getOrganizationService()->getOrganization($this->organization->getId());
 		$stream = $this->streamService->createStream($organization, $subject, $this->identity());
-		$url = $this->url()->fromRoute('streams', ['orgId' => $organization->getId(),'id' => $stream->getId()]);
+		$url = $this->url()->fromRoute('collaboration', ['orgId' => $organization->getId(), 'controller' => 'streams', 'id' => $stream->getId()]);
 		$this->response->getHeaders()->addHeaderLine('Location', $url);
 		$this->response->setStatusCode(201);
 		

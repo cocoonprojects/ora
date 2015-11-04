@@ -77,9 +77,9 @@ interface TaskService
 	/**
 	 * Get tasks statistics for $memberId 
 	 * @param Organization $org
-	 * @param Uuid $memberId
+	 * @param string $memberId
 	 * @param \DateTime $filters["startOn"]
 	 * @param \DateTime $filters["endOn"]
 	 */
-	public function findStatsForMember(Organization $org, $memberId, $filters);
+	public function findMemberStats(Organization $org, $memberId, $filters);
 }

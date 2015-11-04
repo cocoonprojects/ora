@@ -166,7 +166,7 @@ class TaskJsonModel extends JsonModel
 		if($task instanceof Task) {
 			$rv['subject'] = $task->getStream()->getSubject();	// temporary backward compatibility
 		}
-		$rv['_links']['self']['href'] = $this->controller->url()->fromRoute('streams', ['id' => $task->getStreamId(), 'orgId' => $task->getOrganizationId()]);
+		$rv['_links']['self']['href'] = $this->controller->url()->fromRoute('collaboration', ['id' => $task->getStreamId(), 'orgId' => $task->getOrganizationId(), 'controller' => 'streams']);
 		return $rv;
 	}
 
@@ -183,15 +183,13 @@ class TaskJsonModel extends JsonModel
 				'lastname' => $member->getLastname(),
 				'picture' => $member->getPicture(),
 				'role' => $tm->getRole(),
-				'createdAt' => date_format($tm->getCreatedAt(), 'c'),
-				'credits' => $tm->getCredits()
+				'createdAt' => date_format($tm->getCreatedAt(), 'c')
 			];
 			if(!(is_null($tm->getEstimation()) || is_null($tm->getEstimation()->getValue()))) {
 				$rv['estimation'] = $tm->getEstimation()->getValue();
 				$rv['estimatedAt'] = date_format($tm->getEstimation()->getCreatedAt(), 'c');
 			}
-
-			if($tm->getShare() != null && $tm->getTask()->getStatus() >= Task::STATUS_CLOSED) {
+			if($tm->getShare() !== null && $tm->getTask()->getStatus() >= Task::STATUS_CLOSED) {
 				$rv['share'] = $tm->getShare();
 				$rv['delta'] = $tm->getDelta();
 			}
@@ -200,6 +198,9 @@ class TaskJsonModel extends JsonModel
 					'value' => $share->getValue(),
 					'createdAt' => date_format($share->getCreatedAt(), 'c'),
 				);
+			}
+			if($tm->getCredits() !== null) {
+				$rv['credits'] = $tm->getCredits();
 			}
 		} else {
 			$rv = $tm;	// Copy the array
