@@ -4,11 +4,11 @@ namespace Accounting\View;
 use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
 use Zend\Mvc\Controller\Plugin\Url;
+use Zend\Permissions\Acl\Acl;
 use Application\Entity\User;
-use BjyAuthorize\Service\Authorize;
 use Accounting\Entity\Account;
 use Accounting\Entity\OrganizationAccount;
-use Accounting\Entity\AccountTransaction;
+use Accounting\Entity\Transaction;
 use Accounting\Entity\Deposit;
 
 class StatementJsonModel extends JsonModel
@@ -18,49 +18,60 @@ class StatementJsonModel extends JsonModel
 	protected $user;
 	
 	/**
-	 * @var BjyAuthorize\Service\Authorize
+	 * @var Acl
 	 */
-	protected $authorize;
+	protected $acl;
 	
-	public function __construct(Url $url, User $user, Authorize $authorize) {
+	public function __construct(Url $url, User $user, Acl $acl) {
 		$this->url = $url;
 		$this->user = $user;
-		$this->authorize = $authorize;
+		$this->acl = $acl;
 	} 
 	
 	public function serialize()
 	{
 		$account = $this->getVariable('resource');
-		$rv['balance']		= $this->serializeBalance($account);
-		$rv['transactions']	= array_map(array($this, 'serializeTransaction'), $account->getTransactions());
-		$rv['_links']		= $this->serializeLinks($account);
-		if($account instanceof OrganizationAccount) {
-			$rv['organization'] = $account->getOrganization()->getName();
+		$transactions = $this->getVariable('transactions');
+		$totalTransactions = $this->getVariable('totalTransactions');
+		
+		$rv['organization'] = $account->getOrganization()->getName();
+		$rv['transactions'] = array_map(array($this, 'serializeTransaction'), $transactions);
+		$rv['_links']       = $this->serializeLinks($account);
+		$rv['count'] 		= count($transactions);
+		$rv['total'] 		= $totalTransactions;
+		if($rv['count'] < $rv['total']){
+			$controller = $account instanceof OrganizationAccount ? 'organization-statement' : 'personal-statement';
+			$rv['_links']['next']['href'] = $this->url->fromRoute('statements', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => $controller]);
 		}
 		return Json::encode($rv);
 	}
 	
-	protected function serializeBalance($account) {
-		return array(
-			'value' => $account->getBalance()->getValue(),
-			'date' => date_format($account->getBalance()->getDate(), 'c'),
-		);
-	}
-	
 	protected function serializeLinks($account) {
-		
-		$rv['self'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'statement']);
-		if($this->authorize->isAllowed($account, 'Accounting.OrganizationAccount.deposit')){
-			$rv['deposits'] = $this->url->fromRoute('accounts', ['id' => $account->getId(), 'controller' => 'deposits']);
+
+		$controller = $account instanceof OrganizationAccount ? 'organization-statement' : 'personal-statement';
+		$rv['self']['href'] = $this->url->fromRoute('statements', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => $controller]);
+		if($this->acl->isAllowed($this->user, $account, 'Accounting.Account.list')) {
+			$rv['ora:account']['href'] = $this->url->fromRoute('accounts', ['orgId' => $account->getOrganization()->getId()]);
+		}
+		if($this->acl->isAllowed($this->user, $account, 'Accounting.Account.deposit')) {
+			$rv['ora:deposit']['href'] = $this->url->fromRoute('accounts', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => 'deposits']);
+		}
+		if($this->acl->isAllowed($this->user, $account, 'Accounting.Account.withdrawal')) {
+			$rv['ora:withdrawal']['href'] = $this->url->fromRoute('accounts', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => 'withdrawals']);
+		}
+		if($this->acl->isAllowed($this->user, $account, 'Accounting.Account.incoming-transfer')) {
+			$rv['ora:incoming-transfer']['href'] = $this->url->fromRoute('accounts', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => 'incoming-transfers']);
+		}
+		if($this->acl->isAllowed($this->user, $account, 'Accounting.Account.outgoing-transfer')) {
+			$rv['ora:outgoing-transfer']['href'] = $this->url->fromRoute('accounts', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => 'outgoing-transfers']);
 		}
 		return $rv;
 	}
 	
-	protected function serializeTransaction(AccountTransaction $transaction) {
-		$className = get_class($transaction);
+	protected function serializeTransaction(Transaction $transaction) {
 		$rv = array(
 			'date' => date_format($transaction->getCreatedAt(), 'c'),
-			'type' => substr($className, strrpos($className, '\\') + 1),
+			'type' => $this->evaluateTransactionType($transaction),
 			'amount' => $transaction->getAmount(),
 			'description' => $transaction->getDescription(),
 			'balance' => $transaction->getBalance(),
@@ -72,5 +83,15 @@ class StatementJsonModel extends JsonModel
 			$rv['payer'] = $transaction->getPayerName();
 		}
 		return $rv;
+	}
+	
+	private function evaluateTransactionType(Transaction $transaction){
+		$account = $this->getVariable('resource');
+		if($transaction->getPayer() != null && $transaction->getPayer()->getId() == $account->getId()){
+			return 'OutgoingTransfer';
+		}else if ($transaction->getPayee() != null && $transaction->getPayee()->getId() == $account->getId()){
+			return 'IncomingTransfer';
+		}
+		return '';
 	}
 }

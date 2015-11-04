@@ -5,8 +5,8 @@ use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
 use Zend\Mvc\Controller\Plugin\Url;
 use Application\Entity\User;
-use Application\Entity\OrganizationMembership;
-use Application\Entity\Organization;
+use People\Entity\OrganizationMembership;
+use People\Entity\Organization;
 
 class OrganizationMembershipJsonModel extends JsonModel
 {
@@ -32,6 +32,11 @@ class OrganizationMembershipJsonModel extends JsonModel
 		if(is_array($resource)) {
 			$hal['count'] = count($resource);
 			$hal['total'] = count($resource);
+			$hal['id']    = $this->user->getId();
+			$hal['firstname'] = $this->user->getFirstname();
+			$hal['lastname']  = $this->user->getLastname();
+			$hal['email'] = $this->user->getEmail();
+			$hal['picture'] = $this->user->getPicture();
 			$hal['_embedded']['ora:organization-membership'] = array_map(array($this, 'serializeOne'), $resource);
 			$hal['_links'] = [
 				'self' => [
@@ -48,7 +53,7 @@ class OrganizationMembershipJsonModel extends JsonModel
 		} else {
 			$hal = $this->serializeOne($resource);
 		}
-		return Json::encode($hal);		
+		return Json::encode($hal);
 	}
 
 	protected function serializeOne(OrganizationMembership $membership) {
@@ -69,6 +74,13 @@ class OrganizationMembershipJsonModel extends JsonModel
 			'_links' => [
 				'self' => [
 					'href' => $this->url->fromRoute('organizations', ['id' => $org->getId()]),
+				],
+				'ora:organization-member' => [
+					'href' => $this->url->fromRoute('members', ['orgId' => $org->getId()])
+				],
+				'ora:task' => [
+//					'href' => $this->url->fromRoute('tasks', ['orgId' => $org->getId()])
+					'href' => $this->url->fromRoute('collaboration-home', ['orgId' => $org->getId()])
 				]
 			]
 		];

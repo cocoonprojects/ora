@@ -8,11 +8,10 @@ use TaskManagement\Entity\Estimation;
 
 /**
  * @ORM\Entity @ORM\Table(name="task_members")
- * @author Tilli Mario
  *
  */
-class TaskMember {	
-
+class TaskMember
+{
 	CONST ROLE_MEMBER = 'member';
 	CONST ROLE_OWNER  = 'owner';
 	
@@ -28,7 +27,7 @@ class TaskMember {
 	 * @ORM\ManyToOne(targetEntity="Application\Entity\User")
 	 * @ORM\JoinColumn(name="member_id", referencedColumnName="id", onDelete="CASCADE")
 	 */
-	private $member;
+	private $user;
 
 	/**
 	 * @ORM\Column(type="string")
@@ -69,6 +68,7 @@ class TaskMember {
 	/**
 	 * @ORM\ManyToOne(targetEntity="Application\Entity\User")
 	 * @ORM\JoinColumn(name="createdBy_id", referencedColumnName="id")
+	 * @var BasicUser
 	 */
 	protected $createdBy;
 
@@ -81,12 +81,19 @@ class TaskMember {
 	/**
 	 * @ORM\ManyToOne(targetEntity="Application\Entity\User")
 	 * @ORM\JoinColumn(name="mostRecentEditBy_id", referencedColumnName="id")
+	 * @var BasicUser
 	 */
 	protected $mostRecentEditBy;
 
-	public function __construct(Task $task, User $member, $role){
+	/**
+	 * @ORM\Column(type="decimal", precision=10, scale=2, nullable=true)
+	 * @var decimal
+	 */
+	private $credits;
+
+	public function __construct(Task $task, User $user, $role){
 		$this->task = $task;
-		$this->member = $member;
+		$this->user = $user;
 		$this->role = $role;
 		$this->shares = new ArrayCollection();
 	}
@@ -95,8 +102,19 @@ class TaskMember {
 		return $this->role;
 	}
 
+	/**
+	 * TODO: to remove
+	 * @return User
+	 */
 	public function getMember() {
-		return $this->member;
+		return $this->getUser();
+	}
+
+	/**
+	 * @return User
+	 */
+	public function getUser() {
+		return $this->user;
 	}
 
 	public function getTask() {
@@ -114,7 +132,7 @@ class TaskMember {
 	public function setEstimation(Estimation $estimation) {
 		$this->estimation = $estimation;
 		$this->mostRecentEditAt = $estimation->getCreatedAt();
-		$this->mostRecentEditBy = $this->member;
+		$this->mostRecentEditBy = $this->user;
 		return $this;
 	}
 
@@ -179,7 +197,7 @@ class TaskMember {
 
 	public function setShare($value, \DateTime $when) {
 		$this->share = $value;
-		$share = $this->shares->get($this->member->getId());
+		$share = $this->shares->get($this->user->getId());
 		$this->delta = is_null($share) ? null : $value - $share->getValue();
 		$this->mostRecentEditAt = $when;
 		return $this;
@@ -191,5 +209,18 @@ class TaskMember {
 
 	public function getDelta() {
 		return $this->delta;
+	}
+
+	public function removeTask() {
+		$this->task = null;
+		return $this;
+	}
+
+	public function getCredits(){
+		return $this->credits;
+	}
+
+	public function setCredits($credits){
+		$this->credits = $credits;
 	}
 }

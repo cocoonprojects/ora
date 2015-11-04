@@ -12,14 +12,16 @@ default:
                 - functional/features/estimations
                 - functional/features/shares
                 - functional/features/task
+                - functional/features/people
             contexts:
                 - RestContext:
                     - http://oraprojecttest
-        login_features:
+        mail_features:
             paths: 
-                - functional/features/login
+                - functional/features/mail
             contexts: 
-                - LoginContext
+                - RestContext:
+                    - http://oraprojecttest
     extensions:
         Behat\MinkExtension:
             base_url:  http://oraprojecttest

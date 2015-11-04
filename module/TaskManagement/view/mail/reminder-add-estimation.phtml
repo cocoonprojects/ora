@@ -1,0 +1,9 @@
+<p>Hi <?= $this->recipient->getFirstname()." ".$this->recipient->getLastname()?>,<p>
+<p>You haven't estimated the item <b><?= $this->task->getSubject()?></b> yet!</p>
+<p>It is important you do it as soon as possible to define with your taskmate the value of the item.</p>
+<p>Please follow <a href="<?= $this->url('collaboration-home',array('orgId' => $this->task->getStream()->getOrganization()->getId()), array('force_canonical' => true))?>"> this link</a> and add your estimation as soon as possible.</p>
+<br/> 
+<p>Thank you!</p>
+<p>O.R.A.</p>
+<hr>
+<p style="font-size: 12px">You are receiving this e-mail because you are member of the "<?= $this->task->getSubject() ?>" item.</p>		

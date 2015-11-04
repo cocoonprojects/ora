@@ -1,71 +1,58 @@
 <?php $this->headScript()->appendFile($this->basePath() . '/js/accounting.js'); ?>
+<div style="position: fixed; bottom: 2em; right: 2em; display: none" class="dropup">
+	<a class="btn btn-primary btn-fab btn-raised mdi-content-add"
+	   data-toggle="dropdown" role="button" aria-expanded="false"
+	   id="transactionsMenu"></a>
+	<ul class="dropdown-menu" role="menu" style="left: -200%;">
+	</ul>
+</div>
 <div class="container">
 	<div class="page-header">
 		<h1>Credits</h1>
 	</div>
-	<ul id="accounts" class="nav nav-pills"></ul>
-	<div id="account">
-			<h4>Balance</h4>
-			<p></p>
-			<table class="table">
-				<caption><h4>Transactions</h4></caption>
-				<thead>
-					<tr>
-						<td colspan="3" style="text-align: right; font-weight: bold">Actual Balance</td>
-						<td id="actual-balance"></td>
-					</tr>
-					<tr>
-						<th>Date</th>
-						<th>Ref.</th>
-						<th>Description</th>
-						<th>Amount</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
-					</tr>
-				</tbody>
-				<tfoot>
-					<tr>
-						<td colspan="3" style="text-align: right; font-weight: bold">Initial balance</td>
-						<td id="starting-balance"></td>
-					</tr>
-				</tfoot>
-			</table>
-	</div>
+	<ul id="accounts" class="nav nav-pills">
+		<li role="presentation" class="active"><a href="<?= $this->url('statements', ['orgId' => $this->organization->getId(), 'controller' => 'personal-statement']) ?>">My Account</a></li>
+		<li role="presentation"><a href="<?= $this->url('statements', ['orgId' => $this->organization->getId(), 'controller' => 'organization-statement']) ?>">Organization Account</a></li>
+	</ul>
+	<table class="table" id="account" style="display: none">
+		<thead>
+			<tr>
+				<th colspan="2">Transactions</th>
+				<td style="text-align: right; font-weight: bold">Actual Balance</td>
+				<td id="actual-balance"></td>
+			</tr>
+			<tr>
+				<th>Date</th>
+				<th>Ref.</th>
+				<th>Description</th>
+				<th>Amount</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="3" style="text-align: right; font-weight: bold">Initial balance</td>
+				<td id="starting-balance"></td>
+			</tr>
+		</tfoot>
+	</table>
 </div>
-<div class="modal fade" id="depositModal" tabindex="-1" role="dialog" aria-labelledby="depositModalLabel" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<form method="POST" action="">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title" id="depositModalLabel">Deposit</h4>
-				</div>
-				<div class="modal-body">
-					<div class="alert" role="alert">
-						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-						  <span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="form-group">
-						<label for="amount">Credits</label>
-						<input type="number" name="amount" id="amount" class="form-control" required="required" min="0"/>
-					</div>
-					<div class="form-group">
-						<label for="description">Description</label>
-						<input type="text" name="description" id="description" class="form-control" placeholder="Describe where these credits come from"/>
-					</div>
-					</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-					<button type="submit" class="btn btn-primary">Submit</button>
-				</div>
-			</form>
-		</div>
-	</div>
-</div>
+<script>
+function onLoad() {
+	gapi.load('auth2', function() {
+    gapi.auth2.init();
+	});
+}
+</script>
+<script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>
+<?php echo $this->partial('accounting/index/deposit-modal.phtml') ?>
+<?php echo $this->partial('accounting/index/withdrawal-modal.phtml') ?>
+<?php echo $this->partial('accounting/index/incoming-transfer-modal.phtml') ?>
+<?php echo $this->partial('accounting/index/outgoing-transfer-modal.phtml') ?>

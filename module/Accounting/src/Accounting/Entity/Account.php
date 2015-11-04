@@ -6,16 +6,14 @@ use Doctrine\ORM\Mapping AS ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Application\Entity\EditableEntity;
 use Application\Entity\User;
-use Application\Entity\Organization;
-
+use People\Entity\Organization;
 /**
- * @ORM\Entity @ORM\Table(name="accounts")
+ * @ORM\Entity 
+ * @ORM\Table(name="accounts")
  * @ORM\InheritanceType("SINGLE_TABLE")
  * @ORM\DiscriminatorColumn(name="type", type="string")
- * @author andreabandera
- *
  */
-class Account extends EditableEntity implements ResourceInterface {
+abstract class Account extends EditableEntity implements ResourceInterface {
 	
 	/**
 	 * @ORM\Embedded(class="Accounting\Entity\Balance")
@@ -31,65 +29,87 @@ class Account extends EditableEntity implements ResourceInterface {
 	 */
 	protected $holders;
 	/**
-	 * @ORM\OneToMany(targetEntity="AccountTransaction", mappedBy="account", cascade="persist", fetch="LAZY")
-	 * @ORM\OrderBy({"number" = "DESC"})
-	 * @var AccountTransaction[]
-	 */
-	protected $transactions;
-	
-	/**
-	 * @ORM\OneToOne(targetEntity="Application\Entity\Organization")
-	 * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", nullable=true, onDelete="CASCADE")
+	 * @ORM\OneToOne(targetEntity="People\Entity\Organization")
+	 * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", onDelete="CASCADE")
 	 * @var Organization
 	 */
 	protected $organization;
-	
-	public function __construct($id) {
+
+	/**
+	 * @param $id
+	 * @param Organization $organization
+	 */
+	public function __construct($id, Organization $organization) {
 		parent::__construct($id);
+		$this->organization = $organization;
 		$this->holders = new ArrayCollection();
-		$this->transactions = new ArrayCollection();
 	}
-	
+
+	/**
+	 * @param Balance $balance
+	 * @return $this
+	 */
 	public function setBalance(Balance $balance) {
 		$this->balance = $balance;
 		return $this;
 	}
-	
+
+	/**
+	 * @return Balance
+	 */
 	public function getBalance() {
+		if(is_null($this->balance)) {
+			$this->balance = new Balance(0, $this->getCreatedAt());
+		}
 		return $this->balance;
 	}
-	
+
+	/**
+	 * @return \Application\Entity\User[]
+	 */
 	public function getHolders() {
-		return $this->holders;
+		return $this->holders->toArray();
 	}
-	
+
+	/**
+	 * @param User $holder
+	 * @return $this
+	 */
 	public function addHolder(User $holder) {
 		$this->holders->set($holder->getId(), $holder);
 		return $this;
 	}
-	
-	public function getTransactions() {
-		return $this->transactions->toArray();
-	}
-	
-	public function addTransaction(AccountTransaction $transaction) {
-		$this->transactions->add($transaction);
-		return $this;
-	}
-	
+
+	/**
+	 * @param User $user
+	 * @return bool
+	 */
 	public function isHeldBy(User $user) {
 		return $this->holders->containsKey($user->getId());
 	}
-	
+
+	/**
+	 * @return Organization
+	 */
+	public function getOrganization() {
+		return $this->organization;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getOrganizationId() {
+		return $this->getOrganization()->getId();
+	}
+
+	/**
+	 * @return string
+	 */
 	public function getName() {
 		if($this->holders->count() > 0) {
 			$holder = $this->holders->first();
 			return $holder->getFirstname() . ' ' . $holder->getLastname(); 
 		}
 		return null;
-	}
-	
-	public function getResourceId(){
-		return "Ora\Account";
 	}
 }

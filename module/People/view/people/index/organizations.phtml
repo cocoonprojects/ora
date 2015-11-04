@@ -1,0 +1,27 @@
+<div class="container" id="content">
+	<div class="page-header">
+		<h1>Organizations</h1>
+	</div>
+	<div id="content">
+		<div class="alert" role="alert" style="display: none"></div>
+		<ol id="organizations">
+
+		</ol>
+		<a href="<?= $this->url('home') ?>" class="btn btn-default">Back</a>
+	</div>
+</div>
+<?php $this->inlineScript()->captureStart() ?>
+$(document).ready(function() {
+	var googleID = sessionStorage.googleid;
+	$('head').append( '<meta name="google-signin-client_id" content="'+googleID+'">' );
+	organizations.loadOrganizations();
+});
+<?php $this->inlineScript()->captureEnd() ?>
+<script>
+function onLoad() {
+	gapi.load('auth2', function() {
+    gapi.auth2.init();
+	});
+}
+</script>
+<script src="https://apis.google.com/js/platform.js?onload=onLoad" async defer></script>

@@ -2,44 +2,36 @@
 
 namespace TaskManagement\Service;
 
-use Zend\EventManager\EventManagerAwareInterface;
-use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\EventManager;
-use Zend\EventManager\Event;
 use Doctrine\ORM\EntityManager;
+use People\Entity\Organization;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Aggregate\AggregateRepository;
 use Prooph\EventStore\Aggregate\AggregateType;
 use Prooph\EventStore\Stream\SingleStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Rhumsaa\Uuid\Uuid;
-use Application\Entity\User;
-use TaskManagement\Stream;
 use TaskManagement\Task;
 use TaskManagement\Entity\Task as ReadModelTask;
+use TaskManagement\Entity\Stream as ReadModelStream;
+use TaskManagement\Entity\TaskMember;
+use Doctrine\ORM\Query;
 
-class EventSourcingTaskService extends AggregateRepository implements TaskService, EventManagerAwareInterface
+class EventSourcingTaskService extends AggregateRepository implements TaskService
 {
 	/**
 	 * 
 	 * @var EntityManager
 	 */
 	private $entityManager;
-	/**
-	 * 
-	 * @var EventManagerInterface
-	 */
-	private $events;
-    
-    public function __construct(EventStore $eventStore, EntityManager $entityManager)
-    {
+
+	public function __construct(EventStore $eventStore, EntityManager $entityManager)
+	{
 		parent::__construct($eventStore, new AggregateTranslator(), new SingleStreamStrategy($eventStore), AggregateType::fromAggregateRootClass(Task::class));
 		$this->entityManager = $entityManager;	
 	}
 	
 	public function addTask(Task $task)
-	{			
-	    $task->setEventManager($this->getEventManager());
+	{
 		$this->addAggregateRoot($task);
 		return $task;
 	}
@@ -51,43 +43,171 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	{
 		$tId = $id instanceof Uuid ? $id->toString() : $id;
 		$task = $this->getAggregateRoot($tId);
-		if($task != null) {
-			$task->setEventManager($this->getEventManager());
-		}
 		return $task;
+	}
+
+	/**
+	 * @see \TaskManagement\Service\TaskService::findTasks()
+	 */
+	public function findTasks(Organization $organization, $offset, $limit, $filters)
+	{
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('t')
+			->from(ReadModelTask::class, 't')
+			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
+			->orderBy('t.mostRecentEditAt', 'DESC')
+			->setFirstResult($offset)
+			->setMaxResults($limit)
+			->setParameter(':organization', $organization);
+
+		if(!empty($filters["startOn"])){
+			$query->andWhere('t.createdAt >= :startOn')
+				->setParameter('startOn', $filters["startOn"]);
+		}
+		if(!empty($filters["endOn"])){
+			$query->andWhere('t.createdAt <= :endOn')
+				->setParameter('endOn', $filters["endOn"]);
+		}
+		if(!empty($filters["memberId"])){
+			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
+				->setParameter('memberId', $filters["memberId"]);
+		}
+		if(!empty($filters["memberEmail"])){
+			$query->innerJoin('t.members', 'm')
+				->innerJoin('m.user', 'u', 'WITH', 'u.email = :memberEmail')
+				->setParameter('memberEmail', $filters["memberEmail"]);
+		}
+		if(isset($filters["status"])){
+			$query->andWhere('t.status = :status')->setParameter('status', $filters["status"]);
+		}
+
+		return $query->getQuery()->getResult();
 	}
 	
 	/**
-	 * Get the list of all available tasks 
+	 * @see \TaskManagement\Service\TaskService::countOrganizationTasks()
 	 */
-	public function findTasks()
-	{
-		$repository = $this->entityManager->getRepository(ReadModelTask::class);
-	    return $repository->findBy(array(), array('mostRecentEditAt' => 'DESC'));	    
+	public function countOrganizationTasks(Organization $organization, $filters){
+		
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('count(t)')
+			->from(ReadModelTask::class, 't')
+			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
+			->setParameter(':organization', $organization);
+
+		if(!empty($filters["startOn"])){
+			$query->andWhere('t.createdAt >= :startOn')
+			->setParameter('startOn', $filters["startOn"]);
+		}
+		if(!empty($filters["endOn"])){
+			$query->andWhere('t.createdAt <= :endOn')
+			->setParameter('endOn', $filters["endOn"]);
+		}
+		if(!empty($filters["memberId"])){
+			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
+			->setParameter('memberId', $filters["memberId"]);
+		}
+		if(!empty($filters["memberEmail"])){
+			$query->innerJoin('t.members', 'm')
+			->innerJoin('m.user', 'u', 'WITH', 'u.email = :memberEmail')
+			->setParameter('memberEmail', $filters["memberEmail"]);
+		}
+		if(isset($filters["status"])){
+			$query->andWhere('t.status = :status')->setParameter('status', $filters["status"]);
+		}
+		return intval($query->getQuery()->getSingleScalarResult());
 	}
 	
 	public function findTask($id) {
 		return $this->entityManager->find(ReadModelTask::class, $id);
 	}
 	
-	public function findStreamTasks($streamId) {	
-		$repository = $this->entityManager->getRepository(ReadModelTask::class)->findBy(array('stream' => $streamId));
-	    return $repository;
-	}
-	
-	public function setEventManager(EventManagerInterface $events) {
-		$events->setIdentifiers(array(			'TaskManagement\TaskService',
-			__CLASS__,
-			get_class($this)
-		));
-		$this->events = $events;
-	}
-	
-	public function getEventManager()
-	{
-		if (!$this->events) {
-			$this->setEventManager(new EventManager());
+	/**
+	 * @see \TaskManagement\Service\TaskService::findStreamTasks()
+	 */
+	public function findStreamTasks($streamId, $offset, $limit, $filters){
+		
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('t')
+			->from(ReadModelTask::class, 't')
+			->where('t.stream = :streamId')
+			->setParameter(':streamId', $streamId);
+
+		if(!empty($filters["startOn"])){
+			$query->andWhere('t.createdAt >= :startOn')
+				->setParameter('startOn', $filters["startOn"]);
 		}
-		return $this->events;
+		if(!empty($filters["endOn"])){
+			$query->andWhere('t.createdAt <= :endOn')
+				->setParameter('endOn', $filters["endOn"]);
+		}
+		if(!empty($filters["memberId"])){
+			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
+				->setParameter('memberId', $filters["memberId"]);
+		}
+		if(!empty($filters["memberEmail"])){
+			$query->innerJoin('t.members', 'm')
+				->innerJoin('m.user', 'u', 'WITH', 'u.email = :memberEmail')
+				->setParameter('memberEmail', $filters["memberEmail"]);
+		}
+		return $query->getQuery()->getResult();
+	}
+	
+	/**
+	 * @see \TaskManagement\Service\TaskService::findAcceptedTasksBefore()
+	 */
+	public function findAcceptedTasksBefore(\DateInterval $interval){
+		
+		$referenceDate = new \DateTime('now');
+		
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('t')
+			->from(ReadModelTask::class, 't')
+			->where("DATE_ADD(t.acceptedAt,".$interval->format('%d').", 'DAY') <= :referenceDate") 
+			->andWhere('t.status = :taskStatus')
+			->setParameter('taskStatus', Task::STATUS_ACCEPTED)
+			->setParameter('referenceDate', $referenceDate->format('Y-m-d H:i:s'))
+			->getQuery();
+		
+		return $query->getResult();
+	}
+
+	/**
+	 * @see \TaskManagement\Service\TaskService::findMemberStats()
+	 * @param Organization $org
+	 * @param string $memberId
+	 * @param \DateTime $filters
+	 * @return array
+	 */
+	public function findMemberStats(Organization $org, $memberId, $filters){
+		if(is_null($memberId)){
+			return [];
+		}
+
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('SUM( CASE WHEN m.role=:role THEN 1 ELSE 0 END ) as ownershipsCount')
+			->addSelect('COUNT(m.task) as membershipsCount')
+			->addSelect('COALESCE(SUM(m.credits),0) as creditsCount')
+			->addSelect('COALESCE(AVG( CASE WHEN t.status >=:taskStatus THEN m.delta ELSE :value END ),0) as averageDelta')
+			->from(TaskMember::class, 'm')
+			->innerJoin('m.task', 't')
+			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
+			->innerjoin('m.user', 'u', 'WITH', 'u.id = :memberId')
+			->setParameter('role', TaskMember::ROLE_OWNER)
+			->setParameter('taskStatus', Task::STATUS_CLOSED)
+			->setParameter('value', NULL)
+			->setParameter('memberId', $memberId)
+			->setParameter('organization', $org->getId());
+
+		if(!empty($filters["startOn"])){
+			$query->andWhere('t.createdAt >= :startOn')
+				->setParameter('startOn', $filters["startOn"]);
+		}
+		if(!empty($filters["endOn"])){
+			$query->andWhere('t.createdAt <= :endOn')
+				->setParameter('endOn', $filters["endOn"]);
+		}
+
+		return $query->getQuery()->getResult()[0];
 	}
 }

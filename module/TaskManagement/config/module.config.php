@@ -2,58 +2,65 @@
 namespace TaskManagement;
 
 return array(
-	'router' => array(
-		'routes' => array(
-			'tasks-home' => array(
-				'type' => 'Zend\Mvc\Router\Http\Literal',
-				'options' => array(
-					'route'	   => '/task-management',
-					'defaults' => array(
+	'router' => [
+		'routes' => [
+			'collaboration-home' => [
+				'type' => 'Segment',
+				'options' => [
+					'route' => '/:orgId/task-management',
+					'constraints' => [
+						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+					],
+					'defaults' => [
 						'controller' => 'TaskManagement\Controller\Index',
-						'action'	 => 'index',
-					),
-				),
-			),
-			'streams' => array(
+						'action' => 'index',
+					],
+				],
+			],
+			'collaboration' => [
 				'type' => 'Segment',
-				'options' => array(
-					'route'	   => '/task-management/streams[/:id]',
-					'constraints' => array(
-						'id' => '[0-9a-z\-]+',
-					),
-					'defaults' => array(
-						'controller' => 'TaskManagement\Controller\Streams'
-					),
-				),
-			),
-			'tasks' => array(
+				'options' => [
+					'route'	   => '/:orgId/task-management/:controller[/:id]',
+					'constraints' => [
+						'id' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+					],
+					'defaults' => [
+						'__NAMESPACE__' => 'TaskManagement\Controller',
+						'controller' => 'Index',
+					],
+				],
+			],
+			'tasks' => [
 				'type' => 'Segment',
-				'options' => array(
-					'route'	   => '/task-management/tasks[/:id][/:controller]',
-					'constraints' => array(
-						'id' => '[0-9a-z\-]+'
-					),
-					'defaults' => array(
+				'options' => [
+					'route'	   => '/:orgId/task-management/tasks[/:id][/:controller][/:type]',
+					'constraints' => [
+						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+						'id' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+						'type' => '[a-zA-Z-]+'
+					],
+					'defaults' => [
 						'__NAMESPACE__' => 'TaskManagement\Controller',
 						'controller' => 'Tasks'
-					),
-				),
-			),
-		),
-	),
+					],
+				],
+			],
+		],
+	],
 	'translator' => array(),
 	'view_manager' => array(
 		'strategies' => array(
 			'ViewJsonStrategy',
 		),
 		'template_path_stack' => array(
-			'task-management' => __DIR__ . '/../view',
-		),
+			__NAMESPACE__ => __DIR__ . '/../view',
+		)
 	),
 	'asset_manager' => array(
 		'resolver_configs' => array(
 			'paths' => array(
-				'TaskManagement' => __DIR__ . '/../public',
+				__NAMESPACE__ => __DIR__ . '/../public',
 			),
 		),
 	),
@@ -71,72 +78,14 @@ return array(
 			)
 		)
 	),
-	'bjyauthorize'=> array(
-		'resource_providers' => array(
-			'BjyAuthorize\Provider\Resource\Config' => array(
-				'Ora\Task' => array(),				
-			),
-		),
-		'rule_providers' => array(
-			'BjyAuthorize\Provider\Rule\Config' => array(
-				'allow' => array(
-					array(
-						array('user'), 
-						NULL, 
-						array('TaskManagement.Task.create')),
-					array(
-						array('user'), 
-						'Ora\Task', 
-						array('TaskManagement.Task.showDetails'),
-						'TaskManagement\MemberOfOrganizationAssertion'), 
-					array(
-						array('user'), 
-						'Ora\Task', 
-						array('TaskManagement.Task.join'), 
-						'TaskManagement\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion'),
-					array(
-						array('user'), 
-						'Ora\Task', 
-						array('TaskManagement.Task.estimate'), 
-						'TaskManagement\MemberOfNotAcceptedTaskAssertion'),
-					array(
-						array('user'), 
-						'Ora\Task', 
-						array('TaskManagement.Task.unjoin'), 
-						'TaskManagement\TaskMemberNotOwnerAndNotCompletedTaskAssertion'),
-					array(
-						array('user'), 
-						'Ora\Task', 
-						array('TaskManagement.Task.edit', 'TaskManagement.Task.delete'), 
-						 'TaskManagement\TaskOwnerAndNotCompletedTaskAssertion'),
-					array(
-						array('user'), 
-						'Ora\Task', 
-						array('TaskManagement.Task.execute'), 
-						'TaskManagement\OwnerOfOpenOrCompletedTaskAssertion'),
-					array(
-						array('user'), 
-						'Ora\Task', 
-						array('TaskManagement.Task.complete'), 
-						'TaskManagement\TaskOwnerAndOngoingOrAcceptedTaskAssertion'),
-					array(
-						array('user'), 
-						'Ora\Task', 
-						array('TaskManagement.Task.accept'), 
-						'TaskManagement\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion'),
-					array(
-						array('user'), 
-						'Ora\Task', 
-						array('TaskManagement.Task.assignShares'), 
-						'TaskManagement\TaskMemberAndAcceptedTaskAssertion'),
-				),
-			),
-		),
-	),
-	'listeners' => array(
+	'listeners' => [
+		'TaskManagement\NotifyMailListener',
 		'TaskManagement\StreamCommandsListener',
 		'TaskManagement\TaskCommandsListener',
-		'TaskManagement\TransferTaskSharesCreditsListener',
+		'TaskManagement\TransferCreditsListener',
 		'TaskManagement\CloseTaskListener',
-	),
+		'TaskManagement\AssignCreditsListener',
+	],
+	'assignment_of_shares_timebox' => new \DateInterval('P7D'), 
+	'default_tasks_limit' => 10
 );

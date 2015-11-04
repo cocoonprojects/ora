@@ -1,26 +1,71 @@
-var TaskManagement = function()
+var TaskManagement = function(taskUtils)
 {
+	var pageSize = 10,
+		nextPageSize = 10,
+		pageOffset = 0,
+		endOn = "",
+		startOn = "",
+		memberEmail = "";
+		statusFilter = null;
+
+	this.utils = taskUtils;
+
+	this.getPageSize = function(){
+		return pageSize;
+	};
+	this.setPageSize = function(size){
+		pageSize = size;
+	};
+	this.getNextPageSize = function(){
+		return nextPageSize;
+	};
+	this.getPageOffset = function(){
+		return pageOffset;
+	};
+	this.setPageOffset = function(offset){
+		pageOffset = offset;
+	};
+	this.setStartOn = function(date){
+		startOn = date;
+	};
+	this.getStartOn = function(){
+		return startOn;
+	};
+	this.setEndOn = function(date){
+		endOn = date;
+	};
+	this.getEndOn = function(){
+		return endOn;
+	};
+	this.setMemberEmail = function(email){
+		memberEmail = email;
+	};
+	this.getMemberEmail = function(){
+		return memberEmail;
+	};
+	this.setStatusFilter = function(status){
+		statusFilter = status;
+	};
+	this.getStatusFilter = function(){
+		return statusFilter;
+	};
+	this.resetPageSize = function(){
+		pageSize = 10;
+	};
+
 	this.bindEventsOn();
+
+	var pollingFrequency = 10000;
+	this.pollingObject = this.setupPollingObject(pollingFrequency, this.listTasks);
 };
 
 TaskManagement.prototype = {
 
 	constructor: TaskManagement,
 	classe: 'TaskManagement',
-	
-	statuses: {
-			0: 'Idea',
-			10: 'Open',
-			20: 'Ongoing',
-			30: 'Completed',
-			40: 'Accepted (shares assignment in progress)',
-			50: 'Closed'
-	},
-	
 	data: [],
-	
 	streamsData: [],
-	
+
 	bindEventsOn: function()
 	{
 		var that = this;
@@ -42,18 +87,16 @@ TaskManagement.prototype = {
 			e.preventDefault();
 			that.createNewTask(e);
 		});
-		
+
 		$("#createStreamModal").on("show.bs.modal", function(e) {
 			var f = $(this).find("form");
 			f[0].reset();
 			$(this).find('div.alert').hide();
-			
-			var select = f.find("#createStreamOrganizationId");
-			select.empty();
-			select.append('<option></option>');
-			$.each(organizations.membershipsData._embedded['ora:organization-membership'], function(i, object) {
-				select.append('<option value="' + object.organization.id + '">' + object.organization.name + '</option>');
-			});
+			$("#createStreamModal :input:text:enabled:first").focus()
+		});
+
+		$("#createTaskModal").on("shown.bs.modal", function(e) {
+			$("#createTaskModal :input:text:enabled:first").focus()
 		});
 		
 		$("#createStreamModal").on("submit", "form", function(e){
@@ -67,7 +110,7 @@ TaskManagement.prototype = {
 			$("#editTaskModal form").attr("action", url);
 			var subject = button.data('subject');
 			$('#editTaskSubject').val(subject);
-			$(this).find('div.alert').hide();			
+			$(this).find('div.alert').hide();
 		});
 
 		$("#editTaskModal").on("submit", "form", function(e){
@@ -93,10 +136,22 @@ TaskManagement.prototype = {
 			that.unjoinTask(e);
 		});
 
-		//ACCEPT TASK FOR KAMBANIZE		  
+		//ACCEPT TASK FOR KAMBANIZE
 		$("body").on("click", "a[data-action='acceptTask']", function(e){
 			e.preventDefault();
 			that.acceptTask(e);
+		});
+		
+		//SEND REMINDER
+		$("body").on("click", "a[data-action='add-estimation']", function(e){
+			e.preventDefault();
+			that.sendReminder(e);
+		});
+		
+		//START IDEA
+		$("body").on("click", "a[data-action='startIdea']", function(e){
+			e.preventDefault();
+			that.startIdea(e);
 		});
 
 		$("body").on("click", "a[data-action='completeTask']", function(e){
@@ -111,7 +166,7 @@ TaskManagement.prototype = {
 			that.completeTask(e);
 		});
 
-		//BACK TO ONGOING			  
+		//BACK TO ONGOING
 		$("body").on("click", "a[data-action='executeTask']", function(e){
 			e.preventDefault();
 			that.executeTask(e);
@@ -126,7 +181,7 @@ TaskManagement.prototype = {
 		
 		$("#estimateTaskModal").on("show.bs.modal", function(e) {
 			var modal = $(this);
-			modal.find('div.alert').hide();			
+			modal.find('div.alert').hide();
 
 			var button = $(e.relatedTarget);
 			var url = button.data('href'); // Button that triggered the modal
@@ -157,7 +212,7 @@ TaskManagement.prototype = {
 		
 		$("#assignSharesModal").on("show.bs.modal", function(e) {
 			var modal = $(this);
-			modal.find('div.alert').hide();			
+			modal.find('div.alert').hide();
 
 			var button = $(e.relatedTarget) // Button that triggered the modal
 			var url = button.data('href');
@@ -184,15 +239,36 @@ TaskManagement.prototype = {
 			that.assignShares(e);
 		});
 
-		$("#taskDetailModal").on("show.bs.modal", function(e) {
-			container = $('#taskDetailModal h4');
-			container.empty();
-			container = $('#taskDetailModal .modal-body');
-			container.empty();
-
-			that.getTask(e);
+		$("body").on("click", "a[data-action='nextPage']", function(e){
+			e.preventDefault();
+			that.listMoreTasks(e);
 		});
 
+		$("#tasksFilter").on("click", "button", function(e){
+			e.preventDefault();
+			that.resetPageSize();
+			//TODO: da rivedere
+			var start = $("#startOn").val() !== "" ? $("#startOn").val().split("/", 3) : "";
+			var end = $("#endOn").val() !== "" ? $("#endOn").val().split("/", 3) : "";
+
+			if(start.length == 3){
+				that.setStartOn(start[2]+"-"+start[1]+"-"+start[0]);
+			}else{
+				that.setStartOn("");
+			}
+			if(end.length == 3){
+				that.setEndOn(end[2]+"-"+end[1]+"-"+end[0]);
+			}else{
+				that.setEndOn("");
+			}
+			that.setMemberEmail($("#memberEmail").val());
+			that.listTasks();
+		});
+		
+		$("#statusFilter").click(function(){
+			var status = $("#statusFilter").val();
+			that.setStatusFilter(status);
+		});
 	},
 	
 	unjoinTask: function(e)
@@ -203,6 +279,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'DELETE',
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
@@ -229,6 +308,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
@@ -247,25 +329,6 @@ TaskManagement.prototype = {
 		});
 	},
 	
-	getTask: function(e)
-	{
-		var url = $(e.relatedTarget).data('href');
-		$.ajax({
-			url: url,
-			method: 'GET'
-		})
-		.done(this.onTaskCompleted.bind(this));
-		
-	},
-	
-	onTaskCompleted: function(json) {
-		var container = $('#taskDetailModal h4');
-		container.text(json.subject);
-		
-		container = $('#taskDetailModal .modal-body');
-		container.append(this.renderTaskDetail(json));
-	},
-	
 	editTask: function(e)
 	{
 		var form = $(e.target);
@@ -275,6 +338,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'PUT',
 			data: form.serialize(),
 			dataType: 'json',
@@ -303,6 +369,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'DELETE',
 			dataType: 'json',
 			complete: function(xhr, textStatus) {
@@ -325,6 +394,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data:{action:'accept'},
 			dataType: 'json',
@@ -346,11 +418,14 @@ TaskManagement.prototype = {
 
 	completeTask: function(e){
 		var url = $(e.target).attr('href');
-		
+
 		var that = this;
-		
+
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data:{action:'complete'},
 			complete: function(xhr, textStatus) {
@@ -376,6 +451,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data:{action:'execute'},
 			dataType: 'json',
@@ -397,23 +475,58 @@ TaskManagement.prototype = {
 
 	listTasks: function()
 	{
-		that = this;
-		$.getJSON('/task-management/tasks', function(data) {
-			that.data = data;
-			that.onListTasksCompleted();
-		});
+		var that = this;
+		var url = 'task-management/tasks?limit='+that.getPageSize();
+
+		if(that.getPageOffset() > 0){
+			url+= "&offset="+that.getPageOffset();
+		}
+		if(that.getEndOn()){
+			url += "&endOn="+that.getEndOn();
+		}
+		if(that.getStartOn()){
+			url += "&startOn="+that.getStartOn();
+		}
+		if(that.getMemberEmail()){
+			url += "&memberEmail="+that.getMemberEmail();
+		}
+		if(that.getStatusFilter()){
+			url+="&status="+that.getStatusFilter();
+		}
+		$.ajax({
+			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
+			method: 'GET'
+		}).fail(function( jqXHR, textStatus ) {
+			var errorCode = jqXHR.status;
+			var redirectURL = window.location.href;
+			if(errorCode === 401){
+				sessionStorage.setItem('redirectURL', redirectURL);
+				window.location = '/';
+			}
+		}).done(that.onListTasksCompleted.bind(that));
 	},
 	
 	updateStreams: function()
 	{
 		that = this;
-		$.getJSON('/task-management/streams', function(data) {
-			that.streamsData = data;
+		$.ajax({
+			url: 'task-management/streams',
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
+			method: 'GET',
+			success: function(data) {
+				that.streamsData = data;
+			}
 		});
 	},
 	
-	onListTasksCompleted: function()
+	onListTasksCompleted: function(json)
 	{
+		this.data = json;
 		if(this.data._links !== undefined && this.data._links['ora:create'] !== undefined) {
 			$("#createTaskModal form").attr("action", this.data._links['ora:create']['href']);
 			$("#createTaskBtn").show();
@@ -431,57 +544,86 @@ TaskManagement.prototype = {
 			var that = this;
 			$.each(this.data._embedded['ora:task'], function(key, task) {
 				subject = task._links.self == undefined ? task.subject : '<a data-href="' + task._links.self.href + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
-
-				var actions = [];
-				if (task._links['ora:complete'] != undefined) {
-					label = task.status > TASK_STATUS.get('COMPLETED') ? "Revert to complete" : 'Complete';
-					actions.push('<a href="' + task._links['ora:complete'] + '" data-task="' + key + '" data-action="completeTask" class="btn btn-default">' + label + '</a>');
-				}
-				if (task._links['ora:accept'] != undefined) {
-					label = task.status > TASK_STATUS.get('ACCEPTED') ? 'Revert to accepted' : 'Accept';
-					actions.push('<a href="' + task._links['ora:accept'] + '" data-action="acceptTask" class="btn btn-default">' + label + '</a>');
-				}
-				if (task._links['ora:execute'] != undefined) {
-					label = task.status > TASK_STATUS.get('ONGOING') ? 'Revert to ongoing' : 'Start';
-					actions.push('<a href="' + task._links['ora:execute'] + '" data-action="executeTask" class="btn btn-default">' + label + '</a>');
-				}
-				if (task._links['ora:estimate'] != undefined) {
+				var primary_actions = [];
+				var secondary_actions = [];
+				if (task._links['ora:estimate']) {
 					$e = '';
 					for(var memberId in task.members) {
 						var info = task.members[memberId];
-						if(info.estimation != undefined && info.estimation.value != -2) {
-							$e = ' data-credits="' + info.estimation.value + '"';
+						if(info.estimation && info.estimation != -2) {
+							$e = ' data-credits="' + info.estimation + '"';
 						}
 					};
-					actions.push('<a data-href="' + task._links['ora:estimate']	 + '"' + $e + ' data-toggle="modal" data-target="#estimateTaskModal" class="btn btn-default">Estimate</a>');
+					primary_actions.push('<a data-href="' + task._links['ora:estimate']	 + '"' + $e + ' data-toggle="modal" data-target="#estimateTaskModal" class="btn btn-primary">Estimate</a>');
 				}
-				if (task._links['ora:join'] != undefined) {
-					actions.push('<a href="' + task._links['ora:join'] + '" class="btn btn-default" data-action="joinTask">Join</a>');
+				if (task._links['ora:complete']) {
+					if(task.status > that.utils.TASK_STATUS.get('COMPLETED')) {
+						secondary_actions.push('<a href="' + task._links['ora:complete'] + '" data-task="' + key + '" data-action="completeTask">Revert to completed</a>');
+					} else {
+						primary_actions.push('<a href="' + task._links['ora:complete'] + '" data-task="' + key + '" data-action="completeTask" class="btn btn-default btn-raised">Mark as completed</a>');
+					}
 				}
-				if (task._links['ora:unjoin'] != undefined) {
-					actions.push('<a href="' + task._links['ora:unjoin'] + '" data-action="unjoinTask" class="btn btn-default">Unjoin</a>');
+				if (task._links['ora:accept']) {
+					if(task.status > that.utils.TASK_STATUS.get('ACCEPTED')) {
+						secondary_actions.push('<a href="' + task._links['ora:accept'] + '" data-action="acceptTask">Revert to accepted</a>');
+					} else {
+						primary_actions.push('<a href="' + task._links['ora:accept'] + '" data-action="acceptTask" class="btn btn-default btn-raised">Mark as accepted</a>');
+					}
 				}
-				if (task._links['ora:assignShares'] != undefined) {
-					actions.push('<a data-href="' + task._links['ora:assignShares'] + '" data-task="' + key + '" data-toggle="modal" data-target="#assignSharesModal" class="btn btn-default">Assign share</a>');
+				if (task._links['ora:execute']) {
+					var label = task.status > that.utils.TASK_STATUS.get('ONGOING') ? 'Revert to ongoing' : 'Start';
+					if(task.status > that.utils.TASK_STATUS.get('ONGOING')) {
+						secondary_actions.push('<a href="' + task._links['ora:execute'] + '" data-action="executeTask">Revert to ongoing</a>');
+					} else {
+						primary_actions.push('<a href="' + task._links['ora:execute'] + '" data-action="executeTask" class="btn btn-default btn-raised">Start Idea</a>');
+					}
 				}
-				if (task._links['ora:edit'] != undefined) {
-					actions.push('<a data-href="' + task._links['ora:edit'] + '" data-subject="' + task.subject + '" data-toggle="modal" data-target="#editTaskModal" class="btn btn-default mdi-content-create"></a>');
+				if (task._links['ora:join']) {
+					primary_actions.push('<a href="' + task._links['ora:join'] + '" class="btn btn-default" data-action="joinTask">Join</a>');
 				}
-				if (task._links['ora:delete'] != undefined) {
-					actions.push('<a href="' + task._links['ora:delete'] + '" data-action="deleteTask" class="btn btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a>');
+				if (task._links['ora:unjoin']) {
+					secondary_actions.push('<a href="' + task._links['ora:unjoin'] + '" data-action="unjoinTask">Unjoin</a>');
+				}
+				if (task._links['ora:assignShares']) {
+					primary_actions.push('<a data-href="' + task._links['ora:assignShares'] + '" data-task="' + key + '" data-toggle="modal" data-target="#assignSharesModal" class="btn btn-default">Assign share</a>');
+				}
+				if (task._links['ora:edit']) {
+					secondary_actions.push('<a data-href="' + task._links['ora:edit'] + '" data-subject="' + task.subject + '" data-toggle="modal" data-target="#editTaskModal">Edit info</a>');
+				}
+				if (task._links['ora:delete']) {
+					secondary_actions.push('<a href="' + task._links['ora:delete'] + '" data-action="deleteTask">Permanently delete</a>');
+				}
+				if(task._links['ora:remindEstimation']){
+					secondary_actions.push('<a href="' + task._links['ora:remindEstimation'] + '" data-task="'+task.id+'"data-action="add-estimation">Send a reminder to estimate</a>');
 				}
 				
-				rv = that.renderTask(task);
-				if ( actions.length > 0 ) {
-					rv += '<ul class="task-actions"><li>' + actions.join('</li><li>') + '</li></ul>';
+				var rv = that.renderTask(task);
+				if ( secondary_actions.length > 0 ) {
+					var a = '<div class="dropdown btn-raised">';
+					a += '<button class="btn btn-default dropdown-toggle" type="button" id="moreMenu' + task.id + '" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">More <span class="caret"></span> </button>';
+					a += '<ul class="dropdown-menu" aria-labelledby="moreMenu' + task.id + '"><li>' + secondary_actions.join('</li><li>') + '</li></ul>';
+					a += '</div>';
+					primary_actions.push(a);
 				}
 
+				if ( primary_actions.length > 0 ) {
+					rv += '<ul class="task-actions"><li>' + primary_actions.join('</li><li>') + '</li></ul>';
+				}
 				container.append(
-					'<li class="panel panel-default">' +
-						'<div class="panel-heading">' + subject + '</div>' +
+					'<li id= "'+task.id+'" class="panel panel-default">' +
+						'<div class="panel-heading">' + subject + '<div class="stream-subject pull-right">' + task.stream.subject + '</div></div>' +
 						'<div class="panel-body">' + rv + '</div>' +
 					'</li>');
 			});
+			
+			if(this.data._links !== undefined && this.data._links["next"] !== undefined) {
+				var limit = this.getPageSize() + this.getNextPageSize();
+				var offset = this.getPageOffset();
+				container.append(
+					'<div class="text-center">' +
+							'<a rel="next" href="'+this.data._links["next"]["href"]+'?offset=' + offset + '&limit=' + limit + '" data-action="nextPage">More</a>' +
+					'</div>');
+			}
 		}
 	},
 	
@@ -500,44 +642,59 @@ TaskManagement.prototype = {
 			estimation = '<li>' + task.estimation + ' credits</li>';
 		}
 		
-		createdAt = new Date(Date.parse(task.createdAt));
+		var createdAt = new Date(Date.parse(task.createdAt));
 
-		rv = '<ul class="task-details">' +
+		var rv = '<ul class="task-details">' +
 				'<li>' + task.stream.subject + '</li>' +
-				'<li>Created at ' + createdAt.toLocaleString() + '</li>' +
-				'<li>' + this.statuses[task.status] + '</li>' +
-				estimation +
-			'</ul>';
+				'<li>Created at ' + createdAt.toLocaleString() + '</li>';
+		
+		if(task.acceptedAt){
+			acceptedAt = new Date(Date.parse(task.acceptedAt));
+			rv += '<li>Accepted at ' + acceptedAt.toLocaleString() + '</li>';
+		}
+		
+		rv += '<li>' + this.utils.statuses[task.status];
+		
+		if(task.status == this.utils.TASK_STATUS.get('IDEA')){
+			return rv;
+		}
+		
+		if(task.status == this.utils.TASK_STATUS.get('ACCEPTED')){
+			rv += this.getLabelForAssignShares(task.daysRemainingToAssignShares);
+		}
+		
+		rv += '</li>' + estimation + '</ul>';
 		
 		rv += '<table class="table table-striped"><caption>Members</caption>' +
 				'<thead><tr><th></th><th style="text-align: right">Estimate</th>';
-		$.map(task.members, function(member, memberId) {
-			rv += '<th style="text-align: center">' + member.firstname.charAt(0) + member.lastname.charAt(0) + '</th>';
-		});
+		//$.map(task.members, function(member, memberId) {
+		//	rv += '<th style="text-align: center">' + member.firstname.charAt(0) + member.lastname.charAt(0) + '</th>';
+		//});
 		rv += '<th style="text-align: center">Avg</th><th style="text-align: center">&Delta;</th></tr></thead><tbody>';
 		$.map(task.members, function(member, memberId) {
 			rv += '<tr><th><img src="' + member.picture + '" style="max-width: 16px; max-height: 16px;" class="img-circle"> ' + member.firstname + ' ' + member.lastname + '</th>';
 			rv += '<td style="text-align: right">'
-			if(member.estimation != null) {
-				switch(member.estimation.value) {
-					case -2 : 
-						rv += '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>';
-						break;
-					case -1 :
-						rv += 'Skipped';
-						break;
-					default :
-						rv += member.estimation.value.toString();
-				}
+			switch(member.estimation) {
+				case undefined:
+				case null:
+					break;
+				case -2 :
+					rv += '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>';
+					break;
+				case -1 :
+					rv += 'Skipped';
+					break;
+				default :
+					rv += member.estimation.toString();
 			}
 			rv += '</td>';
-			$.map(task.members, function(m) {
-				rv += '<td style="text-align: center">';
-				if(m.shares != undefined) {
-					rv += m.shares[memberId].value != null ? (m.shares[memberId].value * 100).toFixed(2) + '%' : 'Skipped';
-				}
-				rv += '</td>';
-			});
+			//$.map(task.members, function(m) {
+			//	rv += '<td style="text-align: center">';
+			//	if(m.shares != undefined) {
+			//		rv += m.shares[memberId].value != null ? (m.shares[memberId].value * 100).toFixed(2) + '%' : 'Skipped';
+			//	}
+			//	rv += '</td>';
+			//});
 			rv += '<td style="text-align: center">';
 			if(member.share != undefined && member.share != null) {
 				rv += (member.share * 100).toFixed(2) + '%';
@@ -555,66 +712,68 @@ TaskManagement.prototype = {
 	},
 
 	renderTask : function(task) {
+		var count = 0, tot = 0;
+		$.map(task.members, function(object, key) {
+			tot++;
+			if (object.estimation != null) {
+				count++;
+			}
+		});
 		switch(task.estimation) {
 		case undefined:
 			estimation = '';
 			break;
 		case -1:
-			estimation = '<li>Estimation skipped</li>';
+			estimation = '<li>Estimation skipped (' + count + ' members of ' + tot + ' have estimated)</li>';
 			break;
 		case null:
-			estimation = '<li>Estimation in progress</li>';
+			estimation = '<li>Estimation in progress (' + count + ' members of ' + tot + ' have estimated)</li>';
 			break;
 		default:
-			estimation = '<li>' + task.estimation + ' credits</li>';
+			estimation = '<li>' + task.estimation + ' credits (' + count + ' members of ' + tot + ' have estimated)</li>';
 		}
 		
 		createdAt = new Date(Date.parse(task.createdAt));
 
-		rv = '<ul class="task-details">' + 
-				'<li>Created at ' + createdAt.toLocaleString() + '</li>' +
-				'<li>' + this.statuses[task.status] + '</li>' +
-				estimation +
-				'<li>Members:' +
-					'<ul>' + $.map(task.members, function(object, key) {
-							rv = '<li><span class="task-member">' + object.firstname + " " + object.lastname;
-							if(object.estimation != null){
-								rv += ' <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>';
-							}
-							if(object.share != undefined) {
-								rv += ' share: ' + (object.share * 100).toFixed(2) + '%';
-								if(object.delta != null) {
-									rv += ' (' + (object.delta * 100).toFixed(2) + ')';
-								}
-							}
-							return rv + '</span></li>';
-						}).join('') +
-					'</ul>' +
-				'</li>' +
+		var rv = '<ul class="task-details">' +
+				'<li>Created at ' + createdAt.toLocaleString() + '</li>';
+		
+		if(task.acceptedAt) {
+			acceptedAt = new Date(Date.parse(task.acceptedAt));
+			rv += '<li>Accepted at ' + acceptedAt.toLocaleString() + '</li>';
+		}
+		
+		rv += '<li>' + this.utils.statuses[task.status];
+		
+		if(task.status == this.utils.TASK_STATUS.get('ACCEPTED')){
+			rv += this.getLabelForAssignShares(task.daysRemainingToAssignShares);
+		}
+
+		rv += '</li>' + estimation + '</li>' +
 			'</ul>';
 		return rv;
 	},
 	
 	createNewTask: function(e)
 	{
-		var url = $(e.target).attr('action');
+		var modal = $(e.delegateTarget);
+		var form  = $(e.target);
 
 		var that = this;
 		
 		$.ajax({
-			url: url,
+			url: form.attr('action'),
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
-			data: $('#createTaskModal form').serialize(),
-			dataType: 'json',
-			complete: function(xhr, textStatus) {
-				m = $('#createTaskModal');
-				if (xhr.status === 201) {
-					m.modal('hide');
-					that.listTasks();
-				}
-				else {
-					that.show(m, 'danger', 'An unknown error "' + xhr.status + '" occurred while trying to create the task');
-				}
+			data: form.serialize(),
+			success: function() {
+				modal.modal('hide');
+				that.listTasks();
+			},
+			error: function(jqHXR, textStatus, errorThrown) {
+				that.show(modal, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to create the task');
 			}
 		});
 	},
@@ -622,20 +781,24 @@ TaskManagement.prototype = {
 	createNewStream: function(e)
 	{
 		var modal = $(e.delegateTarget);
-		var form = $(e.target)
+		var form  = $(e.target);
 
 		var that = this;
 		
 		$.ajax({
 			url: form.attr('action'),
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data: form.serialize(),
 			success: function() {
 				modal.modal('hide');
+				that.show($('#content'), 'success', 'You have successfully created a stream');
 				that.updateStreams();
 			},
 			error: function(jqHXR, textStatus, errorThrown) {
-				that.show(m, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to create the stream');
+				that.show(modal, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to create the stream');
 			}
 		});
 	},
@@ -648,6 +811,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: form.attr('action'),
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data: {value:-1},
 			success: function() {
@@ -679,6 +845,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: form.attr('action'),
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data: form.serialize(),
 			success: function() {
@@ -710,6 +879,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: form.attr('action'),
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data: {},
 			success: function() {
@@ -717,7 +889,7 @@ TaskManagement.prototype = {
 				that.listTasks();
 			},
 			statusCode: {
-				400 : function(jqHXR, textStatus, errorThrown){
+				422 : function(jqHXR, textStatus, errorThrown){
 					json = $.parseJSON(jqHXR.responseText);
 					if(json.description != undefined) {
 						that.show(modal, 'danger', json.description);
@@ -741,6 +913,9 @@ TaskManagement.prototype = {
 		
 		$.ajax({
 			url: form.attr('action'),
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
 			method: 'POST',
 			data: form.serialize(),
 			success: function() {
@@ -748,7 +923,7 @@ TaskManagement.prototype = {
 				that.listTasks();
 			},
 			statusCode: {
-				400 : function(jqHXR, textStatus, errorThrown){
+				422 : function(jqHXR, textStatus, errorThrown){
 					json = $.parseJSON(jqHXR.responseText);
 					if(json.description != undefined) {
 						that.show(modal, 'danger', json.description);
@@ -770,39 +945,104 @@ TaskManagement.prototype = {
 		alertDiv.addClass('alert alert-' + level);
 		alertDiv.text(message);
 		alertDiv.show();
-	}
+	},
 	
+	sendReminder: function(e){
+		var modal = $(e.delegateTarget);
+		var url = $(e.target).attr('href');
+		var taskId = $(e.target).attr('data-task');
+		var id = $(e.target).attr('data-action');
+		
+		$.ajax({
+			url: $(e.target).attr('href'),
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
+			method: 'POST',
+			data: {taskId:$(e.target).attr('data-task')},
+			success: function() {
+				that.listTasks();
+			},
+			statusCode: {
+				400 : function(jqHXR, textStatus, errorThrown){
+					json = $.parseJSON(jqHXR.responseText);
+					if(json.description != undefined) {
+						that.show(modal, 'danger', json.description);
+					}
+					if(json.errors != undefined) {
+						that.show(modal, 'danger', json.errors[0].message);
+					}
+				}
+			},
+			error: function(jqHXR, textStatus, errorThrown) {
+				that.show(modal, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to send reminder');
+			}
+		});
+
+	},
+
+	getLabelForAssignShares: function(daysLeft){
+		
+		if(daysLeft !== null){
+			if(daysLeft == 1){
+				return ": "+daysLeft + " day left";
+			}else if(daysLeft == 0){
+				return ": less than a day";
+			}
+			return ": "+daysLeft + " days left";
+		}
+		return "";
+	},
+	
+	listMoreTasks: function(e){
+		var url = $(e.target).attr('href');
+		if(this.getEndOn()){
+			url += "&endOn="+this.getEndOn();
+		}
+		if(this.getStartOn()){
+			url += "&startOn="+this.getStartOn();
+		}
+		if(this.getMemberEmail()){
+			url += "&memberEmail="+this.getMemberEmail();
+		}
+		var that = this;
+		$.ajax({
+			url: url,
+			headers: {
+				'GOOGLE-JWT': sessionStorage.token
+			},
+			method: 'GET',
+			beforeSend: that.pollingObject.stopPolling.bind(that.pollingObject)(),
+		}).done(function(json){
+			that.setPageSize(json.count);
+			that.onListTasksCompleted.bind(that, json)();
+		}).always(function(){
+			that.pollingObject.startPolling.bind(that.pollingObject)();
+		});
+	},
+	
+	setupPollingObject: function(frequency, pollingFunction){
+		
+		var that = this;
+		return {
+			pollID: 0,
+			startPolling: function(){
+				this.pollID = setInterval(pollingFunction.bind(that), frequency);
+			},
+			stopPolling: function(){
+				return clearInterval(this.pollID);
+			}
+		};
+	}
 };
 
-var TASK_STATUS = (function() {
-	var labels = {
-		0: 'Idea',
-		10: 'Open',
-		20: 'Ongoing',
-		30: 'Completed',
-		40: 'Accepted (shares assignment in progress)',
-		50: 'Closed'
-	};
-	
-	var values = {
-		'IDEA':			0,
-		'OPEN':			10,
-		'ONGOING':		20,
-		'COMPLETED':	30,
-		'ACCEPTED':		40,
-		'CLOSED':		50
-	}
-	
-	return {
-		get: function(name) { return values[name]; },
-		label: function(name) { return labels[name]; }
-	};
-})();
-
 $().ready(function(e){
+	var googleID = sessionStorage.googleid;
+	$('head').append( '<meta name="google-signin-client_id" content="'+googleID+'">' );
 	$('#content div.alert').hide();
 	$('#firstLevelMenu li').eq(0).addClass('active');
-	collaboration = new TaskManagement();
+	collaboration = new TaskManagement(taskUtils);
 	collaboration.listTasks();
 	collaboration.updateStreams();
+	collaboration.pollingObject.startPolling();
 });

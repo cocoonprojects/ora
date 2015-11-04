@@ -10,11 +10,13 @@ return array(
 		'ProophEventStoreModule',
 		'ZendOAuth2',
 		'AssetManager',
+		'ZFX',
+		'Application',
 		'Accounting',
 		'TaskManagement',
-		'Application',
-		'BjyAuthorize',
-		'Kanbanize'
+		'People',
+		'Kanbanize',
+		'AcMailer'
 	),
 
 	// These are various options for the listeners attached to the ModuleManager
@@ -34,5 +36,5 @@ return array(
 		'config_glob_paths' => array(
 			__DIR__.'/autoload/{,*.}{global,'.$env.',local}.php',
 		),
-	),		
+	),
 );

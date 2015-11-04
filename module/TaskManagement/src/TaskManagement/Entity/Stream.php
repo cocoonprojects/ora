@@ -4,7 +4,7 @@ namespace TaskManagement\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
 use Application\Entity\EditableEntity;
-use Application\Entity\Organization;
+use People\Entity\Organization;
 
 /**
  * @ORM\Entity @ORM\Table(name="streams")
@@ -20,11 +20,16 @@ class Stream extends EditableEntity
 	private $subject;
 	
 	/**
-	 * @ORM\ManyToOne(targetEntity="Application\Entity\Organization")
+	 * @ORM\ManyToOne(targetEntity="People\Entity\Organization")
 	 * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", nullable=false)
 	 * @var Organization
 	 */
-	private $organization;	
+	private $organization;
+
+	public function __construct($id, Organization $organization) {
+		parent::__construct($id);
+		$this->organization = $organization;
+	}
 	
 	public function getSubject() {
 		return $this->subject;
@@ -37,9 +42,4 @@ class Stream extends EditableEntity
 	public function getOrganization() {
 		return $this->organization;
 	}
-	
-	public function setOrganization(Organization $organization) {
-		$this->organization = $organization;
-		return $this;
-	}	
 }

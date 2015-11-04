@@ -1,21 +1,22 @@
 <?php
 namespace Application;
 
+use Application\Authentication\OAuth2\LoadLocalProfileListener;
+use Application\Controller\AuthController;
+use Application\Controller\MembershipsController;
+use Application\Service\DomainEventDispatcher;
+use Application\Service\EventSourcingUserService;
+use Zend\Authentication\AuthenticationService;
+use Zend\Authentication\Storage\NonPersistent;
+use Zend\Mvc\Application;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
-use Zend\Log\Writer\Stream;
-use Zend\Log\Logger;
-use Zend\Authentication\AuthenticationService;
-use Prooph\EventStore\PersistenceEvent\PostCommitEvent;
-use Doctrine\ORM\EntityManager;
-use Application\Controller\AuthController;
-use Application\Controller\OrganizationsController;
-use Application\Controller\MembershipsController;
-use Application\Controller\Plugin\EventStoreTransactionPlugin;
-use Application\Service\IdentityRolesProvider;
-use Application\Service\OrganizationCommandsListener;
-use Application\Service\EventSourcingUserService;
-use Application\Service\EventSourcingOrganizationService;
+use ZFX\Acl\Controller\Plugin\IsAllowed;
+use ZFX\Authentication\GoogleJWTAdapter;
+use ZFX\Authentication\JWTAdapter;
+use ZFX\Authentication\JWTBuilder;
+use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
+
 
 class Module
 {
@@ -24,39 +25,74 @@ class Module
 		$application = $e->getApplication();
 		$eventManager = $application->getEventManager();
 		$serviceManager = $application->getServiceManager();
-		
+		//prepends the module name to the requested controller name. That's useful if you want to use controller short names in routing
 		$moduleRouteListener = new ModuleRouteListener();
-		$moduleRouteListener->attach($eventManager);		
+		$moduleRouteListener->attach($eventManager);
+		
+		$eventManager->attach(MvcEvent::EVENT_DISPATCH_ERROR, function($event) use($serviceManager) {
+			$error  = $event->getError();
+			if ($error == Application::ERROR_ROUTER_NO_MATCH) {
+				$response = $event->getResponse();
+				$response->setStatusCode(404);
+				$response->send();
+			}
+		}, 100);
+
+		$request = $e->getRequest();
+ 		$eventManager->attach(MvcEvent::EVENT_DISPATCH, function($event) use($serviceManager, $request) {
+			if($token = $request->getHeaders('ORA-JWT')) {
+				$adapter = $serviceManager->get('Application\JWTAdapter');
+				$adapter->setToken($token->getFieldValue());
+				$authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
+				$result = $authService->authenticate($adapter);
+			} elseif($token = $request->getHeaders('GOOGLE-JWT')) {
+				$client = $serviceManager->get('Application\Service\GoogleAPIClient');
+				$adapter = new GoogleJWTAdapter($client);
+				$adapter->setToken($token->getFieldValue());
+
+				$authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
+				$result = $authService->authenticate($adapter);
+			}
+ 		}, 100);
 	}
 	
 	public function getControllerConfig() 
 	{
 		return array(
 			'invokables' => array(
-				'Application\Controller\Index' => 'Application\Controller\IndexController',
+				'Application\Controller\Index' => 'Application\Controller\IndexController'
 			),
 			'factories' => array(
 				'Application\Controller\Auth'  => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$resolver = $locator->get('Application\Service\AdapterResolver');
 					$authService = $locator->get('Zend\Authentication\AuthenticationService');
-					$userService = $locator->get('Application\UserService');
-					$controller = new AuthController($authService, $resolver);
-					$controller->setUserService($userService);
-					return $controller;
-				},
-				'Application\Controller\Organizations' => function ($sm) {
-					$locator = $sm->getServiceLocator();
-					$orgService = $locator->get('Application\OrganizationService');
-					$controller = new OrganizationsController($orgService);
+					$config = $locator->get('Config');
+					if(!isset($config['jwt'])) {
+						throw new \Exception('JWT config not found');
+					}
+					$jwt = $config['jwt'];
+					if(!isset($jwt['private-key'])) {
+						throw new \Exception('JWT private-key config not found');
+					}
+					if(!($privateKey = openssl_pkey_get_private($jwt['private-key']))) {
+						throw new \Exception('Error loading private key ' . $jwt['private-key'] . ':' . openssl_error_string());
+					}
+					$controller = new AuthController($authService, $resolver, $privateKey);
+					if(isset($jwt['time-to-live'])) {
+						$controller->setTimeToLive($jwt['time-to-live']);
+					}
+					if(isset($jwt['algorithm'])) {
+						$controller->setAlgorithm($jwt['algorithm']);
+					}
 					return $controller;
 				},
 				'Application\Controller\Memberships' => function ($sm) {
 					$locator = $sm->getServiceLocator();
-					$orgService = $locator->get('Application\OrganizationService');
+					$orgService = $locator->get('People\OrganizationService');
 					$controller = new MembershipsController($orgService);
 					return $controller;
-				}
+				},
 			)
 		);
 	}
@@ -70,6 +106,11 @@ class Module
 					$transactionManager = $serviceLocator->get('prooph.event_store');
 					return new EventStoreTransactionPlugin($transactionManager);
 				},
+				'isAllowed' => function ($pluginManager) {
+					$serviceLocator = $pluginManager->getServiceLocator();
+					$acl = $serviceLocator->get('Application\Service\Acl');
+					return new IsAllowed($acl);
+				},
 			),
 		);
 	}
@@ -78,39 +119,59 @@ class Module
 	{
 		return array(
 			'invokables' => array(
-				'Zend\Authentication\AuthenticationService' => AuthenticationService::class,
+				'Application\DomainEventDispatcher' => DomainEventDispatcher::class
 			),
 			'factories' => array(
-				'Zend\Log' => function ($sl) {
-					$writer = new Stream(__DIR__ . '/../../data/logs/application.log');
-					$logger = new Logger();
-					$logger->addWriter($writer);
-					return $logger;
+				'Zend\Authentication\AuthenticationService' => function () {
+					$rv = new AuthenticationService();
+					$rv->setStorage(new NonPersistent());
+					return $rv;
 				},
 				'Application\Service\AdapterResolver' => 'Application\Service\OAuth2AdapterResolverFactory',
-				'Application\Service\IdentityRolesProvider' => function($serviceLocator){
-					$authService = $serviceLocator->get('Zend\Authentication\AuthenticationService');
-					$provider = new IdentityRolesProvider($authService);
-					return $provider;
-				},
-				'Authorization\CurrentUserProvider' => function($serviceLocator){
-					$authService = $serviceLocator->get('Zend\Authentication\AuthenticationService');
-					$loggedUser = $authService->getIdentity()['user'];
-					return $loggedUser;
-	        	},	
-				'Application\OrganizationService' => function ($serviceLocator) {
-					$eventStore = $serviceLocator->get('prooph.event_store');
-					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-					return new EventSourcingOrganizationService($eventStore, $entityManager);
-				},
+				'Application\Service\Acl' => 'Application\Service\AclFactory',
 				'Application\UserService' => function ($serviceLocator) {
 					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
 					return new EventSourcingUserService($entityManager);
 				},
-				'Application\OrganizationCommandsListener' => function ($serviceLocator) {
-					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
-					return new OrganizationCommandsListener($entityManager);
+				'Application\LoadLocalProfileListener' => function($serviceLocator) {
+					$userService = $serviceLocator->get('Application\UserService');
+					$google = $serviceLocator->get('Application\Service\GoogleAPIClient');
+					return new LoadLocalProfileListener($userService, $google);
 				},
+				'Application\Service\GoogleAPIClient' => function ($serviceLocator) {
+					$config = $serviceLocator->get('Config');
+					if(!isset($config['zendoauth2'])) {
+						throw new \Exception('ZendOAuth2 config not found');
+					}
+					if(!isset($config['zendoauth2']['google'])) {
+						throw new \Exception('ZendOAuth2/Google config not found');
+					}
+					$googleConfig = $config['zendoauth2']['google'];
+					$rv = new \Google_Client();
+					$rv->setClientId($googleConfig['client_id']);
+					$rv->setClientSecret($googleConfig['client_secret']);
+					$rv->setRedirectUri($googleConfig['redirect_uri']);
+					$rv->setApplicationName('O.R.A. Platform');
+					return $rv;
+				},
+				'Application\JWTAdapter' => function($serviceLocator) {
+					$config = $serviceLocator->get('Config');
+					if(!isset($config['jwt'])) {
+						throw new \Exception('JWT config not found');
+					}
+					$jwt = $config['jwt'];
+					if(!isset($jwt['public-key'])) {
+						throw new \Exception('JWT public-key config not found');
+					}
+					if(!($publicKey = openssl_pkey_get_public($jwt['public-key']))) {
+						throw new \Exception('Error loading public key ' . $jwt['public-key'] . ':' . openssl_error_string());
+					}
+					$rv = new JWTAdapter($publicKey);
+					if(isset($jwt['algorithm'])) {
+						$rv->setAlgorithm($jwt['algorithm']);
+					}
+					return $rv;
+				}
 			),
 		);
 	}
@@ -119,7 +180,7 @@ class Module
 	{
 		return array(
 			'invokables' => array(
-				'LoginPopupHelper' => 'Application\View\Helper\LoginPopupHelper',
+				'LoginHelper' => 'Application\View\Helper\LoginHelper',
 			),
 		);
 	}
@@ -138,5 +199,5 @@ class Module
 				),
 			),
 		);
-	}
+	}	
 }

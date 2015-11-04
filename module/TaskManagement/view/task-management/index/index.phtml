@@ -1,28 +1,81 @@
 <?php
-	$this->headScript()->appendFile($this->basePath() . '/js/task-management.js');
-	$this->headStyle()->appendStyle('ul.task-details { list-style: none; margin:0; padding: 0; }');
-	$this->headStyle()->appendStyle('ul.task-actions { list-style: none; margin:0; padding: 0; }');
-	$this->headStyle()->appendStyle('ul.task-actions li { display: inline-block; }');
-	$this->headStyle()->appendStyle('.panel-heading a { cursor: pointer; }');
-	?>
-<div style="position: fixed; bottom: 2em; right: 2em">
-	<a class="btn btn-primary btn-fab btn-raised mdi-content-add" style="display:none" data-toggle="modal" data-target="#createTaskModal" id="createTaskBtn"></a>
+$this->headScript ()->appendFile ( $this->basePath () . '/js/task-utils.js' );
+$this->headScript ()->appendFile ( $this->basePath () . '/js/task-management.js' );
+$this->headStyle ()->appendStyle ( 'ul.task-details { list-style: none; margin:0; padding: 0; }' );
+$this->headStyle ()->appendStyle ( 'ul.task-actions { list-style: none; margin:0; padding: 0; }' );
+$this->headStyle ()->appendStyle ( 'ul.task-actions li { display: inline-block; }' );
+$this->headStyle ()->appendStyle ( '.panel-heading a { cursor: pointer; }' );
+?>
+<div style="position: fixed; bottom: 2em; right: 2em" class="dropup">
+	<a class="btn btn-primary btn-fab btn-raised mdi-content-add"
+		style="display: none" data-toggle="dropdown" role="button"
+		aria-expanded="false" id="createTaskBtn"></a>
+	<ul class="dropdown-menu" role="menu" style="left: -200%;">
+		<li><a href="#" data-toggle="modal" data-target="#createStreamModal">New
+				Stream</a></li>
+		<li><a href="#" data-toggle="modal" data-target="#createTaskModal">New
+				Task</a></li>
+	</ul>
 </div>
 <div class="container" id="content">
 	<div class="page-header">
 		<h1>Items</h1>
+		<div class="row">
+			<form class="form-inline" id="tasksFilter">
+				<div class="form-group col-md-2">
+					<label for="startOn" class="control-label">From</label> <input
+						type="text" class="form-control" id="startOn"
+						placeholder="gg/mm/aaaa">
+				</div>
+				<div class="form-group col-md-2">
+					<label for="endOn" class="control-label">To</label> <input
+						type="text" class="form-control" id="endOn"
+						placeholder="gg/mm/aaaa">
+				</div>
+				<div class="form-group col-md-2">
+					<label for="memberEmail" class="control-label">Member</label> <input
+						type="email" class="form-control" id="memberEmail"
+						placeholder="example@ora.com">
+				</div>
+				<div class="col-md-2">
+					<label for="statusFilter" class="control-label" style="margin-bottom: 6px;">Status</label>
+					<select class="form-control" id="statusFilter">
+						<option value=""></option>
+						<option value="0">Idea</option>
+						<option value="20">OnGoing</option>
+						<option value="30">Completed</option>
+						<option value="40">Accepted</option>
+						<option value="50">Closed</option>
+					</select>
+				</div>
+				<div class="col-md-4">
+					<button type="submit" class="btn btn-primary btn-sm">Filter</button>
+				</div>
+			</form>
+
+		</div>
 	</div>
 	<div class="alert" role="alert">
-		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-		  <span aria-hidden="true">&times;</span>
+		<button type="button" class="close" data-dismiss="alert"
+			aria-label="Close">
+			<span aria-hidden="true">&times;</span>
 		</button>
 	</div>
 	<ul id="tasks" style="list-style: none; padding: 0; margin: 0">
 	</ul>
 </div>
-<?php echo $this->partial('task-management/index/create-task-modal.phtml') ?>
-<?php echo $this->partial('task-management/index/edit-task-modal.phtml') ?>
-<?php echo $this->partial('task-management/index/estimate-task-modal.phtml') ?>
-<?php echo $this->partial('task-management/index/assign-shares-modal.phtml') ?>
-<?php echo $this->partial('task-management/index/task-detail-modal.phtml') ?>
+<script>
+function onLoad() {
+	gapi.load('auth2', function() {
+    gapi.auth2.init();
+	});
+}
+</script>
+<script src="https://apis.google.com/js/platform.js?onload=onLoad" async
+	defer></script>
+<?php echo $this->partial('task-management/index/create-task-modal.phtml')?>
+<?php echo $this->partial('task-management/index/edit-task-modal.phtml')?>
+<?php echo $this->partial('task-management/index/estimate-task-modal.phtml')?>
+<?php echo $this->partial('task-management/index/assign-shares-modal.phtml')?>
+<?php echo $this->partial('task-management/index/task-detail-modal.phtml')?>
 <?php echo $this->partial('task-management/index/create-stream-modal.phtml') ?>

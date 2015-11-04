@@ -2,10 +2,9 @@
 
 namespace TaskManagement\Service;
 
-use Application\Organization;
 use Application\Entity\User;
-use TaskManagement\Entity\Stream as ReadModelStream;
-use TaskManagement\Stream;
+use People\Entity\Organization as ReadModelOrganization;
+use People\Organization;
 
 interface StreamService
 {
@@ -30,9 +29,8 @@ interface StreamService
 	 */
 	public function findStream($id);
 	/**
-	 * 
-	 * @param User $user
+	 * @param ReadModelOrganization $organization
 	 * @return ReadModelStream[]
 	 */
-	public function findStreams(User $user);
+	public function findStreams(ReadModelOrganization $organization);
 } 

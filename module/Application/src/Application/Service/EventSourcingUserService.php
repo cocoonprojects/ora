@@ -5,7 +5,7 @@ use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
 use Doctrine\ORM\EntityManager;
-use Application\Organization;
+use People\Organization;
 use Application\Entity\User;
 
 class EventSourcingUserService implements UserService, EventManagerAwareInterface
@@ -29,14 +29,11 @@ class EventSourcingUserService implements UserService, EventManagerAwareInterfac
 	public function subscribeUser($userInfo)
 	{
 		$user = $this->create($userInfo, User::ROLE_USER);
-		$this->entityManager->persist($user);			
-		$this->entityManager->flush($user);
-		$this->getEventManager()->trigger(User::EVENT_CREATED, $user);
-		return $user;			
+		return $user;
 	}
-		
+
 	public function create($userInfo, $role, User $createdBy = null)
-	{	
+	{
 		$user = User::create($createdBy);
 		$user->setEmail($userInfo['email']);
 		$user->setLastname($userInfo['family_name']);
@@ -45,6 +42,9 @@ class EventSourcingUserService implements UserService, EventManagerAwareInterfac
 			$user->setPicture($userInfo['picture']);
 		}
 		$user->setRole($role);
+		$this->entityManager->persist($user);
+		$this->entityManager->flush($user);
+		$this->getEventManager()->trigger(User::EVENT_CREATED, $user);
 		return $user;
 	}
 
@@ -53,7 +53,7 @@ class EventSourcingUserService implements UserService, EventManagerAwareInterfac
 		$user = $this->entityManager
 					 ->getRepository(User::class)
 					 ->findOneBy(array("id" => $id));
-		return $user;		
+		return $user;
 	}
 	
 	public function findUserByEmail($email)
@@ -61,7 +61,7 @@ class EventSourcingUserService implements UserService, EventManagerAwareInterfac
 		$user = $this->entityManager
 					->getRepository(User::class)
 					->findOneBy(array("email" => $email));
-		return $user;		
+		return $user;
 	}	
 
 	public function setEventManager(EventManagerInterface $events)

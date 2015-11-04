@@ -14,6 +14,7 @@ abstract class EditableEntity extends DomainEntity {
 	/**
 	 * @ORM\ManyToOne(targetEntity="Application\Entity\User")
 	 * @ORM\JoinColumn(name="mostRecentEditBy_id", referencedColumnName="id", nullable=TRUE)
+	 * @var BasicUser
 	 */
 	protected $mostRecentEditBy;
 	/**
@@ -21,12 +22,15 @@ abstract class EditableEntity extends DomainEntity {
 	 * @return \DateTime
 	 */
 	public function getMostRecentEditAt() {
+		if(is_null($this->mostRecentEditAt)) {
+			$this->mostRecentEditAt = $this->getCreatedAt();
+		}
 		return $this->mostRecentEditAt;
 	}
 	/**
 	 * 
 	 * @param \DateTime $when
-	 * @return EditableEntity
+	 * @return $this
 	 */
 	public function setMostRecentEditAt(\DateTime $when) {
 		$this->mostRecentEditAt = $when;
@@ -34,17 +38,17 @@ abstract class EditableEntity extends DomainEntity {
 	}
 	/**
 	 * 
-	 * @return User
+	 * @return BasicUser
 	 */
 	public function getMostRecentEditBy() {
 		return $this->mostRecentEditBy;
 	}
 	/**
 	 * 
-	 * @param User $user
-	 * @return EditableEntity
+	 * @param BasicUser $user
+	 * @return $this
 	 */
-	public function setMostRecentEditBy(User $user) {
+	public function setMostRecentEditBy(BasicUser $user) {
 		$this->mostRecentEditBy = $user;
 		return $this;
 	}

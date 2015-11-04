@@ -2,109 +2,83 @@
 
 namespace Application\Entity;
 
-use Zend\Permissions\Acl\Role\RoleInterface;
-use Doctrine\ORM\Mapping AS ORM;
+use Application\InvalidArgumentException;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
+use People\Entity\Organization as ReadModelOrganization;
+use People\Entity\OrganizationMembership;
+use People\Organization;
 use Rhumsaa\Uuid\Uuid;
-use BjyAuthorize\Provider\Identity\ProviderInterface;	
-
+use Zend\Permissions\Acl\Role\RoleInterface;
+use Zend\Permissions\Acl\Resource\ResourceInterface;
 
 /**
- * @ORM\Entity @ORM\Table(name="users")
+ * @ORM\Entity
+ * @ORM\Table(name="users")
  *
  */
-class User implements ProviderInterface, RoleInterface
-{	   
+class User extends BasicUser implements RoleInterface , ResourceInterface
+{
 	CONST STATUS_ACTIVE = 1;
 	CONST ROLE_ADMIN = 'admin';
 	CONST ROLE_GUEST = 'guest';
 	CONST ROLE_USER = 'user';
+	CONST ROLE_SYSTEM = 'system';
+	
+	CONST SYSTEM_USER = '00000000-0000-0000-0000-000000000000';
 	
 	CONST EVENT_CREATED = "User.Created";
 
-	private static $roles=[ 
-		self::ROLE_GUEST => [], 
-		self::ROLE_USER => [
-			'children' => [
-				self::ROLE_ADMIN => [],
-			 ], 
-		]
-	];
-	
-	/**
-	 * @ORM\Id @ORM\Column(type="string") 
-	 * @var string
-	 */
-	protected $id;
-	
 	/**
 	 * @ORM\Column(type="datetime")
-	 * @var DateTime
+	 * @var \DateTime
 	 */
 	protected $createdAt;
-	
 	/**
 	 * @ORM\ManyToOne(targetEntity="User")
 	 * @ORM\JoinColumn(name="createdBy_id", referencedColumnName="id", nullable=TRUE)
+	 * @var BasicUser
 	 */
 	protected $createdBy;
-	
 	/**
 	 * @ORM\Column(type="datetime")
-	 * @var datetime
+	 * @var \DateTime
 	 */
 	protected $mostRecentEditAt;
-	
 	/**
 	 * @ORM\ManyToOne(targetEntity="User")
 	 * @ORM\JoinColumn(name="mostRecentEditBy_id", referencedColumnName="id", nullable=TRUE)
+	 * @var BasicUser
 	 */
 	protected $mostRecentEditBy;
-	
-	/**
-	 * @ORM\Column(type="string", length=100, nullable=TRUE)
-	 * @var string
-	 */
-	private $firstname;
-
-	/**
-	 * @ORM\Column(type="string", length=100, nullable=TRUE)
-	 * @var string
-	 */
-	private $lastname;
-
 	/**
 	 * @ORM\Column(type="string", length=200, unique=TRUE)
 	 * @var string
 	 */
 	private $email;
-	
-	/**
-	 * @ORM\Column(type="integer")
-	 * @var int
-	 */
-	private $status;
-	
 	/**
 	 * @ORM\Column(type="string", nullable=TRUE)
 	 * @var string
 	 */
 	private $picture;
-	
 	/**
-	 * @ORM\OneToMany(targetEntity="OrganizationMembership", mappedBy="member", indexBy="organization_id", fetch="EAGER")
+	 * @ORM\Column(type="integer")
+	 * @var int
+	 */
+	private $status;
+	/**
+	 * @ORM\OneToMany(targetEntity="People\Entity\OrganizationMembership", mappedBy="member", indexBy="organization_id", cascade={"persist"})
 	 * @var OrganizationMembership[]
 	 */
 	private $memberships;
-
 	/**
 	 * @ORM\Column(type="string")
 	 * @var string 
 	 */
-	private $role;
+	private $role = self::ROLE_USER;
 
-	public function __construct(){
-		$this->memberships = new ArrayCollection();		  
+	private function __construct() {
+		$this->memberships = new ArrayCollection();
 	}
 	
 	public static function create(User $createdBy = null) {
@@ -117,98 +91,114 @@ class User implements ProviderInterface, RoleInterface
 		$rv->mostRecentEditBy = $rv->createdBy;
 		return $rv;
 	}
-	
-	public function addOrganizationMembership($membership){
-		$this->memberships->add($membership);
-	}
-	
-	public function getId() {
-		return $this->id;
-	}
-	
+
+	/**
+	 * @return \DateTime
+	 */
 	public function getCreatedAt() {
 		return $this->createdAt;
 	}
-	
+
+	/**
+	 * @param \DateTime $when
+	 * @return $this
+	 */
 	public function setCreatedAt(\DateTime $when) {
 		$this->createdAt = $when;
-		return $this->createdAt;
+		return $this;
 	}
-	
+
+	/**
+	 * @return BasicUser
+	 */
 	public function getCreatedBy()
 	{
 		return $this->createdBy;
 	}
-	
-	public function setCreatedBy(User $user) {
+
+	/**
+	 * @param BasicUser $user
+	 * @return $this
+	 */
+	public function setCreatedBy(BasicUser $user) {
 		$this->createdBy = $user;
-		return $this->createdBy;
+		return $this;
 	}
 
+	/**
+	 * @return \DateTime
+	 */
 	public function getMostRecentEditAt() {
 		return $this->mostRecentEditAt;
 	}
-	
+
+	/**
+	 * @param \DateTime $when
+	 * @return $this
+	 */
 	public function setMostRecentEditAt(\DateTime $when) {
 		$this->mostRecentEditAt = $when;
-		return $this->mostRecentEditAt;
+		return $this;
 	}
-	
+
+	/**
+	 * @return BasicUser
+	 */
 	public function getMostRecentEditBy() {
 		return $this->mostRecentEditBy;
 	}
-	
-	public function setMostRecentEditBy(User $user) {
+
+	/**
+	 * @param BasicUser $user
+	 * @return $this
+	 */
+	public function setMostRecentEditBy(BasicUser $user) {
 		$this->mostRecentEditBy = $user;
-		return $this->mostRecentEditBy;
+		return $this;
 	}
 
+	/**
+	 * @param User|null $object
+	 * @return bool
+	 */
 	public function equals(User $object = null) {
 		if(is_null($object)) {
 			return false;
 		}
 		return $this->id == $object->getId();
 	}
-	
-	public function setFirstname($firstname)
-	{
-		$this->firstname = $firstname;
-		return $this;
-	}
-	
-	public function getFirstname()
-	{
-		return $this->firstname;
-	}
 
-	public function setLastname($lastname)
-	{
-		$this->lastname = $lastname;
-		return $this;
-	}
-	
-	public function getLastname()
-	{
-		return $this->lastname;
-	}
-
+	/**
+	 * @param $email
+	 * @return $this
+	 */
 	public function setEmail($email)
 	{
 		$this->email = $email;
 		return $this;
 	}
-	
+
+	/**
+	 * @return string
+	 */
 	public function getEmail()
 	{
 		return $this->email;
 	}
 
+	/**
+	 * @param $status
+	 * @return $this
+	 */
 	public function setStatus($status)
 	{
 		$this->status = $status;
 		return $this;
 	}
-	
+
+	/**
+	 * @return int
+	 */
 	public function getStatus()
 	{
 		return $this->status;
@@ -218,7 +208,38 @@ class User implements ProviderInterface, RoleInterface
 	{
 		return $this->memberships->toArray();
 	}
-	
+
+	/**
+	 * @param ReadModelOrganization|Organization $organization
+	 * @param string $role
+	 * @return $this
+	 */
+	public function addMembership($organization, $role = OrganizationMembership::ROLE_MEMBER) {
+		$org = null;
+		if($organization instanceof Organization) {
+			$org = new ReadModelOrganization($organization->getId());
+			$org->setName($organization->getName());
+		} elseif ($organization instanceof ReadModelOrganization) {
+			$org = $organization;
+		} else {
+			throw new InvalidArgumentException('First argument must be of type People\\Organization or People\\Entity\\Organization: ' . get_class($organization) . ' given');
+		}
+		$membership = new OrganizationMembership($this, $org, $role);
+		$this->memberships->set($org->getId(), $membership);
+		return $this;
+	}
+
+	/**
+	 * @param ReadModelOrganization|Organization $organization
+	 * @return $this
+	 */
+	public function removeMembership($organization) {
+		if(!($organization instanceof Organization) && !($organization instanceof ReadModelOrganization)) {
+			throw new InvalidArgumentException('First argument must be of type People\\Organization or People\\Entity\\Organization: ' . get_class($organization) . ' given');
+		}
+		$this->memberships->remove($organization->getId());
+	}
+
 	public function setPicture($url) {
 		$this->picture = $url;
 		return $this;
@@ -226,33 +247,45 @@ class User implements ProviderInterface, RoleInterface
 	
 	public function getPicture() {
 		return $this->picture;
-
 	}
 	
 	/**
 	 * 
-	 * @param id|Organization $organization
-	 * @return unknown
+	 * @param string|ReadModelOrganization|Organization $organization
+	 * @return bool
 	 */
 	public function isMemberOf($organization) {
-		$key = $organization instanceof Organization ? $organization->getId() : $organization;
+		$key = $organization;
+		if($organization instanceof Organization || $organization instanceof ReadModelOrganization) {
+			$key = $organization->getId();
+		}
 		return $this->memberships->containsKey($key);
 	}
 
-	public function getIdentityRoles(){
-		return $this->role;
+	/**
+	 * @param string|ReadModelOrganization|Organization $organization
+	 * @return OrganizationMembership|null
+	 */
+	public function getMembership($organization){
+		$id = is_object($organization) ? $organization->getId() : $organization;
+		return $this->memberships->get($id);
 	}
 
 	public function setRole($role){
 		$this->role = $role;
+		return $this;
 	}
 	
-	public static function getRoleCollection(){
-		return self::$roles;
-
+	public function getRole() {
+		return $this->role;
 	}
 	
 	public function getRoleId(){
-		return $this->getIdentityRoles();
+		return $this->getRole();
+	}
+	
+	public function getResourceId()
+	{
+		return 'Ora\User';
 	}
 }

@@ -1,10 +1,9 @@
 <?php
 namespace Kanbanize;
 
-use Application\InvalidArgumentException;
-use Application\Entity\User;
-use TaskManagement\Task;
+use Application\Entity\BasicUser;
 use TaskManagement\Stream;
+use TaskManagement\Task;
 use TaskManagement\TaskCreated;
 
 class KanbanizeTask extends Task {
@@ -16,8 +15,6 @@ class KanbanizeTask extends Task {
 	CONST COLUMN_ONGOING = "OnGoing";
 	CONST COLUMN_COMPLETED = 'Completed';
 	CONST COLUMN_ACCEPTED = 'Accepted';
-
-    CONST TYPE = 'kanbanizetask';
 
 	private static $mapping = array(
 			self::COLUMN_IDEA		=> Task::STATUS_IDEA,
@@ -39,22 +36,22 @@ class KanbanizeTask extends Task {
 	
 	private $kanbanizeTaskId;
 	
-	public static function create(Stream $stream, $subject, User $createdBy, array $options = null) {
+	public static function create(Stream $stream, $subject, BasicUser $createdBy, array $options = null) {
 		if(!isset($options['kanbanizeBoardId']) || !isset($options['kanbanizeTaskId'])) {
 			throw InvalidArgumentException('Cannot create a KanbanizeTask without a kanbanizeBoardId or kanbanizeTaskId option');
 		}
 		$rv = new self();
 		$rv->id = Uuid::uuid4();
 		$rv->status = self::STATUS_ONGOING;
-		$rv->recordThat(TaskCreated::occur($rv->id->toString(), array(
-				'status' => $rv->status,
-				'kanbanizeBoadId' => $options['kanbanizeBoardId'],
-				'kanbanizeTaskId' => $options['kanbanizeTaskId'],
-				'by' => $createdBy->getId(),
-		)));
+		$rv->recordThat(TaskCreated::occur($rv->id->toString(), [
+			'status' => $rv->status,
+			'kanbanizeBoadId' => $options['kanbanizeBoardId'],
+			'kanbanizeTaskId' => $options['kanbanizeTaskId'],
+			'organizationId' => $stream->getOrganizationId(),
+			'streamId' => $stream->getId(),
+			'by' => $createdBy->getId(),
+		]));
 		$rv->setSubject($subject, $createdBy);
-		$rv->changeStream($stream, $createdBy);
-		$rv->addMember($createdBy, $createdBy, self::ROLE_OWNER);
 		return $rv;
 	}
 	
@@ -65,7 +62,15 @@ class KanbanizeTask extends Task {
 	public function getKanbanizeTaskId() {
 		return $this->kanbanizeTaskId;
 	}
-	
+
+	/**
+	 * @return string
+	 */
+	public function getType()
+	{
+		return 'kanbanizetask';
+	}
+
 	public static function getMappedStatus($status) {
 		return self::$mapping[$status];
 	}

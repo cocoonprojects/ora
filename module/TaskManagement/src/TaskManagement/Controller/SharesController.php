@@ -1,23 +1,21 @@
 <?php
 namespace TaskManagement\Controller;
 
-use Zend\Validator\ValidatorChain;
-use Zend\Validator\NotEmpty;
+use Application\DomainEntityUnavailableException;
+use Application\IllegalStateException;
+use Application\InvalidArgumentException;
+use Application\View\ErrorJsonModel;
+use TaskManagement\Service\TaskService;
+use TaskManagement\View\TaskJsonModel;
 use Zend\I18n\Validator\Float;
 use Zend\Validator\Between;
-use Application\Controller\AbstractHATEOASRestfulController;
-use Application\View\ErrorJsonModel;
-use Application\InvalidArgumentException;
-use Application\IllegalStateException;
-use Application\DomainEntityUnavailableException;
-use TaskManagement\Service\TaskService;
-use TaskManagement\Task;
-use TaskManagement\StreamService;
+use Zend\Validator\NotEmpty;
+use Zend\Validator\ValidatorChain;
+use ZFX\Rest\Controller\HATEOASRestfulController;
 
-class SharesController extends AbstractHATEOASRestfulController {
+class SharesController extends HATEOASRestfulController {
 	
-	protected static $collectionOptions = array();
-	protected static $resourceOptions = array('POST');
+	protected static $resourceOptions = ['POST'];
 	
 	/**
 	 *
@@ -31,35 +29,38 @@ class SharesController extends AbstractHATEOASRestfulController {
 	
 	public function invoke($id, $data)
 	{
+		if(is_null($this->identity())) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+
 		$task = $this->taskService->getTask($id);
 		if (is_null($task)) {
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-		
-		$identity = $this->identity();
-		if(is_null($identity)) {
-			$this->response->setStatusCode(401);
-			return $this->response;
-		}
-		$identity = $identity['user'];
+
 		$error = new ErrorJsonModel();
 		if(count($data) == 0) {
 			$this->transaction()->begin();
 			try {
-				$task->skipShares($identity);
+				$task->skipShares($this->identity());
 				$this->transaction()->commit();
 				$this->response->setStatusCode(201);
-				return $this->response;
+				$view = new TaskJsonModel($this);
+				$view->setVariable('resource', $task);
+				return $view;
 			} catch (DomainEntityUnavailableException $e) {
 				$this->transaction()->rollback();
 				$this->response->setStatusCode(403);
-				return $this->response;
-			} catch (IllegalStateException $e) {
-				$error->setCode(412);
+				$error->setCode(403);
 				$error->setDescription($e->getMessage());
+				return $error;
+			} catch (IllegalStateException $e) {
 				$this->transaction()->rollback();
 				$this->response->setStatusCode(412);
+				$error->setCode(412);
+				$error->setDescription($e->getMessage());
 				return $error;
 			}
 		}
@@ -67,56 +68,52 @@ class SharesController extends AbstractHATEOASRestfulController {
 		$validator = new ValidatorChain();
 		$validator->attach(new NotEmpty(), true)
 				  ->attach(new Float(), true)
-				  ->attach(new Between(array('min' => 0, 'max' => 100), true));
+				  ->attach(new Between(['min' => 0, 'max' => 100], true));
 		
-		$total = 0;
 		foreach ($data as $key => $value) {
-			if($validator->isValid($value)) {
-				$total += $value;
-			} else {
+			if(!$validator->isValid($value)) {
 				$error->addSecondaryErrors($key, $validator->getMessages());
 			}
 		}
 		if($error->hasErrors()) {
 			$error->setCode(ErrorJsonModel::$ERROR_INPUT_VALIDATION);
-			$this->response->setStatusCode(400);
+			$this->response->setStatusCode(422);
 			return $error;
 		}
 		
-		array_walk($data, function(&$value, $key) {
+		array_walk($data, function(&$value) {
 			$value /= 100;
 		});
 		
 		$this->transaction()->begin();
 		try {
-			$task->assignShares($data, $identity);
+			$task->assignShares($data, $this->identity());
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
-			return $this->response;
+			$view = new TaskJsonModel($this);
+			$view->setVariable('resource', $task);
+			return $view;
 		} catch (InvalidArgumentException $e) {
 			$this->transaction()->rollback();
+			$this->response->setStatusCode(422);
 			$error->setCode(ErrorJsonModel::$ERROR_INPUT_VALIDATION);
 			$error->setDescription($e->getMessage());
-			$this->response->setStatusCode(400);
 		} catch (DomainEntityUnavailableException $e) {
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(403);
-		} catch (IllegalStateException $e) {
-			$error->setCode(412);
+			$error->setCode(403);
 			$error->setDescription($e->getMessage());
+		} catch (IllegalStateException $e) {
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(412);
+			$error->setCode(412);
+			$error->setDescription($e->getMessage());
 		}
 		return $error;
 	}
 	
 	public function getTaskService() {
 		return $this->taskService;
-	}
-	
-	protected function getCollectionOptions()
-	{
-		return self::$collectionOptions;
 	}
 	
 	protected function getResourceOptions()

@@ -5,28 +5,45 @@ return array(
 	'router' => array(
 		'routes' => array(
 			'accounting-home' => array(
-				'type' => 'Zend\Mvc\Router\Http\Literal',
+				'type' => 'segment',
 				'options' => array(
-					'route'	   => '/accounting/',
+					'route'	   => '/:orgId/accounting/',
+					'constraints' => array(
+							'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+					),
 					'defaults' => array(
 						'controller' => 'Accounting\Controller\Index',
 						'action'	 => 'index',
 					),
 				),
 			),
-			'accounts' => array (
+			'accounts' => [
 				'type'	  => 'segment',
-				'options' => array (
-					'route'		  => '/accounting/accounts[/:id][/:controller]',
-					'constraints' => array (
-						'id'	 => '[0-9a-z\-]+',
-					),
-					'defaults'	  => array (
+				'options' => [
+					'route'       => '/:orgId/accounting/accounts[/:id][/:controller]',
+					'constraints' => [
+						'id'    => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+					],
+					'defaults'	  => [
 						'__NAMESPACE__' => 'Accounting\Controller',
-						'controller' => 'Accounts'
-					),
-				),
-			),
+						'controller'    => 'Accounts',
+					]
+				]
+			],
+			'statements' => [
+				'type'    => 'Segment',
+				'options' => [
+					'route'       => '/:orgId/accounting/:controller[/:id]',
+					'constraints' => [
+						'orgId'      => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+						'controller' => 'personal-statement|organization-statement|members'
+					],
+					'defaults'    => [
+						'__NAMESPACE__' => 'Accounting\Controller'
+					]
+				]
+			]
 		),
 	),
 	'view_manager' => array(
@@ -34,13 +51,13 @@ return array(
 			'ViewJsonStrategy',
 		),
 		'template_path_stack' => array(
-			'accounting' => __DIR__ . '/../view',
+			__NAMESPACE__ => __DIR__ . '/../view',
 		),
 	),
 	'asset_manager' => array(
 		'resolver_configs' => array(
 			'paths' => array(
-				'Accounting' => __DIR__ . '/../public',
+				__NAMESPACE__ => __DIR__ . '/../public',
 			),
 		),
 	),
@@ -57,39 +74,12 @@ return array(
 				)
 			)
 		)
-	),
-	'bjyauthorize'=> array(
-		'resource_providers' => array(
-			'BjyAuthorize\Provider\Resource\Config' => array(
-				'Ora\Account' => array()		
-			),
-		),
-		'rule_providers' => array(
-			'BjyAuthorize\Provider\Rule\Config' => array(
-				'allow' => array(
-					array(
-						array('user'), 
-						'Ora\Account', 
-						array('Accounting.Account.deposit'),
-						'Accounting\AccountHolderAssertion'), 
-					array(
-						array('user'), 
-						'Ora\Account', 
-						array('Accounting.Account.statement'), 
-						'Accounting\MemberOfOrganizationOrAccountHolder'), 
-					array(
-						array('user'), 
-						'Ora\Account',
-						array('Accounting.OrganizationAccount.deposit'),
-						'Accounting\AccountHolderOfOrganizationAccountAssertion'),
-				)
-			)
-		)
-	),
-	
+	),	
 	'listeners' => array(
 		'Accounting\AccountCommandsListener',
 		'Accounting\CreatePersonalAccountListener',
 		'Accounting\CreateOrganizationAccountListener'
-	)
+	),
+	'personal_transactions_default_limit' => 10,
+	'organization_transactions_default_limit' => 10
 );

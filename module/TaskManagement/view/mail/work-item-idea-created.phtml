@@ -1,0 +1,6 @@
+<p>Hi <?php echo $this->recipient->getFirstname()?> <?php echo $this->recipient->getLastname()?>,<br>
+the  <?php echo $this->stream->getSubject()?> stream has a new work item idea proposed by <?php echo $this->member->getFirstname()?> <?php echo $this->member->getLastname()?>: <b><?= $this->task->getSubject()?></b>.</p>
+<p>Check it out!</p>
+<p>O.R.A.</p>
+<hr>
+<p style="font-size: 12px">You are receiving this e-mail because you are a member of the "<?= $this->organization->getName() ?>" organization.</p>

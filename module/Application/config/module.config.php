@@ -14,28 +14,15 @@ return array(
 					),
 				),
 			),
-			'login' => array(
-				'type' => 'Zend\Mvc\Router\Http\Segment',
-				'options' => array(
-						'route'	   => '/auth/:action[/:id]',
-						'defaults' => array(
-							'controller'	=> 'Application\Controller\Auth',
-						),
-				),
-			),
-			'organizations' => array(
-				'type' => 'Segment',
-				'options' => array(
-					'route'	   => '/organizations[/:id][/:controller]',
-					'constraints' => array(
-						'id' => '[0-9a-z\-]+'
-					),
-					'defaults' => array(
-						'__NAMESPACE__' => 'Application\Controller',
-						'controller' => 'Organizations'
-					),
-				),
-			),	
+//			'login' => array(
+//				'type' => 'Zend\Mvc\Router\Http\Segment',
+//				'options' => array(
+//						'route'	   => '/auth/:action[/:id]',
+//						'defaults' => array(
+//							'controller'	=> 'Application\Controller\Auth'
+//						),
+//				),
+//			),
 			'memberships' => array(
 				'type' => 'Segment',
 				'options' => array(
@@ -125,12 +112,12 @@ return array(
 		),
 	),
 	'doctrine' => array(
-		'configuration' => array(
-			'orm_default' => array(
-				'generate_proxies'	=> true,
-				'proxy_dir'			=> __DIR__ . '/../../../data/DoctrineORMModule/Proxies/'
-			)
-		),
+		//'configuration' => array(
+			//'orm_default' => array(
+				//'generate_proxies'	=> true,
+				//'proxy_dir'			=> __DIR__ . '/../../../data/DoctrineORMModule/Proxies/'
+			//)
+		//),
 		'driver' => array(
 			 __NAMESPACE__ . '_driver' => array(
 				'class' => 'Doctrine\ORM\Mapping\Driver\AnnotationDriver',
@@ -147,11 +134,13 @@ return array(
 	'asset_manager' => array(
 		'resolver_configs' => array(
 			'paths' => array(
-				'Application' => __DIR__ . '/../public',
+				__NAMESPACE__ => __DIR__ . '/../public',
 			),
 		),
 	),
+
 	'listeners' => array(
-		'Application\OrganizationCommandsListener'
-	),	
+		'Application\LoadLocalProfileListener',
+		'Application\DomainEventDispatcher'
+	),
 );
