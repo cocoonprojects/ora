@@ -1,57 +1,6 @@
 var TaskManagement = function(taskUtils)
 {
-	var pageSize = 10,
-		nextPageSize = 10,
-		pageOffset = 0,
-		endOn = "",
-		startOn = "",
-		memberEmail = "";
-		statusFilter = null;
-
 	this.utils = taskUtils;
-
-	this.getPageSize = function(){
-		return pageSize;
-	};
-	this.setPageSize = function(size){
-		pageSize = size;
-	};
-	this.getNextPageSize = function(){
-		return nextPageSize;
-	};
-	this.getPageOffset = function(){
-		return pageOffset;
-	};
-	this.setPageOffset = function(offset){
-		pageOffset = offset;
-	};
-	this.setStartOn = function(date){
-		startOn = date;
-	};
-	this.getStartOn = function(){
-		return startOn;
-	};
-	this.setEndOn = function(date){
-		endOn = date;
-	};
-	this.getEndOn = function(){
-		return endOn;
-	};
-	this.setMemberEmail = function(email){
-		memberEmail = email;
-	};
-	this.getMemberEmail = function(){
-		return memberEmail;
-	};
-	this.setStatusFilter = function(status){
-		statusFilter = status;
-	};
-	this.getStatusFilter = function(){
-		return statusFilter;
-	};
-	this.resetPageSize = function(){
-		pageSize = 10;
-	};
 
 	this.bindEventsOn();
 
@@ -60,6 +9,8 @@ var TaskManagement = function(taskUtils)
 };
 
 TaskManagement.prototype = {
+
+	PAGE_SIZE: 10,
 
 	constructor: TaskManagement,
 	classe: 'TaskManagement',
@@ -244,30 +195,9 @@ TaskManagement.prototype = {
 			that.listMoreTasks(e);
 		});
 
-		$("#tasksFilter").on("click", "button", function(e){
+		$("#taskFilters").on("submit", function(e) {
 			e.preventDefault();
-			that.resetPageSize();
-			//TODO: da rivedere
-			var start = $("#startOn").val() !== "" ? $("#startOn").val().split("/", 3) : "";
-			var end = $("#endOn").val() !== "" ? $("#endOn").val().split("/", 3) : "";
-
-			if(start.length == 3){
-				that.setStartOn(start[2]+"-"+start[1]+"-"+start[0]);
-			}else{
-				that.setStartOn("");
-			}
-			if(end.length == 3){
-				that.setEndOn(end[2]+"-"+end[1]+"-"+end[0]);
-			}else{
-				that.setEndOn("");
-			}
-			that.setMemberEmail($("#memberEmail").val());
 			that.listTasks();
-		});
-		
-		$("#statusFilter").click(function(){
-			var status = $("#statusFilter").val();
-			that.setStatusFilter(status);
 		});
 	},
 	
@@ -476,37 +406,30 @@ TaskManagement.prototype = {
 	listTasks: function()
 	{
 		var that = this;
-		var url = 'task-management/tasks?limit='+that.getPageSize();
 
-		if(that.getPageOffset() > 0){
-			url+= "&offset="+that.getPageOffset();
-		}
-		if(that.getEndOn()){
-			url += "&endOn="+that.getEndOn();
-		}
-		if(that.getStartOn()){
-			url += "&startOn="+that.getStartOn();
-		}
-		if(that.getMemberEmail()){
-			url += "&memberEmail="+that.getMemberEmail();
-		}
-		if(that.getStatusFilter()){
-			url+="&status="+that.getStatusFilter();
-		}
 		$.ajax({
-			url: url,
+			url: 'task-management/tasks',
+			data: $("#taskFilters").serialize(),
 			headers: {
 				'GOOGLE-JWT': sessionStorage.token
 			},
-			method: 'GET'
-		}).fail(function( jqXHR, textStatus ) {
-			var errorCode = jqXHR.status;
-			var redirectURL = window.location.href;
-			if(errorCode === 401){
-				sessionStorage.setItem('redirectURL', redirectURL);
-				window.location = '/';
+			method: 'GET',
+			beforeSend: function() {
+				that.pollingObject.stopPolling.bind(that.pollingObject)();
+			},
+			statusCode: {
+				401: function() {
+					sessionStorage.setItem('redirectURL', redirectURL);
+					window.location = '/';
+				}
+			},
+			success: function(data) {
+				that.onListTasksCompleted(data);
+			},
+			complete: function() {
+				that.pollingObject.startPolling.bind(that.pollingObject)();
 			}
-		}).done(that.onListTasksCompleted.bind(that));
+		});
 	},
 	
 	updateStreams: function()
@@ -527,8 +450,8 @@ TaskManagement.prototype = {
 	onListTasksCompleted: function(json)
 	{
 		this.data = json;
-		if(this.data._links !== undefined && this.data._links['ora:create'] !== undefined) {
-			$("#createTaskModal form").attr("action", this.data._links['ora:create']['href']);
+		if(json._links !== undefined && json._links['ora:create'] !== undefined) {
+			$("#createTaskModal form").attr("action", json._links['ora:create']['href']);
 			$("#createTaskBtn").show();
 		} else {
 			$("#createTaskModal form").attr("action", null);
@@ -538,11 +461,11 @@ TaskManagement.prototype = {
 		var container = $('#tasks');
 		container.empty();
 		
-		if ($(this.data._embedded['ora:task']).length == 0) {
+		if ($(json._embedded['ora:task']).length == 0) {
 			container.append("<p>No available tasks found</p>");
 		} else {
 			var that = this;
-			$.each(this.data._embedded['ora:task'], function(key, task) {
+			$.each(json._embedded['ora:task'], function(key, task) {
 				subject = task._links.self == undefined ? task.subject : '<a data-href="' + task._links.self.href + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a>';
 				var primary_actions = [];
 				var secondary_actions = [];
@@ -616,12 +539,10 @@ TaskManagement.prototype = {
 					'</li>');
 			});
 			
-			if(this.data._links !== undefined && this.data._links["next"] !== undefined) {
-				var limit = this.getPageSize() + this.getNextPageSize();
-				var offset = this.getPageOffset();
+			if(json._links["next"]) {
 				container.append(
 					'<div class="text-center">' +
-							'<a rel="next" href="'+this.data._links["next"]["href"]+'?offset=' + offset + '&limit=' + limit + '" data-action="nextPage">More</a>' +
+							'<a rel="next" href="#" data-action="nextPage">More</a>' +
 					'</div>');
 			}
 		}
@@ -994,31 +915,10 @@ TaskManagement.prototype = {
 		return "";
 	},
 	
-	listMoreTasks: function(e){
-		var url = $(e.target).attr('href');
-		if(this.getEndOn()){
-			url += "&endOn="+this.getEndOn();
-		}
-		if(this.getStartOn()){
-			url += "&startOn="+this.getStartOn();
-		}
-		if(this.getMemberEmail()){
-			url += "&memberEmail="+this.getMemberEmail();
-		}
-		var that = this;
-		$.ajax({
-			url: url,
-			headers: {
-				'GOOGLE-JWT': sessionStorage.token
-			},
-			method: 'GET',
-			beforeSend: that.pollingObject.stopPolling.bind(that.pollingObject)(),
-		}).done(function(json){
-			that.setPageSize(json.count);
-			that.onListTasksCompleted.bind(that, json)();
-		}).always(function(){
-			that.pollingObject.startPolling.bind(that.pollingObject)();
-		});
+	listMoreTasks: function(e) {
+		var limit = $('taskFilters[name=limit]');
+		limit.val(limit.val() + 10);
+		this.listTasks();
 	},
 	
 	setupPollingObject: function(frequency, pollingFunction){
