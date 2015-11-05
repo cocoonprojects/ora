@@ -96,49 +96,63 @@ class TasksController extends OrganizationAwareController
 		}
 		$streamID = $this->getRequest()->getQuery('streamID');
 
-		$filters = [];
-		$stats = [];
-
 		$integerValidator = new ValidatorChain();
-		$integerValidator->attach(new Int())
+		$integerValidator
+			->attach(new Int())
 			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
+		$offset = $this->getRequest()->getQuery("offset");
+		$offset = $integerValidator->isValid($offset) ? intval($offset) : 0;
+		$limit = $this->getRequest()->getQuery("limit");
+		$limit = $integerValidator->isValid($limit) ? intval($limit) : $this->getListLimit();
+
+		$filters = [];
+
 		$dateValidator = new DateValidator();
-		$uuidValidator = new UserIdValidator(array('pattern' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})'));
-		$emailValidator = new EmailAddressValidator(array('useDomainCheck' => false));
-		$statusValidator = new StatusValidator(array(
-         'haystack' => array(Task::STATUS_IDEA,Task::STATUS_OPEN, Task::STATUS_ONGOING,Task::STATUS_COMPLETED, Task::STATUS_ACCEPTED, Task::STATUS_CLOSED),
-   		 ));
-
-		$offset = $integerValidator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
-		$limit = $integerValidator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getListLimit();
-
-		$endOn = $this->getRequest()->getQuery("endOn");
 		$startOn = $this->getRequest()->getQuery("startOn");
-		if($dateValidator->isValid($endOn)){
-			$endOn = \DateTime::createFromFormat($dateValidator->getFormat(), $endOn);
-			$endOn->setTime(23, 59, 59);
-			$filters["endOn"] = $endOn;
-		}
-		if($dateValidator->isValid($startOn)){
+		if($startOn && $dateValidator->isValid($startOn)){
 			$startOn = \DateTime::createFromFormat($dateValidator->getFormat(), $startOn);
 			$startOn->setTime(0, 0, 0);
 			$filters["startOn"] = $startOn;
 		}
-		$memberId = $uuidValidator->isValid($this->getRequest()->getQuery("memberId")) ? $this->getRequest()->getQuery("memberId") : null;
-		$memberEmail = $emailValidator->isValid($this->getRequest()->getQuery("memberEmail")) ? $this->getRequest()->getQuery("memberEmail") : null;
-	
-		if(! $statusValidator->isValid($this->getRequest()->getQuery('status'))){
-			$view = new TaskJsonModel($this, $this->organization);
-			$availableTasks = array();
-			$totalTasks = 0;
-			$view->setVariables(['resource'=>$availableTasks, 'totalTasks'=>$totalTasks]);
-			return $view;
-		}else{
-			$status = $this->getRequest()->getQuery('status');
+		$endOn = $this->getRequest()->getQuery("endOn");
+		if($endOn && $dateValidator->isValid($endOn)){
+			$endOn = \DateTime::createFromFormat($dateValidator->getFormat(), $endOn);
+			$endOn->setTime(23, 59, 59);
+			$filters["endOn"] = $endOn;
 		}
-		$filters["memberId"] = $memberId;
-		$filters["memberEmail"] = $memberEmail;
-		$filters["status"] = $status;
+
+		$emailValidator = new EmailAddressValidator(['useDomainCheck' => false]);
+		$memberEmail = $this->getRequest()->getQuery("memberEmail");
+		if($memberEmail && $emailValidator->isValid($memberEmail)) {
+			$filters["memberEmail"] = $memberEmail;
+		}
+
+		$uuidValidator = new UserIdValidator(['pattern' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})']);
+		$memberId = $this->getRequest()->getQuery("memberId");
+		if($memberId && $uuidValidator->isValid($memberId)) {
+			$filters["memberId"] = $memberId;
+		}
+
+		$statusValidator = new StatusValidator([
+			'haystack' => [
+				Task::STATUS_IDEA,
+				Task::STATUS_OPEN,
+				Task::STATUS_ONGOING,
+				Task::STATUS_COMPLETED,
+				Task::STATUS_ACCEPTED,
+				Task::STATUS_CLOSED
+			]
+		]);
+		$status = $this->getRequest()->getQuery('status');
+		if($status) {
+			if($statusValidator->isValid($status)) {
+				$filters["status"] = $status;
+			} else {
+				$view = new TaskJsonModel($this, $this->organization);
+				$view->setVariables(['resource' => [], 'totalTasks' => 0]);
+				return $view;
+			}
+		}
 
 		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit, $filters) : $this->taskService->findStreamTasks($streamID, $offset, $limit, $filters);
 
