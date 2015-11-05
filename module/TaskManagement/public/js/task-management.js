@@ -1,7 +1,5 @@
-var TaskManagement = function(taskUtils)
+var TaskManagement = function()
 {
-	this.utils = taskUtils;
-
 	this.bindEventsOn();
 
 	var pollingFrequency = 10000;
@@ -78,15 +76,17 @@ TaskManagement.prototype = {
 		});
 		
 		// JOIN TASK MEMBERS
-		$("body").on("click", "a[data-action='joinTask']", function(e){
+		$("body").on("click", "a[data-action=joinTask]", function(e){
 			e.preventDefault();
-			that.joinTask(e);
+			var url = $(e.target).attr('href');
+			that.joinTask(url);
 		});
 		
 		// UNJOIN TASK MEMBERS
-		$("body").on("click", "a[data-action='unjoinTask']", function(e){
+		$("body").on("click", "a[data-action=unjoinTask]", function(e) {
 			e.preventDefault();
-			that.unjoinTask(e);
+			var url = $(e.target).attr('href');
+			that.unjoinTask(url);
 		});
 
 		//ACCEPT TASK FOR KAMBANIZE
@@ -192,9 +192,11 @@ TaskManagement.prototype = {
 			that.assignShares(e);
 		});
 
-		$("body").on("click", "a[data-action='nextPage']", function(e){
+		$("body").on("click", "a[data-action=nextPage]", function(e){
 			e.preventDefault();
-			that.listMoreTasks(e);
+			var limit = $('#taskFilters input[name=limit]');
+			limit.val(parseInt(limit.val()) + 10);
+			that.listTasks();
 		});
 
 		$("#taskFilters").on("submit", function(e) {
@@ -203,10 +205,9 @@ TaskManagement.prototype = {
 		});
 	},
 	
-	unjoinTask: function(e)
+	unjoinTask: function(url)
 	{
-		var url = $(e.target).attr('href');
-		
+
 		var that = this;
 		
 		$.ajax({
@@ -215,9 +216,11 @@ TaskManagement.prototype = {
 				'GOOGLE-JWT': sessionStorage.token
 			},
 			method: 'DELETE',
-			dataType: 'json',
-			complete: function(xhr, textStatus) {
-				m = $('#content');
+			statusCode: {
+				401: redirectToLogin
+			},
+			complete: function(xhr) {
+				var m = $('#content');
 				if (xhr.status === 200) {
 					that.show(m, 'success', 'You successfully left the team that is working on the task');
 					that.listTasks();
@@ -232,10 +235,8 @@ TaskManagement.prototype = {
 		});
 	},
 	
-	joinTask: function(e)
+	joinTask: function(url)
 	{
-		var url = $(e.target).attr('href');
-		
 		var that = this;
 		
 		$.ajax({
@@ -244,9 +245,11 @@ TaskManagement.prototype = {
 				'GOOGLE-JWT': sessionStorage.token
 			},
 			method: 'POST',
-			dataType: 'json',
-			complete: function(xhr, textStatus) {
-				m = $('#content');
+			statusCode: {
+				401: redirectToLogin
+			},
+			complete: function(xhr) {
+				var m = $('#content');
 				if (xhr.status === 201) {
 					that.show(m, 'success', 'You successfully joined the team that is working on the task');
 					that.listTasks();
@@ -275,9 +278,11 @@ TaskManagement.prototype = {
 			},
 			method: 'PUT',
 			data: form.serialize(),
-			dataType: 'json',
-			complete: function(xhr, textStatus) {
-				m = $('#editTaskModal');
+			statusCode: {
+				401: redirectToLogin
+			},
+			complete: function(xhr) {
+				var m = $('#editTaskModal');
 				if (xhr.status === 202) {
 					m.modal('hide');
 					that.listTasks();
@@ -305,9 +310,11 @@ TaskManagement.prototype = {
 				'GOOGLE-JWT': sessionStorage.token
 			},
 			method: 'DELETE',
-			dataType: 'json',
-			complete: function(xhr, textStatus) {
-				m = $('#content');
+			statusCode: {
+				401: redirectToLogin
+			},
+			complete: function(xhr) {
+				var m = $('#content');
 				if (xhr.status === 200) {
 					that.show(m, 'success', 'You successfully deleted the task');
 					that.listTasks();
@@ -331,9 +338,11 @@ TaskManagement.prototype = {
 			},
 			method: 'POST',
 			data:{action:'accept'},
-			dataType: 'json',
-			complete: function(xhr, textStatus) {
-				m = $('#content');
+			statusCode: {
+				401: redirectToLogin
+			},
+			complete: function(xhr) {
+				var m = $('#content');
 				if (xhr.status === 200) {
 					that.show(m, 'success', 'You have successfully accepted the task');
 					that.listTasks();
@@ -360,8 +369,11 @@ TaskManagement.prototype = {
 			},
 			method: 'POST',
 			data:{action:'complete'},
-			complete: function(xhr, textStatus) {
-				m = $('#content');
+			statusCode: {
+				401: redirectToLogin
+			},
+			complete: function(xhr) {
+				var m = $('#content');
 				if (xhr.status === 200) {
 					that.show(m, 'success', 'You have successfully completed the task');
 					that.listTasks();
@@ -388,9 +400,11 @@ TaskManagement.prototype = {
 			},
 			method: 'POST',
 			data:{action:'execute'},
-			dataType: 'json',
-			complete: function(xhr, textStatus) {
-				m = $('#content');
+			statusCode: {
+				401: redirectToLogin
+			},
+			complete: function(xhr) {
+				var m = $('#content');
 				if (xhr.status === 200) {
 					that.show(m, 'success', 'You have successfully put in execution the task');
 					that.listTasks();
@@ -420,16 +434,10 @@ TaskManagement.prototype = {
 			headers: {
 				'GOOGLE-JWT': sessionStorage.token
 			},
-			method: 'GET',
 			statusCode: {
-				401: function() {
-					sessionStorage.setItem('redirectURL', redirectURL);
-					window.location = '/';
-				}
+				401: redirectToLogin
 			},
-			success: function(data) {
-				that.onListTasksCompleted(data);
-			},
+			success: this.onListTasksCompleted.bind(this),
 			complete: function() {
 				that.listTaskSemaphore = false;
 			}
@@ -438,13 +446,16 @@ TaskManagement.prototype = {
 	
 	updateStreams: function()
 	{
-		that = this;
+		var that = this;
+
 		$.ajax({
 			url: 'task-management/streams',
 			headers: {
 				'GOOGLE-JWT': sessionStorage.token
 			},
-			method: 'GET',
+			statusCode: {
+				401: redirectToLogin
+			},
 			success: function(data) {
 				that.streamsData = data;
 			}
@@ -453,6 +464,7 @@ TaskManagement.prototype = {
 	
 	onListTasksCompleted: function(json)
 	{
+		var taskUtils = new TaskUtils();
 		this.data = json;
 		if(json._links !== undefined && json._links['ora:create'] !== undefined) {
 			$("#createTaskModal form").attr("action", json._links['ora:create']['href']);
@@ -484,22 +496,22 @@ TaskManagement.prototype = {
 					primary_actions.push('<a data-href="' + task._links['ora:estimate']	 + '"' + $e + ' data-toggle="modal" data-target="#estimateTaskModal" class="btn btn-primary">Estimate</a>');
 				}
 				if (task._links['ora:complete']) {
-					if(task.status > that.utils.TASK_STATUS.get('COMPLETED')) {
+					if(task.status > taskUtils.TASK_STATUS.get('COMPLETED')) {
 						secondary_actions.push('<a href="' + task._links['ora:complete'] + '" data-task="' + key + '" data-action="completeTask">Revert to completed</a>');
 					} else {
 						primary_actions.push('<a href="' + task._links['ora:complete'] + '" data-task="' + key + '" data-action="completeTask" class="btn btn-default btn-raised">Mark as completed</a>');
 					}
 				}
 				if (task._links['ora:accept']) {
-					if(task.status > that.utils.TASK_STATUS.get('ACCEPTED')) {
+					if(task.status > taskUtils.TASK_STATUS.get('ACCEPTED')) {
 						secondary_actions.push('<a href="' + task._links['ora:accept'] + '" data-action="acceptTask">Revert to accepted</a>');
 					} else {
 						primary_actions.push('<a href="' + task._links['ora:accept'] + '" data-action="acceptTask" class="btn btn-default btn-raised">Mark as accepted</a>');
 					}
 				}
 				if (task._links['ora:execute']) {
-					var label = task.status > that.utils.TASK_STATUS.get('ONGOING') ? 'Revert to ongoing' : 'Start';
-					if(task.status > that.utils.TASK_STATUS.get('ONGOING')) {
+					var label = task.status > taskUtils.TASK_STATUS.get('ONGOING') ? 'Revert to ongoing' : 'Start';
+					if(task.status > taskUtils.TASK_STATUS.get('ONGOING')) {
 						secondary_actions.push('<a href="' + task._links['ora:execute'] + '" data-action="executeTask">Revert to ongoing</a>');
 					} else {
 						primary_actions.push('<a href="' + task._links['ora:execute'] + '" data-action="executeTask" class="btn btn-default btn-raised">Start Idea</a>');
@@ -546,97 +558,15 @@ TaskManagement.prototype = {
 			if(json._links["next"]) {
 				container.append(
 					'<div class="text-center">' +
-							'<a rel="next" href="#" data-action="nextPage">More</a>' +
+						'<a rel="next" href="#" data-action="nextPage">More</a>' +
 					'</div>');
 			}
 		}
 	},
-	
-	renderTaskDetail : function(task) {
-		switch(task.estimation) {
-		case undefined:
-			estimation = '';
-			break;
-		case -1:
-			estimation = '<li>Estimation skipped</li>';
-			break;
-		case null:
-			estimation = '<li>Estimation in progress</li>';
-			break;
-		default:
-			estimation = '<li>' + task.estimation + ' credits</li>';
-		}
-		
-		var createdAt = new Date(Date.parse(task.createdAt));
-
-		var rv = '<ul class="task-details">' +
-				'<li>' + task.stream.subject + '</li>' +
-				'<li>Created at ' + createdAt.toLocaleString() + '</li>';
-		
-		if(task.acceptedAt){
-			acceptedAt = new Date(Date.parse(task.acceptedAt));
-			rv += '<li>Accepted at ' + acceptedAt.toLocaleString() + '</li>';
-		}
-		
-		rv += '<li>' + this.utils.statuses[task.status];
-		
-		if(task.status == this.utils.TASK_STATUS.get('IDEA')){
-			return rv;
-		}
-		
-		if(task.status == this.utils.TASK_STATUS.get('ACCEPTED')){
-			rv += this.getLabelForAssignShares(task.daysRemainingToAssignShares);
-		}
-		
-		rv += '</li>' + estimation + '</ul>';
-		
-		rv += '<table class="table table-striped"><caption>Members</caption>' +
-				'<thead><tr><th></th><th style="text-align: right">Estimate</th>';
-		//$.map(task.members, function(member, memberId) {
-		//	rv += '<th style="text-align: center">' + member.firstname.charAt(0) + member.lastname.charAt(0) + '</th>';
-		//});
-		rv += '<th style="text-align: center">Avg</th><th style="text-align: center">&Delta;</th></tr></thead><tbody>';
-		$.map(task.members, function(member, memberId) {
-			rv += '<tr><th><img src="' + member.picture + '" style="max-width: 16px; max-height: 16px;" class="img-circle"> ' + member.firstname + ' ' + member.lastname + '</th>';
-			rv += '<td style="text-align: right">'
-			switch(member.estimation) {
-				case undefined:
-				case null:
-					break;
-				case -2 :
-					rv += '<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>';
-					break;
-				case -1 :
-					rv += 'Skipped';
-					break;
-				default :
-					rv += member.estimation.toString();
-			}
-			rv += '</td>';
-			//$.map(task.members, function(m) {
-			//	rv += '<td style="text-align: center">';
-			//	if(m.shares != undefined) {
-			//		rv += m.shares[memberId].value != null ? (m.shares[memberId].value * 100).toFixed(2) + '%' : 'Skipped';
-			//	}
-			//	rv += '</td>';
-			//});
-			rv += '<td style="text-align: center">';
-			if(member.share != undefined && member.share != null) {
-				rv += (member.share * 100).toFixed(2) + '%';
-			}
-			rv += '</td><td style="text-align: center">'
-			if(member.delta != undefined && member.delta != null) {
-				rv += '' + (member.delta * 100).toFixed(2) + '%';
-			}
-			rv += '</td></tr>';
-		});
-				
-		rv +=	'</tbody>' +
-			'</table>';
-		return rv;
-	},
 
 	renderTask : function(task) {
+		var taskUtils = new TaskUtils();
+
 		var count = 0, tot = 0;
 		$.map(task.members, function(object, key) {
 			tot++;
@@ -658,19 +588,19 @@ TaskManagement.prototype = {
 			estimation = '<li>' + task.estimation + ' credits (' + count + ' members of ' + tot + ' have estimated)</li>';
 		}
 		
-		createdAt = new Date(Date.parse(task.createdAt));
+		var createdAt = new Date(Date.parse(task.createdAt));
 
 		var rv = '<ul class="task-details">' +
 				'<li>Created at ' + createdAt.toLocaleString() + '</li>';
 		
 		if(task.acceptedAt) {
-			acceptedAt = new Date(Date.parse(task.acceptedAt));
+			var acceptedAt = new Date(Date.parse(task.acceptedAt));
 			rv += '<li>Accepted at ' + acceptedAt.toLocaleString() + '</li>';
 		}
 		
-		rv += '<li>' + this.utils.statuses[task.status];
+		rv += '<li>' + taskUtils.statuses[task.status];
 		
-		if(task.status == this.utils.TASK_STATUS.get('ACCEPTED')){
+		if(task.status == taskUtils.TASK_STATUS.get('ACCEPTED')){
 			rv += this.getLabelForAssignShares(task.daysRemainingToAssignShares);
 		}
 
@@ -693,6 +623,9 @@ TaskManagement.prototype = {
 			},
 			method: 'POST',
 			data: form.serialize(),
+			statusCode: {
+				401: redirectToLogin
+			},
 			success: function() {
 				modal.modal('hide');
 				that.listTasks();
@@ -717,6 +650,9 @@ TaskManagement.prototype = {
 			},
 			method: 'POST',
 			data: form.serialize(),
+			statusCode: {
+				401: redirectToLogin
+			},
 			success: function() {
 				modal.modal('hide');
 				that.show($('#content'), 'success', 'You have successfully created a stream');
@@ -746,7 +682,7 @@ TaskManagement.prototype = {
 				that.listTasks();
 			},
 			statusCode: {
-				400 : function(jqHXR, textStatus, errorThrown){
+				400 : function(jqHXR){
 					json = $.parseJSON(jqHXR.responseText);
 					if(json.description != undefined) {
 						that.show(modal, 'danger', json.description);
@@ -754,7 +690,8 @@ TaskManagement.prototype = {
 					if(json.errors != undefined) {
 						that.show(modal, 'danger', json.errors[0].message);
 					}
-				}
+				},
+				401: redirectToLogin
 			},
 			error: function(jqHXR, textStatus, errorThrown) {
 				that.show(m, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to skip the estimation');
@@ -780,7 +717,7 @@ TaskManagement.prototype = {
 				that.listTasks();
 			},
 			statusCode: {
-				400 : function(jqHXR, textStatus, errorThrown){
+				400 : function(jqHXR){
 					json = $.parseJSON(jqHXR.responseText);
 					if(json.description != undefined) {
 						that.show(modal, 'danger', json.description);
@@ -788,7 +725,8 @@ TaskManagement.prototype = {
 					if(json.errors != undefined) {
 						that.show(modal, 'danger', json.errors[0].message);
 					}
-				}
+				},
+				401: redirectToLogin
 			},
 			error: function(jqHXR, textStatus, errorThrown) {
 				that.show(m, 'danger', 'An unknown error "' + errorThrown + '" occurred while trying to estimate the task');
@@ -814,7 +752,8 @@ TaskManagement.prototype = {
 				that.listTasks();
 			},
 			statusCode: {
-				422 : function(jqHXR, textStatus, errorThrown){
+				401: redirectToLogin,
+				422 : function(jqHXR){
 					json = $.parseJSON(jqHXR.responseText);
 					if(json.description != undefined) {
 						that.show(modal, 'danger', json.description);
@@ -848,7 +787,8 @@ TaskManagement.prototype = {
 				that.listTasks();
 			},
 			statusCode: {
-				422 : function(jqHXR, textStatus, errorThrown){
+				401: redirectToLogin,
+				422 : function(jqHXR){
 					json = $.parseJSON(jqHXR.responseText);
 					if(json.description != undefined) {
 						that.show(modal, 'danger', json.description);
@@ -874,22 +814,18 @@ TaskManagement.prototype = {
 	
 	sendReminder: function(e){
 		var modal = $(e.delegateTarget);
-		var url = $(e.target).attr('href');
-		var taskId = $(e.target).attr('data-task');
-		var id = $(e.target).attr('data-action');
-		
+		var a = $(e.target);
+
 		$.ajax({
-			url: $(e.target).attr('href'),
+			url: a.attr('href'),
 			headers: {
 				'GOOGLE-JWT': sessionStorage.token
 			},
 			method: 'POST',
-			data: {taskId:$(e.target).attr('data-task')},
-			success: function() {
-				that.listTasks();
-			},
+			data: { taskId: a.attr('data-task') },
 			statusCode: {
-				400 : function(jqHXR, textStatus, errorThrown){
+				401: redirectToLogin,
+				400 : function(jqHXR){
 					json = $.parseJSON(jqHXR.responseText);
 					if(json.description != undefined) {
 						that.show(modal, 'danger', json.description);
@@ -919,12 +855,6 @@ TaskManagement.prototype = {
 		return "";
 	},
 	
-	listMoreTasks: function(e) {
-		var limit = $('taskFilters[name=limit]');
-		limit.val(limit.val() + 10);
-		this.listTasks();
-	},
-	
 	setupPollingObject: function(frequency, pollingFunction){
 		
 		var that = this;
@@ -945,7 +875,7 @@ $().ready(function(e){
 	$('head').append( '<meta name="google-signin-client_id" content="'+googleID+'">' );
 	$('#content div.alert').hide();
 	$('#firstLevelMenu li').eq(0).addClass('active');
-	collaboration = new TaskManagement(taskUtils);
+	collaboration = new TaskManagement();
 	collaboration.listTasks();
 	collaboration.updateStreams();
 	collaboration.pollingObject.startPolling();

@@ -185,7 +185,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		}
 
 		$builder = $this->entityManager->createQueryBuilder();
-		$query = $builder->select('SUM( CASE WHEN m.role=:role THEN 1 ELSE 0 END ) as ownershipsCount')
+		$query = $builder->select('COALESCE(SUM( CASE WHEN m.role=:role THEN 1 ELSE 0 END ),0) as ownershipsCount')
 			->addSelect('COUNT(m.task) as membershipsCount')
 			->addSelect('COALESCE(SUM(m.credits),0) as creditsCount')
 			->addSelect('COALESCE(AVG( CASE WHEN t.status >=:taskStatus THEN m.delta ELSE :value END ),0) as averageDelta')
