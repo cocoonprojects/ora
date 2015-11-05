@@ -2,9 +2,7 @@
 $this->headScript ()->appendFile ( $this->basePath () . '/js/task-utils.js' );
 $this->headScript ()->appendFile ( $this->basePath () . '/js/profile.js' );
 ?>
-<div class="container" id="profile-content"
-		user-id="<?php echo $this->layout()->getVariable('user');?>"
-		org-id="<?php echo $this->layout()->getVariable('organization')->getId();?>">
+<div class="container">
 	<div class="row">
 		<div class="col-md-6">
 			<div class="row">
@@ -63,19 +61,36 @@ $this->headScript ()->appendFile ( $this->basePath () . '/js/profile.js' );
 			</table>
 		</div>
 	</div>
-	<h4>Tasks contribution</h4>
-	<form class="form-inline" id="tasksFilter">
-		<div class="text-left form-group">
-			<label for="startOn" class="control-label">From</label>
-			<input type="text" class="form-control" id="startOn" placeholder="gg/mm/aaaa">
-		</div>
-		<div class="text-left form-group">
-			<label for="endOn" class="control-label">To</label>
-			<input type="text" class="form-control" id="endOn" placeholder="gg/mm/aaaa">
-		</div>
-		<button type="submit" class="btn btn-primary btn-sm">Filter</button>
-	</form>
-	<div id="task-metrics"></div>
+	<div id="task-metrics">
+		<h4>Tasks contribution</h4>
+		<form class="form-inline" id="taskFilters" method="get" action="<?= $this->url('tasks', ['orgId' => $this->layout()->getVariable('organization')->getId()])?>">
+			<input type="hidden" name="memberId" value="<?= $this->layout()->getVariable('user') ?>">
+			<input type="hidden" name="offset" value="0">
+			<input type="hidden" name="limit" value="10">
+			<div class="form-group">
+				<label for="startOn">From</label>
+				<input type="date" class="form-control" id="startOn" name="startOn">
+			</div>
+			<div class="form-group">
+				<label for="endOn">To</label>
+				<input type="date" class="form-control" id="endOn" name="endOn">
+			</div>
+			<button type="submit" class="btn btn-primary">Filter</button>
+		</form>
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th style="width: 3em"></th>
+					<th>Subject</th>
+					<th style="width: 16em; text-align: center">Status</th>
+					<th style="width: 6em; text-align: right">Credits</th>
+					<th style="width: 8em; text-align: right">&Delta; shares</th>
+				</tr>
+			</thead>
+			<tbody></tbody>
+			<tfoot></tfoot>
+		</table>
+	</div>
 </div>
 <script>
 function onLoad() {

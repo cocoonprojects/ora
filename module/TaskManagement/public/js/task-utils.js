@@ -1,13 +1,4 @@
-var TaskUtils = function(){
-
-	this.statuses = {
-		0: 'Idea',
-		10: 'Open',
-		20: 'Ongoing',
-		30: 'Completed',
-		40: 'Shares assignment in progress',
-		50: 'Closed'
-	};
+var TaskUtils = function() {
 
 	this.TASK_STATUS = function() {
 
@@ -44,5 +35,13 @@ var TaskUtils = function(){
 		return taskMemberRole.toUpperCase() == task_members_roles.ROLE_OWNER;
 	}
 };
-
-var taskUtils = new TaskUtils();
+TaskUtils.prototype = {
+	statuses: {
+		0: 'Idea',
+		10: 'Open',
+		20: 'Ongoing',
+		30: 'Completed',
+		40: 'Shares assignment in progress',
+		50: 'Closed'
+	}
+};

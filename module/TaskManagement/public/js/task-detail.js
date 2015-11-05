@@ -1,7 +1,5 @@
-var TaskDetail = function(taskUtils){
-	
-	this.utils = taskUtils;
-
+var TaskDetail = function()
+{
 	this.getLabelForAssignShares = function(daysLeft){
 
 		if(daysLeft !== null){
@@ -23,7 +21,7 @@ TaskDetail.prototype = {
 	constructor: TaskDetail,
 	classe: 'TaskDetail',
 
-	bindEventsOn : function(){
+	bindEventsOn : function() {
 		var that = this;
 
 		$("#taskDetailModal").on("show.bs.modal", function(e) {
@@ -32,32 +30,34 @@ TaskDetail.prototype = {
 			container = $('#taskDetailModal .modal-body');
 			container.empty();
 
-			that.getTask(e);
+			var url = $(e.relatedTarget).data('href');
+			that.loadTask(url);
 		});
 	},
 		
-	getTask : function(e){
-		var url = $(e.relatedTarget).data('href');
+	loadTask : function(url) {
 		$.ajax({
 			url: url,
 			headers: {
 				'GOOGLE-JWT': sessionStorage.token
 			},
-			method: 'GET'
-		})
-		.done(this.onTaskCompleted.bind(this));
+			statusCode: {
+				401: redirectToLogin
+			},
+			success: this.onTaskLoaded.bind(this)
+		});
 	},
 
-	onTaskCompleted : function(json) {
+	onTaskLoaded : function(task) {
 		var container = $('#taskDetailModal h4');
-		container.text(json.subject);
+		container.text(task.subject);
+
 		container = $('#taskDetailModal .modal-body');
-		container.append(this.renderTaskDetail(json));
+		container.append(this.renderTaskDetail(task));
 	},
 
 	renderTaskDetail : function(task){
-
-		var that = this;
+		var taskUtils = new TaskUtils();
 		var estimation = null;
 		switch(task.estimation) {
 			case undefined:
@@ -84,22 +84,22 @@ TaskDetail.prototype = {
 			rv += '<li>Accepted at ' + acceptedAt.toLocaleString() + '</li>';
 		}
 
-		rv += '<li>' + this.utils.statuses[task.status];
+		rv += '<li>' + taskUtils.statuses[task.status];
 		
-		if(task.status == this.utils.TASK_STATUS.get('ACCEPTED')){
+		if(task.status == taskUtils.TASK_STATUS.get('ACCEPTED')){
 			rv += this.getLabelForAssignShares(task.daysRemainingToAssignShares);
 		}
 
 		rv += '</li>' + estimation + '</ul>';
 
-		rv += '<table class="table table-striped"><caption>Members</caption>' +
-				'<thead><tr><th style="width: 3em"></th><th></th><th style="text-align: right">Estimate</th>';
+		rv += '<table class="table table-striped">' +
+				'<thead><tr><th style="width: 3em"></th><th>Members</th><th style="text-align: right">Estimate</th>';
 		//$.map(task.members, function(member, memberId) {
 		//	rv += '<th style="text-align: center">' + member.firstname.charAt(0) + member.lastname.charAt(0) + '</th>';
 		//});
 		rv += '<th style="text-align: center">Avg</th><th style="text-align: center">&Delta;</th></tr></thead><tbody>';
 		$.map(task.members, function(member, memberId) {
-			var isOwner = that.utils.isTaskOwner(member.role);
+			var isOwner = taskUtils.isTaskOwner(member.role);
 			var picture = member.picture || "";
 			rv += "<tr>";
 			rv += isOwner ? "<td class=\"text-center\"><i class=\"mdi-action-grade\" title=\"owner\"></i></td>" : "<td></td>";
@@ -142,3 +142,6 @@ TaskDetail.prototype = {
 		return rv;
 	}
 }
+$().ready(function(e) {
+	new TaskDetail();
+});
