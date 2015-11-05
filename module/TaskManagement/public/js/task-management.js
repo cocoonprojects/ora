@@ -17,6 +17,8 @@ TaskManagement.prototype = {
 	data: [],
 	streamsData: [],
 
+	listTaskSemaphore: false,
+
 	bindEventsOn: function()
 	{
 		var that = this;
@@ -405,6 +407,11 @@ TaskManagement.prototype = {
 
 	listTasks: function()
 	{
+		if(this.listTaskSemaphore) {
+			return;
+		}
+		this.listTaskSemaphore = true;
+
 		var that = this;
 
 		$.ajax({
@@ -414,9 +421,6 @@ TaskManagement.prototype = {
 				'GOOGLE-JWT': sessionStorage.token
 			},
 			method: 'GET',
-			beforeSend: function() {
-				that.pollingObject.stopPolling.bind(that.pollingObject)();
-			},
 			statusCode: {
 				401: function() {
 					sessionStorage.setItem('redirectURL', redirectURL);
@@ -427,7 +431,7 @@ TaskManagement.prototype = {
 				that.onListTasksCompleted(data);
 			},
 			complete: function() {
-				that.pollingObject.startPolling.bind(that.pollingObject)();
+				that.listTaskSemaphore = false;
 			}
 		});
 	},
