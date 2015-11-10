@@ -121,7 +121,7 @@ Profile.prototype = {
 					'<td><a href="#" data-href="' + task._links.self.href + '" data-toggle="modal" data-target="#taskDetailModal">' + task.subject + '</a></td>' +
 					'<td style="text-align: center">' + taskUtils.statuses[task.status] + '</td>' +
 					'<td style="text-align: right">' + (member.credits || '') + '</td>' +
-					'<td style="text-align: right">' + (member.delta || '') + '</td>' +
+					'<td style="text-align: right">' + (member.delta ? (member.delta * 100).toFixed(2)+'%' : '') + '</td>' +
 				'</tr>');
 		});
 		if(data.total == 0){
