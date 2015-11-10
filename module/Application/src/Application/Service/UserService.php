@@ -2,6 +2,7 @@
 namespace Application\Service;
 
 use Application\Entity\User;
+use People\Entity\Organization;
 
 interface UserService
 {
@@ -37,12 +38,11 @@ interface UserService
 	 * @return User
 	 */
 	public function findUserByEmail($email);
-	
+
 	/**
-	 * Find a User by Kanbanize username
-	 *
-	 * @param string $email
-	 * @return User
+	 * Find users by $filters
+	 * @param String $filters["kanbanizeUsername"]
+	 * @return User[]
 	 */
-	public function findByKanbanizeUsername($username);
+	public function findUsers($filters);
 }

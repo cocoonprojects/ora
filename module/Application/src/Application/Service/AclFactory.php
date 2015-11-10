@@ -36,7 +36,8 @@ class AclFactory implements FactoryInterface
 			'TaskManagement.Task.list',
 			'TaskManagement.Stream.list',
 			'TaskManagement.Task.stats',
-			'Accounting.Accounts.list'
+			'Accounting.Accounts.list',
+			'Kanbanize.Task.Import'
 		], new MemberOfOrganizationAssertion());
 		
 		$acl->addResource('Ora\User');

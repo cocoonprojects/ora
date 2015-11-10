@@ -37,12 +37,15 @@ class Organization extends EditableEntity implements ResourceInterface
 	}
 
 	public function setSetting($key, $value){
-		$this->settings[$key] = $settings;
+		$this->settings[$key] = $value;
 		return $this;
 	}
 
 	public function getSetting($key){
-		return $this->settings[$key];
+		if(array_key_exists($key, $this->settings)){
+			return $this->settings[$key];
+		}
+		return null;
 	}
 
 	public function getSettings(){

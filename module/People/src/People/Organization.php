@@ -74,7 +74,10 @@ class Organization extends DomainEntity
 	}
 
 	public function getSetting($key){
-		return $this->settings[$key];
+		if(array_key_exists($key, $this->settings)){
+			return $this->settings[$key];
+		}
+		return null;
 	}
 
 	public function getName() {
