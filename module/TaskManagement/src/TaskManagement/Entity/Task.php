@@ -38,6 +38,7 @@ class Task extends EditableEntity implements TaskInterface
 
 	/**
 	 * @ORM\OneToMany(targetEntity="TaskMember", mappedBy="task", cascade={"PERSIST", "REMOVE"}, orphanRemoval=TRUE, indexBy="member_id")
+	 * @ORM\OrderBy({"createdAt" = "ASC"})
 	 * @var TaskMember[]
 	 */
 	private $members;
