@@ -1,6 +1,8 @@
 <?php
 namespace Accounting\View;
 
+use Accounting\Entity\Withdrawal;
+use Zend\Server\Reflection\ReflectionClass;
 use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
 use Zend\Mvc\Controller\Plugin\Url;
@@ -87,6 +89,10 @@ class StatementJsonModel extends JsonModel
 	
 	private function evaluateTransactionType(Transaction $transaction){
 		$account = $this->getVariable('resource');
+		if($transaction instanceof Withdrawal || $transaction instanceof Deposit) {
+			$reflect = new \ReflectionClass($transaction);
+			return $reflect->getShortName();
+		}
 		if($transaction->getPayer() != null && $transaction->getPayer()->getId() == $account->getId()){
 			return 'OutgoingTransfer';
 		}else if ($transaction->getPayee() != null && $transaction->getPayee()->getId() == $account->getId()){

@@ -433,3 +433,20 @@ VALUES
 INSERT INTO account_transactions (id, payer_id,payee_id, amount, description, balance, createdAt, createdBy_id, type ) 
 VALUES 
 ('4', 'ccde992b-5aa9-4447-98ae-c8115906dcb7', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 2000, 'Description', 2000,  '2014-02-18 10:48:13', '80000000-0000-0000-0000-000000000000', 'transfer');
+
+#organization account transactions
+INSERT INTO account_transactions (id, payer_id, payee_id, amount, description, balance, createdAt, createdBy_id, type )
+VALUES
+  (5, NULL, 'dcde992b-5aa9-4447-98ae-c8115906dcb7', 10000, 'Initial Budget', 10000, '2015-02-10 10:48:13', '60000000-0000-0000-0000-000000000000', 'deposit');
+
+INSERT INTO account_transactions (id, payer_id,payee_id, amount, description, balance, createdAt, createdBy_id, type )
+VALUES
+  (6, 'dcde992b-5aa9-4447-98ae-c8115906dcb7', NULL, -100, 'Budget Reduction', 9900, '2015-02-11 10:48:13', '60000000-0000-0000-0000-000000000000', 'withdrawal');
+
+INSERT INTO account_transactions (id, payer_id,payee_id, amount, description, balance, createdAt, createdBy_id, type )
+VALUES
+  (7, 'dcde992b-5aa9-4447-98ae-c8115906dcb7', 'cdde992b-5aa9-4447-98ae-c8115906dcb9', -500, 'Item share', 9400, '2015-02-12 10:48:13', '60000000-0000-0000-0000-000000000000', 'transfer');
+
+INSERT INTO account_transactions (id, payer_id,payee_id, amount, description, balance, createdAt, createdBy_id, type )
+VALUES
+  (8, 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 'dcde992b-5aa9-4447-98ae-c8115906dcb7', 2000, 'Payment request', 7400,  '2015-02-13 10:48:13', '60000000-0000-0000-0000-000000000000', 'transfer');
