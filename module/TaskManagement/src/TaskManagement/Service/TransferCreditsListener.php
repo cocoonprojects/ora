@@ -67,7 +67,7 @@ class TransferCreditsListener implements ListenerAggregateInterface
 			if($amount > 0) {
 				$account = $this->accountService->findPersonalAccount($memberId, $organization);
 				$payee = $this->accountService->getAccount($account->getId());
-				$this->accountService->transfer($payer, $payee, $amount, "Item '" . $task->getSubject() . "' (#" . $task->getId() .") credits share", $by);
+				$this->accountService->transfer($payer, $payee, $amount, 'Item "' . $task->getSubject() . '" share', $by);
 			}
 		}
 	}

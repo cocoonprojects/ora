@@ -256,17 +256,23 @@ class RestContext extends RawMinkContext
 		}
 		return $this->json;
 	}
-	
+
 	/**
 	 * @Then /^the "([^"]*)" property should be "([^"]*)"$/
+	 * @param $propertyName
+	 * @param $value
+	 * @throws Exception
 	 */
 	
-	public function thePropertyShoudlBe($propertyName, $value){
-		$this->theResponseShouldHaveAProperty($propertyName);
-		if($value == 'null' && !is_null($this->json->$propertyName)) {
-			throw new Exception($propertyName . " property value is not ".$value.". It is ".$this->json->$propertyName);
-	   	} elseif ($this->json->$propertyName != $value) {
-			throw new Exception($propertyName . " property value is not equal to ".$value.". It is ".$this->json->$propertyName); 
+	public function thePropertyShouldBe($propertyName, $value){
+		$this->json;
+		$rv = null;
+		$str = '$rv = $this->json->'.str_replace('.', '->', $propertyName).';';
+		eval($str);
+		if($value == 'null' && !is_null($rv)) {
+			throw new Exception("'$propertyName' property value is not '$value''. It is '$rv'");
+	   	} elseif ($rv != $value) {
+			throw new Exception("'$propertyName' property value is not equal to '$value'. It is '$rv'");
 		}
 	}
 	
