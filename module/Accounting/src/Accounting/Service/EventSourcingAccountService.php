@@ -145,6 +145,10 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	/**
 	 * (non-PHPdoc)
 	 * @see \Accounting\Service\AccountService::findTransactions()
+	 * @param ReadModelAccount $account
+	 * @param int $limit
+	 * @param int $offset
+	 * @return \Accounting\Entity\Transaction[]
 	 */
 	public function findTransactions(ReadModelAccount $account, $limit, $offset){
 		$builder = $this->entityManager->createQueryBuilder();
