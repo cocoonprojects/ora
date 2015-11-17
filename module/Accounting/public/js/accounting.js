@@ -294,7 +294,7 @@ Accounting.prototype = {
 
 		var balance = 0;
 
-		$.each(json.transactions, function(key, transaction) {
+		$.each(json._embedded.transactions, function(key, transaction) {
 			var transactionDate = new Date(Date.parse(transaction.date));
 			if(key == 0) { top.text(transaction.balance); }
 			var cssClass = transaction.amount < 0 ? 'text-danger' : '';
@@ -319,7 +319,7 @@ Accounting.prototype = {
 			balance = transaction.balance - transaction.amount;
 		});
 		bottom.text(balance);
-		if(json.transactions.length == 0) {
+		if(json._embedded.transactions.length == 0) {
 			c.append('<tr><td colspan="4">No transactions in your history</td></tr>');
 		}
 

@@ -171,6 +171,7 @@ class AccountsController extends OrganizationAwareController
 	 */
 	private function serializeAccount(Account $account) {
 		$rv = [
+			'id' => $account->getId(),
 			'balance' => [
 				'value' => $account->getBalance()->getValue(),
 				'date' => date_format($account->getBalance()->getDate(), 'c'),
