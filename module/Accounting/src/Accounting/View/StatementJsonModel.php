@@ -36,11 +36,15 @@ class StatementJsonModel extends JsonModel
 		$transactions = $this->getVariable('transactions');
 		$totalTransactions = $this->getVariable('totalTransactions');
 		
-		$rv['organization'] = $account->getOrganization()->getName();
+		$rv['organization'] = [
+			'id' => $account->getOrganization()->getId(),
+			'name' => $account->getOrganization()->getName()
+		];
+		$rv['holders'] = array_column(array_map([$this, 'serializeHolder'], $account->getHolders()), null, 'id');
 		$rv['transactions'] = array_map(array($this, 'serializeTransaction'), $transactions);
-		$rv['_links']       = $this->serializeLinks($account);
-		$rv['count'] 		= count($transactions);
-		$rv['total'] 		= $totalTransactions;
+		$rv['_links'] = $this->serializeLinks($account);
+		$rv['count'] = count($transactions);
+		$rv['total'] = $totalTransactions;
 		if($rv['count'] < $rv['total']){
 			$controller = $account instanceof OrganizationAccount ? 'organization-statement' : 'personal-statement';
 			$rv['_links']['next']['href'] = $this->url->fromRoute('statements', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => $controller]);
@@ -99,5 +103,13 @@ class StatementJsonModel extends JsonModel
 			return 'IncomingTransfer';
 		}
 		return '';
+	}
+
+	private function serializeHolder(User $holder) {
+		return [
+			'id' => $holder->getId(),
+			'firstname' => $holder->getFirstname(),
+			'lastname' => $holder->getLastname()
+		];
 	}
 }
