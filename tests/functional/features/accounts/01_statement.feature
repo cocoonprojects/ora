@@ -9,7 +9,7 @@ Feature: Get organization statement
     When I request "/00000000-0000-0000-1000-000000000000/accounting/organization-statement"
     Then the response status code should be 200
     And the response should be JSON
-    And the "transactions[0].type" property should be "IncomingTransfer"
-    And the "transactions[1].type" property should be "OutgoingTransfer"
-    And the "transactions[2].type" property should be "Withdrawal"
-    And the "transactions[3].type" property should be "Deposit"
+    And the "_embedded.transactions[0].type" property should be "IncomingTransfer"
+    And the "_embedded.transactions[1].type" property should be "OutgoingTransfer"
+    And the "_embedded.transactions[2].type" property should be "Withdrawal"
+    And the "_embedded.transactions[3].type" property should be "Deposit"

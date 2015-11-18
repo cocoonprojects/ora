@@ -131,7 +131,7 @@ class PersonalStatementControllerTest extends ControllerTest
 		$this->assertEquals(200, $response->getStatusCode());
 		$arrayResult = json_decode($result->serialize(), true);
 		$this->assertNotEmpty($arrayResult['organization']);
-		$this->assertArrayHasKey('transactions', $arrayResult);
+		$this->assertArrayHasKey('transactions', $arrayResult['_embedded']);
 		$this->assertArrayHasKey('count', $arrayResult);
 		$this->assertArrayHasKey('total', $arrayResult);
 		$this->assertEquals($arrayResult['count'], $arrayResult['total']);
@@ -178,7 +178,7 @@ class PersonalStatementControllerTest extends ControllerTest
 		$this->assertEquals(200, $response->getStatusCode());
 		$arrayResult = json_decode($result->serialize(), true);
 		$this->assertNotEmpty($arrayResult['organization']);
-		$this->assertArrayHasKey('transactions', $arrayResult);
+		$this->assertArrayHasKey('transactions', $arrayResult['_embedded']);
 		$this->assertArrayHasKey('count', $arrayResult);
 		$this->assertArrayHasKey('total', $arrayResult);
 		$this->assertLessThan($arrayResult['total'], $arrayResult['count']);

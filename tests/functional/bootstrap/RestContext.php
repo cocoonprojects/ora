@@ -265,7 +265,6 @@ class RestContext extends RawMinkContext
 	 */
 	
 	public function thePropertyShouldBe($propertyName, $value){
-		$this->json;
 		$rv = null;
 		$str = '$rv = $this->json->'.str_replace('.', '->', $propertyName).';';
 		eval($str);

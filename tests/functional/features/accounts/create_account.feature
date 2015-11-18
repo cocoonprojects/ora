@@ -10,7 +10,7 @@ Feature: Create personal account
     Then the response status code should be 200
     And the response should be JSON
     And the response should have a "organization" property
-    And the response should have a "transactions" property
+    And the response should have a "_embedded.transactions" property
 
   Scenario: Successfully deposit 500 credits into the organization account
     Given that I am authenticated as "mark.rogers@ora.local"

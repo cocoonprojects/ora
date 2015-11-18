@@ -50,3 +50,6 @@ script:
   - phpunit --configuration unit/phpunit.xml --coverage-text
   - phpunit --configuration integration/phpunit.xml
   - ../vendor/bin/behat
+
+notifications:
+  slack: orateam:V9urUyg4g9i0xyNfYlJ5QkTd

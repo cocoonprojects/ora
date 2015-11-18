@@ -100,7 +100,7 @@ class OrganizationStatementControllerTest extends ControllerTest
 		$this->assertEquals(200, $response->getStatusCode());
 		$arrayResult = json_decode($result->serialize(), true);
 		$this->assertNotEmpty($arrayResult['organization']);
-		$this->assertArrayHasKey('transactions', $arrayResult);
+		$this->assertArrayHasKey('transactions', $arrayResult['_embedded']);
 		$this->assertNotEmpty($arrayResult['_links']['self']['href']);
 		$this->assertArrayNotHasKey('next', $arrayResult['_links']);
 		$this->assertArrayNotHasKey('ora:deposit', $arrayResult['_links']);
@@ -136,7 +136,7 @@ class OrganizationStatementControllerTest extends ControllerTest
 		$this->assertEquals(200, $response->getStatusCode());
 		$arrayResult = json_decode($result->serialize(), true);
 		$this->assertNotEmpty($arrayResult['organization']);
-		$this->assertArrayHasKey('transactions', $arrayResult);
+		$this->assertArrayHasKey('transactions', $arrayResult['_embedded']);
 		$this->assertArrayHasKey('count', $arrayResult);
 		$this->assertArrayHasKey('total', $arrayResult);
 		$this->assertEquals($arrayResult['count'], $arrayResult['total']);
@@ -177,7 +177,7 @@ class OrganizationStatementControllerTest extends ControllerTest
 		$this->assertEquals(200, $response->getStatusCode());
 		$arrayResult = json_decode($result->serialize(), true);
 		$this->assertNotEmpty($arrayResult['organization']);
-		$this->assertArrayHasKey('transactions', $arrayResult);
+		$this->assertArrayHasKey('transactions', $arrayResult['_embedded']);
 		$this->assertArrayHasKey('next', $arrayResult['_links']);
 		$this->assertArrayHasKey('count', $arrayResult);
 		$this->assertArrayHasKey('total', $arrayResult);
