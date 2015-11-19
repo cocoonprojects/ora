@@ -1,4 +1,4 @@
-<p>Hi <?= $this->recipient->getFirstname()." ".$this->recipient->getLastname()?>,<p>
+<p>Hi <?= $this->recipient->getFirstname() ?>,<p>
 <p>You haven't estimated the item <b><?= $this->task->getSubject()?></b> yet!</p>
 <p>It is important you do it as soon as possible to define with your taskmate the value of the item.</p>
 <p>Please follow <a href="<?= $this->url('collaboration-home',array('orgId' => $this->task->getStream()->getOrganization()->getId()), array('force_canonical' => true))?>"> this link</a> and add your estimation as soon as possible.</p>
