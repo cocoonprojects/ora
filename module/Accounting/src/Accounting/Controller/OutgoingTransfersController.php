@@ -4,6 +4,7 @@ namespace Accounting\Controller;
 
 
 use Accounting\IllegalAmountException;
+use Zend\View\Model\JsonModel;
 
 class OutgoingTransfersController extends TransfersController
 {
@@ -64,8 +65,8 @@ class OutgoingTransfersController extends TransfersController
 
 		$this->transaction()->begin();
 		try {
-			$account->transferOut(-$amount, $payeeAccount, $description, $this->identity());
-			$payeeAccount->transferIn($amount, $account, $description, $this->identity());
+			$transactions[] = $account->transferOut(-$amount, $payeeAccount, $description, $this->identity());
+			$transactions[] = $payeeAccount->transferIn($amount, $account, $description, $this->identity());
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201); // Created
 			$this->response->getHeaders()->addHeaderLine(
@@ -76,6 +77,14 @@ class OutgoingTransfersController extends TransfersController
 					'controller' => 'statements'
 				])
 			);
+			$view = new JsonModel([
+					'_embedded' => [
+							'ora:transaction' => $transactions
+					],
+					'count' => 2,
+					'total' => 2
+			]);
+			return $view;
 		} catch (IllegalAmountException $e) {
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(400);
