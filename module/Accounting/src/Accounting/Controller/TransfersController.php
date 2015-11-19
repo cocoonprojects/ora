@@ -28,21 +28,9 @@ abstract class TransfersController extends OrganizationAwareController
 	 */
 	private $accountService;
 	/**
-	 * @var ValidatorChain
-	 */
-	protected $amountValidator;
-	/**
-	 * @var ValidatorChain
-	 */
-	protected $descriptionValidator;
-	/**
 	 * @var FilterChain
 	 */
 	protected $descriptionFilter;
-	/**
-	 * @var ValidatorChain
-	 */
-	protected $payeeValidator;
 	/**
 	 * @var UserService
 	 */
@@ -53,24 +41,11 @@ abstract class TransfersController extends OrganizationAwareController
 		parent::__construct($organizationService);
 		$this->accountService = $accountService;
 		$this->userService = $userService;
-		$this->amountValidator = new ValidatorChain();
-		$this->amountValidator
-			->attach(new NotEmpty())
-			->attach(new Float())
-			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
-		$this->descriptionValidator = new ValidatorChain();
-		$this->descriptionValidator
-			->attach(new NotEmpty())
-			->attach(new StringLength(['max' => 256]));
 		$this->descriptionFilter = new FilterChain();
 		$this->descriptionFilter
 			->attach(new StringTrim())
 			->attach(new StripNewlines())
 			->attach(new StripTags());
-		$this->payeeValidator = new ValidatorChain();
-		$this->payeeValidator
-			->attach(new NotEmpty())
-			->attach(new EmailAddress());
 	}
 
 	/**
