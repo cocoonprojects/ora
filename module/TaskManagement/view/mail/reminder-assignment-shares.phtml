@@ -1,4 +1,4 @@
-<p>Hi <?= $this->recipient->getFirstname()." ".$this->recipient->getLastname()?>,</p>
+<p>Hi <?= $this->recipient->getFirstname() ?>,</p>
 <p><b>the time</b> available to assign shares to the item "<?= $this->task->getSubject()?>" <b>is running out!</b></p> 
 <p>It is important you won't miss the chance to tell your taskmates what you think about the team contribution.</p> 
 <p>Follow <a href="<?= $this->url('collaboration-home',array('orgId' => $this->task->getStream()->getOrganization()->getId()), array('force_canonical' => true))//."#".$this->task->getId();?>"> this link</a> to do it as soon as possible</p>
