@@ -7,14 +7,8 @@ use Application\Entity\User;
 
 class OrganizationAccount extends Account
 {
-	/**
-	 * @param Organization $organization
-	 * @param User $createdBy
-	 * @param null $name
-	 * @return Account
-	 */
-	public static function create(Organization $organization, User $createdBy, $name = null) {
-		$rv = parent::create($organization, $createdBy, is_null($name) ? $organization->getName() : $name);
+	public static function create(Organization $organization, User $createdBy) {
+		$rv = parent::create($organization, $createdBy);
 		$organization->changeAccount($rv, $createdBy);
 		return $rv;
 	}
