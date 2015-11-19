@@ -5,7 +5,6 @@ use Zend\I18n\Validator\Float;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\NotEmpty;
 use Zend\Validator\GreaterThan;
-use Zend\View\Model\JsonModel;
 use ZFX\Rest\Controller\HATEOASRestfulController;
 use Accounting\Service\AccountService;
 use Accounting\IllegalAmountException;
@@ -59,15 +58,13 @@ class DepositsController extends HATEOASRestfulController
 
 		$this->transaction()->begin();
 		try {
-			$transaction = $account->deposit($data['amount'], $this->identity(), $description);
+			$account->deposit($data['amount'], $this->identity(), $description);
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201); // Created
 			$this->response->getHeaders()->addHeaderLine(
 					'Location',
-					$this->url()->fromRoute('accounts', ['orgId' => $account->getOrganizationId(),'id' => $account->getId()])
+					$this->url()->fromRoute('accounts', array('orgId' => $account->getOrganizationId(),'id' => $account->getId()))
 			);
-			$view = new JsonModel($transaction);
-			return $view;
 		} catch (IllegalAmountException $e) {
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(400);

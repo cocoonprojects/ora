@@ -80,13 +80,13 @@ class StatementJsonModel extends JsonModel
 	}
 	
 	protected function serializeTransaction(Transaction $transaction) {
-		$rv = [
+		$rv = array(
 			'date' => date_format($transaction->getCreatedAt(), 'c'),
 			'type' => $this->evaluateTransactionType($transaction),
 			'amount' => $transaction->getAmount(),
 			'description' => $transaction->getDescription(),
 			'balance' => $transaction->getBalance(),
-		];
+		);
 		if($transaction->getPayeeName() != null) {
 			$rv['payee'] = $transaction->getPayeeName();
 		}
