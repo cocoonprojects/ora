@@ -23,17 +23,14 @@ interface TaskService
 	 * @return Task|null
 	 */
 	public function getTask($id);
-	
+
 	/**
 	 * Get the list of all available tasks in the $offset - $limit interval
 	 *
 	 * @param Organization $organization
 	 * @param integer $offset
 	 * @param integer $limit
-	 * @param \DateTime $filters["startOn"]
-	 * @param \DateTime $filters["endOn"]
-	 * @param String $filters["memberId"]
-	 * @param String $filters["memberEmail"]
+	 * @param array $filters
 	 * @return Task[]
 	 */
 	public function findTasks(Organization $organization, $offset, $limit, $filters);
@@ -43,18 +40,6 @@ interface TaskService
 	 * @return Task|null
 	 */
 	public function findTask($id);
-
-	/**
-	 * @param string|Uuid $streamId
-	 * @params integer $offset
-	 * @params integer $limit
-	 * @param \DateTime $filters["startOn"]
-	 * @param \DateTime $filters["endOn"]
-	 * @param String $filters["memberId"]
-	 * @param String $filters["memberEmail"]
-	 * @return Task[]
-	 */
-	public function findStreamTasks($streamId, $offset, $limit, $filters);
 
 	/**
 	 * Find accepted tasks with accepted date before $interval days from now

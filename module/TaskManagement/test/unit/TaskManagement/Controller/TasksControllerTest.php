@@ -10,6 +10,10 @@ use TaskManagement\Service\StreamService;
 use TaskManagement\Service\TaskService;
 use ZFX\Test\Controller\ControllerTest;
 
+/**
+ * Class TasksControllerTest
+ * @package TaskManagement\Controller
+ */
 class TasksControllerTest extends ControllerTest {
 	
 	private $user;
@@ -53,8 +57,7 @@ class TasksControllerTest extends ControllerTest {
 
 		$this->controller->getTaskService()
 			->expects($this->once())
-			->method('findStreamTasks')
-			->with($this->stream->getId())
+			->method('findTasks')
 			->willReturn([]);
 
 		$this->controller->getTaskService()
@@ -65,7 +68,7 @@ class TasksControllerTest extends ControllerTest {
 		
 		$this->request->setMethod('get');
 		$params = $this->request->getQuery();
-		$params->set('streamID', $this->stream->getId());
+		$params->set('streamId', $this->stream->getId());
 
 		$this->routeMatch->setParam('orgId', $this->organization->getId());
 
@@ -102,13 +105,12 @@ class TasksControllerTest extends ControllerTest {
 
 		$this->controller->getTaskService()
 			->expects($this->once())
-			->method('findStreamTasks')
-			->with($this->stream->getId())
-			->willReturn(array($task));
+			->method('findTasks')
+			->willReturn([$task]);
 
 		$this->request->setMethod('get');
 		$params = $this->request->getQuery();
-		$params->set('streamID', $this->stream->getId());
+		$params->set('streamId', $this->stream->getId());
 
 		$this->routeMatch->setParam('orgId', $this->organization->getId());
 
@@ -394,7 +396,7 @@ class TasksControllerTest extends ControllerTest {
 		$this->routeMatch->setParam('orgId', $this->organization->getId());
 
 		$params = $this->request->getQuery();
-		$params->set('endOn', '31/12/2015');
+		$params->set('endOn', '2015-12-31T00:00:00.000Z');
 
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
@@ -418,7 +420,7 @@ class TasksControllerTest extends ControllerTest {
 		->method('findOrganization')
 		->with($this->organization->getId())
 		->willReturn($this->organization);
-		
+
 		$this->routeMatch->setParam('orgId', $this->organization->getId());
 		$params = $this->request->getQuery();
 		$params->set('status', "Pippo");
@@ -534,5 +536,4 @@ class TasksControllerTest extends ControllerTest {
 		$t2 = $arrayResult['_embedded']['ora:task'][1];
 		$this->assertEquals(Task::STATUS_OPEN, $t2['status']);
 	}
-	
 }

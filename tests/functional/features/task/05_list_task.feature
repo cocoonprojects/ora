@@ -88,27 +88,47 @@ Feature: List tasks
   Scenario: Successfully getting a paginated list of available tasks without any parameters
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
-    Given that its "limit" is "1"
+    And that its "limit" is "1"
     When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
     And the response should have a "_links.next" property
 
-  Scenario: Successfully getting an empty list of tasks filtered by date interval
+  Scenario: Successfully getting a list of tasks until a specified ISO 8601 date
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
-    Given that its "endOn" is "2000-10-31"
-    Given that its "startOn" is "2000-10-01"
+    And that its "endOn" is "2014-07-01T00:00:00.000Z"
     When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
     And the response shouldn't have a "_links.next" property
-    And the "count" property should be "0"
+    And the "total" property should be "7"
+
+  Scenario: Successfully getting a list of tasks from a specified ISO 8601 date
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    And that its "startOn" is "2014-07-01T00:00:00.000Z"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
+    Then the response status code should be 200
+    And the response should have a "_embedded.ora:task" property
+    And the response shouldn't have a "_links.next" property
+    And the "total" property should be "4"
+
+  Scenario: Successfully getting a list of tasks until a specified period
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    And that its "startOn" is "2014-02-01T00:00:00.000Z"
+    And that its "endOn" is "2014-07-01T00:00:00.000Z"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
+    Then the response status code should be 200
+    And the response should have a "_embedded.ora:task" property
+    And the response shouldn't have a "_links.next" property
+    And the "total" property should be "5"
 
   Scenario: Successfully getting an empty list of tasks filtered by user email
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
-    Given that its "memberEmail" is "example@ora.org"
+    And that its "memberEmail" is "example@ora.org"
     When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
@@ -118,7 +138,7 @@ Feature: List tasks
   Scenario: Successfully getting a list of tasks filtered by user id
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
-    Given that its "memberId" is "80000000-0000-0000-0000-000000000000"
+    And that its "memberId" is "80000000-0000-0000-0000-000000000000"
     When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
@@ -128,7 +148,7 @@ Feature: List tasks
   Scenario: Successfully getting an empty list of tasks filtered by status
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
-    Given that its "status" is "10"
+    And that its "status" is "10"
     When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
@@ -137,7 +157,7 @@ Feature: List tasks
   Scenario: Successfully getting an empty list of tasks filtered by wrong status
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
-    Given that its "status" is "Pippo"
+    And that its "status" is "Pippo"
     When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
@@ -147,8 +167,17 @@ Feature: List tasks
   Scenario: Successfully getting a list of tasks filtered by status
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
-    Given that its "status" is "20"
+    And that its "status" is "20"
     When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
     And the "count" property should be "3"
+
+  Scenario: Successfully getting the all list of tasks using an unspecified status
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    And that its "status" is ""
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
+    Then the response status code should be 200
+    And the response should have a "_embedded.ora:task" property
+    And the "count" property should be "10"
