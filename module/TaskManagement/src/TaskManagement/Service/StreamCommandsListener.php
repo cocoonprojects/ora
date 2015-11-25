@@ -7,7 +7,8 @@ use Application\Entity\User;
 use Application\Service\ReadModelProjector;
 use TaskManagement\Entity\Stream;
 use TaskManagement\Entity\Task;
-use Kanbanize\Entity\KanbanizeStream;
+use Kanbanize\KanbanizeStream;
+use Kanbanize\Entity\KanbanizeStream as ReadModelKanbanizeStream;
 
 class StreamCommandsListener extends ReadModelProjector {
 	
@@ -19,12 +20,11 @@ class StreamCommandsListener extends ReadModelProjector {
 			return;
 		}
 		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
-
 		switch($event->metadata()['aggregate_type']) {
 			case KanbanizeStream::class :
-				$entity = new KanbanizeStream($id, $organization);
-				$entity->setBoardId($event->payload()['boardId']);
-				$entity->setProjectId($event->payload()['projectId']);
+				$stream = new ReadModelKanbanizeStream($id, $organization);
+				$stream->setBoardId($event->payload()['boardId']);
+				$stream->setProjectId($event->payload()['projectId']);
 				break;
 			default:
 				$stream = new Stream($id, $organization);

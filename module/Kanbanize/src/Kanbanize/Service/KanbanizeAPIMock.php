@@ -7,13 +7,16 @@ use Kanbanize\KanbanizeTask;
 class KanbanizeAPIMock extends KanbanizeAPI
 {
 	private $values;
-	
+
 	private $tasks;
-	
-	public function __construct($tasks = array(), $values = array())
+
+	private $projects;
+
+	public function __construct($tasks = [], $values = [], $projects = [])
 	{
 		$this->tasks = $tasks;
 		$this->values = $values;
+		$this->projects = $projects;
 	}
 	
 	public function createNewTask($boardid, $data = array())
@@ -42,5 +45,9 @@ class KanbanizeAPIMock extends KanbanizeAPI
 			return $this->tasks[(string) $taskid];
 		}
 		throw new KanbanizeApiException('No Kanbanize task available with id ' . $taskid);
+	}
+	
+	public function getProjectsAndBoards(){
+		return $this->projects;
 	}
 }

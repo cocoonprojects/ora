@@ -17,6 +17,24 @@ return array(
 		)
 	),
 	'listeners' => array(
-		'Kanbanize\SyncTaskListener'
+		//'Kanbanize\SyncTaskListener',	// Actions on kanbanize tasks come directly from Kanbanize, not from O.R.A.
+		'Kanbanize\KanbanizeTasksListener'
+	),
+	'router' => array(
+		'routes' => array(
+			'kanbanize-import' => array(
+				'type' => 'Segment',
+				'options' => array(
+					'route'    => '/:orgId/kanbanize/imports',
+					'defaults' => array(
+						'__NAMESPACE__' => 'Kanbanize\Controller',
+						'controller' => 'Imports',
+					),
+					'constraints' => array(
+						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+					),
+				),
+			)
+		)
 	)
 );

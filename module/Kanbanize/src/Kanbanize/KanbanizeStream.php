@@ -2,7 +2,13 @@
 
 namespace Kanbanize;
 
+use Application\Entity\User;
+use Application\InvalidArgumentException;
+use People\Organization;
+use Rhumsaa\Uuid\Uuid;
 use TaskManagement\Stream;
+use TaskManagement\StreamCreated;
+
 
 class KanbanizeStream extends Stream {
 
@@ -15,18 +21,12 @@ class KanbanizeStream extends Stream {
 	 */
 	private $projectId;
 
-	public static function create(Organization $organization, User $createdBy, $options){
+	public static function create(Organization $organization, $subject, User $createdBy, $options = []){
 		if(!isset($options['boardId'])) {
 			throw InvalidArgumentException('Cannot create a KanbanizeStream without boardId');
 		}
 		if(!isset($options['projectId'])) {
 			throw InvalidArgumentException('Cannot create a KanbanizeStream without projectId');
-		}
-		if(!isset($options['projectName'])) {
-			throw InvalidArgumentException('Cannot create a KanbanizeStream without projectName');
-		}
-		if(!isset($options['boardName'])) {
-			throw InvalidArgumentException('Cannot create a KanbanizeStream without boardName');
 		}
 		$rv = new self();
 		$rv->recordThat(StreamCreated::occur(Uuid::uuid4()->toString(), [
@@ -36,7 +36,7 @@ class KanbanizeStream extends Stream {
 				'projectId' => $options['projectId']
 		]));
 
-		$rv->setSubject($options['projectName']."\\".$options['boardName'], $createdBy);
+		$rv->setSubject($subject, $createdBy);
 		return $rv;
 	}
 	

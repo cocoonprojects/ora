@@ -313,6 +313,28 @@ class KanbanizeAPI {
 	}
 	
 	/**
+	 * get_projects_and_boards method, limit 30/hour
+	 *
+	 * @return array|null
+	 *
+	 * return array of projects, each with
+	 * - [][name]    The name of the project
+	 * - [][id]    The ID of the project
+	 * - [][boards]    Array of details for any boards in current project ( name, id )
+	 *
+	 */
+	public function getProjectsAndBoards()
+	{
+		$call = new KanbanizeAPICall();
+		$call->setFunction('get_projects_and_boards');
+		$resp = $this->doCall($call);
+		if ($resp) {
+			return @$resp['projects'] ? : null;
+		}
+		return null;
+	}
+	
+	/**
 	 *
 	 * @param int $boardid
 	 *        	The ID of the board you want the new task created into. You can see the board ID on the dashboard screen, in the upper right corner of each board.

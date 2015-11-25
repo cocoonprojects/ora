@@ -2,7 +2,11 @@
 
 namespace Kanbanize\Service;
 
+use Application\Entity\User;
+use Doctrine\ORM\EntityManager;
 use Kanbanize\KanbanizeTask;
+use Kanbanize\Entity\KanbanizeStream;
+use Kanbanize\Entity\KanbanizeTask as ReadModelKanbanizeTask;
 
 /**
  * Service Kanbanize
@@ -13,19 +17,21 @@ use Kanbanize\KanbanizeTask;
 class KanbanizeServiceImpl implements KanbanizeService 
 {
 	/**
-	 * Kanbanize API
 	 *
-	 * @var KanbanizeAPI
+	 * @var EntityManager
 	 */
-	private $kanbanize;
-	
+	private $entityManager;
+
 	/*
 	 * Constructs service
 	 */
-	public function __construct(KanbanizeAPI $api) {
-		$this->kanbanize = $api;
+	public function __construct(EntityManager $em) {
+		//$this->kanbanize = $api;
+		$this->entityManager = $em;
 	}
 
+/* Actions on kanbanize tasks come directly from Kanbanize, not from O.R.A.
+ * 
 	private function moveTask(KanbanizeTask $task, $status) {
 		$boardId = $task->getKanbanizeBoardId();
 		$taskId = $task->getKanbanizeTaskId();
@@ -36,7 +42,6 @@ class KanbanizeServiceImpl implements KanbanizeService
 		
 		return 1;
 	}
-
 	public function createNewTask($projectId, $taskSubject, $boardId) {
 		$createdAt = new \DateTime ();
 		
@@ -74,7 +79,6 @@ class KanbanizeServiceImpl implements KanbanizeService
 			return $tasks_to_return;
 		}
 	}
-
 	public function acceptTask(KanbanizeTask $task) {
 		$info = $this->kanbanize->getTaskDetails($task->getKanbanizeBoardId(), $task->getKanbanizeTaskId());
 		if(isset($info['Error'])) {
@@ -89,7 +93,6 @@ class KanbanizeServiceImpl implements KanbanizeService
 			throw new IllegalRemoteStateException("Cannot accpet a task which is " + $info["columnname"]);
 		}
 	}
-
 	public function executeTask(KanbanizeTask $task) {
 		$info = $this->kanbanize->getTaskDetails($task->getKanbanizeBoardId(), $task->getKanbanizeTaskId());
 		if(isset($info['Error'])) {
@@ -123,5 +126,20 @@ class KanbanizeServiceImpl implements KanbanizeService
 	
 	public function closeTask(KanbanizeTask $task) {
 		// TODO: To be implemented
+	}
+*/	
+	/**
+	 * (non-PHPdoc)
+	 * @see \Kanbanize\Service\KanbanizeService::findByBoardId()
+	 */
+	public function findByBoardId($boardId){
+		return $this->entityManager->getRepository(KanbanizeStream::class)->findOneBy(array("boardId"=>$boardId));
+	}
+	/**
+	 * (non-PHPdoc)
+	 * @see \Kanbanize\Service\KanbanizeService::findByTaskId()
+	 */
+	public function findByTaskId($taskId){
+		return $this->entityManager->getRepository(ReadModelKanbanizeTask::class)->findOneBy(array("taskId"=>$taskId));
 	}
 }

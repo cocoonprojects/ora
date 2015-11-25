@@ -3,7 +3,8 @@ namespace TaskManagement\Service;
 
 use Application\Entity\User;
 use Application\Service\ReadModelProjector;
-use Kanbanize\Entity\KanbanizeTask;
+use Kanbanize\Entity\KanbanizeTask as ReadModelKanbanizeTask;
+use Kanbanize\KanbanizeTask;
 use Prooph\EventStore\Stream\StreamEvent;
 use TaskManagement\Entity\Estimation;
 use TaskManagement\Entity\Stream;
@@ -20,13 +21,11 @@ class TaskCommandsListener extends ReadModelProjector
 		}
 
 		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
-		
 		switch($event->metadata()['aggregate_type']) {
 			case KanbanizeTask::class :
-				$entity = new KanbanizeTask($id, $stream);
-				$entity->setTaskId($event->payload()['taskId']);
-				$entity->setColumnName($event->payload()['columnName']);
-				$entity->setAssignee($event->payload()['assignee']);
+				$entity = new ReadModelKanbanizeTask($id, $stream);
+				$entity->setTaskId($event->payload()['taskid']);
+				$entity->setColumnName($event->payload()['columnname']);
 				break;
 			default:
 				$entity = new Task($id, $stream);
@@ -49,33 +48,6 @@ class TaskCommandsListener extends ReadModelProjector
 			$updatedBy = $this->entityManager->find(User::class, $event->payload()['by']);
 
 			$entity->setSubject($event->payload()['subject']);
-			$entity->setMostRecentEditAt($event->occurredOn());
-			$entity->setMostRecentEditBy($updatedBy);
-			$this->entityManager->persist($entity);
-		}
-		//TODO: distinguere per aggregate_type?
-		if(isset($event->payload()['columnName'])) {
-			$id = $event->metadata()['aggregate_id'];
-			$entity = $this->entityManager->find(KanbanizeTask::class, $id);
-			if(is_null($entity)) {
-				return;
-			}
-			$updatedBy = $this->entityManager->find(User::class, $event->payload()['by']);
-
-			$entity->setColumnName($event->payload()['columnName']);
-			$entity->setMostRecentEditAt($event->occurredOn());
-			$entity->setMostRecentEditBy($updatedBy);
-			$this->entityManager->persist($entity);
-		}
-		if(isset($event->payload()['assignee'])) {
-			$id = $event->metadata()['aggregate_id'];
-			$entity = $this->entityManager->find(KanbanizeTask::class, $id);
-			if(is_null($entity)) {
-				return;
-			}
-			$updatedBy = $this->entityManager->find(User::class, $event->payload()['by']);
-
-			$entity->setAssignee($event->payload()['assignee']);
 			$entity->setMostRecentEditAt($event->occurredOn());
 			$entity->setMostRecentEditBy($updatedBy);
 			$this->entityManager->persist($entity);
@@ -168,9 +140,11 @@ class TaskCommandsListener extends ReadModelProjector
 		$task->setMostRecentEditBy($user);
 		$task->setMostRecentEditAt($event->occurredOn());
 		$task->setAcceptedAt($event->occurredOn());
-		$sharesAssignmentExpiresAt = clone $event->occurredOn();
-		$sharesAssignmentExpiresAt->add($event->payload()['intervalForCloseTask']);
-		$task->setSharesAssignmentExpiresAt($sharesAssignmentExpiresAt);
+		if(isset($event->payload()['intervalForCloseTask'])){
+			$sharesAssignmentExpiresAt = clone $event->occurredOn();
+			$sharesAssignmentExpiresAt->add($event->payload()['intervalForCloseTask']);
+			$task->setSharesAssignmentExpiresAt($sharesAssignmentExpiresAt);
+		}
 		$this->entityManager->persist($task);
 	}
 	
@@ -228,22 +202,27 @@ class TaskCommandsListener extends ReadModelProjector
 		}
 	}
 
-	protected function onOwnerChanged(StreamEvent $event) {
+	protected function onOwnerAdded(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-
-		$ex_owner = $this->entityManager->find(User::class, $event->payload()['ex_owner']);
-		$new_owner = $this->entityManager->find(User::class, $event->payload()['new_owner']);
-
-		$ex_task_owner = $this->entityManager->find(TaskMember::class, ['task' => $id, 'user' => $ex_owner]);
+		$new_owner = $event->payload()['new_owner'];
+		if(is_null($new_owner)){
+			return;
+		}
 		$new_task_owner = $this->entityManager->find(TaskMember::class, ['task' => $id, 'user' => $new_owner]);
+		$new_task_owner->setRole(TaskMember::ROLE_OWNER);
+		$this->entityManager->persist($new_task_owner);
+	}
 
-		/*
-		 * TODO: manca il metodo setRole in TaskMember del read model
-		 */
-		//$ex_task_owner->setRole(TaskMember::ROLE_MEMBER); //lo faccio solo se il ruolo è diverso 
-		//$this->entityManager->persist($ex_task_owner);
-		//$new_task_owner->setRole(TaskMember::ROLE_OWNER);
-		//$this->entityManager->persist($new_task_owner);
+	protected function onOwnerRemoved(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$ownerId = $event->payload()['ex_owner'];
+		$ex_owner = $this->entityManager->find(User::class, $event->payload()['ex_owner']);
+		$ex_task_owner = $this->entityManager->find(TaskMember::class, ['task' => $id, 'user' => $ex_owner]);
+		if(is_null($ex_task_owner)){
+			return;
+		}
+		$ex_task_owner->setRole(TaskMember::ROLE_MEMBER);
+		$this->entityManager->persist($ex_task_owner);
 	}
 
 	protected function getPackage() {

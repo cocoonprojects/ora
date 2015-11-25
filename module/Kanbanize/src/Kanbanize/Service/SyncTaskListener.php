@@ -32,9 +32,12 @@ class SyncTaskListener implements ListenerAggregateInterface
 		$this->kanbanizeService = $kanbanizeService;
 		$this->taskService = $taskService;
 	}
-	
+	/*
+	 * TODO: da eliminare? visto che i passaggi di stato avvengono sempre attraverso la sincronizzazione
+	 */
 	public function attach(EventManagerInterface $events)
 	{
+		/*
 		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskOngoing::class, function(Event $event) {
 			$streamEvent = $event->getTarget();
 			$taskId = $streamEvent->metadata()['aggregate_id'];
@@ -67,6 +70,7 @@ class SyncTaskListener implements ListenerAggregateInterface
 				$this->kanbanizeService->closeTask($task);
 			}
 		});
+		*/
 	}
 	
     public function detach(EventManagerInterface $events)

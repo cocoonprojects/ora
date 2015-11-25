@@ -36,7 +36,7 @@ class Organization extends DomainEntity
 	 *
 	 * @var array
 	 */
-	private $settings;
+	private $settings = [];
 		
 	public static function create($name, User $createdBy) {
 		$rv = new self();
@@ -63,7 +63,7 @@ class Organization extends DomainEntity
 		}
 		$this->recordThat(OrganizationUpdated::occur($this->id->toString(), array(
 			'key' => trim($key),
-			'value' => trim($value),
+			'value' => $value,
 			'by' => $updatedBy->getId(),
 		)));
 		return $this;

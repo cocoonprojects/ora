@@ -27,7 +27,6 @@ class KanbanizeTask extends Task
 	 * @var string
 	 */
 	private $assignee;
-
 	/**
 	 * @param string $taskId
 	 */
@@ -76,9 +75,12 @@ class KanbanizeTask extends Task
 	/**
 	 * @return string
 	 */
-	public function getType()
-	{
+	public function getType(){
 		return 'kanbanizetask';
 	}
 
+	public function getResourceId(){
+		$ids = self::RESOURCE_IDS;
+		return $ids[1];
+	}
 }
