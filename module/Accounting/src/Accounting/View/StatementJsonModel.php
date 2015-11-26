@@ -36,6 +36,7 @@ class StatementJsonModel extends JsonModel
 		$transactions = $this->getVariable('transactions');
 		$totalTransactions = $this->getVariable('totalTransactions');
 		$rv = [
+			'type' => $account instanceof OrganizationAccount ? 'shared' : 'personal',
 			'id' => $account->getId(),
 			'createdAt' => date_format($account->getCreatedAt(), 'c'),
 			'organization' => [
@@ -58,7 +59,6 @@ class StatementJsonModel extends JsonModel
 	}
 	
 	protected function serializeLinks($account) {
-
 		$controller = $account instanceof OrganizationAccount ? 'organization-statement' : 'personal-statement';
 		$rv['self']['href'] = $this->url->fromRoute('statements', ['orgId' => $account->getOrganization()->getId(), 'id' => $account->getId(), 'controller' => $controller]);
 		if($this->acl->isAllowed($this->user, $account, 'Accounting.Account.list')) {

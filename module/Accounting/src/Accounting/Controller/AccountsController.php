@@ -2,6 +2,7 @@
 namespace Accounting\Controller;
 
 use Accounting\Entity\Account;
+use Accounting\Entity\OrganizationAccount;
 use Accounting\Service\AccountService;
 use Application\Controller\OrganizationAwareController;
 use Application\Service\UserService;
@@ -172,6 +173,7 @@ class AccountsController extends OrganizationAwareController
 	private function serializeAccount(Account $account) {
 		$rv = [
 			'id' => $account->getId(),
+			'type' => $account instanceof OrganizationAccount ? 'shared' : 'personal',
 			'balance' => [
 				'value' => $account->getBalance()->getValue(),
 				'date' => date_format($account->getBalance()->getDate(), 'c'),
