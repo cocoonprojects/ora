@@ -177,7 +177,7 @@ Organizations.prototype = {
 		var that = this;
 
 		$.ajax({
-			url: 'people/organizations',
+			url: 'organizations',
 			headers: {
 				'GOOGLE-JWT': sessionStorage.token
 			},

@@ -20,27 +20,26 @@ return array(
 			'organizations-home' => array(
 				'type' => 'Literal',
 				'options' => array(
-					'route'    => '/organizations',
+					'route'    => '/organizations-home',
 					'defaults' => array(
 						'controller' => 'People\Controller\Index',
 						'action'	 => 'organizations',
 					),
 				),
 			),
-				
-			'organizations' => array(
+			'organizations' => [
 				'type' => 'Segment',
-				'options' => array(
-					'route' => '/people/organizations[/:id][/:controller]',
-					'constraints' => array(
+				'options' => [
+					'route' => '/organizations[/:id][/:controller]',
+					'constraints' => [
 						'id' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})'
-					),
-					'defaults' => array(
+					],
+					'defaults' => [
 						'__NAMESPACE__' => 'People\Controller',
 						'controller' => 'Organizations',
-					),
-				),
-			),	
+					],
+				],
+			],
 			'members' => [
 				'type' => 'Segment',
 				'options' => [
@@ -62,18 +61,6 @@ return array(
 					'defaults' => array(
 						'controller' => 'People\Controller\Index',
 						'action'	 => 'profile',
-					),
-				),
-			),
-			'task-stats'=>array(
-				'type' => 'Segment',
-				'options' => array(
-					'route'    => '/:orgId/users/:id/task-stats',
-					'constraints' => array(
-						'id' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
-					),
-					'defaults' => array(
-							'controller' => 'People\Controller\TaskStats'
 					),
 				),
 			),
