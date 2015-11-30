@@ -10,6 +10,7 @@ Feature: Stream Creation
     When I request "/00000000-0000-0000-1000-000000000000/task-management/streams"
     Then the response status code should be 401
 
+  @wip
   Scenario: Successfully creating a stream
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to make a new "Stream"
@@ -18,6 +19,8 @@ Feature: Stream Creation
     When I request "/00000000-0000-0000-1000-000000000000/task-management/streams"
     Then the response status code should be 201
     And the header "Location" should be "/task-management/streams/[0-9a-z\-]+"
+    And the response should be JSON
+    And the "subject" property should be "My First Stream"
 
   Scenario: Successfully creating a stream without a subject
     Given that I am authenticated as "mark.rogers@ora.local"

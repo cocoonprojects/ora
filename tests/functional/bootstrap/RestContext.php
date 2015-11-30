@@ -409,6 +409,7 @@ class RestContext extends RawMinkContext
 	public function echoLastResponse()
 	{
 		print_r($this->_requestUrl);
+		print_r("\n\n");
 		print_r($this->_response->getBody(true));
 	}
 	

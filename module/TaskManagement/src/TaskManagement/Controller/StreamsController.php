@@ -2,16 +2,14 @@
 
 namespace TaskManagement\Controller;
 
+use Application\Controller\OrganizationAwareController;
+use People\Service\OrganizationService;
+use TaskManagement\Service\StreamService;
 use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
-use TaskManagement\View\StreamJsonModel;
-use TaskManagement\Service\StreamService;
-use Zend\Mvc\MvcEvent;
-use Zend\EventManager\EventManagerInterface;
-use Application\Controller\OrganizationAwareController;
-use People\Service\OrganizationService;
+use Zend\View\Model\JsonModel;
 
 class StreamsController extends OrganizationAwareController
 {
@@ -49,9 +47,13 @@ class StreamsController extends OrganizationAwareController
 	   	}
 	   	
 	   	$streams = $this->streamService->findStreams($this->organization);
-	   	$view = new StreamJsonModel($this->url(), $this->identity(), $this->organization);
-	   	$view->setVariable('resource', $streams);
-		return $view;
+		$hal['count'] = count($streams);
+		$hal['total'] = count($streams);
+		$hal['_links']['self']['href'] = $this->url()->fromRoute('collaboration', [
+				'orgId'=>$this->organization->getId(),
+				'controller' => 'streams']);
+		$hal['_embedded']['ora:stream'] = array_column(array_map([$this, 'serializeOne'], $streams), null, 'id');
+		return new JsonModel($hal);
 	}
 	
 	public function create($data)
@@ -72,8 +74,7 @@ class StreamsController extends OrganizationAwareController
 		$url = $this->url()->fromRoute('collaboration', ['orgId' => $organization->getId(), 'controller' => 'streams', 'id' => $stream->getId()]);
 		$this->response->getHeaders()->addHeaderLine('Location', $url);
 		$this->response->setStatusCode(201);
-		
-		return $this->response;
+		return new JsonModel($this->serializeOne($stream));
 	}
 	
 	public function update($id, $data)
@@ -121,5 +122,19 @@ class StreamsController extends OrganizationAwareController
 	protected function getResourceOptions()
 	{
 		return self::$resourceOptions;
+	}
+
+	protected function serializeOne($stream) {
+		return [
+			'id' => $stream->getId (),
+			'subject' => $stream->getSubject (),
+			'createdAt' => date_format($stream->getCreatedAt(), 'c'),
+			'_links' => [
+					'self' => $this->url()->fromRoute('collaboration', [
+							'id' => $stream->getId(),
+							'orgId' => $this->organization->getId(),
+							'controller' => 'streams']),
+			],
+		];
 	}
 }
