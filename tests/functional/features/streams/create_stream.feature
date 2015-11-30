@@ -10,7 +10,6 @@ Feature: Stream Creation
     When I request "/00000000-0000-0000-1000-000000000000/task-management/streams"
     Then the response status code should be 401
 
-  @wip
   Scenario: Successfully creating a stream
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to make a new "Stream"

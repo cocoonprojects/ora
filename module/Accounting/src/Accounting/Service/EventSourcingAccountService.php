@@ -148,9 +148,10 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 	 * @param ReadModelAccount $account
 	 * @param int $limit
 	 * @param int $offset
+	 * @param array $filters
 	 * @return \Accounting\Entity\Transaction[]
 	 */
-	public function findTransactions(ReadModelAccount $account, $limit, $offset){
+	public function findTransactions(ReadModelAccount $account, $limit, $offset, array $filters = []){
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('t')
 			->from(Transaction::class, 't')
@@ -159,28 +160,54 @@ class EventSourcingAccountService extends AggregateRepository implements Account
 			->setFirstResult($offset)
 			->setParameter('account', $account)
 			->addOrderBy('t.createdAt', 'DESC')
-			->addOrderBy('t.id', 'DESC')
-			->getQuery();
-		return $query->getResult();
+			->addOrderBy('t.id', 'DESC');
+
+		if(isset($filters["startOn"])){
+			$query->andWhere('t.createdAt >= :startOn')
+					->setParameter('startOn', $filters["startOn"]);
+		}
+		if(isset($filters["endOn"])){
+			$query->andWhere('t.createdAt <= :endOn')
+					->setParameter('endOn', $filters["endOn"]);
+		}
+		return $query->getQuery()->getResult();
 	}
 
 	/**
 	 * (non-PHPdoc)
 	 * @see \Accounting\Service\AccountService::countTransactions()
+	 * @param ReadModelAccount $account
+	 * @param array $filters
+	 * @return int
 	 */
-	public function countTransactions(ReadModelAccount $account){
+	public function countTransactions(ReadModelAccount $account, array $filters = []){
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('count(t)')
 			->from(Transaction::class, 't')
 			->where($builder->expr()->orX(':account = t.payee AND t.amount > 0', ':account = t.payer  AND t.amount < 0'))
-			->setParameter('account', $account)
-			->getQuery();
-		return intval($query->getSingleScalarResult());
+			->setParameter('account', $account);
+
+		if(isset($filters["startOn"])){
+			$query->andWhere('t.createdAt >= :startOn')
+					->setParameter('startOn', $filters["startOn"]);
+		}
+		if(isset($filters["endOn"])){
+			$query->andWhere('t.createdAt <= :endOn')
+					->setParameter('endOn', $filters["endOn"]);
+		}
+
+		return intval($query->getQuery()->getSingleScalarResult());
 	}
 
 	/**
 	 * (non-PHPdoc)
 	 * @see \Accounting\Service\AccountService::transfer()
+	 * @param Account $payer
+	 * @param Account $payee
+	 * @param string $amount
+	 * @param string $description
+	 * @param User $by
+	 * @throws \Exception
 	 */
 	public function transfer(Account $payer,Account $payee, $amount, $description, User $by){
 		$this->eventStore->beginTransaction();

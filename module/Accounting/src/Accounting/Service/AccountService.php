@@ -44,18 +44,22 @@ interface AccountService
 	 * @return OrganizationAccount
 	 */
 	public function findOrganizationAccount($organization);
-	/**
-	 * @param Account $account
-	 * @param integer $limit
-	 * @param integer $offset
-	 * @return Transaction[]
-	 */
-	public function findTransactions(ReadModelAccount $account, $limit, $offset);
+
 	/**
 	 * @param ReadModelAccount $account
-	 * @return integer
+	 * @param integer $limit
+	 * @param integer $offset
+	 * @param array $filters
+	 * @return \Accounting\Entity\Transaction[]
 	 */
-	public function countTransactions(ReadModelAccount $account);
+	public function findTransactions(ReadModelAccount $account, $limit, $offset, array $filters = []);
+
+	/**
+	 * @param ReadModelAccount $account
+	 * @param array $filters
+	 * @return int
+	 */
+	public function countTransactions(ReadModelAccount $account, array $filters = []);
 	/**
 	 *
 	 * @param ReadModelAccount $payer

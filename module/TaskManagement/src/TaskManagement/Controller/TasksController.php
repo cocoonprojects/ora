@@ -338,20 +338,4 @@ class TasksController extends OrganizationAwareController
 	{
 		return self::$resourceOptions;
 	}
-
-	public function getDateTimeParam($value) {
-		if($param = $this->getRequest()->getQuery($value)) {
-			if(strlen($param) == 10) {
-				$now = new \DateTime();
-				$param .= 'T00:00:00' . $now->format('P');
-			} else {
-				$param = preg_replace('/\.[\d]{3}Z$/', '+00:00', $param);
-			}
-			$validator = new Date([ 'format' => \DateTime::ATOM ]);
-			if($validator->isValid($param)){
-				return \DateTime::createFromFormat($validator->getFormat(), $param);
-			}
-		}
-		return null;
-	}
 }

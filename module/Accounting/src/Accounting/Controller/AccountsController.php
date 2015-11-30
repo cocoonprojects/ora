@@ -93,18 +93,17 @@ class AccountsController extends OrganizationAwareController
 			return $this->response;
 		}
 
-		$transactions = $this->accountService->findTransactions($account, null, null);
+		$endOn = $this->getDateTimeParam('endOn');
+		if(is_null($endOn)) {
+			$endOn = new \DateTimeImmutable();
+		}
+		$transactions = $this->accountService->findTransactions($account, null, null, ['endOn' => $endOn]);
 		$totalGeneratedCredits = 0;
 
 		//Date Limits
-		$dateLimitThreeMonths = new \DateTime();
-		$dateLimitThreeMonths->modify('-3 month');//3 Months
-
-		$dateLimitSixMonths = new \DateTime();
-		$dateLimitSixMonths->modify('-6 month');//6 Months
-
-		$dateLimitOneYear = new \DateTime();
-		$dateLimitOneYear->modify('-1 year');//One Year
+		$dateLimitThreeMonths = $endOn->sub(new \DateInterval('P3M'));
+		$dateLimitSixMonths = $endOn->sub(new \DateInterval('P6M'));
+		$dateLimitOneYear = $endOn->sub(new \DateInterval('P1Y'));
 
 		$lastThreeMonthsCredits = 0;
 		$lastSixMonthsCredits = 0;
