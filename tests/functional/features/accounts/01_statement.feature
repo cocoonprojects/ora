@@ -2,7 +2,7 @@ Feature: Get organization statement
   As an organization member
   I want to get the organization member
   In order to understand how credits are used
-@wip
+
   Scenario: Successfully getting an organization statement
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Statement"

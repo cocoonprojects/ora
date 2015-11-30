@@ -2,6 +2,7 @@
 
 namespace Application\Controller;
 
+use Zend\Validator\Date;
 use ZFX\Rest\Controller\HATEOASRestfulController;
 use People\Service\OrganizationService;
 use People\Entity\Organization;
@@ -54,5 +55,25 @@ abstract class OrganizationAwareController extends HATEOASRestfulController{
 			$response->setStatusCode(404);
 			return $response;
 		}
+	}
+
+	/**
+	 * @param $value queryParamName
+	 * @return \DateTimeImmutable|null
+	 */
+	protected function getDateTimeParam($value) {
+		if($param = $this->getRequest()->getQuery($value)) {
+			if(strlen($param) == 10) {
+				$now = new \DateTimeImmutable();
+				$param .= 'T00:00:00' . $now->format('P');
+			} else {
+				$param = preg_replace('/\.[\d]{3}Z$/', '+00:00', $param);
+			}
+			$validator = new Date([ 'format' => \DateTime::ATOM ]);
+			if($validator->isValid($param)){
+				return \DateTimeImmutable::createFromFormat($validator->getFormat(), $param);
+			}
+		}
+		return null;
 	}
 }

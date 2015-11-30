@@ -12,15 +12,14 @@ use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
-use Zend\Validator\NotEmpty;
 use Zend\I18n\Validator\Int;
-use Zend\Validator\ValidatorChain;
+use Zend\Validator\Date;
+use Zend\Validator\EmailAddress;
 use Zend\Validator\GreaterThan;
-use Zend\Validator\Date as DateValidator;
-use Zend\Validator\Regex as UserIdValidator;
-use Zend\Validator\EmailAddress as EmailAddressValidator;
 use Zend\Validator\InArray as StatusValidator;
-use Zend\Validator\Zend\Validator;
+use Zend\Validator\NotEmpty;
+use Zend\Validator\Regex as UuidValidator;
+use Zend\Validator\ValidatorChain;
 
 class TasksController extends OrganizationAwareController
 {
@@ -90,11 +89,10 @@ class TasksController extends OrganizationAwareController
 			return $this->response;
 		}
 
-		if(!$this->isAllowed($this->identity(), $this->organization, 'TaskManagement.Task.list')){
+		if(!$this->isAllowed($this->identity(), $this->organization, 'TaskManagement.Task.list')) {
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
-		$streamID = $this->getRequest()->getQuery('streamID');
 
 		$integerValidator = new ValidatorChain();
 		$integerValidator
@@ -105,32 +103,24 @@ class TasksController extends OrganizationAwareController
 		$limit = $this->getRequest()->getQuery("limit");
 		$limit = $integerValidator->isValid($limit) ? intval($limit) : $this->getListLimit();
 
-		$filters = [];
+		$filters["startOn"] = $this->getDateTimeParam("startOn");
+		$filters["endOn"]   = $this->getDateTimeParam("endOn");
 
-		$dateValidator = new DateValidator();
-		$startOn = $this->getRequest()->getQuery("startOn");
-		if($startOn && $dateValidator->isValid($startOn)){
-			$startOn = \DateTime::createFromFormat($dateValidator->getFormat(), $startOn);
-			$startOn->setTime(0, 0, 0);
-			$filters["startOn"] = $startOn;
-		}
-		$endOn = $this->getRequest()->getQuery("endOn");
-		if($endOn && $dateValidator->isValid($endOn)){
-			$endOn = \DateTime::createFromFormat($dateValidator->getFormat(), $endOn);
-			$endOn->setTime(23, 59, 59);
-			$filters["endOn"] = $endOn;
-		}
-
-		$emailValidator = new EmailAddressValidator(['useDomainCheck' => false]);
+		$emailValidator = new EmailAddress(['useDomainCheck' => false]);
 		$memberEmail = $this->getRequest()->getQuery("memberEmail");
 		if($memberEmail && $emailValidator->isValid($memberEmail)) {
 			$filters["memberEmail"] = $memberEmail;
 		}
 
-		$uuidValidator = new UserIdValidator(['pattern' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})']);
+		$uuidValidator = new UuidValidator(['pattern' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})']);
 		$memberId = $this->getRequest()->getQuery("memberId");
 		if($memberId && $uuidValidator->isValid($memberId)) {
 			$filters["memberId"] = $memberId;
+		}
+
+		$streamId = $this->getRequest()->getQuery('streamId');
+		if($streamId && $uuidValidator->isValid($streamId)) {
+			$filters["streamId"] = $streamId;
 		}
 
 		$statusValidator = new StatusValidator([
@@ -144,7 +134,7 @@ class TasksController extends OrganizationAwareController
 			]
 		]);
 		$status = $this->getRequest()->getQuery('status');
-		if($status) {
+		if(!(is_null($status) || $status == '')) {
 			if($statusValidator->isValid($status)) {
 				$filters["status"] = $status;
 			} else {
@@ -154,7 +144,7 @@ class TasksController extends OrganizationAwareController
 			}
 		}
 
-		$availableTasks = is_null($streamID) ? $this->taskService->findTasks($this->organization, $offset, $limit, $filters) : $this->taskService->findStreamTasks($streamID, $offset, $limit, $filters);
+		$availableTasks = $this->taskService->findTasks($this->organization, $offset, $limit, $filters);
 
 		$view = new TaskJsonModel($this, $this->organization);
 		$totalTasks = $this->taskService->countOrganizationTasks($this->organization, $filters);
@@ -321,16 +311,6 @@ class TasksController extends OrganizationAwareController
 		return $this->taskService;
 	}
 
-	protected function getCollectionOptions()
-	{
-		return self::$collectionOptions;
-	}
-
-	protected function getResourceOptions()
-	{
-		return self::$resourceOptions;
-	}
-	
 	public function setIntervalForCloseTasks($interval){
 		$this->intervalForCloseTasks = $interval;
 	}
@@ -347,5 +327,15 @@ class TasksController extends OrganizationAwareController
 	
 	public function getListLimit(){
 		return $this->listLimit;
+	}
+
+	protected function getCollectionOptions()
+	{
+		return self::$collectionOptions;
+	}
+
+	protected function getResourceOptions()
+	{
+		return self::$resourceOptions;
 	}
 }

@@ -13,18 +13,19 @@ use People\Organization;
 class Stream extends DomainEntity
 {	    
 	/**
-	 * 
 	 * @var string
 	 */
 	private $subject;
-	
 	/**
-	 *
 	 * @var Uuid
 	 */
 	private $organizationId;
-	
-	public static function create(Organization $organization, $subject, User $createdBy) 
+	/**
+	 * @var \DateTime
+	 */
+	private $createdAt;
+
+	public static function create(Organization $organization, $subject, User $createdBy)
 	{
 		$rv = new self();
 		$rv->recordThat(StreamCreated::occur(Uuid::uuid4()->toString(), [
@@ -57,10 +58,19 @@ class Stream extends DomainEntity
 	public function getOrganizationId() {
 		return $this->organizationId->toString();
 	}
-	
+
+	/**
+	 * @return \DateTime
+	 */
+	public function getCreatedAt()
+	{
+		return $this->createdAt;
+	}
+
 	protected function whenStreamCreated(StreamCreated $event) {
 		$this->id = Uuid::fromString($event->aggregateId());
 		$this->organizationId = Uuid::fromString($event->payload()['organizationId']);
+		$this->createdAt = $event->occurredOn();
 	}
 	
 	protected function whenStreamUpdated(StreamUpdated $event) {

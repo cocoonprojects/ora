@@ -2,7 +2,13 @@
 
 namespace Accounting\Controller;
 
+use Application\View\ErrorJsonModel;
+use Zend\Filter\FilterChain;
+use Zend\Filter\StringTrim;
+use Zend\Filter\StripNewlines;
+use Zend\Filter\StripTags;
 use Zend\I18n\Validator\Float;
+use Zend\Validator\StringLength;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\NotEmpty;
 use Zend\Validator\GreaterThan;
@@ -20,17 +26,17 @@ class WithdrawalsController extends HATEOASRestfulController
 	 */
 	protected $accountService;
 	/**
-	 * @var ValidatorChain
+	 * @var FilterChain
 	 */
-	protected $amountValidator;
+	private $descriptionFilter;
 
 	public function __construct(AccountService $accountService) {
 		$this->accountService = $accountService;
-		$this->amountValidator = new ValidatorChain();
-		$this->amountValidator
-			->attach(new NotEmpty())
-			->attach(new Float())
-			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
+		$this->descriptionFilter = new FilterChain();
+		$this->descriptionFilter
+				->attach(new StringTrim())
+				->attach(new StripNewlines())
+				->attach(new StripTags());
 	}
 
 	public function invoke($id, $data) {
@@ -39,12 +45,35 @@ class WithdrawalsController extends HATEOASRestfulController
 			return $this->response;
 		}
 
-		if(!isset($data['amount']) || !$this->amountValidator->isValid($data['amount'])) {
-			$this->response->setStatusCode(400);
-			return $this->response;
+		$error = new ErrorJsonModel();
+		$amountValidator = new ValidatorChain();
+		$amountValidator
+				->attach(new NotEmpty())
+				->attach(new Float())
+				->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
+		if(!isset($data['amount'])) {
+			$error->addSecondaryErrors('amount', ['amount is required. It must be a float strictly greater than 0']);
+		} elseif(!$amountValidator->isValid($data['amount'])) {
+			$error->addSecondaryErrors('amount', $amountValidator->getMessages());
 		}
 
-		$description = isset($data['description']) ? trim($data['description']) : null;
+		$descriptionValidator = new ValidatorChain();
+		$descriptionValidator
+				->attach(new StringLength(['max' => 256]));
+		$description = null;
+		if(isset($data['description'])) {
+			$description = $this->descriptionFilter->filter($data['description']);
+			if (!$descriptionValidator->isValid($description)) {
+				$error->addSecondaryErrors('description', $descriptionValidator->getMessages());
+			}
+		}
+
+		if($error->hasErrors()) {
+			$error->setCode(400);
+			$error->setDescription('Some parameters are not valid');
+			$this->response->setStatusCode(400);
+			return $error;
+		}
 
 		$account = $this->accountService->getAccount($id);
 		if(is_null($account)) {

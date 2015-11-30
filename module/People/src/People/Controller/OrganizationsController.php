@@ -61,7 +61,7 @@ class OrganizationsController extends HATEOASRestfulController
 		
 		$name = isset($data['name']) ? $filters->filter($data['name']) : null;
 		$organization = $this->orgService->createOrganization($name, $this->identity());
-		$url = $this->url()->fromRoute('organizations', array('id' => $organization->getId()));
+		$url = $this->url()->fromRoute('organizations', ['id' => $organization->getId()]);
 		$this->response->getHeaders()->addHeaderLine('Location', $url);
 		$this->response->setStatusCode(201);
 		return $this->response;

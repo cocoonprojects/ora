@@ -3,18 +3,17 @@
 namespace TaskManagement\Service;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Query;
 use People\Entity\Organization;
-use Prooph\EventStore\EventStore;
+use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Prooph\EventStore\Aggregate\AggregateRepository;
 use Prooph\EventStore\Aggregate\AggregateType;
+use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Stream\SingleStreamStrategy;
-use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Rhumsaa\Uuid\Uuid;
-use TaskManagement\Task;
 use TaskManagement\Entity\Task as ReadModelTask;
-use TaskManagement\Entity\Stream as ReadModelStream;
 use TaskManagement\Entity\TaskMember;
-use Doctrine\ORM\Query;
+use TaskManagement\Task;
 
 class EventSourcingTaskService extends AggregateRepository implements TaskService
 {
@@ -35,9 +34,11 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		$this->addAggregateRoot($task);
 		return $task;
 	}
-	
+
 	/**
 	 * Retrieve task entity with specified ID
+	 * @param string|\TaskManagement\Service\Uuid $id
+	 * @return Task
 	 */
 	public function getTask($id)
 	{
@@ -48,6 +49,11 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 
 	/**
 	 * @see \TaskManagement\Service\TaskService::findTasks()
+	 * @param Organization $organization
+	 * @param int $offset
+	 * @param int $limit
+	 * @param array $filters
+	 * @return \TaskManagement\Task[]
 	 */
 	public function findTasks(Organization $organization, $offset, $limit, $filters)
 	{
@@ -60,32 +66,39 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->setMaxResults($limit)
 			->setParameter(':organization', $organization);
 
-		if(!empty($filters["startOn"])){
+		if(isset($filters["startOn"])){
 			$query->andWhere('t.createdAt >= :startOn')
 				->setParameter('startOn', $filters["startOn"]);
 		}
-		if(!empty($filters["endOn"])){
+		if(isset($filters["endOn"])){
 			$query->andWhere('t.createdAt <= :endOn')
 				->setParameter('endOn', $filters["endOn"]);
 		}
-		if(!empty($filters["memberId"])){
+		if(isset($filters['streamId'])) {
+			$query->andWhere('t.stream = :streamId')
+				->setParameter(':streamId', $filters['streamId']);
+		}
+		if(isset($filters["memberId"])){
 			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
 				->setParameter('memberId', $filters["memberId"]);
 		}
-		if(!empty($filters["memberEmail"])){
+		if(isset($filters["memberEmail"])){
 			$query->innerJoin('t.members', 'm')
 				->innerJoin('m.user', 'u', 'WITH', 'u.email = :memberEmail')
 				->setParameter('memberEmail', $filters["memberEmail"]);
 		}
-		if(isset($filters["status"])){
+		if(array_key_exists('status', $filters)){
 			$query->andWhere('t.status = :status')->setParameter('status', $filters["status"]);
 		}
 
 		return $query->getQuery()->getResult();
 	}
-	
+
 	/**
 	 * @see \TaskManagement\Service\TaskService::countOrganizationTasks()
+	 * @param Organization $organization
+	 * @param array $filters
+	 * @return int
 	 */
 	public function countOrganizationTasks(Organization $organization, $filters){
 		
@@ -95,24 +108,28 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
 			->setParameter(':organization', $organization);
 
-		if(!empty($filters["startOn"])){
+		if(isset($filters["startOn"])){
 			$query->andWhere('t.createdAt >= :startOn')
 			->setParameter('startOn', $filters["startOn"]);
 		}
-		if(!empty($filters["endOn"])){
+		if(isset($filters["endOn"])){
 			$query->andWhere('t.createdAt <= :endOn')
 			->setParameter('endOn', $filters["endOn"]);
 		}
-		if(!empty($filters["memberId"])){
+		if(isset($filters['streamId'])) {
+			$query->andWhere('t.stream = :streamId')
+			->setParameter(':streamId', $filters['streamId']);
+		}
+		if(isset($filters["memberId"])){
 			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
 			->setParameter('memberId', $filters["memberId"]);
 		}
-		if(!empty($filters["memberEmail"])){
+		if(isset($filters["memberEmail"])){
 			$query->innerJoin('t.members', 'm')
 			->innerJoin('m.user', 'u', 'WITH', 'u.email = :memberEmail')
 			->setParameter('memberEmail', $filters["memberEmail"]);
 		}
-		if(isset($filters["status"])){
+		if(array_key_exists('status', $filters)){
 			$query->andWhere('t.status = :status')->setParameter('status', $filters["status"]);
 		}
 		return intval($query->getQuery()->getSingleScalarResult());
@@ -121,40 +138,11 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	public function findTask($id) {
 		return $this->entityManager->find(ReadModelTask::class, $id);
 	}
-	
-	/**
-	 * @see \TaskManagement\Service\TaskService::findStreamTasks()
-	 */
-	public function findStreamTasks($streamId, $offset, $limit, $filters){
-		
-		$builder = $this->entityManager->createQueryBuilder();
-		$query = $builder->select('t')
-			->from(ReadModelTask::class, 't')
-			->where('t.stream = :streamId')
-			->setParameter(':streamId', $streamId);
 
-		if(!empty($filters["startOn"])){
-			$query->andWhere('t.createdAt >= :startOn')
-				->setParameter('startOn', $filters["startOn"]);
-		}
-		if(!empty($filters["endOn"])){
-			$query->andWhere('t.createdAt <= :endOn')
-				->setParameter('endOn', $filters["endOn"]);
-		}
-		if(!empty($filters["memberId"])){
-			$query->innerJoin('t.members', 'm', 'WITH', 'm.user = :memberId')
-				->setParameter('memberId', $filters["memberId"]);
-		}
-		if(!empty($filters["memberEmail"])){
-			$query->innerJoin('t.members', 'm')
-				->innerJoin('m.user', 'u', 'WITH', 'u.email = :memberEmail')
-				->setParameter('memberEmail', $filters["memberEmail"]);
-		}
-		return $query->getQuery()->getResult();
-	}
-	
 	/**
 	 * @see \TaskManagement\Service\TaskService::findAcceptedTasksBefore()
+	 * @param \DateInterval $interval
+	 * @return ReadModelTask[]
 	 */
 	public function findAcceptedTasksBefore(\DateInterval $interval){
 		
@@ -199,11 +187,11 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->setParameter('memberId', $memberId)
 			->setParameter('organization', $org->getId());
 
-		if(!empty($filters["startOn"])){
+		if(isset($filters["startOn"])){
 			$query->andWhere('t.createdAt >= :startOn')
 				->setParameter('startOn', $filters["startOn"]);
 		}
-		if(!empty($filters["endOn"])){
+		if(isset($filters["endOn"])){
 			$query->andWhere('t.createdAt <= :endOn')
 				->setParameter('endOn', $filters["endOn"]);
 		}

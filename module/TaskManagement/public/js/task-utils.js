@@ -3,7 +3,7 @@ var TaskUtils = function() {
 	this.TASK_STATUS = function() {
 
 		var labels = {
-			0: 'Idea',
+			5: 'Idea',
 			10: 'Open',
 			20: 'Ongoing',
 			30: 'Completed',
