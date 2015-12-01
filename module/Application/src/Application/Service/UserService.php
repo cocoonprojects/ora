@@ -1,9 +1,6 @@
 <?php 
 namespace Application\Service;
 
-use Application\Entity\User;
-use People\Entity\Organization;
-
 interface UserService
 {
 	/**

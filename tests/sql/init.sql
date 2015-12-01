@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS `event_stream` (
 DELETE FROM task_members;
 DELETE FROM tasks;
 DELETE FROM streams;
-DELETE FROM kanbanizestreams;
 DELETE FROM kanbanizetasks;
+DELETE FROM kanbanizestreams;
 DELETE FROM account_transactions;
 DELETE FROM accounts;
 DELETE FROM organizations;
@@ -251,10 +251,10 @@ VALUES
 
 # task 00000000-0000-0000-0000-000000000003, deleted, Mark Rogers (owner)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
-  ('6126d983-20ad-47f2-9636-085395aa3b7b', 1, 'TaskManagement\\TaskCreated',
+  ('6126d983-20ad-47f2-9636-085395aa307b', 1, 'TaskManagement\\TaskCreated',
    'a:5:{s:8:\"streamId\";s:36:\"00000000-1000-0000-0000-000000000000\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:6:\"status\";i:20;s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000003\";}',
    '2014-03-23T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000003'),
-  ('334fa91f-62c9-4b34-827b-3e01bd7efe8c', 2, 'TaskManagement\\TaskUpdated',
+  ('334fa91f-62c9-4b34-827b-3e01bd7eee8c', 2, 'TaskManagement\\TaskUpdated',
    'a:3:{s:7:\"subject\";s:33:\"Setup the development environment\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000003\";}',
    '2014-03-23T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000003'),
   ('c033eb32-2ad4-49d5-b25c-3c0b600b7d10', 4, 'TaskManagement\\TaskMemberAdded',
@@ -263,6 +263,44 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
   ('6b73772b-efa9-475d-b3d8-abbcf3a84889', 5, 'TaskManagement\\TaskDeleted',
    'a:3:{s:10:\"prevStatus\";i:20;s:2:\"by\";s:36:\"266616a1-3160-4caa-ae56-35f884324a5a\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000003\";}',
    '2014-12-31T09:33:15.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000003');
+
+# task 00000000-0000-0000-0000-000000000101, accepted, Mark Rogers (owner)
+INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
+ ('6126d983-20ad-47f2-9636-085395aa3b7b', 1, 'TaskManagement\\TaskCreated',
+   'a:5:{s:8:\"streamId\";s:36:\"00000000-1000-0000-0000-000000000000\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:6:\"status\";i:20;s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000101\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000101'),
+  ('334fa91f-62c9-4b34-827b-3e01bd7efe8c', 2, 'TaskManagement\\TaskUpdated',
+   'a:3:{s:7:\"subject\";s:27:\"Technology stack definition\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000101\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000101'),
+  ('c033eb32-2ad4-49d5-b25c-3c0b600b7d0c', 4, 'TaskManagement\\TaskMemberAdded',
+   'a:4:{s:6:\"userId\";s:36:\"60000000-0000-0000-0000-000000000000\";s:4:\"role\";s:5:\"owner\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000101\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000101'),
+  ('fbdfdd17-61ef-4f80-bcd4-7e6eb6990733', 5, 'TaskManagement\\TaskCompleted',
+   'a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000101\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}',
+   '2014-10-31T10:44:30.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000101'),
+  ('c333eb32-2ad4-49d5-b25c-3c0b600b7ddc', 6, 'TaskManagement\\TaskMemberAdded',
+   'a:4:{s:6:\"userId\";s:36:\"20000000-0000-0000-0000-000000000000\";s:4:\"role\";s:6:\"member\";s:2:\"by\";s:36:\"20000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000101\";}',
+   '2014-11-12T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000101'),
+  ('65697b0b-0790-48b7-a122-ff2078c5bf40', 7, 'TaskManagement\\EstimationAdded',
+   'a:3:{s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:5:"value";s:2:"-1";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000101";}',
+   '2015-02-02T21:22:11.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000101'),
+  ('66697b0b-0790-48b7-a122-ff2078c5bf40', 8, 'TaskManagement\\EstimationAdded',
+   'a:3:{s:2:"by";s:36:"20000000-0000-0000-0000-000000000000";s:5:"value";s:2:"-1";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000101";}',
+   '2015-02-02T21:22:11.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000101'),
+  ('fbdfdd17-61ef-4f80-bcd4-7e6eb6990754', 9, 'TaskManagement\\TaskAccepted',
+   'a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000101\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}',
+   '2014-10-31T10:44:30.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000101');
+
+INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type) VALUES
+  ('00000000-0000-0000-0000-000000000101', '00000000-1000-0000-0000-000000000000', 'Accepted Task', 40,
+   '2014-11-06 14:32:44', '2014-11-06 14:32:44', 'task');
+INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt)
+VALUES
+  ('00000000-0000-0000-0000-000000000101', '60000000-0000-0000-0000-000000000000', 'owner', '2014-11-12 19:07:59',
+   '2014-03-23 19:07:59', '-1', '2014-11-07 11:37:58'),
+  ('00000000-0000-0000-0000-000000000101', '20000000-0000-0000-0000-000000000000', 'member', '2014-11-12 19:07:59',
+   '2014-11-12 19:07:59', '-1', '2014-11-07 11:37:58');
+
 
 # kanbanizeStream
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
@@ -284,7 +322,7 @@ VALUES ('11111111-1000-0000-0000-000000000000', '150', '100');
 
 # kanbanizeTask 00000000-0000-0000-0000-000000000106, accepted, Mark Rogers (owner)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
-('6126d983-20ad-47f2-9636-085395aa3b8b',1,'TaskManagement\\TaskCreated','a:8:{s:6:\"status\";i:-1;s:6:\"taskid\";s:2:\"21\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000106\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000106'),
+('6126d983-20ad-47f2-9636-085395aa3b8b',1,'TaskManagement\\TaskCreated','a:9:{s:6:\"status\";i:-1;s:6:\"taskid\";s:3:\"114\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000106\";s:7:\"subject\";s:9:\"subject 0\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000106'),
 ('334fa91f-62c9-4b34-827b-3e01bd7efe9c', 2, 'TaskManagement\\TaskUpdated', 'a:3:{s:7:"subject";s:18:"un altro - cambio5";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000106";}',
    '2014-11-12T19:07:59.000000+0100', 'Kanbanize\\KanbanizeTask', '00000000-0000-0000-0000-000000000106'), 
   ('c033eb32-2ad4-49d5-b25c-3c0b600b7d12', 4, 'TaskManagement\\TaskMemberAdded',
@@ -309,7 +347,7 @@ VALUES
 
 # kanbanizeTask 00000000-0000-0000-0000-000000000107, completed, Mark Rogers (owner), Bruce Wayne (member)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
-('6126d983-20ad-47f2-9636-085395aa3b40',1,'TaskManagement\\TaskCreated','a:8:{s:6:\"status\";i:-1;s:6:\"taskid\";s:2:\"21\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000107\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000107'),
+('6126d983-20ad-47f2-9636-085395aa3b40',1,'TaskManagement\\TaskCreated','a:9:{s:6:\"status\";i:-1;s:6:\"taskid\";s:3:\"115\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000107\";s:7:\"subject\";s:9:\"subject 0\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000107'),
 ('334fa91f-62c9-4b34-827b-3e01bd7efe50', 2, 'TaskManagement\\TaskUpdated', 'a:3:{s:7:"subject";s:18:"un altro - cambio4";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000107";}',
    '2014-11-12T19:07:59.000000+0100', 'Kanbanize\\KanbanizeTask', '00000000-0000-0000-0000-000000000107'), 
   ('c033eb32-2ad4-49d5-b25c-3c0b600b7de0', 4, 'TaskManagement\\TaskMemberAdded',
@@ -341,7 +379,7 @@ VALUES
 
 # kanbanizeTask 00000000-0000-0000-0000-000000000108, ongoing, Mark Rogers (owner), Bruce Wayne (member)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
-('6126d984-20ad-47f2-9636-085395aa3b41',1,'TaskManagement\\TaskCreated','a:8:{s:6:\"status\";i:20;s:6:\"taskid\";s:2:\"20\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000108\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000108'),
+('6126d984-20ad-47f2-9636-085395aa3b41',1,'TaskManagement\\TaskCreated','a:9:{s:6:\"status\";i:20;s:6:\"taskid\";s:3:\"116\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000108\";s:7:\"subject\";s:9:\"subject 0\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000108'),
 ('334fa91e-62c9-4b34-827b-3e01bd7efe51', 2, 'TaskManagement\\TaskUpdated', 'a:3:{s:7:"subject";s:18:"un altro - cambio3";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000108";}',
    '2014-11-12T19:07:59.000000+0100', 'Kanbanize\\KanbanizeTask', '00000000-0000-0000-0000-000000000108'),
   ('c033eb32-2ad4-49d5-b25c-3c0b600b7de1', 4, 'TaskManagement\\TaskMemberAdded',
@@ -364,7 +402,7 @@ VALUES
 
 # kanbanizeTask 00000000-0000-0000-0000-000000000110, completed, Mark Rogers (owner)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
-('6126d984-20ad-47f2-9636-085395aa3b40',1,'TaskManagement\\TaskCreated','a:8:{s:6:\"status\";i:30;s:6:\"taskid\";s:2:\"17\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000110\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000110'),
+('6126d984-20ad-47f2-9636-085395aa3b40',1,'TaskManagement\\TaskCreated','a:9:{s:6:\"status\";i:30;s:6:\"taskid\";s:2:\"17\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000110\";s:7:\"subject\";s:9:\"subject 0\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000110'),
 ('334fa91e-62c9-4b34-827b-3e01bd7efe50', 2, 'TaskManagement\\TaskUpdated', 'a:3:{s:7:"subject";s:18:"un altro - cambio2";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000110";}',
    '2014-11-12T19:07:59.000000+0100', 'Kanbanize\\KanbanizeTask', '00000000-0000-0000-0000-000000000110'),
   ('c033eb33-2ad4-49d5-b25c-3c0b600b7de0', 4, 'TaskManagement\\TaskMemberAdded',
@@ -384,7 +422,7 @@ INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt)
 
 # kanbanizeTask 00000000-0000-0000-0000-000000000111, accepted, Mark Rogers (owner)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
-('6136d983-20ad-47f2-9636-085395aa3b8b',1,'TaskManagement\\TaskCreated','a:8:{s:6:\"status\";i:40;s:6:\"taskid\";s:2:\"17\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000111\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000111'),
+('6136d983-20ad-47f2-9636-085395aa3b8b',1,'TaskManagement\\TaskCreated','a:9:{s:6:\"status\";i:-1;s:6:\"taskid\";s:2:\"17\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000111\";s:7:\"subject\";s:9:\"subject 0\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000111'),
 ('335fa91f-62c9-4b34-827b-3e01bd7efe9c', 2, 'TaskManagement\\TaskUpdated', 'a:3:{s:7:"subject";s:17:"un altro - cambio";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000111";}',
    '2014-11-12T19:07:59.000000+0100', 'Kanbanize\\KanbanizeTask', '00000000-0000-0000-0000-000000000111'),
   ('c043eb32-2ad4-49d5-b25c-3c0b600b7d12', 4, 'TaskManagement\\TaskMemberAdded',
@@ -400,7 +438,7 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
    'a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000111\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}',
    '2014-10-31T10:44:31.000000+0100', 'Kanbanize\\KanbanizeTask', '00000000-0000-0000-0000-000000000111');
 INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type) VALUES
-  ('00000000-0000-0000-0000-000000000111', '11111111-1000-0000-0000-000000000000', 'completedTask', 40,
+  ('00000000-0000-0000-0000-000000000111', '11111111-1000-0000-0000-000000000000', 'acceptedTask', 40,
    '2014-11-06 15:48:17', '2014-11-06 15:48:17', 'kanbanizetask');
 INSERT INTO kanbanizetasks (id, taskId)
 VALUES ('00000000-0000-0000-0000-000000000111', '120');

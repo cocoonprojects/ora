@@ -89,6 +89,7 @@ class Importer{
 	public function getImportResult(){
 		return [
 				"createdStreams" => $this->createdStreams,
+				"updatedStreams" => $this->updatedStreams,
 				"createdTasks" => $this->createdTasks,
 				"updatedTasks" => $this->updatedTasks,
 				"deletedTasks" => $this->deletedTasks,
@@ -130,7 +131,7 @@ class Importer{
 		$tasksFound = [];
 		$discardedTasks = [];
 		$discardedStreams = [];
-		$s = $this->kanbanizeService->findByBoardId($board['id']);
+		$s = $this->kanbanizeService->findStreamByBoardId($board['id']);
 		if(is_null($s)){
 			$stream = $this->createStream ( $project, $board );
 		}else{
@@ -237,42 +238,20 @@ class Importer{
 	}
 
 	private function updateTask($project, $board, Task $task, $kanbanizeTask){
-		$updatedTask = false;
 		$this->transactionManager->beginTransaction();
 		try {
-			if($task->getAssignee() != $kanbanizeTask['assignee']){
-				$this->updateTaskOwner($task, $kanbanizeTask['assignee']);
-				$updatedTask = true;
-			}
-			$this->transactionManager->commit();
-		}catch (\Exception $e) {
-			$this->transactionManager->rollback();
-			$this->errors[] = "Cannot update task owner of task {subject: {$task->getSubject()}, taskId: {$kanbanizeTask['taskid']}, boardId: {$board['id']}, projectId: {$project['id']}} due to {$e->getMessage()}";
-		}
-		$this->transactionManager->beginTransaction();
-		try{
+			$this->updateTaskOwner($task, $kanbanizeTask['assignee']);
 			if($task->getColumnName() != $kanbanizeTask['columnname']){
 				$this->updateTaskStatus($task, $kanbanizeTask['columnname']);
-				$updatedTask = true;
 			}
-			$this->transactionManager->commit();
-		}catch (\Exception $e) {
-			$this->transactionManager->rollback();
-			$this->errors[] = "Cannot update task status of task {subject: {$task->getSubject()}, taskId: {$kanbanizeTask['taskid']}, boardId: {$board['id']}, projectId: {$project['id']}} due to {$e->getMessage()}";
-		}
-		$this->transactionManager->beginTransaction();
-		try {
 			if($task->getSubject() != $kanbanizeTask['title']){
 				$task->setSubject($kanbanizeTask['title'], $this->requestedBy);
-				$updatedTask = true;
 			}
 			$this->transactionManager->commit();
+			$this->updatedTasks++;
 		}catch (\Exception $e) {
 			$this->transactionManager->rollback();
-			$this->errors[] = "Cannot update subject of task {subject: {$task->getSubject()}, taskId: {$kanbanizeTask['taskid']}, boardId: {$board['id']}, projectId: {$project['id']}} due to {$e->getMessage()}";
-		}
-		if($updatedTask){
-			$this->updatedTasks++;
+			$this->errors[] = "Cannot update task {subject: {$task->getSubject()}, taskId: {$kanbanizeTask['taskid']}, boardId: {$board['id']}, projectId: {$project['id']}} due to {$e->getMessage()}";
 		}
 		return $task;
 	}
@@ -292,16 +271,13 @@ class Importer{
 			"columnname" => $kanbanizeTask['columnname'],
 			"status" => $status
 		];
+		$new_owner = $this->getNewTaskOwner($kanbanizeTask['assignee']);
 		$this->transactionManager->beginTransaction();
 		try {
 			$task = Task::create($stream, $kanbanizeTask['title'], $this->requestedBy, $options);
 			$this->taskService->addTask($task);
-			if(!Task::isEmptyAssignee($kanbanizeTask['assignee'])){
-				$users = $this->userService->findUsers(['kanbanizeusername' => $kanbanizeTask['assignee']]);
-				$new_owner = array_shift($users);
-				if(!is_null($new_owner)){
-					$task->addMember($new_owner, TaskMember::ROLE_OWNER, $this->requestedBy);
-				}
+			if(!is_null($new_owner)){
+				$task->addMember($new_owner, TaskMember::ROLE_OWNER, $this->requestedBy);
 			}
 			$task->setAssignee($kanbanizeTask['assignee'], $this->requestedBy);
 			$this->transactionManager->commit();
@@ -309,6 +285,7 @@ class Importer{
 			return $task;
 		}
 		catch (\Exception $e) {
+			print_r($e->getMessage());die();
 			$this->transactionManager->rollback();
 			throw $e;
 		}
@@ -339,7 +316,7 @@ class Importer{
 						$task->execute($this->requestedBy);
 				}
 				break;
-			case strtoupper(Task::STATUS_COMPLETED):
+			case Task::STATUS_COMPLETED:
 				switch ($task->getStatus()){
 					case Task::STATUS_CLOSED:
 						$task->accept($this->requestedBy);
@@ -352,7 +329,7 @@ class Importer{
 						$task->complete($this->requestedBy);
 				}
 				break;
-			case strtoupper(Task::STATUS_ACCEPTED):
+			case Task::STATUS_ACCEPTED:
 				switch ($task->getStatus()){
 					case Task::STATUS_IDEA:
 						$task->execute($this->requestedBy);
@@ -363,7 +340,7 @@ class Importer{
 						$task->accept($this->requestedBy);
 				}
 				break;
-			case strtoupper(Task::STATUS_CLOSED):
+			case Task::STATUS_CLOSED:
 				switch ($task->getStatus()){
 					case Task::STATUS_IDEA:
 						$task->execute($this->requestedBy);
@@ -439,4 +416,13 @@ class Importer{
 			}
 		});
 	}
+	
+	private function getNewTaskOwner($kanbanizeTaskAssignee){
+		if(!Task::isEmptyAssignee($kanbanizeTaskAssignee)){
+			$users = $this->userService->findUsers(['kanbanizeusername' => $kanbanizeTaskAssignee]);
+			return array_shift($users);
+		}
+		return null;
+	}
+	
 }

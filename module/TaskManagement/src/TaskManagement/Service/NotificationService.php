@@ -4,7 +4,6 @@ namespace TaskManagement\Service;
 
 use Application\Entity\BasicUser;
 use Application\Entity\User;
-use People\Entity\Organization;
 use People\Entity\OrganizationMembership;
 use TaskManagement\Entity\Task;
 
@@ -55,10 +54,4 @@ interface NotificationService
 	 * @return BasicUser[] receivers
 	 */
 	public function sendWorkItemIdeaCreatedMail(Task $task, $member, $memberships);
-	/**
-	 * Send import details from Kanbanize to all members of an organization
-	 * @param array $result
-	 * @param Organization $organization
-	 */
-	public function sendKanbanizeImportResultMail($result, Organization $organization);
 }

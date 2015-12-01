@@ -7,7 +7,8 @@ use Kanbanize\Service\KanbanizeService;
 use People\Service\OrganizationService;
 use Kanbanize\Service\ImportDirector;
 use Zend\View\Model\JsonModel;
-use TaskManagement\Service\NotificationService;
+use Kanbanize\Service\NotificationService;
+use Kanbanize\ImportCompleted;
 
 class ImportsController extends OrganizationAwareController{
 
@@ -42,14 +43,13 @@ class ImportsController extends OrganizationAwareController{
 			return $this->response;
 		}
 
-		if(!$this->isAllowed($this->identity(), $this->organization, 'Kanbanize.Task.Import')) {
+		if(!$this->isAllowed($this->identity(), $this->organization, 'Kanbanize.Task.import')) {
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
 
 		$organization = $this->getOrganizationService()->getOrganization($this->organization->getId());
 		$importResult = $this->kanbanizeImporter->import($organization, $this->identity());
-		$this->notificationService->sendKanbanizeImportResultMail($importResult, $this->organization);
 		$this->response->setStatusCode(200);
 		return $this->response;
 	}

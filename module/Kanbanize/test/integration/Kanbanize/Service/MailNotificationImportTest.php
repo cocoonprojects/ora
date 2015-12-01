@@ -36,7 +36,7 @@ class MailNotificationImportTest extends \PHPUnit_Framework_TestCase{
 		
 		$orgService = $serviceManager->get('People\OrganizationService');
 		$importDirector = $serviceManager->get('Kanbanize\ImportDirector');
-		$notificationService = $serviceManager->get('TaskManagement\NotifyMailListener');
+		$notificationService = $serviceManager->get('Kanbanize\MailNotificationService');
 		$this->controller = new ImportsController($orgService, $importDirector, $notificationService);
 		$this->request	= new Request();
 		$this->routeMatch = new RouteMatch(array('controller' => 'kanbanize-import'));
@@ -75,6 +75,7 @@ class MailNotificationImportTest extends \PHPUnit_Framework_TestCase{
 		$this->assertContains("A new import from Kanbanize as been completed", $emails[0]->subject);
 		$this->assertEmailHtmlContains('Results summary', $emails[0]);
 		$this->assertEmailHtmlContains('Created streams', $emails[0]);
+		$this->assertEmailHtmlContains('Updated streams', $emails[0]);
 		$this->assertEmailHtmlContains('Created tasks', $emails[0]);
 		$this->assertEmailHtmlContains('Updated tasks', $emails[0]);
 		$this->assertEmailHtmlContains('Deleted tasks', $emails[0]);

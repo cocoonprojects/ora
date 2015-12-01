@@ -15,7 +15,6 @@ class Organization extends DomainEntity
 {
 	CONST ROLE_MEMBER = 'member';
 	CONST ROLE_ADMIN  = 'admin';
-	CONST SETTING_KANBANIZE_SUBDOMAIN = "kanbanizeSubdomain";
 	/**
 	 * @var string
 	 */
@@ -57,13 +56,13 @@ class Organization extends DomainEntity
 		return $this;
 	}
 	
-	public function setSetting($key, $value, User $updatedBy){
-		if(is_null($key)){
-			throw new InvalidArgumentException('Cannot address setting without key');
+	public function setSetting($settingKey, $settingValue, User $updatedBy){
+		if(is_null($settingKey)){
+			throw new InvalidArgumentException('Cannot address setting without a setting key');
 		}
 		$this->recordThat(OrganizationUpdated::occur($this->id->toString(), array(
-			'key' => trim($key),
-			'value' => $value,
+			'key' => trim($settingKey),
+			'value' => $settingValue,
 			'by' => $updatedBy->getId(),
 		)));
 		return $this;

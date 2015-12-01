@@ -1,8 +1,9 @@
-<p>Hi <?=$this->recipient->getFirstname()?> <?= $this->recipient->getLastname()?>,<br>
+<p>Hi <?=$this->recipient->getFirstname()?>,<br>
 	a new import from Kanbanize as been completed!
 </p>
 <p>Results summary:
 	<li>Created streams: <?=$this->result["createdStreams"]?></li>
+	<li>Updated streams: <?=$this->result["updatedStreams"]?></li>
 	<li>Created tasks: <?=$this->result["createdTasks"]?></li>
 	<li>Updated tasks: <?=$this->result["updatedTasks"]?></li>
 	<li>Deleted tasks: <?=$this->result["deletedTasks"]?></li>

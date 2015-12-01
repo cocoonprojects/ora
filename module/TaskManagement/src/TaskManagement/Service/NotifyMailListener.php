@@ -279,29 +279,6 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 	}
 
 	/**
-	 * (non-PHPdoc)
-	 * @see \TaskManagement\Service\NotificationService::sendKanbanizeImportResultMail()
-	 */
-	public function sendKanbanizeImportResultMail($result, Organization $organization){
-
-		$memberships = $this->orgService->findOrganizationMemberships($organization, null, null);
-		foreach ($memberships as $m) {
-			$recipient = $m->getMember();
-			$message = $this->mailService->getMessage();
-			$message->setTo($recipient->getEmail());
-			$message->setSubject("A new import from Kanbanize as been completed.");
-			$this->mailService->setTemplate( 'mail/kanbanize-import-result.phtml', [
-				'result' => $result,
-				'recipient'=> $recipient,
-				'organization'=> $organization
-			]);
-			$this->mailService->send();
-			$rv[] = $recipient;
-		}
-		return $rv;
-	}
-
-	/**
 	 * @return MailServiceInterface
 	 */
 	public function getMailService() {

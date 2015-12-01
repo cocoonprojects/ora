@@ -249,7 +249,7 @@ class Task extends EditableEntity implements TaskInterface
 	}
 
 	public function getResourceId(){
-		return self::RESOURCE_ID;
+		return 'Ora\Task';
 	}
 	
 	public function getMemberRole($user)

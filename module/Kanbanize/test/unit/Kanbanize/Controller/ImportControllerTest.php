@@ -6,7 +6,7 @@ use ZFX\Test\Controller\ControllerTest;
 use People\Entity\Organization;
 use Kanbanize\Service\ImportDirector;
 use People\Service\OrganizationService;
-use TaskManagement\Service\NotificationService;
+use Kanbanize\Service\NotificationService;
 use Rhumsaa\Uuid\Uuid;
 use Application\Entity\User;
 
@@ -90,9 +90,6 @@ class ImportControllerTest extends ControllerTest {
 			->willReturn($wm_organization);
 		$this->controller->getKanbanizeImporter()->expects($this->once())
 			->method('import')
-			->willReturn([]);
-		$this->controller->getNotificationService()->expects($this->once())
-			->method('sendKanbanizeImportResultMail')
 			->willReturn([]);
 
 		$this->request->setMethod('post');

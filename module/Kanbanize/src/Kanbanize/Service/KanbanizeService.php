@@ -24,7 +24,7 @@ interface KanbanizeService {
 	
 	public function closeTask(KanbanizeTask $task);
 	*/
-	public function findByBoardId($boardId);
+	public function findStreamByBoardId($boardId);
 
 	public function findByTaskId($taskId);
 

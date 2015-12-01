@@ -11,7 +11,6 @@ use Application\Entity\EditableEntity;
  */
 class Organization extends EditableEntity implements ResourceInterface
 {
-	CONST SETTING_KANBANIZE_SUBDOMAIN = "kanbanizeSubdomain";
 
 	/**
 	 * @ORM\Column(type="string", nullable=true)
@@ -36,7 +35,7 @@ class Organization extends EditableEntity implements ResourceInterface
 		return $this;
 	}
 
-	public function setSetting($key, $value){
+	public function setSetting($settingKey, $settingValue){
 		$this->settings[$key] = $value;
 		return $this;
 	}

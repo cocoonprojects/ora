@@ -602,9 +602,8 @@ class Task extends DomainEntity implements TaskInterface
 	 *
 	 * @return string
 	 */
-	public function getResourceId()
-	{
-		return self::RESOURCE_ID;
+	public function getResourceId(){
+		return 'Ora\Task';
 	}
 	/**
 	 *

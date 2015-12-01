@@ -15,36 +15,8 @@ use Rhumsaa\Uuid\Uuid;
 use TaskManagement\Stream;
 
 class KanbanizeTask extends Task {
-	
-	//FIXME how to map backlog?
-// 	CONST BACKLOG = 'Backlog';
-// 	CONST COLUMN_IDEA = 'Idea';
-// 	CONST COLUMN_OPEN = 'Open';
-// 	CONST COLUMN_ONGOING = "OnGoing";
-// 	CONST COLUMN_COMPLETED = 'Completed';
-// 	CONST COLUMN_ACCEPTED = 'Accepted';
-// 	CONST COLUMN_CLOSED = 'Closed';
 
 	CONST EMPTY_ASSIGNEE = 'None';
-
-	//Mapping fo kanbanize columns is not static: is setted for each organization
-// 	private static $mapping = array(
-// 			self::COLUMN_IDEA		=> Task::STATUS_IDEA,
-// 			self::COLUMN_OPEN		=> Task::STATUS_OPEN,
-// 			self::COLUMN_ONGOING	=> Task::STATUS_ONGOING,
-// 			self::COLUMN_COMPLETED	=> Task::STATUS_COMPLETED,
-// 			self::COLUMN_ACCEPTED	=> Task::STATUS_ACCEPTED,
-// 			self::COLUMN_CLOSED		=> Task::STATUS_CLOSED,
-// 			Task::STATUS_IDEA		=> self::COLUMN_IDEA, 
-// 			Task::STATUS_OPEN		=> self::COLUMN_OPEN,
-// 			Task::STATUS_ONGOING	=> self::COLUMN_ONGOING,
-// 			Task::STATUS_COMPLETED	=> self::COLUMN_COMPLETED,
-// 			Task::STATUS_ACCEPTED	=> self::COLUMN_ACCEPTED,
-// 			Task::STATUS_CLOSED		=> self::COLUMN_CLOSED,
-// 			//FIXME backlog?
-// 			self::BACKLOG			=> -1,
-// 			-1						=> self::BACKLOG
-// 	);
 
 	/**
 	 * @var String
@@ -53,7 +25,7 @@ class KanbanizeTask extends Task {
 	/**
 	 * @var String
 	 */
-	private $assignee;
+	private $assignee = self::EMPTY_ASSIGNEE;
 	/**
 	 * @var String
 	 */
@@ -66,6 +38,9 @@ class KanbanizeTask extends Task {
 		if(!isset($options['columnname'])) {
 			throw InvalidArgumentException('Cannot create a KanbanizeTask without a columnname option');
 		}
+		if(!isset($options['status'])) {
+			throw InvalidArgumentException('Cannot create a KanbanizeTask without a status option');
+		}
 		$rv = new self();
 		$rv->id = Uuid::uuid4();
 		$rv->status = $options["status"];
@@ -75,9 +50,9 @@ class KanbanizeTask extends Task {
 			'organizationId' => $stream->getOrganizationId(),
 			'streamId' => $stream->getId(),
 			'by' => $createdBy->getId(),
-			'columnname' => $options["columnname"]
+			'columnname' => $options["columnname"],
+			'subject' => $subject
 		]));
-		$rv->setSubject($subject, $createdBy);
 		return $rv;
 	}
 	
@@ -130,22 +105,22 @@ class KanbanizeTask extends Task {
 
 		$this->taskid = $event->payload()['taskid'];
 		$this->columnname = $event->payload()['columnname'];
+		$this->subject = $event->payload()['subject'];
 	}
 
 	protected function whenTaskUpdated(TaskUpdated $event) {
 		parent::whenTaskUpdated($event);
 
 		$pl = $event->payload();
-		if(array_key_exists('columnname', $pl)) {
+		if(isset($pl['columnname'])) {
 			$this->columnname = $pl['columnname'];
 		}
-		if(array_key_exists('assignee', $pl)) {
+		if(isset($pl['assignee'])) {
 			$this->assignee = $pl['assignee'];
 		}
 	}
 
 	public function getResourceId(){
-		$ids = self::RESOURCE_IDS;
-		return $ids[1];
+		return 'Ora\KanbanizeTask';
 	}
 }

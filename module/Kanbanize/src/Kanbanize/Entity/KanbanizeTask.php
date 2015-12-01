@@ -11,7 +11,7 @@ use TaskManagement\Entity\Task;
 class KanbanizeTask extends Task
 {
 	/**
-	 *  @ORM\Column(type="string", nullable=true)
+	 * @ORM\Column(type="string", nullable=true)
 	 * @var string
 	 */
 	private $taskId;
@@ -80,7 +80,6 @@ class KanbanizeTask extends Task
 	}
 
 	public function getResourceId(){
-		$ids = self::RESOURCE_IDS;
-		return $ids[1];
+		return 'Ora\KanbanizeTask';
 	}
 }

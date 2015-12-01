@@ -94,7 +94,7 @@ class ImporterTest extends TestCase {
 		$this->assertEmpty($importResult['errors']);
 	}
 	
-	public function testUpdateTasks(){
+	public function testUpdateStreamAndTasks(){
 		$stream = KanbanizeStream::create($this->organization, "a new Stream", $this->requestedBy, [
 				'boardId' => '010',
 				'projectId' => '01'
@@ -112,7 +112,7 @@ class ImporterTest extends TestCase {
 			->method('findByTaskId')
 			->willReturn($readModelTask);
 		$this->kanbanizeServiceStub->expects($this->atLeastOnce())
-			->method('findByBoardId')
+			->method('findStreamByBoardId')
 			->willReturn($readModelStream);
 		$this->taskServiceStub->expects($this->atLeastOnce())
 			->method('getTask')
@@ -120,9 +120,6 @@ class ImporterTest extends TestCase {
 		$this->taskServiceStub->expects($this->atLeastOnce())
 			->method('findTasks')
 			->willReturn([$readModelTask]);
-		$this->userServiceStub->expects($this->atLeastOnce())
-			->method('findUsers')
-			->willReturn([]);
 		$this->streamServiceStub->expects($this->atLeastOnce())
 			->method('getStream')
 			->willReturn($stream);
@@ -139,11 +136,13 @@ class ImporterTest extends TestCase {
 		$importer->importProjects();
 		$importResult = $importer->getImportResult();
 		$this->assertArrayHasKey('createdStreams', $importResult);
+		$this->assertArrayHasKey('updatedStreams', $importResult);
 		$this->assertArrayHasKey('createdTasks', $importResult);
 		$this->assertArrayHasKey('deletedTasks', $importResult);
 		$this->assertArrayHasKey('updatedTasks', $importResult);
 		$this->assertArrayHasKey('errors', $importResult);
 		$this->assertEquals(0, $importResult['createdStreams']);
+		$this->assertEquals(1, $importResult['updatedStreams']);
 		$this->assertEquals(0, $importResult['createdTasks']);
 		$this->assertEquals(0, $importResult['deletedTasks']);
 		$this->assertEquals(1, $importResult['updatedTasks']);

@@ -5,9 +5,7 @@ use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
 use Doctrine\ORM\EntityManager;
-use People\Entity\Organization;
 use Application\Entity\User;
-use People\Entity\OrganizationMembership;
 
 class EventSourcingUserService implements UserService, EventManagerAwareInterface
 {

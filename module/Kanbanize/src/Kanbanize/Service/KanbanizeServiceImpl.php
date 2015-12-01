@@ -130,9 +130,9 @@ class KanbanizeServiceImpl implements KanbanizeService
 */	
 	/**
 	 * (non-PHPdoc)
-	 * @see \Kanbanize\Service\KanbanizeService::findByBoardId()
+	 * @see \Kanbanize\Service\KanbanizeService::findStreamByBoardId()
 	 */
-	public function findByBoardId($boardId){
+	public function findStreamByBoardId($boardId){
 		return $this->entityManager->getRepository(KanbanizeStream::class)->findOneBy(array("boardId"=>$boardId));
 	}
 	/**
