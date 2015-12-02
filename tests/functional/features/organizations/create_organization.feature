@@ -15,7 +15,9 @@ Feature: Create organization
     And that its "name" is "My First Organization"
     When I request "/organizations"
     Then the response status code should be 201
+    And the response should be JSON
     And the header "Location" should be "/organizations/[0-9a-z\-]+"
+    And the "name" property should be "My First Organization"
 
   Scenario: Successfully creating an organization without a name
     Given that I am authenticated as "mark.rogers@ora.local"

@@ -2,12 +2,12 @@
 
 namespace People\Controller;
 
-use People\View\OrganizationJsonModel;
+use People\Service\OrganizationService;
 use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
-use People\Service\OrganizationService;
+use Zend\View\Model\JsonModel;
 use ZFX\Rest\Controller\HATEOASRestfulController;
 
 class OrganizationsController extends HATEOASRestfulController
@@ -41,10 +41,18 @@ class OrganizationsController extends HATEOASRestfulController
 		}
 
 		$organizations = $this->orgService->findOrganizations();
-		$view = new OrganizationJsonModel($this->url(), $this->identity());
-		$view->setVariable('resource', $organizations);
-
-		return $view;
+		return new JsonModel([
+				'count' => count($organizations),
+				'total' => count($organizations),
+				'_embedded' => [
+						'ora:organization' => array_map([$this, 'serializeOne'], $organizations)
+				],
+				'_links' => [
+					'self' => [
+							'href' => $this->url()->fromRoute('organizations'),
+					]
+				]
+		]);
 	}
 	
 	public function create($data)
@@ -64,7 +72,7 @@ class OrganizationsController extends HATEOASRestfulController
 		$url = $this->url()->fromRoute('organizations', ['id' => $organization->getId()]);
 		$this->response->getHeaders()->addHeaderLine('Location', $url);
 		$this->response->setStatusCode(201);
-		return $this->response;
+		return new JsonModel($this->serializeOne($organization));
 	}
 	
 	public function update($id, $data)
@@ -113,5 +121,21 @@ class OrganizationsController extends HATEOASRestfulController
 	{
 		return self::$resourceOptions;
 	}
-	
+
+	protected function serializeOne($organization) {
+		return [
+				'id' => $organization->getId(),
+				'name' => $organization->getName(),
+				'membership' => $this->identity()->isMemberOf($organization),
+				'createdAt' => date_format($organization->getCreatedAt(), 'c'),
+				'_links' => [
+						'self' => [
+								'href' => $this->url()->fromRoute('organizations', ['id' => $organization->getId()])
+						],
+						'ora:member' => [
+								'href' => $this->url()->fromRoute('members', ['orgId' => $organization->getId()])
+						]
+				]
+		];
+	}
 }

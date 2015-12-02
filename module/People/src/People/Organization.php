@@ -15,20 +15,21 @@ class Organization extends DomainEntity
 	CONST ROLE_MEMBER = 'member';
 	CONST ROLE_ADMIN  = 'admin';
 	/**
-	 * 
 	 * @var string
 	 */
 	private $name;
 	/**
-	 * 
 	 * @var Uuid
 	 */
 	private $accountId;
 	/**
-	 * 
 	 * @var array
 	 */
-	private $members = array();
+	private $members = [];
+	/**
+	 * @var \DateTime
+	 */
+	private $createdAt;
 		
 	public static function create($name, User $createdBy) {
 		$rv = new self();
@@ -90,11 +91,25 @@ class Organization extends DomainEntity
 			'by' => $removedBy == null ? $member->getId() : $removedBy->getId(),
 		)));
 	}
-	
+
+	/**
+	 * @return \DateTime
+	 */
+	public function getCreatedAt()
+	{
+		return $this->createdAt;
+	}
+
+	/**
+	 * @return array
+	 */
 	public function getMembers() {
 		return $this->members;
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getAdmins() {
 		return array_filter($this->members, function($profile) {
 			return $profile['role'] == self::ROLE_ADMIN;
@@ -104,6 +119,7 @@ class Organization extends DomainEntity
 	protected function whenOrganizationCreated(OrganizationCreated $event)
 	{
 		$this->id = Uuid::fromString($event->aggregateId());
+		$this->createdAt = $event->occurredOn();
 	}
 	
 	protected function whenOrganizationUpdated(OrganizationUpdated $event) {

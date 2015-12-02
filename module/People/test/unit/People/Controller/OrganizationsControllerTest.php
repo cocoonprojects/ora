@@ -106,7 +106,10 @@ class OrganizationsControllerTest extends ControllerTest
 		$this->assertEquals(401, $response->getStatusCode());
 	}
 
-	public function testGetList() {
+	public function testGetEmptyList() {
+		$this->controller->getOrganizationService()
+				->method('findOrganizations')
+				->willReturn([]);
 		$this->setupLoggedUser($this->user);
 
 		$result   = $this->controller->dispatch($this->request);

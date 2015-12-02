@@ -3,7 +3,6 @@ Feature: Get account stats
   I want to get account statistics of other members account
   In order to understand their contribution to the organization
 
-  @wip
   Scenario: Successfully getting an organization member account statistics
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Account"
