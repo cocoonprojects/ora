@@ -410,7 +410,7 @@ class Importer{
 	}
 	
 	private function getNewTaskOwner($kanbanizeTaskAssignee){
-		if(!Task::isEmptyAssignee($kanbanizeTaskAssignee)){
+		if($kanbanizeTaskAssignee != Task::EMPTY_ASSIGNEE){
 			$users = $this->userService->findUsers(['kanbanizeusername' => $kanbanizeTaskAssignee]);
 			return array_shift($users);
 		}

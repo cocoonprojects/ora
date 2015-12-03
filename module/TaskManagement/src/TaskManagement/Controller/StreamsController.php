@@ -129,6 +129,7 @@ class StreamsController extends OrganizationAwareController
 			'id' => $stream->getId (),
 			'subject' => $stream->getSubject (),
 			'createdAt' => date_format($stream->getCreatedAt(), 'c'),
+			'type' => $stream->getType(),
 			'_links' => [
 					'self' => $this->url()->fromRoute('collaboration', [
 							'id' => $stream->getId(),

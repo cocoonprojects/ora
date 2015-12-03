@@ -26,7 +26,6 @@ class ImporterTest extends TestCase {
 	private $userServiceStub;
 	private $organization;
 	private $requestedBy;
-	private $organizationServiceStub;
 	private $apiMock;
 
 	protected function setup(){
@@ -62,9 +61,6 @@ class ImporterTest extends TestCase {
 		$this->organizationServiceStub = $this->getMockBuilder(OrganizationService::class)->getMock();
 		$this->apiMock = new KanbanizeAPIMock($tasks, [], $projects);
 		$organization = new ReadModelOrganization($this->organization->getId());
-		$this->organizationServiceStub->expects($this->atLeastOnce())
-			->method('findOrganization')
-			->willReturn($organization);
 	}
 
 	public function testImportProjects(){
@@ -78,8 +74,7 @@ class ImporterTest extends TestCase {
 				$this->userServiceStub,
 				$this->organization,
 				$this->requestedBy,
-				$this->apiMock,
-				$this->organizationServiceStub);
+				$this->apiMock);
 		$importer->importProjects();
 		$importResult = $importer->getImportResult();
 		$this->assertArrayHasKey('createdStreams', $importResult);

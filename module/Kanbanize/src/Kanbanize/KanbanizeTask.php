@@ -96,10 +96,6 @@ class KanbanizeTask extends Task {
 		return 'kanbanizetask';
 	}
 
-	public static function isEmptyAssignee($assignee){
-		return $assignee == self::EMPTY_ASSIGNEE;
-	}
-
 	protected function whenTaskCreated(TaskCreated $event) {
 		parent::whenTaskCreated($event);
 

@@ -82,4 +82,8 @@ class Stream extends DomainEntity
 	protected function whenStreamOrganizationChanged(StreamOrganizationChanged $event) {
 		$this->organizationId = Uuid::fromString($event->payload()['organizationId']);
 	}
+	
+	public function getType(){
+		return 'stream';
+	}
 }
