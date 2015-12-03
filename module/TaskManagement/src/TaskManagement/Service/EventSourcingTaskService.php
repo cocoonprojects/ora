@@ -4,6 +4,7 @@ namespace TaskManagement\Service;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query;
+use People\Organization as WriteModelOrganization;
 use People\Entity\Organization;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Prooph\EventStore\Aggregate\AggregateRepository;
@@ -49,14 +50,25 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 
 	/**
 	 * @see \TaskManagement\Service\TaskService::findTasks()
-	 * @param Organization $organization
+	 * @param Organization|ReadModelOrganization|String|Uuid $organization
 	 * @param int $offset
 	 * @param int $limit
 	 * @param array $filters
 	 * @return \TaskManagement\Task[]
 	 */
-	public function findTasks(Organization $organization, $offset, $limit, $filters)
+	public function findTasks($organization, $offset, $limit, $filters)
 	{
+		switch (get_class($organization)){
+			case Organization::class :
+			case WriteModelOrganization::class:
+				$organizationId = $organization->getId();
+				break;
+			case Uuid::class:
+				$organizationId = $organization->toString();
+				break;
+			default :
+				$organizationId = $organization;
+		}
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('t')
 			->from(ReadModelTask::class, 't')
@@ -64,7 +76,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->orderBy('t.mostRecentEditAt', 'DESC')
 			->setFirstResult($offset)
 			->setMaxResults($limit)
-			->setParameter(':organization', $organization);
+			->setParameter(':organization', $organizationId);
 
 		if(isset($filters["startOn"])){
 			$query->andWhere('t.createdAt >= :startOn')
@@ -90,7 +102,6 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		if(array_key_exists('status', $filters)){
 			$query->andWhere('t.status = :status')->setParameter('status', $filters["status"]);
 		}
-
 		return $query->getQuery()->getResult();
 	}
 

@@ -44,10 +44,6 @@ class Importer{
 	 */
 	private $organization;
 	/**
-	 * @var OrganizationService
-	 */
-	private $organizationService;
-	/**
 	 * @var User
 	 */
 	private $requestedBy;
@@ -69,8 +65,7 @@ class Importer{
 			UserService $userService,
 			Organization $organization,
 			User $requestedBy,
-			KanbanizeAPI $api,
-			OrganizationService $organizationService){
+			KanbanizeAPI $api){
 		$this->kanbanizeService = $kanbanizeService;
 		$this->taskService = $taskService;
 		$this->streamService = $streamService;
@@ -79,7 +74,6 @@ class Importer{
 		$this->organization = $organization;
 		$this->requestedBy = $requestedBy;
 		$this->api = $api;
-		$this->organizationService = $organizationService;
 	}
 
 	public function getErrors(){
@@ -285,7 +279,6 @@ class Importer{
 			return $task;
 		}
 		catch (\Exception $e) {
-			print_r($e->getMessage());die();
 			$this->transactionManager->rollback();
 			throw $e;
 		}
@@ -398,8 +391,7 @@ class Importer{
 	}
 
 	private function deleteTasks(Stream $stream, $tasksFound){
-		$organization = $this->organizationService->findOrganization($this->organization->getId());
-		$tasks = $this->taskService->findTasks($organization, null, null, ["streamId"=>$stream->getId()]);
+		$tasks = $this->taskService->findTasks($this->organization, null, null, ["streamId"=>$stream->getId()]);
 		$tasksToDelete = array_filter($tasks, function($task) use ($tasksFound){
 			return !in_array($task->getId(), $tasksFound);
 		});

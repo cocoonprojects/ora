@@ -13,7 +13,6 @@ use TaskManagement\Service\StreamService;
 use TaskManagement\Service\TaskService;
 use TaskManagement\Entity\Task as ReadModelTask;
 use TaskManagement\Entity\TaskMember;
-use People\Service\OrganizationService;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
@@ -43,10 +42,6 @@ class ImportDirector implements EventManagerAwareInterface{
 	 * @var UserService
 	 */
 	protected $userService;
-	/**
-	 * @var OrganizationService
-	 */
-	protected $organizationService;
 	
 	private $apiKey;
 	/**
@@ -59,14 +54,12 @@ class ImportDirector implements EventManagerAwareInterface{
 			TaskService $taskService,
 			StreamService $streamService,
 			EventStore $transactionManager,
-			UserService $userService,
-			OrganizationService $organizationService){
+			UserService $userService){
 		$this->kanbanizeService = $kanbanizeService;
 		$this->taskService = $taskService;
 		$this->streamService = $streamService;
 		$this->transactionManager = $transactionManager;
 		$this->userService = $userService;
-		$this->organizationService = $organizationService;
 	}
 	/**
 	 * 
@@ -76,15 +69,14 @@ class ImportDirector implements EventManagerAwareInterface{
 	public function import(Organization $organization, User $requestedBy){
 		$api = $this->initApi($organization);
 		$importer = new Importer(
-				$this->kanbanizeService,
-				$this->taskService,
-				$this->streamService,
-				$this->transactionManager,
-				$this->userService,
-				$organization,
-				$requestedBy,
-				$api,
-				$this->organizationService
+			$this->kanbanizeService,
+			$this->taskService,
+			$this->streamService,
+			$this->transactionManager,
+			$this->userService,
+			$organization,
+			$requestedBy,
+			$api
 		);
 		$importer->importProjects();
 		$importResult = $importer->getImportResult();
