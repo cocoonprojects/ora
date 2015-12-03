@@ -15,6 +15,7 @@ use TaskManagement\SharesAssigned;
 use TaskManagement\SharesSkipped;
 use TaskManagement\TaskClosed;
 use TaskManagement\TaskCreated;
+use TaskManagement\TaskAccepted;
 use TaskManagement\WorkItemIdeaCreated;
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
@@ -57,6 +58,7 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, SharesSkipped::class, array($this, 'processSharesAssigned'));
 		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, TaskClosed::class, array($this, 'processTaskClosed'));
 		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, TaskCreated::class, array($this, 'processWorkItemIdeaCreated'));
+		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, TaskAccepted::class, array($this, 'processTaskAccepted'));
 	}
 	
 	public function detach(EventManagerInterface $events) {
@@ -105,6 +107,12 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 		}
 	}
 
+	public function processTaskAccepted(Event $event){
+		$streamEvent = $event->getTarget();
+		$taskId = $streamEvent->metadata()['aggregate_id'];
+		$task = $this->taskService->findTask($taskId);
+		$this->sendTaskAcceptedInfoMail($task);
+	}
 	/**
 	 * @param Task $task
 	 * @param User $member
@@ -278,6 +286,32 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 		return $rv;
 	}
 
+	/**
+	 * Send an email notification to the members of $taskToNotify to inform them that it has been accepted, and it's time to assign shares
+	 * @param Task $task
+	 * @return BasicUser[] receivers
+	 */
+	public function sendTaskAcceptedInfoMail(Task $task)
+	{
+		$rv = [];
+		$taskMembers = $task->getMembers();
+		foreach ($taskMembers as $taskMember) {
+			$member = $taskMember->getMember();
+	
+			$message = $this->mailService->getMessage();
+			$message->setTo($member->getEmail());
+			$message->setSubject($task->getSubject() . " accepted");
+	
+			$this->mailService->setTemplate( 'mail/task-accepted-info.phtml', [
+					'task' => $task,
+					'recipient'=> $member
+			]);
+				
+			$this->mailService->send();
+			$rv[] = $member;
+		}
+		return $rv;
+	}
 	/**
 	 * @return MailServiceInterface
 	 */

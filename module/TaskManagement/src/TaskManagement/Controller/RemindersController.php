@@ -137,6 +137,6 @@ class RemindersController extends HATEOASRestfulController
 	}
 	
 	protected static function getDefaultIntervalToRemindAssignmentOfShares(){
-		return new \DateInterval('P6D');
+		return new \DateInterval('P7D');
 	}
 }
