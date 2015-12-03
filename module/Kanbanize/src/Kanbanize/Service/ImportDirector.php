@@ -14,11 +14,15 @@ use TaskManagement\Service\TaskService;
 use TaskManagement\Entity\Task as ReadModelTask;
 use TaskManagement\Entity\TaskMember;
 use People\Service\OrganizationService;
+use Zend\EventManager\EventManagerAwareInterface;
+use Zend\EventManager\EventManagerInterface;
+use Zend\EventManager\EventManager;
 
 
-
-class ImportDirector {
+class ImportDirector implements EventManagerAwareInterface{
 	
+	CONST IMPORT_COMPLETED = "Import.Completed";
+
 	/**
 	 * @var KanbanizeService
 	 */
@@ -45,6 +49,11 @@ class ImportDirector {
 	protected $organizationService;
 	
 	private $apiKey;
+	/**
+	 *
+	 * @var EventManagerInterface
+	 */
+	protected $events;
 
 	public function __construct(KanbanizeService $kanbanizeService,
 			TaskService $taskService,
@@ -65,7 +74,7 @@ class ImportDirector {
 	 * @param User $requestedBy
 	 */
 	public function import(Organization $organization, User $requestedBy){
-		$api = $this->initApi($organization, $this->apiKey);
+		$api = $this->initApi($organization);
 		$importer = new Importer(
 				$this->kanbanizeService,
 				$this->taskService,
@@ -78,7 +87,12 @@ class ImportDirector {
 				$this->organizationService
 		);
 		$importer->importProjects();
-		return $importer->getImportResult();
+		$importResult = $importer->getImportResult();
+		$this->getEventManager()->trigger(self::IMPORT_COMPLETED, [
+			'importResult' => $importResult,
+			'organizationId' => $organization->getId()
+		]);
+		return $importResult;
 	}
 
 	public function setApiKey($key){
@@ -86,10 +100,26 @@ class ImportDirector {
 		return $this;
 	}
 	
-	private function initApi(Organization $organization, $apiKey){
+	private function initApi(Organization $organization){
 		$api = new KanbanizeAPI();
 		$api->setApiKey($this->apiKey);
-		$api->setUrl($organization->getSetting("url"));
+		$api->setUrl($organization->getSetting("kanbanizeAccountAddress"));
 		return $api;
+	}
+	
+	public function setEventManager(EventManagerInterface $events){
+		$events->setIdentifiers(array(
+				'Kanbanize\ImportDirector',
+				__CLASS__,
+				get_class($this)
+		));
+		$this->events = $events;
+	}
+	
+	public function  getEventManager(){
+		if (!$this->events) {
+			$this->setEventManager(new EventManager());
+		}
+		return $this->events;
 	}
 }

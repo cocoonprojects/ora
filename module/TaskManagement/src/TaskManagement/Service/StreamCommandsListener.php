@@ -5,36 +5,30 @@ use Prooph\EventStore\Stream\StreamEvent;
 use People\Entity\Organization;
 use Application\Entity\User;
 use Application\Service\ReadModelProjector;
+use TaskManagement\Stream as WriteModelStream;
 use TaskManagement\Entity\Stream;
 use TaskManagement\Entity\Task;
-use Kanbanize\KanbanizeStream;
-use Kanbanize\Entity\KanbanizeStream as ReadModelKanbanizeStream;
 
 class StreamCommandsListener extends ReadModelProjector {
 	
 	protected function onStreamCreated(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$organizationId = $event->payload()['organizationId'];
-		$organization = $this->entityManager->find(Organization::class, $organizationId);
-		if(is_null($organization)) {
-			return;
+		$type = $event->metadata()['aggregate_type'];
+		if($type == WriteModelStream::class){
+			$organizationId = $event->payload()['organizationId'];
+			$organization = $this->entityManager->find(Organization::class, $organizationId);
+			if(is_null($organization)) {
+				return;
+			}
+			$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
+			$stream = new Stream($id, $organization);
+			$stream->setCreatedAt($event->occurredOn())
+				->setCreatedBy($createdBy)
+				->setMostRecentEditAt($event->occurredOn())
+				->setMostRecentEditBy($createdBy);
+			$this->entityManager->persist($stream);
 		}
-		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
-		switch($event->metadata()['aggregate_type']) {
-			case KanbanizeStream::class :
-				$stream = new ReadModelKanbanizeStream($id, $organization);
-				$stream->setBoardId($event->payload()['boardId']);
-				$stream->setProjectId($event->payload()['projectId']);
-				break;
-			default:
-				$stream = new Stream($id, $organization);
-		}
-
-		$stream->setCreatedAt($event->occurredOn())
-			->setCreatedBy($createdBy)
-			->setMostRecentEditAt($event->occurredOn())
-			->setMostRecentEditBy($createdBy);
-		$this->entityManager->persist($stream);
+		return;
 	}
 
 	protected function onStreamUpdated(StreamEvent $event) {

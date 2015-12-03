@@ -3,9 +3,8 @@ namespace TaskManagement\Service;
 
 use Application\Entity\User;
 use Application\Service\ReadModelProjector;
-use Kanbanize\Entity\KanbanizeTask as ReadModelKanbanizeTask;
-use Kanbanize\KanbanizeTask;
 use Prooph\EventStore\Stream\StreamEvent;
+use TaskManagement\Task as WriteModelTask;
 use TaskManagement\Entity\Estimation;
 use TaskManagement\Entity\Stream;
 use TaskManagement\Entity\Task;
@@ -15,27 +14,22 @@ class TaskCommandsListener extends ReadModelProjector
 {
 	protected function onTaskCreated(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$stream = $this->entityManager->find(Stream::class, $event->payload()['streamId']);
-		if(is_null($stream)) {
-			return;
+		$type = $event->metadata()['aggregate_type'];
+		if($type == WriteModelTask::class){
+			$stream = $this->entityManager->find(Stream::class, $event->payload()['streamId']);
+			if(is_null($stream)) {
+				return;
+			}
+			$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
+			$entity = new Task($id, $stream);
+			$entity->setStatus($event->payload()['status'])
+				->setCreatedAt($event->occurredOn())
+				->setCreatedBy($createdBy)
+				->setMostRecentEditAt($event->occurredOn())
+				->setMostRecentEditBy($createdBy);
+			$this->entityManager->persist($entity);
 		}
-
-		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
-		switch($event->metadata()['aggregate_type']) {
-			case KanbanizeTask::class :
-				$entity = new ReadModelKanbanizeTask($id, $stream);
-				$entity->setTaskId($event->payload()['taskid']);
-				$entity->setColumnName($event->payload()['columnname']);
-				break;
-			default:
-				$entity = new Task($id, $stream);
-		}
-		$entity->setStatus($event->payload()['status'])
-			   ->setCreatedAt($event->occurredOn())
-			   ->setCreatedBy($createdBy)
-			   ->setMostRecentEditAt($event->occurredOn())
-			   ->setMostRecentEditBy($createdBy);
-		$this->entityManager->persist($entity);
+		return;
 	}
 	
 	protected function onTaskUpdated(StreamEvent $event) {

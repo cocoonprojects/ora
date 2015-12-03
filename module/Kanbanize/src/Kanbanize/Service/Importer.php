@@ -362,7 +362,7 @@ class Importer{
 	 */
 	private function updateTaskOwner(Task $task, $username){
 		$users = $this->userService->findUsers(['kanbanizeusername' => $username]);
-		$new_owner = array_shift($users);
+		$new_owner = is_null($users) ? null : array_shift($users);
 		if (is_null($new_owner)){
 			$task->removeOwner($this->requestedBy);
 		}elseif (!is_null($task->getOwner())){

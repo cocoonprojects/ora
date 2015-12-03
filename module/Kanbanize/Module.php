@@ -3,12 +3,15 @@ namespace Kanbanize;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
+use Kanbanize\Controller\ImportsController;
 use Kanbanize\Service\KanbanizeAPI;
 use Kanbanize\Service\KanbanizeServiceImpl;
 use Kanbanize\Service\SyncTaskListener;
-use Kanbanize\Controller\ImportsController;
 use Kanbanize\Service\ImportDirector;
-use Kanbanize\Service\KanbanizeTasksListener;
+use Kanbanize\Service\ImportTasksListener;
+use Kanbanize\Service\TaskCommandsListener;
+use Kanbanize\Service\StreamCommandsListener;
+use Kanbanize\Service\MailNotificationService;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {
@@ -23,7 +26,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$config = $locator->get('Config');
 					$organizationService = $locator->get('People\OrganizationService');
 					$importDirector = $locator->get('Kanbanize\ImportDirector');
-					$notificationService = $locator->get('TaskManagement\NotifyMailListener');
+					$notificationService = $locator->get('Kanbanize\MailNotificationService');
 					$controller = new ImportsController($organizationService, $importDirector, $notificationService);
 					return $controller;
 				}
@@ -47,10 +50,19 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$taskService = $locator->get('TaskManagement\TaskService');
 					return new SyncTaskListener($kanbanizeService, $taskService);
 				},
-				'Kanbanize\KanbanizeTasksListener' => function ($locator) {
+				'Kanbanize\ImportTasksListener' => function ($locator) {
+					$notificationService = $locator->get('Kanbanize\MailNotificationService');
+					$organizationService = $locator->get('People\OrganizationService');
+					return new ImportTasksListener($organizationService, $notificationService);
+				},
+				'Kanbanize\TaskCommandsListener' => function ($locator) {
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
 					$taskService = $locator->get('TaskManagement\TaskService');
-					return new KanbanizeTasksListener($taskService, $entityManager);
+					return new TaskCommandsListener($entityManager, $taskService);
+				},
+				'Kanbanize\StreamCommandsListener' => function ($locator) {
+					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
+					return new StreamCommandsListener($entityManager);
 				},
 				'Kanbanize\ImportDirector' => function ($locator) {
 					$config = $locator->get('Config');
@@ -64,6 +76,12 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$service = new ImportDirector($kanbanizeService, $taskService, $streamService, $transactionManager, $userService, $organizationService);
 					$service->setApiKey($apiKey);
 					return $service;
+				},
+				'Kanbanize\MailNotificationService'=> function ($locator){
+					$mailService = $locator->get('AcMailer\Service\MailService');
+					$orgService = $locator->get('People\OrganizationService');
+					$rv = new MailNotificationService($mailService, $orgService);
+					return $rv;
 				},
 			),
 			'initializers' => array(

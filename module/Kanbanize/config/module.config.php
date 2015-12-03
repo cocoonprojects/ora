@@ -18,7 +18,9 @@ return array(
 	),
 	'listeners' => array(
 		//'Kanbanize\SyncTaskListener',	// Actions on kanbanize tasks come directly from Kanbanize, not from O.R.A.
-		'Kanbanize\KanbanizeTasksListener'
+		'Kanbanize\ImportTasksListener',
+		'Kanbanize\TaskCommandsListener',
+		'Kanbanize\StreamCommandsListener',
 	),
 	'router' => array(
 		'routes' => array(
@@ -36,5 +38,10 @@ return array(
 				),
 			)
 		)
-	)
+	),
+	'view_manager' => array(
+		'template_path_stack' => array(
+				__NAMESPACE__ => __DIR__ . '/../view',
+		)
+	),
 );
