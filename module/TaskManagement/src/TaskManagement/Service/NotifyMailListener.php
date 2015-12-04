@@ -6,6 +6,7 @@ use AcMailer\Service\MailServiceInterface;
 use Application\Entity\BasicUser;
 use Application\Entity\User;
 use Application\Service\UserService;
+use People\Entity\Organization;
 use People\Entity\OrganizationMembership;
 use People\Service\OrganizationService;
 use TaskManagement\Entity\Task;
@@ -97,7 +98,7 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 		$task = $this->taskService->findTask ( $taskId );
 		if ($task->getStatus() == Task::STATUS_IDEA) {
 			$memberId = $event->getParam ( 'by' );
-			$member = $task->getMember($memberId)->getUser();
+			$member = is_null($task->getMember($memberId)) ? null : $task->getMember($memberId)->getUser();
 			$org = $task->getStream()->getOrganization();
 			$memberships = $this->orgService->findOrganizationMemberships($org,null,null);
 			$this->sendWorkItemIdeaCreatedMail ( $task, $member, $memberships);
@@ -248,11 +249,11 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 	/**
 	 * Send an email notification to the organization members to inform them that a new Work Item Idea has been created
 	 * @param Task $task
-	 * @param User $member
+	 * @param User | null $member
 	 * @param OrganizationMembership[] $memberships
 	 * @return BasicUser[] receivers
 	 */
-	public function sendWorkItemIdeaCreatedMail(Task $task, User $member, $memberships){
+	public function sendWorkItemIdeaCreatedMail(Task $task, $member, $memberships){
 		$rv = [];
 		$org = $task->getStream()->getOrganization();
 		$stream = $task->getStream();

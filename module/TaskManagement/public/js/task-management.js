@@ -30,7 +30,9 @@ TaskManagement.prototype = {
 			select.empty();
 			select.append('<option></option>');
 			$.each(that.streamsData._embedded['ora:stream'], function(i, object) {
-				select.append('<option value="' + object.id + '">' + object.subject + '</option>');
+				if(object.type !== 'kanbanizestream'){
+					select.append('<option value="' + object.id + '">' + object.subject + '</option>');
+				}
 			});
 		});
 		

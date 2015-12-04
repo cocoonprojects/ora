@@ -3,8 +3,8 @@ namespace TaskManagement\Service;
 
 use Application\Entity\User;
 use Application\Service\ReadModelProjector;
-use Kanbanize\Entity\KanbanizeTask;
 use Prooph\EventStore\Stream\StreamEvent;
+use TaskManagement\Task as WriteModelTask;
 use TaskManagement\Entity\Estimation;
 use TaskManagement\Entity\Stream;
 use TaskManagement\Entity\Task;
@@ -14,28 +14,22 @@ class TaskCommandsListener extends ReadModelProjector
 {
 	protected function onTaskCreated(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
-		$stream = $this->entityManager->find(Stream::class, $event->payload()['streamId']);
-		if(is_null($stream)) {
-			return;
+		$type = $event->metadata()['aggregate_type'];
+		if($type == WriteModelTask::class){
+			$stream = $this->entityManager->find(Stream::class, $event->payload()['streamId']);
+			if(is_null($stream)) {
+				return;
+			}
+			$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
+			$entity = new Task($id, $stream);
+			$entity->setStatus($event->payload()['status'])
+				->setCreatedAt($event->occurredOn())
+				->setCreatedBy($createdBy)
+				->setMostRecentEditAt($event->occurredOn())
+				->setMostRecentEditBy($createdBy);
+			$this->entityManager->persist($entity);
 		}
-
-		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
-		
-		switch($event->metadata()['aggregate_type']) {
-			case KanbanizeTask::class :
-				$entity = new KanbanizeTask($id, $stream);
-				$entity->setBoardId($event->payload()['kanbanizeBoardId']);
-				$entity->setTaskId($event->payload()['kanbanizeTaskId']);
-				break;
-			default:
-				$entity = new Task($id, $stream);
-		}
-		$entity->setStatus($event->payload()['status'])
-			   ->setCreatedAt($event->occurredOn())
-			   ->setCreatedBy($createdBy)
-			   ->setMostRecentEditAt($event->occurredOn())
-			   ->setMostRecentEditBy($createdBy);
-		$this->entityManager->persist($entity);
+		return;
 	}
 	
 	protected function onTaskUpdated(StreamEvent $event) {
@@ -140,9 +134,11 @@ class TaskCommandsListener extends ReadModelProjector
 		$task->setMostRecentEditBy($user);
 		$task->setMostRecentEditAt($event->occurredOn());
 		$task->setAcceptedAt($event->occurredOn());
-		$sharesAssignmentExpiresAt = clone $event->occurredOn();
-		$sharesAssignmentExpiresAt->add($event->payload()['intervalForCloseTask']);
-		$task->setSharesAssignmentExpiresAt($sharesAssignmentExpiresAt);
+		if(isset($event->payload()['intervalForCloseTask'])){
+			$sharesAssignmentExpiresAt = clone $event->occurredOn();
+			$sharesAssignmentExpiresAt->add($event->payload()['intervalForCloseTask']);
+			$task->setSharesAssignmentExpiresAt($sharesAssignmentExpiresAt);
+		}
 		$this->entityManager->persist($task);
 	}
 	
@@ -198,6 +194,29 @@ class TaskCommandsListener extends ReadModelProjector
 			$member->setCredits($credits[$member->getUser()->getId()]);
 			$this->entityManager->persist($member);
 		}
+	}
+
+	protected function onOwnerAdded(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$new_owner = $event->payload()['new_owner'];
+		if(is_null($new_owner)){
+			return;
+		}
+		$new_task_owner = $this->entityManager->find(TaskMember::class, ['task' => $id, 'user' => $new_owner]);
+		$new_task_owner->setRole(TaskMember::ROLE_OWNER);
+		$this->entityManager->persist($new_task_owner);
+	}
+
+	protected function onOwnerRemoved(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$ownerId = $event->payload()['ex_owner'];
+		$ex_owner = $this->entityManager->find(User::class, $event->payload()['ex_owner']);
+		$ex_task_owner = $this->entityManager->find(TaskMember::class, ['task' => $id, 'user' => $ex_owner]);
+		if(is_null($ex_task_owner)){
+			return;
+		}
+		$ex_task_owner->setRole(TaskMember::ROLE_MEMBER);
+		$this->entityManager->persist($ex_task_owner);
 	}
 
 	protected function getPackage() {

@@ -78,7 +78,7 @@ Feature: List tasks
   Scenario: Successfully getting command list on an accepted tasks of a stream for the task owner that haven't assigned shares on that task
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
-    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000106"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000101"
     Then the response status code should be 200
     And the response should have a "_links" property
     And the response should have a "_links.self" property
@@ -102,7 +102,7 @@ Feature: List tasks
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
     And the response shouldn't have a "_links.next" property
-    And the "total" property should be "7"
+    And the "total" property should be "3"
 
   Scenario: Successfully getting a list of tasks from a specified ISO 8601 date
     Given that I am authenticated as "mark.rogers@ora.local"
@@ -112,7 +112,7 @@ Feature: List tasks
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
     And the response shouldn't have a "_links.next" property
-    And the "total" property should be "4"
+    And the "total" property should be "9"
 
   Scenario: Successfully getting a list of tasks until a specified period
     Given that I am authenticated as "mark.rogers@ora.local"
@@ -123,7 +123,7 @@ Feature: List tasks
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
     And the response shouldn't have a "_links.next" property
-    And the "total" property should be "5"
+    And the "total" property should be "1"
 
   Scenario: Successfully getting an empty list of tasks filtered by user email
     Given that I am authenticated as "mark.rogers@ora.local"
@@ -181,3 +181,24 @@ Feature: List tasks
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
     And the "count" property should be "10"
+    
+  Scenario: Cannot get command list on accepted kanbanize tasks for a task owner
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000106"
+    Then the response status code should be 200
+    And the response should have a "_links" property
+    And the response should have a "_links.self" property
+    And the response should have a "_links.ora:assignShares" property
+    And the response shouldn't have a "_links.ora:complete" property
+    
+  Scenario: Cannot get command list on a kanbanize task for a task owner
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000108"
+    Then the response status code should be 200
+    And the response should have a "_links" property
+    And the response should have a "_links.self" property
+    And the response shouldn't have a "_links.ora:execute" property
+    And the response shouldn't have a "_links.ora:accept" property
+    And the "status" property should be "30"

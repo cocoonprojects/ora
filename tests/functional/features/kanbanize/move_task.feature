@@ -87,34 +87,6 @@ Feature: Move Task
     When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000000/transitions"
     Then the response status code should be 412
 
-  Scenario: Cannot accept a completed task if you are a member but not the owner (106)
-    Given that I am authenticated as "paul.smith@ora.local"
-    And that I want to make a new "Transaction"
-    And that its "action" is "accept"
-    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000107/transitions"
-    Then the response status code should be 403
-
-  Scenario: Cannot complete an ongoing task if you are a member but not the owner
-    Given that I am authenticated as "paul.smith@ora.local"
-    And that I want to make a new "Transaction"
-    And that its "action" is "complete"
-    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000000/transitions"
-    Then the response status code should be 403
-
-  Scenario: Cannot put in execution a completed task if you are a member but not the owner
-    Given that I am authenticated as "paul.smith@ora.local"
-    And that I want to make a new "Transaction"
-    And that its "action" is "execute"
-    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000001/transitions"
-    Then the response status code should be 403
-
-  Scenario: Cannot complete an accepted task if you are a member but not the owner
-    Given that I am authenticated as "paul.smith@ora.local"
-    And that I want to make a new "Transaction"
-    And that its "action" is "complete"
-    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000002/transitions"
-    Then the response status code should be 403
-
   Scenario: Successfully accepting a completed Kanbanize Task (106)
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to make a new "Transaction"

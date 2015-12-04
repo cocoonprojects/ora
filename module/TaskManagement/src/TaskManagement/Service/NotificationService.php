@@ -49,9 +49,9 @@ interface NotificationService
 	/**
 	 * Send notification to members that a new Work Item Idea has been created
 	 * @param Task $task
-	 * @param User $member
+	 * @param User | NULL $member
 	 * @param OrganizationMembership[] $memberships
 	 * @return BasicUser[] receivers
 	 */
-	public function sendWorkItemIdeaCreatedMail(Task $task, User $member, $memberships);
+	public function sendWorkItemIdeaCreatedMail(Task $task, $member, $memberships);
 }

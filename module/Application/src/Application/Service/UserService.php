@@ -1,8 +1,6 @@
 <?php 
 namespace Application\Service;
 
-use Application\Entity\User;
-
 interface UserService
 {
 	/**
@@ -37,5 +35,11 @@ interface UserService
 	 * @return User
 	 */
 	public function findUserByEmail($email);
-	
+
+	/**
+	 * Find users by $filters
+	 * @param String $filters["kanbanizeUsername"]
+	 * @return User[]
+	 */
+	public function findUsers($filters);
 }

@@ -2,65 +2,87 @@
 namespace Kanbanize;
 
 use Application\Entity\BasicUser;
-use TaskManagement\Stream;
+use Application\IllegalStateException;
 use TaskManagement\Task;
 use TaskManagement\TaskCreated;
+use TaskManagement\TaskOngoing;
+use TaskManagement\TaskCompleted;
+use TaskManagement\TaskClosed;
+use TaskManagement\TaskAccepted;
+use TaskManagement\TaskUpdated;
+use TaksManagement\TaskMoved;
+use Rhumsaa\Uuid\Uuid;
+use TaskManagement\Stream;
 
 class KanbanizeTask extends Task {
-	
-	//FIXME how to map backlog?
-	CONST BACKLOG = 'Backlog';
-	CONST COLUMN_IDEA = 'Idea';
-	CONST COLUMN_OPEN = 'Open';
-	CONST COLUMN_ONGOING = "OnGoing";
-	CONST COLUMN_COMPLETED = 'Completed';
-	CONST COLUMN_ACCEPTED = 'Accepted';
 
-	private static $mapping = array(
-			self::COLUMN_IDEA		=> Task::STATUS_IDEA,
-			self::COLUMN_OPEN		=> Task::STATUS_OPEN,
-			self::COLUMN_ONGOING	=> Task::STATUS_ONGOING,
-			self::COLUMN_COMPLETED	=> Task::STATUS_COMPLETED,
-			self::COLUMN_ACCEPTED	=> Task::STATUS_ACCEPTED,
-			Task::STATUS_IDEA		=> self::COLUMN_IDEA, 
-			Task::STATUS_OPEN		=> self::COLUMN_OPEN,
-			Task::STATUS_ONGOING	=> self::COLUMN_ONGOING,
-			Task::STATUS_COMPLETED	=> self::COLUMN_COMPLETED,
-			Task::STATUS_ACCEPTED	=> self::COLUMN_ACCEPTED,
-			//FIXME backlog?
-			self::BACKLOG			=> -1,
-			-1						=> self::BACKLOG
-	);
-	
-	private $kanbanizeBoardId;
-	
-	private $kanbanizeTaskId;
+	CONST EMPTY_ASSIGNEE = 'None';
+
+	/**
+	 * @var String
+	 */
+	private $taskid;
+	/**
+	 * @var String
+	 */
+	private $assignee = self::EMPTY_ASSIGNEE;
+	/**
+	 * @var String
+	 */
+	private $columnname;
 	
 	public static function create(Stream $stream, $subject, BasicUser $createdBy, array $options = null) {
-		if(!isset($options['kanbanizeBoardId']) || !isset($options['kanbanizeTaskId'])) {
-			throw InvalidArgumentException('Cannot create a KanbanizeTask without a kanbanizeBoardId or kanbanizeTaskId option');
+		if(!isset($options['taskid'])) {
+			throw InvalidArgumentException('Cannot create a KanbanizeTask without a taskid option');
+		}
+		if(!isset($options['columnname'])) {
+			throw InvalidArgumentException('Cannot create a KanbanizeTask without a columnname option');
 		}
 		$rv = new self();
 		$rv->id = Uuid::uuid4();
-		$rv->status = self::STATUS_ONGOING;
+		$rv->status = self::STATUS_IDEA;
 		$rv->recordThat(TaskCreated::occur($rv->id->toString(), [
 			'status' => $rv->status,
-			'kanbanizeBoadId' => $options['kanbanizeBoardId'],
-			'kanbanizeTaskId' => $options['kanbanizeTaskId'],
+			'taskid' => $options['taskid'],
 			'organizationId' => $stream->getOrganizationId(),
 			'streamId' => $stream->getId(),
 			'by' => $createdBy->getId(),
+			'columnname' => $options["columnname"],
+			'subject' => $subject
 		]));
-		$rv->setSubject($subject, $createdBy);
 		return $rv;
 	}
 	
-	public function getKanbanizeBoardId() {
-		return $this->kanbanizeBoardId;
-	}
-	
 	public function getKanbanizeTaskId() {
-		return $this->kanbanizeTaskId;
+		return $this->taskId;
+	}
+
+	public function setAssignee($assignee, BasicUser $updatedBy){
+		$assignee = is_null($assignee) ? self::EMPTY_ASSIGNEE : trim($assignee);
+		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
+			'assignee' => $assignee,
+			'by' => $updatedBy->getId(),
+		)));
+		return $this;
+	}
+
+	public function getAssignee(){
+		return $this->assignee;
+	}
+
+	public function setColumnName($name, BasicUser $updatedBy){
+		if(empty($name)) {
+			throw new InvalidArgumentException("Column name cannot be empty");
+		};
+		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
+			'columnname' => trim($name),
+			'by' => $updatedBy->getId(),
+		)));
+		return $this;
+	}
+
+	public function getColumnName(){
+		return $this->columnname;
 	}
 
 	/**
@@ -71,13 +93,27 @@ class KanbanizeTask extends Task {
 		return 'kanbanizetask';
 	}
 
-	public static function getMappedStatus($status) {
-		return self::$mapping[$status];
-	}
-	
 	protected function whenTaskCreated(TaskCreated $event) {
 		parent::whenTaskCreated($event);
-		$this->kanbanizeBoardId = $event->payload()['kanbanizeBoardId'];
-		$this->kanbanizeTaskId = $event->payload()['kanbanizeTaskId'];
+
+		$this->taskid = $event->payload()['taskid'];
+		$this->columnname = $event->payload()['columnname'];
+		$this->subject = $event->payload()['subject'];
+	}
+
+	protected function whenTaskUpdated(TaskUpdated $event) {
+		parent::whenTaskUpdated($event);
+
+		$pl = $event->payload();
+		if(isset($pl['columnname'])) {
+			$this->columnname = $pl['columnname'];
+		}
+		if(isset($pl['assignee'])) {
+			$this->assignee = $pl['assignee'];
+		}
+	}
+
+	public function getResourceId(){
+		return 'Ora\KanbanizeTask';
 	}
 }

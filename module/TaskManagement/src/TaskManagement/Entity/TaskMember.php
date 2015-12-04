@@ -223,4 +223,8 @@ class TaskMember
 	public function setCredits($credits){
 		$this->credits = $credits;
 	}
+
+	public function setRole($role){
+		$this->role = $role;
+	}
 }

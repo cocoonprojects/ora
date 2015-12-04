@@ -8,11 +8,13 @@ use People\Entity\Organization;
 
 /**
  * @ORM\Entity @ORM\Table(name="streams")
+ * @ORM\InheritanceType("JOINED")
+ * @ORM\DiscriminatorColumn(name="type", type="string")
  * @author Giannotti Fabio
  *
  */
 class Stream extends EditableEntity
-{	    
+{
 	/**
 	 * @ORM\Column(type="string", nullable=true)
 	 * @var string
@@ -37,9 +39,14 @@ class Stream extends EditableEntity
 	
 	public function setSubject($subject) {
 		$this->subject = $subject;
+		return $this;
 	}
 	
 	public function getOrganization() {
 		return $this->organization;
+	}
+
+	public function getType(){
+		return 'stream';
 	}
 }

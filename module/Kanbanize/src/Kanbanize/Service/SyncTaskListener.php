@@ -32,7 +32,7 @@ class SyncTaskListener implements ListenerAggregateInterface
 		$this->kanbanizeService = $kanbanizeService;
 		$this->taskService = $taskService;
 	}
-	
+
 	public function attach(EventManagerInterface $events)
 	{
 		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskOngoing::class, function(Event $event) {

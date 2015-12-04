@@ -76,6 +76,11 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 	 * @var string 
 	 */
 	private $role = self::ROLE_USER;
+	/**
+	* @ORM\Column(type="string", nullable=TRUE)
+	* @var string
+	*/
+	private $kanbanizeUsername;
 
 	private function __construct() {
 		$this->memberships = new ArrayCollection();
@@ -283,7 +288,15 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 	public function getRoleId(){
 		return $this->getRole();
 	}
-	
+
+	public function setKanbanizeUsername($username){
+		$this->kanbanizeUsername = $username;
+	}
+
+	public function getKanbanizeUsername(){
+		return $this->kanbanizeUsername;
+	}
+
 	public function getResourceId()
 	{
 		return 'Ora\User';
