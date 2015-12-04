@@ -1,0 +1,10 @@
+<p>Hi <?= $this->recipient->getFirstname() ?>,</p>
+<p>the item "<?= $this->task->getSubject()?>" <b>has been accepted!</b></p> 
+<p>It's time to <b>assign shares</b> to this item.</p> 
+<p>Follow <a href="<?= $this->url('collaboration-home', ['orgId' => $this->task->getStream()->getOrganization()->getId()], ['force_canonical' => true])//."#".$this->task->getId();//'http://'.$this->server_name.'/'.$this->task->getStream()->getOrganization()->getId().'/task-management#'.$this->task->getId()?>"> this link</a> to do it as soon as possible</p>
+<br/> 
+<p>Thank you!</p>
+<p>;)</p>
+<p>O.R.A.</p>
+<hr>
+<p style="font-size: 12px">You are receiving this e-mail because you are member of the "<?= $this->task->getSubject() ?>" item.</p>		

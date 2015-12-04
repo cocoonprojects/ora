@@ -54,4 +54,10 @@ interface NotificationService
 	 * @return BasicUser[] receivers
 	 */
 	public function sendWorkItemIdeaCreatedMail(Task $task, $member, $memberships);
+	
+	/**
+	 * Send notification to $task members when $task is accepted  
+	 * @param Task $task
+	 */
+	public function sendTaskAcceptedInfoMail(Task $task);
 }
