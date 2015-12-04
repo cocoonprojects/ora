@@ -38,12 +38,9 @@ class KanbanizeTask extends Task {
 		if(!isset($options['columnname'])) {
 			throw InvalidArgumentException('Cannot create a KanbanizeTask without a columnname option');
 		}
-		if(!isset($options['status'])) {
-			throw InvalidArgumentException('Cannot create a KanbanizeTask without a status option');
-		}
 		$rv = new self();
 		$rv->id = Uuid::uuid4();
-		$rv->status = $options["status"];
+		$rv->status = self::STATUS_IDEA;
 		$rv->recordThat(TaskCreated::occur($rv->id->toString(), [
 			'status' => $rv->status,
 			'taskid' => $options['taskid'],

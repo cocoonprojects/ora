@@ -258,12 +258,9 @@ class Importer{
 	 * @return Task
 	 */
 	private function createTask($kanbanizeTask, Stream $stream){
-		$mapping = $this->organization->getSetting('kanbanizeColumnMapping');
-		$status = $mapping[strtoupper($kanbanizeTask['columnname'])];
 		$options = [
 			"taskid" => $kanbanizeTask['taskid'],
-			"columnname" => $kanbanizeTask['columnname'],
-			"status" => $status
+			"columnname" => $kanbanizeTask['columnname']
 		];
 		$new_owner = $this->getNewTaskOwner($kanbanizeTask['assignee']);
 		$this->transactionManager->beginTransaction();
@@ -276,12 +273,25 @@ class Importer{
 			$task->setAssignee($kanbanizeTask['assignee'], $this->requestedBy);
 			$this->transactionManager->commit();
 			$this->createdTasks++;
-			return $task;
 		}
 		catch (\Exception $e) {
 			$this->transactionManager->rollback();
 			throw $e;
 		}
+		$mapping = $this->organization->getSetting('kanbanizeColumnMapping');
+		$status = $mapping[strtoupper($kanbanizeTask['columnname'])];
+		if($status > Task::STATUS_IDEA){
+			$this->transactionManager->beginTransaction();
+			try {
+				$this->updateTaskStatus($task, $kanbanizeTask['columnname']);
+			}
+			catch (\Exception $e) {
+				$this->transactionManager->rollback();
+				throw $e;
+			}
+			$this->transactionManager->commit();
+		}
+		return $task;
 	}
 	/**
 	 *

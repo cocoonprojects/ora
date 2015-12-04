@@ -1,6 +1,5 @@
 <?php
 
-use Kanbanize\Service\KanbanizeAPIMock;
 use Kanbanize\Service\KanbanizeServiceImpl;
 use Kanbanize\KanbanizeTask;
 

@@ -30,8 +30,6 @@ class KanbanizeServiceImpl implements KanbanizeService
 		$this->entityManager = $em;
 	}
 
-/* Actions on kanbanize tasks come directly from Kanbanize, not from O.R.A.
- * 
 	private function moveTask(KanbanizeTask $task, $status) {
 		$boardId = $task->getKanbanizeBoardId();
 		$taskId = $task->getKanbanizeTaskId();
@@ -127,7 +125,6 @@ class KanbanizeServiceImpl implements KanbanizeService
 	public function closeTask(KanbanizeTask $task) {
 		// TODO: To be implemented
 	}
-*/	
 	/**
 	 * (non-PHPdoc)
 	 * @see \Kanbanize\Service\KanbanizeService::findStreamByBoardId()

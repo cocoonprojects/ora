@@ -39,7 +39,6 @@ class ImporterTest extends TestCase {
 		$projects = [
 				'01' => ['id' => '01', 'name' => 'Project 01', 'boards' => $boards],
 		];
-
 		$this->kanbanizeServiceStub = $this->getMockBuilder(KanbanizeService::class)->getMock();;
 		$this->taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();;
 		$this->streamServiceStub = $this->getMockBuilder(StreamService::class)->getMock();;
@@ -59,11 +58,18 @@ class ImporterTest extends TestCase {
 		], $this->requestedBy);
 		
 		$this->organizationServiceStub = $this->getMockBuilder(OrganizationService::class)->getMock();
-		$this->apiMock = new KanbanizeAPIMock($tasks, [], $projects);
+		$this->apiMock = $this->getMockBuilder(KanbanizeAPI::class)->getMock();
+		$this->apiMock->expects($this->once())
+			->method('getProjectsAndBoards')
+			->willReturn($projects);
+		$this->apiMock->expects($this->once())
+			->method('getAllTasks')
+			->willReturn($tasks);
 		$organization = new ReadModelOrganization($this->organization->getId());
 	}
 
 	public function testImportProjects(){
+
 		$this->taskServiceStub->expects($this->atLeastOnce())
 			->method('findTasks')
 			->willReturn([]);
