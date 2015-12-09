@@ -65,15 +65,16 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					return new StreamCommandsListener($entityManager);
 				},
 				'Kanbanize\ImportDirector' => function ($locator) {
-					$config = $locator->get('Config');
-					$apiKey	= $config['kanbanize']['apikey'];
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$streamService = $locator->get('TaskManagement\StreamService');
 					$userService = $locator->get('Application\UserService');
 					$kanbanizeService = $locator->get('Kanbanize\KanbanizeService');
 					$transactionManager = $locator->get('prooph.event_store');
 					$service = new ImportDirector($kanbanizeService, $taskService, $streamService, $transactionManager, $userService);
-					$service->setApiKey($apiKey);
+					$config = $locator->get('Config');
+					if(is_string($config['kanbanize']['apikey'])){
+						$service->setApiKey($config['kanbanize']['apikey']);
+					}
 					return $service;
 				},
 				'Kanbanize\MailNotificationService'=> function ($locator){
