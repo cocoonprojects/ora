@@ -26,7 +26,8 @@ class OrganizationCommandsListener extends ReadModelProjector {
 			$id = $event->metadata()['aggregate_id'];
 			$entity = $this->entityManager->find(Organization::class, $id);
 			$updatedBy = $this->entityManager->find(User::class, $event->payload()['by']);
-				
+			$entity->setSetting('kanbanizeColumnMapping', $event->payload()['kanbanizeColumnMapping']);
+			$entity->setSetting('kanbanizeAccountAddress', $event->payload()['kanbanizeAccountAddress']);
 			$entity->setName($event->payload()['name']);
 			$entity->setMostRecentEditAt($event->occurredOn());
 			$entity->setMostRecentEditBy($updatedBy);
