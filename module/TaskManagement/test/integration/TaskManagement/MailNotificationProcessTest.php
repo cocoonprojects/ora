@@ -80,7 +80,7 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		$pluginManager = $serviceManager->get('ControllerPluginManager');
 		$this->controller->setPluginManager($pluginManager);
 
-		$this->intervalForCloseTasks = new \DateInterval('P7D');
+		$this->intervalForCloseTasks = new \DateInterval('P10D');
 		
 		$this->transactionManager = $serviceManager->get('prooph.event_store');
 		$this->transactionManager->beginTransaction();
@@ -162,7 +162,32 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		$this->cleanEmailMessages();
 		
 	}
-
+	public function testTaskAcceptedNotification(){
+	
+		$this->transactionManager->beginTransaction();
+		$this->task->addEstimation(1500, $this->owner);
+		$this->task->addEstimation(3100, $this->member);
+		$this->task->complete($this->owner);
+		$this->transactionManager->commit();
+		$this->cleanEmailMessages();
+	
+		$this->transactionManager->beginTransaction();
+		$this->task->accept($this->owner, $this->intervalForCloseTasks);
+		$this->transactionManager->commit();
+	
+		$email = $this->getLastEmailMessage();
+	
+		$this->assertEquals($this->task->getStatus(), Task::STATUS_ACCEPTED);
+		$this->assertNotNull($email);
+		$this->assertContains($this->task->getSubject(), $email->subject);
+		$this->assertEmailHtmlContains('the item "'.$this->task->getSubject().'"', $email);
+		$this->assertEmailHtmlContains('http://example.com/00000000-0000-0000-1000-000000000000/task-management', $email);
+		$this->assertNotEmpty($email->recipients);
+		$this->assertEquals($email->recipients[0], '<mark.rogers@ora.local>');
+	
+		$this->cleanEmailMessages();
+	
+	}
 	protected function cleanEmailMessages()
 	{
 		$request = $this->mailcatcher->delete('/messages');

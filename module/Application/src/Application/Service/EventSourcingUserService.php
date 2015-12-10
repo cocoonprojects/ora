@@ -5,7 +5,6 @@ use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
 use Doctrine\ORM\EntityManager;
-use People\Organization;
 use Application\Entity\User;
 
 class EventSourcingUserService implements UserService, EventManagerAwareInterface
@@ -64,6 +63,18 @@ class EventSourcingUserService implements UserService, EventManagerAwareInterfac
 		return $user;
 	}	
 
+	public function findUsers($filters){
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('u')
+			->from(User::class, 'u')
+			->orderBy('u.mostRecentEditAt', 'DESC');
+		if(isset($filters["kanbanizeusername"])){
+			$query->andWhere('u. kanbanizeUsername = :username')
+				->setParameter('username', $filters["kanbanizeusername"]);
+		}
+		return $query->getQuery()->getResult();
+	}
+	
 	public function setEventManager(EventManagerInterface $events)
 	{
 		$events->setIdentifiers(array(

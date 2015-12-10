@@ -85,9 +85,6 @@ class Task extends DomainEntity implements TaskInterface
 		if(!in_array($this->status, [self::STATUS_IDEA, self::STATUS_OPEN, self::STATUS_COMPLETED])) {
 			throw new IllegalStateException('Cannot execute a task in '.$this->status.' state');
 		}
-		if(!isset($this->members[$executedBy->getId()]) || $this->members[$executedBy->getId()]['role'] != self::ROLE_OWNER) {
-			throw new InvalidArgumentException('Cannot mark a task as ongoing if not the task owner');
-		}
 		$this->recordThat(TaskOngoing::occur($this->id->toString(), array(
 				'prevStatus' => $this->getStatus(),
 				'by' => $executedBy->getId(),
@@ -99,9 +96,6 @@ class Task extends DomainEntity implements TaskInterface
 		if(!in_array($this->status, [self::STATUS_ONGOING, self::STATUS_ACCEPTED])) {
 			throw new IllegalStateException('Cannot complete a task in '.$this->status.' state');
 		}
-		if(!isset($this->members[$completedBy->getId()]) || $this->members[$completedBy->getId()]['role'] != self::ROLE_OWNER) {
-			throw new InvalidArgumentException("Cannot mark a task as completed if not the task owner");
-		}
 		if(is_null($this->getAverageEstimation())) {
 			throw new IllegalStateException('Cannot complete a task with missing estimations by members');
 		}
@@ -112,12 +106,9 @@ class Task extends DomainEntity implements TaskInterface
 		return $this;
 	}
 	
-	public function accept(BasicUser $acceptedBy, \DateInterval $intervalForCloseTask) {
+	public function accept(BasicUser $acceptedBy, \DateInterval $intervalForCloseTask = null) {
 		if($this->status != self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot accept a task in '.$this->status.' state');
-		}
-		if(!isset($this->members[$acceptedBy->getId()]) || $this->members[$acceptedBy->getId()]['role'] != self::ROLE_OWNER) {
-			throw new InvalidArgumentException("Cannot mark a task as accepted if not the task owner");
 		}
 		$this->recordThat(TaskAccepted::occur($this->id->toString(), array(
 			'prevStatus' => $this->getStatus(),
@@ -313,6 +304,41 @@ class Task extends DomainEntity implements TaskInterface
 	}
 
 	/**
+	 * @param BasicUser $ex_owner
+	 * @throws MissingOrganizationMembershipException
+	 * @throws DomainEntityUnavailableException
+	 */
+	public function changeOwner(BasicUser $new_owner, BasicUser $by){
+		if(!$new_owner->isMemberOf($this->getOrganizationId())) {
+			throw new MissingOrganizationMembershipException($this->getOrganizationId(), $new_owner->getId());
+		}
+		if (!array_key_exists($new_owner->getId(), $this->members)) {
+			throw new DomainEntityUnavailableException($this, $new_owner);
+		}
+		$ex_owner = $this->getOwner();
+		if(!is_null($ex_owner)){
+			$this->recordThat(OwnerRemoved::occur($this->id->toString(), array(
+				'ex_owner' => $ex_owner,
+				'by' => $by->getId()
+			)));
+		}
+		$this->recordThat(OwnerAdded::occur($this->id->toString(), array(
+			'new_owner' => $new_owner->getId(),
+			'by' => $by->getId()
+		)));
+	}
+
+	public function removeOwner(BasicUser $by){
+
+		$ex_owner = $this->getOwner();
+		if(!is_null($ex_owner)){
+			$this->recordThat(OwnerRemoved::occur($this->id->toString(), array(
+				'ex_owner' => $ex_owner,
+				'by' => $by->getId()
+			)));
+		}
+	}
+	/**
 	 * @return array
 	 */
 	public function getMembers() {
@@ -475,8 +501,8 @@ class Task extends DomainEntity implements TaskInterface
 	protected function whenTaskAccepted(TaskAccepted $event) {
 		$this->status = self::STATUS_ACCEPTED;
 		$this->acceptedAt = $event->occurredOn();
-		$sharesAssignmentExpiresAt = clone $event->occurredOn();
 		if(isset($event->payload()['intervalForCloseTask'])) {
+			$sharesAssignmentExpiresAt = clone $event->occurredOn();
 			$sharesAssignmentExpiresAt->add($event->payload()['intervalForCloseTask']);
 			$this->sharesAssignmentExpiresAt = $sharesAssignmentExpiresAt;
 		}
@@ -576,9 +602,8 @@ class Task extends DomainEntity implements TaskInterface
 	 *
 	 * @return string
 	 */
-	public function getResourceId()
-	{
-		return self::RESOURCE_ID;
+	public function getResourceId(){
+		return 'Ora\Task';
 	}
 	/**
 	 *
@@ -601,4 +626,15 @@ class Task extends DomainEntity implements TaskInterface
 	protected function whenCreditsAssigned(CreditsAssigned $event){
 	}
 
+	protected function whenOwnerAdded(OwnerAdded $event){
+		$p = $event->payload();
+		$new_owner = $p['new_owner'];
+		$this->members[$new_owner]['role'] = self::ROLE_OWNER;
+	}
+
+	protected function whenOwnerRemoved(OwnerRemoved $event){
+		$p = $event->payload();
+		$ex_owner = $p['ex_owner'];
+		$this->members[$ex_owner]['role'] = self::ROLE_MEMBER;
+	}
 }

@@ -31,7 +31,13 @@ class EventSourcingStreamService extends AggregateRepository implements StreamSe
 		parent::__construct($eventStore, new AggregateTranslator(), new SingleStreamStrategy($eventStore), AggregateType::fromAggregateRootClass(Stream::class));
 		$this->entityManager = $entityManager;
 	}
-	
+
+	public function addStream(Stream $stream)
+	{
+		$this->addAggregateRoot($stream);
+		return $stream;
+	}
+
 	public function createStream(Organization $organization, $subject, User $createdBy)
 	{
 		$this->eventStore->beginTransaction();

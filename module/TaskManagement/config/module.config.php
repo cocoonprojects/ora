@@ -86,6 +86,6 @@ return array(
 		'TaskManagement\CloseTaskListener',
 		'TaskManagement\AssignCreditsListener',
 	],
-	'assignment_of_shares_timebox' => new \DateInterval('P7D'), 
+	'assignment_of_shares_timebox' => new \DateInterval('P10D'), 
 	'default_tasks_limit' => 10
 );

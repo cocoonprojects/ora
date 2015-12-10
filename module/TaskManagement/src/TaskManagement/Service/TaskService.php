@@ -27,13 +27,13 @@ interface TaskService
 	/**
 	 * Get the list of all available tasks in the $offset - $limit interval
 	 *
-	 * @param Organization $organization
+	 * @param Organization|ReadModelOrganization|String|Uuid $organization
 	 * @param integer $offset
 	 * @param integer $limit
 	 * @param array $filters
 	 * @return Task[]
 	 */
-	public function findTasks(Organization $organization, $offset, $limit, $filters);
+	public function findTasks($organization, $offset, $limit, $filters);
 
 	/**
 	 * @param string|Uuid $id

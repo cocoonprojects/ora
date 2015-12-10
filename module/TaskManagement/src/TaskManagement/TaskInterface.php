@@ -18,7 +18,6 @@ interface TaskInterface extends ResourceInterface
 
 	const ROLE_MEMBER = 'member';
 	const ROLE_OWNER = 'owner';
-	const RESOURCE_ID = 'Ora\Task';
 
 	/**
 	 * @return string

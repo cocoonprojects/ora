@@ -1,0 +1,24 @@
+<p>Hi <?=$this->recipient->getFirstname()?>,<br>
+	a new import from Kanbanize as been completed!
+</p>
+<p>Results summary:
+	<li>Created streams: <?=$this->result["createdStreams"]?></li>
+	<li>Updated streams: <?=$this->result["updatedStreams"]?></li>
+	<li>Created tasks: <?=$this->result["createdTasks"]?></li>
+	<li>Updated tasks: <?=$this->result["updatedTasks"]?></li>
+	<li>Deleted tasks: <?=$this->result["deletedTasks"]?></li>
+</p>
+<p>
+<?php if(empty($this->result["errors"])){
+	echo("All cards from Kanbanize have been imported.");
+	}
+	else{
+		echo("There were some errors:\n");
+		foreach ($this->result["errors"] as $error){
+			echo"<li>{$error}</li>";
+		};
+	}?>
+</p>
+<p>O.R.A.</p>
+<hr>
+<p style="font-size: 12px">You are receiving this e-mail because you are a member of the "<?= $this->organization->getName() ?>" organization.</p>
