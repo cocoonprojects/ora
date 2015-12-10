@@ -138,6 +138,14 @@ class TaskJsonModel extends JsonModel
 			]);
 		}
 		
+		if($this->controller->isAllowed($this->controller->identity(), $task,'TaskManagement.Task.close')){
+			$links['ora:close'] = $this->controller->url()->fromRoute('tasks', [
+					'id' => $task->getId (),
+					'orgId' => $task->getOrganizationId (),
+					'controller' => 'transitions',
+			]);
+		}
+
 		$rv = [
 			'id' => $task->getId (),
 			'subject' => $task->getSubject(),
@@ -224,7 +232,7 @@ class TaskJsonModel extends JsonModel
 
 	private function getDaysLeftForAssignShares($task) {
 		if($task->getSharesAssignmentExpiresAt() != null){
-			return date_diff($task->getSharesAssignmentExpiresAt(), new \DateTime())->format('%d');
+			return intval(date_diff($task->getSharesAssignmentExpiresAt(), new \DateTime())->format('%d'));
 		}
 		
 		return null;

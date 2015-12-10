@@ -15,6 +15,7 @@ class AcceptedTaskAndMemberSharesNotAssignedAssertion implements AssertionInterf
 	{
 		return $resource->getStatus() == Task::STATUS_ACCEPTED
 			&& $resource->hasMember($user)
-			&& (!is_null($resource->areSharesAssignedFromMember($user)) && $resource->areSharesAssignedFromMember($user) == false);
+			&& $resource->areSharesAssignedFromMember($user) == false
+			&& (!$resource->isSharesAssignmentExpired(new \DateTime()));
 	}
 }

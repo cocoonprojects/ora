@@ -83,7 +83,6 @@ return array(
 		'TaskManagement\StreamCommandsListener',
 		'TaskManagement\TaskCommandsListener',
 		'TaskManagement\TransferCreditsListener',
-		'TaskManagement\CloseTaskListener',
 		'TaskManagement\AssignCreditsListener',
 	],
 	'assignment_of_shares_timebox' => new \DateInterval('P10D'),

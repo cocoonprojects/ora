@@ -21,7 +21,7 @@ use Zend\EventManager\EventManager;
 class ImportDirector implements EventManagerAwareInterface{
 	
 	CONST IMPORT_COMPLETED = "Import.Completed";
-
+	CONST API_URL_FORMAT = "https://%s.kanbanize.com/index.php/api/kanbanize";
 	/**
 	 * @var KanbanizeService
 	 */
@@ -102,7 +102,7 @@ class ImportDirector implements EventManagerAwareInterface{
 		}
 		$api = new KanbanizeAPI();
 		$api->setApiKey($this->apiKey);
-		$api->setUrl($organization->getSetting("kanbanizeAccountAddress"));
+		$api->setUrl(sprintf(self::API_URL_FORMAT, $organization->getSetting("kanbanizeAccountSubdomain")));
 		return $api;
 	}
 	

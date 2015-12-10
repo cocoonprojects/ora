@@ -89,7 +89,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$notificationService = $locator->get('TaskManagement\NotifyMailListener');
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$controller = new RemindersController($notificationService, $taskService);
-					if(array_key_exists('assignment_of_shares_remind_interval', $locator->get('Config'))){
+					if(isset($locator->get('Config')['assignment_of_shares_remind_interval'])){
 						$assignmentOfSharesRemindInterval = $locator->get('Config')['assignment_of_shares_remind_interval'];
 						$controller->setIntervalForRemindAssignmentOfShares($assignmentOfSharesRemindInterval);
 					}
