@@ -4,7 +4,7 @@ return array (
 				'configuration' => array (
 						'orm_default' => array (
 								'generate_proxies' => false,
-								'proxy_dir' => __DIR__ . '/../../../data/DoctrineORMModule/Proxies/' 
+								'proxy_dir' => __DIR__ . '/../../data/DoctrineORMModule/Proxies/' 
 						) 
 				),
 				'connection' => array (
