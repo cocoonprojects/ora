@@ -1,4 +1,4 @@
-<p>Hi <?= $this->recipient->getFirstname() ?> <?= $this->recipient->getLastname()?>,<br>
+<p>Hi <?= $this->recipient->getFirstname() ?>,<br>
 the  <?= $this->stream->getSubject()?> stream has a new work item idea <?php if(!is_null($this->member)){?>proposed by <?= $this->member->getFirstname()?> <?= $this->member->getLastname()?><?php }?>: <b><?= $this->task->getSubject()?></b>.</p>
 <p>Check it out!</p>
 <p>O.R.A.</p>

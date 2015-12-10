@@ -1,19 +1,15 @@
 <?php
 namespace Accounting;
 
-use Application\DomainEntity;
-use Application\DuplicatedDomainEntityException;
-use Application\Entity\User;
 use People\Organization;
 use Rhumsaa\Uuid\Uuid;
+use Application\DomainEntity;
+use Application\Entity\User;
+use Application\DuplicatedDomainEntityException;
 use Zend\Permissions\Acl\Resource\ResourceInterface;
 
 class Account extends DomainEntity implements ResourceInterface
 {
-	/**
-	 * @var string
-	 */
-	private $name;
 	/**
 	 * @var Uuid
 	 */
@@ -25,30 +21,23 @@ class Account extends DomainEntity implements ResourceInterface
 	/**
 	 * @var map($id, name)
 	 */
-	private $holders = [];
+	private $holders = array();
 
 	/**
 	 * @param Organization $organization
 	 * @param User $createdBy
-	 * @param string|null $name
 	 * @return Account
 	 */
-	public static function create(Organization $organization, User $createdBy, $name = null) {
+	public static function create(Organization $organization, User $createdBy) {
 		$rv = new static();
 		// At creation time the balance is 0
-		$event = AccountCreated::occur(Uuid::uuid4()->toString(), [
-				'balance' => 0,
-				'name' => is_null($name) ? $createdBy->getFirstname().' '.$createdBy->getLastname() : $name,
-				'by' => $createdBy->getId(),
-				'organization' => $organization->getId(),
-		]);
-		$rv->recordThat($event);
+		$rv->recordThat(AccountCreated::occur(Uuid::uuid4()->toString(), array(
+			'balance' => 0,
+			'by' => $createdBy->getId(),
+			'organization' => $organization->getId(),
+		)));
 		$rv->addHolder($createdBy, $createdBy);
 		return $rv;
-	}
-
-	public function getName() {
-		return $this->name;
 	}
 	
 	public function getBalance() {
@@ -71,25 +60,14 @@ class Account extends DomainEntity implements ResourceInterface
 //			throw new IllegalPayerException();
 //		}
 
-		$event = CreditsDeposited::occur($this->id->toString(), [
-				'amount' => $amount,
-				'description' => $description,
-				'balance' => $this->balance->getValue() + $amount,
-				'prevBalance' => $this->balance->getValue(),
-				'by' => $holder->getId(),
-		]);
-		$this->recordThat($event);
-		return [
-				'account' => [
-						'id' => $this->getId()
-				],
-				'amount' => $amount,
-				'description' => $description,
-				'balance' => $event->payload()['balance'],
-				'date' => date_format($event->occurredOn(), 'c'),
-				'payer' => $holder->getFirstname().' '.$holder->getLastname(),
-				'type' => 'Deposit'
-		];
+		$this->recordThat(CreditsDeposited::occur($this->id->toString(), array(
+			'amount'      => $amount,
+			'description' => $description,
+			'balance'     => $this->balance->getValue() + $amount,
+			'prevBalance' => $this->balance->getValue(),
+			'by'          => $holder->getId(),
+		)));
+		return $this;
 	}
 
 	public function withdraw($amount, User $holder, $description) {
@@ -99,77 +77,44 @@ class Account extends DomainEntity implements ResourceInterface
 //		if(!array_key_exists($holder->getId(), $this->holders)) {
 //			throw new IllegalPayerException();
 //		}
-		$event = CreditsWithdrawn::occur($this->id->toString(), [
-				'amount' => $amount,
-				'description' => $description,
-				'balance' => $this->balance->getValue() + $amount,
-				'prevBalance' => $this->balance->getValue(),
-				'by' => $holder->getId(),
-		]);
-		$this->recordThat($event);
-		return [
-				'account' => [
-						'id' => $this->getId()
-				],
-				'amount' => $amount,
-				'description' => $description,
-				'balance' => $event->payload()['balance'],
-				'date' => date_format($event->occurredOn(), 'c'),
-				'payee' => $holder->getFirstname().' '.$holder->getLastname(),
-				'type' => 'Withdrawal'
-		];
+		$this->recordThat(CreditsWithdrawn::occur($this->id->toString(), [
+			'amount'      => $amount,
+			'description' => $description,
+			'balance'     => $this->balance->getValue() + $amount,
+			'prevBalance' => $this->balance->getValue(),
+			'by'          => $holder->getId(),
+		]));
+		return $this;
 	}
 	
 	public function transferIn($amount, Account $payer, $description, User $by) {
 		if ($amount <= 0) {
 			throw new IllegalAmountException($amount);
 		}
-		$event = IncomingCreditsTransferred::occur($this->id->toString(), [
+		$this->recordThat(IncomingCreditsTransferred::occur($this->id->toString(), array(
 				'amount' => $amount,
 				'description' => $description,
-				'payer' => $payer->getId(),
+				'payer'	 => $payer->getId(),
 				'balance' => $this->balance->getValue() + $amount,
 				'prevBalance' => $this->balance->getValue(),
 				'by' => $by->getId(),
-		]);
-		$this->recordThat($event);
-		return [
-				'account' => [
-						'id' => $this->getId()
-				],
-				'amount' => $amount,
-				'description' => $description,
-				'balance' => $event->payload()['balance'],
-				'date' => date_format($event->occurredOn(), 'c'),
-				'payer' => $payer->getName(),
-				'type' => 'IncomingTransfer'
-		];
+		)));
+		return $this;
 	}
 	
 	public function transferOut($amount, Account $payee, $description, User $by) {
 		if ($amount >= 0) {
 			throw new IllegalAmountException($amount);
 		}
-		$event = OutgoingCreditsTransferred::occur($this->id->toString(), [
+		$this->recordThat(OutgoingCreditsTransferred::occur($this->id->toString(), array(
 				'amount' => $amount,
 				'description' => $description,
-				'payee' => $payee->getId(),
+				'payee'	 => $payee->getId(),
 				'balance' => $this->balance->getValue() + $amount,
 				'prevBalance' => $this->balance->getValue(),
 				'by' => $by->getId(),
-		]);
-		$this->recordThat($event);
-		return [
-				'account' => [
-						'id' => $this->getId()
-				],
-				'amount' => $amount,
-				'description' => $description,
-				'balance' => $event->payload()['balance'],
-				'date' => date_format($event->occurredOn(), 'c'),
-				'payee' => $payee->getName(),
-				'type' => 'OutgoingTransfer'
-		];
+		)));
+		return $this;
 	}
 
 	/**
@@ -181,12 +126,12 @@ class Account extends DomainEntity implements ResourceInterface
 		if(array_key_exists($holder->getId(), $this->holders)) {
 			throw new DuplicatedDomainEntityException($this, $holder);
 		}
-		$this->recordThat(HolderAdded::occur($this->id->toString(), [
+		$this->recordThat(HolderAdded::occur($this->id->toString(), array(
 				'id' => $holder->getId(),
 				'firstname' => $holder->getFirstname(),
 				'lastname' => $holder->getLastname(),
 				'by' => $by->getId(),
-		]));
+		)));
 		return $this;
 	}
 
@@ -212,9 +157,6 @@ class Account extends DomainEntity implements ResourceInterface
 		$this->id = Uuid::fromString($event->aggregateId());
 		$this->organizationId = Uuid::fromString($event->payload()['organization']);
 		$this->balance = new Balance(0, $event->occurredOn());
-		if(isset($event->payload()['name'])) {
-			$this->name = $event->payload()['name'];
-		}
 	}
 	
 	protected function whenHolderAdded(HolderAdded $e) {
