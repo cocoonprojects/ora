@@ -112,7 +112,7 @@ Feature: List tasks
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
     And the response shouldn't have a "_links.next" property
-    And the "total" property should be "9"
+    And the "total" property should be "10"
 
   Scenario: Successfully getting a list of tasks until a specified period
     Given that I am authenticated as "mark.rogers@ora.local"
@@ -202,3 +202,16 @@ Feature: List tasks
     And the response shouldn't have a "_links.ora:execute" property
     And the response shouldn't have a "_links.ora:accept" property
     And the "status" property should be "30"
+
+    
+  Scenario: Successfully getting command list on a accepted task with shares assignment process completed for a task owner
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000901"
+    Then the response status code should be 200
+    And the response should have a "_links" property
+    And the response should have a "_links.self" property
+    And the response shouldn't have a "_links.ora:execute" property
+    And the response should have a "_links.ora:complete" property
+    And the response should have a "_links.ora:close" property
+    And the "status" property should be "40"

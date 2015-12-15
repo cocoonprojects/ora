@@ -10,6 +10,8 @@ use Kanbanize\Entity\KanbanizeStream as ReadModelKanbanizeStream;
 use People\Entity\Organization;
 use Prooph\EventStore\Stream\StreamEvent;
 use TaskManagement\StreamCreated;
+use TaskManagement\StreamUpdated;
+use TaskManagement\Entity\Stream;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\Event;
 use Zend\Mvc\Application;
@@ -39,6 +41,26 @@ class StreamCommandsListener extends ReadModelProjector{
 						->setMostRecentEditBy($createdBy);
 					$this->entityManager->persist($stream);
 					$this->entityManager->flush($stream);
+				}
+			}, 200);
+
+		$this->listeners[] = $events->getSharedManager()->attach(Application::class, StreamUpdated::class,
+			function(Event $event) {
+				$streamEvent = $event->getTarget();
+				$id = $streamEvent->metadata()['aggregate_id'];
+				if($streamEvent->metadata()['aggregate_type'] == KanbanizeStream::class){
+					if(isset($streamEvent->payload()['subject'])) {
+						$stream = $this->entityManager->find(Stream::class, $id);
+						if(is_null($stream)) {
+							return;
+						}
+						$updatedBy = $this->entityManager->find(User::class, $streamEvent->payload()['by']);
+						$stream->setSubject($streamEvent->payload()['subject']);
+						$stream->setMostRecentEditAt($streamEvent->occurredOn());
+						$stream->setMostRecentEditBy($updatedBy);
+						$this->entityManager->persist($stream);
+						$this->entityManager->flush($stream);
+					}
 				}
 			}, 200);
 	}

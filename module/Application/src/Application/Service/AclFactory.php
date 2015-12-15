@@ -11,6 +11,7 @@ use TaskManagement\Assertion\AcceptedTaskAndMemberSharesNotAssignedAssertion;
 use TaskManagement\Assertion\MemberOfOngoingTaskAssertion;
 use TaskManagement\Assertion\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion;
 use TaskManagement\Assertion\OwnerOfWorkItemIdeaOrOpenOrCompletedTaskAssertion;
+use TaskManagement\Assertion\TaskOwnerAndAcceptedTaskAndSharesExpiredAssertion;
 use TaskManagement\Assertion\TaskMemberNotOwnerAndNotCompletedTaskAssertion;
 use TaskManagement\Assertion\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion;
 use TaskManagement\Assertion\TaskOwnerAndNotCompletedTaskAssertion;
@@ -71,9 +72,10 @@ class AclFactory implements FactoryInterface
 			'TaskManagement.Task.delete',
 			'TaskManagement.Task.execute',
 			'TaskManagement.Task.complete',
-			'TaskManagement.Task.accept'
+			'TaskManagement.Task.accept',
+			'TaskManagement.Task.close'
 		]);
-
+		$acl->allow(User::ROLE_USER, 'Ora\Task','TaskManagement.Task.close', new TaskOwnerAndAcceptedTaskAndSharesExpiredAssertion());
 		$acl->allow(User::ROLE_SYSTEM, null, array('TaskManagement.Task.closeTasksCollection', 'TaskManagement.Reminder.assignment-of-shares'));
 		return $acl;
 	}

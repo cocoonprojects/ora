@@ -132,6 +132,26 @@ class TransitionsController extends HATEOASRestfulController
 					$view->setDescription($e->getMessage());
 				}
 				break;
+			case "close":
+				if(!$this->isAllowed($this->identity(), $task, 'TaskManagement.Task.close')) {
+					$this->response->setStatusCode ( 403 );
+					return $this->response;
+				};
+				$this->transaction()->begin();
+				try {
+					$task->close($this->identity());
+					$this->transaction()->commit();
+					$this->response->setStatusCode ( 200 );
+					$view = new TaskJsonModel($this);
+					$view->setVariable('resource', $task);
+				}catch ( IllegalStateException $e ) {
+					$this->transaction()->rollback();
+					$this->response->setStatusCode ( 412 ); // Preconditions failed
+					$view = new ErrorJsonModel();
+					$view->setCode(412);
+					$view->setDescription($e->getMessage());
+				}
+				break;
 			default :
 				$this->response->setStatusCode ( 400 );
 				$view = new ErrorJsonModel();
@@ -141,47 +161,7 @@ class TransitionsController extends HATEOASRestfulController
 		
 		return $view;
 	}
-	
-	public function create($data)
-	{
-		if(is_null($this->identity())){
-			$this->response->setStatusCode(401);
-			return $this->response;
-		}
 
-		switch ($data["action"])
-		{
-			case "close":
-				if(!$this->isAllowed($this->identity(), NULL, 'TaskManagement.Task.closeTasksCollection')) {
-					$this->response->setStatusCode(403);
-					return $this->response;
-				}
-				
-				//recupero tutti i task accettati per i quali è stato superato il limite per assegnare gli share
-				$tasksFound = $this->taskService->findAcceptedTasksBefore($this->getIntervalForCloseTasks());
-				
-				foreach ($tasksFound as $taskFound){
-					$taskToClose = $this->taskService->getTask($taskFound->getId());
-					$this->transaction()->begin();
-					try {
-						$taskToClose->close($this->identity());
-						$this->transaction()->commit();
-					} catch ( IllegalStateException $e ) {
-						$this->transaction()->rollback();
-						continue; //skip task
-					}
-				}
-				$this->response->setStatusCode ( 200 );
-				break;
-			default :
-				$this->response->setStatusCode ( 400 );
-				break;
-			
-		}
-		
-		return $this->response;
-	}
-	
 	protected function getCollectionOptions()
 	{
 		return self::$collectionOptions;

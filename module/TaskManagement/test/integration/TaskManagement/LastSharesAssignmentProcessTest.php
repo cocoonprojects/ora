@@ -103,8 +103,9 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 
 		$readModelTask = $this->controller->getTaskService()->findTask($this->task->getId());
 		$this->assertEquals(201, $response->getStatusCode());
-		$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
-		$this->assertEquals(Task::STATUS_CLOSED, $readModelTask->getStatus());
+		$this->assertEquals(Task::STATUS_ACCEPTED, $this->task->getStatus());
+		$this->assertEquals(Task::STATUS_ACCEPTED, $readModelTask->getStatus());
+		$this->assertEquals(true, $this->task->isSharesAssignmentCompleted());
 	}
 
 	public function testSkipSharesAsLast() {
@@ -117,7 +118,8 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 
 		$readModelTask = $this->controller->getTaskService()->findTask($this->task->getId());
 		$this->assertEquals(201, $response->getStatusCode());
-		$this->assertEquals(Task::STATUS_CLOSED, $this->task->getStatus());
-		$this->assertEquals(Task::STATUS_CLOSED, $readModelTask->getStatus());
+		$this->assertEquals(Task::STATUS_ACCEPTED, $this->task->getStatus());
+		$this->assertEquals(Task::STATUS_ACCEPTED, $readModelTask->getStatus());
+		$this->assertEquals(true, $this->task->isSharesAssignmentCompleted());
 	}
 }

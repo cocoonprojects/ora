@@ -316,6 +316,22 @@ class Task extends EditableEntity implements TaskInterface
 		if($taskMember != null){
 			return !empty($taskMember->getShares());
 		}
-		return null;
+		return false;
+	}
+
+	public function isSharesAssignmentCompleted() {
+		foreach ($this->members as $taskMember) {
+			if(empty($taskMember->getShares())) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public function isSharesAssignmentExpired(\DateTime $ref){
+		if(is_null($this->sharesAssignmentExpiresAt)){
+			return false;
+		}
+		return $ref > $this->sharesAssignmentExpiresAt;
 	}
 }
