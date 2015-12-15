@@ -20,7 +20,7 @@ use Zend\EventManager\EventManager;
 
 class ImportDirector implements EventManagerAwareInterface{
 	
-	CONST IMPORT_COMPLETED = "Import.Completed";
+	CONST IMPORT_COMPLETED = "KanbanizeImport.Completed";
 	CONST API_URL_FORMAT = "https://%s.kanbanize.com/index.php/api/kanbanize";
 	/**
 	 * @var KanbanizeService

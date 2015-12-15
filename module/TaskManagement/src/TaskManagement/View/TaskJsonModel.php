@@ -163,7 +163,7 @@ class TaskJsonModel extends JsonModel
 		}
 		if ($task->getStatus () >= Task::STATUS_ACCEPTED) {
 			$rv ['acceptedAt'] = is_null ( $task->getAcceptedAt () ) ? null : date_format ( $task->getAcceptedAt (), 'c' );
-			$rv ['daysRemainingToAssignShares'] = $this->getDaysLeftForAssignShares ( $task );
+			$rv ['sharesAssignmentExpiresAt'] = is_null ( $task->getSharesAssignmentExpiresAt () ) ? null : date_format ( $task->getSharesAssignmentExpiresAt (), 'c' );
 		}
 		$rv ['_links'] = $links;
 		return $rv;
@@ -228,13 +228,5 @@ class TaskJsonModel extends JsonModel
 // 			'self' => $this->controller->url()->fromRoute('users', ['id' => $member->getId()]),
 		];
 		return $rv;
-	}
-
-	private function getDaysLeftForAssignShares($task) {
-		if($task->getSharesAssignmentExpiresAt() != null){
-			return intval(date_diff($task->getSharesAssignmentExpiresAt(), new \DateTime())->format('%d'));
-		}
-		
-		return null;
 	}
 }
