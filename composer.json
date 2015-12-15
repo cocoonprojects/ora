@@ -13,7 +13,8 @@
   "homepage": "https://github.com/cocoonprojects/ora",
   "require": {
     "php": ">=5.3.3",
-    "zendframework/zendframework": "2.3.*",
+    "ext-intl": "*",
+    "zendframework/zendframework": "2.4.*",
     "zendframework/zftool": "dev-master",
     "doctrine/doctrine-module": "0.*",
     "doctrine/doctrine-orm-module": "0.*",
@@ -34,7 +35,6 @@
     "phpunit/phpunit": ">=4.1",
     "behat/mink-extension": ">=2.0.1",
     "behat/mink-goutte-driver": "*",
-    "behat/mink-selenium-driver": "*",
     "behat/mink-selenium2-driver": "*",
     "heroku/heroku-buildpack-php": "*"
   }

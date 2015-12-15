@@ -12,8 +12,8 @@ use ZFX\Rest\Controller\HATEOASRestfulController;
 
 class OrganizationsController extends HATEOASRestfulController
 {
-	protected static $collectionOptions = array('GET', 'POST');
-	protected static $resourceOptions = array('DELETE', 'POST', 'GET', 'PUT');
+	protected static $collectionOptions = ['GET', 'POST'];
+	protected static $resourceOptions = [];
 	
 	/**
 	 * 
@@ -25,14 +25,6 @@ class OrganizationsController extends HATEOASRestfulController
 		$this->orgService = $orgService;
 	}
 
-	public function get($id)
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
-	}
-	
 	public function getList()
 	{
 		if(is_null($this->identity())) {
@@ -73,38 +65,6 @@ class OrganizationsController extends HATEOASRestfulController
 		$this->response->getHeaders()->addHeaderLine('Location', $url);
 		$this->response->setStatusCode(201);
 		return new JsonModel($this->serializeOne($organization));
-	}
-	
-	public function update($id, $data)
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
-	}
-	
-	public function replaceList($data)
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
-	}
-	
-	public function deleteList()
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
-	}
-	
-	public function delete($id)
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
 	}
 	
 	public function getOrganizationService()

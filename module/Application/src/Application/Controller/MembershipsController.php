@@ -18,8 +18,8 @@ use Application\View\OrganizationMembershipJsonModel;
  */
 class MembershipsController extends HATEOASRestfulController
 {
-	protected static $collectionOptions = array('GET', 'POST');
-	protected static $resourceOptions = array('DELETE', 'POST', 'GET', 'PUT');
+	protected static $collectionOptions = ['GET'];
+	protected static $resourceOptions = [];
 	
 	/**
 	 * 
@@ -31,14 +31,6 @@ class MembershipsController extends HATEOASRestfulController
 		$this->orgService = $orgService;
 	}
 
-	public function get($id)
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
-	}
-	
 	public function getList()
 	{
 		if(is_null($this->identity())) {
@@ -51,46 +43,6 @@ class MembershipsController extends HATEOASRestfulController
 		$view = new OrganizationMembershipJsonModel($this->url(), $this->identity());
 		$view->setVariable('resource', $memberships);
 		return $view;
-	}
-	
-	public function create($data)
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
-	}
-	
-	public function update($id, $data)
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
-	}
-	
-	public function replaceList($data)
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
-	}
-	
-	public function deleteList()
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
-	}
-	
-	public function delete($id)
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
 	}
 	
 	public function getOrganizationService()

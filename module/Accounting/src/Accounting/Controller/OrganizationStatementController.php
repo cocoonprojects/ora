@@ -1,19 +1,15 @@
 <?php
 namespace Accounting\Controller;
 
-use Accounting\View\StatementJsonModel;
-use Application\Service\UserService;
-use Zend\Authentication\AuthenticationServiceInterface;
-use Zend\Permissions\Acl\Acl;
 use Accounting\Service\AccountService;
 use Accounting\View\AccountsJsonModel;
-use Zend\Mvc\MvcEvent;
-use Zend\EventManager\EventManagerInterface;
+use Accounting\View\StatementJsonModel;
 use Application\Controller\OrganizationAwareController;
 use People\Service\OrganizationService;
-use Zend\I18n\Validator\Int;
-use Zend\Validator\ValidatorChain;
+use Zend\I18n\Validator\IsInt;
+use Zend\Permissions\Acl\Acl;
 use Zend\Validator\GreaterThan;
+use Zend\Validator\ValidatorChain;
 
 class OrganizationStatementController extends OrganizationAwareController
 {
@@ -50,7 +46,7 @@ class OrganizationStatementController extends OrganizationAwareController
 		}
 		
 		$validator = new ValidatorChain();
-		$validator->attach(new Int())
+		$validator->attach(new IsInt())
 			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
 		
 		$offset = $validator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
