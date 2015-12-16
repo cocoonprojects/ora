@@ -21,3 +21,6 @@ extras/documentation
 .DS_Store
 *.log
 .idea/
+
+#GitHub
+auth.json

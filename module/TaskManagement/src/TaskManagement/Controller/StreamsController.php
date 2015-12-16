@@ -13,8 +13,8 @@ use Zend\View\Model\JsonModel;
 
 class StreamsController extends OrganizationAwareController
 {
-	protected static $collectionOptions = array ('GET','POST');
-	protected static $resourceOptions = array ('DELETE','GET');
+	protected static $collectionOptions = ['GET','POST'];
+	protected static $resourceOptions = [];
 	/**
 	 * 
 	 * @var StreamService
@@ -24,14 +24,6 @@ class StreamsController extends OrganizationAwareController
 	public function __construct(StreamService $streamService, OrganizationService $organizationService) {
 		parent::__construct($organizationService);
 		$this->streamService = $streamService;
-	}
-	
-	public function get($id)
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
 	}
 	
 	public function getList()
@@ -77,39 +69,7 @@ class StreamsController extends OrganizationAwareController
 		return new JsonModel($this->serializeOne($stream));
 	}
 	
-	public function update($id, $data)
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
-	}
-	
-	public function replaceList($data)
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
-	}
-	
-	public function deleteList()
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
-	}
-	
-	public function delete($id)
-	{
-		// HTTP STATUS CODE 405: Method not allowed
-		$this->response->setStatusCode(405);
-		 
-		return $this->response;
-	}
-	
-	public function getStreamService() 
+	public function getStreamService()
 	{
 		return $this->streamService;
 	}

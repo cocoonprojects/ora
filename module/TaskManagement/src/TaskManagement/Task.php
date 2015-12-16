@@ -48,7 +48,7 @@ class Task extends DomainEntity implements TaskInterface
 	/**
 	 * @var \DateTime
 	 */
-	protected $sharesAssignmentExpiresAt;
+	protected $sharesAssignmentExpiresAt = null;
 
 	public static function create(Stream $stream, $subject, BasicUser $createdBy, array $options = null) {
 		$rv = new self();
@@ -636,5 +636,12 @@ class Task extends DomainEntity implements TaskInterface
 		$p = $event->payload();
 		$ex_owner = $p['ex_owner'];
 		$this->members[$ex_owner]['role'] = self::ROLE_MEMBER;
+	}
+
+	public function isSharesAssignmentExpired(\DateTime $ref){
+		if(is_null($this->sharesAssignmentExpiresAt)){
+			return false;
+		}
+		return $ref > $this->sharesAssignmentExpiresAt;
 	}
 }

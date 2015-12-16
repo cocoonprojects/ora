@@ -20,8 +20,8 @@ use Zend\EventManager\EventManager;
 
 class ImportDirector implements EventManagerAwareInterface{
 	
-	CONST IMPORT_COMPLETED = "Import.Completed";
-
+	CONST IMPORT_COMPLETED = "KanbanizeImport.Completed";
+	CONST API_URL_FORMAT = "https://%s.kanbanize.com/index.php/api/kanbanize";
 	/**
 	 * @var KanbanizeService
 	 */
@@ -43,7 +43,7 @@ class ImportDirector implements EventManagerAwareInterface{
 	 */
 	protected $userService;
 	
-	private $apiKey;
+	private $apiKey = null;
 	/**
 	 *
 	 * @var EventManagerInterface
@@ -67,24 +67,28 @@ class ImportDirector implements EventManagerAwareInterface{
 	 * @param User $requestedBy
 	 */
 	public function import(Organization $organization, User $requestedBy){
-		$api = $this->initApi($organization);
-		$importer = new Importer(
-			$this->kanbanizeService,
-			$this->taskService,
-			$this->streamService,
-			$this->transactionManager,
-			$this->userService,
-			$organization,
-			$requestedBy,
-			$api
-		);
-		$importer->importProjects();
-		$importResult = $importer->getImportResult();
-		$this->getEventManager()->trigger(self::IMPORT_COMPLETED, [
-			'importResult' => $importResult,
-			'organizationId' => $organization->getId()
-		]);
-		return $importResult;
+		try{
+			$api = $this->initApi($organization);
+			$importer = new Importer(
+				$this->kanbanizeService,
+				$this->taskService,
+				$this->streamService,
+				$this->transactionManager,
+				$this->userService,
+				$organization,
+				$requestedBy,
+				$api
+			);
+			$importer->importProjects();
+			$importResult = $importer->getImportResult();
+			$this->getEventManager()->trigger(self::IMPORT_COMPLETED, [
+				'importResult' => $importResult,
+				'organizationId' => $organization->getId()
+			]);
+			return $importResult;
+		}catch (\Exception $e){
+			return ['errors'=>[$e->getMessage()]];
+		}
 	}
 
 	public function setApiKey($key){
@@ -93,9 +97,12 @@ class ImportDirector implements EventManagerAwareInterface{
 	}
 	
 	private function initApi(Organization $organization){
+		if(is_null($this->apiKey)){
+			throw new \Exception("Cannot import projects due to missing api key");
+		}
 		$api = new KanbanizeAPI();
 		$api->setApiKey($this->apiKey);
-		$api->setUrl($organization->getSetting("kanbanizeAccountAddress"));
+		$api->setUrl(sprintf(self::API_URL_FORMAT, $organization->getSetting("kanbanizeAccountSubdomain")));
 		return $api;
 	}
 	

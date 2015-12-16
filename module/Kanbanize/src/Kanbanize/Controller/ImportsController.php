@@ -51,7 +51,7 @@ class ImportsController extends OrganizationAwareController{
 		$organization = $this->getOrganizationService()->getOrganization($this->organization->getId());
 		$importResult = $this->kanbanizeImporter->import($organization, $this->identity());
 		$this->response->setStatusCode(200);
-		return $this->response;
+		return new JsonModel($importResult);
 	}
 
 	public function getKanbanizeImporter(){

@@ -11,12 +11,6 @@ use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
-use Zend\I18n\Validator\Float;
-use Zend\Validator\EmailAddress;
-use Zend\Validator\GreaterThan;
-use Zend\Validator\NotEmpty;
-use Zend\Validator\StringLength;
-use Zend\Validator\ValidatorChain;
 
 abstract class TransfersController extends OrganizationAwareController
 {

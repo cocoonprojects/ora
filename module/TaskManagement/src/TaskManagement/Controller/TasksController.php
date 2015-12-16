@@ -12,8 +12,7 @@ use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
-use Zend\I18n\Validator\Int;
-use Zend\Validator\Date;
+use Zend\I18n\Validator\IsInt;
 use Zend\Validator\EmailAddress;
 use Zend\Validator\GreaterThan;
 use Zend\Validator\InArray as StatusValidator;
@@ -96,7 +95,7 @@ class TasksController extends OrganizationAwareController
 
 		$integerValidator = new ValidatorChain();
 		$integerValidator
-			->attach(new Int())
+			->attach(new IsInt())
 			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
 		$offset = $this->getRequest()->getQuery("offset");
 		$offset = $integerValidator->isValid($offset) ? intval($offset) : 0;

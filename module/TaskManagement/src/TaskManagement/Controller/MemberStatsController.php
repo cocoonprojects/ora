@@ -5,9 +5,8 @@ namespace TaskManagement\Controller;
 use Application\Controller\OrganizationAwareController;
 use Application\Service\UserService;
 use People\Service\OrganizationService;
-use People\View\TaskStatsJsonModel;
 use TaskManagement\Service\TaskService;
-use Zend\Validator\Date as DateValidator;
+use Zend\Validator\Date;
 use Zend\View\Model\JsonModel;
 
 class MemberStatsController extends OrganizationAwareController{
@@ -48,7 +47,7 @@ class MemberStatsController extends OrganizationAwareController{
 		}
 
 		$filters = [];
-		$dateValidator = new DateValidator();
+		$dateValidator = new Date();
 		$endOn = $this->getRequest()->getQuery("endOn");
 		if($dateValidator->isValid($endOn)){
 			$endOn = \DateTime::createFromFormat($dateValidator->getFormat(), $endOn);

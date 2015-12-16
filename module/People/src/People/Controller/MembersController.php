@@ -8,7 +8,7 @@ use Application\DuplicatedDomainEntityException;
 use Application\Service\UserService;
 use People\Entity\OrganizationMembership;
 use People\Service\OrganizationService;
-use Zend\I18n\Validator\Int;
+use Zend\I18n\Validator\IsInt;
 use Zend\Validator\GreaterThan;
 use Zend\Validator\ValidatorChain;
 use Zend\View\Model\JsonModel;
@@ -48,7 +48,7 @@ class MembersController extends OrganizationAwareController
 			return $this->response;
 		}
 		$validator = new ValidatorChain();
-		$validator->attach(new Int())
+		$validator->attach(new IsInt())
 			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
 		
 		$offset = $validator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
@@ -106,7 +106,7 @@ class MembersController extends OrganizationAwareController
 		return $this->response;
 	}
 
-	public function deleteList()
+	public function deleteList($data)
 	{
 		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);

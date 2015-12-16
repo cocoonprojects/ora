@@ -22,16 +22,21 @@ class OrganizationCommandsListener extends ReadModelProjector {
 	}
 	
 	protected function onOrganizationUpdated(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$entity = $this->entityManager->find(Organization::class, $id);
 		if(isset($event->payload()['name'])) {
-			$id = $event->metadata()['aggregate_id'];
-			$entity = $this->entityManager->find(Organization::class, $id);
-			$updatedBy = $this->entityManager->find(User::class, $event->payload()['by']);
-				
 			$entity->setName($event->payload()['name']);
-			$entity->setMostRecentEditAt($event->occurredOn());
-			$entity->setMostRecentEditBy($updatedBy);
-			$this->entityManager->persist($entity);
 		}
+		if(isset($event->payload()['kanbanizeColumnMapping'])) {
+			$entity->setSetting('kanbanizeColumnMapping', $event->payload()['kanbanizeColumnMapping']);
+		}
+		if(isset($event->payload()['kanbanizeSubdomain'])) {
+			$entity->setSetting('kanbanizeSubdomain', $event->payload()['kanbanizeSubdomain']);
+		}
+		$updatedBy = $this->entityManager->find(User::class, $event->payload()['by']);
+		$entity->setMostRecentEditAt($event->occurredOn());
+		$entity->setMostRecentEditBy($updatedBy);
+		$this->entityManager->persist($entity);
 	}
 	
 	protected function onOrganizationMemberAdded(StreamEvent $event) {

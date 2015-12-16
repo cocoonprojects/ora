@@ -471,6 +471,39 @@ INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt)
   ('00000000-0000-0000-0000-000000000004', '20000000-0000-0000-0000-000000000000', 'member', '2014-11-12 19:07:59',
    '2014-11-12 19:07:59');
 
+# task 00000000-0000-0000-0000-000000000901, shares completed, Mark Rogers (owner)
+INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
+ ('7126d983-20ad-47f2-9636-085395aa3b7b', 1, 'TaskManagement\\TaskCreated',
+   'a:5:{s:8:\"streamId\";s:36:\"00000000-1000-0000-0000-000000000000\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:6:\"status\";i:20;s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000901\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000901'),
+  ('734fa91f-62c9-4b34-827b-3e01bd7efe8c', 2, 'TaskManagement\\TaskUpdated',
+   'a:3:{s:7:\"subject\";s:27:\"Technology stack definition\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000901\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000901'),
+  ('7033eb32-2ad4-49d5-b25c-3c0b600b7d0c', 4, 'TaskManagement\\TaskMemberAdded',
+   'a:4:{s:6:\"userId\";s:36:\"60000000-0000-0000-0000-000000000000\";s:4:\"role\";s:5:\"owner\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000901\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000901'),
+  ('7bdfdd17-61ef-4f80-bcd4-7e6eb6990733', 5, 'TaskManagement\\TaskCompleted',
+   'a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000901\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}',
+   '2014-10-31T10:44:30.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000901'),
+  ('75697b0b-0790-48b7-a122-ff2078c5bf40', 7, 'TaskManagement\\EstimationAdded',
+   'a:3:{s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:5:"value";s:2:"-1";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000901";}',
+   '2015-02-02T21:22:11.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000901'),
+  ('7bdfdd17-61ef-4f80-bcd4-7e6eb6990754', 9, 'TaskManagement\\TaskAccepted',
+   'a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000901\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}',
+   '2014-10-31T10:44:30.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000901'),
+('7526d983-20ad-47f2-9636-085395aa3b7b', 10, 'TaskManagement\\SharesAssigned',
+   'a:3:{s:6:"shares";a:1:{s:36:"60000000-0000-0000-0000-000000000000";d:1.00000000000000000;}s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000901";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000901');
+
+INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type) VALUES
+  ('00000000-0000-0000-0000-000000000901', '00000000-1000-0000-0000-000000000000', 'Shares assignment completed Task', 40,
+   '2014-11-06 14:32:44', '2014-11-06 14:32:44', 'task');
+INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt)
+VALUES
+  ('00000000-0000-0000-0000-000000000901', '60000000-0000-0000-0000-000000000000', 'owner', '2014-11-12 19:07:59',
+   '2014-03-23 19:07:59', '-1', '2014-11-07 11:37:58');
+INSERT INTO shares(id, evaluator_id, task_id, valued_id, value, createdAt)
+VALUES (100, '60000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-000000000901', '60000000-0000-0000-0000-000000000000','1.0', '2014-11-06 14:32:44');
 #account_transactions for UserProfileAPITest   
 INSERT INTO account_transactions (id, payer_id, payee_id, amount, description, balance, createdAt, createdBy_id, type ) 
 VALUES 
