@@ -7,7 +7,7 @@ use Application\IllegalStateException;
 use Application\View\ErrorJsonModel;
 use TaskManagement\Service\TaskService;
 use TaskManagement\View\TaskJsonModel;
-use Zend\I18n\Validator\Float;
+use Zend\I18n\Validator\IsFloat;
 use Zend\Validator\GreaterThan;
 use Zend\Validator\NotEmpty;
 use Zend\Validator\ValidatorChain;
@@ -51,7 +51,7 @@ class EstimationsController extends HATEOASRestfulController {
 		
 		$validator = new ValidatorChain();
 		$validator->attach(new NotEmpty(), true)
-				  ->attach(new Float(), true)
+				  ->attach(new IsFloat(), true)
 				  ->attach(new GreaterThan(['min' => 0, 'inclusive' => true]), true);
 		
 		if (! ($validator->isValid ( $value ) || $value == -1)) {

@@ -7,7 +7,7 @@ use Application\InvalidArgumentException;
 use Application\View\ErrorJsonModel;
 use TaskManagement\Service\TaskService;
 use TaskManagement\View\TaskJsonModel;
-use Zend\I18n\Validator\Float;
+use Zend\I18n\Validator\IsFloat;
 use Zend\Validator\Between;
 use Zend\Validator\NotEmpty;
 use Zend\Validator\ValidatorChain;
@@ -67,7 +67,7 @@ class SharesController extends HATEOASRestfulController {
 		
 		$validator = new ValidatorChain();
 		$validator->attach(new NotEmpty(), true)
-				  ->attach(new Float(), true)
+				  ->attach(new IsFloat(), true)
 				  ->attach(new Between(['min' => 0, 'max' => 100], true));
 		
 		foreach ($data as $key => $value) {

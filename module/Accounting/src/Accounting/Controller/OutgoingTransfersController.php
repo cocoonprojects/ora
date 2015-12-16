@@ -5,7 +5,7 @@ namespace Accounting\Controller;
 
 use Accounting\IllegalAmountException;
 use Application\View\ErrorJsonModel;
-use Zend\I18n\Validator\Float;
+use Zend\I18n\Validator\IsFloat;
 use Zend\Validator\EmailAddress;
 use Zend\Validator\GreaterThan;
 use Zend\Validator\NotEmpty;
@@ -33,7 +33,7 @@ class OutgoingTransfersController extends TransfersController
 		$amountValidator = new ValidatorChain();
 		$amountValidator
 				->attach(new NotEmpty())
-				->attach(new Float())
+				->attach(new IsFloat())
 				->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
 		if(!isset($data['amount'])) {
 			$error->addSecondaryErrors('amount', ['amount is required. It must be a float strictly greater than 0']);
@@ -107,14 +107,13 @@ class OutgoingTransfersController extends TransfersController
 					'controller' => 'statements'
 				])
 			);
-			$view = new JsonModel([
+			return new JsonModel([
 					'_embedded' => [
 							'ora:transaction' => $transactions
 					],
 					'count' => 2,
 					'total' => 2
 			]);
-			return $view;
 		} catch (IllegalAmountException $e) {
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(400);

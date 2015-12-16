@@ -13,7 +13,7 @@
   "homepage": "https://github.com/cocoonprojects/ora",
   "require": {
     "php": ">=5.3.3",
-    "zendframework/zendframework": "2.3.*",
+    "zendframework/zendframework": "2.5.*",
     "zendframework/zftool": "dev-master",
     "doctrine/doctrine-module": "0.*",
     "doctrine/doctrine-orm-module": "0.*",

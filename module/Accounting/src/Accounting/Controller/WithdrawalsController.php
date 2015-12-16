@@ -2,19 +2,20 @@
 
 namespace Accounting\Controller;
 
+use Accounting\IllegalAmountException;
+use Accounting\Service\AccountService;
 use Application\View\ErrorJsonModel;
 use Zend\Filter\FilterChain;
 use Zend\Filter\StringTrim;
 use Zend\Filter\StripNewlines;
 use Zend\Filter\StripTags;
-use Zend\I18n\Validator\Float;
+use Zend\I18n\Validator\IsFloat;
+use Zend\Validator\GreaterThan;
+use Zend\Validator\NotEmpty;
 use Zend\Validator\StringLength;
 use Zend\Validator\ValidatorChain;
-use Zend\Validator\NotEmpty;
-use Zend\Validator\GreaterThan;
+use Zend\View\Model\JsonModel;
 use ZFX\Rest\Controller\HATEOASRestfulController;
-use Accounting\Service\AccountService;
-use Accounting\IllegalAmountException;
 
 class WithdrawalsController extends HATEOASRestfulController
 {
@@ -49,7 +50,7 @@ class WithdrawalsController extends HATEOASRestfulController
 		$amountValidator = new ValidatorChain();
 		$amountValidator
 				->attach(new NotEmpty())
-				->attach(new Float())
+				->attach(new IsFloat())
 				->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
 		if(!isset($data['amount'])) {
 			$error->addSecondaryErrors('amount', ['amount is required. It must be a float strictly greater than 0']);
@@ -88,13 +89,14 @@ class WithdrawalsController extends HATEOASRestfulController
 
 		$this->transaction()->begin();
 		try {
-			$account->withdraw(-$data['amount'], $this->identity(), $description);
+			$transaction = $account->withdraw(-$data['amount'], $this->identity(), $description);
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201); // Created
 			$this->response->getHeaders()->addHeaderLine(
 				'Location',
-				$this->url()->fromRoute('accounts', array('orgId' => $account->getOrganizationId(),'id' => $account->getId()))
+				$this->url()->fromRoute('accounts', ['orgId' => $account->getOrganizationId(), 'id' => $account->getId()])
 			);
+			return new JsonModel($transaction);
 		} catch (IllegalAmountException $e) {
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(400);
