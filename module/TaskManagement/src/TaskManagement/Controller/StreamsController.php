@@ -39,12 +39,13 @@ class StreamsController extends OrganizationAwareController
 	   	}
 	   	
 	   	$streams = $this->streamService->findStreams($this->organization);
-		$hal['count'] = count($streams);
-		$hal['total'] = count($streams);
+		$count = count($streams);
+		$hal['count'] = $count;
+		$hal['total'] = $count;
 		$hal['_links']['self']['href'] = $this->url()->fromRoute('collaboration', [
 				'orgId'=>$this->organization->getId(),
 				'controller' => 'streams']);
-		$hal['_embedded']['ora:stream'] = array_column(array_map([$this, 'serializeOne'], $streams), null, 'id');
+		$hal['_embedded']['ora:stream'] = $count ? array_column(array_map([$this, 'serializeOne'], $streams), null, 'id') : new \stdClass();
 		return new JsonModel($hal);
 	}
 	
