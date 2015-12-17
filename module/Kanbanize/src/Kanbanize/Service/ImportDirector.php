@@ -22,6 +22,7 @@ class ImportDirector implements EventManagerAwareInterface{
 	
 	CONST IMPORT_COMPLETED = "KanbanizeImport.Completed";
 	CONST API_URL_FORMAT = "https://%s.kanbanize.com/index.php/api/kanbanize";
+	CONST CONNECTION_SUCCESS = "KanbanizeConnection.Success";
 	/**
 	 * @var KanbanizeService
 	 */
@@ -83,7 +84,10 @@ class ImportDirector implements EventManagerAwareInterface{
 				$api
 			);
 			$importer->setIntervalForAssignShares($this->getIntervalForAssignShares());
-			$importer->importProjects();
+			$projects = $importer->importProjects();
+			foreach ($projects as $project){
+				$importer->importProject($project);
+			}
 			$importResult = $importer->getImportResult();
 			$this->getEventManager()->trigger(self::IMPORT_COMPLETED, [
 				'importResult' => $importResult,
@@ -95,17 +99,76 @@ class ImportDirector implements EventManagerAwareInterface{
 		}
 	}
 
-	private function initApi(Organization $organization){
+	private function initApi($apiKey, $subdomain){
 		$api = new KanbanizeAPI();
-		$apiKey = $organization->getSetting("kanbanizeApiKey");
-		if(empty($apiKey)){
+		if(is_null($apiKey)){
 			throw new \Exception("Cannot import projects due to missing api key");
 		}
+		if(is_null($subdomain)){
+			throw new \Exception("Cannot import projects due to missing account subdomain");
+		}
 		$api->setApiKey($apiKey);
-		$api->setUrl(sprintf(self::API_URL_FORMAT, $organization->getSetting("kanbanizeAccountSubdomain")));
+		$api->setUrl(sprintf(self::API_URL_FORMAT, $subdomain));
 		return $api;
 	}
-	
+
+	public function testConnectionSettings(Organization $organization, User $requestedBy, $apiKey, $subdomain){
+		try{
+			$api = $this->initApi($apiKey, $subdomain);
+			$importer = new Importer(
+					$this->kanbanizeService,
+					$this->taskService,
+					$this->streamService,
+					$this->transactionManager,
+					$this->userService,
+					$organization,
+					$requestedBy,
+					$api
+			);
+			$projects = $importer->importProjects();
+			$this->getEventManager()->trigger(self::CONNECTION_SUCCESS, [
+				'apiKey' => $apiKey,
+				'subdomain' => $subdomain,
+				'organizationId' => $organization->getId(),
+				'by' => $requestedBy->getId()
+			]);
+			return [
+				'projects' => $projects
+			];
+		}catch (\Exception $e){
+			return ['errors'=>[$e->getMessage()]];
+		}
+	}
+
+	public function importBoardColumns(Organization $organization, User $requestedBy, $boardId){
+		$kanbanizeSettings = $organization->getSetting(Organization::KANBANIZE_KEY_SETTING);
+		try{
+			$api = $this->initApi($kanbanizeSettings['apiKey'], $kanbanizeSettings['accountSubdomain']);
+			$structure = $api->getBoardStructure($boardId);
+			if(is_string($structure)){
+				return ['errors' => ["Cannot import columns for boardId: {$boardId}, due to: {$structure}"]];
+			}
+			$mappedColumns = [];
+			foreach($structure['columns'] as $column){
+				$mappedColumns[$column['lcname']] = null;
+			}
+			if(isset($kanbanizeSettings['boards'][$boardId]['columnMapping'])){
+				$mergedMapping = array_merge($mappedColumns, $kanbanizeSettings[$boardId]['columnMapping']);
+				$columnsToDelete = array_diff_key($mergedMapping, $mappedColumns);
+				foreach($columnsToDelete as $key=>$value){
+					unset($mergedMapping[$key]);
+				}
+				$mappedColumns = $mergedMapping;
+			}
+			return [
+				'columns' => $mappedColumns,
+				'errors' => []
+			];
+		}catch(KanbanizeApiException $e){
+			return ['errors' => ["Cannot import columns due to {$e->getMessage()}"]];
+		}
+	}
+
 	public function setEventManager(EventManagerInterface $events){
 		$events->setIdentifiers(array(
 				'Kanbanize\ImportDirector',

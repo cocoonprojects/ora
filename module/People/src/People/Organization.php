@@ -15,6 +15,7 @@ class Organization extends DomainEntity
 {
 	CONST ROLE_MEMBER = 'member';
 	CONST ROLE_ADMIN  = 'admin';
+	CONST KANBANIZE_KEY_SETTING = 'kanbanize';
 	/**
 	 * @var string
 	 */
@@ -157,7 +158,13 @@ class Organization extends DomainEntity
 			$this->name = $pl['name'];
 		}
 		if(array_key_exists('key', $pl) && array_key_exists('value', $pl)) {
-			$this->settings[$pl['key']] = $pl['value'];
+			if(is_array($pl['value'])){
+				foreach ($pl['value'] as $key=>$value){
+					$this->settings[$pl['key']][$key] = $value;
+				}
+			}else{
+				$this->settings[$pl['key']] = $pl['value'];
+			}
 		}
 	}
 

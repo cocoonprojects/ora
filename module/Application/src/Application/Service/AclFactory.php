@@ -20,6 +20,7 @@ use TaskManagement\Assertion\TaskOwnerAndOngoingTaskAssertion;
 use Zend\Permissions\Acl\Acl;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use People\Assertion\OwnerOfOrganizationAssertion;
 
 class AclFactory implements FactoryInterface
 {
@@ -40,6 +41,12 @@ class AclFactory implements FactoryInterface
 			'Accounting.Accounts.list',
 			'Kanbanize.Task.import'
 		], new MemberOfOrganizationAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\Organization', [
+			'Kanbanize.Settings.create',
+			'Kanbanize.Settings.list',
+			'Kanbanize.BoardSettings.create',
+			'Kanbanize.BoardSettings.get'
+		], new OwnerOfOrganizationAssertion());
 		
 		$acl->addResource('Ora\User');
 		$acl->allow(User::ROLE_USER, 'Ora\User', 'People.Member.get', new CommonOrganizationAssertion());

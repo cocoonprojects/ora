@@ -27,11 +27,8 @@ class OrganizationCommandsListener extends ReadModelProjector {
 		if(isset($event->payload()['name'])) {
 			$entity->setName($event->payload()['name']);
 		}
-		if(isset($event->payload()['kanbanizeColumnMapping'])) {
-			$entity->setSetting('kanbanizeColumnMapping', $event->payload()['kanbanizeColumnMapping']);
-		}
-		if(isset($event->payload()['kanbanizeSubdomain'])) {
-			$entity->setSetting('kanbanizeSubdomain', $event->payload()['kanbanizeSubdomain']);
+		if(isset($event->payload()['key']) && isset($event->payload()['value'])) {
+			$entity->setSetting($event->payload()['key'], $event->payload()['value']);
 		}
 		$updatedBy = $this->entityManager->find(User::class, $event->payload()['by']);
 		$entity->setMostRecentEditAt($event->occurredOn());

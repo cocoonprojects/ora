@@ -45,17 +45,28 @@ class ImporterTest extends TestCase {
 		$this->userServiceStub = $this->getMockBuilder(UserService::class)->getMock();
 		$this->requestedBy = User::create();
 		$this->organization = Organization::create("Kanbanize in sync Organization", $this->requestedBy);
-		$this->organization->setSetting("kanbanizeColumnMapping", [
-			"MARKET IDEA" => Task::STATUS_IDEA,
-			"PRODUCT MANAGER APPROVED" => Task::STATUS_IDEA,
-			"ESTIMATION" => Task::STATUS_OPEN,
-			"BACKLOG" => Task::STATUS_OPEN,
-			"WIP" => Task::STATUS_ONGOING,
-			"TESTING" => Task::STATUS_COMPLETED,
-			"USER ACCEPTANCE" => Task::STATUS_COMPLETED,
-			"PRODUCTION" => Task::STATUS_ACCEPTED,
-			"CLOSED" => Task::STATUS_CLOSED
-		], $this->requestedBy);
+		$kanbanizeSettings = [
+			"apiKey" => 'cccccccccccccccccccccccccccccccccccccccc',
+			"accountSubdomain" => "mysubdomain",
+			"boards" => [
+				'010' => [
+					"columnMapping" => [
+						"REQUESTED" => 0,
+						"APPROVED" => 10,
+						"WIP" => 20,
+						"TESTING" => 20,
+						"USER ACCEPTANCE" => 20,
+						"PRODUCTION RELEASE" => 30,
+						"1ST ROUND FEEDBACK" => 30,
+						"2ND ROUND FEEDBACK" => 30,
+						"ACCEPTED" => 40,
+						"CLOSED" => 50
+					]
+				]
+			]
+		];
+		
+		$this->organization->setSetting("kanbanize", $kanbanizeSettings, $this->requestedBy);
 		
 		$this->organizationServiceStub = $this->getMockBuilder(OrganizationService::class)->getMock();
 		$this->apiMock = $this->getMockBuilder(KanbanizeAPI::class)->getMock();
@@ -65,7 +76,6 @@ class ImporterTest extends TestCase {
 		$this->apiMock->expects($this->once())
 			->method('getAllTasks')
 			->willReturn($tasks);
-		$organization = new ReadModelOrganization($this->organization->getId());
 	}
 
 	public function testImportProjects(){
@@ -81,7 +91,10 @@ class ImporterTest extends TestCase {
 				$this->organization,
 				$this->requestedBy,
 				$this->apiMock);
-		$importer->importProjects();
+		$projects = $importer->importProjects();
+		foreach ($projects as $project){
+			$importer->importProject($project);
+		}
 		$importResult = $importer->getImportResult();
 		$this->assertArrayHasKey('createdStreams', $importResult);
 		$this->assertArrayHasKey('createdTasks', $importResult);
@@ -134,7 +147,10 @@ class ImporterTest extends TestCase {
 				$this->requestedBy,
 				$this->apiMock,
 				$this->organizationServiceStub);
-		$importer->importProjects();
+		$projects = $importer->importProjects();
+		foreach ($projects as $project){
+			$importer->importProject($project);
+		}
 		$importResult = $importer->getImportResult();
 		$this->assertArrayHasKey('createdStreams', $importResult);
 		$this->assertArrayHasKey('updatedStreams', $importResult);

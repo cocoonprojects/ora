@@ -99,9 +99,11 @@ class Importer{
 	public function importProjects(){
 		try{
 			$projects = $this->api->getProjectsAndBoards();
-			foreach ($projects as $project){
-				$this->importProject($project);
+			if(!is_array($projects)){
+				//TODO: verificare se è possibile ottenere una risposta diversa da Kanbanize in caso di apiKey errata o subdomain inesistente
+				throw new \Exception("Cannot import projects due to: The request cannot be processed. Please make sure you've specified all input parameters correctly");
 			}
+			return $projects;
 		}
 		catch(KanbanizeApiException $e){
 			$this->errors[] = "Cannot import projects due to {$e->getMessage()}";
@@ -228,8 +230,8 @@ class Importer{
 	 * @return \Kanbanize\KanbanizeTask|Task
 	 */
 	public function importTask($project, $board, Stream $stream, $kanbanizeTask) {
-		$mapping = $this->organization->getSetting('kanbanizeColumnMapping');
-		if(!array_key_exists(strtoupper($kanbanizeTask['columnname']), $mapping)){
+		$mapping = $this->organization->getSetting(Organization::KANBANIZE_KEY_SETTING);
+		if(!isset($mapping['boards'][$board['id']]['columnMapping'])){
 			throw new \Exception("Missing mapping for column {$kanbanizeTask['columnname']}");
 		}
 		$readModelTask = $this->kanbanizeService->findTask($kanbanizeTask['taskid'], $this->organization); //TODO: esplorare nuovi metadati per l'event store
@@ -276,10 +278,11 @@ class Importer{
 	 * 
 	 * @param array $kanbanizeTask
 	 * @param Stream $stream
+	 * @param String $boardId
 	 * @throws Exception
-	 * @return Task
+	 * @return \Kanbanize\KanbanizeTask
 	 */
-	private function createTask($kanbanizeTask, Stream $stream){
+	private function createTask($kanbanizeTask, Stream $stream, $boardId){
 		$options = [
 			"taskid" => $kanbanizeTask['taskid'],
 			"columnname" => $kanbanizeTask['columnname']
@@ -299,11 +302,10 @@ class Importer{
 		return $task;
 	}
 	/**
-	 *
+	 * 
 	 * @param Task $task
-	 * @param unknown $columnName
-	 * @param User $requestedBy
-	 * @param KanbanizeImporterErrorsBuilder $errorsBuilder
+	 * @param string $columnName
+	 * @param string $boardId
 	 */
 	private function updateTaskStatus(Task $task, $columnName, $columnMapping){
 		switch ($columnMapping[strtoupper($columnName)]) {

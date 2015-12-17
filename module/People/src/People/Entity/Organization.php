@@ -11,7 +11,6 @@ use Application\Entity\EditableEntity;
  */
 class Organization extends EditableEntity implements ResourceInterface
 {
-
 	/**
 	 * @ORM\Column(type="string", nullable=true)
 	 * @var string
@@ -36,7 +35,13 @@ class Organization extends EditableEntity implements ResourceInterface
 	}
 
 	public function setSetting($settingKey, $settingValue){
-		$this->settings[$key] = $value;
+		if(is_array($settingValue)){
+			foreach ($settingValue as $key=>$value){
+				$this->settings[$settingKey][$key] = $value;
+			}
+		}else{
+			$this->settings[$settingKey] = $settingValue;
+		}
 		return $this;
 	}
 

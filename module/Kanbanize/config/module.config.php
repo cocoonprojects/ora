@@ -36,6 +36,20 @@ return array(
 						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
 					),
 				),
+			),
+			'kanbanize-settings' => array(
+				'type' => 'Segment',
+				'options' => array(
+					'route'		=> '/:orgId/kanbanize/settings[/:controller/:id]',
+					'defaults' => array(
+						'__NAMESPACE__' => 'Kanbanize\Controller',
+						'controller' => 'Settings'
+					),
+					'constraints' => array(
+						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+						'id' => '[0-9]*'
+					),
+				),
 			)
 		)
 	),

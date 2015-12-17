@@ -3,7 +3,9 @@ namespace Kanbanize;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
+use Kanbanize\Controller\BoardsController;
 use Kanbanize\Controller\ImportsController;
+use Kanbanize\Controller\SettingsController;
 use Kanbanize\Service\KanbanizeAPI;
 use Kanbanize\Service\KanbanizeServiceImpl;
 use Kanbanize\Service\SyncTaskListener;
@@ -29,6 +31,22 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$notificationService = $locator->get('Kanbanize\MailNotificationService');
 					$controller = new ImportsController($organizationService, $importDirector, $notificationService);
 					return $controller;
+				},
+				'Kanbanize\Controller\Settings' => function($sm){
+					$locator = $sm->getServiceLocator();
+					$config = $locator->get('Config');
+					$organizationService = $locator->get('People\OrganizationService');
+					$importer = $locator->get('Kanbanize\ImportDirector');
+					$controller = new SettingsController($organizationService, $importer);
+					return $controller;
+				},
+				'Kanbanize\Controller\Boards' => function($sm){
+					$locator = $sm->getServiceLocator();
+					$config = $locator->get('Config');
+					$organizationService = $locator->get('People\OrganizationService');
+					$importer = $locator->get('Kanbanize\ImportDirector');
+					$controller = new BoardsController($organizationService, $importer);
+					return $controller;
 				}
 			)
 		);
@@ -53,7 +71,9 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				'Kanbanize\ImportTasksListener' => function ($locator) {
 					$notificationService = $locator->get('Kanbanize\MailNotificationService');
 					$organizationService = $locator->get('People\OrganizationService');
-					return new ImportTasksListener($organizationService, $notificationService);
+					$transactionManager = $locator->get('prooph.event_store');
+					$userService = $locator->get('Application\UserService');
+					return new ImportTasksListener($organizationService, $notificationService, $transactionManager, $userService);
 				},
 				'Kanbanize\TaskCommandsListener' => function ($locator) {
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
