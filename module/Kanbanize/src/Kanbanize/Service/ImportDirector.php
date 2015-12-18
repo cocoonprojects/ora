@@ -42,8 +42,6 @@ class ImportDirector implements EventManagerAwareInterface{
 	 * @var UserService
 	 */
 	protected $userService;
-	
-	private $apiKey = null;
 	/**
 	 *
 	 * @var EventManagerInterface
@@ -85,23 +83,19 @@ class ImportDirector implements EventManagerAwareInterface{
 				'importResult' => $importResult,
 				'organizationId' => $organization->getId()
 			]);
-			return $importResult;
+			return $importResult; 
 		}catch (\Exception $e){
 			return ['errors'=>[$e->getMessage()]];
 		}
 	}
 
-	public function setApiKey($key){
-		$this->apiKey = $key;
-		return $this;
-	}
-	
 	private function initApi(Organization $organization){
-		if(is_null($this->apiKey)){
+		$api = new KanbanizeAPI();
+		$apiKey = $organization->getSetting("kanbanizeApiKey");
+		if(empty($apiKey)){
 			throw new \Exception("Cannot import projects due to missing api key");
 		}
-		$api = new KanbanizeAPI();
-		$api->setApiKey($this->apiKey);
+		$api->setApiKey($apiKey);
 		$api->setUrl(sprintf(self::API_URL_FORMAT, $organization->getSetting("kanbanizeAccountSubdomain")));
 		return $api;
 	}
