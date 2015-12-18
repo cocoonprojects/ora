@@ -90,13 +90,28 @@ class ImportControllerTest extends ControllerTest {
 			->willReturn($wm_organization);
 		$this->controller->getKanbanizeImporter()->expects($this->once())
 			->method('import')
-			->willReturn([]);
+			->willReturn([
+				"createdStreams" => 0,
+				"updatedStreams" => 0,
+				"createdTasks" => 0,
+				"updatedTasks" => 0,
+				"deletedTasks" => 0,
+				"errors" => [
+						"Cannot import projects due to problem with call: Could not resolve host: .kanbanize.com"
+				]
+			]);
 
 		$this->request->setMethod('post');
 		$this->routeMatch->setParam('orgId', $this->organization->getId());
 		$result = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-		
+		$arrayResult = json_decode($result->serialize(), true);
+		$this->assertEquals ( 0, $arrayResult['createdStreams'] );
+		$this->assertEquals ( 0, $arrayResult['updatedStreams'] );
+		$this->assertEquals ( 0, $arrayResult['createdTasks'] );
+		$this->assertEquals ( 0, $arrayResult['updatedTasks'] );
+		$this->assertEquals ( 0, $arrayResult['deletedTasks'] );
+		$this->assertEquals("Cannot import projects due to problem with call: Could not resolve host: .kanbanize.com", $arrayResult['errors'][0]);
 		$this->assertEquals(200, $response->getStatusCode());
 	}
 }
