@@ -65,7 +65,6 @@ class MailNotificationImportTest extends \PHPUnit_Framework_TestCase{
 		$this->request->setMethod('post');
 		$result = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-
 		$organization = $this->controller->getOrganizationService()->findOrganization('00000000-0000-0000-1000-000000000000');
 		$organizationMembershipsCount = $this->controller->getOrganizationService()->countOrganizationMemberships($organization);
 		$emails = $this->getEmailMessages();
@@ -79,6 +78,8 @@ class MailNotificationImportTest extends \PHPUnit_Framework_TestCase{
 		$this->assertEmailHtmlContains('Created tasks', $emails[0]);
 		$this->assertEmailHtmlContains('Updated tasks', $emails[0]);
 		$this->assertEmailHtmlContains('Deleted tasks', $emails[0]);
+		$this->assertEmailHtmlContains('There were some errors', $emails[0]);
+		
 	}
 	
 	protected function cleanEmailMessages()

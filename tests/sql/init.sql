@@ -52,7 +52,10 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
    '2015-03-11T13:35:32.000000+0100', 'People\\Organization', '00000000-0000-0000-1000-000000000000'),
   ('75548e90-569c-4e1b-958f-5b644243210c', 4, 'People\\OrganizationAccountChanged',
    'a:3:{s:9:"accountId";s:36:"dcde992b-5aa9-4447-98ae-c8115906dcb7";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-1000-000000000000";}',
-   '2015-03-11T13:35:32.000000+0100', 'People\\Organization', '00000000-0000-0000-1000-000000000000');
+   '2015-03-11T13:35:32.000000+0100', 'People\\Organization', '00000000-0000-0000-1000-000000000000'),
+('45f1b89a-156b-4dbf-b5c9-9a0540460a01', 5, 'People\\OrganizationUpdated',
+   'a:4:{s:3:"key";s:15:"kanbanizeApiKey";s:5:"value";s:40:"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";s:2:"by";s:36:"7f3d6cd8-8fc1-4d88-8253-f95e7df25746";s:12:"aggregate_id";s:36:"00000000-0000-0000-1000-000000000000";}',
+   '2014-12-29T17:32:07.000000+0100', 'People\\Organization', '00000000-0000-0000-1000-000000000000');
 INSERT INTO `organizations` (id, name, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id) VALUES
   ('00000000-0000-0000-1000-000000000000', 'O.R.A. Team', '2014-11-06 13:11:05', '2014-11-06 13:11:05',
    '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000');
