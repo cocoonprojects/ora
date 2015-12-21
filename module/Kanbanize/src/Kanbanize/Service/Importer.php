@@ -50,6 +50,10 @@ class Importer{
 	private $api;
 	private $errors = [];
 	/**
+	 * @var \DateInterval
+	 */
+	private $intervalForAssignShares;
+	/**
 	 * @var int
 	 */
 	private $createdStreams = 0,
@@ -74,6 +78,7 @@ class Importer{
 		$this->organization = $organization;
 		$this->requestedBy = $requestedBy;
 		$this->api = $api;
+		$this->intervalForAssignShares = new \DateInterval('P7D');
 	}
 
 	public function getErrors(){
@@ -210,7 +215,7 @@ class Importer{
 					$tasksFound[] = $kanbanizeTask['taskid'];
 				}
 			}
-			$this->deleteTasks($stream, $tasksFound);
+			$this->deleteTasks($project, $board, $stream, $tasksFound);
 		}catch(KanbanizeApiException $e){
 			$this->errors[] = "Cannot import tasks due to {$e->getMessage()}";
 		}}
@@ -229,18 +234,31 @@ class Importer{
 		}
 		$readModelTask = $this->kanbanizeService->findTask($kanbanizeTask['taskid'], $this->organization); //TODO: esplorare nuovi metadati per l'event store
 		if(is_null($readModelTask)){
-			return $this->createTask($kanbanizeTask, $stream);
+			$task = $this->createTask($kanbanizeTask, $stream);
+			$status = $mapping[strtoupper($kanbanizeTask['columnname'])];
+			if($status > Task::STATUS_IDEA){
+				$this->transactionManager->beginTransaction();
+				try {
+					$this->updateTaskStatus($task, $kanbanizeTask['columnname'], $mapping);
+					$this->transactionManager->commit();
+				}
+				catch (\Exception $e) {
+					$this->transactionManager->rollback();
+					throw $e;
+				}
+			}
+		}else{
+			$task = $this->taskService->getTask($readModelTask->getId());
 		}
-		$task = $this->taskService->getTask($readModelTask->getId());
-		return $this->updateTask($project, $board, $task, $kanbanizeTask);
+		return $this->updateTask($project, $board, $task, $kanbanizeTask, $mapping);
 	}
 
-	private function updateTask($project, $board, Task $task, $kanbanizeTask){
+	private function updateTask($project, $board, Task $task, $kanbanizeTask, $columnMapping){
 		$this->transactionManager->beginTransaction();
 		try {
 			$this->updateTaskOwner($task, $kanbanizeTask['assignee']);
 			if($task->getColumnName() != $kanbanizeTask['columnname']){
-				$this->updateTaskStatus($task, $kanbanizeTask['columnname']);
+				$this->updateTaskStatus($task, $kanbanizeTask['columnname'], $columnMapping);
 			}
 			if($task->getSubject() != $kanbanizeTask['title']){
 				$task->setSubject($kanbanizeTask['title'], $this->requestedBy);
@@ -266,14 +284,10 @@ class Importer{
 			"taskid" => $kanbanizeTask['taskid'],
 			"columnname" => $kanbanizeTask['columnname']
 		];
-		$new_owner = $this->getNewTaskOwner($kanbanizeTask['assignee']);
 		$this->transactionManager->beginTransaction();
 		try {
 			$task = Task::create($stream, $kanbanizeTask['title'], $this->requestedBy, $options);
 			$this->taskService->addTask($task);
-			if(!is_null($new_owner)){
-				$task->addMember($new_owner, TaskMember::ROLE_OWNER, $this->requestedBy);
-			}
 			$task->setAssignee($kanbanizeTask['assignee'], $this->requestedBy);
 			$this->transactionManager->commit();
 			$this->createdTasks++;
@@ -281,19 +295,6 @@ class Importer{
 		catch (\Exception $e) {
 			$this->transactionManager->rollback();
 			throw $e;
-		}
-		$mapping = $this->organization->getSetting('kanbanizeColumnMapping');
-		$status = $mapping[strtoupper($kanbanizeTask['columnname'])];
-		if($status > Task::STATUS_IDEA){
-			$this->transactionManager->beginTransaction();
-			try {
-				$this->updateTaskStatus($task, $kanbanizeTask['columnname']);
-			}
-			catch (\Exception $e) {
-				$this->transactionManager->rollback();
-				throw $e;
-			}
-			$this->transactionManager->commit();
 		}
 		return $task;
 	}
@@ -304,9 +305,8 @@ class Importer{
 	 * @param User $requestedBy
 	 * @param KanbanizeImporterErrorsBuilder $errorsBuilder
 	 */
-	private function updateTaskStatus(Task $task, $columnName){
-		$mapping = $this->organization->getSetting('kanbanizeColumnMapping');
-		switch ($mapping[strtoupper($columnName)]) {
+	private function updateTaskStatus(Task $task, $columnName, $columnMapping){
+		switch ($columnMapping[strtoupper($columnName)]) {
 			// case on destination column
 			case Task::STATUS_IDEA:
 			case Task::STATUS_OPEN:
@@ -344,7 +344,7 @@ class Importer{
 						$task->complete($this->requestedBy);
 					case Task::STATUS_COMPLETED:
 					case Task::STATUS_CLOSED:
-						$task->accept($this->requestedBy);
+						$task->accept($this->requestedBy, $this->getIntervalForAssignShares());
 				}
 				break;
 			case Task::STATUS_CLOSED:
@@ -368,8 +368,7 @@ class Importer{
 	 * @param string $username
 	 */
 	private function updateTaskOwner(Task $task, $username){
-		$users = $this->userService->findUsers(['kanbanizeusername' => $username]);
-		$new_owner = is_null($users) ? null : array_shift($users);
+		$new_owner = $this->getNewTaskOwner($username);
 		if (is_null($new_owner)){
 			$task->removeOwner($this->requestedBy);
 		}elseif (!is_null($task->getOwner())){
@@ -404,12 +403,13 @@ class Importer{
 		return $projectName."/".$boardName;
 	}
 
-	private function deleteTasks(Stream $stream, $tasksFound){
+	private function deleteTasks($project, $board, Stream $stream, $tasksFound){
 		$tasks = $this->taskService->findTasks($this->organization, null, null, ["streamId"=>$stream->getId()]);
 		$tasksToDelete = array_filter($tasks, function($task) use ($tasksFound){
 			return !in_array($task->getId(), $tasksFound);
 		});
-		array_walk($tasksToDelete, function($t) {
+		$params = [$project, $board];
+		array_walk($tasksToDelete, function($t) use($params){
 			$task = $this->taskService->getTask($t->getId());
 			$this->transactionManager->beginTransaction();
 			try{
@@ -417,6 +417,8 @@ class Importer{
 				$this->transactionManager->commit();
 				$this->deletedTasks++;
 			}catch (\Exception $e) {
+				$project = $params[0];
+				$board = $params[1];
 				$this->transactionManager->rollback();
 				$this->errors[] = "Cannot delete task {taskSubject: {$task->getSubject()}, boardId: {$board['id']}, projectId: {$project['id']}} due to {$e->getMessage()}";
 			}
@@ -430,5 +432,11 @@ class Importer{
 		}
 		return null;
 	}
-	
+	public function setIntervalForAssignShares(\DateInterval $interval){
+		$this->intervalForAssignShares = $interval;
+	}
+
+	public function getIntervalForAssignShares(){
+		return $this->intervalForAssignShares;
+	}
 }
