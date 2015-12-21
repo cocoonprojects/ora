@@ -110,10 +110,10 @@ class ImporterTest extends TestCase {
 		$task->setSubject("Z", $this->requestedBy);
 		$readModelTask = new ReadModelKanbanizeTask($task->getId(), $readModelStream);
 		$this->kanbanizeServiceStub->expects($this->atLeastOnce())
-			->method('findByTaskId')
+			->method('findTask')
 			->willReturn($readModelTask);
 		$this->kanbanizeServiceStub->expects($this->atLeastOnce())
-			->method('findStreamByBoardId')
+			->method('findStream')
 			->willReturn($readModelStream);
 		$this->taskServiceStub->expects($this->atLeastOnce())
 			->method('getTask')
