@@ -125,7 +125,7 @@ class Importer{
 		$tasksFound = [];
 		$discardedTasks = [];
 		$discardedStreams = [];
-		$s = $this->kanbanizeService->findStreamByBoardId($board['id']);
+		$s = $this->kanbanizeService->findStream($board['id'], $this->organization);
 		if(is_null($s)){
 			$stream = $this->createStream ( $project, $board );
 		}else{
@@ -223,7 +223,11 @@ class Importer{
 	 * @return \Kanbanize\KanbanizeTask|Task
 	 */
 	public function importTask($project, $board, Stream $stream, $kanbanizeTask) {
-		$readModelTask = $this->kanbanizeService->findByTaskId($kanbanizeTask['taskid']); //TODO: esplorare nuovi metadati per l'event store
+		$mapping = $this->organization->getSetting('kanbanizeColumnMapping');
+		if(!array_key_exists(strtoupper($kanbanizeTask['columnname']), $mapping)){
+			throw new \Exception("Missing mapping for column {$kanbanizeTask['columnname']}");
+		}
+		$readModelTask = $this->kanbanizeService->findTask($kanbanizeTask['taskid'], $this->organization); //TODO: esplorare nuovi metadati per l'event store
 		if(is_null($readModelTask)){
 			return $this->createTask($kanbanizeTask, $stream);
 		}
