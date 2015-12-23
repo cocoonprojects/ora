@@ -7,6 +7,8 @@ use Doctrine\ORM\EntityManager;
 use Kanbanize\KanbanizeTask;
 use Kanbanize\Entity\KanbanizeStream;
 use Kanbanize\Entity\KanbanizeTask as ReadModelKanbanizeTask;
+use People\Organization as WriteModelOrganization;
+use People\Entity\Organization;
 
 /**
  * Service Kanbanize
@@ -127,16 +129,52 @@ class KanbanizeServiceImpl implements KanbanizeService
 	}
 	/**
 	 * (non-PHPdoc)
-	 * @see \Kanbanize\Service\KanbanizeService::findStreamByBoardId()
+	 * @see \Kanbanize\Service\KanbanizeService::findStream()
 	 */
-	public function findStreamByBoardId($boardId){
-		return $this->entityManager->getRepository(KanbanizeStream::class)->findOneBy(array("boardId"=>$boardId));
+	public function findStream($boardId, $organization){
+		switch (get_class($organization)){
+			case Organization::class :
+			case WriteModelOrganization::class:
+				$organizationId = $organization->getId();
+				break;
+			case Uuid::class:
+				$organizationId = $organization->toString();
+				break;
+			default :
+				$organizationId = $organization;
+		}
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select ( 's' )
+			->from(KanbanizeStream::class, 's')
+			->where('s.organization = :organization')
+			->andWhere('s.boardId = :boardId')
+			->setParameter ( ':organization', $organizationId )
+			->setParameter ( ':boardId', $boardId );
+		return $query->getQuery()->getOneOrNullResult();
 	}
 	/**
 	 * (non-PHPdoc)
-	 * @see \Kanbanize\Service\KanbanizeService::findByTaskId()
+	 * @see \Kanbanize\Service\KanbanizeService::findTask()
 	 */
-	public function findByTaskId($taskId){
-		return $this->entityManager->getRepository(ReadModelKanbanizeTask::class)->findOneBy(array("taskId"=>$taskId));
+	public function findTask($taskId, $organization){
+		switch (get_class($organization)){
+			case Organization::class :
+			case WriteModelOrganization::class:
+				$organizationId = $organization->getId();
+				break;
+			case Uuid::class:
+				$organizationId = $organization->toString();
+				break;
+			default :
+				$organizationId = $organization;
+		}
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('t')
+			->from(ReadModelKanbanizeTask::class, 't')
+			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
+			->where('t.taskId = :taskId')
+			->setParameter(':organization', $organizationId)
+			->setParameter(':taskId', $taskId);
+		return $query->getQuery()->getOneOrNullResult();
 	}
 }

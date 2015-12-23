@@ -71,10 +71,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$kanbanizeService = $locator->get('Kanbanize\KanbanizeService');
 					$transactionManager = $locator->get('prooph.event_store');
 					$service = new ImportDirector($kanbanizeService, $taskService, $streamService, $transactionManager, $userService);
-					$config = $locator->get('Config');
-					if(isset($config['kanbanize']['apikey'])){
-						$service->setApiKey($config['kanbanize']['apikey']);
-					}
 					return $service;
 				},
 				'Kanbanize\MailNotificationService'=> function ($locator){
