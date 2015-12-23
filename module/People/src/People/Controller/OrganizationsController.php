@@ -86,7 +86,6 @@ class OrganizationsController extends HATEOASRestfulController
 		return [
 				'id' => $organization->getId(),
 				'name' => $organization->getName(),
-				'membership' => $this->identity()->isMemberOf($organization),
 				'createdAt' => date_format($organization->getCreatedAt(), 'c'),
 				'_links' => [
 						'self' => [
