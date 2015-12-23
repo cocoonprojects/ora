@@ -9,7 +9,6 @@ return array(
 		'DoctrineORMModule',
 		'ProophEventStoreModule',
 		'ZendOAuth2',
-		'AssetManager',
 		'ZFX',
 		'Application',
 		'Accounting',

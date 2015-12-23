@@ -4,19 +4,6 @@ namespace Accounting;
 return array(
 	'router' => array(
 		'routes' => array(
-			'accounting-home' => array(
-				'type' => 'segment',
-				'options' => array(
-					'route'	   => '/:orgId/accounting/',
-					'constraints' => array(
-							'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
-					),
-					'defaults' => array(
-						'controller' => 'Accounting\Controller\Index',
-						'action'	 => 'index',
-					),
-				),
-			),
 			'accounts' => [
 				'type'	  => 'segment',
 				'options' => [
@@ -52,13 +39,6 @@ return array(
 		),
 		'template_path_stack' => array(
 			__NAMESPACE__ => __DIR__ . '/../view',
-		),
-	),
-	'asset_manager' => array(
-		'resolver_configs' => array(
-			'paths' => array(
-				__NAMESPACE__ => __DIR__ . '/../public',
-			),
 		),
 	),
 	'doctrine' => array(

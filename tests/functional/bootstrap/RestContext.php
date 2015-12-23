@@ -138,7 +138,9 @@ class RestContext extends RawMinkContext
 	{
 		$baseUrl = $this->getBaseUrl();
 		$this->_requestUrl = $baseUrl . $pageUrl;
-		$headers = [];
+		$headers = [
+			'Accept' => 'application/json'
+		];
 		if($this->currentToken != null) {
 			$headers['ORA-JWT'] = $this->currentToken;
 		}

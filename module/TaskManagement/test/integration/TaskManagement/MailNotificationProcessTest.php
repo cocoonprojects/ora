@@ -62,11 +62,8 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		$this->request	= new Request();
 		$this->routeMatch = new RouteMatch(array('controller' => 'shares'));
 		$this->event	  = new MvcEvent();
-		$config = $serviceManager->get('Config');
-		$routerConfig = isset($config['router']) ? $config['router'] : array();
 		$router = $serviceManager->get('HttpRouter');
-		$router->setRequestUri(new Http("http://example.com"));
-		
+
 		$this->event->setRouter($router);
 		$this->event->setRouteMatch($this->routeMatch);
 		$this->controller->setEvent($this->event);
@@ -154,7 +151,7 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		$this->assertNotNull($email);
 		$this->assertContains($this->task->getSubject(), $email->subject);
 		$this->assertEmailHtmlContains('This task has been automatically closed.', $email);
-		$this->assertEmailHtmlContains('http://example.com/00000000-0000-0000-1000-000000000000/task-management', $email);
+		$this->assertEmailHtmlContains('http://example.com/#/00000000-0000-0000-1000-000000000000/items', $email);
 		$this->assertEmailHtmlContains('This task has been automatically closed.', $email);
 		$this->assertNotEmpty($email->recipients);
 		$this->assertEquals($email->recipients[0], '<mark.rogers@ora.local>');
@@ -181,7 +178,7 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		$this->assertNotNull($email);
 		$this->assertContains($this->task->getSubject(), $email->subject);
 		$this->assertEmailHtmlContains('the item "'.$this->task->getSubject().'"', $email);
-		$this->assertEmailHtmlContains('http://example.com/00000000-0000-0000-1000-000000000000/task-management', $email);
+		$this->assertEmailHtmlContains('http://example.com/#/00000000-0000-0000-1000-000000000000/items', $email);
 		$this->assertNotEmpty($email->recipients);
 		$this->assertEquals($email->recipients[0], '<mark.rogers@ora.local>');
 	
