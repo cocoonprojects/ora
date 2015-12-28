@@ -38,10 +38,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$streamService = $locator->get('TaskManagement\StreamService');
 					$organizationService = $locator->get('People\OrganizationService');
 					$controller = new TasksController($taskService, $streamService, $organizationService);
-					if(array_key_exists('assignment_of_shares_timebox', $locator->get('Config'))){
-						$assignmentOfSharesTimebox = $locator->get('Config')['assignment_of_shares_timebox'];
-						$controller->setIntervalForCloseTasks($assignmentOfSharesTimebox);
-					}
 					if(array_key_exists('default_tasks_limit', $locator->get('Config'))){
 						$size = $locator->get('Config')['default_tasks_limit'];
 						$controller->setListLimit($size);
@@ -61,7 +57,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$controller = new TransitionsController($taskService);
 					if(array_key_exists('assignment_of_shares_timebox', $locator->get('Config'))){
 						$assignmentOfSharesTimebox = $locator->get('Config')['assignment_of_shares_timebox'];
-						$controller->setIntervalForCloseTasks($assignmentOfSharesTimebox);
+						$controller->setIntervalForAssignShares($assignmentOfSharesTimebox);
 					}
 					return $controller;
 				},

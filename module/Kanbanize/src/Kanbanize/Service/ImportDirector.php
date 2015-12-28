@@ -47,6 +47,10 @@ class ImportDirector implements EventManagerAwareInterface{
 	 * @var EventManagerInterface
 	 */
 	protected $events;
+	/**
+	 * @var \DateInterval
+	 */
+	protected $intervalForAssignShares;
 
 	public function __construct(KanbanizeService $kanbanizeService,
 			TaskService $taskService,
@@ -58,6 +62,7 @@ class ImportDirector implements EventManagerAwareInterface{
 		$this->streamService = $streamService;
 		$this->transactionManager = $transactionManager;
 		$this->userService = $userService;
+		$this->intervalForAssignShares = new \DateInterval('P7D');
 	}
 	/**
 	 * 
@@ -77,6 +82,7 @@ class ImportDirector implements EventManagerAwareInterface{
 				$requestedBy,
 				$api
 			);
+			$importer->setIntervalForAssignShares($this->getIntervalForAssignShares());
 			$importer->importProjects();
 			$importResult = $importer->getImportResult();
 			$this->getEventManager()->trigger(self::IMPORT_COMPLETED, [
@@ -114,5 +120,13 @@ class ImportDirector implements EventManagerAwareInterface{
 			$this->setEventManager(new EventManager());
 		}
 		return $this->events;
+	}
+
+	public function setIntervalForAssignShares(\DateInterval $interval){
+		$this->intervalForAssignShares = $interval;
+	}
+
+	public function getIntervalForAssignShares(){
+		return $this->intervalForAssignShares;
 	}
 }
