@@ -35,10 +35,6 @@ class TasksController extends OrganizationAwareController
 	 */
 	private $streamService;
 	/**
-	 *@var \DateInterval
-	 */
-	protected $intervalForCloseTasks;
-	/**
 	 * @var integer
 	 */
 	protected $listLimit = self::DEFAULT_TASKS_LIMIT;
@@ -48,7 +44,6 @@ class TasksController extends OrganizationAwareController
 		parent::__construct($organizationService);
 		$this->taskService = $taskService;
 		$this->streamService = $streamService;
-		$this->intervalForCloseTasks = new \DateInterval('P7D');
 	}
 	
 	public function get($id)
@@ -310,14 +305,6 @@ class TasksController extends OrganizationAwareController
 		return $this->taskService;
 	}
 
-	public function setIntervalForCloseTasks($interval){
-		$this->intervalForCloseTasks = $interval;
-	}
-
-	public function getIntervalForCloseTasks(){
-		return $this->intervalForCloseTasks;
-	}
-	
 	public function setListLimit($size){
 		if(is_int($size)){
 			$this->listLimit = $size;

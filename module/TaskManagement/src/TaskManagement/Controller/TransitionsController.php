@@ -22,13 +22,13 @@ class TransitionsController extends HATEOASRestfulController
 	/**
 	 *@var \DateInterval
 	 */
-	protected $intervalForCloseTasks;
+	protected $intervalForAssignShares;
 
 	private $validator;
 
 	public function __construct(TaskService $taskService) {
 		$this->taskService = $taskService;
-		$this->intervalForCloseTasks = new \DateInterval('P7D');
+		$this->intervalForAssignShares = new \DateInterval('P7D');
 		$this->validator = new InArray(
 			['haystack' => array('complete', 'accept', 'execute', 'close')]
 		);
@@ -87,7 +87,7 @@ class TransitionsController extends HATEOASRestfulController
 				}
 				$this->transaction()->begin();
 				try {
-					$task->accept($this->identity(), $this->getIntervalForCloseTasks());
+					$task->accept($this->identity(), $this->getIntervalForAssignShares());
 					$this->transaction()->commit();
 					$this->response->setStatusCode ( 200 );
 					$view = new TaskJsonModel($this);
@@ -172,12 +172,12 @@ class TransitionsController extends HATEOASRestfulController
 		return self::$resourceOptions;
 	}
 	
-	public function setIntervalForCloseTasks($interval){
-		$this->intervalForCloseTasks = $interval;
+	public function setIntervalForAssignShares($interval){
+		$this->intervalForAssignShares = $interval;
 	}
 	
-	public function getIntervalForCloseTasks(){
-		return $this->intervalForCloseTasks;
+	public function getIntervalForAssignShares(){
+		return $this->intervalForAssignShares;
 	}
 	
 	public function getTaskService(){

@@ -91,7 +91,7 @@ class ImporterTest extends TestCase {
 		$this->assertEquals(1, $importResult['createdStreams']);
 		$this->assertEquals(1, $importResult['createdTasks']);
 		$this->assertEquals(0, $importResult['deletedTasks']);
-		$this->assertEquals(0, $importResult['updatedTasks']);
+		$this->assertEquals(1, $importResult['updatedTasks']);
 		$this->assertEmpty($importResult['errors']);
 	}
 	

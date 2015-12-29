@@ -7,14 +7,11 @@ return array(
 			'collaboration-home' => [
 				'type' => 'Segment',
 				'options' => [
-					'route' => '/:orgId/task-management',
+					'route' => '/:orgId/items[/:id]',
 					'constraints' => [
 						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
-					],
-					'defaults' => [
-						'controller' => 'TaskManagement\Controller\Index',
-						'action' => 'index',
-					],
+						'id' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+					]
 				],
 			],
 			'collaboration' => [
@@ -56,13 +53,6 @@ return array(
 		'template_path_stack' => array(
 			__NAMESPACE__ => __DIR__ . '/../view',
 		)
-	),
-	'asset_manager' => array(
-		'resolver_configs' => array(
-			'paths' => array(
-				__NAMESPACE__ => __DIR__ . '/../public',
-			),
-		),
 	),
 	'doctrine' => array(
 		'driver' => array(

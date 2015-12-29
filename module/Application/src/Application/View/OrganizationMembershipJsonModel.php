@@ -37,7 +37,7 @@ class OrganizationMembershipJsonModel extends JsonModel
 			$hal['lastname']  = $this->user->getLastname();
 			$hal['email'] = $this->user->getEmail();
 			$hal['picture'] = $this->user->getPicture();
-			$hal['_embedded']['ora:organization-membership'] = array_map(array($this, 'serializeOne'), $resource);
+			$hal['_embedded']['ora:organization-membership'] = array_map([$this, 'serializeOne'], $resource);
 			$hal['_links'] = [
 				'self' => [
 					'href' => $this->url->fromRoute('memberships'),
@@ -79,8 +79,7 @@ class OrganizationMembershipJsonModel extends JsonModel
 					'href' => $this->url->fromRoute('members', ['orgId' => $org->getId()])
 				],
 				'ora:task' => [
-//					'href' => $this->url->fromRoute('tasks', ['orgId' => $org->getId()])
-					'href' => $this->url->fromRoute('collaboration-home', ['orgId' => $org->getId()])
+					'href' => $this->url->fromRoute('tasks', ['orgId' => $org->getId()])
 				]
 			]
 		];

@@ -40,9 +40,14 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 	 * @var OrganizationService
 	 */
 	private $orgService;
-
-	
+	/**
+	 * @var array
+	 */
 	protected $listeners = [];
+	/**
+	 * @var string
+	 */
+	protected $host;
 	
 	public function __construct(MailServiceInterface $mailService, UserService $userService, TaskService $taskService, OrganizationService $orgService) {
 		$this->mailService = $mailService;
@@ -131,12 +136,13 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 		
 		$message = $this->mailService->getMessage();
 		$message->setTo($owner->getEmail());
-		$message->setSubject ( 'Estimation added to "' . $task->getSubject() . '"');
+		$message->setSubject ( 'Estimation added to "' . $task->getSubject() . '" item');
 		
 		$this->mailService->setTemplate( 'mail/estimation-added-info.phtml', [
-				'task' => $task,
-				'recipient'=> $owner,
-				'member'=> $member
+			'task' => $task,
+			'recipient'=> $owner,
+			'member'=> $member,
+			'host' => $this->host
 		]);
 		
 		$this->mailService->send();
@@ -162,12 +168,13 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 
 		$message = $this->mailService->getMessage();
 		$message->setTo($owner->getEmail());
-		$message->setSubject ( 'Shares assigned to "' . $task->getSubject() . '"' );
+		$message->setSubject('Shares assigned to "' . $task->getSubject() . '" item' );
 
 		$this->mailService->setTemplate( 'mail/shares-assigned-info.phtml', [
 			'task' => $task,
 			'recipient'=> $owner,
-			'member'=> $member
+			'member'=> $member,
+			'host' => $this->host
 		]);
 
 		$this->mailService->send();
@@ -188,11 +195,12 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 			$member = $tm->getUser();
 			$message = $this->mailService->getMessage();
 			$message->setTo($member->getEmail());
-			$message->setSubject('Assign your shares to "' . $task->getSubject() . '"');
+			$message->setSubject('Assign your shares to "' . $task->getSubject() . '" item');
 
 			$this->mailService->setTemplate( 'mail/reminder-assignment-shares.phtml', [
-					'task' => $task,
-					'recipient'=> $member
+				'task' => $task,
+				'recipient'=> $member,
+				'host' => $this->host
 			]);
 
 			$this->mailService->send();
@@ -214,11 +222,12 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 			$member = $tm->getUser();
 			$message = $this->mailService->getMessage();
 			$message->setTo($member->getEmail());
-			$message->setSubject("Estimate " . $task->getSubject());
+			$message->setSubject('Estimate "'.$task->getSubject().'" item');
 			
 			$this->mailService->setTemplate( 'mail/reminder-add-estimation.phtml', [
 				'task' => $task,
-				'recipient'=> $member
+				'recipient'=> $member,
+				'host' => $this->host
 			]);
 			
 			$this->mailService->send();
@@ -241,11 +250,12 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 	
 			$message = $this->mailService->getMessage();
 			$message->setTo($member->getEmail());
-			$message->setSubject($task->getSubject() . " closed");
+			$message->setSubject('The "'.$task->getSubject().'" item has been closed');
 	
 			$this->mailService->setTemplate( 'mail/task-closed-info.phtml', [
 				'task' => $task,
-				'recipient'=> $member
+				'recipient'=> $member,
+				'host' => $this->host
 			]);
 			
 			$this->mailService->send();
@@ -271,14 +281,15 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 			
 			$message = $this->mailService->getMessage();
 			$message->setTo($recipient->getEmail());
-			$message->setSubject("A new Work Item Idea has been proposed.");
+			$message->setSubject('A new idea proposed into the "' . $stream->getSubject() . '" stream');
 			
 			$this->mailService->setTemplate( 'mail/work-item-idea-created.phtml', [
-					'task' => $task,
-					'member' =>$member,
-					'recipient'=> $recipient,
-					'organization'=> $org,
-					'stream'=> $stream
+				'task' => $task,
+				'member' =>$member,
+				'recipient'=> $recipient,
+				'organization'=> $org,
+				'stream'=> $stream,
+				'host' => $this->host
 			]);
 			$this->mailService->send();
 			$rv[] = $recipient;
@@ -300,11 +311,12 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 	
 			$message = $this->mailService->getMessage();
 			$message->setTo($member->getEmail());
-			$message->setSubject($task->getSubject() . " accepted");
+			$message->setSubject('The "'.$task->getSubject().'" item has been accepted');
 	
 			$this->mailService->setTemplate( 'mail/task-accepted-info.phtml', [
-					'task' => $task,
-					'recipient'=> $member
+				'task' => $task,
+				'recipient'=> $member,
+				'host' => $this->host
 			]);
 				
 			$this->mailService->send();
@@ -321,5 +333,10 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 
 	public function getOrganizationService(){
 		return $this->orgService;
+	}
+
+	public function setHost($host) {
+		$this->host = $host;
+		return $this;
 	}
 }

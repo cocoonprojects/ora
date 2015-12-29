@@ -1,10 +1,6 @@
-<p>Hi <?= $this->recipient->getFirstname()." ".$this->recipient->getLastname()?>,</p>
-<p><b>the time</b> available to assign shares to the item "<?= $this->task->getSubject()?>" <b>is running out!</b></p> 
-<p>It is important you won't miss the chance to tell your taskmates what you think about the team contribution.</p> 
-<p>Follow <a href="<?= $this->url('collaboration-home',array('orgId' => $this->task->getStream()->getOrganization()->getId()), array('force_canonical' => true))//."#".$this->task->getId();?>"> this link</a> to do it as soon as possible</p>
-<br/> 
-<p>Thank you!</p>
-<p>;)</p>
+<p>Hi <?= $this->recipient->getFirstname() ?>,<br>
+time to assign shares "<?= $this->task->getSubject()?>" item <b>is running out</b>!</p>
+<p>Don't miss the chance to <a href="<?= $this->host . $this->url('collaboration-home', ['orgId' => $this->task->getOrganizationId(), 'id' => $this->task->getId()]) ?>">tell your taskmates</a> what you think about their contribution.</p>
 <p>O.R.A.</p>
 <hr>
 <p style="font-size: 12px">You are receiving this e-mail because you are member of the "<?= $this->task->getSubject() ?>" item.</p>		

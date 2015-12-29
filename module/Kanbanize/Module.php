@@ -71,6 +71,10 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$kanbanizeService = $locator->get('Kanbanize\KanbanizeService');
 					$transactionManager = $locator->get('prooph.event_store');
 					$service = new ImportDirector($kanbanizeService, $taskService, $streamService, $transactionManager, $userService);
+					if(array_key_exists('assignment_of_shares_timebox', $locator->get('Config'))){
+						$assignmentOfSharesTimebox = $locator->get('Config')['assignment_of_shares_timebox'];
+						$service->setIntervalForAssignShares($assignmentOfSharesTimebox);
+					}
 					return $service;
 				},
 				'Kanbanize\MailNotificationService'=> function ($locator){
