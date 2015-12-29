@@ -1,6 +1,6 @@
 <p>Hi <?php echo $this->recipient->getFirstname()?>,<br>
-	item <b><?= $this->task->getSubject()?></b> has an important update! <b><?php echo $this->member->getFirstname()?> <?php echo $this->member->getLastname()?></b> just estimated the item.</p>
-<p>Check the estimation progress online.</p>
+	"<?= $this->task->getSubject()?>" item has an important update: <b><?php echo $this->member->getFirstname()?> <?php echo $this->member->getLastname()?></b> just estimated the item.</p>
+<p>Check the <a href="<?= $this->host . $this->url('collaboration-home', ['orgId' => $this->task->getOrganizationId(), 'id' => $this->task->getId()]) ?>">estimation progress</a>!</p>
 <p>O.R.A.</p>
 <hr>
 <p style="font-size: 12px">You are receiving this e-mail because you are an owner of the "<?= $this->task->getSubject() ?>" item.</p>
