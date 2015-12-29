@@ -2,9 +2,7 @@
 
 namespace TaskManagement;
 
-use People\OrganizationService;
 use TaskManagement\Controller\EstimationsController;
-use TaskManagement\Controller\MailController;
 use TaskManagement\Controller\MembersController;
 use TaskManagement\Controller\MemberStatsController;
 use TaskManagement\Controller\RemindersController;
@@ -27,11 +25,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
 	public function getControllerConfig() 
 	{
-		return array(
-			'invokables' => array(
-				'TaskManagement\Controller\Index' => 'TaskManagement\Controller\IndexController',
-			),
-			'factories' => array(
+		return [
+			'factories' => [
 				'TaskManagement\Controller\Tasks' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
@@ -99,17 +94,14 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$controller = new MemberStatsController($orgService, $taskService, $userService);
 					return $controller;
 				}
-
-			)
-		);
+			]
+		];
 	} 
 	
 	public function getServiceConfig()
 	{
-		return array (
-			'invokables' => array(
-			),
-			'factories' => array (
+		return [
+			'factories' => [
 				'TaskManagement\StreamService' => function ($locator) {
 					$eventStore = $locator->get('prooph.event_store');
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
@@ -121,6 +113,10 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$orgService = $locator->get('People\OrganizationService');
 					$rv = new NotifyMailListener($mailService, $userService, $taskService, $orgService);
+					$config = $locator->get('Config');
+					if(isset($config['mail_domain'])) {
+						$rv->setHost($config['mail_domain']);
+					}
 					return $rv;
 				},
 				'TaskManagement\TaskService' => function ($locator) {
@@ -156,8 +152,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$transactionManager = $locator->get('prooph.event_store');
 					return new AssignCreditsListener($taskService, $userService, $transactionManager);
 				}
-			),
-		);
+			],
+		];
 	}
 	
 	public function getConfig()

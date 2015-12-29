@@ -12,9 +12,6 @@ class Module
 	public function getControllerConfig() 
 	{
 		return [
-			'invokables' => [
-				'People\Controller\Index' => 'People\Controller\IndexController',
-			],
 			'factories' => [
 				'People\Controller\Organizations' => function ($sm) {
 					$locator = $sm->getServiceLocator();
@@ -39,10 +36,8 @@ class Module
 	
 	public function getServiceConfig()
 	{
-		return array(
-			'invokables' => array(
-			),
-			'factories' => array(
+		return [
+			'factories' => [
 				'People\OrganizationService' => function ($serviceLocator) {
 					$eventStore = $serviceLocator->get('prooph.event_store');
 					$entityManager = $serviceLocator->get('doctrine.entitymanager.orm_default');
@@ -58,8 +53,8 @@ class Module
 					$organizationService = $serviceLocator->get('People\OrganizationService');
 					return new SendMailListener($mailService, $userService, $organizationService);
 				}
-			),
-		);
+			],
+		];
 	}
 	
 	public function getConfig()

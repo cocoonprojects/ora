@@ -27,11 +27,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 			'invokables' => array(
 			),
 			'factories' => [
-				'Accounting\Controller\Index' => function($sm) {
-					$locator = $sm->getServiceLocator();
-					$organizationService = $locator->get('People\OrganizationService');
-					return new IndexController($organizationService);
-				},
 				'Accounting\Controller\Accounts' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$userService = $locator->get('Application\UserService');

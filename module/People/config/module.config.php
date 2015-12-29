@@ -4,29 +4,6 @@ namespace People;
 return array(
 	'router' => array(
 		'routes' => array(
-			'people-home' => array(
-				'type' => 'Segment',
-				'options' => array(
-					'route'    => '/:orgId/people',
-					'defaults' => array(
-						'controller' => 'People\Controller\Index',
-						'action'	 => 'index',
-					),
-					'constraints' => array(
-						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
-					),
-				),
-			),
-			'organizations-home' => array(
-				'type' => 'Literal',
-				'options' => array(
-					'route'    => '/organizations-home',
-					'defaults' => array(
-						'controller' => 'People\Controller\Index',
-						'action'	 => 'organizations',
-					),
-				),
-			),
 			'organizations' => [
 				'type' => 'Segment',
 				'options' => [
@@ -53,17 +30,7 @@ return array(
 						'controller'    => 'Members'
 					],
 				],
-			],
-			'profiles'	=> array(
-				'type' => 'Segment',
-				'options' => array(
-					'route'    => '/:orgId/profiles[/:id]',
-					'defaults' => array(
-						'controller' => 'People\Controller\Index',
-						'action'	 => 'profile',
-					),
-				),
-			),
+			]
 		),
 	),
 	'view_manager' => array(
@@ -73,13 +40,6 @@ return array(
 		'template_path_stack' => array(
 			__NAMESPACE__ => __DIR__ . '/../view',
 		)
-	),
-	'asset_manager' => array(
-		'resolver_configs' => array(
-			'paths' => array(
-				__NAMESPACE__ => __DIR__ . '/../public',
-			),
-		),
 	),
 	'service_manager' => array(
 		'invokables' => array(

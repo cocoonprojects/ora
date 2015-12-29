@@ -77,6 +77,7 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 		$taskService = $this->getMockBuilder(TaskService::class)->getMock();
 		$this->orgService = $this->getMockBuilder(OrganizationService::class)->getMock();
 		$this->service = new NotifyMailListener($mailService, $userService, $taskService, $this->orgService);
+		$this->service->setHost('http://example.com');
 	}
 
 	public function testSendEstimationAddedInfoMail() {
@@ -86,7 +87,8 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 			->with('mail/estimation-added-info.phtml', [
 				'task' => $this->task,
 				'recipient' => $this->owner,
-				'member' => $this->member
+				'member' => $this->member,
+				'host' => 'http://example.com'
 			]);
 		$this->service->sendEstimationAddedInfoMail($this->task, $this->member);
 	}
@@ -98,7 +100,8 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 			->with('mail/shares-assigned-info.phtml', [
 				'task' => $this->task,
 				'recipient' => $this->owner,
-				'member' => $this->member
+				'member' => $this->member,
+				'host' => 'http://example.com'
 			]);
 		$this->service->sendSharesAssignedInfoMail($this->task, $this->member);
 	}
@@ -109,14 +112,16 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 			->method('setTemplate')
 			->with('mail/reminder-assignment-shares.phtml', [
 				'task' => $this->task,
-				'recipient'=> $this->owner
+				'recipient'=> $this->owner,
+				'host' => 'http://example.com'
 			]);
 		$this->service->getMailService()
 			->expects($this->at(4))
 			->method('setTemplate')
 			->with('mail/reminder-assignment-shares.phtml', [
 				'task' => $this->task,
-				'recipient'=> $this->member
+				'recipient'=> $this->member,
+				'host' => 'http://example.com'
 			]);
 		$this->service->remindAssignmentOfShares($this->task);
 	}
@@ -127,14 +132,16 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 			->method('setTemplate')
 			->with('mail/reminder-add-estimation.phtml', [
 				'task' => $this->task,
-				'recipient'=> $this->owner
+				'recipient'=> $this->owner,
+				'host' => 'http://example.com'
 			]);
 		$this->service->getMailService()
 			->expects($this->at(4))
 			->method('setTemplate')
 			->with('mail/reminder-add-estimation.phtml', [
 				'task' => $this->task,
-				'recipient'=> $this->member
+				'recipient'=> $this->member,
+				'host' => 'http://example.com'
 			]);
 		$this->service->remindEstimation($this->task);
 	}
@@ -145,14 +152,16 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 			->method('setTemplate')
 			->with('mail/task-closed-info.phtml', [
 				'task' => $this->task,
-				'recipient'=> $this->owner
+				'recipient'=> $this->owner,
+				'host' => 'http://example.com'
 			]);
 		$this->service->getMailService()
 			->expects($this->at(4))
 			->method('setTemplate')
 			->with('mail/task-closed-info.phtml', [
 				'task' => $this->task,
-				'recipient'=> $this->member
+				'recipient'=> $this->member,
+				'host' => 'http://example.com'
 			]);
 		$this->service->sendTaskClosedInfoMail($this->task);
 	}
@@ -172,7 +181,8 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 				'member' =>$this->owner,
 				'recipient'=> $this->owner,
 				'organization'=> $this->organization,
-				'stream'=> $this->stream
+				'stream'=> $this->stream,
+			'host' => 'http://example.com'
 		]);
 		$this->service->getMailService()
 		->expects($this->at(4))
@@ -182,7 +192,8 @@ class NotifyMailListenerTest extends \PHPUnit_Framework_TestCase {
 				'member' =>$this->owner,
 				'recipient'=> $this->member,
 				'organization'=> $this->organization,
-				'stream'=> $this->stream
+				'stream'=> $this->stream,
+			'host' => 'http://example.com'
 		]);
 		
 		$this->service->sendWorkItemIdeaCreatedMail($this->task, $this->owner, $memberships);

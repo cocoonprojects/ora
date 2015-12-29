@@ -8,13 +8,13 @@ use Application\Service\DomainEventDispatcher;
 use Application\Service\EventSourcingUserService;
 use Zend\Authentication\AuthenticationService;
 use Zend\Authentication\Storage\NonPersistent;
-use Zend\Mvc\Application;
+use Zend\Http\Request;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
+use Zend\View\Model\JsonModel;
 use ZFX\Acl\Controller\Plugin\IsAllowed;
 use ZFX\Authentication\GoogleJWTAdapter;
 use ZFX\Authentication\JWTAdapter;
-use ZFX\Authentication\JWTBuilder;
 use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
 
 
@@ -28,15 +28,10 @@ class Module
 		//prepends the module name to the requested controller name. That's useful if you want to use controller short names in routing
 		$moduleRouteListener = new ModuleRouteListener();
 		$moduleRouteListener->attach($eventManager);
-		
-		$eventManager->attach(MvcEvent::EVENT_DISPATCH_ERROR, function($event) use($serviceManager) {
-			$error  = $event->getError();
-			if ($error == Application::ERROR_ROUTER_NO_MATCH) {
-				$response = $event->getResponse();
-				$response->setStatusCode(404);
-				$response->send();
-			}
-		}, 100);
+
+		// attach a listener to check for errors
+		$events = $e->getTarget()->getEventManager();
+		$events->attach(MvcEvent::EVENT_RENDER, [$this, 'onRenderError'], 100);
 
 		$request = $e->getRequest();
  		$eventManager->attach(MvcEvent::EVENT_DISPATCH, function($event) use($serviceManager, $request) {
@@ -58,10 +53,7 @@ class Module
 	
 	public function getControllerConfig() 
 	{
-		return array(
-			'invokables' => array(
-				'Application\Controller\Index' => 'Application\Controller\IndexController'
-			),
+		return [
 			'factories' => array(
 				'Application\Controller\Auth'  => function ($sm) {
 					$locator = $sm->getServiceLocator();
@@ -94,7 +86,7 @@ class Module
 					return $controller;
 				},
 			)
-		);
+		];
 	}
 	
 	public function getControllerPluginConfig()
@@ -176,15 +168,6 @@ class Module
 		);
 	}
 	
-	public function getViewHelperConfig()
-	{
-		return array(
-			'invokables' => array(
-				'LoginHelper' => 'Application\View\Helper\LoginHelper',
-			),
-		);
-	}
-		
 	public function getConfig()
 	{
 		return include __DIR__ . '/config/module.config.php';
@@ -199,5 +182,52 @@ class Module
 				),
 			),
 		);
-	}	
+	}
+
+	public function onRenderError($e)
+	{
+		// must be an error
+		if (!$e->isError()) {
+			return;
+		}
+
+		// Check the accept headers for application/json
+		$request = $e->getRequest();
+		if (!$request instanceof Request) {
+			return;
+		}
+
+		$headers = $request->getHeaders();
+		if (!$headers->has('Accept')) {
+			return;
+		}
+
+		$accept = $headers->get('Accept');
+		$match  = $accept->match('application/json');
+		if (!$match || $match->getTypeString() == '*/*') {
+			// not application/json
+			return;
+		}
+
+		// make debugging easier if we're using xdebug!
+		ini_set('html_errors', 0);
+
+		// if we have a JsonModel in the result, then do nothing
+		$currentModel = $e->getResult();
+		if ($currentModel instanceof JsonModel) {
+			return;
+		}
+
+		// create a new JsonModel - use application/api-problem+json fields.
+		$response = $e->getResponse();
+		$model = new JsonModel([
+			"status" => $response->getStatusCode(),
+			"message" => $response->getReasonPhrase(),
+		]);
+
+		// set our new view model
+		$model->setTerminal(true);
+		$e->setResult($model);
+		$e->setViewModel($model);
+	}
 }
