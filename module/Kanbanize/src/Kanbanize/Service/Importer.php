@@ -100,8 +100,8 @@ class Importer{
 		try{
 			$projects = $this->api->getProjectsAndBoards();
 			if(!is_array($projects)){
-				//TODO: verificare se è possibile ottenere una risposta diversa da Kanbanize in caso di apiKey errata o subdomain inesistente
-				throw new \Exception("Cannot import projects due to: The request cannot be processed. Please make sure you've specified all input parameters correctly");
+				$this->errors[] = "Cannot import projects due to: The request cannot be processed. Please make sure you've specified all input parameters correctly";
+				return [];
 			}
 			return $projects;
 		}
@@ -230,14 +230,15 @@ class Importer{
 	 * @return \Kanbanize\KanbanizeTask|Task
 	 */
 	public function importTask($project, $board, Stream $stream, $kanbanizeTask) {
-		$mapping = $this->organization->getSetting(Organization::KANBANIZE_KEY_SETTING);
-		if(!isset($mapping['boards'][$board['id']]['columnMapping'])){
+		$settings = $this->organization->getSetting(Organization::KANBANIZE_KEY_SETTING);
+		if(!isset($settings['boards'][$board['id']]['columnMapping'][$kanbanizeTask['columnname']])){
 			throw new \Exception("Missing mapping for column {$kanbanizeTask['columnname']}");
 		}
+		$mapping = $settings['boards'][$board['id']]['columnMapping'];
 		$readModelTask = $this->kanbanizeService->findTask($kanbanizeTask['taskid'], $this->organization); //TODO: esplorare nuovi metadati per l'event store
 		if(is_null($readModelTask)){
 			$task = $this->createTask($kanbanizeTask, $stream);
-			$status = $mapping[strtoupper($kanbanizeTask['columnname'])];
+			$status = $mapping[$kanbanizeTask['columnname']];
 			if($status > Task::STATUS_IDEA){
 				$this->transactionManager->beginTransaction();
 				try {
@@ -278,11 +279,10 @@ class Importer{
 	 * 
 	 * @param array $kanbanizeTask
 	 * @param Stream $stream
-	 * @param String $boardId
 	 * @throws Exception
 	 * @return \Kanbanize\KanbanizeTask
 	 */
-	private function createTask($kanbanizeTask, Stream $stream, $boardId){
+	private function createTask($kanbanizeTask, Stream $stream){
 		$options = [
 			"taskid" => $kanbanizeTask['taskid'],
 			"columnname" => $kanbanizeTask['columnname']
@@ -305,10 +305,10 @@ class Importer{
 	 * 
 	 * @param Task $task
 	 * @param string $columnName
-	 * @param string $boardId
+	 * @param array $columnMapping
 	 */
 	private function updateTaskStatus(Task $task, $columnName, $columnMapping){
-		switch ($columnMapping[strtoupper($columnName)]) {
+		switch ($columnMapping[$columnName]) {
 			// case on destination column
 			case Task::STATUS_IDEA:
 			case Task::STATUS_OPEN:

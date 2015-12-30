@@ -74,8 +74,7 @@ Feature: Kanbanize Organization Settings
 		And the "apiKey" property should be "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
 		And the "projects[0].name" property should be "foo project"
 		And the "projects[0].boards[0].id" property should be "1"
-		And the "projects[0].boards[0].columns" property size should be "8"
-		And the "projects[0].boards[0].columns[0].lcname" property should be "To do"
+		And the "projects[0].boards[0].columns[0].lcname" property should be "Requested"
 	
 	Scenario: Successfully getting connection parameters
 		Given that I am authenticated as "mark.rogers@ora.local"
@@ -87,8 +86,7 @@ Feature: Kanbanize Organization Settings
 		And the "apiKey" property should be "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
 		And the "projects[0].name" property should be "foo project"
 		And the "projects[0].boards[0].id" property should be "1"
-		And the "projects[0].boards[0].columns" property size should be "8"
-		And the "projects[0].boards[0].columns[0].lcname" property should be "To do"
+		And the "projects[0].boards[0].columns[0].lcname" property should be "Requested"
 	
 	Scenario: Successfully updating connection parameters
 		Given that I am authenticated as "mark.rogers@ora.local"
@@ -102,8 +100,7 @@ Feature: Kanbanize Organization Settings
 		And the "apiKey" property should be "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
 		And the "projects[0].name" property should be "foo project"
 		And the "projects[0].boards[0].id" property should be "1"
-		And the "projects[0].boards[0].columns" property size should be "8"
-		And the "projects[0].boards[0].columns[0].lcname" property should be "To do"
+		And the "projects[0].boards[0].columns[0].lcname" property should be "Requested"
 		
 	Scenario: Successfully getting connection parameters
 		Given that I am authenticated as "mark.rogers@ora.local"
@@ -115,8 +112,7 @@ Feature: Kanbanize Organization Settings
 		And that its "apiKey" is "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
 		And the "projects[0].name" property should be "foo project"
 		And the "projects[0].boards[0].id" property should be "1"
-		And the "projects[0].boards[0].columns" property size should be "8"
-		And the "projects[0].boards[0].columns[0].lcname" property should be "To do"
+		And the "projects[0].boards[0].columns[0].lcname" property should be "Requested"
 		
 	Scenario: Cannot set connection parameters in case of Kanbanize authentication fails due to wrong apiKey for specified subdomain
 		Given that I am authenticated as "mark.rogers@ora.local"
@@ -127,20 +123,15 @@ Feature: Kanbanize Organization Settings
 		Then the response status code should be 400
 		And the response should be JSON
 		And the "code" property should be "400"
-		And the "description" property should be "Some parameters are not valid"
-		And the "errors[0].field" property should be "apiKey"
-		And the "errors[0].message" property should be "Kanbanize authentication failed: The request cannot be processed. Please make sure you've specified all input parameters correctly."
+		And the "description" property should be "Cannot import projects due to: The request cannot be processed. Please make sure you've specified all input parameters correctly"
 		
-	Scenario: Cannot set connection parameters in case of Kanbanize authentication fails due to wrong subdomain
+	Scenario: Cannot set connection parameters in case of Kanbanize authentication fails due to empty subdomain
 		Given that I am authenticated as "mark.rogers@ora.local"
 		And that I want to update a "Setting"
-		And that its "subdomain" is "StarkIndustries"
+		And that its "subdomain" is ""
 		And that its "apiKey" is "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
 		When I request "/00000000-0000-0000-1000-000000000000/kanbanize/settings"
 		Then the response status code should be 400
-		And the response should be JSON
+		Then the response should be JSON
 		And the "code" property should be "400"
-		And the "description" property should be "Some parameters are not valid"
-		And the "errors[0].field" property should be "subdomain"
-		And the "errors[0].message" property should be "Kanbanize authentication failed: Could not resolve host: StarkIndustries.kanbanize.com"
-		
+		And the "description" property should be "Cannot import projects due to problem with call: Could not resolve host: .kanbanize.com"
