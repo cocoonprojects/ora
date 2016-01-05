@@ -4,26 +4,32 @@ namespace Kanbanize\Controller;
 
 use Application\Controller\OrganizationAwareController;
 use Application\View\ErrorJsonModel;
+use Kanbanize\Service\Importer;
+use Kanbanize\Service\KanbanizeAPI;
+use Kanbanize\Service\KanbanizeApiException;
 use People\Service\OrganizationService;
-use Zend\Validator\NotEmpty;
-use Kanbanize\Service\ImportDirector;
 use People\Organization;
+use Zend\Filter\FilterChain;
+use Zend\Filter\StringTrim;
+use Zend\Filter\StripNewlines;
+use Zend\Filter\StripTags;
+use Zend\Validator\NotEmpty;
 use Zend\View\Model\JsonModel;
 use Zend\Validator\ValidatorChain;
 use Zend\Validator\StringLength;
+use Zend\Json\Json;
 
 class SettingsController extends OrganizationAwareController{
 	
 	protected static $resourceOptions = [];
 	protected static $collectionOptions= ['PUT', 'GET'];
 	/**
-	 * @var ImportDirector
+	 * @var KanbanizeAPI
 	 */
-	private $importer;
-	
-	public function __construct(OrganizationService $orgService, ImportDirector $importer){
+	private $client;
+	public function __construct(OrganizationService $orgService, KanbanizeAPI $client){
 		parent::__construct($orgService);
-		$this->importer = $importer;
+		$this->client = $client;
 	}
 	
 	public function getList(){
@@ -38,21 +44,39 @@ class SettingsController extends OrganizationAwareController{
 		$organization = $this->getOrganizationService()->getOrganization($this->organization->getId());
 		$kanbanizeSettings = $organization->getSetting(Organization::KANBANIZE_KEY_SETTING);
 		if(is_null($kanbanizeSettings) || empty($kanbanizeSettings)){
-			return new JsonModel([new \stdClass()]);
+			return $this->getResponse()->setContent(json_encode(new \stdClass()));
 		}
-		$projects = $this->importer->importProjects($organization, $this->identity(), $kanbanizeSettings['apiKey'], $kanbanizeSettings['accountSubdomain']);
-		if(isset($projects['errors'])){
+		try{
+			$this->initApi($kanbanizeSettings['apiKey'], $kanbanizeSettings['accountSubdomain']);
+			$projects = $this->client->getProjectsAndBoards();
+			if(!is_array($projects)){
+				//TODO: il metodo getProjectsAndBoards, se va a buon fine, restituisce un array; in caso di errore non restituisce un messaggio completo ma solamente il primo carattere
+				//migliorare questo comportamento
+				$error = new ErrorJsonModel();
+				$error->setCode(400);
+				$error->setDescription("Cannot import projects due to: The request cannot be processed. Please make sure you've specified all input parameters correctly");
+				$this->response->setStatusCode(400);
+				return $error;
+			}
+			$serializedProjects = $this->serializeProjects($projects, $organization);
+			if(isset($serializedProjects['errors'])){
+				$error = new ErrorJsonModel();
+				$error->setCode(400);
+				$error->setDescription($serializedProjects['errors']);
+				$this->response->setStatusCode(400);
+				return $error;
+			}
+			return new JsonModel([
+					'subdomain' => $organization->getSetting(Organization::KANBANIZE_KEY_SETTING)['accountSubdomain'],
+					'projects' => $serializedProjects
+			]);
+		}catch(KanbanizeApiException $e){
 			$error = new ErrorJsonModel();
 			$error->setCode(400);
-			$error->addSecondaryErrors('kanbanize', $projects['errors']);
-			$error->setDescription('Some parameters are not valid');
+			$error->setDescription($e->getMessage());
+			$this->response->setStatusCode(400);
 			return $error;
 		}
-		return new JsonModel([
-			'subdomain' => $organization->getSetting(Organization::KANBANIZE_KEY_SETTING)['accountSubdomain'],
-			'apiKey' => $organization->getSetting(Organization::KANBANIZE_KEY_SETTING)['apiKey'],
-			'projects' => array_map([$this, 'serializeProjects'], $projects, array_fill(0, sizeof($projects), $organization))
-		]);
 	}
 
 	public function replaceList($data){
@@ -82,29 +106,54 @@ class SettingsController extends OrganizationAwareController{
 			$this->response->setStatusCode(400);
 			return $error;
 		}
-		$subdomain = $data['subdomain'];
-		$apiKey = $data['apiKey'];
+		$filters = new FilterChain();
+		$filters->attach(new StringTrim())
+			->attach(new StripNewlines())
+			->attach(new StripTags());
+		$subdomain = $filters->filter($data['subdomain']);
+		$apiKey = $filters->filter($data['apiKey']);
 		$organization = $this->getOrganizationService()->getOrganization($this->organization->getId());
-		$connectionResults = $this->importer->verifyConnection($organization, $this->identity(), $apiKey, $subdomain);
-		if(isset($connectionResults['errors'])){
+		try{
+			$this->initApi($apiKey, $subdomain);
+			$projects = $this->client->getProjectsAndBoards();
+			if(!is_array($projects)){
+				//TODO: il metodo getProjectsAndBoards, se va a buon fine, restituisce un array; in caso di errore non restituisce un messaggio completo ma solamente il primo carattere
+				//migliorare questo comportamento
+				$error = new ErrorJsonModel();
+				$error->setCode(400);
+				$error->setDescription("Cannot import projects due to: The request cannot be processed. Please make sure you've specified all input parameters correctly");
+				$this->response->setStatusCode(400);
+				return $error;
+			}
+			$serializedProjects = $this->serializeProjects($projects, $organization);
+			if(isset($serializedProjects['errors'])){
+				$error->setCode(400);
+				$error->setDescription($serializedProjects['errors']);
+				$this->response->setStatusCode(400);
+				return $error;
+			}
+			$kanbanizeSettings = [
+				'accountSubdomain' => $subdomain,
+				'apiKey' => $apiKey
+			];
+			$this->transaction()->begin();
+			$organization->setSetting(Organization::KANBANIZE_KEY_SETTING, $kanbanizeSettings, $this->identity());
+			$this->transaction()->commit();
+			$this->response->setStatusCode(202);
+			return new JsonModel([
+				'subdomain' => $organization->getSetting(Organization::KANBANIZE_KEY_SETTING)['accountSubdomain'],
+				'projects' => $serializedProjects
+			]);
+		}catch(KanbanizeApiException $e){
+			$error = new ErrorJsonModel();
 			$error->setCode(400);
-			$error->setDescription($connectionResults['errors']);
+			$error->setDescription("Cannot import projects due to: {$e->getMessage()}");
 			$this->response->setStatusCode(400);
 			return $error;
+		}catch(\Exception $e){
+			$this->transaction()->rollback();
+			$this->response->setStatusCode(500);
 		}
-		$serializedProjects = array_map([$this, 'serializeProjects'], $connectionResults['projects'], array_fill(0, sizeof($connectionResults['projects']), $organization));
-		if(isset($serializedProjects['errors'])){
-			$error->setCode(400);
-			$error->setDescription($serializedProjects['errors']);
-			$this->response->setStatusCode(400);
-			return $error;
-		}
-		$this->response->setStatusCode(202);
-		return new JsonModel([
-			'subdomain' => $organization->getSetting(Organization::KANBANIZE_KEY_SETTING)['accountSubdomain'],
-			'apiKey' => $organization->getSetting(Organization::KANBANIZE_KEY_SETTING)['apiKey'],
-			'projects' => $serializedProjects
-		]);
 	}
 
 	protected function getCollectionOptions() {
@@ -115,14 +164,35 @@ class SettingsController extends OrganizationAwareController{
 		return self::$resourceOptions;
 	}
 	
-	protected function serializeProjects($project, $organization){
-		foreach($project['boards'] as &$board){
-			$importBoardStructureResult = $this->importer->importBoardStructure($organization, $this->identity(), $board['id']);
-			if(isset($importBoardStructureResult['errors'])){
-				return ['errors'=>$importBoardStructureResult['errors']];
+	protected function serializeProjects($projects, Organization $organization){
+		try{
+			foreach($projects as $project){
+				foreach($project['boards'] as &$board){
+					$boardStructure = $this->client->getBoardStructure($board['id']);
+					if(is_string($boardStructure)){
+						return ["errors" => [$boardStructure]];
+					}
+					$board['columns'] = $boardStructure['columns'];
+				}
 			}
-			$board['columns'] = $importBoardStructureResult ['columns'];
+		}catch (KanbanizeApiException $e){
+			return ["errors" => ["Cannot import board structure due to: {$e->getMessage()}"]];
 		}
-		return $project;
+		return $projects;
+	}
+	
+	private function initApi($apiKey, $subdomain){
+		if(is_null($apiKey)){
+			throw new KanbanizeApiException("Cannot connect to Kanbanize due to missing api key");
+		}
+		if(is_null($subdomain)){
+			throw new KanbanizeApiException("Cannot connect to Kanbanize due to missing account subdomain");
+		}
+		$this->client->setApiKey($apiKey);
+		$this->client->setUrl(sprintf(Importer::API_URL_FORMAT, $subdomain));
+	}
+	
+	public function getKanbanizeClient(){
+		return $this->client;
 	}
 }

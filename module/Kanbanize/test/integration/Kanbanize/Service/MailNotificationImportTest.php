@@ -35,9 +35,12 @@ class MailNotificationImportTest extends \PHPUnit_Framework_TestCase{
 		$this->user = $userService->findUser('60000000-0000-0000-0000-000000000000');
 		
 		$orgService = $serviceManager->get('People\OrganizationService');
-		$importDirector = $serviceManager->get('Kanbanize\ImportDirector');
-		$notificationService = $serviceManager->get('Kanbanize\MailNotificationService');
-		$this->controller = new ImportsController($orgService, $importDirector, $notificationService);
+		$client = $serviceManager->get('Kanbanize\KanbanizeAPI');
+		$kanbanizeService = $serviceManager->get('Kanbanize\KanbanizeService');
+		$taskService = $serviceManager->get('TaskManagement\TaskService');
+		$userService = $serviceManager->get('Application\UserService');
+		$streamService = $serviceManager->get('TaskManagement\StreamService');
+		$this->controller = new ImportsController($orgService, $client, $kanbanizeService, $taskService, $userService, $streamService);
 		$this->request	= new Request();
 		$this->routeMatch = new RouteMatch(array('controller' => 'kanbanize-import'));
 		$this->event	  = new MvcEvent();
@@ -61,11 +64,11 @@ class MailNotificationImportTest extends \PHPUnit_Framework_TestCase{
 	
 	public function testKanbanizeImportNotification() {
 		$this->cleanEmailMessages();
-		$this->routeMatch->setParam('orgId', '00000000-0000-0000-1000-000000000000');
+		$this->routeMatch->setParam('orgId', '00000000-0000-0000-2000-000000000000');
 		$this->request->setMethod('post');
 		$result = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-		$organization = $this->controller->getOrganizationService()->findOrganization('00000000-0000-0000-1000-000000000000');
+		$organization = $this->controller->getOrganizationService()->findOrganization('00000000-0000-0000-2000-000000000000');
 		$organizationMembershipsCount = $this->controller->getOrganizationService()->countOrganizationMemberships($organization);
 		$emails = $this->getEmailMessages();
 
@@ -73,13 +76,10 @@ class MailNotificationImportTest extends \PHPUnit_Framework_TestCase{
 		$this->assertEquals($organizationMembershipsCount, count($emails));
 		$this->assertContains("A new import from Kanbanize as been completed", $emails[0]->subject);
 		$this->assertEmailHtmlContains('Results summary', $emails[0]);
-		$this->assertEmailHtmlContains('Created streams', $emails[0]);
-		$this->assertEmailHtmlContains('Updated streams', $emails[0]);
 		$this->assertEmailHtmlContains('Created tasks', $emails[0]);
 		$this->assertEmailHtmlContains('Updated tasks', $emails[0]);
 		$this->assertEmailHtmlContains('Deleted tasks', $emails[0]);
 		$this->assertEmailHtmlContains('There were some errors', $emails[0]);
-		
 	}
 	
 	protected function cleanEmailMessages()

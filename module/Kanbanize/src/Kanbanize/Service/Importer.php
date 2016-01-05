@@ -4,20 +4,19 @@ namespace Kanbanize\Service;
 
 use Application\Entity\User;
 use Application\Service\UserService;
-use Kanbanize\Entity\KanbanizeStream as ReadModelStream;
-use Kanbanize\KanbanizeStream;
-use TaskManagement\Stream;
 use Kanbanize\KanbanizeTask as Task;
 use People\Organization;
-use Prooph\EventStore\EventStore;
+use People\Service\OrganizationService;
 use Rhumsaa\Uuid\Uuid;
 use TaskManagement\Entity\TaskMember;
-use TaskManagement\Service\StreamService;
 use TaskManagement\Service\TaskService;
-use People\Service\OrganizationService;
+use TaskManagement\Stream;
+use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
 
 
 class Importer{
+	
+	CONST API_URL_FORMAT = "https://%s.kanbanize.com/index.php/api/kanbanize";
 	
 	/**
 	 * @var KanbanizeService
@@ -28,11 +27,7 @@ class Importer{
 	 */
 	private $taskService;
 	/**
-	 * @var StreamService
-	 */
-	private $streamService;
-	/**
-	 * @var EventStore
+	 * @var EventStoreTransactionPlugin
 	 */
 	private $transactionManager;
 	/**
@@ -56,29 +51,24 @@ class Importer{
 	/**
 	 * @var int
 	 */
-	private $createdStreams = 0,
-			$updatedStreams = 0,
-			$createdTasks = 0,
+	private $createdTasks = 0,
 			$updatedTasks = 0,
 			$deletedTasks = 0;
 
 	public function __construct(KanbanizeService $kanbanizeService,
 			TaskService $taskService,
-			StreamService $streamService,
-			EventStore $transactionManager,
+			EventStoreTransactionPlugin $transactionManager,
 			UserService $userService,
 			Organization $organization,
 			User $requestedBy,
 			KanbanizeAPI $api){
 		$this->kanbanizeService = $kanbanizeService;
 		$this->taskService = $taskService;
-		$this->streamService = $streamService;
 		$this->transactionManager = $transactionManager;
 		$this->userService = $userService;
 		$this->organization = $organization;
 		$this->requestedBy = $requestedBy;
 		$this->api = $api;
-		$this->intervalForAssignShares = new \DateInterval('P7D');
 	}
 
 	public function getErrors(){
@@ -87,160 +77,58 @@ class Importer{
 	
 	public function getImportResult(){
 		return [
-				"createdStreams" => $this->createdStreams,
-				"updatedStreams" => $this->updatedStreams,
 				"createdTasks" => $this->createdTasks,
 				"updatedTasks" => $this->updatedTasks,
 				"deletedTasks" => $this->deletedTasks,
 				"errors" => $this->errors
 		];
 	}
-	
-	public function importProjects(){
+	/**
+	 * 
+	 * @param string $boardId
+	 * @param Stream $stream
+	 */
+	public function importTasks($boardId, Stream $stream) {
 		try{
-			$projects = $this->api->getProjectsAndBoards();
-			if(!is_array($projects)){
-				$this->errors[] = "Cannot import projects due to: The request cannot be processed. Please make sure you've specified all input parameters correctly";
-				return [];
+			$kanbanizeTasks = $this->api->getAllTasks($boardId);
+			if(is_string($kanbanizeTasks)){
+				$this->errors[] = "Cannot import tasks due to {$kanbanizeTasks}";
+				return;
 			}
-			return $projects;
-		}
-		catch(KanbanizeApiException $e){
-			$this->errors[] = "Cannot import projects due to {$e->getMessage()}";
-		}
-	}
-	/**
-	 * 
-	 * @param array $project must contain name, id, boards
-	 * 
-	 */
-	public function importProject($project){
-		foreach ($project['boards'] as $board){
-			try{
-				$this->importBoard($project, $board);
-			}catch (\Exception $e){
-				$this->errors[] = "Cannot import board {boardId: {$board['id']}, projectId: {$project['id']}} due to {$e->getMessage()}";
-			}
-		}
-	}
-	/**
-	 * 
-	 * @param array $project
-	 * @param array $board
-	 */
-	public function importBoard($project, $board){
-		$tasksFound = [];
-		$discardedTasks = [];
-		$discardedStreams = [];
-		$s = $this->kanbanizeService->findStream($board['id'], $this->organization);
-		if(is_null($s)){
-			$stream = $this->createStream ( $project, $board );
-		}else{
-			try{
-				$stream = $this->updateStream ( $project, $board, $s);
-			}catch (\Exception $e){
-				$this->errors[] = "Cannot update stream for board {boardId: {$board['id']}, projectId: {$project['id']}} due to {$e->getMessage()}";
-			}
-		}
-		$this->importTasks ( $project, $board, $stream);
-	}
-	/**
-	 * 
-	 * @param array $project
-	 * @param array $board
-	 * @param ReadModelStream $s
-	 * @throws Exception
-	 * @return Stream
-	 */
-	private function updateStream($project, $board, ReadModelStream $s) {
-		$subject = $this->createFormattedSubject($project['name'], $board['name']);
-		$stream = $this->streamService->getStream($s->getId());
-		if($s->getSubject() != $subject ){
-			$this->transactionManager->beginTransaction();
-			try{
-				$stream->setSubject($subject, $this->requestedBy);
-				$this->transactionManager->commit();
-				$this->updatedStreams++;
-			}catch (\Exception $e) {
-				$this->transactionManager->rollback();
-				throw $e;
-			}
-		}
-		return $stream;
-	}
-	
-	/**
-	 * 
-	 * @param array $project
-	 * @param array $board
-	 * @throws Exception
-	 * @return Stream
-	 */
-	private function createStream($project, $board) {
-		$subject = $this->createFormattedSubject($project['name'], $board['name']);
-		$options = [
-			'boardId' => $board['id'],
-			'projectId' => $project['id']
-		];
-	
-		$this->transactionManager->beginTransaction();
-		try {
-			$stream = KanbanizeStream::create($this->organization, $subject, $this->requestedBy, $options);
-			$this->streamService->addStream($stream);
-			$this->transactionManager->commit();
-			$this->createdStreams++;
-			return $stream;
-		}catch (\Exception $e) {
-			$this->transactionManager->rollback();
-			throw $e;
-		}
-	}
-	/**
-	 * @param tasksFound
-	 * @param ex
-	 * @param kanbanizeTasks
-	 * @param readModelTask
-	 * @param taskId
-	 * @param task
-	 * @param createdTaskId
-	 */
-	public function importTasks($project, $board, Stream $stream) {
-		try{
-			$kanbanizeTasks = $this->api->getAllTasks($board['id']);
 			$tasksFound = [];
 			foreach($kanbanizeTasks as $kanbanizeTask){
 				try{
-					$task = $this->importTask ( $project, $board, $stream, $kanbanizeTask );
+					$task = $this->importTask ( $boardId, $stream, $kanbanizeTask );
 					$tasksFound[] = $task->getId();
 				}catch (\Exception $e){
-					$this->errors[] = "Cannot import task {taskId: {$kanbanizeTask['taskid']}, boardId: {$board['id']}, projectId: {$project['id']}} due to {$e->getMessage()}";
+					$this->errors[] = "Cannot import task {taskId: {$kanbanizeTask['taskid']}, boardId: {$board['id']} due to {$e->getMessage()}";
 					$tasksFound[] = $kanbanizeTask['taskid'];
 				}
 			}
-			$this->deleteTasks($project, $board, $stream, $tasksFound);
+			$this->deleteTasks($boardId, $stream, $tasksFound);
 		}catch(KanbanizeApiException $e){
 			$this->errors[] = "Cannot import tasks due to {$e->getMessage()}";
 		}}
 	/**
 	 * 
-	 * @param string $project
-	 * @param string $board
+	 * @param string $boardId
 	 * @param Stream $stream
 	 * @param array $kanbanizeTask
-	 * @return \Kanbanize\KanbanizeTask|Task
+	 * @throws \Exception
+	 * @return Task
 	 */
-	public function importTask($project, $board, Stream $stream, $kanbanizeTask) {
+	public function importTask($boardId, Stream $stream, $kanbanizeTask) {
 		$settings = $this->organization->getSetting(Organization::KANBANIZE_KEY_SETTING);
-		if(!isset($settings['boards'][$board['id']]['columnMapping'][$kanbanizeTask['columnname']])){
+		if(!isset($settings['boards'][$boardId]['columnMapping'][$kanbanizeTask['columnname']])){
 			throw new \Exception("Missing mapping for column {$kanbanizeTask['columnname']}");
 		}
-		$mapping = $settings['boards'][$board['id']]['columnMapping'];
+		$mapping = $settings['boards'][$boardId]['columnMapping'];
 		$readModelTask = $this->kanbanizeService->findTask($kanbanizeTask['taskid'], $this->organization); //TODO: esplorare nuovi metadati per l'event store
 		if(is_null($readModelTask)){
 			$task = $this->createTask($kanbanizeTask, $stream);
 			$status = $mapping[$kanbanizeTask['columnname']];
 			if($status > Task::STATUS_IDEA){
-				$this->transactionManager->beginTransaction();
+				$this->transactionManager->begin();
 				try {
 					$this->updateTaskStatus($task, $kanbanizeTask['columnname'], $mapping);
 					$this->transactionManager->commit();
@@ -253,11 +141,11 @@ class Importer{
 		}else{
 			$task = $this->taskService->getTask($readModelTask->getId());
 		}
-		return $this->updateTask($project, $board, $task, $kanbanizeTask, $mapping);
+		return $this->updateTask($boardId, $task, $kanbanizeTask, $mapping);
 	}
 
-	private function updateTask($project, $board, Task $task, $kanbanizeTask, $columnMapping){
-		$this->transactionManager->beginTransaction();
+	private function updateTask($boardId, Task $task, $kanbanizeTask, $columnMapping){
+		$this->transactionManager->begin();
 		try {
 			$this->updateTaskOwner($task, $kanbanizeTask['assignee']);
 			if($task->getColumnName() != $kanbanizeTask['columnname']){
@@ -270,7 +158,7 @@ class Importer{
 			$this->updatedTasks++;
 		}catch (\Exception $e) {
 			$this->transactionManager->rollback();
-			$this->errors[] = "Cannot update task {subject: {$task->getSubject()}, taskId: {$kanbanizeTask['taskid']}, boardId: {$board['id']}, projectId: {$project['id']}} due to {$e->getMessage()}";
+			$this->errors[] = "Cannot update task {subject: {$task->getSubject()}, taskId: {$kanbanizeTask['taskid']}, boardId: {$boardId}} due to {$e->getMessage()}";
 		}
 		return $task;
 	}
@@ -287,7 +175,7 @@ class Importer{
 			"taskid" => $kanbanizeTask['taskid'],
 			"columnname" => $kanbanizeTask['columnname']
 		];
-		$this->transactionManager->beginTransaction();
+		$this->transactionManager->begin();
 		try {
 			$task = Task::create($stream, $kanbanizeTask['title'], $this->requestedBy, $options);
 			$this->taskService->addTask($task);
@@ -401,28 +289,22 @@ class Importer{
 	private function ownershipToBeAssigned(Task $task, User $new_owner){
 		return is_null($task->getOwner()) && $task->hasMember($new_owner);
 	}
-	private function createFormattedSubject($projectName, $boardName){
-		return $projectName."/".$boardName;
-	}
 
-	private function deleteTasks($project, $board, Stream $stream, $tasksFound){
+	private function deleteTasks($boardId, Stream $stream, $tasksFound){
 		$tasks = $this->taskService->findTasks($this->organization, null, null, ["streamId"=>$stream->getId()]);
 		$tasksToDelete = array_filter($tasks, function($task) use ($tasksFound){
 			return !in_array($task->getId(), $tasksFound);
 		});
-		$params = [$project, $board];
-		array_walk($tasksToDelete, function($t) use($params){
+		array_walk($tasksToDelete, function($t) use($boardId){
 			$task = $this->taskService->getTask($t->getId());
-			$this->transactionManager->beginTransaction();
+			$this->transactionManager->begin();
 			try{
 				$task->delete($this->requestedBy);
 				$this->transactionManager->commit();
 				$this->deletedTasks++;
 			}catch (\Exception $e) {
-				$project = $params[0];
-				$board = $params[1];
 				$this->transactionManager->rollback();
-				$this->errors[] = "Cannot delete task {taskSubject: {$task->getSubject()}, boardId: {$board['id']}, projectId: {$project['id']}} due to {$e->getMessage()}";
+				$this->errors[] = "Cannot delete task {taskSubject: {$task->getSubject()}, boardId: {$boardId}} due to {$e->getMessage()}";
 			}
 		});
 	}

@@ -61,6 +61,28 @@ VALUES
   ('60000000-0000-0000-0000-000000000000', '00000000-0000-0000-1000-000000000000', 'admin', '2014-10-09 11:33:45',
    '2014-10-09 11:33:45', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000');
 
+# organization configured for Kanbanize integration 00000000-0000-0000-2000-000000000000
+INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
+  ('907dd60a-1e37-4e35-8045-7abfc5f60895', 1, 'People\\OrganizationCreated',
+   'a:2:{s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-2000-000000000000";}',
+   '2015-03-06T19:42:58.000000+0100', 'People\\Organization', '00000000-0000-0000-2000-000000000000'),
+  ('abc7ecb0-63b5-40c9-8ae4-09c06449a4ce', 2, 'People\\OrganizationUpdated',
+   'a:3:{s:4:"name";s:11:"O.R.A. Team";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-2000-000000000000";}',
+   '2015-03-06T19:42:58.000000+0100', 'People\\Organization', '00000000-0000-0000-2000-000000000000'),
+  ('74548e90-569c-4e1b-958f-5b644a43210c', 3, 'People\\OrganizationMemberAdded',
+   'a:4:{s:6:"userId";s:36:"60000000-0000-0000-0000-000000000000";s:4:"role";s:5:"admin";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-2000-000000000000";}',
+   '2015-03-11T13:35:32.000000+0100', 'People\\Organization', '00000000-0000-0000-2000-000000000000'),
+('45f1b89a-156b-4dbf-b5c9-9a0540460a11', 10, 'People\\OrganizationUpdated',
+   'a:4:{s:10:"settingKey";s:9:"kanbanize";s:12:"settingValue";a:3:{s:6:"apiKey";s:40:"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";s:16:"accountSubdomain";s:9:"foodomain";s:6:"boards";a:1:{i:150;a:1:{s:13:"columnMapping";a:10:{s:9:"Requested";i:0;s:8:"Approved";i:10;s:3:"WIP";i:20;s:7:"Testing";i:20;s:15:"User Acceptance";i:20;s:18:"Production Release";i:30;s:18:"1ST round feedback";i:30;s:18:"2ND round feedback";i:30;s:8:"Accepted";i:40;s:6:"Closed";i:50;}}}}s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-2000-000000000000";}',
+   '2014-12-29T17:32:07.000000+0100', 'People\\Organization', '00000000-0000-0000-2000-000000000000');
+INSERT INTO `organizations` (id, name, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id) VALUES
+  ('00000000-0000-0000-2000-000000000000', 'O.R.A. Team', '2014-11-06 13:11:05', '2014-11-06 13:11:05',
+   '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000');
+INSERT INTO organization_members (member_id, organization_id, role, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id)
+VALUES
+  ('60000000-0000-0000-0000-000000000000', '00000000-0000-0000-2000-000000000000', 'admin', '2014-10-09 11:33:45',
+   '2014-10-09 11:33:45', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000');
+
 # organization account
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
   ('44f1b89a-156b-4dbf-b5c9-9a0540460a0b', 1, 'Accounting\\AccountCreated',
@@ -319,6 +341,23 @@ VALUES ('11111111-1000-0000-0000-000000000000', 'O.R.A.: Kanbanize Stream', '201
         '60000000-0000-0000-0000-000000000000', 'kanbanizestream');
 INSERT INTO kanbanizestreams (id, boardId, projectId)
 VALUES ('11111111-1000-0000-0000-000000000000', '150', '100');
+
+INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
+  ('bac7de07-0580-421c-94ca-21842f676a30', 1, 'TaskManagement\\StreamCreated',
+   'a:3:{s:14:"organizationId";s:36:"00000000-0000-0000-2000-000000000000";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"11111111-2000-0000-0000-000000000000";}',
+   '2015-03-11T01:43:03.000000+0100', 'TaskManagement\\Stream', '11111111-2000-0000-0000-000000000000'),
+  ('ba0385c4-780b-46b2-b8be-7fd0118be870', 2, 'TaskManagement\\StreamUpdated',
+   'a:3:{s:7:"subject";N;s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"11111111-2000-0000-0000-000000000000";}',
+   '2015-03-11T01:43:03.000000+0100', 'TaskManagement\\Stream', '11111111-2000-0000-0000-000000000000'),
+  ('be943d09-7a9a-4a2a-a8b5-201bfeb57b60', 3, 'TaskManagement\\StreamOrganizationChanged',
+   'a:3:{s:14:\"organizationId\";s:36:\"00000000-0000-0000-2000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"11111111-2000-0000-0000-000000000000\";}',
+   '2014-11-12T19:07:59.000000+0100', 'TaskManagement\\Stream', '11111111-2000-0000-0000-000000000000');
+INSERT INTO streams (id, subject, createdAt, mostRecentEditAt, organization_id, createdBy_id, mostRecentEditBy_id, type)
+VALUES ('11111111-2000-0000-0000-000000000000', 'O.R.A.: Kanbanize Stream', '2014-11-06 13:11:05',
+        '2014-11-06 13:11:05', '00000000-0000-0000-2000-000000000000', '60000000-0000-0000-0000-000000000000',
+        '60000000-0000-0000-0000-000000000000', 'kanbanizestream');
+INSERT INTO kanbanizestreams (id, boardId, projectId)
+VALUES ('11111111-2000-0000-0000-000000000000', '150', '100');
 
 # kanbanizeTask 00000000-0000-0000-0000-000000000106, accepted, Mark Rogers (owner)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES

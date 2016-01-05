@@ -62,8 +62,8 @@ class Organization extends DomainEntity
 			throw new InvalidArgumentException('Cannot address setting without a setting key');
 		}
 		$this->recordThat(OrganizationUpdated::occur($this->id->toString(), array(
-			'key' => trim($settingKey),
-			'value' => $settingValue,
+			'settingKey' => trim($settingKey),
+			'settingValue' => $settingValue,
 			'by' => $updatedBy->getId(),
 		)));
 		return $this;
@@ -157,13 +157,13 @@ class Organization extends DomainEntity
 		if(array_key_exists('name', $pl)) {
 			$this->name = $pl['name'];
 		}
-		if(array_key_exists('key', $pl) && array_key_exists('value', $pl)) {
-			if(is_array($pl['value'])){
-				foreach ($pl['value'] as $key=>$value){
-					$this->settings[$pl['key']][$key] = $value;
+		if(array_key_exists('settingKey', $pl) && array_key_exists('settingValue', $pl)) {
+			if(is_array($pl['settingValue'])){
+				foreach ($pl['settingValue'] as $key=>$value){
+					$this->settings[$pl['settingKey']][$key] = $value;
 				}
 			}else{
-				$this->settings[$pl['key']] = $pl['value'];
+				$this->settings[$pl['settingKey']] = $pl['settingValue'];
 			}
 		}
 	}
