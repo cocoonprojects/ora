@@ -127,27 +127,29 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 	public function sendEstimationAddedInfoMail(Task $task, User $member)
 	{
 		$rv = [];
-		$owner = $task->getOwner()->getUser();
-
-		//No mail to Owner for his actions
-		if(strcmp($owner->getId(), $member->getId())==0){
+		if(!is_null($task->getOwner())){
+			$owner = $task->getOwner()->getUser();
+			
+			//No mail to Owner for his actions
+			if(strcmp($owner->getId(), $member->getId())==0){
+				return $rv;
+			}
+			
+			$message = $this->mailService->getMessage();
+			$message->setTo($owner->getEmail());
+			$message->setSubject ( 'Estimation added to "' . $task->getSubject() . '" item');
+			
+			$this->mailService->setTemplate( 'mail/estimation-added-info.phtml', [
+					'task' => $task,
+					'recipient'=> $owner,
+					'member'=> $member,
+					'host' => $this->host
+			]);
+			
+			$this->mailService->send();
+			$rv[] = $owner;
 			return $rv;
 		}
-		
-		$message = $this->mailService->getMessage();
-		$message->setTo($owner->getEmail());
-		$message->setSubject ( 'Estimation added to "' . $task->getSubject() . '" item');
-		
-		$this->mailService->setTemplate( 'mail/estimation-added-info.phtml', [
-			'task' => $task,
-			'recipient'=> $owner,
-			'member'=> $member,
-			'host' => $this->host
-		]);
-		
-		$this->mailService->send();
-		$rv[] = $owner;
-		return $rv;
 	}
 
 	/**
@@ -159,27 +161,29 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 	public function sendSharesAssignedInfoMail(Task $task, User $member)
 	{
 		$rv = [];
-		$owner = $task->getOwner()->getUser();
-
-		//No mail to Owner for his actions
-		if(strcmp($owner->getId(), $member->getId())==0){
+		if(!is_null($task->getOwner())){
+			$owner = $task->getOwner()->getUser();
+			
+			//No mail to Owner for his actions
+			if(strcmp($owner->getId(), $member->getId())==0){
+				return $rv;
+			}
+			
+			$message = $this->mailService->getMessage();
+			$message->setTo($owner->getEmail());
+			$message->setSubject('Shares assigned to "' . $task->getSubject() . '" item' );
+			
+			$this->mailService->setTemplate( 'mail/shares-assigned-info.phtml', [
+					'task' => $task,
+					'recipient'=> $owner,
+					'member'=> $member,
+					'host' => $this->host
+			]);
+			
+			$this->mailService->send();
+			$rv[] = $owner;
 			return $rv;
 		}
-
-		$message = $this->mailService->getMessage();
-		$message->setTo($owner->getEmail());
-		$message->setSubject('Shares assigned to "' . $task->getSubject() . '" item' );
-
-		$this->mailService->setTemplate( 'mail/shares-assigned-info.phtml', [
-			'task' => $task,
-			'recipient'=> $owner,
-			'member'=> $member,
-			'host' => $this->host
-		]);
-
-		$this->mailService->send();
-		$rv[] = $owner;
-		return $rv;
 	}
 	
 	/**
