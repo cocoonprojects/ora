@@ -3,6 +3,7 @@
 namespace Kanbanize\Controller;
 
 use Application\Controller\OrganizationAwareController;
+use Application\InvalidArgumentException;
 use Application\View\ErrorJsonModel;
 use People\Service\OrganizationService;
 use People\Organization;
@@ -55,29 +56,23 @@ class BoardsController extends OrganizationAwareController{
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
-		$streamValidator = new NotEmpty();
+		$notEmptyValidator = new NotEmpty();
 		$error = new ErrorJsonModel();
-		if(!(isset($data['projectId']) && $streamValidator->isValid($data['projectId']))){
+		if(!isset($data['projectId']) || !$notEmptyValidator->isValid($data['projectId'])){
 			$error->addSecondaryErrors("projectId", ["Missing project id"]);
 		}
-		if(!(isset($data['streamName']) && $streamValidator->isValid($data['streamName']))){
+		if(!isset($data['streamName'])){
 			$error->addSecondaryErrors("streamName", ["Stream name cannot be empty"]);
+		} else {
+			$filters = new FilterChain();
+			$filters->attach(new StringTrim())
+				->attach(new StripNewlines())
+				->attach(new StripTags());
+			$streamName = $filters->filter($data['streamName']);
+			if(!$notEmptyValidator->isValid($data['streamName'])){
+				$error->addSecondaryErrors("streamName", ["Stream name cannot be empty"]);
+			}
 		}
-		if($error->hasErrors()){
-			$error->setCode(400);
-			$error->setDescription('Some parameters are not valid');
-			$this->response->setStatusCode(400);
-			return $error;
-		}
-		$filters = new FilterChain();
-		$filters->attach(new StringTrim())
-			->attach(new StripNewlines())
-			->attach(new StripTags());
-		$streamName = $filters->filter($data['streamName']);
-		$projectId = $data['projectId'];
-		unset($data['streamName']);
-		unset($data['projectId']);
-
 		$statusValidator = new InArray([
 			'haystack' => [
 					Task::STATUS_IDEA,
@@ -88,12 +83,14 @@ class BoardsController extends OrganizationAwareController{
 					Task::STATUS_CLOSED
 			]
 		]);
-		$columnMapping = [];
-		foreach($data as $column=>$status){
+		$params = [$statusValidator, &$error];
+		array_walk($data['mapping'], function($status, $column) use($params){
+			$statusValidator = $params[0];
+			$error = $params[1];
 			if(!$statusValidator->isValid($status)){
 				$error->addSecondaryErrors($column, ["Invalid status: {$status}"]);
 			}
-		}
+		});
 		if($error->hasErrors()){
 			$error->setCode(400);
 			$error->setDescription('Some parameters are not valid');
@@ -102,23 +99,31 @@ class BoardsController extends OrganizationAwareController{
 		}
 
 		$organization = $this->getOrganizationService()->getOrganization($this->organization->getId());
-		$kanbanizeSettings = $organization->getSetting(Organization::KANBANIZE_KEY_SETTING);
-		$kanbanizeSettings['boards'][$id]['columnMapping'] = $data;
+		$kanbanizeSettings = $organization->getSettings(Organization::KANBANIZE_SETTINGS);
+		$kanbanizeSettings['boards'][$id]['columnMapping'] = $data['mapping'];
+		$stream = $this->kanbanizeService->findStreamByBoardId($id, $organization);
+		$projectId = $data['projectId'];
 		$this->transaction()->begin();
 		try{
-			$stream = $this->createStream($streamName, $projectId, $id, $organization);
-			$organization->setSetting(Organization::KANBANIZE_KEY_SETTING, $kanbanizeSettings, $this->identity());
+			if(is_null($stream)){
+				$stream = $this->createStream($streamName, $projectId, $id, $organization);
+			}else if($stream->getSubject() != $streamName){
+				$stream->setSubject($streamName, $this->identity());
+			}
+			$organization->setSettings(Organization::KANBANIZE_SETTINGS, $kanbanizeSettings, $this->identity());
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
 			return new JsonModel([
 				'streamName' => $stream->getSubject(),
 				'boardId' => $id,
-				'boardSettings' => $organization->getSetting(Organization::KANBANIZE_KEY_SETTING)['boards'][$id]
+				'boardSettings' => $organization->getSettings(Organization::KANBANIZE_SETTINGS)['boards'][$id]
 			]);
-		}catch (\Exception $e) {
+		}catch (InvalidArgumentException $ex){
 			$this->transaction()->rollback();
-			$this->response->setStatusCode(500);
-			return $this->response;
+			$this->response->setStatusCode(422);
+			$error->setCode(ErrorJsonModel::$ERROR_INPUT_VALIDATION);
+			$error->setDescription($e->getMessage());
+			return $error;
 		}
 	}
 	
@@ -132,33 +137,29 @@ class BoardsController extends OrganizationAwareController{
 			return $this->response;
 		}
 		$organization = $this->getOrganizationService()->getOrganization($this->organization->getId());
-		$kanbanizeSettings = $organization->getSetting(Organization::KANBANIZE_KEY_SETTING);
+		$kanbanizeSettings = $organization->getSettings(Organization::KANBANIZE_SETTINGS);
+		$error = new ErrorJsonModel();
 		try{
-			$this->initApi($kanbanizeSettings['apiKey'], $kanbanizeSettings['accountSubdomain']);
-			$structure = $this->client->getBoardStructure($id);
+			$client = $this->initApi($kanbanizeSettings['apiKey'], $kanbanizeSettings['accountSubdomain']);
+			$structure = $client->getBoardStructure($id);
 			if(is_string($structure)){
 				//TODO: il metodo getProjectsAndBoards, se va a buon fine, restituisce un array; in caso di errore non restituisce un messaggio completo ma solamente il primo carattere
 				//migliorare questo comportamento
-				$error = new ErrorJsonModel();
-				$error->setCode(400);
+				$error->setCode(502);
 				$error->setDescription("Cannot import structure for boardId: {$id}, due to: {$structure}");
-				$this->response->setStatusCode(400);
+				$this->response->setStatusCode(502);
 				return $error;
 			}
-			$mappedColumns = [];
-			foreach($structure['columns'] as $column){
-				$mappedColumns[$column['lcname']] = "";
-			}
+			$mappedColumns = array_map(function(){
+					return "";
+				}, array_flip(array_column($structure['columns'], 'lcname'))
+			);
 			if(isset($kanbanizeSettings['boards'][$id]['columnMapping'])){
 				$mergedMapping = array_merge($mappedColumns, $kanbanizeSettings['boards'][$id]['columnMapping']);
-				$columnsToDelete = array_diff_key($mergedMapping, $mappedColumns);
-				foreach($columnsToDelete as $key=>$value){
-					unset($mergedMapping[$key]);
-				}
-				$mappedColumns = $mergedMapping;
+				$mappedColumns = array_intersect_key($mergedMapping, $mappedColumns);
 			}
 			$streamName = "";
-			$stream = $this->kanbanizeService->findStream($id, $this->organization);
+			$stream = $this->kanbanizeService->findStreamByBoardId($id, $this->organization);
 			if(!is_null($stream)){
 				$streamName = $stream->getSubject();
 			}
@@ -168,7 +169,10 @@ class BoardsController extends OrganizationAwareController{
 				'mapping' => $mappedColumns
 			]);
 		}catch (KanbanizeApiException $e){
-			$this->errors[] = "Cannot import structure for boardId: {$id}, due to: {$e->getMessage()}";
+			$error->setCode(400);
+			$error->setDescription($e->getMessage());
+			$this->response->setStatusCode(400);
+			return $error;
 		}
 	}
 	protected function getCollectionOptions() {
@@ -184,8 +188,10 @@ class BoardsController extends OrganizationAwareController{
 		if(is_null($subdomain)){
 			throw new KanbanizeApiException("Cannot connect to Kanbanize due to missing account subdomain");
 		}
-		$this->client->setApiKey($apiKey);
-		$this->client->setUrl(sprintf(Importer::API_URL_FORMAT, $subdomain));
+		$client = $this->client;
+		$client->setApiKey($apiKey);
+		$client->setUrl(sprintf(Importer::API_URL_FORMAT, $subdomain));
+		return $client;
 	}
 	private function createStream($subject, $projectId, $boardId, Organization $organization) {
 		$options = [

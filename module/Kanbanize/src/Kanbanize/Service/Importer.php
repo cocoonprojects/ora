@@ -101,7 +101,7 @@ class Importer{
 					$task = $this->importTask ( $boardId, $stream, $kanbanizeTask );
 					$tasksFound[] = $task->getId();
 				}catch (\Exception $e){
-					$this->errors[] = "Cannot import task {taskId: {$kanbanizeTask['taskid']}, boardId: {$board['id']} due to {$e->getMessage()}";
+					$this->errors[] = "Cannot import task {taskId: {$kanbanizeTask['taskid']}, boardId: {$boardId} due to {$e->getMessage()}";
 					$tasksFound[] = $kanbanizeTask['taskid'];
 				}
 			}
@@ -118,7 +118,7 @@ class Importer{
 	 * @return Task
 	 */
 	public function importTask($boardId, Stream $stream, $kanbanizeTask) {
-		$settings = $this->organization->getSetting(Organization::KANBANIZE_KEY_SETTING);
+		$settings = $this->organization->getSettings(Organization::KANBANIZE_SETTINGS);
 		if(!isset($settings['boards'][$boardId]['columnMapping'][$kanbanizeTask['columnname']])){
 			throw new \Exception("Missing mapping for column {$kanbanizeTask['columnname']}");
 		}

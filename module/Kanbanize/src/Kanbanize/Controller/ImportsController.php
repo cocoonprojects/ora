@@ -73,7 +73,7 @@ class ImportsController extends OrganizationAwareController{
 			return $this->response;
 		}
 		$organization = $this->getOrganizationService()->getOrganization($this->organization->getId());
-		$kanbanizeSettings = $organization->getSetting(Organization::KANBANIZE_KEY_SETTING);
+		$kanbanizeSettings = $organization->getSettings(Organization::KANBANIZE_SETTINGS);
 		try{
 			$this->initApi($kanbanizeSettings['apiKey'], $kanbanizeSettings['accountSubdomain']);
 			$importer = new Importer(
@@ -87,7 +87,7 @@ class ImportsController extends OrganizationAwareController{
 			);
 			$importer->setIntervalForAssignShares($this->intervalForAssignShares);
 			foreach(array_keys($kanbanizeSettings['boards']) as $boardId){
-				$kanbanizeStream = $this->kanbanizeService->findStream($boardId, $organization);
+				$kanbanizeStream = $this->kanbanizeService->findStreamByBoardId($boardId, $organization);
 				//TODO: esplorare nuovi metadati per l'event store 
 				//in modo da poter ricercare uno stream anche in base al contenuto del payload (es: $boardId)
 				$stream = $this->streamService->getStream($kanbanizeStream->getId());

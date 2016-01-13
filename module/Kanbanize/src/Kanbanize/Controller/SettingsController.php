@@ -42,7 +42,7 @@ class SettingsController extends OrganizationAwareController{
 			return $this->response;
 		}
 		$organization = $this->getOrganizationService()->getOrganization($this->organization->getId());
-		$kanbanizeSettings = $organization->getSetting(Organization::KANBANIZE_KEY_SETTING);
+		$kanbanizeSettings = $organization->getSettings(Organization::KANBANIZE_SETTINGS);
 		if(is_null($kanbanizeSettings) || empty($kanbanizeSettings)){
 			return $this->getResponse()->setContent(json_encode(new \stdClass()));
 		}
@@ -67,7 +67,7 @@ class SettingsController extends OrganizationAwareController{
 				return $error;
 			}
 			return new JsonModel([
-					'subdomain' => $organization->getSetting(Organization::KANBANIZE_KEY_SETTING)['accountSubdomain'],
+					'subdomain' => $organization->getSettings(Organization::KANBANIZE_SETTINGS)['accountSubdomain'],
 					'projects' => $serializedProjects
 			]);
 		}catch(KanbanizeApiException $e){
@@ -137,11 +137,11 @@ class SettingsController extends OrganizationAwareController{
 				'apiKey' => $apiKey
 			];
 			$this->transaction()->begin();
-			$organization->setSetting(Organization::KANBANIZE_KEY_SETTING, $kanbanizeSettings, $this->identity());
+			$organization->setSettings(Organization::KANBANIZE_SETTINGS, $kanbanizeSettings, $this->identity());
 			$this->transaction()->commit();
 			$this->response->setStatusCode(202);
 			return new JsonModel([
-				'subdomain' => $organization->getSetting(Organization::KANBANIZE_KEY_SETTING)['accountSubdomain'],
+				'subdomain' => $organization->getSettings(Organization::KANBANIZE_SETTINGS)['accountSubdomain'],
 				'projects' => $serializedProjects
 			]);
 		}catch(KanbanizeApiException $e){

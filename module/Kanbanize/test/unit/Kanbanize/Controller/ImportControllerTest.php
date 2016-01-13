@@ -92,7 +92,7 @@ class ImportControllerTest extends ControllerTest {
 			->willReturn($this->organization);
 		
 		$wm_organization = \People\Organization::create("new", $this->user);
-		$wm_organization->setSetting(\People\Organization::KANBANIZE_KEY_SETTING, [
+		$wm_organization->setSettings(\People\Organization::KANBANIZE_SETTINGS, [
 				"apiKey" => "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 				"accountSubdomain" => "fooDomain",
 				"boards" => [
@@ -114,7 +114,7 @@ class ImportControllerTest extends ControllerTest {
 		
 		$this->controller->getKanbanizeService()
 			->expects($this->once())
-			->method('findStream')
+			->method('findStreamByBoardId')
 			->with("010")
 			->willReturn(new KanbanizeStream("010", $this->organization));
 

@@ -27,7 +27,7 @@ class SettingsControllerTest extends ControllerTest {
 		$this->user->setLastname('Hero');
 		$this->user->setRole(User::ROLE_USER);
 		$this->organization = new Organization('00000');
-		$this->organization->setSetting(\People\Organization::KANBANIZE_KEY_SETTING, [
+		$this->organization->setSettings(\People\Organization::KANBANIZE_SETTINGS, [
 			"apiKey" => "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 			"accountSubdomain" => "foo"
 		]);

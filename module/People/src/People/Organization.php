@@ -15,7 +15,7 @@ class Organization extends DomainEntity
 {
 	CONST ROLE_MEMBER = 'member';
 	CONST ROLE_ADMIN  = 'admin';
-	CONST KANBANIZE_KEY_SETTING = 'kanbanize';
+	CONST KANBANIZE_SETTINGS = 'kanbanize';
 	/**
 	 * @var string
 	 */
@@ -57,7 +57,7 @@ class Organization extends DomainEntity
 		return $this;
 	}
 	
-	public function setSetting($settingKey, $settingValue, User $updatedBy){
+	public function setSettings($settingKey, $settingValue, User $updatedBy){
 		if(is_null($settingKey)){
 			throw new InvalidArgumentException('Cannot address setting without a setting key');
 		}
@@ -69,11 +69,10 @@ class Organization extends DomainEntity
 		return $this;
 	}
 
-	public function getSettings(){
-		return $this->settings;
-	}
-
-	public function getSetting($key){
+	public function getSettings($key = null){
+		if(is_null($key)){
+			return $this->settings;
+		}
 		if(array_key_exists($key, $this->settings)){
 			return $this->settings[$key];
 		}

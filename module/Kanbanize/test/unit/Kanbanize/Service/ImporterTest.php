@@ -64,7 +64,7 @@ class ImporterTest extends TestCase {
 			]
 		];
 		
-		$this->organization->setSetting("kanbanize", $kanbanizeSettings, $this->requestedBy);
+		$this->organization->setSettings("kanbanize", $kanbanizeSettings, $this->requestedBy);
 		
 		$this->organizationServiceStub = $this->getMockBuilder(OrganizationService::class)->getMock();
 		$this->apiMock = $this->getMockBuilder(KanbanizeAPI::class)->getMock();

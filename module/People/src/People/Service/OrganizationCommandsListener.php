@@ -28,7 +28,7 @@ class OrganizationCommandsListener extends ReadModelProjector {
 			$entity->setName($event->payload()['name']);
 		}
 		if(isset($event->payload()['settingKey']) && isset($event->payload()['settingValue'])) {
-			$entity->setSetting($event->payload()['settingKey'], $event->payload()['settingValue']);
+			$entity->setSettings($event->payload()['settingKey'], $event->payload()['settingValue']);
 		}
 		$updatedBy = $this->entityManager->find(User::class, $event->payload()['by']);
 		$entity->setMostRecentEditAt($event->occurredOn());

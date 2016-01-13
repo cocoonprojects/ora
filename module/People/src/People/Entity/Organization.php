@@ -34,7 +34,7 @@ class Organization extends EditableEntity implements ResourceInterface
 		return $this;
 	}
 
-	public function setSetting($settingKey, $settingValue){
+	public function setSettings($settingKey, $settingValue){
 		if(is_array($settingValue)){
 			foreach ($settingValue as $key=>$value){
 				$this->settings[$settingKey][$key] = $value;
@@ -45,15 +45,14 @@ class Organization extends EditableEntity implements ResourceInterface
 		return $this;
 	}
 
-	public function getSetting($key){
+	public function getSettings($key = null){
+		if(is_null($key)){
+			return $this->settings;
+		}
 		if(array_key_exists($key, $this->settings)){
 			return $this->settings[$key];
 		}
 		return null;
-	}
-
-	public function getSettings(){
-		return $this->settings;
 	}
 
 	public function getResourceId()
