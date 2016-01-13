@@ -19,6 +19,7 @@ use Zend\View\Model\JsonModel;
 use Zend\Validator\InArray;
 use Zend\Validator\NotEmpty;
 use Kanbanize\KanbanizeStream;
+use Kanbanize\Service\KanbanizeService;
 
 
 class BoardsController extends OrganizationAwareController{
@@ -33,11 +34,16 @@ class BoardsController extends OrganizationAwareController{
 	 * @var KanbanizeAPI
 	 */
 	private $client;
+	/**
+	 * @var KanbanizeService
+	 */
+	private $kanbanizeService;
 
-	public function __construct(OrganizationService $organizationService, StreamService $streamService, KanbanizeAPI $client){
+	public function __construct(OrganizationService $organizationService, StreamService $streamService, KanbanizeAPI $client, KanbanizeService $kanbanizeService){
 		parent::__construct($organizationService);
 		$this->streamService = $streamService;
 		$this->client = $client;
+		$this->kanbanizeService = $kanbanizeService;
 	}
 
 	public function invoke($id, $data){
@@ -97,7 +103,7 @@ class BoardsController extends OrganizationAwareController{
 
 		$organization = $this->getOrganizationService()->getOrganization($this->organization->getId());
 		$kanbanizeSettings = $organization->getSetting(Organization::KANBANIZE_KEY_SETTING);
-		$kanbanizeSettings['boards'][$id]['columnMapping'] = $columnMapping;
+		$kanbanizeSettings['boards'][$id]['columnMapping'] = $data;
 		$this->transaction()->begin();
 		try{
 			$stream = $this->createStream($streamName, $projectId, $id, $organization);
@@ -151,7 +157,13 @@ class BoardsController extends OrganizationAwareController{
 				}
 				$mappedColumns = $mergedMapping;
 			}
+			$streamName = "";
+			$stream = $this->kanbanizeService->findStream($id, $this->organization);
+			if(!is_null($stream)){
+				$streamName = $stream->getSubject();
+			}
 			return new JsonModel([
+				'streamName' => $streamName,
 				'boardId' => $id,
 				'mapping' => $mappedColumns
 			]);

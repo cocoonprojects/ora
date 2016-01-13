@@ -51,7 +51,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$organizationService = $locator->get('People\OrganizationService');
 					$streamService = $locator->get('TaskManagement\StreamService');
 					$client = $locator->get('Kanbanize\KanbanizeAPI');
-					$controller = new BoardsController($organizationService, $streamService, $client);
+					$kanbanizeService = $locator->get('Kanbanize\KanbanizeService');
+					$controller = new BoardsController($organizationService, $streamService, $client, $kanbanizeService);
 					return $controller;
 				}
 			)

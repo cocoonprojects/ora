@@ -71,7 +71,6 @@ Feature: Kanbanize Organization Settings
 		Then the response status code should be 202
 		And the response should be JSON
 		And the "subdomain" property should be "foo"
-		And the "apiKey" property should be "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
 		And the "projects[0].name" property should be "foo project"
 		And the "projects[0].boards[0].id" property should be "1"
 		And the "projects[0].boards[0].name" property should be "board 1"
@@ -83,7 +82,6 @@ Feature: Kanbanize Organization Settings
 		Then the response status code should be 200
 		And the response should be JSON
 		And the "subdomain" property should be "foo"
-		And the "apiKey" property should be "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
 		And the "projects[0].name" property should be "foo project"
 		And the "projects[0].boards[0].id" property should be "1"
 		And the "projects[0].boards[0].name" property should be "board 1"
@@ -97,7 +95,6 @@ Feature: Kanbanize Organization Settings
 		Then the response status code should be 202
 		And the response should be JSON
 		And the "subdomain" property should be "acme"
-		And the "apiKey" property should be "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
 		And the "projects[0].name" property should be "foo project"
 		And the "projects[0].boards[0].id" property should be "1"
 		And the "projects[0].boards[0].name" property should be "board 1"
