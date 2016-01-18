@@ -149,6 +149,7 @@ class TaskJsonModel extends JsonModel
 		$rv = [
 			'id' => $task->getId (),
 			'subject' => $task->getSubject(),
+			'description' => $task->getDescription(),
 			'createdAt' => date_format($task->getCreatedAt(), 'c'),
 			'createdBy' => is_null ( $task->getCreatedBy () ) ? "" : $task->getCreatedBy ()->getFirstname () . " " . $task->getCreatedBy ()->getLastname (),
 			'type' => $task->getType (),

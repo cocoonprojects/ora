@@ -56,7 +56,7 @@ class SharesControllerTest extends ControllerTest
 		$stream->method('getOrganizationId')
 			->willReturn(Uuid::fromString('00000000-1000-0000-0000-000000000000'));
 
-		$this->task = Task::create($stream, 'Cras placerat libero non tempor', $this->owner);
+		$this->task = Task::create($stream, 'Cras placerat libero non tempor', 'Vivamus sit amet ante est, sit amet rutrum augue.', $this->owner);
 		$this->task->addMember($this->owner, Task::ROLE_OWNER);
 		$this->task->addMember($this->member, Task::ROLE_MEMBER);
 		

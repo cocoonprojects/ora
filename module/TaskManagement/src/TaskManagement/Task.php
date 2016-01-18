@@ -19,6 +19,10 @@ class Task extends DomainEntity implements TaskInterface
 	 */
 	protected $subject;
 	/**
+	 * @var string
+	 */
+	protected $description;
+	/**
 	 * @var int
 	 */
 	protected $status;
@@ -50,7 +54,7 @@ class Task extends DomainEntity implements TaskInterface
 	 */
 	protected $sharesAssignmentExpiresAt = null;
 
-	public static function create(Stream $stream, $subject, BasicUser $createdBy, array $options = null) {
+	public static function create(Stream $stream, $subject, $description, BasicUser $createdBy, array $options = null) {
 		$rv = new self();
 		$rv->recordThat(TaskCreated::occur(Uuid::uuid4()->toString(), [
 			'status' => self::STATUS_IDEA,
@@ -59,6 +63,7 @@ class Task extends DomainEntity implements TaskInterface
 			'by' => $createdBy->getId()
 		]));
 		$rv->setSubject($subject, $createdBy);
+		$rv->setDescription($description, $createdBy);
 
 		return $rv;
 	}
@@ -145,6 +150,22 @@ class Task extends DomainEntity implements TaskInterface
 		return $this;
 	}
 	
+	/**
+	 * @return string
+	 */
+	public function getDescription() {
+		return $this->description;
+	}
+
+	public function setDescription($description, BasicUser $updatedBy) {
+		$d = is_null($description) ? null : trim($description);
+		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
+				'description' => $d,
+				'by' => $updatedBy->getId(),
+		)));
+		return $this;
+	}
+
 	public function changeStream(Stream $stream, BasicUser $updatedBy) {
 		if($this->status >= self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot set the task stream in '.$this->status.' state');
@@ -520,6 +541,9 @@ class Task extends DomainEntity implements TaskInterface
 		$pl = $event->payload();
 		if(array_key_exists('subject', $pl)) {
 			$this->subject = $pl['subject'];
+		}
+		if(array_key_exists('description', $pl)) {
+			$this->description = $pl['description'];
 		}
 	}
 	

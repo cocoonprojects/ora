@@ -154,6 +154,9 @@ class Importer{
 			if($task->getSubject() != $kanbanizeTask['title']){
 				$task->setSubject($kanbanizeTask['title'], $this->requestedBy);
 			}
+			if($task->getDescription() != $kanbanizeTask['description']){
+				$task->setDescription($kanbanizeTask['description'], $this->requestedBy);
+			}
 			$this->transactionManager->commit();
 			$this->updatedTasks++;
 		}catch (\Exception $e) {
@@ -177,7 +180,7 @@ class Importer{
 		];
 		$this->transactionManager->begin();
 		try {
-			$task = Task::create($stream, $kanbanizeTask['title'], $this->requestedBy, $options);
+			$task = Task::create($stream, $kanbanizeTask['title'], $kanbanizeTask['description'], $this->requestedBy, $options);
 			$this->taskService->addTask($task);
 			$task->setAssignee($kanbanizeTask['assignee'], $this->requestedBy);
 			$this->transactionManager->commit();
