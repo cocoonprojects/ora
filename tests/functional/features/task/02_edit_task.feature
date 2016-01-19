@@ -33,7 +33,7 @@ Scenario: Cannot update a task with an empty subject
 	And that its "subject" is ""
 	And that its "description" is "This update description is a lot better than the previous one"
 	When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000000"
-	Then the response status code should be 406
+	Then the response status code should be 400
 
 Scenario: Cannot update a task with an empty description
 	Given that I am authenticated as "mark.rogers@ora.local"
@@ -41,13 +41,7 @@ Scenario: Cannot update a task with an empty description
 	And that its "subject" is "This update subject is a lot better than the previous one"
 	And that its "description" is ""
 	When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000000"
-	Then the response status code should be 406
-	
-Scenario: Updating a task without any change is invariant
-	Given that I am authenticated as "mark.rogers@ora.local" 
-	And that I want to update a "Task"
-	When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000003"
-	Then the response status code should be 204
+	Then the response status code should be 400
 	
 Scenario: Cannot update the entire collection of tasks
 	Given that I am authenticated as "mark.rogers@ora.local" 

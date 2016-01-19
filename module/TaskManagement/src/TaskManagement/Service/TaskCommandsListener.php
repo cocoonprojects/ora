@@ -33,33 +33,21 @@ class TaskCommandsListener extends ReadModelProjector
 	}
 	
 	protected function onTaskUpdated(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$entity = $this->entityManager->find(Task::class, $id);
+		if(is_null($entity)) {
+			return;
+		}
+		$updatedBy = $this->entityManager->find(User::class, $event->payload()['by']);
 		if(isset($event->payload()['subject'])) {
-			$id = $event->metadata()['aggregate_id'];
-			$entity = $this->entityManager->find(Task::class, $id);
-			if(is_null($entity)) {
-				return;
-			}
-			$updatedBy = $this->entityManager->find(User::class, $event->payload()['by']);
-
 			$entity->setSubject($event->payload()['subject']);
-			$entity->setMostRecentEditAt($event->occurredOn());
-			$entity->setMostRecentEditBy($updatedBy);
-			$this->entityManager->persist($entity);
 		}
-		//TODO: rivedere se va bene così o se si può gestire senza duplicare troppo codice
 		if(isset($event->payload()['description'])) {
-			$id = $event->metadata()['aggregate_id'];
-			$entity = $this->entityManager->find(Task::class, $id);
-			if(is_null($entity)) {
-				return;
-			}
-			$updatedBy = $this->entityManager->find(User::class, $event->payload()['by']);
-
 			$entity->setDescription($event->payload()['description']);
-			$entity->setMostRecentEditAt($event->occurredOn());
-			$entity->setMostRecentEditBy($updatedBy);
-			$this->entityManager->persist($entity);
 		}
+		$entity->setMostRecentEditAt($event->occurredOn());
+		$entity->setMostRecentEditBy($updatedBy);
+		$this->entityManager->persist($entity);
 	}
 	
 	protected function onTaskStreamChanged(StreamEvent $event) {

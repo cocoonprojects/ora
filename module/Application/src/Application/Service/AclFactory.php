@@ -14,7 +14,7 @@ use TaskManagement\Assertion\OwnerOfWorkItemIdeaOrOpenOrCompletedTaskAssertion;
 use TaskManagement\Assertion\TaskOwnerAndAcceptedTaskAndSharesExpiredAssertion;
 use TaskManagement\Assertion\TaskMemberNotOwnerAndNotCompletedTaskAssertion;
 use TaskManagement\Assertion\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion;
-use TaskManagement\Assertion\ItemOwnerAndItemCreatedInTheLast24HoursAssertion;
+use TaskManagement\Assertion\ItemOwnerAndNotExpiredItemDeletionAssertion;
 use TaskManagement\Assertion\TaskOwnerAndOngoingOrAcceptedTaskAssertion;
 use TaskManagement\Assertion\TaskOwnerAndOngoingTaskAssertion;
 use TaskManagement\Assertion\ItemOwnerAndNotClosedItemAssertion;
@@ -70,7 +70,7 @@ class AclFactory implements FactoryInterface
 		$acl->allow(User::ROLE_USER, ['Ora\Task','Ora\KanbanizeTask'], 'TaskManagement.Task.estimate', new MemberOfOngoingTaskAssertion());
 		$acl->allow(User::ROLE_USER, ['Ora\Task','Ora\KanbanizeTask'], 'TaskManagement.Task.unjoin', new TaskMemberNotOwnerAndNotCompletedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.edit', new ItemOwnerAndNotClosedItemAssertion());
-		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.delete', new ItemOwnerAndItemCreatedInTheLast24HoursAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.delete', new ItemOwnerAndNotExpiredItemDeletionAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.execute', new OwnerOfWorkItemIdeaOrOpenOrCompletedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.complete', new TaskOwnerAndOngoingOrAcceptedTaskAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.accept', new TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion());

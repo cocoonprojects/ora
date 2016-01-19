@@ -105,7 +105,7 @@ class ImporterTest extends TestCase {
 		]);
 		$organization = new ReadModelOrganization($this->organization->getId());
 		$readModelStream = new ReadModelKanbanizeStream($stream->getId(), $organization);
-		$task = KanbanizeTask::create($stream, "a new task", null, $this->requestedBy, [
+		$task = KanbanizeTask::create($stream, "a new task", $this->requestedBy, [
 				'taskid'=> 114,
 				'columnname' => "Testing",
 				'status' => Task::STATUS_COMPLETED

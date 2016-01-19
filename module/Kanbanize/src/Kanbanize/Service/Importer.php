@@ -180,7 +180,7 @@ class Importer{
 		];
 		$this->transactionManager->begin();
 		try {
-			$task = Task::create($stream, $kanbanizeTask['title'], $kanbanizeTask['description'], $this->requestedBy, $options);
+			$task = Task::create($stream, $kanbanizeTask['title'], $this->requestedBy, $options);
 			$this->taskService->addTask($task);
 			$task->setAssignee($kanbanizeTask['assignee'], $this->requestedBy);
 			$this->transactionManager->commit();

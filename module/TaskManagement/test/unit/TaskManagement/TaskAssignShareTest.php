@@ -43,7 +43,7 @@ class TaskAssignShareTest extends \PHPUnit_Framework_TestCase
 
 
 		$stream = Stream::create($organization, 'Curabitur rhoncus mattis massa vel', $this->owner);
-		$this->task = Task::create($stream, null, null, $this->owner);
+		$this->task = Task::create($stream, null, $this->owner);
 		$this->task->addMember($this->owner, Task::ROLE_OWNER);
 		$this->task->addMember($this->user1);
 		$this->task->addMember($this->user2);

@@ -156,7 +156,7 @@ class TaskJsonModel extends JsonModel
 			'status' => $task->getStatus(),
 			'stream' => $this->getStream($task),
 			'organization' => $this->getOrganization($task),
-			'members' => array_map([$this, 'serializeOneMember'], $task->getMembers()),
+			'members' => array_map([$this, 'serializeOneMember'], $task->getMembers())
 		];
 		
 		if ($task->getStatus () >= Task::STATUS_ONGOING) {

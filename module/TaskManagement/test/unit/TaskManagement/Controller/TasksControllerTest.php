@@ -559,7 +559,7 @@ class TasksControllerTest extends ControllerTest {
 		$stream->method('getOrganizationId')
 			->willReturn(Uuid::fromString($this->organization->getId()));
 
-		$task = \TaskManagement\Task::create($stream, null, null, $this->user);
+		$task = \TaskManagement\Task::create($stream, null, $this->user);
 		$task->addMember($this->user, Task::ROLE_OWNER);
 
 		$this->controller->getTaskService()

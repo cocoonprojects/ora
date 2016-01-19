@@ -49,7 +49,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testCreate() {
-		$task = Task::create($this->stream, 'Test subject', null, $this->owner);
+		$task = Task::create($this->stream, 'Test subject', $this->owner);
 		$this->assertNotNull($task->getId());
 		$this->assertEquals('Test subject', $task->getSubject());
 		$this->assertEquals(Task::STATUS_IDEA, $task->getStatus());
@@ -57,35 +57,18 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testCreateWithNoSubject() {
-		$task = Task::create($this->stream, null, 'Work Item Idea description', $this->owner);
+		$task = Task::create($this->stream, null, $this->owner);
 		$this->assertNotNull($task->getId());
 		$this->assertNull($task->getSubject());
-		$this->assertEquals('Work Item Idea description', $task->getDescription());
-		$this->assertEquals(Task::STATUS_IDEA, $task->getStatus());
-		$this->assertEquals($this->stream->getId(), $task->getStreamId());
-	}
-
-	public function testCreateWithNoDescription() {
-		$task = Task::create($this->stream, 'Work Item Idea subject', null, $this->owner);
-		$this->assertNotNull($task->getId());
 		$this->assertNull($task->getDescription());
-		$this->assertEquals('Work Item Idea subject', $task->getSubject());
-		$this->assertEquals(Task::STATUS_IDEA, $task->getStatus());
-		$this->assertEquals($this->stream->getId(), $task->getStreamId());
-	}
-
-	public function testCreateWithNoSubjectAndNoDescription() {
-		$task = Task::create($this->stream, null, null, $this->owner);
-		$this->assertNotNull($task->getId());
-		$this->assertNull($task->getDescription());
-		$this->assertNull($task->getSubject());
 		$this->assertEquals(Task::STATUS_IDEA, $task->getStatus());
 		$this->assertEquals($this->stream->getId(), $task->getStreamId());
 	}
 
 	public function testCreateWorkItemIdea(){
 		$options = array('status'=>Task::STATUS_IDEA);
-		$task = Task::create($this->stream, 'Work Item Idea subject', 'Work Item Idea description', $this->owner, $options);
+		$task = Task::create($this->stream, 'Work Item Idea subject', $this->owner, $options);
+		$task->setDescription('Work Item Idea description', $this->owner);
 		$this->assertNotNull($task->getId());
 		$this->assertEquals('Work Item Idea subject', $task->getSubject());
 		$this->assertEquals('Work Item Idea description', $task->getDescription());
@@ -97,7 +80,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	 * @expectedException Application\IllegalStateException
 	 */
 	public function testDeleteOngoingTask() {
-		$task = Task::create($this->stream, null, null, $this->owner);
+		$task = Task::create($this->stream, null, $this->owner);
 		$task->delete($this->owner);
 		
 		$this->assertEquals(Task::STATUS_DELETED, $task->getStatus());
@@ -108,14 +91,14 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	 * @expectedException Application\IllegalStateException
 	 */
 	public function testDeleteCompletedTask() {
-		$task = Task::create($this->stream, null, null, $this->owner);
+		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
 		$task->complete($this->owner);
 		$task->delete($this->owner);
 	}
 	
 	public function testAddMember() {
-		$task = Task::create($this->stream, null, null, $this->owner);
+		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner);
 		
 		$members = $task->getMembers();
@@ -125,7 +108,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testAddMembers() {
-		$task = Task::create($this->stream, null, null, $this->owner);
+		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
 		$task->addMember($this->user1);
 		$task->addMember($this->user2);
@@ -144,7 +127,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	}
 	
 	public function testAddAdmin() {
-		$task = Task::create($this->stream, null, null, $this->owner);
+		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
 		
 		$members = $task->getMembers();
@@ -157,25 +140,25 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	 * @expectedException People\MissingOrganizationMembershipException
 	 */
 	public function testAddMemberNotInOrganization() {
-		$task = Task::create($this->stream, null, null, $this->owner);
+		$task = Task::create($this->stream, null, $this->owner);
 		$user = User::create();
 		$task->addMember($user);
 	}
 
 	public function testHasMember() {
-		$task = Task::create($this->stream, null, null, $this->owner);
+		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner);
 		$this->assertTrue($task->hasMember($this->owner));
 	}
 	
 	public function testHasAs() {
-		$task = Task::create($this->stream, null, null, $this->owner);
+		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner);
 		$this->assertTrue($task->hasAs(Task::ROLE_MEMBER, $this->owner));
 	}
 	
 	public function testAddEstimation() {
-		$task = Task::create($this->stream, null, null, $this->owner);
+		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->user1, Task::ROLE_OWNER);
 		$task->addMember($this->user2);
 		
@@ -193,7 +176,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testClose() {
-		$task = Task::create($this->stream, null, null, $this->owner);
+		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
 		$task->execute($this->owner);
 		$task->addEstimation(1, $this->owner);
@@ -207,7 +190,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	 * @expectedException Application\IllegalStateException
 	 */
 	public function testCompleteWithNoEstimation() {
-		$task = Task::create($this->stream, null, null, $this->owner);
+		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
 		$task->addMember($this->user1);
 		$task->addMember($this->user2);
@@ -218,7 +201,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	 * @expectedException Application\IllegalStateException
 	 */
 	public function testCompleteWithOneEstimation() {
-		$task = Task::create($this->stream, null, null, $this->owner);
+		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
 		$task->addMember($this->user1);
 		$task->addMember($this->user2);
@@ -227,7 +210,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	public function testCompleteWithThreeEstimation() {
-		$task = Task::create($this->stream, null, null, $this->owner);
+		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
 		$task->execute($this->owner);
 		$task->addMember($this->user1);

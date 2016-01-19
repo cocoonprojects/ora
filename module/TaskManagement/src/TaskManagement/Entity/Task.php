@@ -24,7 +24,7 @@ class Task extends EditableEntity implements TaskInterface
 	private $subject;
 	
 	/**
-	 * @ORM\Column(type="string")
+	 * @ORM\Column(type="string", nullable=true)
 	 * @var string
 	 */
 	private $description;
@@ -60,8 +60,7 @@ class Task extends EditableEntity implements TaskInterface
 	 * @var \DateTime
 	 */
 	protected $sharesAssignmentExpiresAt;
-	
-	
+
 	public function __construct($id, Stream $stream) {
 		parent::__construct($id);
 		$this->stream = $stream;

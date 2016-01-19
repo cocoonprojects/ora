@@ -52,7 +52,7 @@ Scenario: Cannot create a task without a subject
 	And that its "subject" is ""
 	And that its "streamID" is "00000000-1000-0000-0000-000000000000"
 	When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
-	Then the response status code should be 406
+	Then the response status code should be 400
 
 Scenario: Cannot create a task without a description
 	Given that I am authenticated as "mark.rogers@ora.local"
@@ -61,7 +61,7 @@ Scenario: Cannot create a task without a description
 	And that its "description" is ""
 	And that its "streamID" is "00000000-1000-0000-0000-000000000000"
 	When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
-	Then the response status code should be 406
+	Then the response status code should be 400
 
 Scenario: Successfully creating a work item idea into a stream and with a subject
 	Given that I am authenticated as "mark.rogers@ora.local"

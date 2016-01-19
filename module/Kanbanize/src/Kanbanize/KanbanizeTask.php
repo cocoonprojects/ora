@@ -31,7 +31,7 @@ class KanbanizeTask extends Task {
 	 */
 	private $columnname;
 	
-	public static function create(Stream $stream, $subject, $description, BasicUser $createdBy, array $options = null) {
+	public static function create(Stream $stream, $subject, BasicUser $createdBy, array $options = null) {
 		if(!isset($options['taskid'])) {
 			throw InvalidArgumentException('Cannot create a KanbanizeTask without a taskid option');
 		}
@@ -48,8 +48,7 @@ class KanbanizeTask extends Task {
 			'streamId' => $stream->getId(),
 			'by' => $createdBy->getId(),
 			'columnname' => $options["columnname"],
-			'subject' => $subject,
-			'description' => $description
+			'subject' => $subject
 		]));
 		return $rv;
 	}
@@ -100,7 +99,6 @@ class KanbanizeTask extends Task {
 		$this->taskid = $event->payload()['taskid'];
 		$this->columnname = $event->payload()['columnname'];
 		$this->subject = $event->payload()['subject'];
-		$this->description = $event->payload()['description'];
 	}
 
 	protected function whenTaskUpdated(TaskUpdated $event) {
