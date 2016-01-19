@@ -162,6 +162,10 @@ class TasksController extends OrganizationAwareController
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
+		if(!$this->isAllowed($this->identity(), null, 'TaskManagement.Task.create')) {
+			$this->response->setStatusCode(403);
+			return $this->response;
+		}
 		$error = new ErrorJsonModel();
 		if (!isset($data['streamID'])){
 			$error->addSecondaryErrors('stream', ['Stream id cannot be empty']);
@@ -255,7 +259,10 @@ class TasksController extends OrganizationAwareController
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-
+		if(!$this->isAllowed($this->identity(), $task, 'TaskManagement.Task.edit')) {
+			$this->response->setStatusCode(403);
+			return $this->response;
+		}
 		// Definition of used Zend Validators
 		$validator_NotEmpty = new NotEmpty();
 
@@ -305,9 +312,12 @@ class TasksController extends OrganizationAwareController
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-
 		if($task->getStatus() == Task::STATUS_DELETED) {
 			$this->response->setStatusCode(204);
+			return $this->response;
+		}
+		if(!$this->isAllowed($this->identity(), $task, 'TaskManagement.Task.delete')) {
+			$this->response->setStatusCode(403);
 			return $this->response;
 		}
 

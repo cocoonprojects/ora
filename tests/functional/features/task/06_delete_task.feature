@@ -3,11 +3,11 @@ Feature: Delete Task
 	I want to delete an ongoing task
 	in order to remove it definitely from the system
 
-Scenario: Successfully deleting an ongoing task
+Scenario: Cannot delete a task after 24 hours it was created
 	Given that I am authenticated as "mark.rogers@ora.local" 
 	And that I want to delete a "Task"
 	When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000000"
-	Then the response status code should be 200
+	Then the response status code should be 403
 	
 Scenario: Cannot delete a not existing task
 	Given that I am authenticated as "mark.rogers@ora.local" 
@@ -32,14 +32,14 @@ Scenario: Cannot delete a completed task
 	Given that I am authenticated as "mark.rogers@ora.local" 
 	And that I want to delete a "Task"
 	When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000001"
-	Then the response status code should be 412
+	Then the response status code should be 403
 	
 
 Scenario: Cannot delete an accepted task
 	Given that I am authenticated as "mark.rogers@ora.local" 
 	And that I want to delete a "Task"
 	When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000002"
-	Then the response status code should be 412
+	Then the response status code should be 403
 	
 Scenario: Deleting a deleted task is invariant
 	Given that I am authenticated as "mark.rogers@ora.local" 

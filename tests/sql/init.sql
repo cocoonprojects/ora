@@ -199,8 +199,7 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
    '2014-11-12T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000000');
 INSERT INTO `tasks` (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type)
 VALUES
-  ('00000000-0000-0000-0000-000000000000', '00000000-1000-0000-0000-000000000000', 'Development environment setup', 'Development environment setup', 20, '2014-01-12 19:07:59', '2014-11-12 19:07:59', '60000000-0000-0000-0000-000000000000',
-   '60000000-0000-0000-0000-000000000000', 'task');
+  ('00000000-0000-0000-0000-000000000000', '00000000-1000-0000-0000-000000000000', 'Development environment setup', 'Development environment setup', 20, '2014-01-12 19:07:59', '2014-11-12 19:07:59', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000', 'task');
 INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt) VALUES
   ('00000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000', 'owner', '2014-11-12 19:07:59',
    '2014-01-12 19:07:59'),
