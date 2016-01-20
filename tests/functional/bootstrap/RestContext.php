@@ -260,6 +260,17 @@ class RestContext extends RawMinkContext
 	}
 
 	/**
+	 * @Then /^the response should be empty map$/
+	 */
+	public function theResponseShouldBeEmptyMap(){
+		$bodyResponse = $this->_response->getBody(true);
+		$this->json = json_decode($bodyResponse);
+		if(!$this->json instanceof \stdClass){
+			throw new Exception("Response was not an empty map, but ".$bodyResponse);
+		}
+	}
+	
+	/**
 	 * @Then /^the "([^"]*)" property should be "([^"]*)"$/
 	 * @param $propertyName
 	 * @param $value

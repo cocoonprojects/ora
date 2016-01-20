@@ -3,15 +3,17 @@ namespace Kanbanize;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
+use Kanbanize\Controller\BoardsController;
 use Kanbanize\Controller\ImportsController;
+use Kanbanize\Controller\SettingsController;
 use Kanbanize\Service\KanbanizeAPI;
 use Kanbanize\Service\KanbanizeServiceImpl;
 use Kanbanize\Service\SyncTaskListener;
-use Kanbanize\Service\ImportDirector;
 use Kanbanize\Service\ImportTasksListener;
 use Kanbanize\Service\TaskCommandsListener;
 use Kanbanize\Service\StreamCommandsListener;
 use Kanbanize\Service\MailNotificationService;
+use Kanbanize\Service\Kanbanize\Service;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {
@@ -25,9 +27,32 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$locator = $sm->getServiceLocator();
 					$config = $locator->get('Config');
 					$organizationService = $locator->get('People\OrganizationService');
-					$importDirector = $locator->get('Kanbanize\ImportDirector');
-					$notificationService = $locator->get('Kanbanize\MailNotificationService');
-					$controller = new ImportsController($organizationService, $importDirector, $notificationService);
+					$client = $locator->get('Kanbanize\KanbanizeAPI');
+					$kanbanizeService = $locator->get('Kanbanize\KanbanizeService');
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$userService = $locator->get('Application\UserService');
+					$streamService = $locator->get('TaskManagement\StreamService');
+					$controller = new ImportsController($organizationService, $client, $kanbanizeService, $taskService, $userService, $streamService);
+					if(array_key_exists('assignment_of_shares_timebox', $locator->get('Config'))){
+						$assignmentOfSharesTimebox = $locator->get('Config')['assignment_of_shares_timebox'];
+						$controller->setIntervalForAssignShares($assignmentOfSharesTimebox);
+					}
+					return $controller;
+				},
+				'Kanbanize\Controller\Settings' => function($sm){
+					$locator = $sm->getServiceLocator();
+					$organizationService = $locator->get('People\OrganizationService');
+					$client = $locator->get('Kanbanize\KanbanizeAPI');
+					$controller = new SettingsController($organizationService, $client);
+					return $controller;
+				},
+				'Kanbanize\Controller\Boards' => function($sm){
+					$locator = $sm->getServiceLocator();
+					$organizationService = $locator->get('People\OrganizationService');
+					$streamService = $locator->get('TaskManagement\StreamService');
+					$client = $locator->get('Kanbanize\KanbanizeAPI');
+					$kanbanizeService = $locator->get('Kanbanize\KanbanizeService');
+					$controller = new BoardsController($organizationService, $streamService, $client, $kanbanizeService);
 					return $controller;
 				}
 			)
@@ -64,18 +89,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
 					return new StreamCommandsListener($entityManager);
 				},
-				'Kanbanize\ImportDirector' => function ($locator) {
-					$taskService = $locator->get('TaskManagement\TaskService');
-					$streamService = $locator->get('TaskManagement\StreamService');
-					$userService = $locator->get('Application\UserService');
-					$kanbanizeService = $locator->get('Kanbanize\KanbanizeService');
-					$transactionManager = $locator->get('prooph.event_store');
-					$service = new ImportDirector($kanbanizeService, $taskService, $streamService, $transactionManager, $userService);
-					if(array_key_exists('assignment_of_shares_timebox', $locator->get('Config'))){
-						$assignmentOfSharesTimebox = $locator->get('Config')['assignment_of_shares_timebox'];
-						$service->setIntervalForAssignShares($assignmentOfSharesTimebox);
-					}
-					return $service;
+				'Kanbanize\KanbanizeAPI' => function ($locator) {
+					return new KanbanizeAPI();
 				},
 				'Kanbanize\MailNotificationService'=> function ($locator){
 					$mailService = $locator->get('AcMailer\Service\MailService');

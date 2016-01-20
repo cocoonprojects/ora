@@ -268,6 +268,23 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 	}
 
 	/**
+	 *
+	 * @param string|ReadModelOrganization|Organization $organization
+	 * @return bool
+	 */
+	public function isOwnerOf($organization) {
+		$key = $organization;
+		if($organization instanceof Organization || $organization instanceof ReadModelOrganization) {
+			$key = $organization->getId();
+		}
+		$membership = $this->memberships->get($key);
+		if(is_null($membership)){
+			return false;
+		}
+		return $membership->getRole() == OrganizationMembership::ROLE_ADMIN;
+	}
+
+	/**
 	 * @param string|ReadModelOrganization|Organization $organization
 	 * @return OrganizationMembership|null
 	 */
