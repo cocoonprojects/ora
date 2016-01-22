@@ -32,7 +32,7 @@ class ImporterTest extends TestCase {
 	protected function setup(){
 		parent::setUp();
 		$tasks = [
-				'114' => ['taskid' => 114, 'columnname'=> "WIP", 'title' => "A", 'assignee' => 'None'],
+				'114' => ['taskid' => 114, 'columnname'=> "WIP", 'title' => "A", 'assignee' => 'None', 'description' => 'kanbanize mocked task'],
 		];
 		$boards = [
 				'010' => ['id' => '010', 'name' => 'Board 001'],

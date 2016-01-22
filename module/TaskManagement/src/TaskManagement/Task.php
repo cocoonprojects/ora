@@ -19,6 +19,10 @@ class Task extends DomainEntity implements TaskInterface
 	 */
 	protected $subject;
 	/**
+	 * @var string
+	 */
+	protected $description;
+	/**
 	 * @var int
 	 */
 	protected $status;
@@ -145,6 +149,22 @@ class Task extends DomainEntity implements TaskInterface
 		return $this;
 	}
 	
+	/**
+	 * @return string
+	 */
+	public function getDescription() {
+		return $this->description;
+	}
+
+	public function setDescription($description, BasicUser $updatedBy) {
+		$d = is_null($description) ? null : trim($description);
+		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
+				'description' => $d,
+				'by' => $updatedBy->getId(),
+		)));
+		return $this;
+	}
+
 	public function changeStream(Stream $stream, BasicUser $updatedBy) {
 		if($this->status >= self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot set the task stream in '.$this->status.' state');
@@ -520,6 +540,9 @@ class Task extends DomainEntity implements TaskInterface
 		$pl = $event->payload();
 		if(array_key_exists('subject', $pl)) {
 			$this->subject = $pl['subject'];
+		}
+		if(array_key_exists('description', $pl)) {
+			$this->description = $pl['description'];
 		}
 	}
 	

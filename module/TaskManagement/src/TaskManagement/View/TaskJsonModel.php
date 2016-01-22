@@ -149,13 +149,14 @@ class TaskJsonModel extends JsonModel
 		$rv = [
 			'id' => $task->getId (),
 			'subject' => $task->getSubject(),
+			'description' => $task->getDescription(),
 			'createdAt' => date_format($task->getCreatedAt(), 'c'),
 			'createdBy' => is_null ( $task->getCreatedBy () ) ? "" : $task->getCreatedBy ()->getFirstname () . " " . $task->getCreatedBy ()->getLastname (),
 			'type' => $task->getType (),
 			'status' => $task->getStatus(),
 			'stream' => $this->getStream($task),
 			'organization' => $this->getOrganization($task),
-			'members' => array_map([$this, 'serializeOneMember'], $task->getMembers()),
+			'members' => array_map([$this, 'serializeOneMember'], $task->getMembers())
 		];
 		
 		if ($task->getStatus () >= Task::STATUS_ONGOING) {

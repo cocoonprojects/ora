@@ -51,7 +51,7 @@ Feature: List tasks
     Then the response status code should be 200
     And the response should have a "_links" property
     And the response should have a "_links.self" property
-    And the response should have a "_links.ora:delete" property
+    And the response shouldn't have a "_links.ora:delete" property
     And the response should have a "_links.ora:estimate" property
     And the response should have a "_links.ora:edit" property
 

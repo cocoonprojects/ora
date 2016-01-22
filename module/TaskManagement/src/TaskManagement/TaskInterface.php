@@ -40,6 +40,11 @@ interface TaskInterface extends ResourceInterface
 	public function getSubject();
 
 	/**
+	 * @return string
+	 */
+	public function getDescription();
+
+	/**
 	 * @return \DateTime
 	 */
 	public function getCreatedAt();

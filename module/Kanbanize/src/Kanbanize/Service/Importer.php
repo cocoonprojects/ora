@@ -154,6 +154,9 @@ class Importer{
 			if($task->getSubject() != $kanbanizeTask['title']){
 				$task->setSubject($kanbanizeTask['title'], $this->requestedBy);
 			}
+			if($task->getDescription() != $kanbanizeTask['description']){
+				$task->setDescription($kanbanizeTask['description'], $this->requestedBy);
+			}
 			$this->transactionManager->commit();
 			$this->updatedTasks++;
 		}catch (\Exception $e) {
