@@ -11,15 +11,11 @@ use FlowManagement\FlowCardInterface;
 
 class CardCommandsListener extends ReadModelProjector {
 	
-	public function whenFlowCardCreated(StreamEvent $event) {
-		$id = $event->metadata()['aggregate_id'];
-		$content = $event->payload()['content'];
+	public function onFlowCardCreated(StreamEvent $event) {
 		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
 		$recipient = $this->entityManager->find(User::class, $event->payload()['to']);
-		$type = $event->metadata()['aggregate_type'];
-		$entity = $this->cardFactory($type, $id, $recipient);
+		$entity = $this->cardFactory($recipient, $event);
 		if(!is_null($entity)){
-			$entity->setContents(FlowCardInterface::LAZY_MAJORITY_VOTE, $content);
 			$entity->setCreatedAt($event->occurredOn());
 			$entity->setCreatedBy($createdBy);
 			$entity->setMostRecentEditAt($event->occurredOn());
@@ -28,10 +24,14 @@ class CardCommandsListener extends ReadModelProjector {
 		}
 	}
 	
-	private function cardFactory($type, $id, User $recipient){
+	private function cardFactory(User $recipient, StreamEvent $event){
+		$id = $event->metadata()['aggregate_id'];
+		$content = $event->payload()['content'];
+		$type = $event->metadata()['aggregate_type'];
 		switch ($type){
 			case 'FlowManagement\LazyMajorityVoteCard':
 				$entity = new LazyMajorityVoteCard($id, $recipient);
+				$entity->setContent(FlowCardInterface::LAZY_MAJORITY_VOTE, $content);
 				break;
 			default:
 				$entity = null;

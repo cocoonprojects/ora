@@ -7,9 +7,19 @@ use Application\Entity\BasicUser;
 
 class LazyMajorityVoteCard extends FlowCard{
 	
-	//FIXME: Declaration of FlowManagement\LazyMajorityVoteCard::create() should be compatible with FlowManagement\FlowCard::create(Application\Entity\BasicUser $recipient, $content, Application\Entity\BasicUser $by)
-	public static function create(BasicUser $recipient, $content, BasicUser $createdBy){
-		$rv = parent::create($recipient, $content, $createdBy);
+	public static function create(BasicUser $recipient, $content, BasicUser $by){
+		$rv = new self();
+		$event = FlowCardCreated::occur(Uuid::uuid4()->toString(), [
+				'to' => $recipient->getId(),
+				'content' => $content,
+				'by' => $by->getId()
+		]);
+		$rv->recordThat($event);
 		return $rv;
-	} 
+	}
+	
+	protected function whenFlowCardCreated(FlowCardCreated $event){
+		parent::whenFlowCardCreated($event);
+		$this->content = [FlowCardInterface::LAZY_MAJORITY_VOTE => $event->payload()['content']];
+	}
 }

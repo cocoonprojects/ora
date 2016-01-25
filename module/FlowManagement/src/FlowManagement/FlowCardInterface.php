@@ -14,5 +14,5 @@ interface FlowCardInterface{
 	
 	public function getMostRecentEditBy();
 	
-	public function getContents();
+	public function getContent();
 }

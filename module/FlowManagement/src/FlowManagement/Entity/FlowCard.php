@@ -40,7 +40,7 @@ abstract class FlowCard extends DomainEntity implements FlowCardInterface{
 	 * @ORM\Column(type="json_array", nullable=true)
 	 * @var string
 	 */
-	private $contents;
+	private $content;
 
 	public function __construct($id, User $user){
 		parent::__construct($id);
@@ -70,18 +70,20 @@ abstract class FlowCard extends DomainEntity implements FlowCardInterface{
 		return $this;
 	}
 
-	public function setContents($contentKey, $contentValue){
+	public function setContent($contentKey, $contentValue){
 		if(is_array($contentValue)){
 			foreach ($contentValue as $key=>$value){
-				$this->contents[$contentKey][$key] = $value;
+				$this->content[$contentKey][$key] = $value;
 			}
 		}else{
-			$this->contents[$contentKey] = $contentValue;
+			$this->content[$contentKey] = $contentValue;
 		}
 		return $this;
 	}
 
-	public function getContents(){
-		return $this->contents;
+	public function getContent(){
+		return $this->content;
 	}
+	
+	abstract public function serialize();
 }

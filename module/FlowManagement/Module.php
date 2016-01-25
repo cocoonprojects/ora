@@ -1,7 +1,7 @@
 <?php
 namespace FlowManagement;
 
-use FlowManagement\CardsController;
+use FlowManagement\Controller\CardsController;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use FlowManagement\Service\EventSourcingFlowService;

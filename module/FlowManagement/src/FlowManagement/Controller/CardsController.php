@@ -1,9 +1,13 @@
 <?php
-namespace FlowManagement;
+namespace FlowManagement\Controller;
 
 use ZFX\Rest\Controller\HATEOASRestfulController;
 use FlowManagement\Service\FlowService;
 use FlowManagement\FlowCardInterface;
+use Zend\Validator\ValidatorChain;
+use Zend\I18n\Validator\IsInt;
+use Zend\Validator\GreaterThan;
+use Zend\View\Model\JsonModel;
 
 class CardsController extends HATEOASRestfulController {
 
@@ -31,7 +35,7 @@ class CardsController extends HATEOASRestfulController {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-
+		$filters = [];
 		$integerValidator = new ValidatorChain();
 		$integerValidator
 			->attach(new IsInt())
@@ -40,17 +44,22 @@ class CardsController extends HATEOASRestfulController {
 		$offset = $integerValidator->isValid($offset) ? intval($offset) : 0;
 		$limit = $this->getRequest()->getQuery("limit");
 		$limit = $integerValidator->isValid($limit) ? intval($limit) : $this->getListLimit();
-		
-		$flowCards = $this->flowService->findFlowCards($this->identity(), $offset, $limit);
 
-		$count = count($flowItems);
+		$flowCards = $this->flowService->findFlowCards($this->identity(), $offset, $limit, $filters);
+		$totalCards = $this->flowService->countCards($this->identity(), $filters);
+		$count = count($flowCards);
 		$hal['count'] = $count;
-		$hal['total'] = $count;
+		$hal['total'] = $totalCards;
+		if($hal['count'] < $hal['total']){
+			$hal['_links']['next']['href'] = $this->url()->fromRoute('flow');
+		}
 		$hal['_links']['self']['href'] = $this->url()->fromRoute('flow');
-		$hal['_embedded']['ora:flowcard'] = $count ? array_column(array_map([$this, 'serializeOne'], $flowCards), null, 'id') : new \stdClass();
+		$hal['_embedded']['ora:flowcard'] = $count ? array_column(array_map(
+				function($flowCard) {
+					return $flowCard->serialize();
+				}, $flowCards), null, 'id') : new \stdClass();
+
 		return new JsonModel($hal);
-		echo("YEAH!!");
-		die();
 	}
 
 	protected function getCollectionOptions(){
@@ -61,7 +70,7 @@ class CardsController extends HATEOASRestfulController {
 		return self::$resourceOptions;
 	}
 
-	protected function getFlowService(){
+	public function getFlowService(){
 		return $this->flowService;
 	}
 
@@ -73,30 +82,5 @@ class CardsController extends HATEOASRestfulController {
 
 	public function getListLimit(){
 		return $this->listLimit;
-	}
-
-	protected function serializeOne($flowitem) {
-		return [
-				'id' => $flowitem->getId (),
-				'createdAt' => date_format($flowitem->getCreatedAt(), 'c'),
-				'contents' => $this->serializeContents($flowitem)
-		];
-	}
-	protected function serializeContent($flowitem){
-		//TODO: la serializzazione del content si può spostare nella singola classe che estende FlowCard?
-		$contents = $flowitem->getContents();
-		if(isset($contents[FlowCardInterface::LAZY_MAJORITY_VOTE])){
-			return [
-					'text' => 'Lazy Majority Voting New Item Idea',
-					'_links' => [
-						'ora:item' => [
-							'href' => $this->url()->fromRoute('tasks', [
-										'orgId' => $contents[FlowCardInterface::LAZY_MAJORITY_VOTE]['orgId'], 
-										'id' => $contents[FlowCardInterface::LAZY_MAJORITY_VOTE]['itemId'] 
-							]),
-						],
-					],
-			];
-		}
 	}
 }

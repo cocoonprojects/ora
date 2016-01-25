@@ -60,13 +60,22 @@ class EventSourcingFlowService extends AggregateRepository implements FlowServic
 			$this->addAggregateRoot($card);
 			$this->eventStore->commit();
 		} catch (\Exception $e) {
-			try {
-				$this->eventStore->rollback();
-			} catch (RuntimeException $e1) {
-				// da loggare
-			}
+			$this->eventStore->rollback();
 			throw $e;
 		}
 		return $card;
+	}
+	/**
+	 * (non-PHPdoc)
+	 * @see \FlowManagement\Service\FlowService::countCards()
+	 */
+	public function countCards(BasicUser $recipient, $filters){
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('count(f)')
+			->from(ReadModelFlowCard::class, 'f')
+			->where('f.recipient = :recipient')
+			->setParameter(':recipient', $recipient);
+		
+		return intval($query->getQuery()->getSingleScalarResult());
 	}
 }

@@ -28,4 +28,11 @@ interface FlowService{
 	 * @param BasicUser $createdBy
 	 */
 	public function createLazyMajorityVoteCard(BasicUser $recipient, $itemId, $organizationid, BasicUser $createdBy);
+
+	/**
+	 * Get the number of cards for one $recipient
+	 * @param BasicUser $recipient
+	 * @param unknown $filters
+	 */
+	public function countCards(BasicUser $recipient, $filters);
 }

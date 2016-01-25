@@ -15,7 +15,7 @@ class FlowCard extends DomainEntity implements FlowCardInterface {
 	/**
 	 * @var array
 	 */
-	private $contents;
+	private $content;
 	/**
 	 * @var \DateTime
 	*/
@@ -47,7 +47,6 @@ class FlowCard extends DomainEntity implements FlowCardInterface {
 	protected function whenFlowCardCreated(FlowCardCreated $event) {
 		$this->id = Uuid::fromString($event->aggregateId());
 		$this->recipient = BasicUser::createBasicUser($event->payload()['to']);
-		$this->contents = [FlowCardInterface::LAZY_MAJORITY_VOTE => $event->payload()['content']];
 		$this->createdAt = $this->mostRecentEditAt = $event->occurredOn();
 		$this->createdBy = $this->mostRecentEditBy = BasicUser::createBasicUser($event->payload()['by']);
 	}
@@ -64,7 +63,7 @@ class FlowCard extends DomainEntity implements FlowCardInterface {
 		return $this->mostRecentEditBy;
 	}
 	
-	public function getContents(){
-		return $this->contents;
+	public function getContent(){
+		return $this->content;
 	}
 }
