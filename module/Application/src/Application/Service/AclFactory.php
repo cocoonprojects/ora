@@ -89,6 +89,7 @@ class AclFactory implements FactoryInterface
 				'TaskManagement.Task.closeTasksCollection',
 				'TaskManagement.Reminder.assignment-of-shares',
 				'TaskManagement.Task.close-voting-idea-items',
+				'TaskManagement.Approval.idea-items',
 		]);
 		return $acl;
 	}
