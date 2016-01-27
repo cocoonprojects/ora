@@ -85,7 +85,11 @@ class AclFactory implements FactoryInterface
 			'TaskManagement.Task.close'
 		]);
 		$acl->allow(User::ROLE_USER, 'Ora\Task','TaskManagement.Task.close', new TaskOwnerAndAcceptedTaskAndSharesExpiredAssertion());
-		$acl->allow(User::ROLE_SYSTEM, null, array('TaskManagement.Task.closeTasksCollection', 'TaskManagement.Reminder.assignment-of-shares'));
+		$acl->allow(User::ROLE_SYSTEM, null, [
+				'TaskManagement.Task.closeTasksCollection',
+				'TaskManagement.Reminder.assignment-of-shares',
+				'TaskManagement.Approval.idea-items',
+		]);
 		return $acl;
 	}
 }

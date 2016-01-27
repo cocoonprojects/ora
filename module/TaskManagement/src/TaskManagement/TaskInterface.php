@@ -15,6 +15,7 @@ interface TaskInterface extends ResourceInterface
 	const STATUS_ACCEPTED  = 40;
 	const STATUS_CLOSED    = 50;
 	const STATUS_DELETED   = -10;
+	const STATUS_ARCHIVED  = -20;
 
 	const ROLE_MEMBER = 'member';
 	const ROLE_OWNER = 'owner';
