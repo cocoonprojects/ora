@@ -86,7 +86,7 @@ class Task extends DomainEntity implements TaskInterface
 	
 	public function execute(BasicUser $executedBy) {
 		//The status IDEA is provisional
-		if(!in_array($this->status, [self::STATUS_IDEA, self::STATUS_OPEN, self::STATUS_COMPLETED])) {
+		if(!in_array($this->status, [self::STATUS_OPEN, self::STATUS_COMPLETED])) {
 			throw new IllegalStateException('Cannot execute a task in '.$this->status.' state');
 		}
 		$this->recordThat(TaskOngoing::occur($this->id->toString(), array(
@@ -132,7 +132,28 @@ class Task extends DomainEntity implements TaskInterface
 		)));
 		return $this;
 	}
-
+	
+	public function open(BasicUser $executedBy) {
+		if(!in_array($this->status, [self::STATUS_IDEA, self::STATUS_ONGOING])) {
+			throw new IllegalStateException('Cannot open a task in '.$this->status.' state');
+		}
+		$this->recordThat(TaskOpened::occur($this->id->toString(), array(
+				'prevStatus' => $this->getStatus(),
+				'by' => $executedBy->getId(),
+		)));
+		return $this;
+	}
+	
+	public function archive(BasicUser $executedBy) {
+		if($this->getStatus() >= self::STATUS_OPEN) {
+			throw new IllegalStateException('Cannot archive a task in state '.$this->getStatus().'. Task '.$this->getId().' won\'t be archived');
+		}
+		$this->recordThat(TaskArchived::occur($this->id->toString(), array(
+				'prevStatus' => $this->getStatus(),
+				'by' => $executedBy->getId(),
+		)));
+		return $this;
+	}
 	/**
 	 * @return string
 	 */
@@ -534,6 +555,14 @@ class Task extends DomainEntity implements TaskInterface
 	
 	protected function whenTaskDeleted(TaskDeleted $event) {
 		$this->status = self::STATUS_DELETED;
+	}
+	
+	protected function whenTaskOpened(TaskOpened $event) {
+		$this->status = self::STATUS_OPEN;
+	}
+	
+	protected function whenTaskArchived(TaskArchived $event) {
+		$this->status = self::STATUS_ARCHIVED;
 	}
 	
 	protected function whenTaskUpdated(TaskUpdated $event) {

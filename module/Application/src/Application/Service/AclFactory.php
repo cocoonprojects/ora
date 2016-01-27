@@ -88,7 +88,7 @@ class AclFactory implements FactoryInterface
 		$acl->allow(User::ROLE_SYSTEM, null, [
 				'TaskManagement.Task.closeTasksCollection',
 				'TaskManagement.Reminder.assignment-of-shares',
-				'TaskManagement.Approval.idea-items',
+				'TaskManagement.Task.close-voting-idea-items',
 		]);
 		return $acl;
 	}
