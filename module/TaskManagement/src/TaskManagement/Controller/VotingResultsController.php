@@ -5,10 +5,11 @@ namespace TaskManagement\Controller;
 use ZFX\Rest\Controller\HATEOASRestfulController;
 use TaskManagement\Service\TaskService;
 use TaskManagement\TaskInterface;
+use TaskManagement\Entity\IdeaItemApproval;
 
-class ApprovalsController extends HATEOASRestfulController {
+class VotingResultsController extends HATEOASRestfulController {
 	
-	protected static $collectionOptions = ['GET'];
+	protected static $collectionOptions = ['POST'];
 	protected static $resourceOptions = [];
 	
 	/**
@@ -25,7 +26,7 @@ class ApprovalsController extends HATEOASRestfulController {
 		$this->timeboxForItemIdeaVoting = self::getDefaultIntervalForItemIdeaVoting();
 	}
 	
-	public function getList(){
+	public function create($data){
 		
 		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
@@ -33,15 +34,29 @@ class ApprovalsController extends HATEOASRestfulController {
 		}
 		switch ($this->params('type')) {
 			case "idea-items":
-				if(!$this->isAllowed($this->identity(), NULL, 'TaskManagement.Approval.idea-items')){
+				if(!$this->isAllowed($this->identity(), NULL, 'TaskManagement.Task.close-voting-idea-items')){
 					$this->response->setStatusCode(403);
 					return $this->response;
 				}
 				$itemIdeas = $this->taskService->findItemsBefore($this->timeboxForItemIdeaVoting, TaskInterface::STATUS_IDEA);
-				foreach ($itemIdeas as $idea){
-					
-				}
-				var_dump($approvalsToClose);
+				array_walk($itemIdeas, function($idea){
+					$itemId = $idea->getId();
+					$results = $this->taskService->countVotesForApproveIdeaItem($itemId);
+					$item = $this->taskService->getTask($itemId);
+					$this->transaction()->begin();
+					try {
+						if($results['votesFor'] > $results['votesAgainst']){
+							$item->open($this->identity());
+						}else{
+							$item->archive($this->identity());
+						}
+						$this->transaction()->commit();
+						$this->response->setStatusCode(200);
+					}catch (\Exception $e) {
+						$this->transaction()->rollback();
+						$this->response->setStatusCode(500);
+					}
+				});
 				break;
 			default:
 				$this->response->setStatusCode(404);

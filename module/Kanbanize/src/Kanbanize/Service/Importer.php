@@ -201,9 +201,21 @@ class Importer{
 	private function updateTaskStatus(Task $task, $columnName, $columnMapping){
 		switch ($columnMapping[$columnName]) {
 			// case on destination column
-			case Task::STATUS_IDEA:
+			case Task::STATUS_IDEA: //TODO: lo stato IDEA deve essere tenuto in considerazione ?
+				break;
 			case Task::STATUS_OPEN:
-				//TODO: to be implemented
+				switch ($task->getStatus()){
+					case Task::STATUS_CLOSED:
+						$task->accept($this->requestedBy);
+					case Task::STATUS_ACCEPTED:
+						$task->complete($this->requestedBy);
+					case Task::STATUS_COMPLETED:
+						$task->execute($executedBy);
+					case Task::STATUS_ONGOING:
+					case Task::STATUS_IDEA:
+						$task->open($this->requestedBy);
+					
+				}
 				break;
 			case Task::STATUS_ONGOING:
 				switch ($task->getStatus()){
@@ -212,7 +224,11 @@ class Importer{
 					case Task::STATUS_ACCEPTED:
 						$task->complete($this->requestedBy);
 					case Task::STATUS_COMPLETED:
+					case Task::STATUS_OPEN:
+						$task->execute($this->requestedBy);
+						break;
 					case Task::STATUS_IDEA:
+						$task->open($this->requestedBy);
 						$task->execute($this->requestedBy);
 				}
 				break;
@@ -225,6 +241,8 @@ class Importer{
 						$task->complete($this->requestedBy);
 						break;
 					case Task::STATUS_IDEA:
+						$task->open($this->requestedBy);
+					case Task::STATUS_OPEN:
 						$task->execute($this->requestedBy);
 						$task->complete($this->requestedBy);
 				}
@@ -232,6 +250,8 @@ class Importer{
 			case Task::STATUS_ACCEPTED:
 				switch ($task->getStatus()){
 					case Task::STATUS_IDEA:
+						$task->open($this->requestedBy);
+					case Task::STATUS_OPEN:
 						$task->execute($this->requestedBy);
 					case Task::STATUS_ONGOING:
 						$task->complete($this->requestedBy);
@@ -243,6 +263,8 @@ class Importer{
 			case Task::STATUS_CLOSED:
 				switch ($task->getStatus()){
 					case Task::STATUS_IDEA:
+						$task->open($this->requestedBy);
+					case Task::STATUS_OPEN:
 						$task->execute($this->requestedBy);
 					case Task::STATUS_ONGOING:
 						$task->complete($this->requestedBy);
