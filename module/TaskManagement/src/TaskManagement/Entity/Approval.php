@@ -111,5 +111,4 @@ abstract class Approval{
 		$this->mostRecentEditBy = $user;
 		return $this;
 	}
-	
 }

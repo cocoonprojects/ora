@@ -67,4 +67,11 @@ interface TaskService
 	 * @param \DateTime $filters["endOn"]
 	 */
 	public function findMemberStats(Organization $org, $memberId, $filters);
+	
+	/**
+	 * Find items with creation date before $interval days from now
+	 * @param \DateInterval $interval
+	 * @param string $status
+	 */
+	public function findItemsBefore(\DateInterval $interval, $status);
 }
