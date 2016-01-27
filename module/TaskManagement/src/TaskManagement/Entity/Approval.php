@@ -3,6 +3,7 @@
 namespace TaskManagement\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
+use Application\DomainEntity;
 use Application\Entity\User;
 use Application\DomainEntity;
 

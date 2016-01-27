@@ -2,6 +2,7 @@
 
 namespace TaskManagement;
 
+use TaskManagement\Controller\ApprovalsController;
 use TaskManagement\Controller\EstimationsController;
 use TaskManagement\Controller\MembersController;
 use TaskManagement\Controller\MemberStatsController;
@@ -99,6 +100,16 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$controller = new VotingResultsController($taskService);
+					if(isset($locator->get('Config')['item_idea_voting_timebox'])){
+						$itemIdeaVotingTimebox = $locator->get('Config')['item_idea_voting_timebox'];
+						$controller->setTimeboxForItemIdeaVoting($itemIdeaVotingTimebox);
+					}
+					return $controller;
+				},
+				'TaskManagement\Controller\Approvals' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$controller = new ApprovalsController($taskService);
 					if(isset($locator->get('Config')['item_idea_voting_timebox'])){
 						$itemIdeaVotingTimebox = $locator->get('Config')['item_idea_voting_timebox'];
 						$controller->setTimeboxForItemIdeaVoting($itemIdeaVotingTimebox);
