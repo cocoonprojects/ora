@@ -2,10 +2,10 @@
 <project name="ora-prod" default="build">
 
 <target name="build"
-   depends="prepare,lint,phploc,pdepend,phpmd-ci,phpcs-ci,phpcpd,phpunit,phpunit-i"/>
+   depends="prepare,lint,phploc,pdepend,phpmd-ci,phpcs-ci,phpcpd,phpunit,phpunit-i,behat"/>
 
  <target name="build-parallel"
-   depends="prepare,lint,tools-parallel,phpunit,phpunit-i"/>
+   depends="prepare,lint,tools-parallel,phpunit,phpunit-i,behat"/>
 
  <target name="tools-parallel" description="Run tools in parallel">
   <parallel threadCount="2">
@@ -127,21 +127,33 @@
    <arg path="${basedir}" />
   </exec>
  </target>
- 
+
  <target name="phpunit" description="Run unit tests with PHPUnit">
   <exec executable="phpunit" failonerror="true">
-  	<arg value="-d" />
-  	<arg value="memory_limit=256M" />
-  	<arg value="-c" />
-  	<arg value="${basedir}/tests/unit/phpunit.xml" />
+   <arg value="-d" />
+   <arg value="memory_limit=256M" />
+   <arg value="--coverage-crap4j" />
+   <arg value="${basedir}/build/logs/crap4j.xml" />
+   <arg value="--coverage-clover" />
+   <arg value="${basedir}/build/logs/clover.xml" />
+   <arg value="--log-junit" />
+   <arg value="${basedir}/build/logs/junit.xml" />
+   <arg value="-c" />
+   <arg value="${basedir}/tests/unit/phpunit.xml" />
   </exec>
  </target>
-<target name="phpunit-i" description="Run integration tests with PHPUnit">
+ <target name="phpunit-i" description="Run integration tests with PHPUnit">
   <exec executable="phpunit" failonerror="true">
-  	<arg value="-d" />
-  	<arg value="memory_limit=256M" />
-  	<arg value="-c" />
-  	<arg value="${basedir}/tests/integration/phpunit.xml" />
+   <arg value="-d" />
+   <arg value="memory_limit=256M" />
+   <arg value="-c" />
+   <arg value="${basedir}/tests/integration/phpunit.xml" />
+  </exec>
+ </target>
+ <target name="behat" description="Run functional tests with Behat">
+  <exec dir="${basedir}/tests" executable="../vendor/bin/behat" failonerror="true">
+   <arg value="-f" />
+   <arg value="progress" />
   </exec>
  </target>
 
