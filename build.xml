@@ -132,6 +132,8 @@
   <exec executable="phpunit" failonerror="true">
    <arg value="-d" />
    <arg value="memory_limit=256M" />
+   <arg value="--whitelist" />
+   <arg value="${basedir}/module" />
    <arg value="--coverage-crap4j" />
    <arg value="${basedir}/build/logs/crap4j.xml" />
    <arg value="--coverage-clover" />
