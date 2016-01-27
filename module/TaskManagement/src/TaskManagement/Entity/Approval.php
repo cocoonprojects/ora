@@ -4,6 +4,7 @@ namespace TaskManagement\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
 use Application\Entity\User;
+use Application\DomainEntity;
 
 /**
  * @ORM\Entity @ORM\Table(name="item_approvals")
