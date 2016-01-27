@@ -101,6 +101,26 @@ class TaskCommandsListener extends ReadModelProjector
 		$this->entityManager->remove($entity); // TODO: Solo con l'id no?
 	}
 	
+	protected function onTaskOpened(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$task = $this->entityManager->find(Task::class, $id);
+		$task->setStatus(Task::STATUS_OPEN);
+		$user = $this->entityManager->find(User::class, $event->payload()['by']);
+		$task->setMostRecentEditBy($user);
+		$task->setMostRecentEditAt($event->occurredOn());
+		$this->entityManager->persist($task);
+	}
+	
+	protected function onTaskArchived(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$task = $this->entityManager->find(Task::class, $id);
+		$task->setStatus(Task::STATUS_ARCHIVED);
+		$user = $this->entityManager->find(User::class, $event->payload()['by']);
+		$task->setMostRecentEditBy($user);
+		$task->setMostRecentEditAt($event->occurredOn());
+		$this->entityManager->persist($task);
+	}
+	
 	protected function onEstimationAdded(StreamEvent $event) {
 		$memberId = $event->payload()['by'];
 		$user = $this->entityManager->find(User::class, $memberId);
