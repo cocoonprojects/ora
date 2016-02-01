@@ -10,6 +10,7 @@ use Application\IllegalStateException;
 use Application\InvalidArgumentException;
 use People\MissingOrganizationMembershipException;
 use Rhumsaa\Uuid\Uuid;
+use TaskManagement\Entity\ItemIdeaApproval;
 
 class Task extends DomainEntity implements TaskInterface
 {
@@ -282,6 +283,28 @@ class Task extends DomainEntity implements TaskInterface
 			'by' => $member->getId(),
 			'value'	 => $value,
 		)));
+	}
+	
+	public function addApproval($vote,BasicUser $member){
+		if(!in_array($this->status, [self::STATUS_IDEA])) {
+			throw new IllegalStateException('Cannot add an approval to item in a status different from idea');
+		}
+		//TODO : remove log 
+		//error_log("fino a qui ci arrivo e non ho problemi, effettuo il fire dell'evento il voto è $vote e il member è ".print_r($member,true));
+		
+		//optional membership check
+		//error_log("asdasbeverof member id ".$member->getId());
+		$this->recordThat(ApprovalCreated::occur($this->id->toString(), array(
+				'by' => $member->getId(),
+				'vote'	 => $vote,
+				'task-id'=>$this->getId()
+		)));
+		
+		
+		
+		
+		
+		
 	}
 	/**
 	 * 
@@ -599,6 +622,25 @@ class Task extends DomainEntity implements TaskInterface
 		$id = $p['by'];
 		$this->members[$id]['estimation'] = $p['value'];
 		$this->members[$id]['estimatedAt'] = $event->occurredOn();
+	}
+	
+	//TODO : implementare catcher
+	protected function whenApprovalCreated(ApprovalCreated $event){
+	//	error_log("sono arrivato alla gestione dell'evento approval created evento --> ".print_r($event,true));
+// 		$p = $event->payload();
+// 		$id = $p['by'];
+// 		$vote = $p['vote'];
+// 		$createdAt= $event->occurredOn();
+		
+// 		//$this->members[$id]['approval']=$p['vote'];
+// 		//$this->members[$id]['createdAt']=$event->occurredOn();
+// 		$approval = new ItemIdeaApproval($vote, $createdAt);
+	
+// 		$approval->setItem($this);
+		
+// 		$approval->setVoter($user)
+		
+		
 	}
 	
 	protected function whenSharesAssigned(SharesAssigned $event) {
