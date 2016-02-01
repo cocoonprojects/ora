@@ -6,6 +6,9 @@ use Doctrine\ORM\Mapping AS ORM;
 use Application\DomainEntity;
 use Application\Entity\User;
 use Application\DomainEntity;
+use Application\Entity\BasicUser;
+use Application\Entity\User;
+use TaskManagement\Entity\Task;
 
 /**
  * @ORM\Entity @ORM\Table(name="item_approvals")
@@ -86,32 +89,42 @@ abstract class Approval{
 		$this->createdAt = $when;
 		return $this;
 	}
-	
-	public function getCreatedBy() {
-		return $this->createdBy;
+		
+	public function setItem(Task $item){
+		$this->item=$item;
+		return $this;	
 	}
 	
-	public function setCreatedBy(User $user) {
+	public function setVoter(User $user){
+		$this->voter=$user;
+		return $this;
+	}
+	
+	public function setCreatedBy(User $user){
 		$this->createdBy = $user;
 		return $this;
 	}
 	
-	public function getMostRecentEditAt() {
-		return $this->mostRecentEditAt;
+	public function getCreatedBy(){
+		return $this->createdBy;
 	}
 	
-	public function setMostRecentEditAt(\DateTime $when) {
-		$this->mostRecentEditAt = $when;
-		return $this;
-	}
-	
-	public function getMostRecentEditBy() {
-		return $this->mostRecentEditBy;
-	}
-	
-	public function setMostRecentEditBy(User $user) {
+	public function setMostRecentEditBy(User $user){
 		$this->mostRecentEditBy = $user;
 		return $this;
 	}
 	
-}
+	public function  getMostRecentEditBy(){
+		return $this->mostRecentEditBy;
+	}
+	
+	public function setMostRecentEditAt(\DateTime $when){
+		$this->mostRecentEditAt = $when;
+		return $this;
+	}
+	
+	public function  getMostRecentEditAt(){
+		return $this->mostRecentEditAt;
+	}
+
+	

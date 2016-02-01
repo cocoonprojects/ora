@@ -21,6 +21,7 @@ use TaskManagement\Service\TaskCommandsListener;
 use TaskManagement\Service\TransferCreditsListener;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
+use TaskManagement\Controller\ApprovalController;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
@@ -61,6 +62,12 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$controller = new EstimationsController($taskService);
+					return $controller;
+				},
+				'TaskManagement\Controller\Approval' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$controller = new ApprovalController($taskService);
 					return $controller;
 				},
 				'TaskManagement\Controller\Shares' => function ($sm) {
