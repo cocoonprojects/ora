@@ -148,24 +148,31 @@ class TaskCommandsListener extends ReadModelProjector
 		$id = $event->metadata()['aggregate_id'];
 		$taskId = $event->payload()['task-id'];
 		$task = $this->entityManager->find(Task::class, $taskId);
+		
 		//vote creation
 		$vote =new Vote($event->occurredOn());
 		$vote->setValue($event->payload()['vote']);
 		//approval creation 
-		$approval = new ItemIdeaApproval($vote, $event->occurredOn());
+		/*$approval = new ItemIdeaApproval($vote, $event->occurredOn());
 		$approval->setCreatedAt($event->occurredOn());
 		$approval->setVoter($user);	
 		$approval->setItem($task);
 		$approval->setCreatedAt($event->occurredOn());
 		$approval->setMostRecentEditAt($event->occurredOn());
 		$approval->setCreatedBy($user);
-		$approval->setMostRecentEditBy($user);
-		try{
-		$this->entityManager->persist($approval);
-		}catch (\Exception $e){
-			echo $e->getMessage();
-		}
+		$approval->setMostRecentEditBy($user);*/
 		
+		$task->addApproval($vote, $user, $event->occurredOn());
+		
+		$this->entityManager->persist($task);
+		
+		$approvals = $task->getApprovals();
+		//error_log("gli approvals sul task sono ".print_r($approvals,true));
+		//check  number of members in organization
+		
+	
+		
+	
 	}
 	
 	protected function onTaskCompleted(StreamEvent $event) {

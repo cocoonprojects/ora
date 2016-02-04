@@ -22,6 +22,7 @@ use TaskManagement\Service\TransferCreditsListener;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use TaskManagement\Controller\ApprovalController;
+use TaskManagement\Service\CloseItemIdeaListener;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {		
@@ -163,6 +164,13 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$userService = $locator->get('Application\UserService');
 					$transactionManager = $locator->get('prooph.event_store');
 					return new CloseTaskListener($taskService, $userService, $transactionManager);
+				},
+				'TaskManagement\CloseItemIdeaListener' => function ($locator) {
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$organizationService = $locator->get('People\OrganizationService');
+					$userService = $locator->get('Application\UserService');
+					$transactionManager = $locator->get('prooph.event_store');
+					return new CloseItemIdeaListener($taskService,$userService, $organizationService, $transactionManager);
 				},
 				'TaskManagement\AssignCreditsListener' => function ($locator) {
 					$taskService = $locator->get('TaskManagement\TaskService');
