@@ -85,6 +85,8 @@ class CloseItemIdeaListener implements ListenerAggregateInterface {
 			}
 		}elseif($reject>=$memberhipcount/2){
 			// task cambio stato in archived 
+			
+			
 		}elseif($memberhipcount==($accept+$reject+$abstain)){
 			// votazione completa prendere decisione
 			if($accept>$reject){
