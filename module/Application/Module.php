@@ -186,8 +186,11 @@ class Module
 
 	public function onRenderError($e)
 	{
+		//var_dump($e);
+		//die;
 		// must be an error
 		if (!$e->isError()) {
+			
 			return;
 		}
 

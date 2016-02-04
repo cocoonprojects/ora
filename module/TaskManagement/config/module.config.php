@@ -72,6 +72,7 @@ return array(
 		'TaskManagement\NotifyMailListener',
 		'TaskManagement\StreamCommandsListener',
 		'TaskManagement\TaskCommandsListener',
+	    'TaskManagement\CloseItemIdeaListener',
 		'TaskManagement\TransferCreditsListener',
 		'TaskManagement\AssignCreditsListener',
 	],
