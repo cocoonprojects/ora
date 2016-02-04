@@ -6,8 +6,9 @@ use Application\Service\UserService;
 use Application\Service\ReadModelProjector;
 use Prooph\EventStore\Stream\StreamEvent;
 use Application\Entity\User;
-use FlowManagement\Entity\LazyMajorityVoteCard;
+use FlowManagement\Entity\VoteIdeaCard;
 use FlowManagement\FlowCardInterface;
+use TaskManagement\Entity\Task;
 
 class CardCommandsListener extends ReadModelProjector {
 	
@@ -29,9 +30,13 @@ class CardCommandsListener extends ReadModelProjector {
 		$content = $event->payload()['content'];
 		$type = $event->metadata()['aggregate_type'];
 		switch ($type){
-			case 'FlowManagement\LazyMajorityVoteCard':
-				$entity = new LazyMajorityVoteCard($id, $recipient);
-				$entity->setContent(FlowCardInterface::LAZY_MAJORITY_VOTE, $content);
+			case 'FlowManagement\VoteIdeaCard':
+				$entity = new VoteIdeaCard($id, $recipient);
+				$idea = $this->entityManager->find(Task::class, $event->payload()['item']);
+				if(!is_null($idea)){
+					$entity->setItem($idea);
+				} 
+				$entity->setContent(FlowCardInterface::VOTE_IDEA_CARD, $content);
 				break;
 			default:
 				$entity = null;

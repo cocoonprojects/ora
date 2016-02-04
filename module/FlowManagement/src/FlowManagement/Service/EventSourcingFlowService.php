@@ -12,8 +12,8 @@ use Prooph\EventStore\Aggregate\AggregateRepository;
 use Prooph\EventStore\Aggregate\AggregateType;
 use Prooph\EventStore\Stream\SingleStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
-use FlowManagement\LazyMajorityVoteCard;
 use Application\Entity\BasicUser;
+use FlowManagement\VoteIdeaCard;
 
 class EventSourcingFlowService extends AggregateRepository implements FlowService{
 
@@ -38,25 +38,24 @@ class EventSourcingFlowService extends AggregateRepository implements FlowServic
 		$query = $builder->select('f')
 			->from(ReadModelFlowCard::class, 'f')
 			->where('f.recipient = :recipient')
+			->andWhere('f.hidden = false')
 			->orderBy('f.createdAt', 'DESC')
 			->setFirstResult($offset)
 			->setMaxResults($limit)
 			->setParameter(':recipient', $recipient);
-		
 		return $query->getQuery()->getResult();
 	}
 	/**
 	 * (non-PHPdoc)
 	 * @see \FlowManagement\Service\FlowService::createLazyMajorityVoteCard()
 	 */
-	public function createLazyMajorityVoteCard(BasicUser $recipient, $itemId, $organizationid, BasicUser $createdBy){
+	public function createVoteIdeaCard(BasicUser $recipient, $itemId, $organizationid, BasicUser $createdBy){
 		$content = [
-				"itemId" => $itemId,
 				"orgId" => $organizationid
 		];
 		$this->eventStore->beginTransaction();
 		try {
-			$card = LazyMajorityVoteCard::create($recipient, $content, $createdBy);
+			$card = VoteIdeaCard::create($recipient, $content, $createdBy, $itemId);
 			$this->addAggregateRoot($card);
 			$this->eventStore->commit();
 		} catch (\Exception $e) {
@@ -74,6 +73,7 @@ class EventSourcingFlowService extends AggregateRepository implements FlowServic
 		$query = $builder->select('count(f)')
 			->from(ReadModelFlowCard::class, 'f')
 			->where('f.recipient = :recipient')
+			->andWhere('f.hidden = false')
 			->setParameter(':recipient', $recipient);
 		
 		return intval($query->getQuery()->getSingleScalarResult());

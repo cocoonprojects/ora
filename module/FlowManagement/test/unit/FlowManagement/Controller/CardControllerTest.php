@@ -5,7 +5,7 @@ namespace FlowManagement\Controller;
 use FlowManagement\Service\FlowService;
 use ZFX\Test\Controller\ControllerTest;
 use Application\Entity\User;
-use FlowManagement\Entity\LazyMajorityVoteCard;
+use FlowManagement\Entity\VoteIdeaCard;
 use FlowManagement\FlowCardInterface;
 use People\Entity\Organization;
 use TaskManagement\Entity\Task;
@@ -61,13 +61,13 @@ class CardControllerTest extends ControllerTest {
 	
 		$this->setupLoggedUser($this->user);
 		
-		$card = new LazyMajorityVoteCard('100000', $this->user);
+		$card = new VoteIdeaCard('100000', $this->user);
 		$stream = new Stream("000002", $this->organization);
 		$item = new Task("000003", $stream);
-		$card->setContent(FlowCardInterface::LAZY_MAJORITY_VOTE, [
-			"orgId" => $this->organization->getId(),
-			"itemId" => $item->getId()
+		$card->setContent(FlowCardInterface::VOTE_IDEA_CARD, [
+			"orgId" => $this->organization->getId()
 		]);
+		$card->setItem($item);
 		$this->controller->getFlowService()
 			->expects($this->once())
 			->method('findFlowCards')
@@ -91,7 +91,7 @@ class CardControllerTest extends ControllerTest {
 		$this->assertEquals(1, $arrayResult['total']);
 		
 		$flowcardResult = $arrayResult['_embedded']['ora:flowcard'][$card->getId()];
-		$this->assertEquals(FlowCardInterface::LAZY_MAJORITY_VOTE, $flowcardResult['type']);
+		$this->assertEquals(FlowCardInterface::VOTE_IDEA_CARD, $flowcardResult['type']);
 		$this->assertEquals($card->getId(), $flowcardResult['id']);
 		$this->assertEquals("Lazy Majority Voting New Item Idea", $flowcardResult['title']);
 		$this->assertEquals("Do you want this work item idea to be opened ?", $flowcardResult['content']['description']);

@@ -7,6 +7,7 @@ use Application\Entity\User;
 use Application\Entity\DomainEntity;
 use Rhumsaa\Uuid\Uuid;
 use FlowManagement\FlowCardInterface;
+use TaskManagement\Entity\Task;
 
 /**
  * @ORM\Entity
@@ -41,11 +42,24 @@ abstract class FlowCard extends DomainEntity implements FlowCardInterface{
 	 * @var string
 	 */
 	private $content;
+	
+	/**
+	 * @ORM\ManyToOne(targetEntity="TaskManagement\Entity\Task")
+	 * @ORM\JoinColumn(name="item_id", referencedColumnName="id", nullable=TRUE)
+	 * @var Task
+	 */
+	protected $item;
+	/**
+	 * @ORM\Column(type="boolean")
+	 * @var string
+	 */
+	protected $hidden;
 
 	public function __construct($id, User $user){
 		parent::__construct($id);
 		$this->recipient = $user;
 		$this->createdAt = $this->mostRecentEditAt = new \DateTime();
+		$this->hidden = false;
 	}
 
 	public function getRecipient(){
@@ -85,5 +99,21 @@ abstract class FlowCard extends DomainEntity implements FlowCardInterface{
 		return $this->content;
 	}
 	
+	public function setItem(Task $item){
+		$this->item = $item;
+		return $this;
+	}
+	
+	public function getItem(){
+		return $this->item;
+	}
+	
+	public function hide(){
+		$this->hidden = true;
+	}
+	
+	public function show(){
+		$this->hidden = false;
+	}
 	abstract public function serialize();
 }

@@ -32,8 +32,12 @@ class FlowCard extends DomainEntity implements FlowCardInterface {
 	 * @var BasicUser
 	 */
 	protected $mostRecentEditBy;
+	/**
+	 * @var Uuid
+	 */
+	protected $itemId = null;
 
-	public static function create(BasicUser $recipient, $content, BasicUser $by){
+	public static function create(BasicUser $recipient, $content, BasicUser $by, $itemId = null){
 		$rv = new self();
 		$event = FlowCardCreated::occur(Uuid::uuid4()->toString(), [
 				'to' => $recipient->getId(),
@@ -65,5 +69,9 @@ class FlowCard extends DomainEntity implements FlowCardInterface {
 	
 	public function getContent(){
 		return $this->content;
+	}
+	
+	public function getItemId(){
+		return $this->itemId;
 	}
 }

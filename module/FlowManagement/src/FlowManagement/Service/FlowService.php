@@ -21,13 +21,13 @@ interface FlowService{
 	public function findFlowCards(User $recipient, $offset, $limit, $filters);
 
 	/**
-	 * Add a Lazy majority Vote Card to $recipient flow
+	 * Add a Vote Idea Card to $recipient flow
 	 * @param BasicUser $recipient
 	 * @param Uuid $itemId
 	 * @param Uuid $organizationid
 	 * @param BasicUser $createdBy
 	 */
-	public function createLazyMajorityVoteCard(BasicUser $recipient, $itemId, $organizationid, BasicUser $createdBy);
+	public function createVoteIdeaCard(BasicUser $recipient, $itemId, $organizationid, BasicUser $createdBy);
 
 	/**
 	 * Get the number of cards for one $recipient

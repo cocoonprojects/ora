@@ -45,7 +45,7 @@ class ItemCommandsListener implements ListenerAggregateInterface {
 				$itemId = $params[1];
 				$organization = $params[2];
 				$createdBy = $params[3];
-				$flowService->createLazyMajorityVoteCard($member->getMember(), $itemId, $organization->getId(), $createdBy);
+				$flowService->createVoteIdeaCard($member->getMember(), $itemId, $organization->getId(), $createdBy);
 			});
 		});
 	}

@@ -7,7 +7,7 @@ use TaskManagement\Service\TaskService;
 use TaskManagement\Stream;
 use Rhumsaa\Uuid\Uuid;
 
-class CreateLazyMajorityVoteCardTest extends \PHPUnit_Framework_TestCase{
+class CreateVoteIdeaCardTest extends \PHPUnit_Framework_TestCase{
 	
 	/**
 	 * @var FlowService
@@ -43,7 +43,7 @@ class CreateLazyMajorityVoteCardTest extends \PHPUnit_Framework_TestCase{
 		$this->stream = $streamService->getStream('00000000-1000-0000-0000-000000000000');
 	}
 	
-	public function testCreateNewItemIdea(){
+	public function testCreateIdeaVoteCard(){
 		$this->transactionManager->beginTransaction();
 		try {
 			$item = Task::create($this->stream, "foo stream", $this->owner);

@@ -4,7 +4,7 @@ namespace FlowManagement;
 
 interface FlowCardInterface{
 	
-	CONST LAZY_MAJORITY_VOTE = 'LazyMajorityVote';
+	CONST VOTE_IDEA_CARD = 'VoteIdea';
 	
 	public function getId();
 	

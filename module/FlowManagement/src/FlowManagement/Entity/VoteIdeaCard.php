@@ -8,11 +8,11 @@ use FlowManagement\FlowCardInterface;
  * @ORM\Entity
  *
  */
-class LazyMajorityVoteCard extends FlowCard {
+class VoteIdeaCard extends FlowCard {
 	
 	public function serialize(){
 		$rv = [];
-		$type = FlowCardInterface::LAZY_MAJORITY_VOTE;
+		$type = FlowCardInterface::VOTE_IDEA_CARD;
 		$content = $this->getContent();
 		$rv["type"] = $type;
 		$rv["createdAt"] = date_format($this->getCreatedAt(), 'c');
@@ -24,7 +24,7 @@ class LazyMajorityVoteCard extends FlowCard {
 				"primary" => [
 					"text" => "Read More Here !",
 					"orgId" => $content[$type]["orgId"],
-					"itemId" => $content[$type]["itemId"]
+					"itemId" => $this->getItem()->getId()
 				],
 				"secondary" => []
 			],
