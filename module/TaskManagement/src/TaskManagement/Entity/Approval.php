@@ -23,7 +23,7 @@ abstract class Approval{
 	 */
 	protected $id;
 	/**
-	 * @ORM\ManyToOne(targetEntity="TaskManagement\Entity\Task")
+	 * @ORM\ManyToOne(targetEntity="TaskManagement\Entity\Task" , inversedBy="approvals")
 	 * @ORM\JoinColumn(name="item_id", referencedColumnName="id", onDelete="CASCADE")
 	 */
 	protected $item;
@@ -65,6 +65,10 @@ abstract class Approval{
 	 * @var BasicUser
 	 */
 	protected $mostRecentEditBy;
+	
+	public function getId(){
+		return $this->id;
+	}
 	
 	public function getItem(){
 		return $this->item;

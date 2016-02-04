@@ -146,7 +146,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		}
 		return intval($query->getQuery()->getSingleScalarResult());
 	}
-	
+
 	public function findTask($id) {
 		return $this->entityManager->find(ReadModelTask::class, $id);
 	}
