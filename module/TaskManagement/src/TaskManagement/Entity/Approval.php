@@ -7,7 +7,6 @@ use Application\DomainEntity;
 use Application\Entity\User;
 use Application\DomainEntity;
 use Application\Entity\BasicUser;
-use Application\Entity\User;
 use TaskManagement\Entity\Task;
 
 /**
@@ -132,3 +131,4 @@ abstract class Approval{
 	}
 
 	
+}
