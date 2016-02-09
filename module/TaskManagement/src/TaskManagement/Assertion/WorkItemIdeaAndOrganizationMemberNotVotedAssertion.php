@@ -1,0 +1,20 @@
+<?php
+
+namespace TaskManagement\Assertion;
+
+
+use Zend\Permissions\Acl\Acl;
+use Zend\Permissions\Acl\Role\RoleInterface;
+use Zend\Permissions\Acl\Resource\ResourceInterface;
+use Zend\Permissions\Acl\Assertion\AssertionInterface;
+use TaskManagement\Entity\Task;
+
+class WorkItemIdeaAndOrganizationMemberNotVotedAssertion implements AssertionInterface
+{
+	public function assert(Acl $acl, RoleInterface $user = null, ResourceInterface $resource = null, $privilege = null)
+	{
+		return $resource->getStatus() == Task::STATUS_IDEA
+			&& $user->isMemberOf($resource->getOrganizationId())
+			&& $resource->isIdeaVotedFromMember($user) == false;
+	}
+}
