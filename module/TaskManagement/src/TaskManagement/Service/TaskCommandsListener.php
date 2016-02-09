@@ -141,6 +141,7 @@ class TaskCommandsListener extends ReadModelProjector
 	protected function onApprovalCreated(StreamEvent $event){
 		//error_log("on approval created");
 		$memberId = $event->payload()['by'];
+		$description = $event->payload()['description'];
 		$user = $this->entityManager->find(User::class, $memberId);
 		if(is_null($user)) {
 			return;
@@ -162,11 +163,11 @@ class TaskCommandsListener extends ReadModelProjector
 		$approval->setCreatedBy($user);
 		$approval->setMostRecentEditBy($user);*/
 		
-		$task->addApproval($vote, $user, $event->occurredOn());
+		$task->addApproval($vote, $user, $event->occurredOn(),$description);
 		
 		$this->entityManager->persist($task);
 		
-		$approvals = $task->getApprovals();
+		//$approvals = $task->getApprovals();
 		//error_log("gli approvals sul task sono ".print_r($approvals,true));
 		//check  number of members in organization
 		
