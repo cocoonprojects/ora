@@ -67,6 +67,11 @@ abstract class Approval{
 	 * @var BasicUser
 	 */
 	protected $mostRecentEditBy;
+	/**
+	 * @ORM\Column(type="string", nullable=true)
+	 * @var description
+	 */
+	protected $description;
 	
 	public function getId(){
 		return $this->id;
@@ -128,6 +133,15 @@ abstract class Approval{
 	
 	public function  getMostRecentEditAt(){
 		return $this->mostRecentEditAt;
+	}
+	
+	public function getDescription(){
+		return $this->description;
+	}
+	
+	public function setDescription($description){
+		$this->description=$description;
+		return $this;
 	}
 
 	

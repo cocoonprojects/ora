@@ -285,7 +285,7 @@ class Task extends DomainEntity implements TaskInterface
 		)));
 	}
 	
-	public function addApproval($vote,BasicUser $member){
+	public function addApproval($vote,BasicUser $member,$description){
 		if(!in_array($this->status, [self::STATUS_IDEA])) {
 			throw new IllegalStateException('Cannot add an approval to item in a status different from idea');
 		}
@@ -297,7 +297,8 @@ class Task extends DomainEntity implements TaskInterface
 		$this->recordThat(ApprovalCreated::occur($this->id->toString(), array(
 				'by' => $member->getId(),
 				'vote'	 => $vote,
-				'task-id'=>$this->getId()
+				'task-id'=>$this->getId(),
+				'description'=>$description,
 		)));
 		
 		
