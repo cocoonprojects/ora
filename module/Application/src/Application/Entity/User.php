@@ -11,6 +11,7 @@ use People\Organization;
 use Rhumsaa\Uuid\Uuid;
 use Zend\Permissions\Acl\Role\RoleInterface;
 use Zend\Permissions\Acl\Resource\ResourceInterface;
+use FlowManagement\Entity\FlowCard;
 
 /**
  * @ORM\Entity
@@ -81,9 +82,15 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 	* @var string
 	*/
 	private $kanbanizeUsername;
+	/**
+	 * @ORM\OneToMany(targetEntity="FlowManagement\Entity\FlowCard", mappedBy="recipient", cascade={"persist"})
+	 * @var FlowCard[]
+	 */
+	private $flowcards;
 
 	private function __construct() {
 		$this->memberships = new ArrayCollection();
+		$this->flowcards = new ArrayCollection();
 	}
 	
 	public static function create(User $createdBy = null) {
@@ -308,10 +315,20 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 
 	public function setKanbanizeUsername($username){
 		$this->kanbanizeUsername = $username;
+		return $this;
 	}
 
 	public function getKanbanizeUsername(){
 		return $this->kanbanizeUsername;
+	}
+
+	public function getFlowCards(){
+		return $this->flowcards;
+	}
+
+	public function addFlowCard(FlowCard $card){
+		$this->flowcards[] = $card;
+		return $this;
 	}
 
 	public function getResourceId()
