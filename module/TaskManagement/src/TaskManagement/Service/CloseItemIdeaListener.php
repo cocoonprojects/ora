@@ -96,7 +96,7 @@ class CloseItemIdeaListener implements ListenerAggregateInterface {
 			}
 			
 			
-		}elseif($memberhipcount==($accept+$reject+$abstain)){
+		}elseif($memberhipcount==(count($approvals))){
 			// votazione completa prendere decisione
 			if($accept>$reject){
 				// task in open
