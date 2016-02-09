@@ -77,7 +77,7 @@ class CloseItemIdeaListener implements ListenerAggregateInterface {
 			//codice task cambio stato in ongoing
 			$this->transactionManager->beginTransaction();
 			try{
-			$task->execute($owner);
+			$task->open($owner);
 			$this->transactionManager->commit();
 			}catch(\Exception $e){
 				$this->transactionManager->rollback();
@@ -85,14 +85,38 @@ class CloseItemIdeaListener implements ListenerAggregateInterface {
 			}
 		}elseif($reject>=$memberhipcount/2){
 			// task cambio stato in archived 
+			$this->transactionManager->beginTransaction();
+			try{
+			$task->archive($owner);
+			$this->transactionManager->commit();
+			}catch(\Exception $e){
+				var_dump($e);
+				$this->transactionManager->rollback();
+				throw $e;
+			}
 			
 			
 		}elseif($memberhipcount==($accept+$reject+$abstain)){
 			// votazione completa prendere decisione
 			if($accept>$reject){
-				// task in ongoing
+				// task in open
+				$this->transactionManager->beginTransaction();
+				try{
+					$task->open($owner);
+					$this->transactionManager->commit();
+				}catch(\Exception $e){
+					$this->transactionManager->rollback();
+					throw $e;
+				}
 			}else{
-				//task archived
+				$this->transactionManager->beginTransaction();
+				try{
+					$task->archive($owner);
+					$this->transactionManager->commit();
+				}catch(\Exception $e){
+					$this->transactionManager->rollback();
+					throw $e;
+				}
 			}
 		}
 		

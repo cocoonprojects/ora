@@ -6,6 +6,8 @@ use Doctrine\ORM\Mapping AS ORM;
 use Application\DomainEntity;
 use Application\Entity\User;
 use Application\DomainEntity;
+use Application\Entity\BasicUser;
+use TaskManagement\Entity\Task;
 
 /**
  * @ORM\Entity @ORM\Table(name="item_approvals")
@@ -73,9 +75,17 @@ abstract class Approval{
 	public function getItem(){
 		return $this->item;
 	}
+		public function setItem(Task $item){
+		$this->item=$item;
+		return $this;	
+	}
 	
 	public function getVoter(){
 		return $this->voter;
+	}
+	public function setVoter(User $user){
+		$this->voter=$user;
+		return $this;
 	}
 	
 	public function getVote() {
@@ -90,6 +100,8 @@ abstract class Approval{
 		$this->createdAt = $when;
 		return $this;
 	}
+		
+
 	
 	public function getCreatedBy() {
 		return $this->createdBy;
