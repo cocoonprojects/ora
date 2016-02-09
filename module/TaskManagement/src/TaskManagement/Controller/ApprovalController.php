@@ -51,6 +51,7 @@ class ApprovalController extends HATEOASRestfulController {
 		
 		//TODO check if the value is numeric in a localized way
 		$vote = $data['value'];
+		$description = $data['description'];
 		
 		$validator = new ValidatorChain();
 		$validator->attach(new NotEmpty(), true)
@@ -80,7 +81,7 @@ class ApprovalController extends HATEOASRestfulController {
 		//fin qui tutto ok !
 		
 		try {
-			$task->addApproval($vote, $this->identity());
+			$task->addApproval($vote, $this->identity(),$description);
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
 			$view = new TaskJsonModel($this);

@@ -151,7 +151,7 @@ class Task extends EditableEntity implements TaskInterface
 		return $this;
 	}
 	
-	public function addApproval (Vote $vote, BasicUser $by, \DateTime $when ){
+	public function addApproval (Vote $vote, BasicUser $by, \DateTime $when ,$description){
 		$approval = new ItemIdeaApproval($vote, $when);
 		$approval->setCreatedBy($by);
 		$approval->setCreatedAt($when);
@@ -159,6 +159,7 @@ class Task extends EditableEntity implements TaskInterface
 		$approval->setVoter($by);
 		$approval->setMostRecentEditAt($when);
 		$approval->setMostRecentEditBy($by);
+		$approval->setDescription($description);
 		$this->approvals->set($approval->getId(), $approval);
 		
 		return $this;
