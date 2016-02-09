@@ -39,6 +39,8 @@ class ApprovalController extends HATEOASRestfulController {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
+		
+	
 
 		$error = new ErrorJsonModel();
 		if(!isset($data['value'])) {
@@ -71,6 +73,11 @@ class ApprovalController extends HATEOASRestfulController {
 			//RESOURCE NOT FOUND
 			$this->response->setStatusCode(404);
 		
+			return $this->response;
+		}
+		
+		if(!$this->isAllowed($this->identity(), $this->taskService->findTask($id), 'TaskManagement.Task.approve')) {
+			$this->response->setStatusCode(403);
 			return $this->response;
 		}
 		

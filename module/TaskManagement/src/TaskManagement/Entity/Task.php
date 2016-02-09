@@ -364,6 +364,21 @@ class Task extends EditableEntity implements TaskInterface
 		}
 		return false;
 	}
+	
+	/**
+	 * @param id|BasicUser $user
+	 * @return boolean
+	 */
+	public function isIdeaVotedFromMember($user){
+		$approvals = $this->getApprovals();
+		if($approvals!=null){
+			foreach ($approvals as $approval){
+				if($approval->getVoter()->getId() == $user->getId())
+					return true;
+			}
+		}
+		return false;
+	}
 
 	public function isSharesAssignmentCompleted() {
 		foreach ($this->members as $taskMember) {
