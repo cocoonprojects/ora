@@ -74,7 +74,10 @@ interface TaskInterface extends ResourceInterface
 	 * @return array
 	 */
 	public function getMembers();
-
+	/**
+	 * @return array
+	 */
+	public function getApprovals();
 	/**
 	 * @param id|BasicUser $user
 	 * @return boolean

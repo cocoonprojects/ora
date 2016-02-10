@@ -39,6 +39,10 @@ class Task extends DomainEntity implements TaskInterface
 	 */
 	protected $members = [];
 	/**
+	 * 
+	 */
+	protected $organizationMembersApprovals=[];
+	/**
 	 * @var \DateTime
 	 */
 	protected $createdAt;
@@ -289,6 +293,9 @@ class Task extends DomainEntity implements TaskInterface
 		if(!in_array($this->status, [self::STATUS_IDEA])) {
 			throw new IllegalStateException('Cannot add an approval to item in a status different from idea');
 		}
+		if (array_key_exists($member->getId(), $this->organizationMembersApprovals)) {
+			throw new DuplicatedDomainEntityException($this, $user);
+		}
 		//TODO : remove log 
 		//error_log("fino a qui ci arrivo e non ho problemi, effettuo il fire dell'evento il voto è $vote e il member è ".print_r($member,true));
 		
@@ -408,6 +415,14 @@ class Task extends DomainEntity implements TaskInterface
 	 */
 	public function getMembers() {
 		return $this->members;
+	}
+	
+	/**
+	 * 
+	 * @return array
+	 */
+	public function getApprovals(){
+		return $this->organizationMembersApprovals;
 	}
 	
 	public function getAverageEstimation() {
@@ -627,6 +642,10 @@ class Task extends DomainEntity implements TaskInterface
 	
 	//TODO : implementare catcher
 	protected function whenApprovalCreated(ApprovalCreated $event){
+		$p =$event->payload();
+		$id = $p['by'];
+		$this->organizationMembersApprovals[$id]['approval']=$p['vote'];
+		$this->organizationMembersApprovals[$id]['approvalGeneratedAt']=$event->occurredOn();
 	//	error_log("sono arrivato alla gestione dell'evento approval created evento --> ".print_r($event,true));
 // 		$p = $event->payload();
 // 		$id = $p['by'];
