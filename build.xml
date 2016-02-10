@@ -129,7 +129,7 @@
  </target>
 
  <target name="phpunit" description="Run unit tests with PHPUnit">
-  <exec executable="../vendor/bin/phpunit" failonerror="true">
+  <exec executable="./vendor/bin/phpunit" failonerror="true">
    <arg value="-d" />
    <arg value="memory_limit=256M" />
    <arg value="--whitelist" />
@@ -145,7 +145,7 @@
   </exec>
  </target>
  <target name="phpunit-i" description="Run integration tests with PHPUnit">
-  <exec executable="../vendor/bin/phpunit" failonerror="true">
+  <exec executable="./vendor/bin/phpunit" failonerror="true">
    <arg value="-d" />
    <arg value="memory_limit=256M" />
    <arg value="-c" />
