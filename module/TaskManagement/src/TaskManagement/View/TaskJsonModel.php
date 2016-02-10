@@ -8,6 +8,7 @@ use TaskManagement\TaskInterface;
 use Zend\Json\Json;
 use Zend\Mvc\Controller\AbstractController;
 use Zend\View\Model\JsonModel;
+use TaskManagement\Entity\Approval;
 
 class TaskJsonModel extends JsonModel
 {
@@ -145,7 +146,11 @@ class TaskJsonModel extends JsonModel
 					'controller' => 'transitions',
 			]);
 		}
-
+		$approvals = $task->getApprovals();
+		$approvalswithkey = [];
+		foreach ($approvals as $approval){
+			$approvalswithkey[$approval->getVoter()->getId()]=$approval;
+		}
 		$rv = [
 			'id' => $task->getId (),
 			'subject' => $task->getSubject(),
@@ -156,7 +161,8 @@ class TaskJsonModel extends JsonModel
 			'status' => $task->getStatus(),
 			'stream' => $this->getStream($task),
 			'organization' => $this->getOrganization($task),
-			'members' => array_map([$this, 'serializeOneMember'], $task->getMembers())
+			'members' => array_map([$this, 'serializeOneMember'], $task->getMembers()),
+			'approvals' => array_map([$this, 'serializeOneMemberApproval'],$approvalswithkey)
 		];
 		
 		if ($task->getStatus () >= Task::STATUS_ONGOING) {
@@ -229,5 +235,30 @@ class TaskJsonModel extends JsonModel
 // 			'self' => $this->controller->url()->fromRoute('users', ['id' => $member->getId()]),
 		];
 		return $rv;
+	}
+	
+	protected function serializeOneMemberApproval($approval){
+		if($approval instanceof Approval) {
+			$voter = $approval->getVoter();
+			$rv= [
+					'approval' => $approval->getVote()->getValue(),
+					'approvalGeneratedAt' => $approval->getCreatedAt()
+				  ];
+		}else{
+			$rv = $approval; // Copy the array
+			foreach ( $rv as $key => $value ) {
+				if ($value instanceof \DateTime) {
+					$rv [$key] = date_format ( $value, 'c' );
+				}
+			}
+		}
+		return $rv;
+// 		$rv = $approval;	// Copy the array
+// 		foreach($rv as $key => $value) {
+// 			if($value instanceof \DateTime) {
+// 				$rv[$key] = date_format($value, 'c');
+// 			}
+// 		}
+// 		return $rv;
 	}
 }
