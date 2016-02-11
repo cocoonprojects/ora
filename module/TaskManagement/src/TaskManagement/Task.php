@@ -290,29 +290,21 @@ class Task extends DomainEntity implements TaskInterface
 	}
 	
 	public function addApproval($vote,BasicUser $member,$description){
-		if(!in_array($this->status, [self::STATUS_IDEA])) {
-			throw new IllegalStateException('Cannot add an approval to item in a status different from idea');
+		if (! in_array ( $this->status, [ 
+				self::STATUS_IDEA 
+		] )) {
+			throw new IllegalStateException ( 'Cannot add an approval to item in a status different from idea' );
 		}
-		if (array_key_exists($member->getId(), $this->organizationMembersApprovals)) {
-			throw new DuplicatedDomainEntityException($this, $user);
+		if (array_key_exists ( $member->getId (), $this->organizationMembersApprovals )) {
+			throw new DuplicatedDomainEntityException ( $this, $user );
 		}
-		//TODO : remove log 
-		//error_log("fino a qui ci arrivo e non ho problemi, effettuo il fire dell'evento il voto è $vote e il member è ".print_r($member,true));
 		
-		//optional membership check
-		//error_log("asdasbeverof member id ".$member->getId());
-		$this->recordThat(ApprovalCreated::occur($this->id->toString(), array(
-				'by' => $member->getId(),
-				'vote'	 => $vote,
-				'task-id'=>$this->getId(),
-				'description'=>$description,
-		)));
-		
-		
-		
-		
-		
-		
+		$this->recordThat ( ApprovalCreated::occur ( $this->id->toString (), array (
+				'by' => $member->getId (),
+				'vote' => $vote,
+				'task-id' => $this->getId (),
+				'description' => $description 
+		) ) );
 	}
 	/**
 	 * 
@@ -640,27 +632,11 @@ class Task extends DomainEntity implements TaskInterface
 		$this->members[$id]['estimatedAt'] = $event->occurredOn();
 	}
 	
-	//TODO : implementare catcher
-	protected function whenApprovalCreated(ApprovalCreated $event){
-		$p =$event->payload();
-		$id = $p['by'];
-		$this->organizationMembersApprovals[$id]['approval']=$p['vote'];
-		$this->organizationMembersApprovals[$id]['approvalGeneratedAt']=$event->occurredOn();
-	//	error_log("sono arrivato alla gestione dell'evento approval created evento --> ".print_r($event,true));
-// 		$p = $event->payload();
-// 		$id = $p['by'];
-// 		$vote = $p['vote'];
-// 		$createdAt= $event->occurredOn();
-		
-// 		//$this->members[$id]['approval']=$p['vote'];
-// 		//$this->members[$id]['createdAt']=$event->occurredOn();
-// 		$approval = new ItemIdeaApproval($vote, $createdAt);
-	
-// 		$approval->setItem($this);
-		
-// 		$approval->setVoter($user)
-		
-		
+	protected function whenApprovalCreated(ApprovalCreated $event) {
+		$p = $event->payload ();
+		$id = $p ['by'];
+		$this->organizationMembersApprovals [$id] ['approval'] = $p ['vote'];
+		$this->organizationMembersApprovals [$id] ['approvalGeneratedAt'] = $event->occurredOn ();
 	}
 	
 	protected function whenSharesAssigned(SharesAssigned $event) {
