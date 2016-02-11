@@ -21,6 +21,8 @@ use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\Mvc\Application;
+use TaskManagement\TaskOpened;
+use TaskManagement\TaskArchived;
 
 class NotifyMailListener implements NotificationService, ListenerAggregateInterface
 {
@@ -64,6 +66,8 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, TaskClosed::class, array($this, 'processTaskClosed'));
 		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, TaskCreated::class, array($this, 'processWorkItemIdeaCreated'));
 		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, TaskAccepted::class, array($this, 'processTaskAccepted'));
+		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, TaskOpened::class, array($this, 'processTaskOpened'));
+		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, TaskArchived::class, array($this, 'processTaskArchived'));
 	}
 	
 	public function detach(EventManagerInterface $events) {
@@ -118,6 +122,35 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 		$task = $this->taskService->findTask($taskId);
 		$this->sendTaskAcceptedInfoMail($task);
 	}
+	
+	
+	public function processTaskOpened(Event $event){
+		$streamEvent = $event->getTarget ();
+		$taskId = $streamEvent->metadata ()['aggregate_id'];
+		$task = $this->taskService->findTask ( $taskId );
+		
+			$memberId = $event->getParam ( 'by' );
+			$org = $task->getStream()->getOrganization();
+			$memberships = $this->orgService->findOrganizationMemberships($org,null,null);
+			$this->sendTaskOpenedInfoMail($task, $memberships);
+		
+	}
+	
+	public function processTaskArchived(Event $event){
+		$streamEvent = $event->getTarget ();
+		$taskId = $streamEvent->metadata ()['aggregate_id'];
+		$task = $this->taskService->findTask ( $taskId );
+	
+		$memberId = $event->getParam ( 'by' );
+		$org = $task->getStream()->getOrganization();
+		$memberships = $this->orgService->findOrganizationMemberships($org,null,null);
+		$this->sendTaskArchivedInfoMail($task, $memberships);
+	
+	}
+	
+	
+	
+	
 	/**
 	 * @param Task $task
 	 * @param User $member
@@ -328,6 +361,64 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 		}
 		return $rv;
 	}
+	
+	public function sendTaskOpenedInfoMail(Task $task, $memberships)
+	{
+		$rv = [];
+		$org = $task->getStream()->getOrganization();
+		$stream = $task->getStream();
+		
+		foreach ($memberships as $m) {
+			$recipient = $m->getMember();
+				
+			$message = $this->mailService->getMessage();
+			$message->setTo($recipient->getEmail());
+			$message->setSubject('A new idea has been accepted in "' . $stream->getSubject() . '" stream');
+				
+			$this->mailService->setTemplate( 'mail/task-opened-info.phtml', [
+					'task' => $task,
+					'recipient'=> $recipient,
+					'organization'=> $org,
+					'stream'=> $stream,
+					'host' => $this->host
+			]);
+			$this->mailService->send();
+			$rv[] = $recipient;
+		}
+		return $rv;
+		
+	}
+	
+	public function sendTaskArchivedInfoMail(Task $task, $memberships)
+	{
+		$rv = [];
+		$org = $task->getStream()->getOrganization();
+		$stream = $task->getStream();
+	
+		foreach ($memberships as $m) {
+			$recipient = $m->getMember();
+	
+			$message = $this->mailService->getMessage();
+			$message->setTo($recipient->getEmail());
+			$message->setSubject('A new idea has been rejected in "' . $stream->getSubject() . '" stream');
+	
+			$this->mailService->setTemplate( 'mail/task-archived-info.phtml', [
+					'task' => $task,
+					'recipient'=> $recipient,
+					'organization'=> $org,
+					'stream'=> $stream,
+					'host' => $this->host
+			]);
+			$this->mailService->send();
+			$rv[] = $recipient;
+		}
+		return $rv;
+	
+	}
+	
+	
+	
+	
 	/**
 	 * @return MailServiceInterface
 	 */
