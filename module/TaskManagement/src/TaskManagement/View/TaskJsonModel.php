@@ -146,10 +146,13 @@ class TaskJsonModel extends JsonModel
 					'controller' => 'transitions',
 			]);
 		}
+	if ($task instanceof Task){
 		$approvals = $task->getApprovals();
 		$approvalswithkey = [];
 		foreach ($approvals as $approval){
 			$approvalswithkey[$approval->getVoter()->getId()]=$approval;
+		}}else{
+			$approvalswithkey=$task->getApprovals();
 		}
 		$rv = [
 			'id' => $task->getId (),
