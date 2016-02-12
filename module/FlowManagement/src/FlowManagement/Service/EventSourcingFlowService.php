@@ -14,6 +14,7 @@ use Prooph\EventStore\Stream\SingleStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Application\Entity\BasicUser;
 use FlowManagement\VoteIdeaCard;
+use TaskManagement\Entity\Task;
 
 class EventSourcingFlowService extends AggregateRepository implements FlowService{
 
@@ -28,6 +29,12 @@ class EventSourcingFlowService extends AggregateRepository implements FlowServic
 		$this->entityManager = $entityManager;
 	}
 
+	public function getCard($id){
+		$cId = $id instanceof Uuid ? $id->toString() : $id;
+		$card = $this->getAggregateRoot($cId);
+		return $card;
+	}
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see \FlowManagement\Service\FlowService::findFlowCards()
@@ -77,5 +84,18 @@ class EventSourcingFlowService extends AggregateRepository implements FlowServic
 			->setParameter(':recipient', $recipient);
 		
 		return intval($query->getQuery()->getSingleScalarResult());
+	}
+	
+	public function findFlowCardsByItem(Task $item){
+		$builder = $this->entityManager->createQueryBuilder();
+		
+		$query = $builder->select('f')
+			->from(ReadModelFlowCard::class, 'f')
+			->innerJoin('f.item', 'i', 'WITH', 'i.id = :itemId')
+			->andWhere('i.status = :status')
+			->andWhere('f.hidden = 0')
+			->setParameter(':itemId', $item->getId())
+			->setParameter(':status', $item->getStatus());
+		return $query->getQuery()->getResult();
 	}
 }
