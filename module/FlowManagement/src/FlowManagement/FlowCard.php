@@ -36,6 +36,10 @@ class FlowCard extends DomainEntity implements FlowCardInterface {
 	 * @var Uuid
 	 */
 	protected $itemId = null;
+	/**
+	 * @var boolean
+	 */
+	protected $hidden;
 
 	public static function create(BasicUser $recipient, $content, BasicUser $by, $itemId = null){
 		$rv = new self();
@@ -53,6 +57,22 @@ class FlowCard extends DomainEntity implements FlowCardInterface {
 		$this->recipient = BasicUser::createBasicUser($event->payload()['to']);
 		$this->createdAt = $this->mostRecentEditAt = $event->occurredOn();
 		$this->createdBy = $this->mostRecentEditBy = BasicUser::createBasicUser($event->payload()['by']);
+		$this->hidden = false;
+	}
+	
+	public function hide() {
+		if($this->getHidden() == true){
+			return;
+		}
+		$this->recordThat(FlowCardHidden::occur($this->id->toString(), array(
+			'prevStatus' => $this->getHidden(),
+			'item' => $this->getItemId()
+		)));
+	}
+	
+	public function whenFlowCardHidden(FlowCardHidden $event){
+		$this->mostRecentEditAt = $event->occurredOn();
+		$this->hidden = true;
 	}
 	
 	public function getRecipient(){
@@ -73,5 +93,9 @@ class FlowCard extends DomainEntity implements FlowCardInterface {
 	
 	public function getItemId(){
 		return $this->itemId;
+	}
+	
+	public function getHidden(){
+		return $this->hidden;
 	}
 }

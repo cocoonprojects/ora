@@ -9,6 +9,7 @@ use Application\Entity\User;
 use FlowManagement\Entity\VoteIdeaCard;
 use FlowManagement\FlowCardInterface;
 use TaskManagement\Entity\Task;
+use FlowManagement\Entity\FlowCard;
 
 class CardCommandsListener extends ReadModelProjector {
 	
@@ -25,6 +26,16 @@ class CardCommandsListener extends ReadModelProjector {
 		}
 	}
 	
+	public function onFlowCardHidden(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$entity = $this->entityManager->find(FlowCard::class, $id);
+		if(!is_null($entity)){
+			$entity->setMostRecentEditAt($event->occurredOn());
+			$entity->hide();
+			$this->entityManager->persist($entity);
+		}
+	}
+
 	private function cardFactory(User $recipient, StreamEvent $event){
 		$id = $event->metadata()['aggregate_id'];
 		$content = $event->payload()['content'];
