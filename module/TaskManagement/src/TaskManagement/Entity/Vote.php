@@ -15,7 +15,7 @@ class Vote {
 	
 	/**
 	 * @ORM\Column(type="integer", length=1)
-	 * @var int //TODO check type 
+	 * @var int 
 	 */
 	private $value;
 	

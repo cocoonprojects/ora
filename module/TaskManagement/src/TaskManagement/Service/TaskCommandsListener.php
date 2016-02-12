@@ -137,43 +137,20 @@ class TaskCommandsListener extends ReadModelProjector
 		$taskMember->setEstimation(new Estimation($value, $event->occurredOn()));
 		$this->entityManager->persist($taskMember);
 	}
-	
-	protected function onApprovalCreated(StreamEvent $event){
-		//error_log("on approval created");
-		$memberId = $event->payload()['by'];
-		$description = $event->payload()['description'];
-		$user = $this->entityManager->find(User::class, $memberId);
-		if(is_null($user)) {
+	protected function onApprovalCreated(StreamEvent $event) {
+		$memberId = $event->payload ()['by'];
+		$description = $event->payload ()['description'];
+		$user = $this->entityManager->find ( User::class, $memberId );
+		if (is_null ( $user )) {
 			return;
 		}
-		$id = $event->metadata()['aggregate_id'];
-		$taskId = $event->payload()['task-id'];
-		$task = $this->entityManager->find(Task::class, $taskId);
-		
-		//vote creation
-		$vote =new Vote($event->occurredOn());
-		$vote->setValue($event->payload()['vote']);
-		//approval creation 
-		/*$approval = new ItemIdeaApproval($vote, $event->occurredOn());
-		$approval->setCreatedAt($event->occurredOn());
-		$approval->setVoter($user);	
-		$approval->setItem($task);
-		$approval->setCreatedAt($event->occurredOn());
-		$approval->setMostRecentEditAt($event->occurredOn());
-		$approval->setCreatedBy($user);
-		$approval->setMostRecentEditBy($user);*/
-		
-		$task->addApproval($vote, $user, $event->occurredOn(),$description);
-		
-		$this->entityManager->persist($task);
-		
-		//$approvals = $task->getApprovals();
-		//error_log("gli approvals sul task sono ".print_r($approvals,true));
-		//check  number of members in organization
-		
-	
-		
-	
+		$id = $event->metadata ()['aggregate_id'];
+		$taskId = $event->payload ()['task-id'];
+		$task = $this->entityManager->find ( Task::class, $taskId );
+		$vote = new Vote ( $event->occurredOn () );
+		$vote->setValue ( $event->payload ()['vote'] );
+		$task->addApproval ( $vote, $user, $event->occurredOn (), $description );
+		$this->entityManager->persist ( $task );
 	}
 	
 	protected function onTaskCompleted(StreamEvent $event) {
