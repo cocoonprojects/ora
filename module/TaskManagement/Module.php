@@ -1,7 +1,7 @@
 <?php
 
 namespace TaskManagement;
-
+use TaskManagement\Controller\ApprovalController;
 use TaskManagement\Controller\ApprovalsController;
 use TaskManagement\Controller\EstimationsController;
 use TaskManagement\Controller\MembersController;
@@ -20,6 +20,7 @@ use TaskManagement\Service\NotifyMailListener;
 use TaskManagement\Service\StreamCommandsListener;
 use TaskManagement\Service\TaskCommandsListener;
 use TaskManagement\Service\TransferCreditsListener;
+use TaskManagement\Service\CloseItemIdeaListener;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 
@@ -62,6 +63,12 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$controller = new EstimationsController($taskService);
+					return $controller;
+				},
+				'TaskManagement\Controller\Approval' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$controller = new ApprovalController($taskService);
 					return $controller;
 				},
 				'TaskManagement\Controller\Shares' => function ($sm) {
