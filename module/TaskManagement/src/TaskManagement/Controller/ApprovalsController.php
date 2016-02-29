@@ -1,0 +1,148 @@
+<?php
+
+namespace TaskManagement\Controller;
+
+use Application\DomainEntityUnavailableException;
+use Application\IllegalStateException;
+use Application\View\ErrorJsonModel;
+use ZFX\Rest\Controller\HATEOASRestfulController;
+use TaskManagement\Service\TaskService;
+use TaskManagement\TaskInterface;
+use TaskManagement\View\TaskJsonModel;
+use Zend\I18n\Validator\IsFloat;
+use Zend\I18n\Validator\IsInt;
+use Zend\Validator\GreaterThan;
+use Zend\Validator\NotEmpty;
+use Zend\Validator\ValidatorChain;
+
+
+class ApprovalsController extends HATEOASRestfulController {
+	
+	protected static $collectionOptions = ['GET'];
+	protected static $resourceOptions = ['POST'];
+	
+	/**
+	 * @var TaskService
+	 */
+	protected $taskService;
+	/**
+	 * @var \DateInterval
+	 */
+	protected $timeboxForItemIdeaVoting;
+	
+	public function __construct(TaskService $taskService){
+		$this->taskService = $taskService;
+		$this->timeboxForItemIdeaVoting = self::getDefaultIntervalForItemIdeaVoting();
+	}
+	
+	public function invoke($id, $data) {
+		if (is_null ( $this->identity () )) {
+			// unauthorized
+			$this->response->setStatusCode ( 401 );
+			return $this->response;
+		}
+		$error = new ErrorJsonModel ();
+		if (! isset ( $data ['value'] )) {
+			$error->setCode ( 400 );
+			$error->addSecondaryErrors ( 'value', [
+					'Vote cannot be empty'
+			] );
+			$error->setDescription ( 'Specified vote value are not valid' );
+			$this->response->setStatusCode ( 400 );
+			return $error;
+		}
+	
+		$vote = $data ['value'];
+		$description = $data ['description'];
+	
+		$validator = new ValidatorChain ();
+		$validator->attach ( new NotEmpty (), true )->attach ( new IsInt (), true )->attach ( new GreaterThan ( [
+				'min' => 0,
+				'inclusive' => true
+		] ), true );
+	
+		if (! ($validator->isValid ( $vote ))) {
+			$error->setCode ( 400 );
+			$error->addSecondaryErrors ( 'vote', $validator->getMessages () );
+			$error->setDescription ( 'Specified vote value are not valid' );
+			$this->response->setStatusCode ( 400 );
+			return $error;
+		}
+	
+		$task = $this->taskService->getTask ( $id );
+		if (is_null ( $task )) {
+			// RESOURCE NOT FOUND
+			$this->response->setStatusCode ( 404 );
+				
+			return $this->response;
+		}
+	
+		if (! $this->isAllowed ( $this->identity (), $this->taskService->findTask ( $id ), 'TaskManagement.Task.approve' )) {
+			$this->response->setStatusCode ( 403 );
+			return $this->response;
+		}
+	
+		$this->transaction ()->begin ();
+	
+		try {
+			$task->addApproval ( $vote, $this->identity (), $description );
+			$this->transaction ()->commit ();
+			$this->response->setStatusCode ( 201 );
+			$view = new TaskJsonModel ( $this );
+			$view->setVariable ( 'resource', $task );
+			return $view;
+		} catch ( DomainEntityUnavailableException $e ) {
+			$this->transaction ()->rollback ();
+			$this->response->setStatusCode ( 403 ); // Forbidden because not a member
+		} catch ( IllegalStateException $e ) {
+			$this->transaction ()->rollback ();
+			error_log ( print_r ( $e, true ) );
+			$this->response->setStatusCode ( 412 ); // Preconditions failed
+		}
+		return $this->response;
+	}
+	
+	public function getList(){
+		
+		if(is_null($this->identity())) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+		switch ($this->params('type')) {
+			case "idea-items":
+				if(!$this->isAllowed($this->identity(), NULL, 'TaskManagement.Approval.idea-items')){
+					$this->response->setStatusCode(403);
+					return $this->response;
+				}
+				$itemIdeas = $this->taskService->findItemsBefore($this->timeboxForItemIdeaVoting, TaskInterface::STATUS_IDEA);
+				foreach ($itemIdeas as $idea){
+					
+				}
+				var_dump($approvalsToClose);
+				break;
+			default:
+				$this->response->setStatusCode(404);
+		}
+		return $this->response;
+	}
+	
+	public function setTimeboxForItemIdeaVoting(\DateInterval $interval){
+		$this->timeboxForItemIdeaVoting = $interval;
+	}
+	public function getTimeboxForItemIdeaVoting(){
+		return $this->timeboxForItemIdeaVoting;
+	}
+	public function getTaskService(){
+		return $this->taskService;
+	}
+	protected function getCollectionOptions(){
+		return self::$collectionOptions;
+	}
+	
+	protected function getResourceOptions(){
+		return self::$resourceOptions;
+	}
+	protected static function getDefaultIntervalForItemIdeaVoting(){
+		return new \DateInterval('P7D');
+	}
+}

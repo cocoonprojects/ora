@@ -52,16 +52,35 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
    '2015-03-11T13:35:32.000000+0100', 'People\\Organization', '00000000-0000-0000-1000-000000000000'),
   ('75548e90-569c-4e1b-958f-5b644243210c', 4, 'People\\OrganizationAccountChanged',
    'a:3:{s:9:"accountId";s:36:"dcde992b-5aa9-4447-98ae-c8115906dcb7";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-1000-000000000000";}',
-   '2015-03-11T13:35:32.000000+0100', 'People\\Organization', '00000000-0000-0000-1000-000000000000'),
-('45f1b89a-156b-4dbf-b5c9-9a0540460a01', 5, 'People\\OrganizationUpdated',
-   'a:4:{s:3:"key";s:15:"kanbanizeApiKey";s:5:"value";s:40:"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";s:2:"by";s:36:"7f3d6cd8-8fc1-4d88-8253-f95e7df25746";s:12:"aggregate_id";s:36:"00000000-0000-0000-1000-000000000000";}',
-   '2014-12-29T17:32:07.000000+0100', 'People\\Organization', '00000000-0000-0000-1000-000000000000');
+   '2015-03-11T13:35:32.000000+0100', 'People\\Organization', '00000000-0000-0000-1000-000000000000');
 INSERT INTO `organizations` (id, name, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id) VALUES
   ('00000000-0000-0000-1000-000000000000', 'O.R.A. Team', '2014-11-06 13:11:05', '2014-11-06 13:11:05',
    '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000');
 INSERT INTO organization_members (member_id, organization_id, role, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id)
 VALUES
   ('60000000-0000-0000-0000-000000000000', '00000000-0000-0000-1000-000000000000', 'admin', '2014-10-09 11:33:45',
+   '2014-10-09 11:33:45', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000');
+
+# organization configured for Kanbanize integration 00000000-0000-0000-2000-000000000000
+INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
+  ('907dd60a-1e37-4e35-8045-7abfc5f60895', 1, 'People\\OrganizationCreated',
+   'a:2:{s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-2000-000000000000";}',
+   '2015-03-06T19:42:58.000000+0100', 'People\\Organization', '00000000-0000-0000-2000-000000000000'),
+  ('abc7ecb0-63b5-40c9-8ae4-09c06449a4ce', 2, 'People\\OrganizationUpdated',
+   'a:3:{s:4:"name";s:11:"O.R.A. Team";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-2000-000000000000";}',
+   '2015-03-06T19:42:58.000000+0100', 'People\\Organization', '00000000-0000-0000-2000-000000000000'),
+  ('74548e90-569c-4e1b-958f-5b644a43210c', 3, 'People\\OrganizationMemberAdded',
+   'a:4:{s:6:"userId";s:36:"60000000-0000-0000-0000-000000000000";s:4:"role";s:5:"admin";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-2000-000000000000";}',
+   '2015-03-11T13:35:32.000000+0100', 'People\\Organization', '00000000-0000-0000-2000-000000000000'),
+('45f1b89a-156b-4dbf-b5c9-9a0540460a11', 10, 'People\\OrganizationUpdated',
+   'a:4:{s:10:"settingKey";s:9:"kanbanize";s:12:"settingValue";a:3:{s:6:"apiKey";s:40:"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";s:16:"accountSubdomain";s:9:"foodomain";s:6:"boards";a:1:{i:150;a:1:{s:13:"columnMapping";a:10:{s:9:"Requested";i:0;s:8:"Approved";i:10;s:3:"WIP";i:20;s:7:"Testing";i:20;s:15:"User Acceptance";i:20;s:18:"Production Release";i:30;s:18:"1ST round feedback";i:30;s:18:"2ND round feedback";i:30;s:8:"Accepted";i:40;s:6:"Closed";i:50;}}}}s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-2000-000000000000";}',
+   '2014-12-29T17:32:07.000000+0100', 'People\\Organization', '00000000-0000-0000-2000-000000000000');
+INSERT INTO `organizations` (id, name, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id) VALUES
+  ('00000000-0000-0000-2000-000000000000', 'O.R.A. Team', '2014-11-06 13:11:05', '2014-11-06 13:11:05',
+   '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000');
+INSERT INTO organization_members (member_id, organization_id, role, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id)
+VALUES
+  ('60000000-0000-0000-0000-000000000000', '00000000-0000-0000-2000-000000000000', 'admin', '2014-10-09 11:33:45',
    '2014-10-09 11:33:45', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000');
 
 # organization account
@@ -169,17 +188,18 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
   ('334fa91f-62c9-4b34-827b-3e01bd7efe5c', 2, 'TaskManagement\\TaskUpdated',
    'a:3:{s:7:\"subject\";s:29:\"Development environment setup\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000000\";}',
    '2014-01-12T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000000'),
+('434fa91f-62c9-4b34-827b-3e01bd7efe5c', 3, 'TaskManagement\\TaskUpdated',
+   'a:3:{s:11:\"description\";s:29:\"Development environment setup\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000000\";}',
+   '2014-01-12T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000000'),
   ('c033eb32-2ad4-49d5-b25c-3c0b600b7dec', 4, 'TaskManagement\\TaskMemberAdded',
    'a:4:{s:6:\"userId\";s:36:\"60000000-0000-0000-0000-000000000000\";s:4:\"role\";s:5:\"owner\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000000\";}',
    '2014-01-12T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000000'),
   ('c133eb32-2ad4-49d5-b25c-3c0b600b7dec', 5, 'TaskManagement\\TaskMemberAdded',
    'a:4:{s:6:\"userId\";s:36:\"20000000-0000-0000-0000-000000000000\";s:4:\"role\";s:6:\"member\";s:2:\"by\";s:36:\"20000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000000\";}',
    '2014-11-12T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000000');
-INSERT INTO `tasks` (id, stream_id, subject, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type)
+INSERT INTO `tasks` (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type)
 VALUES
-  ('00000000-0000-0000-0000-000000000000', '00000000-1000-0000-0000-000000000000', 'Development environment setup', 20,
-   '2014-01-12 19:07:59', '2014-11-12 19:07:59', '60000000-0000-0000-0000-000000000000',
-   '60000000-0000-0000-0000-000000000000', 'task');
+  ('00000000-0000-0000-0000-000000000000', '00000000-1000-0000-0000-000000000000', 'Development environment setup', 'Development environment setup', 20, '2014-01-12 19:07:59', '2014-11-12 19:07:59', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000', 'task');
 INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt) VALUES
   ('00000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000', 'owner', '2014-11-12 19:07:59',
    '2014-01-12 19:07:59'),
@@ -194,6 +214,9 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
   ('334fa91f-62c9-4b34-827b-3e01bd7efe6c', 2, 'TaskManagement\\TaskUpdated',
    'a:3:{s:7:\"subject\";s:27:\"Continous integration setup\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000001\";}',
    '2014-01-31T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000001'),
+('434fa91f-62c9-4b34-827b-3e01bd7efe6c', 2, 'TaskManagement\\TaskUpdated',
+   'a:3:{s:11:\"description\";s:27:\"Continous integration setup\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000001\";}',
+   '2014-01-31T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000001'),
   ('c033eb32-2ad4-49d5-b25c-3c0b600b7dfc', 4, 'TaskManagement\\TaskMemberAdded',
    'a:4:{s:6:\"userId\";s:36:\"60000000-0000-0000-0000-000000000000\";s:4:\"role\";s:5:\"owner\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000001\";}',
    '2014-01-31T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000001'),
@@ -203,10 +226,9 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
   ('fbdfdd17-61ef-4f80-bcd4-7e6eb6990713', 6, 'TaskManagement\\TaskCompleted',
    'a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000001\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}',
    '2014-10-31T10:44:30.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000001');
-INSERT INTO `tasks` (id, stream_id, subject, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type)
+INSERT INTO `tasks` (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type)
 VALUES
-  ('00000000-0000-0000-0000-000000000001', '00000000-1000-0000-0000-000000000000', 'Continous integration setup', 30,
-   '2014-01-31 19:07:59', '2014-11-12 19:07:59', '60000000-0000-0000-0000-000000000000',
+  ('00000000-0000-0000-0000-000000000001', '00000000-1000-0000-0000-000000000000', 'Continous integration setup', 'Continous integration setup', 30, '2014-01-31 19:07:59', '2014-11-12 19:07:59', '60000000-0000-0000-0000-000000000000',
    '60000000-0000-0000-0000-000000000000', 'task');
 INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt) VALUES
   ('00000000-0000-0000-0000-000000000001', '60000000-0000-0000-0000-000000000000', 'owner', '2014-11-12 19:07:59',
@@ -221,6 +243,9 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
    '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000002'),
   ('334fa91f-62c9-4b34-827b-3e01bd7efe7c', 2, 'TaskManagement\\TaskUpdated',
    'a:3:{s:7:\"subject\";s:27:\"Technology stack definition\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000002\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000002'),
+  ('434fa91f-62c9-4b34-827b-3e01bd7efe7c', 2, 'TaskManagement\\TaskUpdated',
+   'a:3:{s:11:\"description\";s:27:\"Technology stack definition\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000002\";}',
    '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000002'),
   ('c033eb32-2ad4-49d5-b25c-3c0b600b7d9c', 4, 'TaskManagement\\TaskMemberAdded',
    'a:4:{s:6:\"userId\";s:36:\"60000000-0000-0000-0000-000000000000\";s:4:\"role\";s:5:\"owner\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000002\";}',
@@ -240,10 +265,9 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
   ('fbdfdd17-61ef-4f80-bcd4-7e6eb6990714', 9, 'TaskManagement\\TaskAccepted',
    'a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000002\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}',
    '2014-10-31T10:44:30.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000002');
-INSERT INTO `tasks` (id, stream_id, subject, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type)
+INSERT INTO `tasks` (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type)
 VALUES
-  ('00000000-0000-0000-0000-000000000002', '00000000-1000-0000-0000-000000000000', 'Technology stack definition', 40,
-   '2014-02-07 19:07:59', '2014-11-12 19:07:59', '60000000-0000-0000-0000-000000000000',
+  ('00000000-0000-0000-0000-000000000002', '00000000-1000-0000-0000-000000000000', 'Technology stack definition', 'Technology stack definition', 40, '2014-02-07 19:07:59', '2014-11-12 19:07:59', '60000000-0000-0000-0000-000000000000',
    '60000000-0000-0000-0000-000000000000', 'task');
 INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt)
 VALUES
@@ -260,6 +284,9 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
   ('334fa91f-62c9-4b34-827b-3e01bd7eee8c', 2, 'TaskManagement\\TaskUpdated',
    'a:3:{s:7:\"subject\";s:33:\"Setup the development environment\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000003\";}',
    '2014-03-23T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000003'),
+  ('434fa91f-62c9-4b34-827b-3e01bd7eee8c', 3, 'TaskManagement\\TaskUpdated',
+   'a:3:{s:11:\"description\";s:33:\"Setup the development environment\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000003\";}',
+   '2014-03-23T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000003'),
   ('c033eb32-2ad4-49d5-b25c-3c0b600b7d10', 4, 'TaskManagement\\TaskMemberAdded',
    'a:4:{s:6:\"userId\";s:36:\"60000000-0000-0000-0000-000000000000\";s:4:\"role\";s:5:\"owner\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000003\";}',
    '2014-03-23T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000003'),
@@ -274,6 +301,9 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
    '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000101'),
   ('334fa91f-62c9-4b34-827b-3e01bd7efe8c', 2, 'TaskManagement\\TaskUpdated',
    'a:3:{s:7:\"subject\";s:27:\"Technology stack definition\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000101\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000101'),
+  ('434fa91f-62c9-4b34-827b-3e01bd7efe8c', 2, 'TaskManagement\\TaskUpdated',
+   'a:3:{s:11:\"description\";s:27:\"Technology stack definition\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000101\";}',
    '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000101'),
   ('c033eb32-2ad4-49d5-b25c-3c0b600b7d0c', 4, 'TaskManagement\\TaskMemberAdded',
    'a:4:{s:6:\"userId\";s:36:\"60000000-0000-0000-0000-000000000000\";s:4:\"role\";s:5:\"owner\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000101\";}',
@@ -294,9 +324,8 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
    'a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000101\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}',
    '2014-10-31T10:44:30.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000101');
 
-INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type) VALUES
-  ('00000000-0000-0000-0000-000000000101', '00000000-1000-0000-0000-000000000000', 'Accepted Task', 40,
-   '2014-11-06 14:32:44', '2014-11-06 14:32:44', 'task');
+INSERT INTO tasks (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, type) VALUES
+  ('00000000-0000-0000-0000-000000000101', '00000000-1000-0000-0000-000000000000', 'Accepted Task','Accepted Task', 40,'2014-11-06 14:32:44', '2014-11-06 14:32:44', 'task');
 INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt)
 VALUES
   ('00000000-0000-0000-0000-000000000101', '60000000-0000-0000-0000-000000000000', 'owner', '2014-11-12 19:07:59',
@@ -323,9 +352,26 @@ VALUES ('11111111-1000-0000-0000-000000000000', 'O.R.A.: Kanbanize Stream', '201
 INSERT INTO kanbanizestreams (id, boardId, projectId)
 VALUES ('11111111-1000-0000-0000-000000000000', '150', '100');
 
+INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
+  ('bac7de07-0580-421c-94ca-21842f676a30', 1, 'TaskManagement\\StreamCreated',
+   'a:3:{s:14:"organizationId";s:36:"00000000-0000-0000-2000-000000000000";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"11111111-2000-0000-0000-000000000000";}',
+   '2015-03-11T01:43:03.000000+0100', 'TaskManagement\\Stream', '11111111-2000-0000-0000-000000000000'),
+  ('ba0385c4-780b-46b2-b8be-7fd0118be870', 2, 'TaskManagement\\StreamUpdated',
+   'a:3:{s:7:"subject";N;s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"11111111-2000-0000-0000-000000000000";}',
+   '2015-03-11T01:43:03.000000+0100', 'TaskManagement\\Stream', '11111111-2000-0000-0000-000000000000'),
+  ('be943d09-7a9a-4a2a-a8b5-201bfeb57b60', 3, 'TaskManagement\\StreamOrganizationChanged',
+   'a:3:{s:14:\"organizationId\";s:36:\"00000000-0000-0000-2000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"11111111-2000-0000-0000-000000000000\";}',
+   '2014-11-12T19:07:59.000000+0100', 'TaskManagement\\Stream', '11111111-2000-0000-0000-000000000000');
+INSERT INTO streams (id, subject, createdAt, mostRecentEditAt, organization_id, createdBy_id, mostRecentEditBy_id, type)
+VALUES ('11111111-2000-0000-0000-000000000000', 'O.R.A.: Kanbanize Stream', '2014-11-06 13:11:05',
+        '2014-11-06 13:11:05', '00000000-0000-0000-2000-000000000000', '60000000-0000-0000-0000-000000000000',
+        '60000000-0000-0000-0000-000000000000', 'kanbanizestream');
+INSERT INTO kanbanizestreams (id, boardId, projectId)
+VALUES ('11111111-2000-0000-0000-000000000000', '150', '100');
+
 # kanbanizeTask 00000000-0000-0000-0000-000000000106, accepted, Mark Rogers (owner)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
-('6126d983-20ad-47f2-9636-085395aa3b8b',1,'TaskManagement\\TaskCreated','a:9:{s:6:\"status\";i:-1;s:6:\"taskid\";s:3:\"114\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000106\";s:7:\"subject\";s:9:\"subject 0\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000106'),
+('6126d983-20ad-47f2-9636-085395aa3b8b',1,'TaskManagement\\TaskCreated','a:10:{s:6:\"status\";i:-1;s:6:\"taskid\";s:3:\"114\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000106\";s:7:\"subject\";s:9:\"subject 0\";s:11:\"description\";s:13:\"description 0\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000106'),
 ('334fa91f-62c9-4b34-827b-3e01bd7efe9c', 2, 'TaskManagement\\TaskUpdated', 'a:3:{s:7:"subject";s:18:"un altro - cambio5";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000106";}',
    '2014-11-12T19:07:59.000000+0100', 'Kanbanize\\KanbanizeTask', '00000000-0000-0000-0000-000000000106'), 
   ('c033eb32-2ad4-49d5-b25c-3c0b600b7d12', 4, 'TaskManagement\\TaskMemberAdded',
@@ -338,9 +384,8 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
    'a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000106\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}',
    '2014-10-31T10:44:31.000000+0100', 'Kanbanize\\KanbanizeTask', '00000000-0000-0000-0000-000000000106');
 
-INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type) VALUES
-  ('00000000-0000-0000-0000-000000000106', '11111111-1000-0000-0000-000000000000', 'Accepted Kanbanize Task', 40,
-   '2014-11-06 14:32:44', '2014-11-06 14:32:44', 'kanbanizetask');
+INSERT INTO tasks (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, type) VALUES
+  ('00000000-0000-0000-0000-000000000106', '11111111-1000-0000-0000-000000000000', 'Accepted Kanbanize Task','Accepted Kanbanize Task', 40,'2014-11-06 14:32:44', '2014-11-06 14:32:44', 'kanbanizetask');
 INSERT INTO kanbanizetasks (id, taskId)
 VALUES ('00000000-0000-0000-0000-000000000106', '114');
 INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt)
@@ -350,7 +395,7 @@ VALUES
 
 # kanbanizeTask 00000000-0000-0000-0000-000000000107, completed, Mark Rogers (owner), Bruce Wayne (member)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
-('6126d983-20ad-47f2-9636-085395aa3b40',1,'TaskManagement\\TaskCreated','a:9:{s:6:\"status\";i:-1;s:6:\"taskid\";s:3:\"115\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000107\";s:7:\"subject\";s:9:\"subject 0\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000107'),
+('6126d983-20ad-47f2-9636-085395aa3b40',1,'TaskManagement\\TaskCreated','a:10:{s:6:\"status\";i:-1;s:6:\"taskid\";s:3:\"115\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000107\";s:7:\"subject\";s:9:\"subject 0\";s:11:\"description\";s:13:\"description 0\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000107'),
 ('334fa91f-62c9-4b34-827b-3e01bd7efe50', 2, 'TaskManagement\\TaskUpdated', 'a:3:{s:7:"subject";s:18:"un altro - cambio4";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000107";}',
    '2014-11-12T19:07:59.000000+0100', 'Kanbanize\\KanbanizeTask', '00000000-0000-0000-0000-000000000107'), 
   ('c033eb32-2ad4-49d5-b25c-3c0b600b7de0', 4, 'TaskManagement\\TaskMemberAdded',
@@ -368,9 +413,8 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
   ('fbdfdd17-61ef-4f80-bcd4-7e6eb6901723', 8, 'TaskManagement\\TaskCompleted',
    'a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000107\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}',
    '2014-10-31T10:44:30.000000+0100', 'Kanbanize\\KanbanizeTask', '00000000-0000-0000-0000-000000000107');
-INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type) VALUES
-  ('00000000-0000-0000-0000-000000000107', '11111111-1000-0000-0000-000000000000', 'Kanbanize Task 2', 30,
-   '2014-11-06 14:43:28', '2014-11-06 14:43:28', 'kanbanizetask');
+INSERT INTO tasks (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, type) VALUES
+  ('00000000-0000-0000-0000-000000000107', '11111111-1000-0000-0000-000000000000', 'Kanbanize Task 2','Kanbanize Task 2', 30, '2014-11-06 14:43:28', '2014-11-06 14:43:28', 'kanbanizetask');
 INSERT INTO kanbanizetasks (id, taskId)
 VALUES ('00000000-0000-0000-0000-000000000107', '115');
 INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt)
@@ -382,7 +426,7 @@ VALUES
 
 # kanbanizeTask 00000000-0000-0000-0000-000000000108, ongoing, Mark Rogers (owner), Bruce Wayne (member)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
-('6126d984-20ad-47f2-9636-085395aa3b41',1,'TaskManagement\\TaskCreated','a:9:{s:6:\"status\";i:20;s:6:\"taskid\";s:3:\"116\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000108\";s:7:\"subject\";s:9:\"subject 0\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000108'),
+('6126d984-20ad-47f2-9636-085395aa3b41',1,'TaskManagement\\TaskCreated','a:10:{s:6:\"status\";i:20;s:6:\"taskid\";s:3:\"116\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000108\";s:7:\"subject\";s:9:\"subject 0\";s:11:\"description\";s:13:\"description 0\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000108'),
 ('334fa91e-62c9-4b34-827b-3e01bd7efe51', 2, 'TaskManagement\\TaskUpdated', 'a:3:{s:7:"subject";s:18:"un altro - cambio3";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000108";}',
    '2014-11-12T19:07:59.000000+0100', 'Kanbanize\\KanbanizeTask', '00000000-0000-0000-0000-000000000108'),
   ('c033eb32-2ad4-49d5-b25c-3c0b600b7de1', 4, 'TaskManagement\\TaskMemberAdded',
@@ -391,9 +435,8 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
   ('68696c0b-0790-48b7-a122-ff2078c5bf20', 5, 'TaskManagement\\EstimationAdded',
    'a:3:{s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:5:"value";s:2:"-1";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000108";}',
    '2015-02-02T21:22:11.000000+0100', 'Kanbanize\\KanbanizeTask', '00000000-0000-0000-0000-000000000108');
-INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type) VALUES
-  ('00000000-0000-0000-0000-000000000108', '11111111-1000-0000-0000-000000000000', 'Kanbanize Task 3', 20,
-   '2014-11-06 14:51:12', '2014-11-06 14:51:12', 'kanbanizetask');
+INSERT INTO tasks (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, type) VALUES
+  ('00000000-0000-0000-0000-000000000108', '11111111-1000-0000-0000-000000000000', 'Kanbanize Task 3', 'Kanbanize Task 3', 20, '2014-11-06 14:51:12', '2014-11-06 14:51:12', 'kanbanizetask');
 INSERT INTO kanbanizetasks (id, taskId)
 VALUES ('00000000-0000-0000-0000-000000000108', '116');
 INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt)
@@ -405,7 +448,7 @@ VALUES
 
 # kanbanizeTask 00000000-0000-0000-0000-000000000110, completed, Mark Rogers (owner)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
-('6126d984-20ad-47f2-9636-085395aa3b40',1,'TaskManagement\\TaskCreated','a:9:{s:6:\"status\";i:30;s:6:\"taskid\";s:2:\"17\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000110\";s:7:\"subject\";s:9:\"subject 0\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000110'),
+('6126d984-20ad-47f2-9636-085395aa3b40',1,'TaskManagement\\TaskCreated','a:10:{s:6:\"status\";i:30;s:6:\"taskid\";s:2:\"17\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000110\";s:7:\"subject\";s:9:\"subject 0\";s:11:\"description\";s:13:\"description 0\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000110'),
 ('334fa91e-62c9-4b34-827b-3e01bd7efe50', 2, 'TaskManagement\\TaskUpdated', 'a:3:{s:7:"subject";s:18:"un altro - cambio2";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000110";}',
    '2014-11-12T19:07:59.000000+0100', 'Kanbanize\\KanbanizeTask', '00000000-0000-0000-0000-000000000110'),
   ('c033eb33-2ad4-49d5-b25c-3c0b600b7de0', 4, 'TaskManagement\\TaskMemberAdded',
@@ -414,9 +457,8 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
   ('fbdfdd18-61ef-4f80-bcd4-7e6eb6901723', 5, 'TaskManagement\\TaskCompleted',
    'a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000110\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}',
    '2014-10-31T10:44:30.000000+0100', 'Kanbanize\\KanbanizeTask', '00000000-0000-0000-0000-000000000110');
-INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type) VALUES
-  ('00000000-0000-0000-0000-000000000110', '11111111-1000-0000-0000-000000000000', 'completedTask', 30,
-   '2014-11-06 15:39:13', '2014-11-06 15:39:13', 'kanbanizetask');
+INSERT INTO tasks (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, type) VALUES
+  ('00000000-0000-0000-0000-000000000110', '11111111-1000-0000-0000-000000000000', 'completedTask', 'completedTask', 30, '2014-11-06 15:39:13', '2014-11-06 15:39:13', 'kanbanizetask');
 INSERT INTO kanbanizetasks (id, taskId)
 VALUES ('00000000-0000-0000-0000-000000000110', '119');
 INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt) VALUES
@@ -425,7 +467,7 @@ INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt)
 
 # kanbanizeTask 00000000-0000-0000-0000-000000000111, accepted, Mark Rogers (owner)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
-('6136d983-20ad-47f2-9636-085395aa3b8b',1,'TaskManagement\\TaskCreated','a:9:{s:6:\"status\";i:-1;s:6:\"taskid\";s:2:\"17\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000111\";s:7:\"subject\";s:9:\"subject 0\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000111'),
+('6136d983-20ad-47f2-9636-085395aa3b8b',1,'TaskManagement\\TaskCreated','a:10:{s:6:\"status\";i:-1;s:6:\"taskid\";s:2:\"17\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:8:\"streamId\";s:36:\"11111111-1000-0000-0000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:8:\"assignee\";N;s:10:\"columnname\";s:11:\"In Progress\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000111\";s:7:\"subject\";s:9:\"subject 0\";s:11:\"description\";s:13:\"description 0\";}','2015-11-20T16:07:44.000000+0000','Kanbanize\\KanbanizeTask','00000000-0000-0000-0000-000000000111'),
 ('335fa91f-62c9-4b34-827b-3e01bd7efe9c', 2, 'TaskManagement\\TaskUpdated', 'a:3:{s:7:"subject";s:17:"un altro - cambio";s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000111";}',
    '2014-11-12T19:07:59.000000+0100', 'Kanbanize\\KanbanizeTask', '00000000-0000-0000-0000-000000000111'),
   ('c043eb32-2ad4-49d5-b25c-3c0b600b7d12', 4, 'TaskManagement\\TaskMemberAdded',
@@ -440,9 +482,8 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
   ('fbefdd17-61ef-4f80-bcd4-7e6eb6991714', 7, 'TaskManagement\\TaskAccepted',
    'a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000111\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}',
    '2014-10-31T10:44:31.000000+0100', 'Kanbanize\\KanbanizeTask', '00000000-0000-0000-0000-000000000111');
-INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type) VALUES
-  ('00000000-0000-0000-0000-000000000111', '11111111-1000-0000-0000-000000000000', 'acceptedTask', 40,
-   '2014-11-06 15:48:17', '2014-11-06 15:48:17', 'kanbanizetask');
+INSERT INTO tasks (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, type) VALUES
+  ('00000000-0000-0000-0000-000000000111', '11111111-1000-0000-0000-000000000000', 'acceptedTask', 'acceptedTask', 40, '2014-11-06 15:48:17', '2014-11-06 15:48:17', 'kanbanizetask');
 INSERT INTO kanbanizetasks (id, taskId)
 VALUES ('00000000-0000-0000-0000-000000000111', '120');
 INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt) VALUES
@@ -457,17 +498,18 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
   ('334fa91f-62c9-4b34-827b-3e01bd7efe5d', 2, 'TaskManagement\\TaskUpdated',
    'a:3:{s:7:\"subject\";s:29:\"Development environment setup\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000004\";}',
    '2014-08-12T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000004'),
+  ('634fa91f-62c9-4b34-827b-3e01bd7efe5d', 2, 'TaskManagement\\TaskUpdated',
+   'a:3:{s:11:\"description\";s:29:\"Development environment setup\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000004\";}',
+   '2014-08-12T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000004'),
   ('c033eb32-2ad4-49d5-b25c-3c0b600b7dez', 4, 'TaskManagement\\TaskMemberAdded',
    'a:4:{s:6:\"userId\";s:36:\"60000000-0000-0000-0000-000000000000\";s:4:\"role\";s:5:\"owner\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000004\";}',
    '2014-08-12T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000004'),
   ('c133eb32-2ad4-49d5-b25c-3c0b600b7dey', 5, 'TaskManagement\\TaskMemberAdded',
    'a:4:{s:6:\"userId\";s:36:\"20000000-0000-0000-0000-000000000000\";s:4:\"role\";s:6:\"member\";s:2:\"by\";s:36:\"20000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000004\";}',
    '2014-11-12T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000004');
-INSERT INTO `tasks` (id, stream_id, subject, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type)
+INSERT INTO `tasks` (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type)
 VALUES
-  ('00000000-0000-0000-0000-000000000004', '00000000-1000-0000-0000-000000000000', 'Development environment setup', 20,
-   '2014-08-12 19:07:59', '2014-11-12 19:07:59', '60000000-0000-0000-0000-000000000000',
-   '60000000-0000-0000-0000-000000000000', 'task');
+  ('00000000-0000-0000-0000-000000000004', '00000000-1000-0000-0000-000000000000', 'Development environment setup', 'Development environment setup', 20,'2014-08-12 19:07:59', '2014-11-12 19:07:59', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000', 'task');
 INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt) VALUES
   ('00000000-0000-0000-0000-000000000004', '60000000-0000-0000-0000-000000000000', 'owner', '2014-11-12 19:07:59',
    '2014-08-12 19:07:59'),
@@ -481,6 +523,9 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
    '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000901'),
   ('734fa91f-62c9-4b34-827b-3e01bd7efe8c', 2, 'TaskManagement\\TaskUpdated',
    'a:3:{s:7:\"subject\";s:27:\"Technology stack definition\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000901\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000901'),
+  ('004fa91f-62c9-4b34-827b-3e01bd7efe8c', 2, 'TaskManagement\\TaskUpdated',
+   'a:3:{s:11:\"description\";s:27:\"Technology stack definition\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000901\";}',
    '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000901'),
   ('7033eb32-2ad4-49d5-b25c-3c0b600b7d0c', 4, 'TaskManagement\\TaskMemberAdded',
    'a:4:{s:6:\"userId\";s:36:\"60000000-0000-0000-0000-000000000000\";s:4:\"role\";s:5:\"owner\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000901\";}',
@@ -498,9 +543,8 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
    'a:3:{s:6:"shares";a:1:{s:36:"60000000-0000-0000-0000-000000000000";d:1.00000000000000000;}s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000901";}',
    '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000901');
 
-INSERT INTO tasks (id, stream_id, subject, status, createdAt, mostRecentEditAt, type) VALUES
-  ('00000000-0000-0000-0000-000000000901', '00000000-1000-0000-0000-000000000000', 'Shares assignment completed Task', 40,
-   '2014-11-06 14:32:44', '2014-11-06 14:32:44', 'task');
+INSERT INTO tasks (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, type) VALUES
+  ('00000000-0000-0000-0000-000000000901', '00000000-1000-0000-0000-000000000000', 'Shares assignment completed Task','Shares assignment completed Task', 40, '2014-11-06 14:32:44', '2014-11-06 14:32:44', 'task');
 INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt)
 VALUES
   ('00000000-0000-0000-0000-000000000901', '60000000-0000-0000-0000-000000000000', 'owner', '2014-11-12 19:07:59',

@@ -22,7 +22,7 @@ interface KanbanizeService {
 	
 	public function closeTask(KanbanizeTask $task);
 
-	public function findStream($boardId, $organization);
+	public function findStreamByBoardId($boardId, $organization);
 
 	public function findTask($taskId, $organization);
 

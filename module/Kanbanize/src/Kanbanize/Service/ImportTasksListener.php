@@ -2,6 +2,7 @@
 
 namespace Kanbanize\Service;
 
+use Kanbanize\Controller\ImportsController;
 use People\Service\OrganizationService;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\Event;
@@ -26,7 +27,7 @@ class ImportTasksListener implements ListenerAggregateInterface{
 
 	public function attach(EventManagerInterface $events){
 
-		$this->listeners[] = $events->getSharedManager()->attach(ImportDirector::class, ImportDirector::IMPORT_COMPLETED,
+		$this->listeners[] = $events->getSharedManager()->attach(ImportsController::class, ImportsController::IMPORT_COMPLETED,
 			function(Event $event) {
 				$streamEvent = $event->getTarget();
 				if(isset($streamEvent['importResult']) && isset($streamEvent['organizationId'])){
@@ -39,7 +40,7 @@ class ImportTasksListener implements ListenerAggregateInterface{
 	public function detach(EventManagerInterface $events)
 	{
 		foreach ($this->listeners as $index => $listener) {
-			if($events->getSharedManager()->detach(ImportDirector::class, $listeners[$index])) {
+			if($events->getSharedManager()->detach(ImportsController::class, $listeners[$index])) {
 				unset($this->listeners[$index]);
 			}
 		}

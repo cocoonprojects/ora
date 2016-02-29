@@ -46,7 +46,6 @@ class EventSourcingStreamService extends AggregateRepository implements StreamSe
 			$this->addAggregateRoot($rv);
 			$this->eventStore->commit();
 		} catch (\Exception $e) {
-			var_dump($e);
 			$this->eventStore->rollback();
 			throw $e;
 		}

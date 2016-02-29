@@ -129,9 +129,9 @@ class KanbanizeServiceImpl implements KanbanizeService
 	}
 	/**
 	 * (non-PHPdoc)
-	 * @see \Kanbanize\Service\KanbanizeService::findStream()
+	 * @see \Kanbanize\Service\KanbanizeService::findStreamByBoardId()
 	 */
-	public function findStream($boardId, $organization){
+	public function findStreamByBoardId($boardId, $organization){
 		switch (get_class($organization)){
 			case Organization::class :
 			case WriteModelOrganization::class:

@@ -84,6 +84,7 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		$task = Task::create($stream, 'Cras placerat libero non tempor', $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
 		$task->addMember($this->member, Task::ROLE_MEMBER);
+		$task->open($this->owner);
 		$task->execute($this->owner);
 		$this->task = $taskService->addTask($task);
 		$this->transactionManager->commit();

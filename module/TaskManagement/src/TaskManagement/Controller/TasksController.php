@@ -3,6 +3,7 @@ namespace TaskManagement\Controller;
 
 use Application\Controller\OrganizationAwareController;
 use Application\IllegalStateException;
+use Application\View\ErrorJsonModel;
 use People\Service\OrganizationService;
 use TaskManagement\Service\StreamService;
 use TaskManagement\Service\TaskService;
@@ -38,7 +39,7 @@ class TasksController extends OrganizationAwareController
 	 * @var integer
 	 */
 	protected $listLimit = self::DEFAULT_TASKS_LIMIT;
-	
+
 	public function __construct(TaskService $taskService, StreamService $streamService, OrganizationService $organizationService)
 	{
 		parent::__construct($organizationService);
@@ -161,14 +162,44 @@ class TasksController extends OrganizationAwareController
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-
-		if (!isset($data['streamID']) || !isset($data['subject']))
-		{
-			// HTTP STATUS CODE 400: Bad Request
-			$this->response->setStatusCode(400);
+		if(!$this->isAllowed($this->identity(), null, 'TaskManagement.Task.create')) {
+			$this->response->setStatusCode(403);
 			return $this->response;
 		}
-
+		$error = new ErrorJsonModel();
+		$validator = new NotEmpty();
+		if (!isset($data['streamID'])){
+			$error->addSecondaryErrors('stream', ['Stream id cannot be empty']);
+		}
+		if (!isset($data['subject'])){
+			$error->addSecondaryErrors('subject', ['Subject cannot be empty']);
+		}else{
+			$subjectFilters = new FilterChain();
+			$subjectFilters->attach(new StringTrim())
+				->attach(new StripNewlines())
+				->attach(new StripTags());
+			$subject = $subjectFilters->filter($data['subject']);
+			if (!$validator->isValid($subject)){
+				$error->addSecondaryErrors('subject', ['Subject cannot be accepted']);
+			}
+		}
+		if (!isset($data['description'])){
+			$error->addSecondaryErrors('description', ['Description cannot be empty']);
+		}else{
+			$descriptionFilter = new FilterChain();
+			$descriptionFilter->attach(new StringTrim())
+				->attach(new StripTags());
+			$description = $descriptionFilter->filter($data['description']);
+			if (!$validator->isValid($description)){
+				$error->addSecondaryErrors('description', ['Description cannot be accepted']);
+			}
+		}
+		if($error->hasErrors()){
+			$error->setCode(400);
+			$error->setDescription('Specified values are not valid');
+			$this->response->setStatusCode(400);
+			return $error;
+		}
 		$stream = $this->streamService->getStream($data['streamID']);
 		if(is_null($stream)) {
 			// Stream Not Found
@@ -176,22 +207,10 @@ class TasksController extends OrganizationAwareController
 			return $this->response;
 		}
 
-		$filters = new FilterChain();
-		$filters->attach(new StringTrim())
-				->attach(new StripNewlines())
-				->attach(new StripTags());
-		$subject = $filters->filter($data['subject']);
-
-		$validator = new NotEmpty();
-		if (!$validator->isValid($subject))
-		{
-			$this->response->setStatusCode(406);
-			return $this->response;
-		}
-
 		$this->transaction()->begin();
 		try {
 			$task = Task::create($stream, $subject, $this->identity());
+			$task->setDescription($description, $this->identity());
 			$task->addMember($this->identity(), Task::ROLE_OWNER);
 			$this->taskService->addTask($task);
 			$this->transaction()->commit();
@@ -223,32 +242,54 @@ class TasksController extends OrganizationAwareController
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-
+		$error = new ErrorJsonModel();
+		$validator = new NotEmpty();
 		if (!isset($data['subject'])) {
-			$this->response->setStatusCode(204);	// HTTP STATUS CODE 204: No Content (Nothing to update)
-			return $this->response;
+			$error->addSecondaryErrors('subject', ['Subject cannot be empty']);
+		}else{
+			$subjectFilters = new FilterChain();
+			$subjectFilters->attach(new StringTrim())
+				->attach(new StripNewlines())
+				->attach(new StripTags());
+			$subject = $subjectFilters->filter($data['subject']);
+			if (!$validator->isValid($subject)){
+				$error->addSecondaryErrors('subject', ['Subject cannot be accepted']);
+			}
 		}
 
+		if (!isset($data['description'])) {
+			$error->addSecondaryErrors('description', ['Description cannot be empty']);
+		}else{
+			$descriptionFilter = new FilterChain();
+			$descriptionFilter->attach(new StringTrim())
+				->attach(new StripTags());
+			$description = $descriptionFilter->filter($data['description']);
+			if (!$validator->isValid($description)){
+				$error->addSecondaryErrors('description', ['Description cannot be accepted']);
+			}
+		}
+		
+		if($error->hasErrors()){
+			$error->setCode(400);
+			$error->setDescription('Specified values are not valid');
+			$this->response->setStatusCode(400);
+			return $error;
+		}
+		
 		$task = $this->taskService->getTask($id);
 		if(is_null($task)) {
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-
-		// Definition of used Zend Validators
-		$validator_NotEmpty = new NotEmpty();
-
-		// ...if exist check if subject it's empty
-		if (!$validator_NotEmpty->isValid($data['subject']))
-		{
-			// HTTP STATUS CODE 406: Not Acceptable
-			$this->response->setStatusCode(406);
+		if(!$this->isAllowed($this->identity(), $task, 'TaskManagement.Task.edit')) {
+			$this->response->setStatusCode(403);
 			return $this->response;
 		}
 
 		$this->transaction()->begin();
 		try {
 			$task->setSubject($data['subject'], $this->identity());
+			$task->setDescription($data['description'], $this->identity());
 			$this->transaction()->commit();
 			// HTTP STATUS CODE 202: Element Accepted
 			$this->response->setStatusCode(202);
@@ -282,9 +323,12 @@ class TasksController extends OrganizationAwareController
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-
 		if($task->getStatus() == Task::STATUS_DELETED) {
 			$this->response->setStatusCode(204);
+			return $this->response;
+		}
+		if(!$this->isAllowed($this->identity(), $task, 'TaskManagement.Task.delete')) {
+			$this->response->setStatusCode(403);
 			return $this->response;
 		}
 

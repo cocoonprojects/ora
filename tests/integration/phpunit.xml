@@ -14,6 +14,9 @@
 		<testsuite name="Application integration tests">
 			<directory>../../module/Application/test/integration</directory>
 		</testsuite>
+		<testsuite name="Flow Management integration tests">
+			<directory>../../module/FlowManagement/test/integration</directory>
+		</testsuite>
 		<testsuite name="Task Management integration tests">
 			<directory>../../module/TaskManagement/test/integration</directory>
 		</testsuite>

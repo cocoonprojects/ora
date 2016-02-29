@@ -11,7 +11,6 @@ use Application\Entity\EditableEntity;
  */
 class Organization extends EditableEntity implements ResourceInterface
 {
-
 	/**
 	 * @ORM\Column(type="string", nullable=true)
 	 * @var string
@@ -35,20 +34,25 @@ class Organization extends EditableEntity implements ResourceInterface
 		return $this;
 	}
 
-	public function setSetting($settingKey, $settingValue){
-		$this->settings[$key] = $value;
+	public function setSettings($settingKey, $settingValue){
+		if(is_array($settingValue)){
+			foreach ($settingValue as $key=>$value){
+				$this->settings[$settingKey][$key] = $value;
+			}
+		}else{
+			$this->settings[$settingKey] = $settingValue;
+		}
 		return $this;
 	}
 
-	public function getSetting($key){
+	public function getSettings($key = null){
+		if(is_null($key)){
+			return $this->settings;
+		}
 		if(array_key_exists($key, $this->settings)){
 			return $this->settings[$key];
 		}
 		return null;
-	}
-
-	public function getSettings(){
-		return $this->settings;
 	}
 
 	public function getResourceId()

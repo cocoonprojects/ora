@@ -1,4 +1,5 @@
 <?php
+
 namespace TaskManagement\View;
 
 use People\Entity\Organization;
@@ -8,46 +9,55 @@ use TaskManagement\TaskInterface;
 use Zend\Json\Json;
 use Zend\Mvc\Controller\AbstractController;
 use Zend\View\Model\JsonModel;
+use TaskManagement\Entity\Approval;
 
-class TaskJsonModel extends JsonModel
-{
+class TaskJsonModel extends JsonModel {
 	/**
+	 *
 	 * @var Organization
 	 */
 	private $organization;
 	/**
+	 *
 	 * @var AbstractController
 	 */
 	private $controller;
-
 	public function __construct(AbstractController $controller, Organization $organization = null) {
 		$this->controller = $controller;
 		$this->organization = $organization;
 	}
-	
-	public function serialize()
-	{
-		$resource = $this->getVariable('resource');
-
-		if(is_array($resource)) {
-			$hal['_links']['self']['href'] = $this->controller->url()->fromRoute('tasks', ['orgId' => $this->organization->getId()]);
-			if ($this->controller->isAllowed($this->controller->identity(), NULL, 'TaskManagement.Task.create')) {
-				$hal['_links']['ora:create']['href'] = $this->controller->url()->fromRoute('tasks', ['orgId' => $this->organization->getId()]);
+	public function serialize() {
+		$resource = $this->getVariable ( 'resource' );
+		
+		if (is_array ( $resource )) {
+			$hal ['_links'] ['self'] ['href'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+					'orgId' => $this->organization->getId () 
+			] );
+			if ($this->controller->isAllowed ( $this->controller->identity (), NULL, 'TaskManagement.Task.create' )) {
+				$hal ['_links'] ['ora:create'] ['href'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+						'orgId' => $this->organization->getId () 
+				] );
 			}
-			$hal['_embedded']['ora:task'] = array_map(array($this, 'serializeOne'), $resource);
-			$hal['count'] = count($resource);
-			$hal['total'] = $this->getVariable('totalTasks');
-			if($hal['count'] < $hal['total']){
-				$hal['_links']['next']['href'] = $this->controller->url()->fromRoute('tasks', ['orgId' => $this->organization->getId()]);
+			$hal ['_embedded'] ['ora:task'] = array_map ( array (
+					$this,
+					'serializeOne' 
+			), $resource );
+			$hal ['count'] = count ( $resource );
+			$hal ['total'] = $this->getVariable ( 'totalTasks' );
+			if ($hal ['count'] < $hal ['total']) {
+				$hal ['_links'] ['next'] ['href'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+						'orgId' => $this->organization->getId () 
+				] );
 			}
-
 		} else {
-			$hal = $this->serializeOne($resource);
-			if ($this->controller->isAllowed($this->controller->identity(), NULL, 'TaskManagement.Task.create')) {
-				$hal['_links']['ora:create']['href'] = $this->controller->url()->fromRoute('tasks', ['orgId' => $resource->getOrganizationId()]);
+			$hal = $this->serializeOne ( $resource );
+			if ($this->controller->isAllowed ( $this->controller->identity (), NULL, 'TaskManagement.Task.create' )) {
+				$hal ['_links'] ['ora:create'] ['href'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+						'orgId' => $resource->getOrganizationId () 
+				] );
 			}
 		}
-		return Json::encode($hal);
+		return Json::encode ( $hal );
 	}
 	protected function serializeOne(TaskInterface $task) {
 		$links = [ ];
@@ -120,42 +130,58 @@ class TaskJsonModel extends JsonModel
 					'controller' => 'transitions' 
 			] );
 		}
-
+		
 		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.assignShares' )) {
-			$links ['ora:assignShares'] = $this->controller->url ()->fromRoute ( 'tasks', [
+			$links ['ora:assignShares'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
 					'id' => $task->getId (),
 					'orgId' => $task->getOrganizationId (),
-					'controller' => 'shares'
+					'controller' => 'shares' 
 			] );
 		}
 		
-		if($this->controller->isAllowed($this->controller->identity(), $task,'TaskManagement.Reminder.add-estimation')){
-			$links['ora:remindEstimation'] = $this->controller->url()->fromRoute('tasks', [
-				'id' => $task->getId (),
-				'orgId' => $task->getOrganizationId (),
-				'controller' => 'reminders',
-				'type'=>'add-estimation'
-			]);
-		}
-		
-		if($this->controller->isAllowed($this->controller->identity(), $task,'TaskManagement.Task.close')){
-			$links['ora:close'] = $this->controller->url()->fromRoute('tasks', [
+		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Reminder.add-estimation' )) {
+			$links ['ora:remindEstimation'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
 					'id' => $task->getId (),
 					'orgId' => $task->getOrganizationId (),
-					'controller' => 'transitions',
-			]);
+					'controller' => 'reminders',
+					'type' => 'add-estimation' 
+			] );
 		}
-
-		$rv = [
-			'id' => $task->getId (),
-			'subject' => $task->getSubject(),
-			'createdAt' => date_format($task->getCreatedAt(), 'c'),
-			'createdBy' => is_null ( $task->getCreatedBy () ) ? "" : $task->getCreatedBy ()->getFirstname () . " " . $task->getCreatedBy ()->getLastname (),
-			'type' => $task->getType (),
-			'status' => $task->getStatus(),
-			'stream' => $this->getStream($task),
-			'organization' => $this->getOrganization($task),
-			'members' => array_map([$this, 'serializeOneMember'], $task->getMembers()),
+		
+		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.close' )) {
+			$links ['ora:close'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+					'id' => $task->getId (),
+					'orgId' => $task->getOrganizationId (),
+					'controller' => 'transitions' 
+			] );
+		}
+		if ($task instanceof Task) {
+			$approvals = $task->getApprovals ();
+			$approvalswithkey = [ ];
+			foreach ( $approvals as $approval ) {
+				$approvalswithkey [$approval->getVoter ()->getId ()] = $approval;
+			}
+		} else {
+			$approvalswithkey = $task->getApprovals ();
+		}
+		$rv = [ 
+				'id' => $task->getId (),
+				'subject' => $task->getSubject (),
+				'description' => $task->getDescription (),
+				'createdAt' => date_format ( $task->getCreatedAt (), 'c' ),
+				'createdBy' => is_null ( $task->getCreatedBy () ) ? "" : $task->getCreatedBy ()->getFirstname () . " " . $task->getCreatedBy ()->getLastname (),
+				'type' => $task->getType (),
+				'status' => $task->getStatus (),
+				'stream' => $this->getStream ( $task ),
+				'organization' => $this->getOrganization ( $task ),
+				'members' => array_map ( [ 
+						$this,
+						'serializeOneMember' 
+				], $task->getMembers () ),
+				'approvals' => array_map ( [ 
+						$this,
+						'serializeOneMemberApproval' 
+				], $approvalswithkey ) 
 		];
 		
 		if ($task->getStatus () >= Task::STATUS_ONGOING) {
@@ -168,65 +194,84 @@ class TaskJsonModel extends JsonModel
 		$rv ['_links'] = $links;
 		return $rv;
 	}
-	
 	private function getStream(TaskInterface $task) {
-		$rv['id'] = $task->getStreamId();
-		if($task instanceof Task) {
-			$rv['subject'] = $task->getStream()->getSubject();	// temporary backward compatibility
+		$rv ['id'] = $task->getStreamId ();
+		if ($task instanceof Task) {
+			$rv ['subject'] = $task->getStream ()->getSubject (); // temporary backward compatibility
 		}
-		$rv['_links']['self']['href'] = $this->controller->url()->fromRoute('collaboration', ['id' => $task->getStreamId(), 'orgId' => $task->getOrganizationId(), 'controller' => 'streams']);
+		$rv ['_links'] ['self'] ['href'] = $this->controller->url ()->fromRoute ( 'collaboration', [ 
+				'id' => $task->getStreamId (),
+				'orgId' => $task->getOrganizationId (),
+				'controller' => 'streams' 
+		] );
 		return $rv;
 	}
-
 	private function getOrganization(TaskInterface $task) {
-		$rv['id'] = $task->getOrganizationId();
+		$rv ['id'] = $task->getOrganizationId ();
 		return $rv;
 	}
 	protected function serializeOneMember($tm) {
-		if($tm instanceof TaskMember) {
-			$member = $tm->getMember();
-			$rv = [
-				'id' => $member->getId(),
-				'firstname' => $member->getFirstname(),
-				'lastname' => $member->getLastname(),
-				'picture' => $member->getPicture(),
-				'role' => $tm->getRole(),
-				'createdAt' => date_format($tm->getCreatedAt(), 'c')
+		if ($tm instanceof TaskMember) {
+			$member = $tm->getMember ();
+			$rv = [ 
+					'id' => $member->getId (),
+					'firstname' => $member->getFirstname (),
+					'lastname' => $member->getLastname (),
+					'picture' => $member->getPicture (),
+					'role' => $tm->getRole (),
+					'createdAt' => date_format ( $tm->getCreatedAt (), 'c' ) 
 			];
-			if(!(is_null($tm->getEstimation()) || is_null($tm->getEstimation()->getValue()))) {
-				$rv['estimation'] = $tm->getEstimation()->getValue();
-				$rv['estimatedAt'] = date_format($tm->getEstimation()->getCreatedAt(), 'c');
+			if (! (is_null ( $tm->getEstimation () ) || is_null ( $tm->getEstimation ()->getValue () ))) {
+				$rv ['estimation'] = $tm->getEstimation ()->getValue ();
+				$rv ['estimatedAt'] = date_format ( $tm->getEstimation ()->getCreatedAt (), 'c' );
 			}
-			if($tm->getShare() !== null && $tm->getTask()->getStatus() >= Task::STATUS_CLOSED) {
-				$rv['share'] = $tm->getShare();
-				$rv['delta'] = $tm->getDelta();
+			if ($tm->getShare () !== null && $tm->getTask ()->getStatus () >= Task::STATUS_CLOSED) {
+				$rv ['share'] = $tm->getShare ();
+				$rv ['delta'] = $tm->getDelta ();
 			}
-			foreach ($tm->getShares() as $key => $share) {
-				$rv['shares'][$key] = array(
-					'value' => $share->getValue(),
-					'createdAt' => date_format($share->getCreatedAt(), 'c'),
+			foreach ( $tm->getShares () as $key => $share ) {
+				$rv ['shares'] [$key] = array (
+						'value' => $share->getValue (),
+						'createdAt' => date_format ( $share->getCreatedAt (), 'c' ) 
 				);
 			}
-			if($tm->getCredits() !== null) {
-				$rv['credits'] = $tm->getCredits();
+			if ($tm->getCredits () !== null) {
+				$rv ['credits'] = $tm->getCredits ();
 			}
 		} else {
-			$rv = $tm;	// Copy the array
-			foreach($rv as $key => $value) {
-				if($value instanceof \DateTime) {
-					$rv[$key] = date_format($value, 'c');
+			$rv = $tm; // Copy the array
+			foreach ( $rv as $key => $value ) {
+				if ($value instanceof \DateTime) {
+					$rv [$key] = date_format ( $value, 'c' );
 				}
 			}
 		}
-
-		if($this->controller->identity()->getId() != $rv['id'] && isset($rv['estimation'])) {
+		
+		if ($this->controller->identity ()->getId () != $rv ['id'] && isset ( $rv ['estimation'] )) {
 			// others member estimation aren't exposed outside the system
-			$rv['estimation'] = -2;
+			$rv ['estimation'] = - 2;
 		}
-
- 		$rv['_links'] = [
-// 			'self' => $this->controller->url()->fromRoute('users', ['id' => $member->getId()]),
-		];
+		
+		$rv ['_links'] = [ ]
+		// 'self' => $this->controller->url()->fromRoute('users', ['id' => $member->getId()]),
+		;
+		return $rv;
+	}
+	protected function serializeOneMemberApproval($approval) {
+		if ($approval instanceof Approval) {
+			$voter = $approval->getVoter ();
+			$rv = [ 
+					'approval' => $approval->getVote ()->getValue (),
+					'approvalGeneratedAt' => $approval->getCreatedAt()
+				  ];
+		}else{
+			$rv = $approval; // Copy the array
+			foreach ( $rv as $key => $value ) {
+				if ($value instanceof \DateTime) {
+					$rv [$key] = date_format ( $value, 'c' );
+				}
+			}
+		}
 		return $rv;
 	}
 }

@@ -1,0 +1,103 @@
+<?php
+
+namespace FlowManagement\Service;
+
+use Application\Service\UserService;
+use People\Service\OrganizationService;
+use Prooph\EventStore\EventStore;
+use TaskManagement\TaskArchived;
+use TaskManagement\TaskCreated;
+use TaskManagement\TaskOpened;
+use Zend\EventManager\Event;
+use Zend\EventManager\EventManagerInterface;
+use Zend\EventManager\ListenerAggregateInterface;
+use Zend\Mvc\Application;
+use TaskManagement\Service\TaskService;
+
+class ItemCommandsListener implements ListenerAggregateInterface {
+	
+	protected $listeners = [];
+	/**
+	 * @var FlowService
+	 */
+	private $flowService;
+	/**
+	 * @var OrganizationService
+	 */
+	private $organizationService;
+	/**
+	 * @var UserService
+	 */
+	private $userService;
+	/**
+	 * @var EventStore
+	 */
+	private $transactionManager;
+	/**
+	 * @var TaskService
+	 */
+	private $taskService;
+	
+	public function __construct(FlowService $flowService, 
+			OrganizationService $organizationService, 
+			UserService $userService, 
+			EventStore $transactionManager,
+			TaskService $taskService){
+		$this->flowService = $flowService;
+		$this->organizationService = $organizationService;
+		$this->userService = $userService;
+		$this->transactionManager = $transactionManager;
+		$this->taskService = $taskService;
+	}
+	
+	public function attach(EventManagerInterface $events) {
+		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskCreated::class, array($this, 'processItemCreated'));
+		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskArchived::class, array($this, 'processIdeaVotingClosed'));
+		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskOpened::class, array($this, 'processIdeaVotingClosed'));
+	}
+	
+	public function processItemCreated(Event $event){
+		$streamEvent = $event->getTarget();
+		$itemId = $streamEvent->metadata()['aggregate_id'];
+		$organization = $this->organizationService->findOrganization($event->getParam('organizationId'));
+		$orgMemberships = $this->organizationService->findOrganizationMemberships($organization, null, null);
+		$createdBy = $this->userService->findUser($event->getParam('by'));
+		$params = [$this->flowService, $itemId, $organization, $createdBy];
+		array_walk($orgMemberships, function($member) use($params){
+			$flowService = $params[0];
+			$itemId = $params[1];
+			$organization = $params[2];
+			$createdBy = $params[3];
+			$flowService->createVoteIdeaCard($member->getMember(), $itemId, $organization->getId(), $createdBy);
+		});
+	}
+	
+	public function processIdeaVotingClosed(Event $event) {
+		$streamEvent = $event->getTarget();
+		$item = $this->taskService->findTask($streamEvent->metadata()['aggregate_id']);
+		//recupero le card del flow che sono associate a questo item
+		$flowCards = $this->flowService->findFlowCardsByItem($item);
+		$params = [$this->flowService, $this->transactionManager];
+		array_walk($flowCards, function($card) use($params){
+			$flowService = $params[0];
+			$transactionManager = $params[1];
+			$wmCard = $flowService->getCard($card->getId());
+			$transactionManager->beginTransaction();
+			try {
+				$wmCard->hide();
+				$transactionManager->commit();
+			}catch( \Exception $e ) {
+				$transactionManager->rollback();
+				throw $e;
+			}
+		});
+	}
+	
+	public function detach(EventManagerInterface $events){
+		foreach ( $this->listeners as $index => $listener ) {
+			if ($events->detach ( $listener )) {
+				unset ( $this->listeners [$index] );
+			}
+		}
+	}
+}
