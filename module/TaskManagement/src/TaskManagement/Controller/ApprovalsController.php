@@ -28,7 +28,6 @@ class ApprovalsController extends HATEOASRestfulController {
 	
 	public function __construct(TaskService $taskService){
 		$this->taskService = $taskService;
-		$this->timeboxForItemIdeaVoting = self::getDefaultIntervalForItemIdeaVoting();
 	}
 	
 	public function invoke($id, $data) {
@@ -49,14 +48,13 @@ class ApprovalsController extends HATEOASRestfulController {
 		}
 	
 		$vote = $data ['value'];
-		$description = $data ['description'];
+		$description = isset($data ['description']) ? $data['description'] : "";
 	
 		$validator = new ValidatorChain ();
 		$validator->attach ( new NotEmpty (), true )->attach ( new IsInt (), true )->attach ( new GreaterThan ( [
 				'min' => 0,
 				'inclusive' => true
 		] ), true );
-	
 		if (! ($validator->isValid ( $vote ))) {
 			$error->setCode ( 400 );
 			$error->addSecondaryErrors ( 'vote', $validator->getMessages () );
