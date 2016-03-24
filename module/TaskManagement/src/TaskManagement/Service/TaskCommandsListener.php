@@ -9,6 +9,8 @@ use TaskManagement\Entity\Estimation;
 use TaskManagement\Entity\Stream;
 use TaskManagement\Entity\Task;
 use TaskManagement\Entity\TaskMember;
+use TaskManagement\Entity\Vote;
+use TaskManagement\Entity\ItemIdeaApproval;
 
 class TaskCommandsListener extends ReadModelProjector
 {
@@ -101,6 +103,26 @@ class TaskCommandsListener extends ReadModelProjector
 		$this->entityManager->remove($entity); // TODO: Solo con l'id no?
 	}
 	
+	protected function onTaskOpened(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$task = $this->entityManager->find(Task::class, $id);
+		$task->setStatus(Task::STATUS_OPEN);
+		$user = $this->entityManager->find(User::class, $event->payload()['by']);
+		$task->setMostRecentEditBy($user);
+		$task->setMostRecentEditAt($event->occurredOn());
+		$this->entityManager->persist($task);
+	}
+	
+	protected function onTaskArchived(StreamEvent $event) {
+		$id = $event->metadata()['aggregate_id'];
+		$task = $this->entityManager->find(Task::class, $id);
+		$task->setStatus(Task::STATUS_ARCHIVED);
+		$user = $this->entityManager->find(User::class, $event->payload()['by']);
+		$task->setMostRecentEditBy($user);
+		$task->setMostRecentEditAt($event->occurredOn());
+		$this->entityManager->persist($task);
+	}
+	
 	protected function onEstimationAdded(StreamEvent $event) {
 		$memberId = $event->payload()['by'];
 		$user = $this->entityManager->find(User::class, $memberId);
@@ -114,6 +136,21 @@ class TaskCommandsListener extends ReadModelProjector
 
 		$taskMember->setEstimation(new Estimation($value, $event->occurredOn()));
 		$this->entityManager->persist($taskMember);
+	}
+	protected function onApprovalCreated(StreamEvent $event) {
+		$memberId = $event->payload ()['by'];
+		$description = $event->payload ()['description'];
+		$user = $this->entityManager->find ( User::class, $memberId );
+		if (is_null ( $user )) {
+			return;
+		}
+		$id = $event->metadata ()['aggregate_id'];
+		$taskId = $event->payload ()['task-id'];
+		$task = $this->entityManager->find ( Task::class, $taskId );
+		$vote = new Vote ( $event->occurredOn () );
+		$vote->setValue ( $event->payload ()['vote'] );
+		$task->addApproval ( $vote, $user, $event->occurredOn (), $description );
+		$this->entityManager->persist ( $task );
 	}
 	
 	protected function onTaskCompleted(StreamEvent $event) {

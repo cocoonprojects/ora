@@ -10,6 +10,7 @@ use Application\IllegalStateException;
 use Application\InvalidArgumentException;
 use People\MissingOrganizationMembershipException;
 use Rhumsaa\Uuid\Uuid;
+use TaskManagement\Entity\ItemIdeaApproval;
 
 class Task extends DomainEntity implements TaskInterface
 {
@@ -37,6 +38,10 @@ class Task extends DomainEntity implements TaskInterface
 	/**
 	 */
 	protected $members = [];
+	/**
+	 * 
+	 */
+	protected $organizationMembersApprovals=[];
 	/**
 	 * @var \DateTime
 	 */
@@ -86,7 +91,7 @@ class Task extends DomainEntity implements TaskInterface
 	
 	public function execute(BasicUser $executedBy) {
 		//The status IDEA is provisional
-		if(!in_array($this->status, [self::STATUS_IDEA, self::STATUS_OPEN, self::STATUS_COMPLETED])) {
+		if(!in_array($this->status, [self::STATUS_OPEN, self::STATUS_COMPLETED])) {
 			throw new IllegalStateException('Cannot execute a task in '.$this->status.' state');
 		}
 		$this->recordThat(TaskOngoing::occur($this->id->toString(), array(
@@ -132,7 +137,28 @@ class Task extends DomainEntity implements TaskInterface
 		)));
 		return $this;
 	}
-
+	
+	public function open(BasicUser $executedBy) {
+		if(!in_array($this->status, [self::STATUS_IDEA, self::STATUS_ONGOING])) {
+			throw new IllegalStateException('Cannot open a task in '.$this->status.' state');
+		}
+		$this->recordThat(TaskOpened::occur($this->id->toString(), array(
+				'prevStatus' => $this->getStatus(),
+				'by' => $executedBy->getId(),
+		)));
+		return $this;
+	}
+	
+	public function archive(BasicUser $executedBy) {
+		if(!in_array($this->status, [self::STATUS_IDEA])) {
+			throw new IllegalStateException('Cannot archive a task in state '.$this->getStatus().'. Task '.$this->getId().' won\'t be archived');
+		}
+		$this->recordThat(TaskArchived::occur($this->id->toString(), array(
+				'prevStatus' => $this->getStatus(),
+				'by' => $executedBy->getId(),
+		)));
+		return $this;
+	}
 	/**
 	 * @return string
 	 */
@@ -262,6 +288,24 @@ class Task extends DomainEntity implements TaskInterface
 			'value'	 => $value,
 		)));
 	}
+	
+	public function addApproval($vote,BasicUser $member,$description){
+		if (! in_array ( $this->status, [ 
+				self::STATUS_IDEA 
+		] )) {
+			throw new IllegalStateException ( 'Cannot add an approval to item in a status different from idea' );
+		}
+		if (array_key_exists ( $member->getId (), $this->organizationMembersApprovals )) {
+			throw new DuplicatedDomainEntityException ( $this, $user );
+		}
+		
+		$this->recordThat ( ApprovalCreated::occur ( $this->id->toString (), array (
+				'by' => $member->getId (),
+				'vote' => $vote,
+				'task-id' => $this->getId (),
+				'description' => $description 
+		) ) );
+	}
 	/**
 	 * 
 	 * @param array $shares Map of memberId and its share for each member
@@ -363,6 +407,14 @@ class Task extends DomainEntity implements TaskInterface
 	 */
 	public function getMembers() {
 		return $this->members;
+	}
+	
+	/**
+	 * 
+	 * @return array
+	 */
+	public function getApprovals(){
+		return $this->organizationMembersApprovals;
 	}
 	
 	public function getAverageEstimation() {
@@ -536,6 +588,14 @@ class Task extends DomainEntity implements TaskInterface
 		$this->status = self::STATUS_DELETED;
 	}
 	
+	protected function whenTaskOpened(TaskOpened $event) {
+		$this->status = self::STATUS_OPEN;
+	}
+	
+	protected function whenTaskArchived(TaskArchived $event) {
+		$this->status = self::STATUS_ARCHIVED;
+	}
+	
 	protected function whenTaskUpdated(TaskUpdated $event) {
 		$pl = $event->payload();
 		if(array_key_exists('subject', $pl)) {
@@ -570,6 +630,13 @@ class Task extends DomainEntity implements TaskInterface
 		$id = $p['by'];
 		$this->members[$id]['estimation'] = $p['value'];
 		$this->members[$id]['estimatedAt'] = $event->occurredOn();
+	}
+	
+	protected function whenApprovalCreated(ApprovalCreated $event) {
+		$p = $event->payload ();
+		$id = $p ['by'];
+		$this->organizationMembersApprovals [$id] ['approval'] = $p ['vote'];
+		$this->organizationMembersApprovals [$id] ['approvalGeneratedAt'] = $event->occurredOn ();
 	}
 	
 	protected function whenSharesAssigned(SharesAssigned $event) {

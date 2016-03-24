@@ -6,6 +6,7 @@ use Application\Entity\User;
 use FlowManagement\Entity\FlowCard;
 use Rhumsaa\Uuid\Uuid;
 use Application\Entity\BasicUser;
+use TaskManagement\Entity\Task;
 
 
 interface FlowService{
@@ -32,7 +33,12 @@ interface FlowService{
 	/**
 	 * Get the number of cards for one $recipient
 	 * @param BasicUser $recipient
-	 * @param unknown $filters
+	 * @param array $filters
 	 */
 	public function countCards(BasicUser $recipient, $filters);
+	
+	/**
+	 * @param string $itemId
+	 */
+	public function findFlowCardsByItem(Task $item);
 }

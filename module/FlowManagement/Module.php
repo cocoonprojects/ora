@@ -42,7 +42,9 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface{
 							$flowService = $locator->get('FlowManagement\FlowService');
 							$organizationService = $locator->get('People\OrganizationService');
 							$userService = $locator->get('Application\UserService');
-							return new ItemCommandsListener($flowService, $organizationService, $userService);
+							$transactionManager = $locator->get('prooph.event_store');
+							$taskService = $locator->get('TaskManagement\TaskService');
+							return new ItemCommandsListener($flowService, $organizationService, $userService, $transactionManager, $taskService);
 						},
 				],
 		];

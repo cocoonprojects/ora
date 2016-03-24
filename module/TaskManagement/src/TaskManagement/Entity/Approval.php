@@ -3,7 +3,10 @@
 namespace TaskManagement\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
+use Application\DomainEntity;
 use Application\Entity\User;
+use Application\Entity\BasicUser;
+use TaskManagement\Entity\Task;
 
 /**
  * @ORM\Entity @ORM\Table(name="item_approvals")
@@ -21,7 +24,7 @@ abstract class Approval{
 	 */
 	protected $id;
 	/**
-	 * @ORM\ManyToOne(targetEntity="TaskManagement\Entity\Task")
+	 * @ORM\ManyToOne(targetEntity="TaskManagement\Entity\Task" , inversedBy="approvals")
 	 * @ORM\JoinColumn(name="item_id", referencedColumnName="id", onDelete="CASCADE")
 	 */
 	protected $item;
@@ -63,17 +66,39 @@ abstract class Approval{
 	 * @var BasicUser
 	 */
 	protected $mostRecentEditBy;
+	/**
+	 * @ORM\Column(type="string", nullable=true)
+	 * @var description
+	 */
+	protected $description;
+	
+	public function getId(){
+		return $this->id;
+	}
 	
 	public function getItem(){
 		return $this->item;
+	}
+		public function setItem(Task $item){
+		$this->item=$item;
+		return $this;	
 	}
 	
 	public function getVoter(){
 		return $this->voter;
 	}
+	public function setVoter(User $user){
+		$this->voter=$user;
+		return $this;
+	}
 	
 	public function getVote() {
 		return $this->vote;
+	}
+
+	public function setVote($vote){
+	  $this->vote =$vote;
+	  return $this;
 	}
 	
 	public function getCreatedAt() {
@@ -84,6 +109,8 @@ abstract class Approval{
 		$this->createdAt = $when;
 		return $this;
 	}
+		
+
 	
 	public function getCreatedBy() {
 		return $this->createdBy;
@@ -109,6 +136,14 @@ abstract class Approval{
 	
 	public function setMostRecentEditBy(User $user) {
 		$this->mostRecentEditBy = $user;
+		return $this;
+	}
+public function getDescription(){
+		return $this->description;
+	}
+	
+	public function setDescription($description){
+		$this->description=$description;
 		return $this;
 	}
 	

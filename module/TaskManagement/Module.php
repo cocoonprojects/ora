@@ -1,7 +1,8 @@
 <?php
 
 namespace TaskManagement;
-
+use TaskManagement\Controller\ApprovalController;
+use TaskManagement\Controller\ApprovalsController;
 use TaskManagement\Controller\EstimationsController;
 use TaskManagement\Controller\MembersController;
 use TaskManagement\Controller\MemberStatsController;
@@ -10,6 +11,7 @@ use TaskManagement\Controller\SharesController;
 use TaskManagement\Controller\StreamsController;
 use TaskManagement\Controller\TasksController;
 use TaskManagement\Controller\TransitionsController;
+use TaskManagement\Controller\VotingResultsController;
 use TaskManagement\Service\AssignCreditsListener;
 use TaskManagement\Service\CloseTaskListener;
 use TaskManagement\Service\EventSourcingStreamService;
@@ -18,6 +20,7 @@ use TaskManagement\Service\NotifyMailListener;
 use TaskManagement\Service\StreamCommandsListener;
 use TaskManagement\Service\TaskCommandsListener;
 use TaskManagement\Service\TransferCreditsListener;
+use TaskManagement\Service\CloseItemIdeaListener;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 
@@ -62,6 +65,12 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$controller = new EstimationsController($taskService);
 					return $controller;
 				},
+				'TaskManagement\Controller\Approval' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$controller = new ApprovalController($taskService);
+					return $controller;
+				},
 				'TaskManagement\Controller\Shares' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
@@ -93,7 +102,27 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$controller = new MemberStatsController($orgService, $taskService, $userService);
 					return $controller;
-				}
+				},
+				'TaskManagement\Controller\VotingResults' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$controller = new VotingResultsController($taskService);
+					if(isset($locator->get('Config')['item_idea_voting_timebox'])){
+						$itemIdeaVotingTimebox = $locator->get('Config')['item_idea_voting_timebox'];
+						$controller->setTimeboxForItemIdeaVoting($itemIdeaVotingTimebox);
+					}
+					return $controller;
+				},
+				'TaskManagement\Controller\Approvals' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$controller = new ApprovalsController($taskService);
+					if(isset($locator->get('Config')['item_idea_voting_timebox'])){
+						$itemIdeaVotingTimebox = $locator->get('Config')['item_idea_voting_timebox'];
+						$controller->setTimeboxForItemIdeaVoting($itemIdeaVotingTimebox);
+					}
+					return $controller;
+				},
 			]
 		];
 	} 
@@ -145,6 +174,13 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$userService = $locator->get('Application\UserService');
 					$transactionManager = $locator->get('prooph.event_store');
 					return new CloseTaskListener($taskService, $userService, $transactionManager);
+				},
+				'TaskManagement\CloseItemIdeaListener' => function ($locator) {
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$organizationService = $locator->get('People\OrganizationService');
+					$userService = $locator->get('Application\UserService');
+					$transactionManager = $locator->get('prooph.event_store');
+					return new CloseItemIdeaListener($taskService,$userService, $organizationService, $transactionManager);
 				},
 				'TaskManagement\AssignCreditsListener' => function ($locator) {
 					$taskService = $locator->get('TaskManagement\TaskService');

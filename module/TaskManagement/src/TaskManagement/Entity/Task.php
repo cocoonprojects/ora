@@ -50,6 +50,13 @@ class Task extends EditableEntity implements TaskInterface
 	private $members;
 	
 	/**
+	 * @ORM\OneToMany(targetEntity="Approval", mappedBy="item", cascade={"PERSIST", "REMOVE"}, orphanRemoval=TRUE)
+	 * @ORM\OrderBy({"createdAt" = "ASC"})
+	 * @var Approval[]
+	 */
+	private $approvals;
+	
+	/**
  	 * @ORM\Column(type="datetime", nullable=true)
 	 * @var \DateTime
 	 */
@@ -65,6 +72,7 @@ class Task extends EditableEntity implements TaskInterface
 		parent::__construct($id);
 		$this->stream = $stream;
 		$this->members = new ArrayCollection();
+		$this->approvals = new ArrayCollection();
 	}
 
 	/**
@@ -143,6 +151,20 @@ class Task extends EditableEntity implements TaskInterface
 		return $this;
 	}
 	
+	public function addApproval (Vote $vote, BasicUser $by, \DateTime $when ,$description){
+		$approval = new ItemIdeaApproval($vote, $when);
+		$approval->setCreatedBy($by);
+		$approval->setCreatedAt($when);
+		$approval->setItem($this);
+		$approval->setVoter($by);
+		$approval->setMostRecentEditAt($when);
+		$approval->setMostRecentEditBy($by);
+		$approval->setDescription($description);
+		$this->approvals->set($approval->getId(), $approval);
+		
+		return $this;
+	}
+	
 	/**
 	 * 
 	 * @param id|User $member
@@ -190,6 +212,13 @@ class Task extends EditableEntity implements TaskInterface
 	 */
 	public function getMembers() {
 		return $this->members->toArray();
+	}
+	
+	/**
+	 * @return Approval[] 
+	 */
+	public function getApprovals(){
+		return $this->approvals->toArray();
 	}
 
 	/**
@@ -332,6 +361,21 @@ class Task extends EditableEntity implements TaskInterface
 		$taskMember = $this->getMember($user);
 		if($taskMember != null){
 			return !empty($taskMember->getShares());
+		}
+		return false;
+	}
+	
+	/**
+	 * @param id|BasicUser $user
+	 * @return boolean
+	 */
+	public function isIdeaVotedFromMember($user){
+		$approvals = $this->getApprovals();
+		if($approvals!=null){
+			foreach ($approvals as $approval){
+				if($approval->getVoter()->getId() == $user->getId())
+					return true;
+			}
 		}
 		return false;
 	}

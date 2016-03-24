@@ -60,6 +60,7 @@ class SharesControllerTest extends ControllerTest
 		$this->task->addMember($this->owner, Task::ROLE_OWNER);
 		$this->task->addMember($this->member, Task::ROLE_MEMBER);
 		
+		$this->task->open($this->owner);
 		$this->task->execute($this->owner);
 		
 		$this->task->addEstimation(1500, $this->owner);

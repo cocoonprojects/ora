@@ -3,8 +3,8 @@
 namespace TaskManagement\Service;
 
 use People\Entity\Organization;
+use Rhumsaa\Uuid\Uuid;
 use TaskManagement\Task;
-
 
 /**
  * TODO: Rename in TaskRepository?
@@ -67,4 +67,17 @@ interface TaskService
 	 * @param \DateTime $filters["endOn"]
 	 */
 	public function findMemberStats(Organization $org, $memberId, $filters);
+	
+	/**
+	 * Find items with creation date before $interval days from now
+	 * @param \DateInterval $interval
+	 * @param string $status
+	 */
+	public function findItemsBefore(\DateInterval $interval, $status);
+	
+	/**
+	 * Count votes on item idea to open or archive it
+	 * @param string|Uuid $id
+	 */
+	public function countVotesForApproveIdeaItem($id);
 }
