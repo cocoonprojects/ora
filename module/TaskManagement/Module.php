@@ -1,7 +1,6 @@
 <?php
 
 namespace TaskManagement;
-use TaskManagement\Controller\ApprovalController;
 use TaskManagement\Controller\ApprovalsController;
 use TaskManagement\Controller\EstimationsController;
 use TaskManagement\Controller\MembersController;
@@ -65,12 +64,6 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$controller = new EstimationsController($taskService);
 					return $controller;
 				},
-				'TaskManagement\Controller\Approval' => function ($sm) {
-					$locator = $sm->getServiceLocator();
-					$taskService = $locator->get('TaskManagement\TaskService');
-					$controller = new ApprovalController($taskService);
-					return $controller;
-				},
 				'TaskManagement\Controller\Shares' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
@@ -117,15 +110,11 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$controller = new ApprovalsController($taskService);
-					if(isset($locator->get('Config')['item_idea_voting_timebox'])){
-						$itemIdeaVotingTimebox = $locator->get('Config')['item_idea_voting_timebox'];
-						$controller->setTimeboxForItemIdeaVoting($itemIdeaVotingTimebox);
-					}
 					return $controller;
 				},
 			]
 		];
-	} 
+	}
 	
 	public function getServiceConfig()
 	{
