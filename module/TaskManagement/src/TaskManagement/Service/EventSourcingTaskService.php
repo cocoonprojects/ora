@@ -15,7 +15,7 @@ use Rhumsaa\Uuid\Uuid;
 use TaskManagement\Task;
 use TaskManagement\Entity\Task as ReadModelTask;
 use TaskManagement\Entity\TaskMember;
-use TaskManagement\Entity\IdeaItemApproval;
+use TaskManagement\Entity\ItemIdeaApproval;
 
 class EventSourcingTaskService extends AggregateRepository implements TaskService
 {
@@ -240,13 +240,13 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	
 		$query = $builder->select ( 'COALESCE(SUM( CASE WHEN a.vote.value = 1 THEN 1 ELSE 0 END ),0) as votesFor' )
 		->addSelect('COALESCE(SUM( CASE WHEN a.vote.value = 0 THEN 1 ELSE 0 END ),0) as votesAgainst')
-		->from(IdeaItemApproval::class, 'a')
+		->from(ItemIdeaApproval::class, 'a')
 		->innerJoin('a.item', 'item', 'WITH', 'item.status = :status')
 		->where('item.id = :id')
 		->setParameter ( ':status', Task::STATUS_IDEA)
 		->setParameter ( ':id', $tId)
 		->getQuery();
-	
+		
 		return $query->getResult()[0];
 	}
 }
