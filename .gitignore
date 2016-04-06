@@ -24,3 +24,5 @@ extras/documentation
 
 #GitHub
 auth.json
+
+cache.properties
