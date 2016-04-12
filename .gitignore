@@ -26,3 +26,4 @@ extras/documentation
 auth.json
 
 cache.properties
+build/
