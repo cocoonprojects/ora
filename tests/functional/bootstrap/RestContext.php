@@ -29,7 +29,7 @@ class RestContext extends RawMinkContext
 	];
 
 	private $currentToken;
-	
+
 	/**
 	 *  @BeforeSuite
 	 */
@@ -40,17 +40,17 @@ class RestContext extends RawMinkContext
 			echo 'Setting APPLICATION_ENV=acceptance failed!';
 			die();
 		}
-		
+
 		echo shell_exec('../vendor/bin/doctrine-module orm:schema-tool:drop --force');
 		echo shell_exec('../vendor/bin/doctrine-module orm:schema-tool:create');
 		echo shell_exec('../vendor/bin/doctrine-module dbal:import ' . __DIR__ . '/../../sql/init.sql');
 	}
-	
+
 	/** @AfterSuite */
 	public static function teardownApplication(AfterSuiteScope $scope){
 		echo shell_exec('../vendor/bin/doctrine-module orm:schema-tool:drop --force');
-	} 
-	
+	}
+
 	/**
 	 * Initializes context.
 	 * Every scenario gets it's own context object.
@@ -69,7 +69,7 @@ class RestContext extends RawMinkContext
 		$driver->setCookie(session_name(), session_id());
 		$session = new \Behat\Mink\Session($driver);
 		$session->start();
-		
+
 		if ($this->base_url === "" || $this->base_url === null) {
 			throw new \Exception("Base_url not loaded!");
 		} else {
@@ -79,9 +79,10 @@ class RestContext extends RawMinkContext
 
 	/**
 	 * @Given /^that I want to make a new "([^"]*)"$/
+	 * @Given /^that I want to cast a new "([^"]*)"$/
 	 */
 	public function thatIWantToMakeANew($objectType)
-	{		
+	{
 		$this->_restObjectType = ucwords(strtolower($objectType));
 		$this->_restObjectMethod = 'post';
 	}
@@ -94,7 +95,7 @@ class RestContext extends RawMinkContext
 		$this->_restObjectType = ucwords(strtolower($objectType));
 		$this->_restObjectMethod = 'put';
 	}
-	
+
 	/**
 	 * @Given /^that I want to find a "([^"]*)"$/
 	 */
@@ -130,7 +131,7 @@ class RestContext extends RawMinkContext
 			$this->currentToken = self::$tokens[$email];
 		}
 	}
-	
+
 	/**
 	 * @When /^I request "([^"]*)"$/
 	 */
@@ -168,10 +169,10 @@ class RestContext extends RawMinkContext
 					throw new Exception($e->getMessage());
 				}
 				break;
-			
+
 			case 'PUT':
 				// Create a PUT request: $client->put($uri, array $headers, $body, $options)
-				try 
+				try
 				{
 					$postFields = (array) $this->_restObject;
 					$response = $this->_client->put(
@@ -191,8 +192,8 @@ class RestContext extends RawMinkContext
 					throw new Exception($e->getMessage());
 				}
 				break;
-				
-			case 'POST': 
+
+			case 'POST':
 				// Create a POST request: $client->post($uri, array $headers, $postBody, $options)
 				try
 				{
@@ -215,11 +216,11 @@ class RestContext extends RawMinkContext
 					throw new Exception($e->getMessage());
 				}
 				break;
-				
+
 			case 'DELETE':
 				// Create a DELETE request: $client->delete($uri, array $headers, $body, $options)
 				try
-				{   
+				{
 					$response = $this->_client->delete(
 						$this->_requestUrl . '?' . http_build_query((array) $this->_restObject), $headers
 					)->send();
@@ -237,7 +238,7 @@ class RestContext extends RawMinkContext
 					throw new Exception($e->getMessage());
 				}
 				break;
-			 
+
 			default:
 				throw new Exception("_restObjectMethod NOT MANAGED!");
 		}
@@ -269,14 +270,14 @@ class RestContext extends RawMinkContext
 			throw new Exception("Response was not an empty map, but ".$bodyResponse);
 		}
 	}
-	
+
 	/**
 	 * @Then /^the "([^"]*)" property should be "([^"]*)"$/
 	 * @param $propertyName
 	 * @param $value
 	 * @throws Exception
 	 */
-	
+
 	public function thePropertyShouldBe($propertyName, $value){
 		$rv = null;
 		$str = '$rv = $this->json->'.str_replace('.', '->', $propertyName).';';
@@ -287,14 +288,14 @@ class RestContext extends RawMinkContext
 			throw new Exception("'$propertyName' property value is not equal to '$value'. It is '$rv'");
 		}
 	}
-	
+
 	/**
 	 * @Then /^the "([^"]*)" property size should be "([^"]*)"$/
 	 */
 	public function thePropertySizeShouldBe($propertyName, $value)
 	{
 		$this->theResponseShouldHaveAProperty($propertyName);
-		
+
 		if (is_array($this->json->$propertyName)) {
 			if (count($this->json->$propertyName) != $value) {
 				throw new \Exception('Property size isn\'t equal to ' . $value .'! It is ' . count($this->json->$propertyName));
@@ -326,19 +327,19 @@ class RestContext extends RawMinkContext
 	public function theTypeOfThePropertyIsNumeric($propertyName, $typeString)
 	{
 		$data = json_decode($this->_response->getBody(true));
-		
-		if (! empty($data)) 
+
+		if (! empty($data))
 		{
-			if (! isset($data->$propertyName)) 
+			if (! isset($data->$propertyName))
 			{
 				throw new Exception("Property '" . $propertyName .
 						 "' is not set!\n");
 			}
 			// check our type
-			switch (strtolower($typeString)) 
+			switch (strtolower($typeString))
 			{
 				case 'numeric':
-					if (! is_numeric($data->$propertyName)) 
+					if (! is_numeric($data->$propertyName))
 					{
 						throw new Exception(
 								"Property '" . $propertyName .
@@ -347,8 +348,8 @@ class RestContext extends RawMinkContext
 					}
 				break;
 			}
-		} 
-		else 
+		}
+		else
 		{
 			throw new Exception(
 					"Response was not JSON\n" . $this->_response->getBody(true));
@@ -360,20 +361,20 @@ class RestContext extends RawMinkContext
 	 */
 	public function theResponseStatusCodeShouldBe($httpStatus)
 	{
-		if ((string) $this->_response->getStatusCode() !== $httpStatus) 
+		if ((string) $this->_response->getStatusCode() !== $httpStatus)
 		{
 			throw new \Exception(
 					'HTTP code does not match ' . $httpStatus . ' (actual: ' .
 							 $this->_response->getStatusCode() . ')');
 		}
 	}
-	
+
 	/**
 	 * @Then /^the header "([^"]*)" should be "([^"]*)"$/
 	 */
 	public function theHeaderShouldBe($header, $value)
 	{
-		
+
 	}
 
 	/**
@@ -395,7 +396,7 @@ class RestContext extends RawMinkContext
 			throw new Exception("Property '" . $propertyName ."' does not exist in response " . implode(', ', $properties));
 		}
 	}
-	
+
 	/**
 	 * @Then /^the response shouldn't have a "([^"]*)" property$/
 	 */
@@ -415,7 +416,7 @@ class RestContext extends RawMinkContext
 			throw new Exception("Property '" . $propertyName ."' exists in response ");
 		}
 	}
-	
+
 	/**
 	 * @Then /^echo last response$/
 	 */
@@ -425,12 +426,12 @@ class RestContext extends RawMinkContext
 		print_r("\n\n");
 		print_r($this->_response->getBody(true));
 	}
-	
+
 	protected function getResponse()
 	{
 		return $this->_response;
 	}
-	
+
 	protected function getJsonProperties()
 	{
 		if(is_null($this->jsonProperties)) {
