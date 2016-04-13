@@ -276,6 +276,44 @@ VALUES
   ('00000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000000', 'member', '2014-11-12 19:07:59',
    '2014-11-12 19:07:59', '-1', '2014-11-07 11:37:58');
 
+# task 00000000-0000-0000-0000-000000000020, accepted, Mark Rogers (owner), Paul Smith (member)
+# needed for https://www.pivotaltracker.com/story/show/116529995
+INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
+  ('7126d983-20ad-47f2-9636-085395aa3b6b', 1, 'TaskManagement\\TaskCreated',
+   'a:5:{s:8:\"streamId\";s:36:\"00000000-1000-0000-0000-000000000000\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:6:\"status\";i:20;s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000020\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000020'),
+  ('434fa91f-62c9-4b34-827b-4e01bd7efe7e', 2, 'TaskManagement\\TaskUpdated',
+   'a:3:{s:7:\"subject\";s:27:\"Technology stack definition\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000020\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000020'),
+  ('634fa91f-62c9-4b34-827b-3e01bd7efe7d', 2, 'TaskManagement\\TaskUpdated',
+   'a:3:{s:11:\"description\";s:27:\"Technology stack definition\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000020\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000020'),
+  ('d033eb32-2ad4-49d5-b25c-3c0b600b7d9c', 4, 'TaskManagement\\TaskMemberAdded',
+   'a:4:{s:6:\"userId\";s:36:\"60000000-0000-0000-0000-000000000000\";s:4:\"role\";s:5:\"owner\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000020\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000020'),
+  ('0bdfdd17-61ef-4f80-bcd4-7e6eb6990723', 5, 'TaskManagement\\TaskCompleted',
+   'a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000020\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}',
+   '2014-10-31T10:44:30.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000020'),
+  ('d333eb32-2ad4-49d5-b25c-3c0b600b7dec', 6, 'TaskManagement\\TaskMemberAdded',
+   'a:4:{s:6:\"userId\";s:36:\"20000000-0000-0000-0000-000000000000\";s:4:\"role\";s:6:\"member\";s:2:\"by\";s:36:\"20000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000020\";}',
+   '2014-11-12T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000020'),
+  ('75697b0b-0790-48b7-a122-ff2078c5bf20', 7, 'TaskManagement\\EstimationAdded',
+   'a:3:{s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:5:"value";s:2:"-1";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000020";}',
+   '2015-02-02T21:22:11.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000020'),
+  ('76697b0b-0790-48b7-a122-ff2078c5bf20', 8, 'TaskManagement\\EstimationAdded',
+   'a:3:{s:2:"by";s:36:"20000000-0000-0000-0000-000000000000";s:5:"value";s:2:"-1";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000020";}',
+   '2015-02-02T21:22:11.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000020');
+INSERT INTO `tasks` (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type)
+VALUES
+  ('00000000-0000-0000-0000-000000000020', '00000000-1000-0000-0000-000000000000', 'Technology stack definition', 'Technology stack definition', 30, '2014-02-07 19:07:59', '2014-11-12 19:07:59', '60000000-0000-0000-0000-000000000000',
+   '60000000-0000-0000-0000-000000000000', 'task');
+INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt)
+VALUES
+  ('00000000-0000-0000-0000-000000000020', '60000000-0000-0000-0000-000000000000', 'owner', '2014-11-12 19:07:59',
+   '2014-02-07 19:07:59', '-1', '2014-11-07 11:37:58'),
+  ('00000000-0000-0000-0000-000000000020', '20000000-0000-0000-0000-000000000000', 'member', '2014-11-12 19:07:59',
+   '2014-11-12 19:07:59', '-1', '2014-11-07 11:37:58');
+
 # task 00000000-0000-0000-0000-000000000003, deleted, Mark Rogers (owner)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
   ('6126d983-20ad-47f2-9636-085395aa307b', 1, 'TaskManagement\\TaskCreated',

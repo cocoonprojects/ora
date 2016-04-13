@@ -1,6 +1,7 @@
 <?php
 
 namespace TaskManagement;
+use TaskManagement\Controller\AcceptancesController;
 use TaskManagement\Controller\ApprovalsController;
 use TaskManagement\Controller\EstimationsController;
 use TaskManagement\Controller\MembersController;
@@ -110,6 +111,12 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$controller = new ApprovalsController($taskService);
+					return $controller;
+				},
+				'TaskManagement\Controller\Acceptances' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$controller = new AcceptancesController($taskService);
 					return $controller;
 				},
 			]

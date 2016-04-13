@@ -6,13 +6,11 @@ Feature: Completed Work Item Voting (https://www.pivotaltracker.com/story/show/1
 Scenario: One member cast a positive vote
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to cast a new "Vote"
-	When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/60000000-0000-0000-0000-000000000000/votes"
-	Then the response status code should be 200
+	And that its "value" is "1"
+	When I request "/60000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000020/acceptances"
+	Then the response status code should be 201
 	And the response should be JSON
-	And the response should have a "votes" property
-	# And the response should have a "creditsCount" property
-	# And the response should have a "ownershipsCount" property
-	# And the response should have a "membershipsCount" property
+	And the "status" property should be "30"
 
 # Scenario: One member cast a negative vote
 # 	Given that I am authenticated as "mark.rogers@ora.local"
