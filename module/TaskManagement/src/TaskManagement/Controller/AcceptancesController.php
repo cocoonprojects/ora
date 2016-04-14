@@ -3,6 +3,7 @@
 namespace TaskManagement\Controller;
 
 use Application\DomainEntityUnavailableException;
+use Application\DuplicatedDomainEntityException;
 use Application\IllegalStateException;
 use Application\View\ErrorJsonModel;
 use ZFX\Rest\Controller\HATEOASRestfulController;
@@ -81,12 +82,15 @@ class AcceptancesController extends HATEOASRestfulController {
 		$this->transaction ()->begin ();
 	
 		try {
-			//$task->addApproval ( $vote, $this->identity (), $description );
+			$task->addAcceptance( $vote, $this->identity (), $description );
 			$this->transaction ()->commit ();
 			$this->response->setStatusCode ( 201 );
 			$view = new TaskJsonModel ( $this );
 			$view->setVariable ( 'resource', $task );
 			return $view;
+		} catch ( DuplicatedDomainEntityException $e ) {
+			$this->transaction ()->rollback ();
+			$this->response->setStatusCode ( 409 ); // Conflict for duplicate entity
 		} catch ( DomainEntityUnavailableException $e ) {
 			$this->transaction ()->rollback ();
 			$this->response->setStatusCode ( 403 ); // Forbidden because not a member

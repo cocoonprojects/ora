@@ -161,8 +161,14 @@ class TaskJsonModel extends JsonModel {
 			foreach ( $approvals as $approval ) {
 				$approvalswithkey [$approval->getVoter ()->getId ()] = $approval;
 			}
+			$acceptances = $task->getAcceptances ();
+			$acceptanceswithkey = [ ];
+			foreach ( $acceptances as $acceptance ) {
+				$acceptanceswithkey [$acceptance->getVoter ()->getId ()] = $acceptance;
+			}
 		} else {
 			$approvalswithkey = $task->getApprovals ();
+			$acceptanceswithkey = $task->getAcceptances ();
 		}
 		$rv = [ 
 				'id' => $task->getId (),
@@ -181,7 +187,11 @@ class TaskJsonModel extends JsonModel {
 				'approvals' => array_map ( [ 
 						$this,
 						'serializeOneMemberApproval' 
-				], $approvalswithkey ) 
+				], $approvalswithkey ), 
+				'acceptances' => array_map ( [ 
+						$this,
+						'serializeOneMemberAcceptance' 
+				], $acceptanceswithkey ) 
 		];
 		
 		if ($task->getStatus () >= Task::STATUS_ONGOING) {
@@ -266,6 +276,23 @@ class TaskJsonModel extends JsonModel {
 				  ];
 		}else{
 			$rv = $approval; // Copy the array
+			foreach ( $rv as $key => $value ) {
+				if ($value instanceof \DateTime) {
+					$rv [$key] = date_format ( $value, 'c' );
+				}
+			}
+		}
+		return $rv;
+	}
+	protected function serializeOneMemberAcceptance($acceptance) {
+		if ($acceptance instanceof Approval) {
+			$voter = $acceptance->getVoter ();
+			$rv = [ 
+					'acceptance' => $acceptance->getVote ()->getValue (),
+					'acceptanceGeneratedAt' => $acceptance->getCreatedAt()
+				  ];
+		}else{
+			$rv = $acceptance; // Copy the array
 			foreach ( $rv as $key => $value ) {
 				if ($value instanceof \DateTime) {
 					$rv [$key] = date_format ( $value, 'c' );

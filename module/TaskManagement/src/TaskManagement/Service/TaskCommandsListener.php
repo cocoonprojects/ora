@@ -11,6 +11,7 @@ use TaskManagement\Entity\Task;
 use TaskManagement\Entity\TaskMember;
 use TaskManagement\Entity\Vote;
 use TaskManagement\Entity\ItemIdeaApproval;
+use TaskManagement\Entity\ItemCompletedAcceptance;
 
 class TaskCommandsListener extends ReadModelProjector
 {
@@ -150,6 +151,22 @@ class TaskCommandsListener extends ReadModelProjector
 		$vote = new Vote ( $event->occurredOn () );
 		$vote->setValue ( $event->payload ()['vote'] );
 		$task->addApproval ( $vote, $user, $event->occurredOn (), $description );
+		$this->entityManager->persist ( $task );
+	}
+
+	protected function onAcceptanceCreated(StreamEvent $event) {
+		$memberId = $event->payload ()['by'];
+		$description = $event->payload ()['description'];
+		$user = $this->entityManager->find ( User::class, $memberId );
+		if (is_null ( $user )) {
+			return;
+		}
+		$id = $event->metadata ()['aggregate_id'];
+		$taskId = $event->payload ()['task-id'];
+		$task = $this->entityManager->find ( Task::class, $taskId );
+		$vote = new Vote ( $event->occurredOn () );
+		$vote->setValue ( $event->payload ()['vote'] );
+		$task->addAcceptance( $vote, $user, $event->occurredOn (), $description );
 		$this->entityManager->persist ( $task );
 	}
 	

@@ -43,6 +43,10 @@ class Task extends DomainEntity implements TaskInterface
 	 */
 	protected $organizationMembersApprovals=[];
 	/**
+	 * 
+	 */
+	protected $organizationMembersAcceptances=[];
+	/**
 	 * @var \DateTime
 	 */
 	protected $createdAt;
@@ -296,10 +300,29 @@ class Task extends DomainEntity implements TaskInterface
 			throw new IllegalStateException ( 'Cannot add an approval to item in a status different from idea' );
 		}
 		if (array_key_exists ( $member->getId (), $this->organizationMembersApprovals )) {
-			throw new DuplicatedDomainEntityException ( $this, $user );
+			throw new DuplicatedDomainEntityException ( $this, $member );
 		}
 		
 		$this->recordThat ( ApprovalCreated::occur ( $this->id->toString (), array (
+				'by' => $member->getId (),
+				'vote' => $vote,
+				'task-id' => $this->getId (),
+				'description' => $description 
+		) ) );
+	}	
+
+	public function addAcceptance($vote,BasicUser $member,$description){
+		if (! in_array ( $this->status, [ 
+				self::STATUS_COMPLETED 
+		] )) {
+			throw new IllegalStateException ( 'Cannot add an acceptance to item in a status different from closed' );
+		}
+
+		if (array_key_exists ( $member->getId (), $this->organizationMembersAcceptances )) {
+			throw new DuplicatedDomainEntityException ( $this, $member );
+		}
+		
+		$this->recordThat ( AcceptanceCreated::occur ( $this->id->toString (), array (
 				'by' => $member->getId (),
 				'vote' => $vote,
 				'task-id' => $this->getId (),
@@ -415,6 +438,14 @@ class Task extends DomainEntity implements TaskInterface
 	 */
 	public function getApprovals(){
 		return $this->organizationMembersApprovals;
+	}
+	
+	/**
+	 * 
+	 * @return array
+	 */
+	public function getAcceptances(){
+		return $this->organizationMembersAcceptances;
 	}
 	
 	public function getAverageEstimation() {
@@ -637,6 +668,13 @@ class Task extends DomainEntity implements TaskInterface
 		$id = $p ['by'];
 		$this->organizationMembersApprovals [$id] ['approval'] = $p ['vote'];
 		$this->organizationMembersApprovals [$id] ['approvalGeneratedAt'] = $event->occurredOn ();
+	}	
+	
+	protected function whenAcceptanceCreated(AcceptanceCreated $event) {
+		$p = $event->payload ();
+		$id = $p ['by'];
+		$this->organizationMembersAcceptances [$id] ['acceptance'] = $p ['vote'];
+		$this->organizationMembersAcceptances [$id] ['acceptanceGeneratedAt'] = $event->occurredOn ();
 	}
 	
 	protected function whenSharesAssigned(SharesAssigned $event) {

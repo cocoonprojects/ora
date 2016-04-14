@@ -57,6 +57,13 @@ class Task extends EditableEntity implements TaskInterface
 	private $approvals;
 	
 	/**
+	 * @ORM\OneToMany(targetEntity="Approval", mappedBy="item", cascade={"PERSIST", "REMOVE"}, orphanRemoval=TRUE)
+	 * @ORM\OrderBy({"createdAt" = "ASC"})
+	 * @var Acceptance[]
+	 */
+	private $acceptances;
+	
+	/**
  	 * @ORM\Column(type="datetime", nullable=true)
 	 * @var \DateTime
 	 */
@@ -73,6 +80,7 @@ class Task extends EditableEntity implements TaskInterface
 		$this->stream = $stream;
 		$this->members = new ArrayCollection();
 		$this->approvals = new ArrayCollection();
+		$this->acceptances = new ArrayCollection();
 	}
 
 	/**
@@ -165,6 +173,20 @@ class Task extends EditableEntity implements TaskInterface
 		return $this;
 	}
 	
+	public function addAcceptance (Vote $vote, BasicUser $by, \DateTime $when ,$description){
+		$acceptance = new ItemCompletedAcceptance($vote, $when);
+		$acceptance->setCreatedBy($by);
+		$acceptance->setCreatedAt($when);
+		$acceptance->setItem($this);
+		$acceptance->setVoter($by);
+		$acceptance->setMostRecentEditAt($when);
+		$acceptance->setMostRecentEditBy($by);
+		$acceptance->setDescription($description);
+		$this->acceptances->set($acceptance->getId(), $acceptance);
+		
+		return $this;
+	}
+	
 	/**
 	 * 
 	 * @param id|User $member
@@ -219,6 +241,13 @@ class Task extends EditableEntity implements TaskInterface
 	 */
 	public function getApprovals(){
 		return $this->approvals->toArray();
+	}
+	
+	/**
+	 * @return Approval[] 
+	 */
+	public function getAcceptances(){
+		return $this->acceptances->toArray();
 	}
 
 	/**
@@ -374,6 +403,20 @@ class Task extends EditableEntity implements TaskInterface
 		if($approvals!=null){
 			foreach ($approvals as $approval){
 				if($approval->getVoter()->getId() == $user->getId())
+					return true;
+			}
+		}
+		return false;
+	}	
+	/**
+	 * @param id|BasicUser $user
+	 * @return boolean
+	 */
+	public function isCompletedVotedFromMember($user){
+		$acceptances = $this->getAcceptances();
+		if($acceptances!=null){
+			foreach ($acceptances as $acceptance){
+				if($acceptance->getVoter()->getId() == $user->getId())
 					return true;
 			}
 		}
