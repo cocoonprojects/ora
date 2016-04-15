@@ -144,6 +144,10 @@ INSERT INTO organization_members (member_id, organization_id, role, createdAt, m
 VALUES
   ('80000000-0000-0000-0000-000000000000', '00000000-0000-0000-1000-000000000000', 'member', '2014-10-09 11:33:45',
    '2014-10-09 11:33:45', '80000000-0000-0000-0000-000000000000', '80000000-0000-0000-0000-000000000000');
+INSERT INTO organization_members (member_id, organization_id, role, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id)
+VALUES
+  ('80000000-0000-0000-0000-000000000000', '00000000-0000-0000-2000-000000000000', 'member', '2014-10-09 11:33:45',
+   '2014-10-09 11:33:45', '80000000-0000-0000-0000-000000000000', '80000000-0000-0000-0000-000000000000');
 INSERT INTO accounts (id, organization_id, createdAt, mostRecentEditAt, balance_value, balance_date, createdBy_id, mostRecentEditBy_id, type)
 VALUES
   ('cdde992b-5aa9-4447-98ae-c8115906dcb9', '00000000-0000-0000-1000-000000000000', '2014-12-29T17:32:07.000000+0100',
@@ -312,6 +316,82 @@ VALUES
   ('00000000-0000-0000-0000-000000000020', '60000000-0000-0000-0000-000000000000', 'owner', '2014-11-12 19:07:59',
    '2014-02-07 19:07:59', '-1', '2014-11-07 11:37:58'),
   ('00000000-0000-0000-0000-000000000020', '20000000-0000-0000-0000-000000000000', 'member', '2014-11-12 19:07:59',
+   '2014-11-12 19:07:59', '-1', '2014-11-07 11:37:58');
+
+# task 00000000-0000-0000-0000-000000000021, accepted, Mark Rogers (owner), Paul Smith (member)
+# needed for https://www.pivotaltracker.com/story/show/116529995
+INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
+  ('7126d983-20ad-57f2-9636-ee5395aa3b6b', 1, 'TaskManagement\\TaskCreated',
+   'a:5:{s:8:\"streamId\";s:36:\"00000000-1000-0000-0000-000000000000\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:6:\"status\";i:20;s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000021\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000021'),
+  ('434fa91f-62c9-5b34-827b-ee01bd7efe7e', 2, 'TaskManagement\\TaskUpdated',
+   'a:3:{s:7:\"subject\";s:27:\"Technology stack definition\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000021\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000021'),
+  ('634fa91f-62c9-5b34-827b-ee01bd7efe7d', 2, 'TaskManagement\\TaskUpdated',
+   'a:3:{s:11:\"description\";s:27:\"Technology stack definition\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000021\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000021'),
+  ('d033eb32-2ad4-59d5-b25c-ee0b600b7d9c', 4, 'TaskManagement\\TaskMemberAdded',
+   'a:4:{s:6:\"userId\";s:36:\"60000000-0000-0000-0000-000000000000\";s:4:\"role\";s:5:\"owner\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000021\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000021'),
+  ('0bdfdd17-61ef-5f80-bcd4-ee6eb6990723', 5, 'TaskManagement\\TaskCompleted',
+   'a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000021\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}',
+   '2014-10-31T10:44:30.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000021'),
+  ('d333eb32-2ad4-59d5-b25c-ee0b600b7dec', 6, 'TaskManagement\\TaskMemberAdded',
+   'a:4:{s:6:\"userId\";s:36:\"20000000-0000-0000-0000-000000000000\";s:4:\"role\";s:6:\"member\";s:2:\"by\";s:36:\"20000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000021\";}',
+   '2014-11-12T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000021'),
+  ('75697b0b-0790-58b7-a122-ee2078c5bf20', 7, 'TaskManagement\\EstimationAdded',
+   'a:3:{s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:5:"value";s:2:"-1";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000021";}',
+   '2015-02-02T21:22:11.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000021'),
+  ('76697b0b-0790-58b7-a122-ee2078c5bf20', 8, 'TaskManagement\\EstimationAdded',
+   'a:3:{s:2:"by";s:36:"20000000-0000-0000-0000-000000000000";s:5:"value";s:2:"-1";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000021";}',
+   '2015-02-02T21:22:11.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000021');
+INSERT INTO `tasks` (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type)
+VALUES
+  ('00000000-0000-0000-0000-000000000021', '00000000-1000-0000-0000-000000000000', 'Technology stack definition 2', 'Technology stack definition 2', 30, '2014-02-07 19:07:59', '2014-11-12 19:07:59', '60000000-0000-0000-0000-000000000000',
+   '60000000-0000-0000-0000-000000000000', 'task');
+INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt)
+VALUES
+  ('00000000-0000-0000-0000-000000000021', '60000000-0000-0000-0000-000000000000', 'owner', '2014-11-12 19:07:59',
+   '2014-02-07 19:07:59', '-1', '2014-11-07 11:37:58'),
+  ('00000000-0000-0000-0000-000000000021', '20000000-0000-0000-0000-000000000000', 'member', '2014-11-12 19:07:59',
+   '2014-11-12 19:07:59', '-1', '2014-11-07 11:37:58');
+
+# task 00000000-0000-0000-0000-000000000022, accepted, Mark Rogers (owner), Paul Smith (member)
+# needed for https://www.pivotaltracker.com/story/show/116529995
+INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
+  ('7126d983-32ad-67f2-9636-dd5395aa3b6b', 1, 'TaskManagement\\TaskCreated',
+   'a:5:{s:8:\"streamId\";s:36:\"00000000-1000-0000-0000-000000000000\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:6:\"status\";i:20;s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000022\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000022'),
+  ('434fa91f-72c1-6b34-827b-dd01bd7efe7e', 2, 'TaskManagement\\TaskUpdated',
+   'a:3:{s:7:\"subject\";s:27:\"Technology stack definition\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000022\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000022'),
+  ('634fa91f-72c1-6b34-827b-dd01bd7efe7d', 2, 'TaskManagement\\TaskUpdated',
+   'a:3:{s:11:\"description\";s:27:\"Technology stack definition\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000022\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000022'),
+  ('d033eb32-7ad1-69d5-b25c-dd0b600b7d9c', 4, 'TaskManagement\\TaskMemberAdded',
+   'a:4:{s:6:\"userId\";s:36:\"60000000-0000-0000-0000-000000000000\";s:4:\"role\";s:5:\"owner\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000022\";}',
+   '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000022'),
+  ('0bdfdd17-71e1-6f80-bcd4-dd6eb6990723', 5, 'TaskManagement\\TaskCompleted',
+   'a:2:{s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000022\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";}',
+   '2014-10-31T10:44:30.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000022'),
+  ('d333eb32-7ad1-69d5-b25c-dd0b600b7dec', 6, 'TaskManagement\\TaskMemberAdded',
+   'a:4:{s:6:\"userId\";s:36:\"20000000-0000-0000-0000-000000000000\";s:4:\"role\";s:6:\"member\";s:2:\"by\";s:36:\"20000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000022\";}',
+   '2014-11-12T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000022'),
+  ('75697b0b-7791-68b7-a122-dd2078c5bf20', 7, 'TaskManagement\\EstimationAdded',
+   'a:3:{s:2:"by";s:36:"60000000-0000-0000-0000-000000000000";s:5:"value";s:2:"-1";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000022";}',
+   '2015-02-02T21:22:11.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000022'),
+  ('76697b0b-7791-68b7-a122-dd2078c5bf20', 8, 'TaskManagement\\EstimationAdded',
+   'a:3:{s:2:"by";s:36:"20000000-0000-0000-0000-000000000000";s:5:"value";s:2:"-1";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000022";}',
+   '2015-02-02T21:22:11.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000022');
+INSERT INTO `tasks` (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type)
+VALUES
+  ('00000000-0000-0000-0000-000000000022', '00000000-1000-0000-0000-000000000000', 'Technology stack definition 3', 'Technology stack definition 3', 30, '2014-02-07 19:07:59', '2014-11-12 19:07:59', '60000000-0000-0000-0000-000000000000',
+   '60000000-0000-0000-0000-000000000000', 'task');
+INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt)
+VALUES
+  ('00000000-0000-0000-0000-000000000022', '60000000-0000-0000-0000-000000000000', 'owner', '2014-11-12 19:07:59',
+   '2014-02-07 19:07:59', '-1', '2014-11-07 11:37:58'),
+  ('00000000-0000-0000-0000-000000000022', '20000000-0000-0000-0000-000000000000', 'member', '2014-11-12 19:07:59',
    '2014-11-12 19:07:59', '-1', '2014-11-07 11:37:58');
 
 # task 00000000-0000-0000-0000-000000000003, deleted, Mark Rogers (owner)

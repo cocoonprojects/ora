@@ -169,6 +169,19 @@ class TaskCommandsListener extends ReadModelProjector
 		$task->addAcceptance( $vote, $user, $event->occurredOn (), $description );
 		$this->entityManager->persist ( $task );
 	}
+
+	protected function onAcceptancesRemoved(StreamEvent $event) {
+		$memberId = $event->payload()['by'];
+		$user = $this->entityManager->find( User::class, $memberId );
+		if (is_null ( $user )) {
+			return;
+		}
+		$taskId = $event->payload()['task-id'];
+		$task = $this->entityManager->find( Task::class, $taskId );
+
+		$task->removeAcceptances();
+		$this->entityManager->persist( $task );
+	}
 	
 	protected function onTaskCompleted(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];

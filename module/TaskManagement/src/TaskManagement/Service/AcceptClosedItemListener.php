@@ -97,6 +97,7 @@ class AcceptClosedItemListener implements ListenerAggregateInterface {
 			
 			$this->transactionManager->beginTransaction ();
 			try {
+				$task->removeAcceptances();
 				$task->execute( $owner );
 				$this->transactionManager->commit ();
 			} catch ( \Exception $e ) {
@@ -119,6 +120,7 @@ class AcceptClosedItemListener implements ListenerAggregateInterface {
 			} else {
 				$this->transactionManager->beginTransaction ();
 				try {
+					$task->removeAcceptances();
 					$task->execute ( $owner );
 					$this->transactionManager->commit ();
 				} catch ( \Exception $e ) {

@@ -329,6 +329,20 @@ class Task extends DomainEntity implements TaskInterface
 				'description' => $description 
 		) ) );
 	}
+
+	public function removeAcceptances(){
+		if (! in_array ( $this->status, [ 
+				self::STATUS_COMPLETED 
+		] )) {
+			throw new IllegalStateException ( 'Cannot remove acceptances from item in a status different from closed' );
+		}
+
+		$this->recordThat ( AcceptancesRemoved::occur( $this->id->toString (), array (
+				'by' => $member->getId (),
+				'task-id' => $this->getId (),
+		) ) );
+	}
+
 	/**
 	 * 
 	 * @param array $shares Map of memberId and its share for each member
@@ -676,6 +690,11 @@ class Task extends DomainEntity implements TaskInterface
 		$this->organizationMembersAcceptances [$id] ['acceptance'] = $p['vote'];
 		$this->organizationMembersAcceptances [$id] ['acceptanceDescription'] = $p['description'];
 		$this->organizationMembersAcceptances [$id] ['acceptanceGeneratedAt'] = $event->occurredOn();
+	}
+	
+	protected function whenAcceptancesRemoved(AcceptancesRemoved $event) {
+		unset($this->organizationMembersAcceptances);
+		$this->organizationMembersAcceptances = [];
 	}
 	
 	protected function whenSharesAssigned(SharesAssigned $event) {

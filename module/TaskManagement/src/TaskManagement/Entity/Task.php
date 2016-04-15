@@ -187,6 +187,11 @@ class Task extends EditableEntity implements TaskInterface
 		return $this;
 	}
 	
+	public function removeAcceptances(){
+		$this->acceptances->clear();		
+		return $this;
+	}
+	
 	/**
 	 * 
 	 * @param id|User $member
