@@ -21,6 +21,7 @@ use TaskManagement\Service\StreamCommandsListener;
 use TaskManagement\Service\TaskCommandsListener;
 use TaskManagement\Service\TransferCreditsListener;
 use TaskManagement\Service\CloseItemIdeaListener;
+use TaskManagement\Service\AcceptClosedItemListener;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 
@@ -177,6 +178,13 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$userService = $locator->get('Application\UserService');
 					$transactionManager = $locator->get('prooph.event_store');
 					return new CloseItemIdeaListener($taskService,$userService, $organizationService, $transactionManager);
+				},
+				'TaskManagement\AcceptClosedItemListener' => function ($locator) {
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$organizationService = $locator->get('People\OrganizationService');
+					$userService = $locator->get('Application\UserService');
+					$transactionManager = $locator->get('prooph.event_store');
+					return new AcceptClosedItemListener($taskService,$userService, $organizationService, $transactionManager);
 				},
 				'TaskManagement\AssignCreditsListener' => function ($locator) {
 					$taskService = $locator->get('TaskManagement\TaskService');

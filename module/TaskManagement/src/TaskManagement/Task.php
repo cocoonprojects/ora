@@ -673,8 +673,9 @@ class Task extends DomainEntity implements TaskInterface
 	protected function whenAcceptanceCreated(AcceptanceCreated $event) {
 		$p = $event->payload ();
 		$id = $p ['by'];
-		$this->organizationMembersAcceptances [$id] ['acceptance'] = $p ['vote'];
-		$this->organizationMembersAcceptances [$id] ['acceptanceGeneratedAt'] = $event->occurredOn ();
+		$this->organizationMembersAcceptances [$id] ['acceptance'] = $p['vote'];
+		$this->organizationMembersAcceptances [$id] ['acceptanceDescription'] = $p['description'];
+		$this->organizationMembersAcceptances [$id] ['acceptanceGeneratedAt'] = $event->occurredOn();
 	}
 	
 	protected function whenSharesAssigned(SharesAssigned $event) {

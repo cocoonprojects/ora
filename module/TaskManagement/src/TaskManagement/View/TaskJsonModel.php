@@ -156,19 +156,23 @@ class TaskJsonModel extends JsonModel {
 			] );
 		}
 		if ($task instanceof Task) {
-			$approvals = $task->getApprovals ();
+			$approvals = $task->getApprovals();
 			$approvalswithkey = [ ];
+			
 			foreach ( $approvals as $approval ) {
 				$approvalswithkey [$approval->getVoter ()->getId ()] = $approval;
 			}
-			$acceptances = $task->getAcceptances ();
+
+			$acceptances = $task->getAcceptances();
 			$acceptanceswithkey = [ ];
+
 			foreach ( $acceptances as $acceptance ) {
-				$acceptanceswithkey [$acceptance->getVoter ()->getId ()] = $acceptance;
+				$acceptanceswithkey [$acceptance->getVoter()->getId()] = $acceptance;
 			}
+
 		} else {
-			$approvalswithkey = $task->getApprovals ();
-			$acceptanceswithkey = $task->getAcceptances ();
+			$approvalswithkey = $task->getApprovals();
+			$acceptanceswithkey = $task->getAcceptances();
 		}
 		$rv = [ 
 				'id' => $task->getId (),
@@ -285,11 +289,13 @@ class TaskJsonModel extends JsonModel {
 		return $rv;
 	}
 	protected function serializeOneMemberAcceptance($acceptance) {
+
 		if ($acceptance instanceof Approval) {
 			$voter = $acceptance->getVoter ();
 			$rv = [ 
-					'acceptance' => $acceptance->getVote ()->getValue (),
-					'acceptanceGeneratedAt' => $acceptance->getCreatedAt()
+					'acceptance' => $acceptance->getVote()->getValue(),
+					'acceptanceDescription' => $acceptance->getDescription(),
+					'acceptanceGeneratedAt' => $acceptance->getCreatedAt(),
 				  ];
 		}else{
 			$rv = $acceptance; // Copy the array
@@ -299,6 +305,7 @@ class TaskJsonModel extends JsonModel {
 				}
 			}
 		}
+
 		return $rv;
 	}
 }

@@ -365,7 +365,10 @@ class RestContext extends RawMinkContext
 		{
 			throw new \Exception(
 					'HTTP code does not match ' . $httpStatus . ' (actual: ' .
-							 $this->_response->getStatusCode() . ')');
+					$this->_response->getStatusCode() . 
+					') reason: ' .
+					$this->_response->getReasonPhrase()
+			);
 		}
 	}
 
