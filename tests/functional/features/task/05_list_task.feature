@@ -102,7 +102,7 @@ Feature: List tasks
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
     And the response shouldn't have a "_links.next" property
-    And the "total" property should be "6"
+    And the "total" property should be "5"
 
   Scenario: Successfully getting a list of tasks from a specified ISO 8601 date
     Given that I am authenticated as "mark.rogers@ora.local"
@@ -123,7 +123,7 @@ Feature: List tasks
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
     And the response shouldn't have a "_links.next" property
-    And the "total" property should be "4"
+    And the "total" property should be "3"
 
   Scenario: Successfully getting an empty list of tasks filtered by user email
     Given that I am authenticated as "mark.rogers@ora.local"

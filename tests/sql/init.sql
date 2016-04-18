@@ -360,7 +360,7 @@ VALUES
 # needed for https://www.pivotaltracker.com/story/show/116529995
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
   ('7126d983-32ad-67f2-9636-dd5395aa3b6b', 1, 'TaskManagement\\TaskCreated',
-   'a:5:{s:8:\"streamId\";s:36:\"00000000-1000-0000-0000-000000000000\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:6:\"status\";i:20;s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000022\";}',
+   'a:5:{s:8:\"streamId\";s:36:\"00000000-1001-0000-0000-000000000000\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-2000-000000000000\";s:6:\"status\";i:20;s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000022\";}',
    '2014-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000022'),
   ('434fa91f-72c1-6b34-827b-dd01bd7efe7e', 2, 'TaskManagement\\TaskUpdated',
    'a:3:{s:7:\"subject\";s:27:\"Technology stack definition\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000022\";}',
@@ -383,9 +383,13 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
   ('76697b0b-7791-68b7-a122-dd2078c5bf20', 8, 'TaskManagement\\EstimationAdded',
    'a:3:{s:2:"by";s:36:"20000000-0000-0000-0000-000000000000";s:5:"value";s:2:"-1";s:12:"aggregate_id";s:36:"00000000-0000-0000-0000-000000000022";}',
    '2015-02-02T21:22:11.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000022');
+INSERT INTO streams (id, subject, createdAt, mostRecentEditAt, organization_id, createdBy_id, mostRecentEditBy_id, type)
+VALUES ('00000000-1001-0000-0000-000000000000', 'O.R.A.: Technology stack definition stream', '2014-11-06 13:11:05',
+        '2014-11-06 13:11:05', '00000000-0000-0000-2000-000000000000', '60000000-0000-0000-0000-000000000000',
+        '60000000-0000-0000-0000-000000000000', 'stream');
 INSERT INTO `tasks` (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type)
 VALUES
-  ('00000000-0000-0000-0000-000000000022', '00000000-1000-0000-0000-000000000000', 'Technology stack definition 3', 'Technology stack definition 3', 30, '2014-02-07 19:07:59', '2014-11-12 19:07:59', '60000000-0000-0000-0000-000000000000',
+  ('00000000-0000-0000-0000-000000000022', '00000000-1001-0000-0000-000000000000', 'Technology stack definition 3', 'Technology stack definition 3', 30, '2014-02-07 19:07:59', '2014-11-12 19:07:59', '60000000-0000-0000-0000-000000000000',
    '60000000-0000-0000-0000-000000000000', 'task');
 INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt)
 VALUES

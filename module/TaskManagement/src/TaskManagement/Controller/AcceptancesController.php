@@ -67,22 +67,22 @@ class AcceptancesController extends HATEOASRestfulController {
 
 
 		$task = $this->taskService->getTask ( $id );
-		if (is_null ( $task )) {
+		if (is_null( $task )) {
 			// RESOURCE NOT FOUND
 			$this->response->setStatusCode ( 404 );
 				
 			return $this->response;
 		}
 
-		if (! $this->isAllowed ( $this->identity (), $this->taskService->findTask ( $id ), 'TaskManagement.Task.accept' )) {
+		if (! $this->isAllowed( $this->identity(), $this->taskService->findTask( $id ), 'TaskManagement.Task.accept' )) {
 			$this->response->setStatusCode ( 403 );
 			return $this->response;
 		}
 	
-		$this->transaction ()->begin ();
+		$this->transaction()->begin();
 	
 		try {
-			$task->addAcceptance( $vote, $this->identity (), $description );
+			$task->addAcceptance( $vote, $this->identity(), $description );
 			$this->transaction ()->commit ();
 			$this->response->setStatusCode ( 201 );
 			$view = new TaskJsonModel ( $this );
