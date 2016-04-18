@@ -74,7 +74,6 @@ return array(
 		'TaskManagement\TaskCommandsListener',
 	    'TaskManagement\CloseItemIdeaListener',
 	    'TaskManagement\AcceptClosedItemListener',
-	    'TaskManagement\RejectClosedItemListener',
 		'TaskManagement\TransferCreditsListener',
 		'TaskManagement\AssignCreditsListener',
 	],

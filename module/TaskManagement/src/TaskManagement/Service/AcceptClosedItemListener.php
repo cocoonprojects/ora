@@ -94,11 +94,12 @@ class AcceptClosedItemListener implements ListenerAggregateInterface {
 		} 
 
 		elseif ($reject > $memberhipcount / 2) {
-			
+
+			$task->removeAcceptances($owner);
+
 			$this->transactionManager->beginTransaction ();
 			try {
-				$task->removeAcceptances();
-				$task->execute( $owner );
+				$task->execute($owner);
 				$this->transactionManager->commit ();
 			} catch ( \Exception $e ) {
 				var_dump ( $e );
@@ -118,9 +119,10 @@ class AcceptClosedItemListener implements ListenerAggregateInterface {
 					throw $e;
 				}
 			} else {
+				$task->removeAcceptances();
+
 				$this->transactionManager->beginTransaction ();
 				try {
-					$task->removeAcceptances();
 					$task->execute ( $owner );
 					$this->transactionManager->commit ();
 				} catch ( \Exception $e ) {

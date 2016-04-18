@@ -330,7 +330,7 @@ class Task extends DomainEntity implements TaskInterface
 		) ) );
 	}
 
-	public function removeAcceptances(){
+	public function removeAcceptances(BasicUser $member){
 		if (! in_array ( $this->status, [ 
 				self::STATUS_COMPLETED 
 		] )) {

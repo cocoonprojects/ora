@@ -41,7 +41,6 @@ Scenario: Another one member cast a positive vote to accept the task
 	And the response should have a "acceptances" property
 	And the "acceptances" property size should be greater or equal than "1"
 
-@wip
 Scenario: The majority of the members cast a negative vote
 	Given that I am authenticated as "mark.rogers@ora.local"
 	And that I want to cast a new "Vote"
