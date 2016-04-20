@@ -14,6 +14,7 @@ use Prooph\EventStore\Stream\SingleStreamStrategy;
 use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Application\Entity\BasicUser;
 use FlowManagement\VoteIdeaCard;
+use FlowManagement\VoteCompletedItemCard;
 use TaskManagement\Entity\Task;
 
 class EventSourcingFlowService extends AggregateRepository implements FlowService{
@@ -63,6 +64,24 @@ class EventSourcingFlowService extends AggregateRepository implements FlowServic
 		$this->eventStore->beginTransaction();
 		try {
 			$card = VoteIdeaCard::create($recipient, $content, $createdBy, $itemId);
+			$this->addAggregateRoot($card);
+			$this->eventStore->commit();
+		} catch (\Exception $e) {
+			$this->eventStore->rollback();
+			throw $e;
+		}
+		return $card;
+	}	/**
+	 * (non-PHPdoc)
+	 * @see \FlowManagement\Service\FlowService::createLazyMajorityVoteCard()
+	 */
+	public function createVoteCompletedItemCard(BasicUser $recipient, $itemId, $organizationid, BasicUser $createdBy){
+		$content = [
+				"orgId" => $organizationid
+		];
+		$this->eventStore->beginTransaction();
+		try {
+			$card = VoteCompletedItemCard::create($recipient, $content, $createdBy, $itemId);
 			$this->addAggregateRoot($card);
 			$this->eventStore->commit();
 		} catch (\Exception $e) {

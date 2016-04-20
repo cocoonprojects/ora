@@ -7,6 +7,7 @@ use Application\Service\ReadModelProjector;
 use Prooph\EventStore\Stream\StreamEvent;
 use Application\Entity\User;
 use FlowManagement\Entity\VoteIdeaCard;
+use FlowManagement\Entity\VoteCompletedItemCard;
 use FlowManagement\FlowCardInterface;
 use TaskManagement\Entity\Task;
 use FlowManagement\Entity\FlowCard;
@@ -48,6 +49,14 @@ class CardCommandsListener extends ReadModelProjector {
 					$entity->setItem($idea);
 				} 
 				$entity->setContent(FlowCardInterface::VOTE_IDEA_CARD, $content);
+				break;
+			case 'FlowManagement\VoteCompletedItemCard':
+				$entity = new VoteCompletedItemCard($id, $recipient);
+				$idea = $this->entityManager->find(Task::class, $event->payload()['item']);
+				if(!is_null($idea)){
+					$entity->setItem($idea);
+				} 
+				$entity->setContent(FlowCardInterface::VOTE_COMPLETED_ITEM_CARD, $content);
 				break;
 			default:
 				$entity = null;

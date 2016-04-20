@@ -73,7 +73,7 @@ return array(
 		'TaskManagement\StreamCommandsListener',
 		'TaskManagement\TaskCommandsListener',
 	    'TaskManagement\CloseItemIdeaListener',
-	    'TaskManagement\AcceptClosedItemListener',
+	    'TaskManagement\AcceptCompletedItemListener',
 		'TaskManagement\TransferCreditsListener',
 		'TaskManagement\AssignCreditsListener',
 	],

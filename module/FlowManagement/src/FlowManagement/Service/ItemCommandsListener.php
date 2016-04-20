@@ -7,6 +7,7 @@ use People\Service\OrganizationService;
 use Prooph\EventStore\EventStore;
 use TaskManagement\TaskArchived;
 use TaskManagement\TaskCreated;
+use TaskManagement\TaskCompleted;
 use TaskManagement\TaskOpened;
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
@@ -54,6 +55,8 @@ class ItemCommandsListener implements ListenerAggregateInterface {
 		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskCreated::class, array($this, 'processItemCreated'));
 		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskArchived::class, array($this, 'processIdeaVotingClosed'));
 		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskOpened::class, array($this, 'processIdeaVotingClosed'));
+		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskCompleted::class, array($this, 'processItemCompleted'));
+		// $this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskAccepted::class, array($this, 'processItemCompletedVotingClosed'));
 	}
 	
 	public function processItemCreated(Event $event){
@@ -69,6 +72,22 @@ class ItemCommandsListener implements ListenerAggregateInterface {
 			$organization = $params[2];
 			$createdBy = $params[3];
 			$flowService->createVoteIdeaCard($member->getMember(), $itemId, $organization->getId(), $createdBy);
+		});
+	}
+	
+	public function processItemCompleted(Event $event){
+		$streamEvent = $event->getTarget();
+		$itemId = $streamEvent->metadata()['aggregate_id'];
+		$organization = $this->organizationService->findOrganization($event->getParam('organizationId'));
+		$orgMemberships = $this->organizationService->findOrganizationMemberships($organization, null, null);
+		$createdBy = $this->userService->findUser($event->getParam('by'));
+		$params = [$this->flowService, $itemId, $organization, $createdBy];
+		array_walk($orgMemberships, function($member) use($params){
+			$flowService = $params[0];
+			$itemId = $params[1];
+			$organization = $params[2];
+			$completedBy = $params[3];
+			$flowService->createVoteCompletedItemCard($member->getMember(), $itemId, $organization->getId(), $completedBy);
 		});
 	}
 	

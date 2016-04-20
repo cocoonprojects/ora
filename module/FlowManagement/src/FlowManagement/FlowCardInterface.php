@@ -5,6 +5,7 @@ namespace FlowManagement;
 interface FlowCardInterface{
 	
 	CONST VOTE_IDEA_CARD = 'VoteIdea';
+	CONST VOTE_COMPLETED_ITEM_CARD = 'VoteCompletedItem';
 	
 	public function getId();
 	

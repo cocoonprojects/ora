@@ -7,7 +7,7 @@ use TaskManagement\Service\TaskService;
 use TaskManagement\Stream;
 use Rhumsaa\Uuid\Uuid;
 
-class CreateVoteIdeaCardTest extends \PHPUnit_Framework_TestCase{
+class CreateVoteCompletedItemCardTest extends \PHPUnit_Framework_TestCase{
 	
 	/**
 	 * @var FlowService
@@ -43,17 +43,22 @@ class CreateVoteIdeaCardTest extends \PHPUnit_Framework_TestCase{
 		$this->stream = $streamService->getStream('00000000-1000-0000-0000-000000000000');
 	}
 	
-	public function testCreateIdeaVoteCard(){
+	public function testCreateCompletedItemVoteCard(){
 
-		$previousItemIdeas = $this->taskService->findTasks(Uuid::fromString($this->stream->getOrganizationId()), null, null, ['status' => Task::STATUS_IDEA]);
-		$previousOwnerFlowCards = $this->flowService->findFlowCards($this->owner, null, null, null);
-		$previousMemberFlowCards = $this->flowService->findFlowCards($this->member, null, null, null);
+		$previousCompletedItems = $this->taskService->findTasks(Uuid::fromString($this->stream->getOrganizationId()), null, null, ['status' => Task::STATUS_COMPLETED]);
 
 		$this->transactionManager->beginTransaction();
 		try {
-			$item = Task::create($this->stream, "foo stream", $this->owner);
-			$item->setDescription("a very useful description", $this->owner);
-			$this->taskService->addTask($item);
+			$task = Task::create($this->stream, "foo stream", $this->owner);
+			$task->setDescription("a very useful description", $this->owner);
+
+			$task->open($this->owner);
+			$task->addMember($this->owner, Task::ROLE_OWNER);
+			$task->execute($this->owner);
+			$task->addEstimation(1, $this->owner);
+			$task->complete($this->owner);
+
+			$this->taskService->addTask($task);
 			$this->transactionManager->commit();
 		}catch (\Exception $e) {
 			var_dump($e);
@@ -61,18 +66,16 @@ class CreateVoteIdeaCardTest extends \PHPUnit_Framework_TestCase{
 			throw $e;
 		}
 		
-		
 		$ownerFlowCards = $this->flowService->findFlowCards($this->owner, null, null, null);
 		$memberFlowCards = $this->flowService->findFlowCards($this->member, null, null, null);
-		$newItemIdeas = $this->taskService->findTasks(Uuid::fromString($this->stream->getOrganizationId()), null, null, ['status' => Task::STATUS_IDEA]);
+		$newCompletedItems = $this->taskService->findTasks(Uuid::fromString($this->stream->getOrganizationId()), null, null, ['status' => Task::STATUS_COMPLETED]);
 
-		$newItemIdeasCount = count($newItemIdeas) - count($previousItemIdeas);
-		$ownerFlowCardsCount = count($ownerFlowCards) - count($previousOwnerFlowCards);
-		$memberFlowCardsCount = count($memberFlowCards) - count($previousMemberFlowCards);
+		$newCompletedItemsCount = count($newCompletedItems) - count($previousCompletedItems);
 
+		$this->assertEquals(Task::STATUS_COMPLETED, $task->getStatus());
 		$this->assertNotEmpty($ownerFlowCards);
 		$this->assertNotEmpty($memberFlowCards);
-		$this->assertEquals($newItemIdeasCount, $ownerFlowCardsCount);
-		$this->assertEquals($newItemIdeasCount, $memberFlowCardsCount);
+		$this->assertEquals($newCompletedItemsCount, count($memberFlowCards));
+		$this->assertEquals($newCompletedItemsCount, count($ownerFlowCards));
 	}
 }

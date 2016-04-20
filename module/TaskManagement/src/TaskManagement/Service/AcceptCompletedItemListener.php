@@ -13,7 +13,7 @@ use TaskManagement\AcceptanceCreated;
 use TaskManagement\Entity\Task as ReadModelTask;
 use TaskManagement\Entity\Vote;
 
-class AcceptClosedItemListener implements ListenerAggregateInterface {
+class AcceptCompletedItemListener implements ListenerAggregateInterface {
 	protected $listeners = array ();
 	/**
 	 *

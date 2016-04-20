@@ -113,6 +113,7 @@ class Task extends DomainEntity implements TaskInterface
 			throw new IllegalStateException('Cannot complete a task with missing estimations by members');
 		}
 		$this->recordThat(TaskCompleted::occur($this->id->toString(), array(
+			'organizationId' => $this->getOrganizationId(),
 			'prevStatus' => $this->getStatus(),
 			'by' => $completedBy->getId(),
 		)));

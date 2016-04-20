@@ -145,7 +145,6 @@ class RestContext extends RawMinkContext
 		if($this->currentToken != null) {
 			$headers['ORA-JWT'] = $this->currentToken;
 		}
-
 		switch (strtoupper($this->_restObjectMethod))
 		{
 			case 'GET':
@@ -428,6 +427,14 @@ class RestContext extends RawMinkContext
 		print_r($this->_requestUrl);
 		print_r("\n\n");
 		print_r($this->_response->getBody(true));
+	}
+
+	/**
+	 * @Then /^echo last request token$/
+	 */
+	public function echoLastRequestToken()
+	{
+		print_r("Last Request Token: ".$this->currentToken);
 	}
 
 	protected function getResponse()
