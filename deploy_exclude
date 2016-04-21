@@ -5,6 +5,11 @@ build
 data/DoctrineORMModule/Proxies/
 config/autoload/*.local.php
 .DS_Store
+public/
+config/pubkey.pem
+config/privkey.pem
+config/autoload/jwt.prodnotloaded.php
+config/autoload/jwt.production.php
 
 .gitignore
 .slugignore
