@@ -13,6 +13,6 @@ class TaskMemberAndCompletedTaskAssertion implements AssertionInterface
 	public function assert(Acl $acl, RoleInterface $user = null, ResourceInterface $resource = null, $privilege = null)
 	{
 		return $resource->getStatus() == Task::STATUS_COMPLETED
-			&& $resource->hasMember($user);
+			&& $user->isMemberOf($resource->getOrganizationId());
 	}
 }
