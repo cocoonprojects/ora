@@ -50,14 +50,14 @@ class Task extends EditableEntity implements TaskInterface
 	private $members;
 	
 	/**
-	 * @ORM\OneToMany(targetEntity="Approval", mappedBy="item", cascade={"PERSIST", "REMOVE"}, orphanRemoval=TRUE)
+	 * @ORM\OneToMany(targetEntity="ItemIdeaApproval", mappedBy="item", cascade={"PERSIST", "REMOVE"}, orphanRemoval=TRUE)
 	 * @ORM\OrderBy({"createdAt" = "ASC"})
 	 * @var Approval[]
 	 */
 	private $approvals;
 	
 	/**
-	 * @ORM\OneToMany(targetEntity="Approval", mappedBy="item", cascade={"PERSIST", "REMOVE"}, orphanRemoval=TRUE)
+	 * @ORM\OneToMany(targetEntity="ItemCompletedAcceptance", mappedBy="item", cascade={"PERSIST", "REMOVE"}, orphanRemoval=TRUE)
 	 * @ORM\OrderBy({"createdAt" = "ASC"})
 	 * @var Acceptance[]
 	 */
