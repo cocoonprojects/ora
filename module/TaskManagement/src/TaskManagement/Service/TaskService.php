@@ -77,7 +77,8 @@ interface TaskService
 	
 	/**
 	 * Count votes on item idea to open or archive it
+	 * @param int item status from TaskInterface
 	 * @param string|Uuid $id
 	 */
-	public function countVotesForApproveIdeaItem($id);
+	public function countVotesForItem($itemStatus, $id);
 }

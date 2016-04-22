@@ -231,9 +231,9 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	
 	/**
 	 * (non-PHPdoc)
-	 * @see \TaskManagement\Service\TaskService::countVotesForApproveIdeaItem()
+	 * @see \TaskManagement\Service\TaskService::countVotesForApproveItem()
 	 */
-	public function countVotesForApproveIdeaItem($id){
+	public function countVotesForItem($itemStatus, $id){
 		
 		$tId = $id instanceof Uuid ? $id->toString() : $id;
 		$builder = $this->entityManager->createQueryBuilder();
@@ -243,10 +243,11 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		->from(ItemIdeaApproval::class, 'a')
 		->innerJoin('a.item', 'item', 'WITH', 'item.status = :status')
 		->where('item.id = :id')
-		->setParameter ( ':status', Task::STATUS_IDEA)
+		->setParameter ( ':status', $itemStatus)
 		->setParameter ( ':id', $tId)
 		->getQuery();
 		
 		return $query->getResult()[0];
 	}
+
 }

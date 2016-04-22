@@ -104,7 +104,11 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$controller = new VotingResultsController($taskService);
 					if(isset($locator->get('Config')['item_idea_voting_timebox'])){
 						$itemIdeaVotingTimebox = $locator->get('Config')['item_idea_voting_timebox'];
-						$controller->setTimeboxForItemIdeaVoting($itemIdeaVotingTimebox);
+						$controller->setTimeboxForVoting(TaskInterface::STATUS_IDEA, $itemIdeaVotingTimebox);
+					}
+					if(isset($locator->get('Config')['completed_item_voting_timebox'])){
+						$completedItemVotingTimebox = $locator->get('Config')['completed_item_voting_timebox'];
+						$controller->setTimeboxForVoting(TaskInterface::STATUS_IDEA, $completedItemVotingTimebox);
 					}
 					return $controller;
 				},

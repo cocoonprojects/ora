@@ -81,4 +81,5 @@ return array(
 	'assignment_of_shares_remind_interval' => new \DateInterval('P7D'),
 	'default_tasks_limit' => 10,
 	'item_idea_voting_timebox' => new \DateInterval('P7D'),
+	'completed_item_voting_timebox' => new \DateInterval('P7D'),
 );
