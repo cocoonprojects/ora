@@ -108,7 +108,8 @@ class ImporterTest extends TestCase {
 		$task = KanbanizeTask::create($stream, "a new task", $this->requestedBy, [
 				'taskid'=> 114,
 				'columnname' => "Testing",
-				'status' => Task::STATUS_COMPLETED
+				'status' => Task::STATUS_COMPLETED,
+				'description' => 'description'
 		]);
 		$task->setSubject("Z", $this->requestedBy);
 		$readModelTask = new ReadModelKanbanizeTask($task->getId(), $readModelStream);
