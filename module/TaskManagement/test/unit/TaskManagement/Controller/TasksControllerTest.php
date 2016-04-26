@@ -34,7 +34,7 @@ class TasksControllerTest extends ControllerTest {
 		$streamServiceStub = $this->getMockBuilder(StreamService::class)->getMock();
 		$organizationServiceStub = $this->getMockBuilder(OrganizationService::class)->getMock();
 		$kanbanizeServiceStub = $this->getMockBuilder(KanbanizeService::class)->getMock();
-		return new TasksController($taskServiceStub, $streamServiceStub, $organizationServiceStub);
+		return new TasksController($taskServiceStub, $streamServiceStub, $organizationServiceStub,$kanbanizeServiceStub);
 	}
 
 	protected function setupRouteMatch()
