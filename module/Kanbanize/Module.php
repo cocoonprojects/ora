@@ -68,7 +68,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				'Kanbanize\KanbanizeService' => function ($locator) {
 					$config = $locator->get('Config');
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
-					return new KanbanizeServiceImpl($entityManager);
+					$api = $locator->get('Kanbanize\KanbanizeAPI');
+					return new KanbanizeServiceImpl($entityManager, $api);
 				},
 				'Kanbanize\SyncTaskListener' => function ($locator) {
 					$kanbanizeService = $locator->get('Kanbanize\KanbanizeService');

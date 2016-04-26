@@ -70,9 +70,9 @@ class ApprovalsController extends HATEOASRestfulController {
 				
 			return $this->response;
 		}
-	
+
 		if (! $this->isAllowed ( $this->identity (), $this->taskService->findTask ( $id ), 'TaskManagement.Task.approve' )) {
-			$this->response->setStatusCode ( 403 );
+			$this->response->setStatusCode ( 403);
 			return $this->response;
 		}
 	

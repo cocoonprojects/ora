@@ -80,7 +80,8 @@ class BoardsController extends OrganizationAwareController{
 					Task::STATUS_ONGOING,
 					Task::STATUS_COMPLETED,
 					Task::STATUS_ACCEPTED,
-					Task::STATUS_CLOSED
+					Task::STATUS_CLOSED,
+					Task::STATUS_ARCHIVED
 			]
 		]);
 		$params = [$statusValidator, &$error];
@@ -158,6 +159,7 @@ class BoardsController extends OrganizationAwareController{
 				$mergedMapping = array_merge($mappedColumns, $kanbanizeSettings['boards'][$id]['columnMapping']);
 				$mappedColumns = array_intersect_key($mergedMapping, $mappedColumns);
 			}
+			unset($mappedColumns['Temp Archive']); //Rimossa la possibilità di utilizzare la colonna Temp Archived di Kanbanize (non utilizzabile attraverso le APIs)
 			$streamName = "";
 			$stream = $this->kanbanizeService->findStreamByBoardId($id, $this->organization);
 			if(!is_null($stream)){
