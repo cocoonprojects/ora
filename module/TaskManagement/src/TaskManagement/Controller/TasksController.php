@@ -1,4 +1,5 @@
 <?php
+
 namespace TaskManagement\Controller;
 
 use Application\Controller\OrganizationAwareController;
@@ -20,77 +21,96 @@ use Zend\Validator\InArray as StatusValidator;
 use Zend\Validator\NotEmpty;
 use Zend\Validator\Regex as UuidValidator;
 use Zend\Validator\ValidatorChain;
+use Kanbanize\Service\KanbanizeService;
+use Kanbanize\KanbanizeStream;
+use Kanbanize\Entity\KanbanizeStream as ReadModelKanbanizeStream;
+use Kanbanize\KanbanizeTask as KanbanizeTask;
+use People\Entity\Organization;
 
-class TasksController extends OrganizationAwareController
-{
+class TasksController extends OrganizationAwareController {
 	const DEFAULT_TASKS_LIMIT = 10;
-	protected static $collectionOptions = ['GET', 'POST'];
-	protected static $resourceOptions = ['DELETE', 'GET', 'PUT'];
+	CONST KANBANIZE_SETTINGS = 'kanbanize';
+	protected static $collectionOptions = [
+			'GET',
+			'POST'
+	];
+	protected static $resourceOptions = [
+			'DELETE',
+			'GET',
+			'PUT'
+	];
 
 	/**
+	 *
 	 * @var TaskService
 	 */
 	private $taskService;
 	/**
+	 *
 	 * @var StreamService
 	 */
 	private $streamService;
 	/**
+	 *
+	 * @var KanbanizeService
+	 */
+	private $kanbanizeService;
+
+	/**
+	 *
 	 * @var integer
 	 */
 	protected $listLimit = self::DEFAULT_TASKS_LIMIT;
-
-	public function __construct(TaskService $taskService, StreamService $streamService, OrganizationService $organizationService)
-	{
-		parent::__construct($organizationService);
+	public function __construct(TaskService $taskService, StreamService $streamService, OrganizationService $organizationService, KanbanizeService $kanbanizeService) {
+		parent::__construct ( $organizationService );
 		$this->taskService = $taskService;
 		$this->streamService = $streamService;
+		$this->kanbanizeService = $kanbanizeService;
 	}
 
-	public function get($id)
-	{
-		if(is_null($this->identity())) {
-			$this->response->setStatusCode(401);
+	public function get($id) {
+		if (is_null ( $this->identity () )) {
+			$this->response->setStatusCode ( 401 );
 			return $this->response;
 		}
 
-		$task = $this->taskService->findTask($id);
-		if(is_null($task)) {
-			$this->response->setStatusCode(404);
+		$task = $this->taskService->findTask ( $id );
+		if (is_null ( $task )) {
+			$this->response->setStatusCode ( 404 );
 			return $this->response;
 		}
 
-		if(!$this->isAllowed($this->identity(), $task, 'TaskManagement.Task.get')) {
-			$this->response->setStatusCode(403);
+		if (! $this->isAllowed ( $this->identity (), $task, 'TaskManagement.Task.get' )) {
+			$this->response->setStatusCode ( 403 );
 			return $this->response;
 		}
 
-		$this->response->setStatusCode(200);
-		$view = new TaskJsonModel($this);
-		$view->setVariable('resource', $task);
+		$this->response->setStatusCode ( 200 );
+		$view = new TaskJsonModel ( $this );
+		$view->setVariable ( 'resource', $task );
 		return $view;
 	}
 
 	/**
 	 * Return a list of available tasks
+	 *
 	 * @method GET
 	 * @link http://oraproject/task-management/tasks?streamID=[uuid]
 	 * @return TaskJsonModel
 	 */
-	public function getList()
-	{
-		if (is_null($this->identity())){
-			$this->response->setStatusCode(401);
+	public function getList() {
+		if (is_null ( $this->identity () )) {
+			$this->response->setStatusCode ( 401 );
 			return $this->response;
 		}
 
-		if(!$this->isAllowed($this->identity(), $this->organization, 'TaskManagement.Task.list')) {
-			$this->response->setStatusCode(403);
+		if (! $this->isAllowed ( $this->identity (), $this->organization, 'TaskManagement.Task.list' )) {
+			$this->response->setStatusCode ( 403 );
 			return $this->response;
 		}
 
 		$cardType = $this->getRequest()->getQuery("cardType");
-		if (empty($cardType) || !in_array($cardType, ['all','decisions'])) {
+		if (empty($cardType) || !in_array($cardType, ['all', 'decisions'])) {
 			$cardType = 'all';
 		}
 		$filters["type"] = $cardType;
@@ -151,8 +171,11 @@ class TasksController extends OrganizationAwareController
 			if($statusValidator->isValid($status)) {
 				$filters["status"] = $status;
 			} else {
-				$view = new TaskJsonModel($this, $this->organization);
-				$view->setVariables(['resource' => [], 'totalTasks' => 0]);
+				$view = new TaskJsonModel ( $this, $this->organization );
+				$view->setVariables ( [
+						'resource' => [ ],
+						'totalTasks' => 0
+				] );
 				return $view;
 			}
 		}
@@ -167,48 +190,57 @@ class TasksController extends OrganizationAwareController
 
 	/**
 	 * Create a new task into specified stream
+	 *
 	 * @method POST
 	 * @link http://oraproject/task-management/tasks
-	 * @param array $data['streamID'] Parent stream ID of the new task
-	 * @param array $data['subject'] Task subject
+	 * @param array $data['streamID']
+	 *        	Parent stream ID of the new task
+	 * @param array $data['subject']
+	 *        	Task subject
 	 * @return HTTPStatusCode
 	 */
-	public function create($data)
-	{
-		if(is_null($this->identity())) {
-			$this->response->setStatusCode(401);
+	public function create($data) {
+		if (is_null ( $this->identity () )) {
+			$this->response->setStatusCode ( 401 );
 			return $this->response;
 		}
-		if(!$this->isAllowed($this->identity(), null, 'TaskManagement.Task.create')) {
-			$this->response->setStatusCode(403);
+		if (! $this->isAllowed ( $this->identity (), null, 'TaskManagement.Task.create' )) {
+			$this->response->setStatusCode ( 403 );
 			return $this->response;
 		}
-		$error = new ErrorJsonModel();
-		$validator = new NotEmpty();
-		if (!isset($data['streamID'])){
-			$error->addSecondaryErrors('stream', ['Stream id cannot be empty']);
+		$error = new ErrorJsonModel ();
+		$validator = new NotEmpty ();
+		if (! isset ( $data ['streamID'] )) {
+			$error->addSecondaryErrors ( 'stream', [
+					'Stream id cannot be empty'
+			] );
 		}
-		if (!isset($data['subject'])){
-			$error->addSecondaryErrors('subject', ['Subject cannot be empty']);
-		}else{
-			$subjectFilters = new FilterChain();
-			$subjectFilters->attach(new StringTrim())
-				->attach(new StripNewlines())
-				->attach(new StripTags());
-			$subject = $subjectFilters->filter($data['subject']);
-			if (!$validator->isValid($subject)){
-				$error->addSecondaryErrors('subject', ['Subject cannot be accepted']);
+		if (! isset ( $data ['subject'] )) {
+			$error->addSecondaryErrors ( 'subject', [
+					'Subject cannot be empty'
+			] );
+		} else {
+			$subjectFilters = new FilterChain ();
+			$subjectFilters->attach ( new StringTrim () )->attach ( new StripNewlines () )->attach ( new StripTags () );
+			$subject = $subjectFilters->filter ( $data ['subject'] );
+			if (! $validator->isValid ( $subject )) {
+				$error->addSecondaryErrors ( 'subject', [
+						'Subject cannot be accepted'
+				] );
 			}
 		}
-		if (!isset($data['description'])){
-			$error->addSecondaryErrors('description', ['Description cannot be empty']);
-		}else{
-			$descriptionFilter = new FilterChain();
-			$descriptionFilter->attach(new StringTrim())
-				->attach(new StripTags());
-			$description = $descriptionFilter->filter($data['description']);
-			if (!$validator->isValid($description)){
-				$error->addSecondaryErrors('description', ['Description cannot be accepted']);
+		if (! isset ( $data ['description'] )) {
+			$error->addSecondaryErrors ( 'description', [
+					'Description cannot be empty'
+			] );
+		} else {
+			$descriptionFilter = new FilterChain ();
+			$descriptionFilter->attach ( new StringTrim () )->attach ( new StripTags () );
+			$description = $descriptionFilter->filter ( $data ['description'] );
+			if (! $validator->isValid ( $description )) {
+				$error->addSecondaryErrors ( 'description', [
+						'Description cannot be accepted'
+				] );
 			}
 		}
 
@@ -220,90 +252,154 @@ class TasksController extends OrganizationAwareController
 			}
 		}
 
-		if($error->hasErrors()){
-			$error->setCode(400);
-			$error->setDescription('Specified values are not valid');
-			$this->response->setStatusCode(400);
+		if ($error->hasErrors ()) {
+			$error->setCode ( 400 );
+			$error->setDescription ( 'Specified values are not valid' );
+			$this->response->setStatusCode ( 400 );
 			return $error;
 		}
-		$stream = $this->streamService->getStream($data['streamID']);
-		if(is_null($stream)) {
+		$stream = $this->streamService->getStream ( $data ['streamID'] );
+		if (is_null ( $stream )) {
 			// Stream Not Found
-			$this->response->setStatusCode(404);
+			$this->response->setStatusCode ( 404 );
 			return $this->response;
 		}
 
 		$this->transaction()->begin();
 
-		$options = null;
+		if ($stream instanceof KanbanizeStream || $stream instanceof ReadModelKanbanizeStream) {
+			// KanbanizeTask Creation
 
-		if (isset($data['decision'])) {
-			$options = ['decision' => $data['decision']];
+			// creation with api on kanbanize board
+			$kanbanizeStream = $this->streamService->findStream ( $data ['streamID'] );
+			$KanbanizeBoardId = $kanbanizeStream->getBoardId ();
+			$projectId = $kanbanizeStream->getProjectId ();
+
+			// get kanbanizeSettings
+			$kanbanizeSettings = $this->organization->getSettings ( $this::KANBANIZE_SETTINGS );
+			if (is_null ( $kanbanizeSettings ) || empty ( $kanbanizeSettings )) {
+				return $this->getResponse ()->setContent ( json_encode ( new \stdClass () ) );
+			}
+
+			// Init KanbanizeAPI on kanbanizeService
+			$this->kanbanizeService->initApi ( $kanbanizeSettings ['apiKey'], $kanbanizeSettings ['accountSubdomain'] );
+
+			$this->transaction ()->begin ();
+			try {
+				// Create Task on Kanbanize
+				$kanbanizeTaskID = $this->kanbanizeService->createNewTask ( $projectId, $description, $subject, $KanbanizeBoardId );
+
+				if (is_null ( $kanbanizeTaskID )) {
+					$this->response->setStatusCode ( 417 );
+					return $this->response;
+				}
+
+				$options = [
+						"taskid" => $kanbanizeTaskID,
+						"description" => $description,
+						"columnname" => 'Backlog'
+				];
+				$kanbanizeTask = KanbanizeTask::create ( $stream, $subject, $this->identity (), $options );
+				$kanbanizeTask->setAssignee ( null, $this->identity () );
+				$kanbanizeTask->setDescription ( $description, $this->identity () );
+				$kanbanizeTask->addMember ( $this->identity (), KanbanizeTask::ROLE_OWNER );
+
+				$this->taskService->addTask ( $kanbanizeTask );
+				$this->transaction ()->commit ();
+
+				$url = $this->url ()->fromRoute ( 'tasks', array (
+						'orgId' => $kanbanizeTask->getOrganizationId (),
+						'id' => $kanbanizeTask->getId ()
+				) );
+				$this->response->getHeaders ()->addHeaderLine ( 'Location', $url );
+				$this->response->setStatusCode ( 201 );
+				$view = new TaskJsonModel ( $this );
+				$view->setVariable ( 'resource', $kanbanizeTask );
+				return $view;
+			} catch ( \Exception $e ) {
+				$this->transaction ()->rollback ();
+				$this->response->setStatusCode ( 500 );
+			}
+			return $this->response;
+		} else {
+
+			$this->transaction ()->begin ();
+			try {
+
+				$options = null;
+
+				if (isset($data['decision'])) {
+					$options = ['decision' => $data['decision']];
+				}
+
+				$task = Task::create ( $stream, $subject, $this->identity (), $options );
+				$task->setDescription ( $description, $this->identity () );
+				$task->addMember ( $this->identity (), Task::ROLE_OWNER );
+				$this->taskService->addTask ( $task );
+				$this->transaction ()->commit ();
+
+				$url = $this->url ()->fromRoute ( 'tasks', array (
+						'orgId' => $task->getOrganizationId (),
+						'id' => $task->getId ()
+				) );
+				$this->response->getHeaders ()->addHeaderLine ( 'Location', $url );
+				$this->response->setStatusCode ( 201 );
+				$view = new TaskJsonModel ( $this );
+				$view->setVariable ( 'resource', $task );
+				return $view;
+			} catch ( \Exception $e ) {
+				$this->transaction ()->rollback ();
+				$this->response->setStatusCode ( 500 );
+			}
+			return $this->response;
 		}
-
-		try {
-			$task = Task::create(
-				$stream,
-				$subject,
-				$this->identity(),
-				$options
-			);
-			$task->setDescription($description, $this->identity());
-			$task->addMember($this->identity(), Task::ROLE_OWNER);
-			$this->taskService->addTask($task);
-			$this->transaction()->commit();
-
-			$url = $this->url()->fromRoute('tasks', array('orgId' => $task->getOrganizationId(), 'id' => $task->getId()));
-			$this->response->getHeaders()->addHeaderLine('Location', $url);
-			$this->response->setStatusCode(201);
-			$view = new TaskJsonModel($this);
-			$view->setVariable('resource', $task);
-			return $view;
-		} catch (\Exception $e) {
-			$this->transaction()->rollback();
-			$this->response->setStatusCode(500);
-		}
-		return $this->response;
 	}
 
 	/**
 	 * Update existing task with new data
+	 *
 	 * @method PUT
 	 * @link http://oraproject/task-management/tasks/[:ID]
-	 * @param array $id ID of the Task to update
-	 * @param array $data['subject'] Update Subject for the selected Task
+	 * @param array $id
+	 *        	ID of the Task to update
+	 * @param array $data['subject']
+	 *        	Update Subject for the selected Task
 	 * @return HTTPStatusCode
 	 */
-	public function update($id, $data)
-	{
-		if(is_null($this->identity())) {
-			$this->response->setStatusCode(401);
+	public function update($id, $data) {
+		if (is_null ( $this->identity () )) {
+			$this->response->setStatusCode ( 401 );
 			return $this->response;
 		}
-		$error = new ErrorJsonModel();
-		$validator = new NotEmpty();
-		if (!isset($data['subject'])) {
-			$error->addSecondaryErrors('subject', ['Subject cannot be empty']);
-		}else{
-			$subjectFilters = new FilterChain();
-			$subjectFilters->attach(new StringTrim())
-				->attach(new StripNewlines())
-				->attach(new StripTags());
-			$subject = $subjectFilters->filter($data['subject']);
-			if (!$validator->isValid($subject)){
-				$error->addSecondaryErrors('subject', ['Subject cannot be accepted']);
+		$error = new ErrorJsonModel ();
+		$validator = new NotEmpty ();
+		if (! isset ( $data ['subject'] )) {
+			$error->addSecondaryErrors ( 'subject', [
+					'Subject cannot be empty'
+			] );
+		} else {
+			$subjectFilters = new FilterChain ();
+			$subjectFilters->attach ( new StringTrim () )->attach ( new StripNewlines () )->attach ( new StripTags () );
+			$subject = $subjectFilters->filter ( $data ['subject'] );
+			if (! $validator->isValid ( $subject )) {
+				$error->addSecondaryErrors ( 'subject', [
+						'Subject cannot be accepted'
+				] );
 			}
 		}
 
-		if (!isset($data['description'])) {
-			$error->addSecondaryErrors('description', ['Description cannot be empty']);
-		}else{
-			$descriptionFilter = new FilterChain();
-			$descriptionFilter->attach(new StringTrim())
-				->attach(new StripTags());
-			$description = $descriptionFilter->filter($data['description']);
-			if (!$validator->isValid($description)){
-				$error->addSecondaryErrors('description', ['Description cannot be accepted']);
+		if (! isset ( $data ['description'] )) {
+			$error->addSecondaryErrors ( 'description', [
+					'Description cannot be empty'
+			] );
+		} else {
+			$descriptionFilter = new FilterChain ();
+			$descriptionFilter->attach ( new StringTrim () )->attach ( new StripTags () );
+			$description = $descriptionFilter->filter ( $data ['description'] );
+			if (! $validator->isValid ( $description )) {
+				$error->addSecondaryErrors ( 'description', [
+						'Description cannot be accepted'
+				] );
 			}
 		}
 
@@ -319,24 +415,25 @@ class TasksController extends OrganizationAwareController
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-		if(!$this->isAllowed($this->identity(), $task, 'TaskManagement.Task.edit')) {
-			$this->response->setStatusCode(403);
+
+		if (! $this->isAllowed ( $this->identity (), $task, 'TaskManagement.Task.edit' )) {
+			$this->response->setStatusCode ( 403 );
 			return $this->response;
 		}
 
-		$this->transaction()->begin();
+		$this->transaction ()->begin ();
 		try {
-			$task->setSubject($data['subject'], $this->identity());
-			$task->setDescription($data['description'], $this->identity());
-			$this->transaction()->commit();
+			$task->setSubject ( $data ['subject'], $this->identity () );
+			$task->setDescription ( $data ['description'], $this->identity () );
+			$this->transaction ()->commit ();
 			// HTTP STATUS CODE 202: Element Accepted
-			$this->response->setStatusCode(202);
-			$view = new TaskJsonModel($this);
-			$view->setVariable('resource', $task);
+			$this->response->setStatusCode ( 202 );
+			$view = new TaskJsonModel ( $this );
+			$view->setVariable ( 'resource', $task );
 			return $view;
-		} catch (\Exception $e) {
-			$this->response->setStatusCode(500);
-			$this->transaction()->rollback();
+		} catch ( \Exception $e ) {
+			$this->response->setStatusCode ( 500 );
+			$this->transaction ()->rollback ();
 		}
 
 		return $this->response;
@@ -344,66 +441,58 @@ class TasksController extends OrganizationAwareController
 
 	/**
 	 * Delete single existing task with specified ID
+	 *
 	 * @method DELETE
 	 * @link http://oraproject/task-management/tasks/[:ID]
 	 * @return HTTPStatusCode
 	 * @author Giannotti Fabio
 	 */
-	public function delete($id)
-	{
-		if(is_null($this->identity())) {
-			$this->response->setStatusCode(401);
+	public function delete($id) {
+		if (is_null ( $this->identity () )) {
+			$this->response->setStatusCode ( 401 );
 			return $this->response;
 		}
 
-		$task = $this->taskService->getTask($id);
-		if(is_null($task)) {
-			$this->response->setStatusCode(404);
+		$task = $this->taskService->getTask ( $id );
+		if (is_null ( $task )) {
+			$this->response->setStatusCode ( 404 );
 			return $this->response;
 		}
-		if($task->getStatus() == Task::STATUS_DELETED) {
-			$this->response->setStatusCode(204);
+		if ($task->getStatus () == Task::STATUS_DELETED) {
+			$this->response->setStatusCode ( 204 );
 			return $this->response;
 		}
-		if(!$this->isAllowed($this->identity(), $task, 'TaskManagement.Task.delete')) {
-			$this->response->setStatusCode(403);
+		if (! $this->isAllowed ( $this->identity (), $task, 'TaskManagement.Task.delete' )) {
+			$this->response->setStatusCode ( 403 );
 			return $this->response;
 		}
 
-		$this->transaction()->begin();
+		$this->transaction ()->begin ();
 		try {
-			$task->delete($this->identity());
-			$this->transaction()->commit();
-			$this->response->setStatusCode(200);
-		} catch (IllegalStateException $e) {
-			$this->transaction()->rollback();
-			$this->response->setStatusCode(412);	// Preconditions failed
+			$task->delete ( $this->identity () );
+			$this->transaction ()->commit ();
+			$this->response->setStatusCode ( 200 );
+		} catch ( IllegalStateException $e ) {
+			$this->transaction ()->rollback ();
+			$this->response->setStatusCode ( 412 ); // Preconditions failed
 		}
 		return $this->response;
 	}
-
-	public function getTaskService()
-	{
+	public function getTaskService() {
 		return $this->taskService;
 	}
-
-	public function setListLimit($size){
-		if(is_int($size)){
+	public function setListLimit($size) {
+		if (is_int ( $size )) {
 			$this->listLimit = $size;
 		}
 	}
-
-	public function getListLimit(){
+	public function getListLimit() {
 		return $this->listLimit;
 	}
-
-	protected function getCollectionOptions()
-	{
+	protected function getCollectionOptions() {
 		return self::$collectionOptions;
 	}
-
-	protected function getResourceOptions()
-	{
+	protected function getResourceOptions() {
 		return self::$resourceOptions;
 	}
 }

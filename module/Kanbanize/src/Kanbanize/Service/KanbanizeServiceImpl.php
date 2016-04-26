@@ -23,16 +23,22 @@ class KanbanizeServiceImpl implements KanbanizeService
 	 * @var EntityManager
 	 */
 	private $entityManager;
+	
+	/**
+	 * 
+	 * @var KanbanizeAPI
+	 */
+	private $kanbanize;
 
 	/*
 	 * Constructs service
 	 */
-	public function __construct(EntityManager $em) {
-		//$this->kanbanize = $api;
+	public function __construct(EntityManager $em, KanbanizeAPI $api) {
+		$this->kanbanize = $api;
 		$this->entityManager = $em;
 	}
 
-	private function moveTask(KanbanizeTask $task, $status) {
+	public function moveTask(KanbanizeTask $task, $status) {
 		$boardId = $task->getKanbanizeBoardId();
 		$taskId = $task->getKanbanizeTaskId();
 		$response = $this->kanbanize->moveTask($boardId, $taskId, $status);
@@ -42,13 +48,28 @@ class KanbanizeServiceImpl implements KanbanizeService
 		
 		return 1;
 	}
-	public function createNewTask($projectId, $taskSubject, $boardId) {
+	
+	public function moveTaskonKanbanize(ReadModelKanbanizeTask $kanbanizeTask, $status,$boardId){
+		
+		$taskId = $kanbanizeTask->getTaskId();
+		$response = $this->kanbanize->moveTask($boardId, $taskId, $status);
+		error_log(print_r($response, true));
+		if($response != 1) {
+			throw new OperationFailedException('Unable to move the task ' + $taskId + ' in board ' + $boardId + 'to the column ' + $status + ' because of ' + $response);
+		}
+		
+		return 1;
+	}
+	
+	
+	public function createNewTask($projectId, $taskSubject,$taskTitle, $boardId) {
 		$createdAt = new \DateTime ();
 		
 		// TODO: Modificare createdBy per inserire User
 		$createdBy = "NOME UTENTE INVENTATO";
 		
 		$options = array (
+				'title'=>$taskTitle,
 				'description' => $taskSubject 
 		);
 		$id = $this->kanbanize->createNewTask ( $boardId, $options );
@@ -176,5 +197,16 @@ class KanbanizeServiceImpl implements KanbanizeService
 			->setParameter(':organization', $organizationId)
 			->setParameter(':taskId', $taskId);
 		return $query->getQuery()->getOneOrNullResult();
+	}
+	
+	public function initApi($apiKey, $subdomain){
+		if(is_null($apiKey)){
+			throw new KanbanizeApiException("Cannot connect to Kanbanize due to missing api key");
+		}
+		if(is_null($subdomain)){
+			throw new KanbanizeApiException("Cannot connect to Kanbanize due to missing account subdomain");
+		}
+		$this->kanbanize->setApiKey($apiKey);
+		$this->kanbanize->setUrl(sprintf(Importer::API_URL_FORMAT, $subdomain));
 	}
 }
