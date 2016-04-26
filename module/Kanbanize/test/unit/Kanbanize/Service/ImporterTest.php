@@ -63,9 +63,9 @@ class ImporterTest extends TestCase {
 				]
 			]
 		];
-		
+
 		$this->organization->setSettings("kanbanize", $kanbanizeSettings, $this->requestedBy);
-		
+
 		$this->organizationServiceStub = $this->getMockBuilder(OrganizationService::class)->getMock();
 		$this->apiMock = $this->getMockBuilder(KanbanizeAPI::class)->getMock();
 		$this->apiMock->expects($this->once())
@@ -74,16 +74,16 @@ class ImporterTest extends TestCase {
 	}
 
 	public function testImportTasks(){
-		
+
 		$this->taskServiceStub->expects($this->atLeastOnce())
 			->method('findTasks')
 			->willReturn([]);
-		$importer = new Importer($this->kanbanizeServiceStub, 
-				$this->taskServiceStub, 
-				$this->transactionManagerStub, 
-				$this->userServiceStub, 
-				$this->organization, 
-				$this->requestedBy, 
+		$importer = new Importer($this->kanbanizeServiceStub,
+				$this->taskServiceStub,
+				$this->transactionManagerStub,
+				$this->userServiceStub,
+				$this->organization,
+				$this->requestedBy,
 				$this->apiMock);
 		$stream = Stream::create($this->organization, "foo stream", $this->requestedBy);
 		$importer->importTasks("010", $stream);
@@ -97,7 +97,7 @@ class ImporterTest extends TestCase {
 		$this->assertEquals(1, $importResult['updatedTasks']);
 		$this->assertEmpty($importResult['errors']);
 	}
-	
+
 	public function testUpdateTasks(){
 		$stream = KanbanizeStream::create($this->organization, "a new Stream", $this->requestedBy, [
 				'boardId' => '010',
@@ -122,13 +122,13 @@ class ImporterTest extends TestCase {
 		$this->taskServiceStub->expects($this->atLeastOnce())
 			->method('findTasks')
 			->willReturn([$readModelTask]);
-		
-		$importer = new Importer($this->kanbanizeServiceStub, 
-				$this->taskServiceStub, 
-				$this->transactionManagerStub, 
-				$this->userServiceStub, 
-				$this->organization, 
-				$this->requestedBy, 
+
+		$importer = new Importer($this->kanbanizeServiceStub,
+				$this->taskServiceStub,
+				$this->transactionManagerStub,
+				$this->userServiceStub,
+				$this->organization,
+				$this->requestedBy,
 				$this->apiMock);
 		$stream = Stream::create($this->organization, "foo stream", $this->requestedBy);
 		$importer->importTasks("010", $stream);
