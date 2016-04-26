@@ -9,6 +9,7 @@ config/pubkey.pem
 config/privkey.pem
 config/autoload/jwt.prodnotloaded.php
 config/autoload/jwt.production.php
+config/autoload/mail.production.php
 
 .gitignore
 .slugignore

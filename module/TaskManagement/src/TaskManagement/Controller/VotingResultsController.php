@@ -33,7 +33,7 @@ class VotingResultsController extends HATEOASRestfulController {
 		}
 
 		$type = $this->params('type');
-		if (empty($p) && !empty($data['type'])) {
+		if (empty($type) && !empty($data['type'])) {
 			$type = $data['type'];
 		}
 
@@ -95,7 +95,7 @@ class VotingResultsController extends HATEOASRestfulController {
 						}
 					});
 				}
-				$this->response->setContent(json_encode($operationResult));
+				// $this->response->setContent(json_encode($operationResult));
 				$this->response->setStatusCode(200);
 				break;
 			default:
