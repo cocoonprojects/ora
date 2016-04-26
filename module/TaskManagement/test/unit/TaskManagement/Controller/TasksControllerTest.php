@@ -12,6 +12,7 @@ use ZFX\Test\Controller\ControllerTest;
 use TaskManagement\Entity\TaskMember;
 use People\Entity\OrganizationMembership;
 use Rhumsaa\Uuid\Uuid;
+use Kanbanize\Service\KanbanizeService;
 
 /**
  * Class TasksControllerTest
@@ -24,12 +25,15 @@ class TasksControllerTest extends ControllerTest {
 	private $stream;
 
 	private $organization;
+	
+	
 
 	protected function setupController()
 	{
 		$taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
 		$streamServiceStub = $this->getMockBuilder(StreamService::class)->getMock();
 		$organizationServiceStub = $this->getMockBuilder(OrganizationService::class)->getMock();
+		$kanbanizeServiceStub = $this->getMockBuilder(KanbanizeService::class)->getMock();
 		return new TasksController($taskServiceStub, $streamServiceStub, $organizationServiceStub);
 	}
 
