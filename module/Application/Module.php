@@ -17,6 +17,7 @@ use ZFX\Acl\Controller\Plugin\IsAllowed;
 use ZFX\Authentication\GoogleJWTAdapter;
 use ZFX\Authentication\JWTAdapter;
 use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
+use FlowManagement\Service\CardCommandsListener;
 
 class Module {
 	public function onBootstrap(MvcEvent $e) {

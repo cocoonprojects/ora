@@ -53,13 +53,18 @@ class CloseItemIdeaListener implements ListenerAggregateInterface {
 		$streamEvent = $event->getTarget ();
 		$taskId = $streamEvent->metadata ()['aggregate_id'];
 		$task = $this->taskService->getTask ( $taskId );
-		$ownerid = $task->getOwner ();
-		$owner = $this->userService->findUser ( $ownerid );
+		//$ownerid = $task->getOwner ();
+		//$owner = $this->userService->findUser ( $ownerid );
 		$byId = $event->getParam ( 'by' );
 		$organization = $this->organizationService->findOrganization ( $task->getOrganizationId () );
 		$memberhipcount = $this->organizationService->countOrganizationMemberships ( $organization );
 		$taskReadModel = $this->taskService->findTask ( $taskId );
 		$approvals = $taskReadModel->getApprovals ();
+		
+		
+		$ownerReadModel = $taskReadModel->getOwner();
+		$owner = $this->userService->findUser ( $ownerReadModel->getUser());
+		
 		
 		$accept = 0;
 		$reject = 0;

@@ -48,7 +48,8 @@ class KanbanizeTask extends Task {
 			'streamId' => $stream->getId(),
 			'by' => $createdBy->getId(),
 			'columnname' => $options["columnname"],
-			'subject' => $subject
+			'subject' => $subject,
+			'description' =>$options["description"]
 		]));
 		return $rv;
 	}
