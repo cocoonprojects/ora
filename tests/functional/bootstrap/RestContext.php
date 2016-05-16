@@ -106,6 +106,15 @@ class RestContext extends RawMinkContext
 	}
 
 	/**
+	 * @Then /^after I want to find a "([^"]*)"$/
+	 */
+	public function afterIWantToFindA($objectType)
+	{
+		$this->_restObjectType = ucwords(strtolower($objectType));
+		$this->_restObjectMethod = 'get';
+	}
+
+	/**
 	 * @Given /^that I want to delete a "([^"]*)"$/
 	 */
 	public function thatIWantToDeleteA($objectType)
@@ -250,13 +259,22 @@ class RestContext extends RawMinkContext
 	 */
 	public function theResponseShouldBeJson()
 	{
-		if(empty($this->json)) {
+		//if(empty($this->json)) 
+		{
 			$this->json = json_decode($this->_response->getBody(true));
 			if (empty($this->json)) {
 				throw new Exception("Response was not JSON\n" . $this->_response->getBody(true));
 			}
 		}
 		return $this->json;
+	}
+
+	/**
+	 * @Then /^the response should contain '([^']*)'$/
+	 */
+	public function theResponseShouldContain($value)
+	{
+		return strpos($this->_response->getBody(true), $value) !== false;
 	}
 
 	/**
@@ -366,7 +384,9 @@ class RestContext extends RawMinkContext
 					'HTTP code does not match ' . $httpStatus . ' (actual: ' .
 					$this->_response->getStatusCode() . 
 					') reason: ' .
-					$this->_response->getReasonPhrase()
+					$this->_response->getReasonPhrase() .
+					' body: ' .
+					$this->_response->getBody()
 			);
 		}
 	}
@@ -444,7 +464,8 @@ class RestContext extends RawMinkContext
 
 	protected function getJsonProperties()
 	{
-		if(is_null($this->jsonProperties)) {
+		//if(is_null($this->jsonProperties)) 
+		{
 			$json = $this->theResponseShouldBeJson();
 			$iterator = new RecursiveIteratorIterator(new RecursiveArrayIterator($json), RecursiveIteratorIterator::SELF_FIRST);
 			$this->jsonProperties = array();

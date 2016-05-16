@@ -15,6 +15,7 @@ use Prooph\EventSourcing\EventStoreIntegration\AggregateTranslator;
 use Application\Entity\BasicUser;
 use FlowManagement\VoteIdeaCard;
 use FlowManagement\VoteCompletedItemCard;
+use FlowManagement\VoteCompletedItemVotingClosedCard;
 use TaskManagement\Entity\Task;
 
 class EventSourcingFlowService extends AggregateRepository implements FlowService{
@@ -50,7 +51,7 @@ class EventSourcingFlowService extends AggregateRepository implements FlowServic
 			->orderBy('f.createdAt', 'DESC')
 			->setFirstResult($offset)
 			->setMaxResults($limit)
-			->setParameter(':recipient', $recipient);
+			->setParameter(':recipient', $recipient);			
 		return $query->getQuery()->getResult();
 	}
 	/**
@@ -71,7 +72,8 @@ class EventSourcingFlowService extends AggregateRepository implements FlowServic
 			throw $e;
 		}
 		return $card;
-	}	/**
+	}	
+	/**
 	 * (non-PHPdoc)
 	 * @see \FlowManagement\Service\FlowService::createLazyMajorityVoteCard()
 	 */
@@ -82,6 +84,25 @@ class EventSourcingFlowService extends AggregateRepository implements FlowServic
 		$this->eventStore->beginTransaction();
 		try {
 			$card = VoteCompletedItemCard::create($recipient, $content, $createdBy, $itemId);
+			$this->addAggregateRoot($card);
+			$this->eventStore->commit();
+		} catch (\Exception $e) {
+			$this->eventStore->rollback();
+			throw $e;
+		}
+		return $card;
+	}
+	/**
+	 * (non-PHPdoc)
+	 * @see \FlowManagement\Service\FlowService::createLazyMajorityVoteCard()
+	 */
+	public function createVoteCompletedItemVotingClosedCard(BasicUser $recipient, $itemId, $organizationid, BasicUser $createdBy){
+		$content = [
+				"orgId" => $organizationid
+		];
+		$this->eventStore->beginTransaction();
+		try {
+			$card = VoteCompletedItemVotingClosedCard::create($recipient, $content, $createdBy, $itemId);
 			$this->addAggregateRoot($card);
 			$this->eventStore->commit();
 		} catch (\Exception $e) {

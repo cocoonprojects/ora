@@ -125,6 +125,7 @@ class Task extends DomainEntity implements TaskInterface
 			throw new IllegalStateException('Cannot accept a task in '.$this->status.' state');
 		}
 		$this->recordThat(TaskAccepted::occur($this->id->toString(), array(
+			'organizationId' => $this->getOrganizationId(),
 			'prevStatus' => $this->getStatus(),
 			'by' => $acceptedBy->getId(),
 			'intervalForCloseTask' => $intervalForCloseTask

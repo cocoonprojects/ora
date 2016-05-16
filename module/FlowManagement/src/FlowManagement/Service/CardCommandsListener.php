@@ -8,6 +8,7 @@ use Prooph\EventStore\Stream\StreamEvent;
 use Application\Entity\User;
 use FlowManagement\Entity\VoteIdeaCard;
 use FlowManagement\Entity\VoteCompletedItemCard;
+use FlowManagement\Entity\VoteCompletedItemVotingClosedCard;
 use FlowManagement\FlowCardInterface;
 use TaskManagement\Entity\Task;
 use FlowManagement\Entity\FlowCard;
@@ -44,19 +45,27 @@ class CardCommandsListener extends ReadModelProjector {
 		switch ($type){
 			case 'FlowManagement\VoteIdeaCard':
 				$entity = new VoteIdeaCard($id, $recipient);
-				$idea = $this->entityManager->find(Task::class, $event->payload()['item']);
-				if(!is_null($idea)){
-					$entity->setItem($idea);
+				$item = $this->entityManager->find(Task::class, $event->payload()['item']);
+				if(!is_null($item)){
+					$entity->setItem($item);
 				} 
 				$entity->setContent(FlowCardInterface::VOTE_IDEA_CARD, $content);
 				break;
 			case 'FlowManagement\VoteCompletedItemCard':
 				$entity = new VoteCompletedItemCard($id, $recipient);
-				$idea = $this->entityManager->find(Task::class, $event->payload()['item']);
-				if(!is_null($idea)){
-					$entity->setItem($idea);
+				$item = $this->entityManager->find(Task::class, $event->payload()['item']);
+				if(!is_null($item)){
+					$entity->setItem($item);
 				} 
 				$entity->setContent(FlowCardInterface::VOTE_COMPLETED_ITEM_CARD, $content);
+				break;
+			case 'FlowManagement\VoteCompletedItemVotingClosedCard':
+				$entity = new VoteCompletedItemVotingClosedCard($id, $recipient);
+				$item = $this->entityManager->find(Task::class, $event->payload()['item']);
+				if(!is_null($item)){
+					$entity->setItem($item);
+				} 
+				$entity->setContent(FlowCardInterface::VOTE_COMPLETED_ITEM_VOTING_CLOSED_CARD, $content);
 				break;
 			default:
 				$entity = null;

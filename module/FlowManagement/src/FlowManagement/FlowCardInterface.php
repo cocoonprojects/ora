@@ -6,6 +6,7 @@ interface FlowCardInterface{
 	
 	CONST VOTE_IDEA_CARD = 'VoteIdea';
 	CONST VOTE_COMPLETED_ITEM_CARD = 'VoteCompletedItem';
+	CONST VOTE_COMPLETED_ITEM_VOTING_CLOSED_CARD = 'VoteCompletedItemVotingCLosed';
 	
 	public function getId();
 	
