@@ -99,7 +99,7 @@ class AcceptCompletedItemListener implements ListenerAggregateInterface {
 
 			$this->transactionManager->beginTransaction ();
 			try {
-				$task->execute($owner);
+				$task->reopen($owner);
 				$this->transactionManager->commit ();
 			} catch ( \Exception $e ) {
 				var_dump ( $e );
@@ -123,7 +123,7 @@ class AcceptCompletedItemListener implements ListenerAggregateInterface {
 
 				$this->transactionManager->beginTransaction ();
 				try {
-					$task->execute ( $owner );
+					$task->reopen( $owner );
 					$this->transactionManager->commit ();
 				} catch ( \Exception $e ) {
 					$this->transactionManager->rollback ();

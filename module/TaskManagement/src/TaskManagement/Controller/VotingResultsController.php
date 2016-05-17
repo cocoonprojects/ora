@@ -84,7 +84,7 @@ class VotingResultsController extends HATEOASRestfulController {
 								$item->accept($this->identity());
 								$operationResult[$itemId] = 'closed';
 							}else{
-								$item->execute($this->identity());
+								$item->reopen($this->identity());
 								$operationResult[$itemId] = 'reopened';
 							}
 							$this->transaction()->commit();

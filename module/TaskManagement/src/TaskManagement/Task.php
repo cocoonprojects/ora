@@ -133,6 +133,18 @@ class Task extends DomainEntity implements TaskInterface
 		return $this;
 	}
 	
+	public function reopen(BasicUser $reopenedBy) {
+		if($this->status != self::STATUS_COMPLETED) {
+			throw new IllegalStateException('Cannot reopen a task in '.$this->status.' state');
+		}
+		$this->recordThat(TaskReopened::occur($this->id->toString(), array(
+			'organizationId' => $this->getOrganizationId(),
+			'prevStatus' => $this->getStatus(),
+			'by' => $reopenedBy->getId()
+		)));
+		return $this;
+	}
+	
 	public function close(BasicUser $closedBy) {
 		if($this->status != self::STATUS_ACCEPTED) {
 			throw new IllegalStateException('Cannot close a task in '.$this->status.' state');
@@ -625,6 +637,10 @@ class Task extends DomainEntity implements TaskInterface
 			$sharesAssignmentExpiresAt->add($event->payload()['intervalForCloseTask']);
 			$this->sharesAssignmentExpiresAt = $sharesAssignmentExpiresAt;
 		}
+	}
+	
+	protected function whenTaskReopened(TaskReopened $event) {
+		$this->status = self::STATUS_ONGOING;
 	}
 	
 	protected function whenTaskClosed(TaskClosed $event) {

@@ -5,7 +5,7 @@ namespace FlowManagement;
 use Rhumsaa\Uuid\Uuid;
 use Application\Entity\BasicUser;
 
-class VoteCompletedItemVotingClosedCard extends FlowCard {
+class VoteCompletedItemReopenedCard extends FlowCard {
 	public static function create(BasicUser $recipient, $content, BasicUser $by, $itemId = null){
 		$rv = new self();
 		$event = FlowCardCreated::occur(Uuid::uuid4()->toString(), [
@@ -18,9 +18,9 @@ class VoteCompletedItemVotingClosedCard extends FlowCard {
 		return $rv;
 	}
 	
-	protected function whenFlowCardCreated(FlowCardCreated $event){
+	protected function whenFlowCardCreated(FlowCardCreated $event) {
 		parent::whenFlowCardCreated($event);
-		$this->content = [FlowCardInterface::VOTE_COMPLETED_ITEM_VOTING_CLOSED_CARD => $event->payload()['content']];
+		$this->content = [FlowCardInterface::VOTE_COMPLETED_ITEM_REOPENED_CARD => $event->payload()['content']];
 		$this->itemId = $event->payload()['item'];
 	}
 }

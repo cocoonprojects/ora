@@ -9,6 +9,7 @@ use Application\Entity\User;
 use FlowManagement\Entity\VoteIdeaCard;
 use FlowManagement\Entity\VoteCompletedItemCard;
 use FlowManagement\Entity\VoteCompletedItemVotingClosedCard;
+use FlowManagement\Entity\VoteCompletedItemReopenedCard;
 use FlowManagement\FlowCardInterface;
 use TaskManagement\Entity\Task;
 use FlowManagement\Entity\FlowCard;
@@ -66,6 +67,14 @@ class CardCommandsListener extends ReadModelProjector {
 					$entity->setItem($item);
 				} 
 				$entity->setContent(FlowCardInterface::VOTE_COMPLETED_ITEM_VOTING_CLOSED_CARD, $content);
+				break;
+			case 'FlowManagement\VoteCompletedItemReopenedCard':
+				$entity = new VoteCompletedItemReopenedCard($id, $recipient);
+				$item = $this->entityManager->find(Task::class, $event->payload()['item']);
+				if(!is_null($item)){
+					$entity->setItem($item);
+				} 
+				$entity->setContent(FlowCardInterface::VOTE_COMPLETED_ITEM_REOPENED_CARD, $content);
 				break;
 			default:
 				$entity = null;

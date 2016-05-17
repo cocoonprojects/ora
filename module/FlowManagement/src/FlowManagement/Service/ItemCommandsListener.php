@@ -10,6 +10,7 @@ use TaskManagement\TaskCreated;
 use TaskManagement\TaskCompleted;
 use TaskManagement\TaskOpened;
 use TaskManagement\TaskAccepted;
+use TaskManagement\TaskReopened;
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
@@ -58,6 +59,7 @@ class ItemCommandsListener implements ListenerAggregateInterface {
 		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskOpened::class, array($this, 'processIdeaVotingClosed'));
 		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskCompleted::class, array($this, 'processItemCompleted'));
 		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskAccepted::class, array($this, 'processItemCompletedVotingClosed'));
+		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskReopened::class, array($this, 'processItemCompletedReopened'));
 	}
 	
 	public function processItemCreated(Event $event){
@@ -117,7 +119,6 @@ class ItemCommandsListener implements ListenerAggregateInterface {
 		$streamEvent = $event->getTarget();
 		$itemId = $streamEvent->metadata()['aggregate_id'];
 
-/*		
 		$item = $this->taskService->findTask($itemId);
 
 		//recupero le card del flow che sono associate a questo item
@@ -138,7 +139,7 @@ class ItemCommandsListener implements ListenerAggregateInterface {
 				throw $e;
 			}
 		});
-*/
+
 		// creazione di nuove card per notificare la chiusura del processo di voto
 		$organization = $this->organizationService->findOrganization($event->getParam('organizationId'));
 		$orgMemberships = $this->organizationService->findOrganizationMemberships($organization, null, null);
@@ -151,6 +152,40 @@ class ItemCommandsListener implements ListenerAggregateInterface {
 			$completedBy = $params[3];
 			$flowService->createVoteCompletedItemVotingClosedCard($member->getMember(), $itemId, $organization->getId(), $completedBy);
 		});
+	}
+
+	public function processItemCompletedReopened(Event $event){
+		$streamEvent = $event->getTarget();
+		$itemId = $streamEvent->metadata()['aggregate_id'];
+
+		// chiusura delle precedenti card aperte per questo item
+		$params = [$this->flowService, $this->transactionManager];
+		array_walk($flowCards, function($card) use($params){
+			$flowService = $params[0];
+			$transactionManager = $params[1];
+			$wmCard = $flowService->getCard($card->getId());
+			$transactionManager->beginTransaction();
+			try {
+				$wmCard->hide();
+				$transactionManager->commit();
+			}catch( \Exception $e ) {
+				$transactionManager->rollback();
+				throw $e;
+			}
+		});
+
+		// creazione di nuove card per notificare la chiusura del processo di voto
+		$organization = $this->organizationService->findOrganization($event->getParam('organizationId'));
+		$orgMemberships = $this->organizationService->findOrganizationMemberships($organization, null, null);
+		$reopenedBy = $this->userService->findUser($event->getParam('by'));
+		$params = [$this->flowService, $itemId, $organization, $reopenedBy];
+		array_walk($orgMemberships, function($member) use($params){
+			$flowService = $params[0];
+			$itemId = $params[1];
+			$organization = $params[2];
+			$completedBy = $params[3];
+			$flowService->createVoteCompletedItemReopenedCard($member->getMember(), $itemId, $organization->getId(), $completedBy);
+		});		
 	}
 	
 	public function detach(EventManagerInterface $events){
