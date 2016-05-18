@@ -17,6 +17,8 @@ use ZFX\Acl\Controller\Plugin\IsAllowed;
 use ZFX\Authentication\GoogleJWTAdapter;
 use ZFX\Authentication\JWTAdapter;
 use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
+use Zend\Console\Request as ConsoleRequest;
+
 
 class Module {
 	public function onBootstrap(MvcEvent $e) {
@@ -35,21 +37,23 @@ class Module {
 		], 100 );
 		
 		$request = $e->getRequest ();
-		$eventManager->attach ( MvcEvent::EVENT_DISPATCH, function ($event) use($serviceManager, $request) {
-			if ($token = $request->getHeaders ( 'ORA-JWT' )) {
-				$adapter = $serviceManager->get ( 'Application\JWTAdapter' );
-				$adapter->setToken ( $token->getFieldValue () );
-				$authService = $serviceManager->get ( 'Zend\Authentication\AuthenticationService' );
-				$result = $authService->authenticate ( $adapter );
-			} elseif ($token = $request->getHeaders ( 'GOOGLE-JWT' )) {
-				$client = $serviceManager->get ( 'Application\Service\GoogleAPIClient' );
-				$adapter = new GoogleJWTAdapter ( $client );
-				$adapter->setToken ( $token->getFieldValue () );
-				
-				$authService = $serviceManager->get ( 'Zend\Authentication\AuthenticationService' );
-				$result = $authService->authenticate ( $adapter );
-			}
-		}, 100 );
+		if (!$request instanceof ConsoleRequest) {
+			$eventManager->attach ( MvcEvent::EVENT_DISPATCH, function ($event) use($serviceManager, $request) {
+				if ($token = $request->getHeaders ( 'ORA-JWT' )) {
+					$adapter = $serviceManager->get ( 'Application\JWTAdapter' );
+					$adapter->setToken ( $token->getFieldValue () );
+					$authService = $serviceManager->get ( 'Zend\Authentication\AuthenticationService' );
+					$result = $authService->authenticate ( $adapter );
+				} elseif ($token = $request->getHeaders ( 'GOOGLE-JWT' )) {
+					$client = $serviceManager->get ( 'Application\Service\GoogleAPIClient' );
+					$adapter = new GoogleJWTAdapter ( $client );
+					$adapter->setToken ( $token->getFieldValue () );
+					
+					$authService = $serviceManager->get ( 'Zend\Authentication\AuthenticationService' );
+					$result = $authService->authenticate ( $adapter );
+				}
+			}, 100 );
+		}
 	}
 	public function getControllerConfig() {
 		return [ 

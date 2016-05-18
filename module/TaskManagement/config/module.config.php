@@ -45,6 +45,21 @@ return array(
 			],
 		],
 	],
+    'console' => [
+        'router' => [
+            'routes' => [
+                'reminder' => [
+                    'options' => [
+                        'route'    => 'reminder [--verbose|-v]',
+                        'defaults' => [
+							'controller' => 'TaskManagement\Controller\Console\Reminders',
+							'action' => 'send'
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ],
 	'translator' => array(),
 	'view_manager' => array(
 		'strategies' => array(

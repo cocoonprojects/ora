@@ -7,6 +7,7 @@ use TaskManagement\Controller\EstimationsController;
 use TaskManagement\Controller\MembersController;
 use TaskManagement\Controller\MemberStatsController;
 use TaskManagement\Controller\RemindersController;
+use TaskManagement\Controller\Console\RemindersController as ConsoleRemindersController;
 use TaskManagement\Controller\SharesController;
 use TaskManagement\Controller\StreamsController;
 use TaskManagement\Controller\TasksController;
@@ -122,6 +123,12 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$controller = new AcceptancesController($taskService);
+					return $controller;
+				},
+				'TaskManagement\Controller\Console\Reminders' => function ($sm) {
+					// $locator = $sm->getServiceLocator();
+					// $taskService = $locator->get('TaskManagement\TaskService');
+					$controller = new ConsoleRemindersController();
 					return $controller;
 				},
 			]

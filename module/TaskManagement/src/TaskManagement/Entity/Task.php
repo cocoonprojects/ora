@@ -380,6 +380,21 @@ class Task extends EditableEntity implements TaskInterface
 	/**
 	 * @return TaskMember[]
 	 */
+	public function findMembersWithNoApproval()
+	{
+		$membersWhoVoted = [];
+		foreach ($this->getApprovals() as $approval) {
+			$membersWhoVoted[] = $approvals->getVoter()->getId();
+		}
+
+		return array_filter($this->getMembers(), function($member) use ($membersWhoVoted) {
+			return !in_array($member->getUser()->getId(), $membersWhoVoted);
+		});
+	}
+
+	/**
+	 * @return TaskMember[]
+	 */
 	public function findMembersWithNoEstimation()
 	{
 		return array_filter($this->getMembers(), function($member) {
