@@ -7,7 +7,18 @@ use PHPUnit_Framework_TestCase;
 use Guzzle\Http\Client;
 use IntegrationTest\Bootstrap;
 use Prooph\EventStore\EventStore;
+use Application\Entity\User;
+use People\Entity\Organization;
+use TaskManagement\Entity\Task as EntityTask;
+use TaskManagement\Entity\Stream;
+use TaskManagement\Entity\TaskMember;
+use TaskManagement\Entity\Vote;
+use TaskManagement\Service\TaskService;
 use Zend\Console\Request as ConsoleRequest;
+use TaskManagement\Service\MailService;
+
+
+
 
 class ConsoleRemindersProcessTest extends \PHPUnit_Framework_TestCase {
 
@@ -16,39 +27,49 @@ class ConsoleRemindersProcessTest extends \PHPUnit_Framework_TestCase {
 	private $member;
 	private $task;
 	private $transactionManager;
+	private $taskService;
+	private $mailService;
 
 	protected function setUp()
 	{
+		$serviceManager = Bootstrap::getServiceManager();
+		$this->mailService = $serviceManager->get('AcMailer\Service\MailService');
+
+
 		$this->mailcatcher = new Client('http://127.0.0.1:1080');
 
-		$this->controller = new RemindersController();
+		$this->organization = new Organization('1');
+		$this->organization->setName('Organization Name');
+
+		$this->stream = new Stream('1', $this->organization);
+		$this->stream->setSubject("Stream subject");
+
+		$this->owner = User::create();
+		$this->owner->setFirstname('John');
+		$this->owner->setLastname('Doe');
+		$this->owner->setEmail('john.doe@foo.com');
+		$this->owner->addMembership($this->organization);
+
+		$this->member = User::create();
+		$this->member->setFirstname('Jane');
+		$this->member->setLastname('Doe');
+		$this->member->setEmail('jane.doe@foo.com');
+		$this->member->addMembership($this->organization);
+
+		$this->task = new EntityTask('1', $this->stream);
+		$this->task->setSubject('Lorem Ipsum Sic Dolor Amit');
+		$this->task->addMember($this->owner, TaskMember::ROLE_OWNER, $this->owner, new \DateTime());
+		$this->task->addMember($this->member, TaskMember::ROLE_MEMBER, $this->member, new \DateTime());
+
+		$vote = new Vote(new \DateTime('today'));
+		$vote->setValue(1);
+		$this->task->addApproval($vote, $this->owner, new \DateTime('today'), 'Voto a favore');
+				
+		//Task Service Mock
+		$this->taskService = $this->getMockBuilder(TaskService::class)->getMock();
+
+		$this->controller = new RemindersController($this->taskService, $this->mailService);
 		$this->request	= new ConsoleRequest();
-
-		$serviceManager = Bootstrap::getServiceManager();
-
-		$userService = $serviceManager->get('Application\UserService');
-		$this->owner = $userService->findUser('60000000-0000-0000-0000-000000000000');
-		$this->member = $userService->findUser('70000000-0000-0000-0000-000000000000');
-		
-		$streamService = $serviceManager->get('TaskManagement\StreamService');
-		$stream = $streamService->getStream('00000000-1000-0000-0000-000000000000');
-		
-		$taskService = $serviceManager->get('TaskManagement\TaskService');
-
-		$this->transactionManager = $serviceManager->get('prooph.event_store');
-		$this->transactionManager->beginTransaction();
-		try {
-			$task = Task::create($stream, 'Cras placerat libero non tempor', $this->owner);
-			$task->addMember($this->owner, Task::ROLE_OWNER);
-			$task->addApproval('1', $this->owner, 'Voto a favore');
-
-			$this->task = $taskService->addTask($task);
-		} catch (\Exception $e) {
-			var_dump($e);
-			$this->transactionManager->rollback();
-			throw $e;
-		}		
-		$this->transactionManager->commit();
 
 		$this->cleanEmailMessages();		
 	}	
@@ -68,13 +89,28 @@ class ConsoleRemindersProcessTest extends \PHPUnit_Framework_TestCase {
 		return $json;
 	}
 
+	public function assertEmailHtmlContains($needle, $email, $description = '')
+	{
+		$request = $this->mailcatcher->get("/messages/{$email->id}.html");
+		$response = $request->send();
+		$this->assertContains($needle, (string)$response->getBody(), $description);
+	}
+
 	public function testSendNotificationToUserWhoDidntVote()
 	{
+		$this->taskService
+			->method('findItemsBefore')
+			->willReturn([$this->task]);
+
 		$this->controller->sendAction();
 
 		$emails = $this->getEmailMessages();
-// var_dump($emails);
 
 		$this->assertNotEmpty($emails);
+		$this->assertEquals(1, count($emails));
+		$this->assertContains($this->task->getSubject(), $emails[0]->subject);
+		$this->assertEmailHtmlContains('approval', $emails[0]);
+		$this->assertNotEmpty($emails[0]->recipients);
+		$this->assertEquals($emails[0]->recipients[0], '<jane.doe@foo.com>');
 	}
 }

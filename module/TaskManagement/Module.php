@@ -126,9 +126,16 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					return $controller;
 				},
 				'TaskManagement\Controller\Console\Reminders' => function ($sm) {
-					// $locator = $sm->getServiceLocator();
-					// $taskService = $locator->get('TaskManagement\TaskService');
-					$controller = new ConsoleRemindersController();
+					$locator = $sm->getServiceLocator();
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$mailService = $locator->get('AcMailer\Service\MailService');
+
+					$controller = new ConsoleRemindersController($taskService, $mailService);
+
+					if(isset($locator->get('Config')['item_idea_voting_remind_interval'])) {
+						$itemIdeaVotingRemindInterval = $locator->get('Config')['item_idea_voting_remind_interval'];
+						$controller->setIntervalForVotingRemind($itemIdeaVotingRemindInterval);
+					}
 					return $controller;
 				},
 			]

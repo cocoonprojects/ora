@@ -384,7 +384,7 @@ class Task extends EditableEntity implements TaskInterface
 	{
 		$membersWhoVoted = [];
 		foreach ($this->getApprovals() as $approval) {
-			$membersWhoVoted[] = $approvals->getVoter()->getId();
+			$membersWhoVoted[] = $approval->getVoter()->getId();
 		}
 
 		return array_filter($this->getMembers(), function($member) use ($membersWhoVoted) {

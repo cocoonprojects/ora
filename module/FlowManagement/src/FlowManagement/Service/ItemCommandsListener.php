@@ -157,6 +157,10 @@ class ItemCommandsListener implements ListenerAggregateInterface {
 	public function processItemCompletedReopened(Event $event){
 		$streamEvent = $event->getTarget();
 		$itemId = $streamEvent->metadata()['aggregate_id'];
+		$item = $this->taskService->findTask($itemId);
+
+		//recupero le card del flow che sono associate a questo item
+		$flowCards = $this->flowService->findFlowCardsByItem($item);
 
 		// chiusura delle precedenti card aperte per questo item
 		$params = [$this->flowService, $this->transactionManager];
