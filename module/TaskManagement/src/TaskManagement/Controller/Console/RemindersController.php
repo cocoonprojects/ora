@@ -20,11 +20,17 @@ class RemindersController extends AbstractConsoleController {
 		$this->taskService = $taskService;
 		$this->mailService = $mailService;
 		$this->intervalForVotingRemind = new \DateInterval('P6D');
+		$this->intervalForVotingTimebox = new \DateInterval('P7D');
 	}
 
 	public function setIntervalForVotingRemind($intervalForVotingRemind)
 	{
 		$this->intervalForVotingRemind = $intervalForVotingRemind;
+	}
+
+	public function setIntervalForVotingTimebox($intervalForVotingTimebox)
+	{
+		$this->intervalForVotingTimebox = $intervalForVotingTimebox;
 	}
 
 	public function setHost($host) {
@@ -39,7 +45,7 @@ class RemindersController extends AbstractConsoleController {
 	 */
 	public function sendAction($data=null)
 	{
-		$tasksToNotify = $this->taskService->findItemsBefore($this->intervalForVotingRemind, TaskInterface::STATUS_IDEA);
+		$tasksToNotify = $this->taskService->findIdeasCreatedBetween($this->intervalForVotingRemind, $this->intervalForVotingTimebox);
 
 		$rv = [];
 		foreach ($tasksToNotify as $task) { 
@@ -60,9 +66,10 @@ class RemindersController extends AbstractConsoleController {
 				]);
 				
 				$this->mailService->send();
-				$rv[] = $member;
+				$rv[$task->getId()] = $member->getEmail();
 			}
 		}
+		var_dump($rv);
 		return $rv;	
 	}
 	
