@@ -710,3 +710,33 @@ VALUES
 INSERT INTO account_transactions (id, payer_id,payee_id, amount, description, balance, createdAt, createdBy_id, type )
 VALUES
   (8, 'cdde992b-5aa9-4447-98ae-c8115906dcb9', 'dcde992b-5aa9-4447-98ae-c8115906dcb7', 2000, 'Payment request', 7400,  '2015-02-13 10:48:13', '60000000-0000-0000-0000-000000000000', 'transfer');
+
+# task 00000000-0000-0000-0000-000000000401, decision, Mark Rogers (owner)
+INSERT INTO streams (id, subject, createdAt, mostRecentEditAt, organization_id, createdBy_id, mostRecentEditBy_id, type)
+VALUES ('00000000-1000-0000-1000-000000000000', 'O.R.A.: Decisions Stream', '2015-11-06 13:11:05',
+        '2015-11-06 13:11:05', '00000000-0000-0000-1000-000000000000', '60000000-0000-0000-0000-000000000000',
+        '60000000-0000-0000-0000-000000000000', 'stream');
+
+INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
+  ('6126d983-20ad-2222-1111-085395aa3b7b', 1, 'TaskManagement\\TaskCreated',
+   'a:5:{s:8:\"streamId\";s:36:\"00000000-1000-0000-1000-000000000000\";s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:11\"is_decision\";i:1;s:6:\"status\";i:0;s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000401\";}',
+   '2015-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000401'),
+  ('334fa91f-62c9-2222-1111-3e01bd7efe8c', 2, 'TaskManagement\\TaskUpdated',
+   'a:3:{s:7:\"subject\";s:27:\"Decision task 001\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000401\";}',
+   '2015-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000401'),
+  ('434fa91f-62c9-2222-1111-3e01bd7efe8c', 2, 'TaskManagement\\TaskUpdated',
+   'a:3:{s:11:\"description\";s:27:\"Decision task example\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000401\";}',
+   '2015-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000401'),
+  ('c033eb32-2ad4-2222-1111-3c0b600b7d0c', 4, 'TaskManagement\\TaskMemberAdded',
+   'a:4:{s:6:\"userId\";s:36:\"60000000-0000-0000-0000-000000000000\";s:4:\"role\";s:5:\"owner\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000401\";}',
+   '2015-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000401');
+
+INSERT INTO tasks (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, type, is_decision) VALUES
+  ('00000000-0000-0000-0000-000000000401', '00000000-1000-0000-1000-000000000000', 'Decision task 001','Decision task example', 0,'2016-01-06 14:32:44', '2016-01-06 14:32:44', 'task', 1);
+
+INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt)
+VALUES
+  ('00000000-0000-0000-0000-000000000401', '60000000-0000-0000-0000-000000000000', 'owner', '2015-11-12 19:07:59',
+   '2015-03-23 19:07:59', '-1', '2015-11-07 11:37:58'),
+  ('00000000-0000-0000-0000-000000000401', '20000000-0000-0000-0000-000000000000', 'member', '2015-11-12 19:07:59',
+   '2015-11-12 19:07:59', '-1', '2015-11-07 11:37:58');

@@ -91,7 +91,7 @@ class TasksController extends OrganizationAwareController
 
 		$decisions = $this->getRequest()->getQuery("decisions");
 		if (empty($decisions)) {
-			$decisions = false;
+			$decisions = 'false';
 		}
 		$filters["decisions"] = $decisions;
 

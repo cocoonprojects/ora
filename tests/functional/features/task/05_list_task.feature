@@ -222,7 +222,20 @@ Feature: List tasks
   Scenario: Successfully getting decisions list
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
-    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks?decisions=true"
+    And that its "decisions" is "true"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
+    And echo last response
     And the "count" property should be "1"
+
+@wip
+  Scenario: Successfully getting list without decisions
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    And that its "decisions" is "false"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
+    Then the response status code should be 200
+    And the response should have a "_embedded.ora:task" property
+    And echo last response
+    And the "count" property should be "10"

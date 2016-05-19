@@ -81,7 +81,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 
 		$decisions = 0;
 		if(isset($filters["decisions"])) {
-			$decisions = $filters["decisions"] ? 1 : 0;
+			$decisions = $filters["decisions"]=='true' ? 1 : 0;
 		}
 		$query->andWhere('t.is_decision = :decision')
 			->setParameter('decision', $decisions);
@@ -110,6 +110,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		if(array_key_exists('status', $filters)){
 			$query->andWhere('t.status = :status')->setParameter('status', $filters["status"]);
 		}
+
 		return $query->getQuery()->getResult();
 	}
 
@@ -129,7 +130,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 
 		$decisions = 0;
 		if(isset($filters["decisions"])) {
-			$decisions = $filters["decisions"] ? 1 : 0;
+			$decisions = $filters["decisions"]=='true' ? 1 : 0;
 		}
 		$query->andWhere('t.is_decision = :decision')
 			->setParameter('decision', $decisions);
