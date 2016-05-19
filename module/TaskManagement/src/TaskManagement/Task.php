@@ -71,20 +71,23 @@ class Task extends DomainEntity implements TaskInterface
 
 	public static function create(Stream $stream, $subject, BasicUser $createdBy, array $options = null) {
 		$rv = new self();
+
+		$decision = false;
+		if (is_array($options) &&
+			isset($options['decision']) &&
+			$options['decision'] == 'true') {
+			$decision = true;
+		}
 		$rv->recordThat(TaskCreated::occur(Uuid::uuid4()->toString(), [
 			'status' => self::STATUS_IDEA,
 			'organizationId' => $stream->getOrganizationId(),
 			'streamId' => $stream->getId(),
-			'by' => $createdBy->getId()
+			'by' => $createdBy->getId(),
+			'decision' => $decision
 		]));
 		$rv->setSubject($subject, $createdBy);
+		$rv->is_decision = $decision;
 
-		if (is_array($options) &&
-			isset($options['decision']) &&
-			$options['decision'] == 'true') {
-
-			$rv->is_decision = true;
-		}
 
 		return $rv;
 	}

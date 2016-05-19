@@ -24,7 +24,8 @@ class TaskCommandsListener extends ReadModelProjector
 				return;
 			}
 			$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
-			$entity = new Task($id, $stream);
+			$decision = $event->payload()['decision'];
+			$entity = new Task($id, $stream, $decision);
 			$entity->setStatus($event->payload()['status'])
 				->setCreatedAt($event->occurredOn())
 				->setCreatedBy($createdBy)
