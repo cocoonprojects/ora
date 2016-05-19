@@ -89,6 +89,12 @@ class TasksController extends OrganizationAwareController
 			return $this->response;
 		}
 
+		$decisions = $this->getRequest()->getQuery("decisions");
+		if (empty($decisions)) {
+			$decisions = false;
+		}
+		$filters["decisions"] = $decisions;
+
 		$integerValidator = new ValidatorChain();
 		$integerValidator
 			->attach(new IsInt())

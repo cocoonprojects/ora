@@ -79,6 +79,13 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->setMaxResults($limit)
 			->setParameter(':organization', $organizationId);
 
+		$decisions = 0;
+		if(isset($filters["decisions"])) {
+			$decisions = $filters["decisions"] ? 1 : 0;
+		}
+		$query->andWhere('t.is_decision = :decision')
+			->setParameter('decision', $decisions);
+
 		if(isset($filters["startOn"])){
 			$query->andWhere('t.createdAt >= :startOn')
 				->setParameter('startOn', $filters["startOn"]);
@@ -119,6 +126,13 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->from(ReadModelTask::class, 't')
 			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
 			->setParameter(':organization', $organization);
+
+		$decisions = 0;
+		if(isset($filters["decisions"])) {
+			$decisions = $filters["decisions"] ? 1 : 0;
+		}
+		$query->andWhere('t.is_decision = :decision')
+			->setParameter('decision', $decisions);
 
 		if(isset($filters["startOn"])){
 			$query->andWhere('t.createdAt >= :startOn')

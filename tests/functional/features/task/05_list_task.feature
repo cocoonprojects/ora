@@ -217,3 +217,12 @@ Feature: List tasks
     And the response should have a "_links.ora:complete" property
     And the response should have a "_links.ora:close" property
     And the "status" property should be "40"
+
+@wip
+  Scenario: Successfully getting decisions list
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks?decisions=true"
+    Then the response status code should be 200
+    And the response should have a "_embedded.ora:task" property
+    And the "count" property should be "1"

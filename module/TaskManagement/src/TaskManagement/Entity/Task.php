@@ -76,7 +76,7 @@ class Task extends EditableEntity implements TaskInterface
 	protected $sharesAssignmentExpiresAt;
 
 	/**
-	 * @ORM\Column(type="boolean", nullable=true)
+	 * @ORM\Column(type="boolean", nullable=false)
 	 * @var boolean
 	 */
 	protected $is_decision = false;
