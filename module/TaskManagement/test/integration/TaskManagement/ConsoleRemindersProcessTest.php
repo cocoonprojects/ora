@@ -99,7 +99,7 @@ class ConsoleRemindersProcessTest extends \PHPUnit_Framework_TestCase {
 	public function testSendNotificationToUserWhoDidntVote()
 	{
 		$this->taskService
-			->method('findItemsBefore')
+			->method('findIdeasCreatedBetween')
 			->willReturn([$this->task]);
 
 		$this->controller->sendAction();

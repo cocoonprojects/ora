@@ -49,6 +49,15 @@ interface TaskService
 	public function findAcceptedTasksBefore(\DateInterval $interval);
 
 	/**
+	 * Find accepted tasks with accepted date before $before days from now
+	 * and after $after days since now (in the past)
+	 * @param \DateInterval $after
+	 * @param \DateInterval $before
+	 * @return array
+	 */
+	public function findIdeasCreatedBetween(\DateInterval $after, \DateInterval $before);
+
+	/**
 	 * Get the number of tasks of an $organization
 	 * @param Organization $organization
 	 * @param \DateTime $filters["startOn"]

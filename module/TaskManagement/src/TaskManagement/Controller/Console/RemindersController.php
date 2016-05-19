@@ -43,7 +43,7 @@ class RemindersController extends AbstractConsoleController {
 	 * @param array $data
 	 * @return \Zend\Stdlib\ResponseInterface
 	 */
-	public function sendAction($data=null)
+	public function sendAction()
 	{
 		$tasksToNotify = $this->taskService->findIdeasCreatedBetween($this->intervalForVotingRemind, $this->intervalForVotingTimebox);
 
@@ -69,7 +69,6 @@ class RemindersController extends AbstractConsoleController {
 				$rv[$task->getId()] = $member->getEmail();
 			}
 		}
-		var_dump($rv);
 		return $rv;	
 	}
 	
