@@ -136,6 +136,12 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 						$itemIdeaVotingRemindInterval = $locator->get('Config')['item_idea_voting_remind_interval'];
 						$controller->setIntervalForVotingRemind($itemIdeaVotingRemindInterval);
 					}
+
+					if(isset($locator->get('Config')['item_idea_voting_timebox'])) {
+						$itemIdeaVotingTimeboxInterval = $locator->get('Config')['item_idea_voting_timebox'];
+						$controller->setIntervalForVotingTimebox($itemIdeaVotingTimeboxInterval);
+					}
+
 					return $controller;
 				},
 			]

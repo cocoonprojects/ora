@@ -173,6 +173,27 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	}
 
 	/**
+	 * @see \TaskManagement\Service\TaskService::findAcceptedTasksBefore()
+	 * @param \DateInterval $interval
+	 * @return ReadModelTask[]
+	 */
+	public function findIdeasCreatedBetween(\DateInterval $after, \DateInterval $before){
+		
+		$referenceDate = new \DateTime('now');
+		
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('t')
+			->from(ReadModelTask::class, 't')
+			->where("DATE_ADD(t.createdAt,".$before->format('%d').", 'DAY') >= :referenceDate") 
+			->andWhere("DATE_ADD(t.createdAt,".$after->format('%d').", 'DAY') <= :referenceDate") 
+			->andWhere('t.status = :taskStatus')
+			->setParameter('taskStatus', Task::STATUS_IDEA)
+			->setParameter('referenceDate', $referenceDate->format('Y-m-d H:i:s'))
+			->getQuery();		
+		return $query->getResult();
+	}
+
+	/**
 	 * @see \TaskManagement\Service\TaskService::findMemberStats()
 	 * @param Organization $org
 	 * @param string $memberId
