@@ -28,32 +28,32 @@ class TaskJsonModel extends JsonModel {
 	}
 	public function serialize() {
 		$resource = $this->getVariable ( 'resource' );
-		
+
 		if (is_array ( $resource )) {
-			$hal ['_links'] ['self'] ['href'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
-					'orgId' => $this->organization->getId () 
+			$hal ['_links'] ['self'] ['href'] = $this->controller->url ()->fromRoute ( 'tasks', [
+					'orgId' => $this->organization->getId ()
 			] );
 			if ($this->controller->isAllowed ( $this->controller->identity (), NULL, 'TaskManagement.Task.create' )) {
-				$hal ['_links'] ['ora:create'] ['href'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
-						'orgId' => $this->organization->getId () 
+				$hal ['_links'] ['ora:create'] ['href'] = $this->controller->url ()->fromRoute ( 'tasks', [
+						'orgId' => $this->organization->getId ()
 				] );
 			}
 			$hal ['_embedded'] ['ora:task'] = array_map ( array (
 					$this,
-					'serializeOne' 
+					'serializeOne'
 			), $resource );
 			$hal ['count'] = count ( $resource );
 			$hal ['total'] = $this->getVariable ( 'totalTasks' );
 			if ($hal ['count'] < $hal ['total']) {
-				$hal ['_links'] ['next'] ['href'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
-						'orgId' => $this->organization->getId () 
+				$hal ['_links'] ['next'] ['href'] = $this->controller->url ()->fromRoute ( 'tasks', [
+						'orgId' => $this->organization->getId ()
 				] );
 			}
 		} else {
 			$hal = $this->serializeOne ( $resource );
 			if ($this->controller->isAllowed ( $this->controller->identity (), NULL, 'TaskManagement.Task.create' )) {
-				$hal ['_links'] ['ora:create'] ['href'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
-						'orgId' => $resource->getOrganizationId () 
+				$hal ['_links'] ['ora:create'] ['href'] = $this->controller->url ()->fromRoute ( 'tasks', [
+						'orgId' => $resource->getOrganizationId ()
 				] );
 			}
 		}
@@ -61,104 +61,104 @@ class TaskJsonModel extends JsonModel {
 	}
 	protected function serializeOne(TaskInterface $task) {
 		$links = [ ];
-		
+
 		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.get' )) {
-			$links ['self'] ['href'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+			$links ['self'] ['href'] = $this->controller->url ()->fromRoute ( 'tasks', [
 					'id' => $task->getId (),
-					'orgId' => $task->getOrganizationId () 
+					'orgId' => $task->getOrganizationId ()
 			] );
 		}
-		
+
 		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.edit' )) {
-			$links ['ora:edit'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+			$links ['ora:edit'] = $this->controller->url ()->fromRoute ( 'tasks', [
 					'id' => $task->getId (),
-					'orgId' => $task->getOrganizationId () 
+					'orgId' => $task->getOrganizationId ()
 			] );
 		}
-		
+
 		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.delete' )) {
-			$links ['ora:delete'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+			$links ['ora:delete'] = $this->controller->url ()->fromRoute ( 'tasks', [
 					'id' => $task->getId (),
-					'orgId' => $task->getOrganizationId () 
+					'orgId' => $task->getOrganizationId ()
 			] );
 		}
-		
+
 		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.join' )) {
-			$links ['ora:join'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+			$links ['ora:join'] = $this->controller->url ()->fromRoute ( 'tasks', [
 					'id' => $task->getId (),
 					'orgId' => $task->getOrganizationId (),
-					'controller' => 'members' 
+					'controller' => 'members'
 			] );
 		}
-		
+
 		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.unjoin' )) {
-			$links ['ora:unjoin'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+			$links ['ora:unjoin'] = $this->controller->url ()->fromRoute ( 'tasks', [
 					'id' => $task->getId (),
 					'orgId' => $task->getOrganizationId (),
-					'controller' => 'members' 
+					'controller' => 'members'
 			] );
 		}
-		
+
 		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.estimate' )) {
-			$links ['ora:estimate'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+			$links ['ora:estimate'] = $this->controller->url ()->fromRoute ( 'tasks', [
 					'id' => $task->getId (),
 					'orgId' => $task->getOrganizationId (),
-					'controller' => 'estimations' 
+					'controller' => 'estimations'
 			] );
 		}
-		
+
 		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.execute' )) {
-			$links ['ora:execute'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+			$links ['ora:execute'] = $this->controller->url ()->fromRoute ( 'tasks', [
 					'id' => $task->getId (),
 					'orgId' => $task->getOrganizationId (),
-					'controller' => 'transitions' 
+					'controller' => 'transitions'
 			] );
 		}
-		
+
 		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.complete' )) {
-			$links ['ora:complete'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+			$links ['ora:complete'] = $this->controller->url ()->fromRoute ( 'tasks', [
 					'id' => $task->getId (),
 					'orgId' => $task->getOrganizationId (),
-					'controller' => 'transitions' 
+					'controller' => 'transitions'
 			] );
 		}
-		
+
 		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.accept' )) {
-			$links ['ora:accept'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+			$links ['ora:accept'] = $this->controller->url ()->fromRoute ( 'tasks', [
 					'id' => $task->getId (),
 					'orgId' => $task->getOrganizationId (),
-					'controller' => 'transitions' 
+					'controller' => 'transitions'
 			] );
 		}
-		
+
 		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.assignShares' )) {
-			$links ['ora:assignShares'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+			$links ['ora:assignShares'] = $this->controller->url ()->fromRoute ( 'tasks', [
 					'id' => $task->getId (),
 					'orgId' => $task->getOrganizationId (),
-					'controller' => 'shares' 
+					'controller' => 'shares'
 			] );
 		}
-		
+
 		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Reminder.add-estimation' )) {
-			$links ['ora:remindEstimation'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+			$links ['ora:remindEstimation'] = $this->controller->url ()->fromRoute ( 'tasks', [
 					'id' => $task->getId (),
 					'orgId' => $task->getOrganizationId (),
 					'controller' => 'reminders',
-					'type' => 'add-estimation' 
+					'type' => 'add-estimation'
 			] );
 		}
-		
+
 		if ($this->controller->isAllowed ( $this->controller->identity (), $task, 'TaskManagement.Task.close' )) {
-			$links ['ora:close'] = $this->controller->url ()->fromRoute ( 'tasks', [ 
+			$links ['ora:close'] = $this->controller->url ()->fromRoute ( 'tasks', [
 					'id' => $task->getId (),
 					'orgId' => $task->getOrganizationId (),
-					'controller' => 'transitions' 
+					'controller' => 'transitions'
 			] );
 		}
 		if ($task instanceof Task) {
 			$approvals = $task->getApprovals();
 			$approvalswithkey = [ ];
-			
+
 			foreach ( $approvals as $approval ) {
 				$approvalswithkey [$approval->getVoter ()->getId ()] = $approval;
 			}
@@ -174,30 +174,31 @@ class TaskJsonModel extends JsonModel {
 			$approvalswithkey = $task->getApprovals();
 			$acceptanceswithkey = $task->getAcceptances();
 		}
-		$rv = [ 
+		$rv = [
 				'id' => $task->getId (),
 				'subject' => $task->getSubject (),
 				'description' => $task->getDescription (),
+				'decision' => $task->isDecision() ? "true" : "false",
 				'createdAt' => date_format ( $task->getCreatedAt (), 'c' ),
 				'createdBy' => is_null ( $task->getCreatedBy () ) ? "" : $task->getCreatedBy ()->getFirstname () . " " . $task->getCreatedBy ()->getLastname (),
 				'type' => $task->getType (),
 				'status' => $task->getStatus (),
 				'stream' => $this->getStream ( $task ),
 				'organization' => $this->getOrganization ( $task ),
-				'members' => array_map ( [ 
+				'members' => array_map ( [
 						$this,
-						'serializeOneMember' 
+						'serializeOneMember'
 				], $task->getMembers () ),
-				'approvals' => array_map ( [ 
+				'approvals' => array_map ( [
 						$this,
-						'serializeOneMemberApproval' 
-				], $approvalswithkey ), 
-				'acceptances' => array_map ( [ 
+						'serializeOneMemberApproval'
+				], $approvalswithkey ),
+				'acceptances' => array_map ( [
 						$this,
-						'serializeOneMemberAcceptance' 
-				], $acceptanceswithkey ) 
+						'serializeOneMemberAcceptance'
+				], $acceptanceswithkey )
 		];
-		
+
 		if ($task->getStatus () >= Task::STATUS_ONGOING) {
 			$rv ['estimation'] = $task->getAverageEstimation ();
 		}
@@ -213,10 +214,10 @@ class TaskJsonModel extends JsonModel {
 		if ($task instanceof Task) {
 			$rv ['subject'] = $task->getStream ()->getSubject (); // temporary backward compatibility
 		}
-		$rv ['_links'] ['self'] ['href'] = $this->controller->url ()->fromRoute ( 'collaboration', [ 
+		$rv ['_links'] ['self'] ['href'] = $this->controller->url ()->fromRoute ( 'collaboration', [
 				'id' => $task->getStreamId (),
 				'orgId' => $task->getOrganizationId (),
-				'controller' => 'streams' 
+				'controller' => 'streams'
 		] );
 		return $rv;
 	}
@@ -227,13 +228,13 @@ class TaskJsonModel extends JsonModel {
 	protected function serializeOneMember($tm) {
 		if ($tm instanceof TaskMember) {
 			$member = $tm->getMember ();
-			$rv = [ 
+			$rv = [
 					'id' => $member->getId (),
 					'firstname' => $member->getFirstname (),
 					'lastname' => $member->getLastname (),
 					'picture' => $member->getPicture (),
 					'role' => $tm->getRole (),
-					'createdAt' => date_format ( $tm->getCreatedAt (), 'c' ) 
+					'createdAt' => date_format ( $tm->getCreatedAt (), 'c' )
 			];
 			if (! (is_null ( $tm->getEstimation () ) || is_null ( $tm->getEstimation ()->getValue () ))) {
 				$rv ['estimation'] = $tm->getEstimation ()->getValue ();
@@ -246,7 +247,7 @@ class TaskJsonModel extends JsonModel {
 			foreach ( $tm->getShares () as $key => $share ) {
 				$rv ['shares'] [$key] = array (
 						'value' => $share->getValue (),
-						'createdAt' => date_format ( $share->getCreatedAt (), 'c' ) 
+						'createdAt' => date_format ( $share->getCreatedAt (), 'c' )
 				);
 			}
 			if ($tm->getCredits () !== null) {
@@ -260,12 +261,12 @@ class TaskJsonModel extends JsonModel {
 				}
 			}
 		}
-		
+
 		if ($this->controller->identity ()->getId () != $rv ['id'] && isset ( $rv ['estimation'] )) {
 			// others member estimation aren't exposed outside the system
 			$rv ['estimation'] = - 2;
 		}
-		
+
 		$rv ['_links'] = [ ]
 		// 'self' => $this->controller->url()->fromRoute('users', ['id' => $member->getId()]),
 		;
@@ -274,7 +275,7 @@ class TaskJsonModel extends JsonModel {
 	protected function serializeOneMemberApproval($approval) {
 		if ($approval instanceof Approval) {
 			$voter = $approval->getVoter ();
-			$rv = [ 
+			$rv = [
 					'approval' => $approval->getVote ()->getValue (),
 					'approvalGeneratedAt' => $approval->getCreatedAt()
 				  ];
@@ -292,7 +293,7 @@ class TaskJsonModel extends JsonModel {
 
 		if ($acceptance instanceof Approval) {
 			$voter = $acceptance->getVoter ();
-			$rv = [ 
+			$rv = [
 					'acceptance' => $acceptance->getVote()->getValue(),
 					'acceptanceDescription' => $acceptance->getDescription(),
 					'acceptanceGeneratedAt' => $acceptance->getCreatedAt(),

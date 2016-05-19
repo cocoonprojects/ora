@@ -73,4 +73,3 @@ Scenario: Successfully creating a work item idea into a stream and with a subjec
 	When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
 	Then the response status code should be 201
 	And the header "Location" should be "/task-management/tasks/[0-9a-z\-]+"
-

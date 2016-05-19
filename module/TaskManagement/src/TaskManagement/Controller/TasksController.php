@@ -46,7 +46,7 @@ class TasksController extends OrganizationAwareController
 		$this->taskService = $taskService;
 		$this->streamService = $streamService;
 	}
-	
+
 	public function get($id)
 	{
 		if(is_null($this->identity())) {
@@ -70,7 +70,7 @@ class TasksController extends OrganizationAwareController
 		$view->setVariable('resource', $task);
 		return $view;
 	}
-	
+
 	/**
 	 * Return a list of available tasks
 	 * @method GET
@@ -194,6 +194,15 @@ class TasksController extends OrganizationAwareController
 				$error->addSecondaryErrors('description', ['Description cannot be accepted']);
 			}
 		}
+
+		if (isset($data['decision'])){
+			$decision = $data['decision'];
+
+			if (!in_array($decision, ['true', 'false'])){
+				$error->addSecondaryErrors('decision', ['Decision cannot be accepted']);
+			}
+		}
+
 		if($error->hasErrors()){
 			$error->setCode(400);
 			$error->setDescription('Specified values are not valid');
@@ -208,8 +217,20 @@ class TasksController extends OrganizationAwareController
 		}
 
 		$this->transaction()->begin();
+
+		$options = null;
+
+		if (isset($data['decision'])) {
+			$options = ['decision' => $data['decision']];
+		}
+
 		try {
-			$task = Task::create($stream, $subject, $this->identity());
+			$task = Task::create(
+				$stream,
+				$subject,
+				$this->identity(),
+				$options
+			);
 			$task->setDescription($description, $this->identity());
 			$task->addMember($this->identity(), Task::ROLE_OWNER);
 			$this->taskService->addTask($task);
@@ -268,14 +289,14 @@ class TasksController extends OrganizationAwareController
 				$error->addSecondaryErrors('description', ['Description cannot be accepted']);
 			}
 		}
-		
+
 		if($error->hasErrors()){
 			$error->setCode(400);
 			$error->setDescription('Specified values are not valid');
 			$this->response->setStatusCode(400);
 			return $error;
 		}
-		
+
 		$task = $this->taskService->getTask($id);
 		if(is_null($task)) {
 			$this->response->setStatusCode(404);
@@ -354,7 +375,7 @@ class TasksController extends OrganizationAwareController
 			$this->listLimit = $size;
 		}
 	}
-	
+
 	public function getListLimit(){
 		return $this->listLimit;
 	}
