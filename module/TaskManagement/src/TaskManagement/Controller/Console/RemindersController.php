@@ -24,7 +24,7 @@ class RemindersController extends AbstractConsoleController {
 
 	public function setIntervalForVotingRemind($intervalForVotingRemind)
 	{
-		$this->intervalForVotingRemind = intervalForVotingRemind;
+		$this->intervalForVotingRemind = $intervalForVotingRemind;
 	}
 
 	public function setHost($host) {
