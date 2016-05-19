@@ -173,8 +173,9 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	}
 
 	/**
-	 * @see \TaskManagement\Service\TaskService::findAcceptedTasksBefore()
-	 * @param \DateInterval $interval
+	 * @see \TaskManagement\Service\TaskService::findIdeasCreatedBetween()
+	 * @param \DateInterval $after
+	 * @param \DateInterval $before
 	 * @return ReadModelTask[]
 	 */
 	public function findIdeasCreatedBetween(\DateInterval $after, \DateInterval $before){
