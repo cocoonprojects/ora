@@ -69,7 +69,7 @@ class RemindersController extends AbstractConsoleController {
 				$rv[$task->getId()] = $member->getEmail();
 			}
 		}
-		return $rv;	
+		return var_export($rv, true);	
 	}
 	
 }
