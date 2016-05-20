@@ -82,7 +82,7 @@ class Task extends EditableEntity implements TaskInterface
 	protected $is_decision = false;
 
 	/**
-	 * @ORM\Column(type="text", nullable=false)
+	 * @ORM\Column(type="text", nullable=true)
 	 */
 	protected $attachments;
 
