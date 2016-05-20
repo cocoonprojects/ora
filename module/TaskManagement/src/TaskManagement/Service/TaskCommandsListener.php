@@ -35,7 +35,7 @@ class TaskCommandsListener extends ReadModelProjector
 		}
 		return;
 	}
-	
+
 	protected function onTaskUpdated(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$entity = $this->entityManager->find(Task::class, $id);
@@ -49,11 +49,15 @@ class TaskCommandsListener extends ReadModelProjector
 		if(isset($event->payload()['description'])) {
 			$entity->setDescription($event->payload()['description']);
 		}
+		if(isset($event->payload()['attachments'])) {
+			$entity->setAttachments($event->payload()['attachments']);
+		}
+
 		$entity->setMostRecentEditAt($event->occurredOn());
 		$entity->setMostRecentEditBy($updatedBy);
 		$this->entityManager->persist($entity);
 	}
-	
+
 	protected function onTaskStreamChanged(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$entity = $this->entityManager->find(Task::class, $id);
@@ -84,7 +88,7 @@ class TaskCommandsListener extends ReadModelProjector
 			->setMostRecentEditBy($addedBy);
 		$this->entityManager->persist($entity);
 	}
-	
+
 	protected function onTaskMemberRemoved(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$entity = $this->entityManager->find(Task::class, $id);
@@ -95,7 +99,7 @@ class TaskCommandsListener extends ReadModelProjector
 			->setMostRecentEditBy($removedBy);
 		$this->entityManager->persist($entity);
 	}
-	
+
 	protected function onTaskDeleted(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$entity = $this->entityManager->find(Task::class, $id);
@@ -104,7 +108,7 @@ class TaskCommandsListener extends ReadModelProjector
 		}
 		$this->entityManager->remove($entity); // TODO: Solo con l'id no?
 	}
-	
+
 	protected function onTaskOpened(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$task = $this->entityManager->find(Task::class, $id);
@@ -114,7 +118,7 @@ class TaskCommandsListener extends ReadModelProjector
 		$task->setMostRecentEditAt($event->occurredOn());
 		$this->entityManager->persist($task);
 	}
-	
+
 	protected function onTaskArchived(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$task = $this->entityManager->find(Task::class, $id);
@@ -124,7 +128,7 @@ class TaskCommandsListener extends ReadModelProjector
 		$task->setMostRecentEditAt($event->occurredOn());
 		$this->entityManager->persist($task);
 	}
-	
+
 	protected function onEstimationAdded(StreamEvent $event) {
 		$memberId = $event->payload()['by'];
 		$user = $this->entityManager->find(User::class, $memberId);
@@ -133,7 +137,7 @@ class TaskCommandsListener extends ReadModelProjector
 		}
 		$id = $event->metadata()['aggregate_id'];
 		$taskMember = $this->entityManager->find(TaskMember::class, ['task' => $id, 'user' => $user]);
-		
+
 		$value = $event->payload()['value'];
 
 		$taskMember->setEstimation(new Estimation($value, $event->occurredOn()));
@@ -183,7 +187,7 @@ class TaskCommandsListener extends ReadModelProjector
 		$task->removeAcceptances( $user );
 		$this->entityManager->persist( $task );
 	}
-	
+
 	protected function onTaskCompleted(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$task = $this->entityManager->find(Task::class, $id);
@@ -195,7 +199,7 @@ class TaskCommandsListener extends ReadModelProjector
 		$task->resetAcceptedAt();
 		$this->entityManager->persist($task);
 	}
-	
+
 	protected function onTaskAccepted(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$task = $this->entityManager->find(Task::class, $id);
@@ -211,7 +215,7 @@ class TaskCommandsListener extends ReadModelProjector
 		}
 		$this->entityManager->persist($task);
 	}
-	
+
 	protected function onTaskClosed(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$task = $this->entityManager->find(Task::class, $id);
@@ -221,7 +225,7 @@ class TaskCommandsListener extends ReadModelProjector
 		$task->setMostRecentEditAt($event->occurredOn());
 		$this->entityManager->persist($task);
 	}
-	
+
 	protected function onTaskOngoing(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$task = $this->entityManager->find(Task::class, $id);
@@ -231,7 +235,7 @@ class TaskCommandsListener extends ReadModelProjector
 		$task->setMostRecentEditAt($event->occurredOn());
 		$this->entityManager->persist($task);
 	}
-	
+
 	protected function onSharesAssigned(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$task = $this->entityManager->find(Task::class, $id);
@@ -244,7 +248,7 @@ class TaskCommandsListener extends ReadModelProjector
 		}
 		$this->entityManager->persist($task);
 	}
-	
+
 	protected function onSharesSkipped(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$task = $this->entityManager->find(Task::class, $id);

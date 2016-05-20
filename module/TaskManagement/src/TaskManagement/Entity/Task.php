@@ -81,6 +81,11 @@ class Task extends EditableEntity implements TaskInterface
 	 */
 	protected $is_decision = false;
 
+	/**
+	 * @ORM\Column(type="text", nullable=false)
+	 */
+	protected $attachments;
+
 	public function __construct($id, Stream $stream, $is_decision = false) {
 		parent::__construct($id);
 		$this->stream = $stream;
@@ -92,6 +97,15 @@ class Task extends EditableEntity implements TaskInterface
 
 	public function isDecision() {
 		return $this->is_decision;
+	}
+
+	public function getAttachments() {
+
+		if (!$this->attachments) {
+			return [];
+		}
+
+		return json_decode($this->attachments);
 	}
 
 	/**
