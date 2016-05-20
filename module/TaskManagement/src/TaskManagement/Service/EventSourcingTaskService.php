@@ -89,12 +89,11 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->setMaxResults($limit)
 			->setParameter(':organization', $organizationId);
 
-		$decisions = 0;
-		if(isset($filters["decisions"])) {
-			$decisions = $filters["decisions"]=='true' ? 1 : 0;
+		$type = 0;
+		if(isset($filters["type"]) && $filters["type"]=='decision') {
+			$query->andWhere('t.is_decision = :type')
+				->setParameter('type', 1);
 		}
-		$query->andWhere('t.is_decision = :decision')
-			->setParameter('decision', $decisions);
 
 		if(isset($filters["startOn"])){
 			$query->andWhere('t.createdAt >= :startOn')
@@ -138,12 +137,11 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
 			->setParameter(':organization', $organization);
 
-		$decisions = 0;
-		if(isset($filters["decisions"])) {
-			$decisions = $filters["decisions"]=='true' ? 1 : 0;
+		$type = 0;
+		if(isset($filters["type"]) && $filters["type"]=='decision') {
+			$query->andWhere('t.is_decision = :type')
+				->setParameter('type', 1);
 		}
-		$query->andWhere('t.is_decision = :decision')
-			->setParameter('decision', $decisions);
 
 		if(isset($filters["startOn"])){
 			$query->andWhere('t.createdAt >= :startOn')

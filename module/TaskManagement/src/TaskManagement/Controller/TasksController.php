@@ -89,11 +89,11 @@ class TasksController extends OrganizationAwareController
 			return $this->response;
 		}
 
-		$decisions = $this->getRequest()->getQuery("decisions");
-		if (empty($decisions)) {
-			$decisions = 'false';
+		$cardType = $this->getRequest()->getQuery("cardType");
+		if (empty($cardType) || !in_array($cardType, ['all','decision'])) {
+			$cardType = 'all';
 		}
-		$filters["decisions"] = $decisions;
+		$filters["type"] = $cardType;
 
 		$integerValidator = new ValidatorChain();
 		$integerValidator

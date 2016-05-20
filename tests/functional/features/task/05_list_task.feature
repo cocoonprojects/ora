@@ -102,7 +102,7 @@ Feature: List tasks
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
     And the response shouldn't have a "_links.next" property
-    And the "total" property should be "5"
+    And the "total" property should be "6"
 
   @fail
   Scenario: Successfully getting a list of tasks from a specified ISO 8601 date
@@ -110,11 +110,11 @@ Feature: List tasks
     And that I want to find a "Task"
     And that its "startOn" is "2014-07-01T00:00:00.000Z"
     When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
-    # Then echo last response
+    Then echo last response
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
-    And the response shouldn't have a "_links.next" property
     And the "total" property should be "10"
+    And the response shouldn't have a "_links.next" property
 
   Scenario: Successfully getting a list of tasks until a specified period
     Given that I am authenticated as "mark.rogers@ora.local"
@@ -218,27 +218,30 @@ Feature: List tasks
     And the response should have a "_links.ora:close" property
     And the "status" property should be "40"
 
+@wip
   Scenario: Successfully getting decisions list
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
-    And that its "decisions" is "true"
+    And that its "cardType" is "decision"
     When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
     And echo last response
     And the "count" property should be "1"
+    And the response should have a "_embedded.{'ora:task'}[0].subject" property
+    And the "_embedded.{'ora:task'}[0].subject" property should be "Decision task 001"    
 
-  Scenario: Successfully getting list without decisions
+@wip
+  Scenario: Successfully getting list with items and decisions
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
-    And that its "decisions" is "false"
+    And that its "cardType" is "all"
     When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
     And echo last response
-    And the "count" property should be "10"
+    And the "total" property should be "16"
 
-@wip
   Scenario: Ordering task item list by mostRecentEditAt parameter DESC
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
@@ -251,7 +254,6 @@ Feature: List tasks
     And the response should have a "_embedded.{'ora:task'}[0].subject" property
     And the "_embedded.{'ora:task'}[0].subject" property should be "Technology stack definition"
 
-@wip
   Scenario: Ordering task item list by mostRecentEditAt parameter DESC
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
@@ -262,5 +264,5 @@ Feature: List tasks
     #And echo last response
     And the response should be JSON
     And the response should have a "_embedded.{'ora:task'}[0].subject" property
-    And the "_embedded.{'ora:task'}[1].subject" property should be "Shares assignment completed Task"
+    And the "_embedded.{'ora:task'}[0].subject" property should be "Decision task 001"
 

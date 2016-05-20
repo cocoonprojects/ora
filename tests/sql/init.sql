@@ -732,7 +732,7 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
    '2015-02-07T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000401');
 
 INSERT INTO tasks (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, type, is_decision) VALUES
-  ('00000000-0000-0000-0000-000000000401', '00000000-1000-0000-1000-000000000000', 'Decision task 001','Decision task example', 0,'2016-01-06 14:32:44', '2016-01-06 14:32:44', 'task', 1);
+  ('00000000-0000-0000-0000-000000000401', '00000000-1000-0000-1000-000000000000', 'Decision task 001','Decision task example', 0,'2013-01-06 14:32:44', '2013-01-06 14:32:44', 'task', 1);
 
 INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt)
 VALUES
