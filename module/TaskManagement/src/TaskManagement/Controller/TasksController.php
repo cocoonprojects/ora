@@ -90,7 +90,7 @@ class TasksController extends OrganizationAwareController
 		}
 
 		$cardType = $this->getRequest()->getQuery("cardType");
-		if (empty($cardType) || !in_array($cardType, ['all','decision'])) {
+		if (empty($cardType) || !in_array($cardType, ['all','decisions'])) {
 			$cardType = 'all';
 		}
 		$filters["type"] = $cardType;

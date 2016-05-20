@@ -222,7 +222,7 @@ Feature: List tasks
   Scenario: Successfully getting decisions list
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
-    And that its "cardType" is "decision"
+    And that its "cardType" is "decisions"
     When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property

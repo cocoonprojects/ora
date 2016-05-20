@@ -90,7 +90,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->setParameter(':organization', $organizationId);
 
 		$type = 0;
-		if(isset($filters["type"]) && $filters["type"]=='decision') {
+		if(isset($filters["type"]) && $filters["type"]=='decisions') {
 			$query->andWhere('t.is_decision = :type')
 				->setParameter('type', 1);
 		}
