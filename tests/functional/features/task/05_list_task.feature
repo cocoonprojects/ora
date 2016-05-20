@@ -218,7 +218,6 @@ Feature: List tasks
     And the response should have a "_links.ora:close" property
     And the "status" property should be "40"
 
-@wip
   Scenario: Successfully getting decisions list
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
@@ -229,7 +228,6 @@ Feature: List tasks
     And echo last response
     And the "count" property should be "1"
 
-@wip
   Scenario: Successfully getting list without decisions
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
@@ -239,3 +237,30 @@ Feature: List tasks
     And the response should have a "_embedded.ora:task" property
     And echo last response
     And the "count" property should be "10"
+
+@wip
+  Scenario: Ordering task item list by mostRecentEditAt parameter DESC
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    And that its "orderBy" is "mostRecentEditAt"
+    And that its "orderType" is "desc"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
+    Then the response status code should be 200
+    #And echo last response
+    And the response should be JSON
+    And the response should have a "_embedded.{'ora:task'}[0].subject" property
+    And the "_embedded.{'ora:task'}[0].subject" property should be "Technology stack definition"
+
+@wip
+  Scenario: Ordering task item list by mostRecentEditAt parameter DESC
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    And that its "orderBy" is "mostRecentEditAt"
+    And that its "orderType" is "asc"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
+    Then the response status code should be 200
+    #And echo last response
+    And the response should be JSON
+    And the response should have a "_embedded.{'ora:task'}[0].subject" property
+    And the "_embedded.{'ora:task'}[1].subject" property should be "Shares assignment completed Task"
+

@@ -181,6 +181,7 @@ class TaskJsonModel extends JsonModel {
 				'decision' => $task->isDecision() ? "true" : "false",
 				'createdAt' => date_format ( $task->getCreatedAt (), 'c' ),
 				'createdBy' => is_null ( $task->getCreatedBy () ) ? "" : $task->getCreatedBy ()->getFirstname () . " " . $task->getCreatedBy ()->getLastname (),
+				'mostRecentEditAt' => date_format ( $task->getMostRecentEditAt(), 'c' ),
 				'type' => $task->getType (),
 				'status' => $task->getStatus (),
 				'stream' => $this->getStream ( $task ),

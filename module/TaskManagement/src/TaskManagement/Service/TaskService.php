@@ -33,7 +33,7 @@ interface TaskService
 	 * @param array $filters
 	 * @return Task[]
 	 */
-	public function findTasks($organization, $offset, $limit, $filters);
+	public function findTasks($organization, $offset, $limit, $filters, $sorting=null);
 
 	/**
 	 * @param string|Uuid $id

@@ -107,6 +107,17 @@ class TasksController extends OrganizationAwareController
 		$filters["startOn"] = $this->getDateTimeParam("startOn");
 		$filters["endOn"]   = $this->getDateTimeParam("endOn");
 
+		$sorting = [];
+		$orderBy = $this->getRequest()->getQuery("orderBy");
+		if (!empty($orderBy) && in_array($orderBy, ['mostRecentEditAt'])) {
+			$sorting['orderBy'] = $orderBy;
+		}
+
+		$orderType = $this->getRequest()->getQuery("orderType");
+		if (!empty($orderBy) && !empty($orderType) && in_array(strtolower($orderType), ['asc','desc'])) {
+			$sorting['orderType'] = $orderType;
+		}
+
 		$emailValidator = new EmailAddress(['useDomainCheck' => false]);
 		$memberEmail = $this->getRequest()->getQuery("memberEmail");
 		if($memberEmail && $emailValidator->isValid($memberEmail)) {
@@ -145,7 +156,7 @@ class TasksController extends OrganizationAwareController
 			}
 		}
 
-		$availableTasks = $this->taskService->findTasks($this->organization, $offset, $limit, $filters);
+		$availableTasks = $this->taskService->findTasks($this->organization, $offset, $limit, $filters, $sorting);
 
 		$view = new TaskJsonModel($this, $this->organization);
 		$totalTasks = $this->taskService->countOrganizationTasks($this->organization, $filters);

@@ -309,7 +309,7 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
    '2015-02-02T21:22:11.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000020');
 INSERT INTO `tasks` (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type, is_decision)
 VALUES
-  ('00000000-0000-0000-0000-000000000020', '00000000-1000-0000-0000-000000000000', 'Technology stack definition', 'Technology stack definition', 30, '2014-02-07 19:07:59', '2014-11-12 19:07:59', '60000000-0000-0000-0000-000000000000',
+  ('00000000-0000-0000-0000-000000000020', '00000000-1000-0000-0000-000000000000', 'Technology stack definition', 'Technology stack definition', 30, '2014-02-07 19:07:59', '2016-11-12 19:07:59', '60000000-0000-0000-0000-000000000000',
    '60000000-0000-0000-0000-000000000000', 'task', 0);
 INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt)
 VALUES
@@ -351,7 +351,7 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
    '2015-02-02T21:22:11.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000021');
 INSERT INTO `tasks` (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type, is_decision)
 VALUES
-  ('00000000-0000-0000-0000-000000000021', '00000000-1000-0000-0000-000000000000', 'Technology stack definition 2', 'Technology stack definition 2', 30, '2014-02-07 19:07:59', '2014-11-12 19:07:59', '60000000-0000-0000-0000-000000000000',
+  ('00000000-0000-0000-0000-000000000021', '00000000-1000-0000-0000-000000000000', 'Technology stack definition 2', 'Technology stack definition 2', 30, '2014-02-07 19:07:59', '2015-11-12 19:07:59', '60000000-0000-0000-0000-000000000000',
    '60000000-0000-0000-0000-000000000000', 'task', 0);
 INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt, estimation_value, estimation_createdAt)
 VALUES

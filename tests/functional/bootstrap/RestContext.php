@@ -467,12 +467,23 @@ class RestContext extends RawMinkContext
 		//if(is_null($this->jsonProperties)) 
 		{
 			$json = $this->theResponseShouldBeJson();
-			$iterator = new RecursiveIteratorIterator(new RecursiveArrayIterator($json), RecursiveIteratorIterator::SELF_FIRST);
+			$iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($json), \RecursiveIteratorIterator::SELF_FIRST);
 			$this->jsonProperties = array();
 			foreach ($iterator as $key => $value) {
+
 				// Build long key name based on parent keys
 				for ($i = $iterator->getDepth() - 1; $i >= 0; $i--) {
-					$key = $iterator->getSubIterator($i)->key() . '.' . $key;
+
+					$firstKeyChunk = $iterator->getSubIterator($i)->key();
+
+					if (strpos($firstKeyChunk, ':')) {
+					 	$firstKeyChunk = "{'$firstKeyChunk'}";
+					}
+
+					if (preg_match('/(^[\d]+)/', $key))
+						$key = $firstKeyChunk . preg_replace('/(^\d+)/', '[${1}]', $key);
+					else
+						$key = $firstKeyChunk . '.' . $key;
 				}
 				$this->jsonProperties[] = $key;
 			}

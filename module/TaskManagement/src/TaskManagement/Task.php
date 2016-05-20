@@ -63,6 +63,10 @@ class Task extends DomainEntity implements TaskInterface
 	/**
 	 * @var \DateTime
 	 */
+	protected $mostRecentEditAt;
+	/**
+	 * @var \DateTime
+	 */
 	protected $acceptedAt;
 	/**
 	 * @var \DateTime
@@ -605,6 +609,14 @@ class Task extends DomainEntity implements TaskInterface
 	/**
 	 * @return \DateTime
 	 */
+	public function getMostRecentEditAt()
+	{
+		return $this->mostRecentEditAt;
+	}
+
+	/**
+	 * @return \DateTime
+	 */
 	public function getAcceptedAt()
 	{
 		return $this->acceptedAt;
@@ -632,12 +644,13 @@ class Task extends DomainEntity implements TaskInterface
 		$this->status = $p['status'];
 		$this->organizationId = Uuid::fromString($p['organizationId']);
 		$this->streamId = Uuid::fromString($p['streamId']);
-		$this->createdAt = $event->occurredOn();
+		$this->createdAt = $this->mostRecentEditAt = $event->occurredOn();
 		$this->createdBy = BasicUser::createBasicUser($p['by']);
 	}
 
 	protected function whenTaskOngoing(TaskOngoing $event) {
 		$this->status = self::STATUS_ONGOING;
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenTaskCompleted(TaskCompleted $event) {
@@ -646,6 +659,7 @@ class Task extends DomainEntity implements TaskInterface
 			unset($value['shares']);
 			unset($value['share']);
 		});
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenTaskAccepted(TaskAccepted $event) {
@@ -656,26 +670,32 @@ class Task extends DomainEntity implements TaskInterface
 			$sharesAssignmentExpiresAt->add($event->payload()['intervalForCloseTask']);
 			$this->sharesAssignmentExpiresAt = $sharesAssignmentExpiresAt;
 		}
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenTaskReopened(TaskReopened $event) {
 		$this->status = self::STATUS_ONGOING;
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenTaskClosed(TaskClosed $event) {
 		$this->status = self::STATUS_CLOSED;
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenTaskDeleted(TaskDeleted $event) {
 		$this->status = self::STATUS_DELETED;
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenTaskOpened(TaskOpened $event) {
 		$this->status = self::STATUS_OPEN;
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenTaskArchived(TaskArchived $event) {
 		$this->status = self::STATUS_ARCHIVED;
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenTaskUpdated(TaskUpdated $event) {
@@ -686,6 +706,7 @@ class Task extends DomainEntity implements TaskInterface
 		if(array_key_exists('description', $pl)) {
 			$this->description = $pl['description'];
 		}
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenTaskMemberAdded(TaskMemberAdded $event) {
@@ -694,17 +715,20 @@ class Task extends DomainEntity implements TaskInterface
 		$this->members[$id]['id'] = $id;
 		$this->members[$id]['role'] = $p['role'];
 		$this->members[$id]['createdAt'] = $event->occurredOn();
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenTaskMemberRemoved(TaskMemberRemoved $event) {
 		$p = $event->payload();
 		$id = $p['userId'];
 		unset($this->members[$id]);
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenTaskStreamChanged(TaskStreamChanged $event) {
 		$p = $event->payload();
 		$this->streamId = Uuid::fromString($p['streamId']);
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenEstimationAdded(EstimationAdded $event) {
@@ -712,6 +736,7 @@ class Task extends DomainEntity implements TaskInterface
 		$id = $p['by'];
 		$this->members[$id]['estimation'] = $p['value'];
 		$this->members[$id]['estimatedAt'] = $event->occurredOn();
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenApprovalCreated(ApprovalCreated $event) {
@@ -719,6 +744,7 @@ class Task extends DomainEntity implements TaskInterface
 		$id = $p ['by'];
 		$this->organizationMembersApprovals [$id] ['approval'] = $p ['vote'];
 		$this->organizationMembersApprovals [$id] ['approvalGeneratedAt'] = $event->occurredOn ();
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenAcceptanceCreated(AcceptanceCreated $event) {
@@ -727,11 +753,13 @@ class Task extends DomainEntity implements TaskInterface
 		$this->organizationMembersAcceptances [$id] ['acceptance'] = $p['vote'];
 		$this->organizationMembersAcceptances [$id] ['acceptanceDescription'] = $p['description'];
 		$this->organizationMembersAcceptances [$id] ['acceptanceGeneratedAt'] = $event->occurredOn();
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenAcceptancesRemoved(AcceptancesRemoved $event) {
 		unset($this->organizationMembersAcceptances);
 		$this->organizationMembersAcceptances = [];
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenSharesAssigned(SharesAssigned $event) {
@@ -747,6 +775,7 @@ class Task extends DomainEntity implements TaskInterface
 				}
 			}
 		}
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenSharesSkipped(SharesSkipped $event) {
@@ -761,6 +790,7 @@ class Task extends DomainEntity implements TaskInterface
 				$this->members[$key]['share'] = $value;
 			}
 		}
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function getMembersShare() {
@@ -809,18 +839,21 @@ class Task extends DomainEntity implements TaskInterface
 	}
 
 	protected function whenCreditsAssigned(CreditsAssigned $event){
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenOwnerAdded(OwnerAdded $event){
 		$p = $event->payload();
 		$new_owner = $p['new_owner'];
 		$this->members[$new_owner]['role'] = self::ROLE_OWNER;
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenOwnerRemoved(OwnerRemoved $event){
 		$p = $event->payload();
 		$ex_owner = $p['ex_owner'];
 		$this->members[$ex_owner]['role'] = self::ROLE_MEMBER;
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	public function isSharesAssignmentExpired(\DateTime $ref){
