@@ -15,37 +15,42 @@ use TaskManagement\Entity\ItemIdeaApproval;
 class Task extends DomainEntity implements TaskInterface
 {
 	CONST NOT_ESTIMATED = -1;
+
 	/**
 	 * @var string
 	 */
 	protected $subject;
+
 	/**
 	 * @var string
 	 */
 	protected $description;
+
 	/**
 	 * @var int
 	 */
 	protected $status;
+
 	/**
 	 * @var Uuid
 	 */
 	protected $streamId;
+
 	/**
 	 * @var Uuid
 	 */
 	protected $organizationId;
-	/**
-	 */
+
 	protected $members = [];
-	/**
-	 *
-	 */
+
 	protected $organizationMembersApprovals=[];
-	/**
-	 *
-	 */
+
 	protected $organizationMembersAcceptances=[];
+
+	/**
+	 * @var string
+	 */
+	protected $attachments;
 
 	/**
 	 * @var boolean
@@ -56,10 +61,12 @@ class Task extends DomainEntity implements TaskInterface
 	 * @var \DateTime
 	 */
 	protected $createdAt;
+
 	/**
 	 * @var BasicUser
 	 */
 	protected $createdBy;
+
 	/**
 	 * @var \DateTime
 	 */
@@ -68,6 +75,7 @@ class Task extends DomainEntity implements TaskInterface
 	 * @var \DateTime
 	 */
 	protected $acceptedAt;
+
 	/**
 	 * @var \DateTime
 	 */
@@ -104,6 +112,23 @@ class Task extends DomainEntity implements TaskInterface
 			'prevStatus' => $this->getStatus(),
 			'by'  => $deletedBy->getId(),
 		)));
+	}
+
+	/**
+	 * Set the attachments for the given tasks.
+	 *
+	 * Attachments are just a json blob coming from Google Drive. They are updated as a whole
+	 *
+	 * @param BasicUser $updatedBy the user performing the action
+	 * @param string    $jsonData  the json blob
+	 */
+	public function setAttachments(BasicUser $updatedBy, $jsonData)
+	{
+		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
+				'attachments' => $jsonData,
+				'by' => $updatedBy->getId(),
+		)));
+		return $this;
 	}
 
 	/**
@@ -706,6 +731,10 @@ class Task extends DomainEntity implements TaskInterface
 		if(array_key_exists('description', $pl)) {
 			$this->description = $pl['description'];
 		}
+		if(array_key_exists('attachments', $pl)) {
+			$this->attachments = $pl['attachments'];
+		}
+
 		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
