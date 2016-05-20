@@ -1,4 +1,4 @@
-Feature: Decistion Items task
+Feature: Decision Items task
 	As an organization member
 	I want to create a decistion items into one of my organization streams
 	in order to allow the team to start the estimation
