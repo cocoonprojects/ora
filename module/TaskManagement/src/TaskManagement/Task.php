@@ -47,9 +47,6 @@ class Task extends DomainEntity implements TaskInterface
 
 	protected $organizationMembersAcceptances=[];
 
-	/**
-	 * @var string
-	 */
 	protected $attachments;
 
 	/**
@@ -125,6 +122,15 @@ class Task extends DomainEntity implements TaskInterface
 				'by' => $updatedBy->getId(),
 		)));
 		return $this;
+	}
+
+	public function getAttachments()
+	{
+		if (!$this->attachments) {
+			return [];
+		}
+
+		return json_decode($this->attachments);
 	}
 
 	/**
