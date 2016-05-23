@@ -127,10 +127,12 @@ class RestContext extends RawMinkContext
 	/**
 	 * @Given /^that its "([^"]*)" is "([^"]*)"$/
 	 */
-	public function thatTheItsIs($propertyName, $propertyValue, PyStringNode $rawPropertyValue)
+	public function thatTheItsIs($propertyName, $propertyValue, PyStringNode $rawPropertyValue = null)
 	{
 		if ($propertyValue == '_json_') {
 			$this->_restObject->$propertyName = $rawPropertyValue->getRaw();
+
+			return;
 		}
 
 		$this->_restObject->$propertyName = $propertyValue;

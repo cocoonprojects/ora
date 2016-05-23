@@ -27,6 +27,7 @@ class AttachmentsController extends HATEOASRestfulController {
 
 	public function invoke($id, $data) {
 
+
 		if (is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 
@@ -72,10 +73,6 @@ class AttachmentsController extends HATEOASRestfulController {
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(403);
 		} catch ( IllegalStateException $e ) {
-			$this->transaction()->rollback();
-			error_log(print_r($e, true));
-			$this->response->setStatusCode(412);
-		} catch ( \Exception $e ) {
 			$this->transaction()->rollback();
 			error_log(print_r($e, true));
 			$this->response->setStatusCode(412);

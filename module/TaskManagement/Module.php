@@ -3,6 +3,7 @@
 namespace TaskManagement;
 use TaskManagement\Controller\AcceptancesController;
 use TaskManagement\Controller\ApprovalsController;
+use TaskManagement\Controller\AttachmentsController;
 use TaskManagement\Controller\EstimationsController;
 use TaskManagement\Controller\MembersController;
 use TaskManagement\Controller\MemberStatsController;

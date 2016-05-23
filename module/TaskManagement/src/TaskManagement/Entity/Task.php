@@ -108,6 +108,10 @@ class Task extends EditableEntity implements TaskInterface
 		return json_decode($this->attachments);
 	}
 
+	public function setAttachments($attachments) {
+		$this->attachments = $attachments;
+	}
+
 	/**
 	 * @return int
 	 */

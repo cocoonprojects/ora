@@ -37,6 +37,7 @@ class TaskCommandsListener extends ReadModelProjector
 	}
 
 	protected function onTaskUpdated(StreamEvent $event) {
+
 		$id = $event->metadata()['aggregate_id'];
 		$entity = $this->entityManager->find(Task::class, $id);
 		if(is_null($entity)) {
