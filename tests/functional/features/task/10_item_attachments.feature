@@ -8,5 +8,5 @@ Scenario: Successfully creating a decision item
 	And that I want to find a "Task"
 	When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000004"
     Then the response status code should be 200
-    And the response should have a "attachments.0.name" property
+    And the response should have a "attachments[0].name" property
     And the "attachments[0].name" property should be "Post OrientDB"
