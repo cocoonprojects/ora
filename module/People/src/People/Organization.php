@@ -15,6 +15,7 @@ class Organization extends DomainEntity
 {
 	CONST ROLE_MEMBER = 'member';
 	CONST ROLE_ADMIN  = 'admin';
+	CONST ROLE_CONTRIBUTOR  = 'contributor';
 	CONST KANBANIZE_SETTINGS = 'kanbanize';
 	/**
 	 * @var string
@@ -99,7 +100,7 @@ class Organization extends DomainEntity
 		return $this->accountId;
 	}
 	
-	public function addMember(User $user, $role = self::ROLE_MEMBER, User $addedBy = null) {
+	public function addMember(User $user, $role = self::ROLE_CONTRIBUTOR, User $addedBy = null) {
 		if (array_key_exists($user->getId(), $this->members)) {
 			throw new DuplicatedDomainEntityException($this, $user);
 		}
@@ -107,6 +108,17 @@ class Organization extends DomainEntity
 			'userId' => $user->getId(),
 			'role' => $role,
 			'by' => $addedBy == null ? $user->getId() : $addedBy->getId(),
+		)));
+	}
+
+	public function promoteMember(User $member, $role, User $promotedBy = null) {
+		if (!array_key_exists($member->getId(), $this->members)) {
+			throw new DomainEntityUnavailableException($this, $member); 
+		}
+		$this->recordThat(OrganizationMemberPromoted::occur($this->id->toString(), array(
+			'userId' => $member->getId(),
+			'role' => $role,
+			'by' => $promotedBy == null ? $member->getId() : $promotedBy->getId(),
 		)));
 	}
 
@@ -173,6 +185,12 @@ class Organization extends DomainEntity
 	}
 	
 	protected function whenOrganizationMemberAdded(OrganizationMemberAdded $event) {
+		$p = $event->payload();
+		$id = $p['userId'];
+		$this->members[$id]['role'] = $p['role'];
+	}
+	
+	protected function whenOrganizationMemberPromoted(OrganizationMemberPromoted $event) {
 		$p = $event->payload();
 		$id = $p['userId'];
 		$this->members[$id]['role'] = $p['role'];

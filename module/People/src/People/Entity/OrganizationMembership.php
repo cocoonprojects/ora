@@ -13,6 +13,7 @@ class OrganizationMembership
 {	
 	const ROLE_ADMIN = "admin";
 	const ROLE_MEMBER = "member";
+	const ROLE_CONTRIBUTOR = "contributor";
 
 	/**
 	 * @ORM\Column(type="string")
@@ -62,7 +63,7 @@ class OrganizationMembership
 	 */
 	protected $mostRecentEditBy;
 
-	public function __construct(User $user, Organization $organization, $role = self::ROLE_MEMBER)
+	public function __construct(User $user, Organization $organization, $role = self::ROLE_CONTRIBUTOR)
 	{
 		$this->member = $user;
 		$this->organization = $organization;

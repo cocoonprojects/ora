@@ -46,10 +46,19 @@ class OrganizationTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals($account->getId(), $organization->getAccountId());
 	}
 	
-	public function testAddMember() {
+	public function testAddContributor() {
 		$organization = Organization::create(null, $this->user);
 		$u = User::create();
 		$organization->addMember($u);
+		
+		$this->assertArrayHasKey($u->getId(), $organization->getMembers());
+		$this->assertEquals(Organization::ROLE_CONTRIBUTOR, $organization->getMembers()[$u->getId()]['role']);
+	}
+	
+	public function testAddMember() {
+		$organization = Organization::create(null, $this->user);
+		$u = User::create();
+		$organization->addMember($u, Organization::ROLE_MEMBER);
 		
 		$this->assertArrayHasKey($u->getId(), $organization->getMembers());
 		$this->assertEquals(Organization::ROLE_MEMBER, $organization->getMembers()[$u->getId()]['role']);
@@ -64,6 +73,16 @@ class OrganizationTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(Organization::ROLE_ADMIN, $organization->getMembers()[$u->getId()]['role']);
 	}
 	
+	public function testPromoteContributorToMember() {
+		$organization = Organization::create(null, $this->user);
+		$u = User::create();
+		$organization->addMember($u, Organization::ROLE_CONTRIBUTOR);
+		$organization->promoteMember($u, Organization::ROLE_MEMBER);
+
+		$this->assertArrayHasKey($u->getId(), $organization->getMembers());
+		$this->assertEquals(Organization::ROLE_MEMBER, $organization->getMembers()[$u->getId()]['role']);
+	}
+
 	/**
 	 * @expectedException Application\DuplicatedDomainEntityException
 	 */

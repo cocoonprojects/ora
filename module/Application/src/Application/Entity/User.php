@@ -226,7 +226,7 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 	 * @param string $role
 	 * @return $this
 	 */
-	public function addMembership($organization, $role = OrganizationMembership::ROLE_MEMBER) {
+	public function addMembership($organization, $role = OrganizationMembership::ROLE_CONTRIBUTOR) {
 		$org = null;
 		if($organization instanceof Organization) {
 			$org = new ReadModelOrganization($organization->getId());

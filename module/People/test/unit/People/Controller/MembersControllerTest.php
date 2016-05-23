@@ -228,7 +228,7 @@ class MembersControllerTest extends ControllerTest
 
 		$this->assertEquals(201, $response->getStatusCode());
 		$this->arrayHasKey($this->user->getId(), $organization->getMembers());
-		$this->assertEquals(Organization::ROLE_MEMBER, $organization->getMembers()[$this->user->getId()]['role']);
+		$this->assertEquals(Organization::ROLE_CONTRIBUTOR, $organization->getMembers()[$this->user->getId()]['role']);
 	}
 
 	public function testDeleteAsAnonymous()
