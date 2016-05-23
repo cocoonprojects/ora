@@ -82,7 +82,7 @@ class Task extends EditableEntity implements TaskInterface
 	protected $is_decision = false;
 
 	/**
-	 * @ORM\Column(type="text", nullable=true)
+	 * @ORM\Column(type="json_array", nullable=true)
 	 */
 	protected $attachments;
 
@@ -100,12 +100,7 @@ class Task extends EditableEntity implements TaskInterface
 	}
 
 	public function getAttachments() {
-
-		if (!$this->attachments) {
-			return [];
-		}
-
-		return json_decode($this->attachments);
+		return $this->attachments;
 	}
 
 	public function setAttachments($attachments) {
