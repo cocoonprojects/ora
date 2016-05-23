@@ -27,8 +27,8 @@ use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
-{		
-	public function getControllerConfig() 
+{
+	public function getControllerConfig()
 	{
 		return [
 			'factories' => [
@@ -42,7 +42,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 						$size = $locator->get('Config')['default_tasks_limit'];
 						$controller->setListLimit($size);
 					}
-					
+
 					return $controller;
 				},
 				'TaskManagement\Controller\Members' => function ($sm) {
@@ -119,6 +119,12 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$controller = new ApprovalsController($taskService);
 					return $controller;
 				},
+				'TaskManagement\Controller\Attachments' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$controller = new AttachmentsController($taskService);
+					return $controller;
+				},
 				'TaskManagement\Controller\Acceptances' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
@@ -147,7 +153,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 			]
 		];
 	}
-	
+
 	public function getServiceConfig()
 	{
 		return [
@@ -173,7 +179,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$eventStore = $locator->get('prooph.event_store');
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
 					return new EventSourcingTaskService($eventStore, $entityManager);
-				},					
+				},
 				'TaskManagement\TaskCommandsListener' => function ($locator) {
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
 					return new TaskCommandsListener($entityManager);
@@ -219,7 +225,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 			],
 		];
 	}
-	
+
 	public function getConfig()
 	{
 		return include __DIR__ . '/config/module.config.php';
