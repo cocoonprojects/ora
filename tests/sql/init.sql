@@ -119,7 +119,7 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
    '2014-12-29T17:32:07.000000+0100', 'Accounting\\Account', 'cdde992b-5aa9-4447-98ae-c8115906dcb7');
 INSERT INTO organization_members (member_id, organization_id, role, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id)
 VALUES
-  ('70000000-0000-0000-0000-000000000000', '00000000-0000-0000-1000-000000000000', 'member', '2014-10-09 11:33:45',
+  ('70000000-0000-0000-0000-000000000000', '00000000-0000-0000-1000-000000000000', 'contributor', '2014-10-09 11:33:45',
    '2014-10-09 11:33:45', '70000000-0000-0000-0000-000000000000', '70000000-0000-0000-0000-000000000000');
 INSERT INTO accounts (id, organization_id, createdAt, mostRecentEditAt, balance_value, balance_date, createdBy_id, mostRecentEditBy_id, type)
 VALUES

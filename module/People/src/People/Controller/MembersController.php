@@ -16,7 +16,7 @@ use Zend\View\Model\JsonModel;
 class MembersController extends OrganizationAwareController
 {
 	protected static $collectionOptions = ['GET', 'DELETE', 'POST'];
-	protected static $resourceOptions = ['GET'];
+	protected static $resourceOptions = ['GET', 'PUT'];
 
 	const DEFAULT_MEMBERS_LIMIT = 20;
 
@@ -156,6 +156,33 @@ class MembersController extends OrganizationAwareController
 		}
 
 		$membership = $user->getMembership($this->organization);
+		return is_null($membership) ? new JsonModel([new \stdClass()]) : new JsonModel($this->serializeOne($membership));
+	}
+
+	public function update($id, $data)
+	{
+		if(is_null($this->identity())) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+
+		$user = $this->userService->findUser($id);
+		if(is_null($user)){
+			$this->response->setStatusCode(404);
+			return $this->response;
+		}
+
+		if(!$this->isAllowed($this->identity(), $user, 'People.Member.update')) {
+			$this->response->setStatusCode(403);
+			return $this->response;
+		}
+
+		$membership = $user->getMembership($this->organization);
+		if (!is_null($membership)) {
+			$membership->setRole($data['role']);
+		}
+
+
 		return is_null($membership) ? new JsonModel([new \stdClass()]) : new JsonModel($this->serializeOne($membership));
 	}
 

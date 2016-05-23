@@ -53,6 +53,7 @@ class AclFactory implements FactoryInterface
 		
 		$acl->addResource('Ora\User');
 		$acl->allow(User::ROLE_USER, 'Ora\User', 'People.Member.get', new CommonOrganizationAssertion());
+		$acl->allow(User::ROLE_USER, 'Ora\User', 'People.Member.update', new CommonOrganizationAssertion());
 		
 		$acl->addResource('Ora\PersonalAccount');
 		$acl->addResource('Ora\OrganizationAccount');

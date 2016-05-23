@@ -39,3 +39,19 @@ Feature: View User Profile page
     When I request "/00000000-0000-0000-1000-0000000000xx/people/members/80000000-0000-0000-0000-000000000000"
     Then the response status code should be 404
 
+  Scenario: Successfully joining an organization as logged user
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Member"
+    When I request "/00000000-0000-0000-1000-000000000000/people/members/70000000-0000-0000-0000-000000000000"
+    Then the response status code should be 200
+    And the response should be JSON
+    And the "role" property should be "contributor"
+
+  Scenario: Successfully joining an organization as logged user
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to update a "Member"
+    And that its "role" is "member"
+    When I request "/00000000-0000-0000-1000-000000000000/people/members/70000000-0000-0000-0000-000000000000"
+    Then the response status code should be 200
+    And the response should be JSON
+    And the "role" property should be "member"
