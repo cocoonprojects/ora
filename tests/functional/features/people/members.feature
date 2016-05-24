@@ -52,6 +52,6 @@ Feature: View User Profile page
     And that I want to update a "Member"
     And that its "role" is "member"
     When I request "/00000000-0000-0000-1000-000000000000/people/members/70000000-0000-0000-0000-000000000000"
-    Then the response status code should be 200
+    Then the response status code should be 201
     And the response should be JSON
     And the "role" property should be "member"

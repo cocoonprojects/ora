@@ -190,7 +190,6 @@ class MembersController extends OrganizationAwareController
 			}
 		}
 
-
 		return is_null($membership) ? new JsonModel([new \stdClass()]) : new JsonModel($this->serializeOne($membership));
 	}
 
