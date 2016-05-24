@@ -12,6 +12,7 @@ use People\Service\OrganizationService;
 use TaskManagement\AcceptanceCreated;
 use TaskManagement\Entity\Task as ReadModelTask;
 use TaskManagement\Entity\Vote;
+use People\Entity\OrganizationMembership;
 
 class AcceptCompletedItemListener implements ListenerAggregateInterface {
 	protected $listeners = array ();
@@ -57,7 +58,8 @@ class AcceptCompletedItemListener implements ListenerAggregateInterface {
 		$owner = $this->userService->findUser ( $ownerid );
 		$byId = $event->getParam ( 'by' );
 		$organization = $this->organizationService->findOrganization ( $task->getOrganizationId () );
-		$memberhipcount = $this->organizationService->countOrganizationMemberships ( $organization );
+		$memberhipcount = $this->organizationService->countOrganizationMemberships ( $organization, 
+			[ OrganizationMembership::ROLE_ADMIN, OrganizationMembership::ROLE_MEMBER ] );
 		$taskReadModel = $this->taskService->findTask ( $taskId );
 		$acceptances = $taskReadModel->getAcceptances ();
 

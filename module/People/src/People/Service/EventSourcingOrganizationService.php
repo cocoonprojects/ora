@@ -86,24 +86,42 @@ class EventSourcingOrganizationService extends AggregateRepository implements Or
 	 * @param integer $limit
 	 * @return array
 	 */
-	public function findOrganizationMemberships(ReadModelOrg $organization, $limit, $offset)
+	public function findOrganizationMemberships(ReadModelOrg $organization, $limit, $offset, $roles=[])
 	{
-		$rv = $this->entityManager->getRepository(OrganizationMembership::class)->findBy(['organization' => $organization], ['createdAt' => 'ASC'], $limit, $offset);
+		$criteria = ['organization' => $organization];
+		// diff contains elements not available in the second array, so not good
+		$diff = array_diff($roles, [OrganizationMembership::ROLE_ADMIN, OrganizationMembership::ROLE_MEMBER, OrganizationMembership::ROLE_CONTRIBUTOR]);
+
+		if (!empty($roles) && empty($diff)) {
+			$criteria['role'] = $roles;
+		}
+
+		$rv = $this->entityManager->getRepository(OrganizationMembership::class)->findBy($criteria, ['createdAt' => 'ASC'], $limit, $offset);
+
 		return $rv;
+
 	}
 
 	/**
 	 * @param ReadModelOrg $organization
 	 * @return integer
 	 */
-	public function countOrganizationMemberships(ReadModelOrg $organization){
+	public function countOrganizationMemberships(ReadModelOrg $organization, $roles=[]){
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('count(om.member)')
 			->from(OrganizationMembership::class, 'om')
 			->where('om.organization = :organization')
 			->setParameter(':organization', $organization)
-			->getQuery();
-		return intval($query->getSingleScalarResult());
+			;
+
+		// diff contains elements not available in the second array, so not good
+		$diff = array_diff($roles, [OrganizationMembership::ROLE_ADMIN, OrganizationMembership::ROLE_MEMBER, OrganizationMembership::ROLE_CONTRIBUTOR]);
+		if (!empty($roles) && empty($diff)) {
+			$query
+				->andWhere('om.role in (:roles)')
+				->setParameter(':roles', $roles);
+		}
+		return intval($query->getQuery()->getSingleScalarResult());
 	}
 	
 	/**

@@ -12,6 +12,8 @@ use People\Service\OrganizationService;
 use TaskManagement\ApprovalCreated;
 use TaskManagement\Entity\Task as ReadModelTask;
 use TaskManagement\Entity\Vote;
+use People\Entity\OrganizationMembership;
+
 
 class CloseItemIdeaListener implements ListenerAggregateInterface {
 	protected $listeners = array ();
@@ -57,7 +59,8 @@ class CloseItemIdeaListener implements ListenerAggregateInterface {
 		$owner = $this->userService->findUser ( $ownerid );
 		$byId = $event->getParam ( 'by' );
 		$organization = $this->organizationService->findOrganization ( $task->getOrganizationId () );
-		$memberhipcount = $this->organizationService->countOrganizationMemberships ( $organization );
+		$memberhipcount = $this->organizationService->countOrganizationMemberships ( $organization, 
+			[ OrganizationMembership::ROLE_ADMIN, OrganizationMembership::ROLE_MEMBER ] );
 		$taskReadModel = $this->taskService->findTask ( $taskId );
 		$approvals = $taskReadModel->getApprovals ();
 		
