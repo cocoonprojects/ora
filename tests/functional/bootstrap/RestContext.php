@@ -3,6 +3,7 @@
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Testwork\Hook\Scope\AfterSuiteScope;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
+use Behat\Gherkin\Node\PyStringNode;
 use Guzzle\Service\Client;
 
 /**
@@ -126,8 +127,14 @@ class RestContext extends RawMinkContext
 	/**
 	 * @Given /^that its "([^"]*)" is "([^"]*)"$/
 	 */
-	public function thatTheItsIs($propertyName, $propertyValue)
+	public function thatTheItsIs($propertyName, $propertyValue, PyStringNode $rawPropertyValue = null)
 	{
+		if ($propertyValue == '_json_') {
+			$this->_restObject->$propertyName = $rawPropertyValue->getRaw();
+
+			return;
+		}
+
 		$this->_restObject->$propertyName = $propertyValue;
 	}
 
@@ -259,7 +266,7 @@ class RestContext extends RawMinkContext
 	 */
 	public function theResponseShouldBeJson()
 	{
-		//if(empty($this->json)) 
+		//if(empty($this->json))
 		{
 			$this->json = json_decode($this->_response->getBody(true));
 			if (empty($this->json)) {
@@ -382,7 +389,7 @@ class RestContext extends RawMinkContext
 		{
 			throw new \Exception(
 					'HTTP code does not match ' . $httpStatus . ' (actual: ' .
-					$this->_response->getStatusCode() . 
+					$this->_response->getStatusCode() .
 					') reason: ' .
 					$this->_response->getReasonPhrase() .
 					' body: ' .
@@ -464,7 +471,7 @@ class RestContext extends RawMinkContext
 
 	protected function getJsonProperties()
 	{
-		//if(is_null($this->jsonProperties)) 
+		//if(is_null($this->jsonProperties))
 		{
 			$json = $this->theResponseShouldBeJson();
 			$iterator = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($json), \RecursiveIteratorIterator::SELF_FIRST);

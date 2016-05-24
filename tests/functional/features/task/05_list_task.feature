@@ -104,7 +104,6 @@ Feature: List tasks
     And the response shouldn't have a "_links.next" property
     And the "total" property should be "6"
 
-  @fail
   Scenario: Successfully getting a list of tasks from a specified ISO 8601 date
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
@@ -218,7 +217,6 @@ Feature: List tasks
     And the response should have a "_links.ora:close" property
     And the "status" property should be "40"
 
-@wip
   Scenario: Successfully getting decisions list
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
@@ -229,9 +227,8 @@ Feature: List tasks
     And echo last response
     And the "count" property should be "1"
     And the response should have a "_embedded.{'ora:task'}[0].subject" property
-    And the "_embedded.{'ora:task'}[0].subject" property should be "Decision task 001"    
+    And the "_embedded.{'ora:task'}[0].subject" property should be "Decision task 001"
 
-@wip
   Scenario: Successfully getting list with items and decisions
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"

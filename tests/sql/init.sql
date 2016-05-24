@@ -624,18 +624,47 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
   ('334fa91f-62c9-4b34-827b-3e01bd7efe5d', 2, 'TaskManagement\\TaskUpdated',
    'a:3:{s:7:\"subject\";s:29:\"Development environment setup\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000004\";}',
    '2014-08-12T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000004'),
+  ('934fa91f-62c9-4b34-827b-3e01bd7efe5d', 2, 'TaskManagement\\TaskUpdated',
+   'a:3:{s:11:\"attachments\";s:561:\"[{
+\"id\": \"1SlCmMlYt4HhJidJrvGhIVDJ7bwHKhHbGy-eWqT_iqac\",
+\"serviceId\": \"doc\",
+\"mimeType\": \"application/vnd.google-apps.document\",
+ \"name\": \"Post OrientDB\",
+\"description\": \"\",
+\"type\": \"document\",
+\"lastEditedUtc\": 1461705534029,
+\"iconUrl\": \"https://ssl.gstatic.com/docs/doclist/images/icon_11_document_list.png\",
+\"url\": \"https://docs.google.com/document/d/1SlCmMlYt4HhJidJrvGhIVDJ7bwHKhHbGy-eWqT_iqac/edit?usp=drive_web\",
+\"embedUrl\": \"https://docs.google.com/document/d/1SlCmMlYt4HhJidJrvGhIVDJ7bwHKhHbGy-eWqT_iqac/preview\",
+\"driveSuccess\": true,
+\"sizeBytes\": 0
+}]\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000004\";}',
+   '2014-08-12T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000004'),
   ('634fa91f-62c9-4b34-827b-3e01bd7efe5d', 2, 'TaskManagement\\TaskUpdated',
    'a:3:{s:11:\"description\";s:29:\"Development environment setup\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000004\";}',
    '2014-08-12T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000004'),
-  ('c033eb32-2ad4-49d5-b25c-3c0b600b7dez', 4, 'TaskManagement\\TaskMemberAdded',
+  ('c033eb32-2ad4-49d5-b25c-3c0b600b7ded', 4, 'TaskManagement\\TaskMemberAdded',
    'a:4:{s:6:\"userId\";s:36:\"60000000-0000-0000-0000-000000000000\";s:4:\"role\";s:5:\"owner\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000004\";}',
    '2014-08-12T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000004'),
-  ('c133eb32-2ad4-49d5-b25c-3c0b600b7dey', 5, 'TaskManagement\\TaskMemberAdded',
+  ('c133eb32-2ad4-49d5-b25c-3c0b600b7def', 5, 'TaskManagement\\TaskMemberAdded',
    'a:4:{s:6:\"userId\";s:36:\"20000000-0000-0000-0000-000000000000\";s:4:\"role\";s:6:\"member\";s:2:\"by\";s:36:\"20000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"00000000-0000-0000-0000-000000000004\";}',
    '2014-11-12T19:07:59.000000+0100', 'TaskManagement\\Task', '00000000-0000-0000-0000-000000000004');
-INSERT INTO `tasks` (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type, is_decision)
+INSERT INTO `tasks` (id, stream_id, subject, description, status, createdAt, mostRecentEditAt, createdBy_id, mostRecentEditBy_id, type, is_decision, attachments)
 VALUES
-  ('00000000-0000-0000-0000-000000000004', '00000000-1000-0000-0000-000000000000', 'Development environment setup', 'Development environment setup', 20,'2014-08-12 19:07:59', '2014-11-12 19:07:59', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000', 'task', 0);
+  ('00000000-0000-0000-0000-000000000004', '00000000-1000-0000-0000-000000000000', 'Development environment setup', 'Development environment setup', 20,'2014-08-12 19:07:59', '2014-11-12 19:07:59', '60000000-0000-0000-0000-000000000000', '60000000-0000-0000-0000-000000000000', 'task', 0, '[{
+"id": "1SlCmMlYt4HhJidJrvGhIVDJ7bwHKhHbGy-eWqT_iqac",
+"serviceId": "doc",
+"mimeType": "application/vnd.google-apps.document",
+ "name": "Post OrientDB",
+"description": "",
+"type": "document",
+"lastEditedUtc": 1461705534029,
+"iconUrl": "https://ssl.gstatic.com/docs/doclist/images/icon_11_document_list.png",
+"url": "https://docs.google.com/document/d/1SlCmMlYt4HhJidJrvGhIVDJ7bwHKhHbGy-eWqT_iqac/edit?usp=drive_web",
+"embedUrl": "https://docs.google.com/document/d/1SlCmMlYt4HhJidJrvGhIVDJ7bwHKhHbGy-eWqT_iqac/preview",
+"driveSuccess": true,
+"sizeBytes": 0
+}]');
 INSERT INTO task_members (task_id, member_id, role, createdAt, mostRecentEditAt) VALUES
   ('00000000-0000-0000-0000-000000000004', '60000000-0000-0000-0000-000000000000', 'owner', '2014-11-12 19:07:59',
    '2014-08-12 19:07:59'),

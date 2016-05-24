@@ -197,7 +197,8 @@ class TaskJsonModel extends JsonModel {
 				'acceptances' => array_map ( [
 						$this,
 						'serializeOneMemberAcceptance'
-				], $acceptanceswithkey )
+				], $acceptanceswithkey ),
+				'attachments' => $task->getAttachments()
 		];
 
 		if ($task->getStatus () >= Task::STATUS_ONGOING) {
