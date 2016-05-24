@@ -179,7 +179,15 @@ class MembersController extends OrganizationAwareController
 
 		$membership = $user->getMembership($this->organization);
 		if (!is_null($membership)) {
-			$membership->setRole($data['role']);
+			$this->transaction()->begin();
+			try {
+				$membership->setRole($data['role']);
+				$this->transaction()->commit();
+				$this->response->setStatusCode(201);
+			} catch (DuplicatedDomainEntityException $e) {
+				$this->transaction()->rollback();
+				$this->response->setStatusCode(204);
+			}
 		}
 
 
