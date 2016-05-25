@@ -49,7 +49,7 @@ class RestContext extends RawMinkContext
 
 	/** @AfterSuite */
 	public static function teardownApplication(AfterSuiteScope $scope){
-		echo shell_exec('../vendor/bin/doctrine-module orm:schema-tool:drop --force');
+		// echo shell_exec('../vendor/bin/doctrine-module orm:schema-tool:drop --force');
 	}
 
 	/**
@@ -281,7 +281,9 @@ class RestContext extends RawMinkContext
 	 */
 	public function theResponseShouldContain($value)
 	{
-		return strpos($this->_response->getBody(true), $value) !== false;
+		if (strpos($this->_response->getBody(true), $value) === false) {
+			throw new Exception("Response does not contain '$value'\n" . $this->_response->getBody(true));
+		}
 	}
 
 	/**
