@@ -37,7 +37,7 @@ class CreateVoteIdeaCardTest extends \PHPUnit_Framework_TestCase{
 		
 		$userService = $serviceManager->get('Application\UserService');
 		$this->owner = $userService->findUser('60000000-0000-0000-0000-000000000000');
-		$this->member = $userService->findUser('70000000-0000-0000-0000-000000000000');
+		$this->member = $userService->findUser('80000000-0000-0000-0000-000000000000');
 		
 		$streamService = $serviceManager->get('TaskManagement\StreamService');
 		$this->stream = $streamService->getStream('00000000-1000-0000-0000-000000000000');
