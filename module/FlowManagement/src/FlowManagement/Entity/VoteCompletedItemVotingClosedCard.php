@@ -17,9 +17,9 @@ class VoteCompletedItemVotingClosedCard extends FlowCard {
 		$rv["type"] = $type;
 		$rv["createdAt"] = date_format($this->getCreatedAt(), 'c');
 		$rv["id"] = $this->getId();
-		$rv["title"] = "Voting closed for Completed Item";
+		$rv["title"] = "Voting closed for ".$this->getItem()->getSubject()." Item";
 		$rv["content"] = [
-			"description" => "The vote for this work completed item is closed.",
+			"description" => "The vote for this work completed item is closed, and the item ".$this->getItem()->getId()." has been accepted.",
 			"actions" => [
 				"primary" => [
 					"text" => "Read More Here !",

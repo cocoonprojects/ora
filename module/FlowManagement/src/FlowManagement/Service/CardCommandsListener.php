@@ -26,6 +26,7 @@ class CardCommandsListener extends ReadModelProjector {
 			$entity->setMostRecentEditAt($event->occurredOn());
 			$entity->setMostRecentEditBy($createdBy);
 			$this->entityManager->persist($entity);
+			$this->entityManager->flush($entity);
 		}
 	}
 	
@@ -36,6 +37,7 @@ class CardCommandsListener extends ReadModelProjector {
 			$entity->setMostRecentEditAt($event->occurredOn());
 			$entity->hide();
 			$this->entityManager->persist($entity);
+			$this->entityManager->flush($entity);			
 		}
 	}
 
