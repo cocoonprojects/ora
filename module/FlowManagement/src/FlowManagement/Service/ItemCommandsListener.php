@@ -16,6 +16,7 @@ use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\Mvc\Application;
 use TaskManagement\Service\TaskService;
+use People\Entity\OrganizationMembership;
 
 class ItemCommandsListener implements ListenerAggregateInterface {
 	
@@ -51,6 +52,7 @@ class ItemCommandsListener implements ListenerAggregateInterface {
 		$this->userService = $userService;
 		$this->transactionManager = $transactionManager;
 		$this->taskService = $taskService;
+		$this->canVoteRoles = [OrganizationMembership::ROLE_ADMIN, OrganizationMembership::ROLE_MEMBER];
 	}
 	
 	public function attach(EventManagerInterface $events) {
@@ -66,7 +68,7 @@ class ItemCommandsListener implements ListenerAggregateInterface {
 		$streamEvent = $event->getTarget();
 		$itemId = $streamEvent->metadata()['aggregate_id'];
 		$organization = $this->organizationService->findOrganization($event->getParam('organizationId'));
-		$orgMemberships = $this->organizationService->findOrganizationMemberships($organization, null, null);
+		$orgMemberships = $this->organizationService->findOrganizationMemberships($organization, null, null, $this->canVoteRoles);
 		$createdBy = $this->userService->findUser($event->getParam('by'));
 		$params = [$this->flowService, $itemId, $organization, $createdBy];
 		array_walk($orgMemberships, function($member) use($params){
@@ -82,7 +84,7 @@ class ItemCommandsListener implements ListenerAggregateInterface {
 		$streamEvent = $event->getTarget();
 		$itemId = $streamEvent->metadata()['aggregate_id'];
 		$organization = $this->organizationService->findOrganization($event->getParam('organizationId'));
-		$orgMemberships = $this->organizationService->findOrganizationMemberships($organization, null, null);
+		$orgMemberships = $this->organizationService->findOrganizationMemberships($organization, null, null, $this->canVoteRoles);
 		$createdBy = $this->userService->findUser($event->getParam('by'));
 		$params = [$this->flowService, $itemId, $organization, $createdBy];
 		array_walk($orgMemberships, function($member) use($params){
@@ -142,7 +144,7 @@ class ItemCommandsListener implements ListenerAggregateInterface {
 
 		// creazione di nuove card per notificare la chiusura del processo di voto
 		$organization = $this->organizationService->findOrganization($event->getParam('organizationId'));
-		$orgMemberships = $this->organizationService->findOrganizationMemberships($organization, null, null);
+		$orgMemberships = $this->organizationService->findOrganizationMemberships($organization, null, null, $this->canVoteRoles);
 		$createdBy = $this->userService->findUser($event->getParam('by'));
 		$params = [$this->flowService, $itemId, $organization, $createdBy];
 		array_walk($orgMemberships, function($member) use($params){
@@ -180,7 +182,7 @@ class ItemCommandsListener implements ListenerAggregateInterface {
 
 		// creazione di nuove card per notificare la chiusura del processo di voto
 		$organization = $this->organizationService->findOrganization($event->getParam('organizationId'));
-		$orgMemberships = $this->organizationService->findOrganizationMemberships($organization, null, null);
+		$orgMemberships = $this->organizationService->findOrganizationMemberships($organization, null, null, $this->canVoteRoles);
 		$reopenedBy = $this->userService->findUser($event->getParam('by'));
 		$params = [$this->flowService, $itemId, $organization, $reopenedBy];
 		array_walk($orgMemberships, function($member) use($params){
