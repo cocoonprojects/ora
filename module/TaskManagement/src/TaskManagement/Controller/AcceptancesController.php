@@ -96,7 +96,7 @@ class AcceptancesController extends HATEOASRestfulController {
 			$this->response->setStatusCode ( 403 ); // Forbidden because not a member
 		} catch ( IllegalStateException $e ) {
 			$this->transaction ()->rollback ();
-			error_log ( print_r ( $e, true ) );
+//			error_log ( print_r ( $e, true ) );
 			$this->response->setStatusCode ( 412 ); // Preconditions failed
 		}
 		return $this->response;

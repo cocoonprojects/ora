@@ -49,7 +49,7 @@ class RestContext extends RawMinkContext
 
 	/** @AfterSuite */
 	public static function teardownApplication(AfterSuiteScope $scope){
-		// echo shell_exec('../vendor/bin/doctrine-module orm:schema-tool:drop --force');
+		echo shell_exec('../vendor/bin/doctrine-module orm:schema-tool:drop --force');
 	}
 
 	/**

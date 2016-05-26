@@ -49,6 +49,8 @@ class Task extends DomainEntity implements TaskInterface
 
 	protected $attachments;
 
+	protected $lane;
+
 	/**
 	 * @var boolean
 	 */
@@ -135,6 +137,27 @@ class Task extends DomainEntity implements TaskInterface
 		}
 
 		return json_decode($this->attachments);
+	}
+
+	/**
+	 * Set the lane for the given tasks.
+	 *
+	 * Used by Kanban Importer to show Kanbanize Tasks Lane
+	 *
+	 * @param string    $lane  the lane
+	 */
+	public function setLane($lane, BasicUser $updatedBy)
+	{
+		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
+				'lane' => $lane,
+				'by' => $updatedBy->getId(),
+		)));
+		return $this;
+	}
+
+	public function getLane()
+	{
+		return json_decode($this->lane);
 	}
 
 	/**

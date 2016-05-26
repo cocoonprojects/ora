@@ -198,7 +198,8 @@ class TaskJsonModel extends JsonModel {
 						$this,
 						'serializeOneMemberAcceptance'
 				], $acceptanceswithkey ),
-				'attachments' => $task->getAttachments()
+				'attachments' => $task->getAttachments(),
+				'lane' => $task->getLane()
 		];
 
 		if ($task->getStatus () >= Task::STATUS_ONGOING) {
