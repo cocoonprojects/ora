@@ -73,77 +73,80 @@ class ImporterTest extends TestCase {
 			->willReturn($tasks);
 	}
 
-// 	public function testImportTasks(){
+	public function testImportTasks(){
 
-// 		$this->taskServiceStub->expects($this->atLeastOnce())
-// 			->method('findTasks')
-// 			->willReturn([]);
-// 		$importer = new Importer($this->kanbanizeServiceStub,
-// 				$this->taskServiceStub,
-// 				$this->transactionManagerStub,
-// 				$this->userServiceStub,
-// 				$this->organization,
-// 				$this->requestedBy,
-// 				$this->apiMock);
-// 		$stream = Stream::create($this->organization, "foo stream", $this->requestedBy);
-// 		$importer->importTasks("010", $stream);
-// 		$importResult = $importer->getImportResult();
-// 		$this->assertArrayHasKey('createdTasks', $importResult);
-// 		$this->assertArrayHasKey('deletedTasks', $importResult);
-// 		$this->assertArrayHasKey('updatedTasks', $importResult);
-// 		$this->assertArrayHasKey('errors', $importResult);
-// 		$this->assertEquals(1, $importResult['createdTasks']);
-// 		$this->assertEquals(0, $importResult['deletedTasks']);
-// 		$this->assertEquals(1, $importResult['updatedTasks']);
-// 		$this->assertEmpty($importResult['errors']);
-// 	}
+		$this->markTestSkipped('not needed anymore');
 
-// 	public function testUpdateTasks(){
-// 		$stream = KanbanizeStream::create($this->organization, "a new Stream", $this->requestedBy, [
-// 				'boardId' => '010',
-// 				'projectId' => '01'
-// 		]);
-// 		$organization = new ReadModelOrganization($this->organization->getId());
-// 		$readModelStream = new ReadModelKanbanizeStream($stream->getId(), $organization);
-// 		$task = KanbanizeTask::create($stream, "a new task", $this->requestedBy, [
-// 				'taskid'=> 114,
-// 				'columnname' => "Testing",
-// 				'status' => Task::STATUS_COMPLETED,
-// 				'description' => 'description'
-// 		]);
-// 		$task->setSubject("Z", $this->requestedBy);
-// 		$readModelTask = new ReadModelKanbanizeTask($task->getId(), $readModelStream);
-// 		$this->kanbanizeServiceStub->expects($this->atLeastOnce())
-// 			->method('findTask')
-// 			->willReturn($readModelTask);
-// 		$this->taskServiceStub->expects($this->atLeastOnce())
-// 			->method('getTask')
-// 			->willReturn($task);
-// 		$this->taskServiceStub->expects($this->atLeastOnce())
-// 			->method('findTasks')
-// 			->willReturn([$readModelTask]);
+		// $this->taskServiceStub->expects($this->atLeastOnce())
+		// 	->method('findTasks')
+		// 	->willReturn([]);
+		// $importer = new Importer($this->kanbanizeServiceStub,
+		// 		$this->taskServiceStub,
+		// 		$this->transactionManagerStub,
+		// 		$this->userServiceStub,
+		// 		$this->organization,
+		// 		$this->requestedBy,
+		// 		$this->apiMock);
+		// $stream = Stream::create($this->organization, "foo stream", $this->requestedBy);
+		// $importer->importTasks("010", $stream);
+		// $importResult = $importer->getImportResult();
+		// $this->assertArrayHasKey('createdTasks', $importResult);
+		// $this->assertArrayHasKey('deletedTasks', $importResult);
+		// $this->assertArrayHasKey('updatedTasks', $importResult);
+		// $this->assertArrayHasKey('errors', $importResult);
+		// $this->assertEquals(1, $importResult['createdTasks']);
+		// $this->assertEquals(0, $importResult['deletedTasks']);
+		// $this->assertEquals(1, $importResult['updatedTasks']);
+		// $this->assertEmpty($importResult['errors']);
+	}
 
-// 		$importer = new Importer($this->kanbanizeServiceStub,
-// 				$this->taskServiceStub,
-// 				$this->transactionManagerStub,
-// 				$this->userServiceStub,
-// 				$this->organization,
-// 				$this->requestedBy,
-// 				$this->apiMock);
-// 		$stream = Stream::create($this->organization, "foo stream", $this->requestedBy);
-// 		$importer->importTasks("010", $stream);
-// 		$importResult = $importer->getImportResult();
-// 		$this->assertArrayHasKey('createdTasks', $importResult);
-// 		$this->assertArrayHasKey('deletedTasks', $importResult);
-// 		$this->assertArrayHasKey('updatedTasks', $importResult);
-// 		$this->assertArrayHasKey('errors', $importResult);
-// 		$this->assertEquals(0, $importResult['createdTasks']);
-// 		$this->assertEquals(0, $importResult['deletedTasks']);
-// 		$this->assertEquals(1, $importResult['updatedTasks']);
-// 		$this->assertEquals("A", $task->getSubject());
-// 		$this->assertEquals(Task::STATUS_ONGOING, $task->getStatus());
-// 		$this->assertEquals("WIP", $task->getColumnName());
-// 		$this->assertEmpty($importResult['errors']);
-// 	}
->>>>>>> test fix
+	public function testUpdateTasks(){
+		$this->markTestSkipped('not needed anymore');
+
+		// $stream = KanbanizeStream::create($this->organization, "a new Stream", $this->requestedBy, [
+		// 		'boardId' => '010',
+		// 		'projectId' => '01'
+		// ]);
+		// $organization = new ReadModelOrganization($this->organization->getId());
+		// $readModelStream = new ReadModelKanbanizeStream($stream->getId(), $organization);
+		// $task = KanbanizeTask::create($stream, "a new task", $this->requestedBy, [
+		// 		'taskid'=> 114,
+		// 		'columnname' => "Testing",
+		// 		'status' => Task::STATUS_COMPLETED,
+		// 		'description' => 'description'
+		// ]);
+		// $task->setSubject("Z", $this->requestedBy);
+		// $readModelTask = new ReadModelKanbanizeTask($task->getId(), $readModelStream);
+		// $this->kanbanizeServiceStub->expects($this->atLeastOnce())
+		// 	->method('findTask')
+		// 	->willReturn($readModelTask);
+		// $this->taskServiceStub->expects($this->atLeastOnce())
+		// 	->method('getTask')
+		// 	->willReturn($task);
+		// $this->taskServiceStub->expects($this->atLeastOnce())
+		// 	->method('findTasks')
+		// 	->willReturn([$readModelTask]);
+
+		// $importer = new Importer($this->kanbanizeServiceStub,
+		// 		$this->taskServiceStub,
+		// 		$this->transactionManagerStub,
+		// 		$this->userServiceStub,
+		// 		$this->organization,
+		// 		$this->requestedBy,
+		// 		$this->apiMock);
+		// $stream = Stream::create($this->organization, "foo stream", $this->requestedBy);
+		// $importer->importTasks("010", $stream);
+		// $importResult = $importer->getImportResult();
+		// $this->assertArrayHasKey('createdTasks', $importResult);
+		// $this->assertArrayHasKey('deletedTasks', $importResult);
+		// $this->assertArrayHasKey('updatedTasks', $importResult);
+		// $this->assertArrayHasKey('errors', $importResult);
+		// $this->assertEquals(0, $importResult['createdTasks']);
+		// $this->assertEquals(0, $importResult['deletedTasks']);
+		// $this->assertEquals(1, $importResult['updatedTasks']);
+		// $this->assertEquals("A", $task->getSubject());
+		// $this->assertEquals(Task::STATUS_ONGOING, $task->getStatus());
+		// $this->assertEquals("WIP", $task->getColumnName());
+		// $this->assertEmpty($importResult['errors']);
+	}
 }
