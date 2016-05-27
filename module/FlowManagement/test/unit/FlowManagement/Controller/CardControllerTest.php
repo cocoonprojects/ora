@@ -93,8 +93,8 @@ class CardControllerTest extends ControllerTest {
 		$flowcardResult = $arrayResult['_embedded']['ora:flowcard'][$card->getId()];
 		$this->assertEquals(FlowCardInterface::VOTE_IDEA_CARD, $flowcardResult['type']);
 		$this->assertEquals($card->getId(), $flowcardResult['id']);
-		$this->assertEquals("Lazy Majority Voting New Item Idea", $flowcardResult['title']);
-		$this->assertEquals("Do you want this work item idea to be opened ?", $flowcardResult['content']['description']);
+		$this->assertEquals("New item idea '".$item->getDescription()."'", $flowcardResult['title']);
+		$this->assertEquals($item->getDescription()." Do you want this work item idea to be opened?", $flowcardResult['content']['description']);
 		$this->assertEquals("Read More Here !", $flowcardResult['content']['actions']['primary']['text']);
 		$this->assertEquals($this->organization->getId(), $flowcardResult['content']['actions']['primary']['orgId']);
 		$this->assertEquals($item->getId(), $flowcardResult['content']['actions']['primary']['itemId']);

@@ -14,17 +14,18 @@ class VoteIdeaCard extends FlowCard {
 		$rv = [];
 		$type = FlowCardInterface::VOTE_IDEA_CARD;
 		$content = $this->getContent();
+		$item = $this->getItem();
 		$rv["type"] = $type;
 		$rv["createdAt"] = date_format($this->getCreatedAt(), 'c');
 		$rv["id"] = $this->getId();
-		$rv["title"] = "New item idea '".$this->getItem()->getSubject()."'";
+		$rv["title"] = "New item idea '".$item->getSubject()."'";
 		$rv["content"] = [
-			"description" => $this->getItem()->getDescription()." Do you want this work item idea to be opened?",
+			"description" => $item->getDescription()." Do you want this work item idea to be opened?",
 			"actions" => [
 				"primary" => [
 					"text" => "Read More Here !",
 					"orgId" => $content[$type]["orgId"],
-					"itemId" => $this->getItem()->getId()
+					"itemId" => $item->getId()
 				],
 				"secondary" => []
 			],

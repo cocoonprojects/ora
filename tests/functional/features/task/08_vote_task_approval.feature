@@ -48,7 +48,7 @@ Scenario: Another one member cast a positive vote to accept the task
 	#And echo last response
 	And the response should be JSON
 	#And the "count" property should be "1"
-	And the response should contain 'and the item 00000000-0000-0000-0000-000000000020 has been accepted.'
+	And the response should contain 'The item 00000000-0000-0000-0000-000000000020 has been accepted.'
 
 # Influenced by "Another one member cast a positive vote to accept the task" scenario
 Scenario: The majority of the members cast a negative vote
@@ -72,7 +72,7 @@ Scenario: The majority of the members cast a negative vote
 	#And echo last response
 	And the response should be JSON
 	#And the "count" property should be "2" 
-	And the response should contain 'and the item 00000000-0000-0000-0000-000000000021 has been reopened.'
+	And the response should contain 'The item 00000000-0000-0000-0000-000000000021 has not been accepted as completed.'
 
 
 Scenario: When the voting of all the members is even the acceptance will be rejected

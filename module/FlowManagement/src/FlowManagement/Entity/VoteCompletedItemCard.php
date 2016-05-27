@@ -17,7 +17,7 @@ class VoteCompletedItemCard extends FlowCard {
 		$rv["type"] = $type;
 		$rv["createdAt"] = date_format($this->getCreatedAt(), 'c');
 		$rv["id"] = $this->getId();
-		$rv["title"] = "Completed item '".$this->getItem()->getSubject()."' needs to be accepted";
+		$rv["title"] = "Completed item ".$this->getItem()->getSubject()." needs to be accepted";
 		$rv["content"] = [
 			"description" => $this->getItem()->getDescription()." Do you want this completed work item to be accepted?",
 			"actions" => [
