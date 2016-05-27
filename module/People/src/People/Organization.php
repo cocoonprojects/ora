@@ -17,6 +17,8 @@ class Organization extends DomainEntity
 	CONST ROLE_ADMIN  = 'admin';
 	CONST ROLE_CONTRIBUTOR  = 'contributor';
 	CONST KANBANIZE_SETTINGS = 'kanbanize';
+	CONST MIN_KANBANIZE_COLUMN_NUMBER = 6; // based on the count of TaskInterface STATUSes
+
 	/**
 	 * @var string
 	 */

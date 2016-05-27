@@ -26,6 +26,12 @@ class KanbanizeTask extends Task
 	 *  @ORM\Column(type="string", nullable=true)
 	 * @var string
 	 */
+	private $laneName;
+
+	/**
+	 *  @ORM\Column(type="string", nullable=true)
+	 * @var string
+	 */
 	private $assignee;
 	/**
 	 * @param string $taskId
@@ -55,6 +61,21 @@ class KanbanizeTask extends Task
 	 */
 	public function getColumnName() {
 		return $this->columnName;
+	}
+
+	/**
+	 * @param string $laneName
+	 */
+	public function setLaneName($laneName){
+		$this->laneName = $laneName;
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getLaneName() {
+		return $this->laneName;
 	}
 
 	/**

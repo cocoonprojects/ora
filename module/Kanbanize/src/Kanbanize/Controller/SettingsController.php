@@ -20,6 +20,7 @@ use Zend\Validator\StringLength;
 use Zend\Json\Json;
 
 class SettingsController extends OrganizationAwareController{
+
 	
 	protected static $resourceOptions = [];
 	protected static $collectionOptions= ['PUT', 'GET'];
@@ -172,6 +173,11 @@ class SettingsController extends OrganizationAwareController{
 					if(is_string($boardStructure)){
 						return ["errors" => [$boardStructure]];
 					}
+
+					if ($boardStructure['columns']<Organization::MIN_KANBANIZE_COLUMN_NUMBER) {
+						return ["errors" => ["Cannot import board structure due to the wrong columns number: must be at least ".Organization::MIN_KANBANIZE_COLUMN_NUMBER]];						
+					}
+
 					$board['columns'] = $boardStructure['columns'];
 				}
 			}

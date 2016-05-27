@@ -32,7 +32,7 @@ class ImporterTest extends TestCase {
 	protected function setup(){
 		parent::setUp();
 		$tasks = [
-				'114' => ['taskid' => 114, 'columnname'=> "WIP", 'title' => "A", 'assignee' => 'None', 'description' => 'kanbanize mocked task'],
+				'114' => ['taskid' => 114, 'columnname'=> "WIP", 'lanename'=>'Current release', 'title' => "A", 'assignee' => 'None', 'description' => 'kanbanize mocked task'],
 		];
 		$boards = [
 				'010' => ['id' => '010', 'name' => 'Board 001'],
@@ -108,6 +108,7 @@ class ImporterTest extends TestCase {
 		$task = KanbanizeTask::create($stream, "a new task", $this->requestedBy, [
 				'taskid'=> 114,
 				'columnname' => "Testing",
+				'lanename' => "Testing Lane",
 				'status' => Task::STATUS_COMPLETED
 		]);
 		$task->setSubject("Z", $this->requestedBy);
@@ -142,6 +143,7 @@ class ImporterTest extends TestCase {
 		$this->assertEquals("A", $task->getSubject());
 		$this->assertEquals(Task::STATUS_ONGOING, $task->getStatus());
 		$this->assertEquals("WIP", $task->getColumnName());
+		$this->assertEquals("Testing Lane", $task->getLaneName());
 		$this->assertEmpty($importResult['errors']);
 	}
 }

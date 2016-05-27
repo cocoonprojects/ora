@@ -86,6 +86,12 @@ class Task extends EditableEntity implements TaskInterface
 	 */
 	protected $attachments;
 
+	/**
+	 * @ORM\Column(type="string", nullable=true)
+	 * @var string
+	 */
+	protected $lane = '';	
+
 	public function __construct($id, Stream $stream, $is_decision = false) {
 		parent::__construct($id);
 		$this->stream = $stream;
@@ -108,14 +114,14 @@ class Task extends EditableEntity implements TaskInterface
 	}
 
 	/**
-	 * @return int
+	 * @return string
 	 */
-	public function getStatus() {
-		return $this->status;
+	public function getLane() {
+		return $this->lane;
 	}
 
-	public function setStatus($status) {
-		$this->status = $status;
+	public function setLane($lane) {
+		$this->lane = $lane;
 		return $this;
 	}
 
@@ -277,6 +283,18 @@ class Task extends EditableEntity implements TaskInterface
 	 */
 	public function getAcceptances(){
 		return $this->acceptances->toArray();
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getStatus() {
+		return $this->status;
+	}
+
+	public function setStatus($status) {
+		$this->status = $status;
+		return $this;
 	}
 
 	/**

@@ -54,6 +54,7 @@ class TaskCommandsListener extends ReadModelProjector{
 					$entity->setTaskId($streamEvent->payload()['taskid'])
 						->setSubject($streamEvent->payload()['subject'])
 						->setColumnName($streamEvent->payload()['columnname'])
+						->setColumnName($streamEvent->payload()['lanename'])
 						->setStatus($streamEvent->payload()['status'])
 						->setCreatedAt($streamEvent->occurredOn())
 						->setCreatedBy($createdBy)
@@ -85,6 +86,9 @@ class TaskCommandsListener extends ReadModelProjector{
 		}
 		if(isset($streamEvent->payload()['columnname'])) {
 			$task->setColumnName($streamEvent->payload()['columnname']);
+		}
+		if(isset($streamEvent->payload()['lanename'])) {
+			$task->setLaneName($streamEvent->payload()['lanename']);
 		}
 		if(isset($streamEvent->payload()['assignee'])) {
 			$task->setAssignee($streamEvent->payload()['assignee']);

@@ -98,7 +98,7 @@ class Importer{
 			$tasksFound = [];
 			foreach($kanbanizeTasks as $kanbanizeTask){
 				try{
-					$task = $this->importTask ( $boardId, $stream, $kanbanizeTask );
+					$task = $this->importTask( $boardId, $stream, $kanbanizeTask );
 					$tasksFound[] = $task->getId();
 				}catch (\Exception $e){
 					$this->errors[] = "Cannot import task {taskId: {$kanbanizeTask['taskid']}, boardId: {$boardId} due to {$e->getMessage()}";
@@ -118,6 +118,7 @@ class Importer{
 	 * @return Task
 	 */
 	public function importTask($boardId, Stream $stream, $kanbanizeTask) {
+
 		$settings = $this->organization->getSettings(Organization::KANBANIZE_SETTINGS);
 		if(!isset($settings['boards'][$boardId]['columnMapping'][$kanbanizeTask['columnname']])){
 			throw new \Exception("Missing mapping for column {$kanbanizeTask['columnname']}");
@@ -157,6 +158,10 @@ class Importer{
 			if($task->getDescription() != $kanbanizeTask['description']){
 				$task->setDescription($kanbanizeTask['description'], $this->requestedBy);
 			}
+			if($task->getLane() != $kanbanizeTask['lanename']){
+				$task->setLane($kanbanizeTask['lanename'], $this->requestedBy);
+			}
+
 			$this->transactionManager->commit();
 			$this->updatedTasks++;
 		}catch (\Exception $e) {
@@ -176,13 +181,15 @@ class Importer{
 	private function createTask($kanbanizeTask, Stream $stream){
 		$options = [
 			"taskid" => $kanbanizeTask['taskid'],
-			"columnname" => $kanbanizeTask['columnname']
+			"columnname" => $kanbanizeTask['columnname'],
+			"lanename" => $kanbanizeTask['lanename']
 		];
 		$this->transactionManager->begin();
 		try {
 			$task = Task::create($stream, $kanbanizeTask['title'], $this->requestedBy, $options);
 			$this->taskService->addTask($task);
 			$task->setAssignee($kanbanizeTask['assignee'], $this->requestedBy);
+			$task->setLane($kanbanizeTask['lanename'], $this->requestedBy);
 			$this->transactionManager->commit();
 			$this->createdTasks++;
 		}
