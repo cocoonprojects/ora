@@ -20,10 +20,10 @@ class VoteIdeaCard extends FlowCard {
 		$rv["id"] = $this->getId();
 		$rv["title"] = "New item idea '".$item->getSubject()."'";
 		$rv["content"] = [
-			"description" => $item->getDescription()." Do you want this work item idea to be opened?",
+			"description" => $item->getDescription(),
 			"actions" => [
 				"primary" => [
-					"text" => "Read More Here !",
+					"text" => "Do you want this work item idea to be opened?",
 					"orgId" => $content[$type]["orgId"],
 					"itemId" => $item->getId()
 				],

@@ -94,8 +94,8 @@ class CardControllerTest extends ControllerTest {
 		$this->assertEquals(FlowCardInterface::VOTE_IDEA_CARD, $flowcardResult['type']);
 		$this->assertEquals($card->getId(), $flowcardResult['id']);
 		$this->assertEquals("New item idea '".$item->getDescription()."'", $flowcardResult['title']);
-		$this->assertEquals($item->getDescription()." Do you want this work item idea to be opened?", $flowcardResult['content']['description']);
-		$this->assertEquals("Read More Here !", $flowcardResult['content']['actions']['primary']['text']);
+		$this->assertEquals($item->getDescription(), $flowcardResult['content']['description']);
+		$this->assertEquals("Do you want this work item idea to be opened?", $flowcardResult['content']['actions']['primary']['text']);
 		$this->assertEquals($this->organization->getId(), $flowcardResult['content']['actions']['primary']['orgId']);
 		$this->assertEquals($item->getId(), $flowcardResult['content']['actions']['primary']['itemId']);
 		$this->assertEmpty($flowcardResult['content']['actions']['secondary']);
