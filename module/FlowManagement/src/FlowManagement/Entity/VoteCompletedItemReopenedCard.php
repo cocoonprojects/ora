@@ -17,9 +17,9 @@ class VoteCompletedItemReopenedCard extends FlowCard {
 		$rv["type"] = $type;
 		$rv["createdAt"] = date_format($this->getCreatedAt(), 'c');
 		$rv["id"] = $this->getId();
-		$rv["title"] = "Voting closed for ".$this->getItem()->getSubject()." Item";
+		$rv["title"] = "Completed item '".$this->getItem()->getSubject()."' has been rejected";
 		$rv["content"] = [
-			"description" => "The vote for this work completed item is closed, and the item ".$this->getItem()->getId()." has been reopened.",
+			"description" => $this->getItem()->getDescription()." The item ".$this->getItem()->getId()." has not been accepted as completed.",
 			"actions" => [
 				"primary" => [
 					"text" => "Read More Here !",

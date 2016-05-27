@@ -17,9 +17,9 @@ class VoteIdeaCard extends FlowCard {
 		$rv["type"] = $type;
 		$rv["createdAt"] = date_format($this->getCreatedAt(), 'c');
 		$rv["id"] = $this->getId();
-		$rv["title"] = "Lazy Majority Voting New Item Idea";
+		$rv["title"] = "New item idea '".$this->getItem()->getSubject()."'";
 		$rv["content"] = [
-			"description" => "Do you want this work item idea to be opened ?",
+			"description" => $this->getItem()->getDescription()." Do you want this work item idea to be opened?",
 			"actions" => [
 				"primary" => [
 					"text" => "Read More Here !",
