@@ -14,6 +14,7 @@ use TaskManagement\Controller\StreamsController;
 use TaskManagement\Controller\TasksController;
 use TaskManagement\Controller\TransitionsController;
 use TaskManagement\Controller\VotingResultsController;
+use TaskManagement\Controller\HistoryController;
 use TaskManagement\Service\AssignCreditsListener;
 use TaskManagement\Service\CloseTaskListener;
 use TaskManagement\Service\EventSourcingStreamService;
@@ -148,9 +149,14 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 						$itemIdeaVotingTimeboxInterval = $locator->get('Config')['item_idea_voting_timebox'];
 						$controller->setIntervalForVotingTimebox($itemIdeaVotingTimeboxInterval);
 					}
-
 					return $controller;
 				},
+				'TaskManagement\Controller\History' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$controller = new HistoryController($taskService);
+					return $controller;
+				}
 			]
 		];
 	}

@@ -118,7 +118,8 @@ class KanbanizeTask extends Task {
 
 		$this->taskid = $event->payload()['taskid'];
 		$this->columnname = $event->payload()['columnname'];
-		$this->lanename = $event->payload()['lanename'];
+		if (isset($event->payload()['lanename']))
+			$this->lanename = $event->payload()['lanename'];
 		$this->subject = $event->payload()['subject'];
 	}
 
