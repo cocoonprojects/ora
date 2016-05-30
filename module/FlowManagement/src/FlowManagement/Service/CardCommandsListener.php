@@ -10,6 +10,7 @@ use FlowManagement\Entity\VoteIdeaCard;
 use FlowManagement\Entity\VoteCompletedItemCard;
 use FlowManagement\Entity\VoteCompletedItemVotingClosedCard;
 use FlowManagement\Entity\VoteCompletedItemReopenedCard;
+use FlowManagement\Entity\ItemOwnerChangedCard;
 use FlowManagement\FlowCardInterface;
 use TaskManagement\Entity\Task;
 use FlowManagement\Entity\FlowCard;
