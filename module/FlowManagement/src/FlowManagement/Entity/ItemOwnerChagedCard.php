@@ -8,11 +8,11 @@ use FlowManagement\FlowCardInterface;
  * @ORM\Entity
  *
  */
-class VoteIdeaCard extends FlowCard {
+class ItemOwnerChangedCard extends FlowCard {
 	
 	public function serialize(){
 		$rv = [];
-		$type = FlowCardInterface::VOTE_IDEA_CARD;
+		$type = FlowCardInterface::ITEM_OWNER_CHANGED_CARD;
 		$content = $this->getContent();
 		$item = $this->getItem();
 		$rv["type"] = $type;
