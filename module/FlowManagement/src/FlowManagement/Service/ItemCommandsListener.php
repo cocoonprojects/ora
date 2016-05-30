@@ -11,6 +11,7 @@ use TaskManagement\TaskCompleted;
 use TaskManagement\TaskOpened;
 use TaskManagement\TaskAccepted;
 use TaskManagement\TaskReopened;
+use TaskManagement\OwnerChanged;
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
@@ -62,6 +63,7 @@ class ItemCommandsListener implements ListenerAggregateInterface {
 		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskCompleted::class, array($this, 'processItemCompleted'));
 		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskAccepted::class, array($this, 'processItemCompletedVotingClosed'));
 		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskReopened::class, array($this, 'processItemCompletedReopened'));
+		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, OwnerChanged::class, array($this, 'processItemOwnerChanged'));
 	}
 	
 	public function processItemCreated(Event $event){
@@ -192,6 +194,18 @@ class ItemCommandsListener implements ListenerAggregateInterface {
 			$completedBy = $params[3];
 			$flowService->createVoteCompletedItemReopenedCard($member->getMember(), $itemId, $organization->getId(), $completedBy);
 		});		
+	}
+
+	public function processItemOwnerChanged(Event $event) {
+		$organization = $this->organizationService->findOrganization($event->getParam('organizationId'));
+
+		$streamEvent = $event->getTarget();
+		$itemId = $streamEvent->metadata()['aggregate_id'];
+
+		$exOwner = $this->userService->findUser($event->getParam('ex_owner'));
+		$changedBy = $this->userService->findUser($event->getParam('by'));
+
+		$flowService->createItemOwnerChangedCard($exOwner, $itemId, $organization->getId(), $changedBy);
 	}
 	
 	public function detach(EventManagerInterface $events){

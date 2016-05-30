@@ -515,6 +515,11 @@ class Task extends DomainEntity implements TaskInterface
 			'new_owner' => $new_owner->getId(),
 			'by' => $by->getId()
 		)));
+		$this->recordThat(OwnerChanged::occur($this->id->toString(), array(
+			'ex_owner' => $ex_owner,
+			'new_owner' => $new_owner->getId(),
+			'by' => $by->getId()
+		)));
 	}
 
 	public function removeOwner(BasicUser $by){

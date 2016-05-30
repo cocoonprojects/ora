@@ -68,6 +68,7 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, TaskAccepted::class, array($this, 'processTaskAccepted'));
 		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, TaskOpened::class, array($this, 'processTaskOpened'));
 		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, TaskArchived::class, array($this, 'processTaskArchived'));
+		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, OwnerChanged::class, array($this, 'processOwnerChanged'));
 	}
 	
 	public function detach(EventManagerInterface $events) {
@@ -148,7 +149,8 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 	
 	}
 	
-	
+	public function processOwnerChanged(Event $event) {
+	}
 	
 	
 	/**
