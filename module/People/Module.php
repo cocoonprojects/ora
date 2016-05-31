@@ -4,6 +4,7 @@ namespace People;
 use People\Controller\MembersController;
 use People\Controller\OrganizationsController;
 use People\Controller\InvitesController;
+use People\Controller\AcceptInviteController;
 use People\Service\EventSourcingOrganizationService;
 use People\Service\OrganizationCommandsListener;
 use People\Service\SendMailListener;
@@ -25,6 +26,14 @@ class Module
 					if(isset($config['mail_domain'])) {
 						$controller->setHost($config['mail_domain']);
 					}
+
+					return $controller;
+				},
+				'People\Controller\AcceptInvite' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$orgService = $locator->get('People\OrganizationService');
+
+					$controller = new AcceptInviteController($orgService);
 
 					return $controller;
 				},

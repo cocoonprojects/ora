@@ -36,7 +36,7 @@ class InvitesController extends HATEOASRestfulController
 		$email = $data['email'];
 		$name = $data['name'];
 
-		if ($data['surname']) {
+		if (isset($data['surname'])) {
 		    $name .= ' ' . $data['surname'];
 		}
 
@@ -99,26 +99,6 @@ class InvitesController extends HATEOASRestfulController
 		return new JsonModel(['result' => $result->isValid()]);
 	}
 
-	public function get($id)
-	{
-		$organization = $this->organizationService
-							 ->getOrganization($id);
-
-		if(is_null($organization)) {
-			$this->response
-			     ->setStatusCode(404);
-
-			return $this->response;
-		}
-
-		$token = $this->getRequest()
-					  ->getQuery("token");
-
-		$data = json_decode(base64_decode($token));
-
-		return new JsonModel(['result' => $data]);
-	}
-
 	protected function getCollectionOptions()
 	{
 		return self::$collectionOptions;
@@ -128,29 +108,5 @@ class InvitesController extends HATEOASRestfulController
 	{
 		return self::$resourceOptions;
 	}
-
-	// protected function serializeOne(OrganizationMembership $membership) {
-	// 	return [
-	// 		'id'        => $membership->getMember()->getId(),
-	// 		'firstname' => $membership->getMember()->getFirstname(),
-	// 		'lastname'  => $membership->getMember()->getLastname(),
-	// 		'email'     => $membership->getMember()->getEmail(),
-	// 		'picture'   => $membership->getMember()->getPicture(),
-	// 		'role'      => $membership->getRole(),
-	// 		'createdAt' => date_format($membership->getCreatedAt(), 'c'),
-	// 		'createdBy' => is_null ( $membership->getCreatedBy() ) ? "" : $membership->getCreatedBy ()->getFirstname () . " " . $membership->getCreatedBy ()->getLastname (),
-	// 		'_links' => [
-	// 			'self' => [
-	// 				'href' => $this->url()->fromRoute('members', ['orgId' => $membership->getOrganization()->getId(), 'id' => $membership->getMember()->getId()])
-	// 			],
-	// 			'ora:account' => [
-	// 				'href' => $this->url()->fromRoute('statements', ['orgId' => $membership->getOrganization()->getId(), 'id' => $membership->getMember()->getId(), 'controller' => 'members'])
-	// 			],
-	// 			'ora:member-stats' => [
-	// 				'href' => $this->url()->fromRoute('collaboration', ['orgId' => $membership->getOrganization()->getId(), 'id' => $membership->getMember()->getId(), 'controller' => 'member-stats'])
-	// 			]
-	// 		]
-	// 	];
-	// }
 
 }

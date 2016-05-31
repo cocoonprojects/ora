@@ -4,6 +4,16 @@ namespace People;
 return array(
 	'router' => array(
 		'routes' => array(
+			'invites' => [
+				'type' => 'Segment',
+				'options' => [
+					'route' => '/organizations/acceptinvite',
+					'defaults' => [
+						'__NAMESPACE__' => 'People\Controller',
+						'controller' => 'Organizations',
+					],
+				],
+			],
 			'organizations' => [
 				'type' => 'Segment',
 				'options' => [

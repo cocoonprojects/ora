@@ -2,11 +2,8 @@
 
 $hash = base64_encode(json_encode($this->invite));
 
-$link = $this->url('organizations',
-                   ['id' => $this->invite->orgId,
-                    'controller' => 'invites'],
-                   ['query' => ['token' => $hash],
-                    'force_canonical' => true]);
+$link = $this->url('invites', [], ['query' => ['token' => $hash],
+                                   'force_canonical' => true]);
 ?>
 
 <p>Hi <?= $this->invite->guestName ?>,<br>
