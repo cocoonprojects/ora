@@ -19,7 +19,7 @@ class RemindersController extends AbstractConsoleController {
 	{
 		$this->taskService = $taskService;
 		$this->mailService = $mailService;
-		$this->intervalForVotingRemind = new \DateInterval('P6D');
+		$this->intervalForVotingRemind = new \DateInterval('P5D');
 		$this->intervalForVotingTimebox = new \DateInterval('P7D');
 	}
 
