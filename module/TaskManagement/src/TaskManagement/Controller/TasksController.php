@@ -142,7 +142,8 @@ class TasksController extends OrganizationAwareController
 				Task::STATUS_ONGOING,
 				Task::STATUS_COMPLETED,
 				Task::STATUS_ACCEPTED,
-				Task::STATUS_CLOSED
+				Task::STATUS_CLOSED,
+				Task::STATUS_ARCHIVED
 			]
 		]);
 		$status = $this->getRequest()->getQuery('status');
@@ -155,7 +156,6 @@ class TasksController extends OrganizationAwareController
 				return $view;
 			}
 		}
-
 		$availableTasks = $this->taskService->findTasks($this->organization, $offset, $limit, $filters, $sorting);
 
 		$view = new TaskJsonModel($this, $this->organization);
