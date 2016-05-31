@@ -1,0 +1,16 @@
+<?php
+
+$hash = base64_encode(json_encode($this->invite));
+
+$link = $this->url('organizations',
+                   ['id' => $this->invite->orgId,
+                    'controller' => 'invites'],
+                   ['query' => ['token' => $hash],
+                    'force_canonical' => true]);
+?>
+
+<p>Hi <?= $this->invite->guestName ?>,<br>
+<b>You have been invited to join <?= $this->invite->orgName ?>!</b>
+<p><a href="<?= $link ?>">Click here</a> to join</p>
+<p>O.R.A.</p>
+<hr>

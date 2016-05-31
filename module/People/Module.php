@@ -3,16 +3,31 @@ namespace People;
 
 use People\Controller\MembersController;
 use People\Controller\OrganizationsController;
+use People\Controller\InvitesController;
 use People\Service\EventSourcingOrganizationService;
 use People\Service\OrganizationCommandsListener;
 use People\Service\SendMailListener;
 
 class Module
 {
-	public function getControllerConfig() 
+	public function getControllerConfig()
 	{
 		return [
 			'factories' => [
+				'People\Controller\Invites' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$orgService = $locator->get('People\OrganizationService');
+					$mailService = $locator->get('AcMailer\Service\MailService');
+
+					$controller = new InvitesController($orgService, $mailService);
+
+					$config = $locator->get('Config');
+					if(isset($config['mail_domain'])) {
+						$controller->setHost($config['mail_domain']);
+					}
+
+					return $controller;
+				},
 				'People\Controller\Organizations' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$orgService = $locator->get('People\OrganizationService');
@@ -33,7 +48,7 @@ class Module
 			]
 		];
 	}
-	
+
 	public function getServiceConfig()
 	{
 		return [
@@ -56,14 +71,14 @@ class Module
 			],
 		];
 	}
-	
+
 	public function getConfig()
 	{
 		return include __DIR__ . '/config/module.config.php';
 	}
-	
+
 	public function getAutoloaderConfig()
-	{		
+	{
 		return array(
 			'Zend\Loader\StandardAutoloader' => array(
 				'namespaces' => array(
