@@ -25,9 +25,9 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 	CONST ROLE_GUEST = 'guest';
 	CONST ROLE_USER = 'user';
 	CONST ROLE_SYSTEM = 'system';
-	
+
 	CONST SYSTEM_USER = '00000000-0000-0000-0000-000000000000';
-	
+
 	CONST EVENT_CREATED = "User.Created";
 
 	/**
@@ -74,7 +74,7 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 	private $memberships;
 	/**
 	 * @ORM\Column(type="string")
-	 * @var string 
+	 * @var string
 	 */
 	private $role = self::ROLE_USER;
 	/**
@@ -92,7 +92,7 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 		$this->memberships = new ArrayCollection();
 		$this->flowcards = new ArrayCollection();
 	}
-	
+
 	public static function create(User $createdBy = null) {
 		$rv = new self();
 		$rv->id = Uuid::uuid4()->toString();
@@ -214,8 +214,8 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 	public function getStatus()
 	{
 		return $this->status;
-	}	
-	
+	}
+
 	public function getOrganizationMemberships()
 	{
 		return $this->memberships->toArray();
@@ -256,13 +256,13 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 		$this->picture = $url;
 		return $this;
 	}
-	
+
 	public function getPicture() {
 		return $this->picture;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string|ReadModelOrganization|Organization $organization
 	 * @return bool
 	 */
@@ -272,6 +272,36 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 			$key = $organization->getId();
 		}
 		return $this->memberships->containsKey($key);
+	}
+
+	public function isContributorOf($organization) {
+		$key = $organization;
+		if($organization instanceof Organization ||
+		   $organization instanceof ReadModelOrganization) {
+			$key = $organization->getId();
+		}
+		$membership = $this->memberships->get($key);
+
+		if(is_null($membership)){
+			return false;
+		}
+
+		return $membership->getRole() == OrganizationMembership::ROLE_CONTRIBUTOR;
+	}
+
+	public function isRoleMemberOf($organization) {
+		$key = $organization;
+		if($organization instanceof Organization ||
+		   $organization instanceof ReadModelOrganization) {
+			$key = $organization->getId();
+		}
+		$membership = $this->memberships->get($key);
+
+		if(is_null($membership)){
+			return false;
+		}
+
+		return $membership->getRole() == OrganizationMembership::ROLE_MEMBER;
 	}
 
 	/**
@@ -304,11 +334,11 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 		$this->role = $role;
 		return $this;
 	}
-	
+
 	public function getRole() {
 		return $this->role;
 	}
-	
+
 	public function getRoleId(){
 		return $this->getRole();
 	}

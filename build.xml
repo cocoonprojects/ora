@@ -163,4 +163,20 @@
   </exec>
  </target>
 
+ <target name="build-db" description="Drop and creates db and loads fixtures">
+  <exec dir="${basedir}"
+        executable="vendor/bin/doctrine-module" failonerror="true">
+   <arg value="orm:schema-tool:drop" />
+   <arg value="--force" />
+  </exec>
+  <exec dir="${basedir}"
+        executable="vendor/bin/doctrine-module" failonerror="true">
+   <arg value="orm:schema-tool:create" />
+  </exec>
+  <exec dir="${basedir}"
+        executable="vendor/bin/doctrine-module" failonerror="true">
+   <arg value="dbal:import" />
+   <arg value="tests/sql/init.sql" />
+  </exec>
+ </target>
 </project>

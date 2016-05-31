@@ -6,6 +6,7 @@ use TaskManagement\Controller\ApprovalsController;
 use TaskManagement\Controller\AttachmentsController;
 use TaskManagement\Controller\EstimationsController;
 use TaskManagement\Controller\MembersController;
+use TaskManagement\Controller\OwnerController;
 use TaskManagement\Controller\MemberStatsController;
 use TaskManagement\Controller\RemindersController;
 use TaskManagement\Controller\Console\RemindersController as ConsoleRemindersController;
@@ -51,6 +52,13 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$controller = new MembersController($taskService);
+					return $controller;
+				},
+				'TaskManagement\Controller\Owner' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$userService = $locator->get('Application\UserService');					
+					$controller = new OwnerController($taskService, $userService);
 					return $controller;
 				},
 				'TaskManagement\Controller\Transitions' => function ($sm) {
