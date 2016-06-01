@@ -93,9 +93,7 @@ class AcceptCompletedItemListener implements ListenerAggregateInterface {
 				$this->transactionManager->rollback ();
 				throw $e;
 			}
-		} 
-
-		elseif ($reject > $memberhipcount / 2) {
+		} elseif ($reject > $memberhipcount / 2) {
 
 			$task->removeAcceptances($owner);
 

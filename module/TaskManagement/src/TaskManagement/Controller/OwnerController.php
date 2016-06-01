@@ -2,29 +2,30 @@
 
 namespace TaskManagement\Controller;
 
-use TaskManagement\View\TaskJsonModel;
-use ZFX\Rest\Controller\HATEOASRestfulController;
-use Application\IllegalStateException;
-use Application\DuplicatedDomainEntityException;
-use Application\DomainEntityUnavailableException;
-use TaskManagement\Service\TaskService;
+use Application\Controller\OrganizationAwareController;
 use Application\Service\UserService;
+use TaskManagement\Service\TaskService;
+use People\Service\OrganizationService;
+use TaskManagement\View\TaskJsonModel;
+use People\MissingOrganizationMembershipException;
+use Application\DomainEntityUnavailableException;
 use TaskManagement\Task;
 
 
-class OwnerController extends HATEOASRestfulController
+class OwnerController extends OrganizationAwareController
 {
 	protected static $resourceOptions = ['POST'];
 
 	/**
-	 * 
+	 * Only for organization admin
 	 * @var TaskService
 	 */
 	protected $taskService;
 
 	protected $userService;
 
-	public function __construct(TaskService $taskService, UserService $userService) {
+	public function __construct(OrganizationService $orgService, TaskService $taskService, UserService $userService) {
+		parent::__construct($orgService);		
 		$this->taskService = $taskService;
 		$this->userService = $userService;
 	}
@@ -42,8 +43,12 @@ class OwnerController extends HATEOASRestfulController
 			return $this->response;
 		}
 
+		if (!$this->identity()->isOwnerOf($this->organization)) {
+			$this->response->setStatusCode(403);
+			return $this->response;
+		}
+
 		$ownerId = $data['ownerId'];
-		// $ownerId = '20000000-0000-0000-0000-000000000000';
 		$user = $this->userService->findUser($ownerId);
 		if(is_null($user)){
 			$this->response->setStatusCode(404);

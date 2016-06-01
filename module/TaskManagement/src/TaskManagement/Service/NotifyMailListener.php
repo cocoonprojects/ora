@@ -23,6 +23,7 @@ use Zend\EventManager\ListenerAggregateInterface;
 use Zend\Mvc\Application;
 use TaskManagement\TaskOpened;
 use TaskManagement\TaskArchived;
+use TaskManagement\OwnerChanged;
 
 class NotifyMailListener implements NotificationService, ListenerAggregateInterface
 {
@@ -68,7 +69,6 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, TaskAccepted::class, array($this, 'processTaskAccepted'));
 		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, TaskOpened::class, array($this, 'processTaskOpened'));
 		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, TaskArchived::class, array($this, 'processTaskArchived'));
-		$this->listeners [] = $events->getSharedManager ()->attach (Application::class, OwnerChanged::class, array($this, 'processOwnerChanged'));
 	}
 	
 	public function detach(EventManagerInterface $events) {
@@ -148,10 +148,7 @@ class NotifyMailListener implements NotificationService, ListenerAggregateInterf
 		$this->sendTaskArchivedInfoMail($task, $memberships);
 	
 	}
-	
-	public function processOwnerChanged(Event $event) {
-	}
-	
+
 	
 	/**
 	 * @param Task $task
