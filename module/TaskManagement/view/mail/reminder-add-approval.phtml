@@ -1,5 +1,5 @@
 <p>Hi <?= $this->recipient->getFirstname() ?>,<br>
-You haven't vote for approval on "<?= $this->task->getSubject()?>" item yet!</p>
+You haven't voted for approval on "<?= $this->task->getSubject()?>" item yet!</p>
 <p>Do it as soon as possible to <a href="<?= $this->host . $this->url('collaboration-home', ['orgId' => $this->task->getOrganizationId(), 'id' => $this->task->getId()])?>">approve or reject</a> the new item.</p>
 <p>O.R.A.</p>
 <hr>
