@@ -18,19 +18,19 @@ use Zend\Validator\ValidatorChain;
 
 
 class AcceptancesController extends HATEOASRestfulController {
-	
+
 	protected static $collectionOptions = ['GET'];
 	protected static $resourceOptions = ['POST'];
-	
+
 	/**
 	 * @var TaskService
 	 */
 	protected $taskService;
-	
+
 	public function __construct(TaskService $taskService){
 		$this->taskService = $taskService;
 	}
-	
+
 	public function invoke($id, $data) {
 		if (is_null ( $this->identity () )) {
 			// unauthorized
@@ -47,10 +47,10 @@ class AcceptancesController extends HATEOASRestfulController {
 			$this->response->setStatusCode ( 400 );
 			return $error;
 		}
-	
+
 		$vote = $data ['value'];
 		$description = isset($data ['description']) ? $data['description'] : "";
-	
+
 		$validator = new ValidatorChain ();
 		$validator->attach ( new NotEmpty (), true )->attach ( new IsInt (), true )->attach ( new GreaterThan ( [
 				'min' => 0,
@@ -63,14 +63,14 @@ class AcceptancesController extends HATEOASRestfulController {
 			$this->response->setStatusCode ( 400 );
 			return $error;
 		}
-	
+
 
 
 		$task = $this->taskService->getTask ( $id );
 		if (is_null( $task )) {
 			// RESOURCE NOT FOUND
 			$this->response->setStatusCode ( 404 );
-				
+
 			return $this->response;
 		}
 
@@ -78,9 +78,9 @@ class AcceptancesController extends HATEOASRestfulController {
 			$this->response->setStatusCode ( 403 );
 			return $this->response;
 		}
-	
+
 		$this->transaction()->begin();
-	
+
 		try {
 			$task->addAcceptance( $vote, $this->identity(), $description );
 			$this->transaction ()->commit ();
@@ -101,14 +101,14 @@ class AcceptancesController extends HATEOASRestfulController {
 		}
 		return $this->response;
 	}
-	
+
 	public function getTaskService(){
 		return $this->taskService;
 	}
 	protected function getCollectionOptions(){
 		return self::$collectionOptions;
 	}
-	
+
 	protected function getResourceOptions(){
 		return self::$resourceOptions;
 	}
