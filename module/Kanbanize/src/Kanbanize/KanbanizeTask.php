@@ -53,7 +53,7 @@ class KanbanizeTask extends Task {
 			'by' => $createdBy->getId(),
 			'columnname' => $options["columnname"],
 			'lanename' => $options["lanename"],
-			'subject' => $subject
+			'subject' => $subject,
 			'description' =>$options["description"]
 		]));
 		return $rv;
