@@ -139,6 +139,10 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$mailService = $locator->get('AcMailer\Service\MailService');
 
 					$controller = new ConsoleRemindersController($taskService, $mailService);
+					$config = $locator->get('Config');
+					if(isset($config['mail_domain'])) {
+						$controller->setHost($config['mail_domain']);
+					}
 
 					if(isset($locator->get('Config')['item_idea_voting_remind_interval'])) {
 						$itemIdeaVotingRemindInterval = $locator->get('Config')['item_idea_voting_remind_interval'];
