@@ -80,6 +80,19 @@ class InvitesController extends HATEOASRestfulController
 		}
 
 		$invite = $this->createInvitation($user, $organization, $data);
+		$hash = base64_encode(json_encode($invite));
+
+		$link = $this->url()
+					 ->fromRoute('invites',
+					 	[],
+					 	['query' => ['token' => $hash],
+		                             'force_canonical' => true]
+        );
+
+		if (getenv('APPLICATION_ENV') == 'production') {
+			$p = parse_url($link);
+			$link = "{$p['scheme']}://{$p['host']}/index.html#{$p['path']}?{$p['query']}";
+		}
 
 		$this->mailService
 			 ->setSubject("Hey {$data['name']} {$data['surname']}, join {$organization->getName()}");
@@ -90,6 +103,7 @@ class InvitesController extends HATEOASRestfulController
 		$this->mailService
 			 ->setTemplate('mail/invite-to-org.phtml', array(
 			 	'invite' => $invite,
+			 	'link' => $link,
 			));
 
 		$message->setTo($data['email']);
