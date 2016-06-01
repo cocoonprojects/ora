@@ -265,8 +265,6 @@ class TasksController extends OrganizationAwareController {
 			return $this->response;
 		}
 
-		$this->transaction()->begin();
-
 		if ($stream instanceof KanbanizeStream || $stream instanceof ReadModelKanbanizeStream) {
 			// KanbanizeTask Creation
 
