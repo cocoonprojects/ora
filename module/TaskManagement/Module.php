@@ -27,6 +27,7 @@ use TaskManagement\Service\CloseItemIdeaListener;
 use TaskManagement\Service\AcceptCompletedItemListener;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
+use Kanbanize\Service;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {
@@ -39,7 +40,8 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$taskService = $locator->get('TaskManagement\TaskService');
 					$streamService = $locator->get('TaskManagement\StreamService');
 					$organizationService = $locator->get('People\OrganizationService');
-					$controller = new TasksController($taskService, $streamService, $organizationService);
+					$kanbanizeService = $locator->get('Kanbanize\KanbanizeService');
+					$controller = new TasksController($taskService, $streamService, $organizationService,$kanbanizeService);
 					if(array_key_exists('default_tasks_limit', $locator->get('Config'))){
 						$size = $locator->get('Config')['default_tasks_limit'];
 						$controller->setListLimit($size);
@@ -193,7 +195,9 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				},
 				'TaskManagement\TaskCommandsListener' => function ($locator) {
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
-					return new TaskCommandsListener($entityManager);
+					$kanbanizeService = $locator->get('Kanbanize\KanbanizeService');
+					$orgService = $locator->get('People\OrganizationService');					
+					return new TaskCommandsListener($entityManager,$kanbanizeService,$orgService);
 				},
 				'TaskManagement\StreamCommandsListener' => function ($locator) {
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');

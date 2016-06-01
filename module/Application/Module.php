@@ -18,6 +18,7 @@ use ZFX\Authentication\GoogleJWTAdapter;
 use ZFX\Authentication\JWTAdapter;
 use ZFX\EventStore\Controller\Plugin\EventStoreTransactionPlugin;
 use Zend\Console\Request as ConsoleRequest;
+use FlowManagement\Service\CardCommandsListener;
 
 
 class Module {

@@ -34,7 +34,7 @@ class KanbanizeTask extends Task {
 	 * @var String
 	 */
 	private $lanename;
-	
+
 	public static function create(Stream $stream, $subject, BasicUser $createdBy, array $options = null) {
 		if(!isset($options['taskid'])) {
 			throw InvalidArgumentException('Cannot create a KanbanizeTask without a taskid option');
@@ -53,11 +53,12 @@ class KanbanizeTask extends Task {
 			'by' => $createdBy->getId(),
 			'columnname' => $options["columnname"],
 			'lanename' => $options["lanename"],
-			'subject' => $subject
+			'subject' => $subject,
+			'description' =>$options["description"]
 		]));
 		return $rv;
 	}
-	
+
 	public function getKanbanizeTaskId() {
 		return $this->taskId;
 	}
