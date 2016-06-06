@@ -178,7 +178,8 @@ class BoardsController extends OrganizationAwareController{
 			return new JsonModel([
 				'streamName' => $streamName,
 				'boardId' => $id,
-				'mapping' => $mappedColumns
+				'mapping' => $mappedColumns,
+				'structure' => $structure,
 			]);
 		}catch (KanbanizeApiException $e){
 			$error->setCode(400);
