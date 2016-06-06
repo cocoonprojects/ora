@@ -16,16 +16,16 @@ use People\Entity\Organization;
  * @author Andrea Lupia <alupia@dimes.unical.it>
  *
  */
-class KanbanizeServiceImpl implements KanbanizeService 
+class KanbanizeServiceImpl implements KanbanizeService
 {
 	/**
 	 *
 	 * @var EntityManager
 	 */
 	private $entityManager;
-	
+
 	/**
-	 * 
+	 *
 	 * @var KanbanizeAPI
 	 */
 	private $kanbanize;
@@ -41,51 +41,69 @@ class KanbanizeServiceImpl implements KanbanizeService
 	public function moveTask(KanbanizeTask $task, $status) {
 		$boardId = $task->getKanbanizeBoardId();
 		$taskId = $task->getKanbanizeTaskId();
-		$response = $this->kanbanize->moveTask($boardId, $taskId, $status);
+		$options = [];
+
+		if ($task->getLaneName()) {
+			$options['lane'] = $task->getLaneName();
+		}
+
+		$response = $this->kanbanize
+						 ->moveTask($boardId, $taskId, $status, $options);
+
 		if($response != 1) {
 			throw new OperationFailedException('Unable to move the task ' + $taskId + ' in board ' + $boardId + 'to the column ' + $status + ' because of ' + $response);
 		}
-		
+
 		return 1;
 	}
-	
+
 	public function moveTaskonKanbanize(ReadModelKanbanizeTask $kanbanizeTask, $status,$boardId){
-		
+
 		$taskId = $kanbanizeTask->getTaskId();
-		$response = $this->kanbanize->moveTask($boardId, $taskId, $status);
+		$options = [];
+
+		if ($task->getLaneName()) {
+			$options['lane'] = $task->getLaneName();
+		}
+
+		$response = $this->kanbanize
+						 ->moveTask($boardId, $taskId, $status, $options);
+
 		error_log(print_r($response, true));
+
 		if($response != 1) {
 			throw new OperationFailedException('Unable to move the task ' + $taskId + ' in board ' + $boardId + 'to the column ' + $status + ' because of ' + $response);
 		}
-		
+
 		return 1;
 	}
-	
-	
-	public function createNewTask($projectId, $taskSubject,$taskTitle, $boardId) {
+
+
+	public function createNewTask($projectId, $taskSubject,$taskTitle, $boardId, $options) {
 		$createdAt = new \DateTime ();
-		
+
 		// TODO: Modificare createdBy per inserire User
 		$createdBy = "NOME UTENTE INVENTATO";
-		
-		$options = array (
-				'title'=>$taskTitle,
-				'description' => $taskSubject 
-		);
+
+		$all_options = array_merge($options, [
+			'title' => $taskTitle,
+			'description' => $taskSubject,
+		]);
+
 		$id = $this->kanbanize->createNewTask ( $boardId, $options );
 		if (is_null ( $id )) {
 			throw OperationFailedException("Cannot create task on Kanbanize");
 		}
 		return $id;
 	}
-	
+
 	public function deleteTask(KanbanizeTask $task) {
 		$ans = $this->kanbanize->deleteTask($task->getKanbanizeBoardId(), $task->getKanbanizeTaskId());
 		if (isset($ans["Error"]))
 			throw new OperationFailedException($ans["Error"]);
 		return $ans;
 	}
-	
+
 	public function getTasks($boardId, $status = null) {
 		$tasks_to_return = array ();
 		$tasks = $this->kanbanize->getAllTasks ( $boardId );
@@ -96,7 +114,7 @@ class KanbanizeServiceImpl implements KanbanizeService
 				if ($singletask ["columnname"] == $status)
 					$tasks_to_return [] = $singletask;
 			}
-			
+
 			return $tasks_to_return;
 		}
 	}
@@ -122,14 +140,14 @@ class KanbanizeServiceImpl implements KanbanizeService
 		if($info["columnname"] == KanbanizeTask::COLUMN_ONGOING){
 			return;
 		}
-		
+
 		if($info['columnname'] == KanbanizeTask::COLUMN_COMPLETED || $info['columnname'] == KanbanizeTask::COLUMN_OPEN){
 			$this::moveTask($task, KanbanizeTask::COLUMN_ONGOING);
 		}else{
 			throw new IllegalRemoteStateException("Cannot move task in ongoing from "+$info["columnname"]);
 		}
 	}
-	
+
 	public function completeTask(KanbanizeTask $task) {
 		$info = $this->kanbanize->getTaskDetails($task->getKanbanizeBoardId(), $task->getKanbanizeTaskId());
 		if(isset($info['Error'])) {
@@ -144,7 +162,7 @@ class KanbanizeServiceImpl implements KanbanizeService
 			throw new IllegalRemoteStateException("Cannot move task in completed from "+$info["columnname"]);
 		}
 	}
-	
+
 	public function closeTask(KanbanizeTask $task) {
 		// TODO: To be implemented
 	}
@@ -198,7 +216,7 @@ class KanbanizeServiceImpl implements KanbanizeService
 			->setParameter(':taskId', $taskId);
 		return $query->getQuery()->getOneOrNullResult();
 	}
-	
+
 	public function initApi($apiKey, $subdomain){
 		if(is_null($apiKey)){
 			throw new KanbanizeApiException("Cannot connect to Kanbanize due to missing api key");

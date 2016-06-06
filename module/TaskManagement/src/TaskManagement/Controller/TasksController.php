@@ -284,8 +284,16 @@ class TasksController extends OrganizationAwareController {
 
 			$this->transaction ()->begin ();
 			try {
+
+				$lane = [];
+
+				if (isset($data['lane'])) {
+					$lane['lane'] = $data['lane'];
+				}
+
 				// Create Task on Kanbanize
-				$kanbanizeTaskID = $this->kanbanizeService->createNewTask ( $projectId, $description, $subject, $KanbanizeBoardId );
+				$kanbanizeTaskID = $this->kanbanizeService
+					->createNewTask($projectId, $description, $subject, $KanbanizeBoardId, $lane);
 
 				if (is_null ( $kanbanizeTaskID )) {
 					$this->response->setStatusCode ( 417 );
@@ -297,6 +305,11 @@ class TasksController extends OrganizationAwareController {
 						"description" => $description,
 						"columnname" => 'Backlog'
 				];
+
+				if (isset($data['lane'])) {
+					$options['lane'] = $data['lane'];
+				}
+
 				$kanbanizeTask = KanbanizeTask::create ( $stream, $subject, $this->identity (), $options );
 				$kanbanizeTask->setAssignee ( null, $this->identity () );
 				$kanbanizeTask->setDescription ( $description, $this->identity () );
