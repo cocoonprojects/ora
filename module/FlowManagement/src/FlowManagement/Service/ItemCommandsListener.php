@@ -235,19 +235,38 @@ class ItemCommandsListener implements ListenerAggregateInterface {
 	}
 
 	public function processItemMemberRemoved(Event $event) {
-		if (is_null($event->getParam('ex_member'))) {
+		if (is_null($event->getParam('userId'))) {
 			return;
 		}
-
-		$organization = $this->organizationService->findOrganization($event->getParam('organizationId'));
 
 		$streamEvent = $event->getTarget();
 		$itemId = $streamEvent->metadata()['aggregate_id'];
 
-		$exMember = $this->userService->findUser($event->getParam('ex_member'));
+		$exMember = $this->userService->findUser($event->getParam('userId'));
 		$changedBy = $this->userService->findUser($event->getParam('by'));
 
-		$this->flowService->createItemMemberRemovedCard($exMember, $itemId, $organization->getId(), $changedBy);		
+		$organization = $this->organizationService->findOrganization($event->getParam('organizationId'));
+		$orgAdminsMemberships = $this->organizationService->findOrganizationMemberships($organization, null, null, [OrganizationMembership::ROLE_ADMIN]);
+		
+		$exMemberId = $exMember->getId();
+		$exMemberFound = false;
+		foreach ($orgAdminsMemberships as $member) {
+			$_member = $member->getMember();
+			$orgAdmins[] = $_member;
+			if ($_member->getId()==$exMemberId) $exMemberFound = true;
+		}		
+		if ((!$exMemberFound)) { $orgAdmins[] = $exMember; }
+
+		$params = [$this->flowService, $itemId, $organization, $changedBy, $exMember];
+		array_walk($orgAdmins, function($recipient) use($params){
+			$flowService = $params[0];
+			$itemId = $params[1];
+			$organization = $params[2];
+			$changedBy = $params[3];
+			$exMember = $params[4];
+
+			$flowService->createItemMemberRemovedCard($recipient, $itemId, $exMember, $organization->getId(), $changedBy);		
+		});		
 	}
 	
 	public function detach(EventManagerInterface $events){

@@ -75,13 +75,19 @@ class MembersController extends OrganizationAwareController
 			return $this->response;
 		}
 		
-		$organization = $this->organizationService->getOrganization($this->organization);
 		$memberToRemove = $this->identity();
-		if ($this->identity()->isOwnerOf($organization) 
-			&& !empty($this->params('member')) 
-			&& ($member=$this->userService->findUser($this->params('member')))
-			&& preg_match('/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/', $member)!==false) {
-				$memberToRemove = $member;
+		try {
+			$memberId = $this->getRequest()->getQuery("member");
+			if ($this->identity()->isOwnerOf($this->organization) 
+				&& !empty($memberId) 
+				&& ($member=$this->userService->findUser($this->getRequest()->getQuery("member")))
+				&& preg_match('/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/', $member->getId())!==false
+				) {
+					$memberToRemove = $member;
+			}
+		} catch (DomainEntityUnavailableException $e) {
+			$this->transaction()->rollback();
+			$this->response->setStatusCode(204);	// No content = nothing changed
 		}
 
 		$this->transaction()->begin();

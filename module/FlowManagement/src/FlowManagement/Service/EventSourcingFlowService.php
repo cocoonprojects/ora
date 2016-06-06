@@ -18,6 +18,7 @@ use FlowManagement\VoteCompletedItemCard;
 use FlowManagement\VoteCompletedItemVotingClosedCard;
 use FlowManagement\VoteCompletedItemReopenedCard;
 use FlowManagement\ItemOwnerChangedCard;
+use FlowManagement\ItemMemberRemovedCard;
 use TaskManagement\Entity\Task;
 
 class EventSourcingFlowService extends AggregateRepository implements FlowService{
@@ -155,9 +156,11 @@ class EventSourcingFlowService extends AggregateRepository implements FlowServic
 	 * (non-PHPdoc)
 	 * @see \FlowManagement\Service\FlowService::createItemMemberRemovedCard()
 	 */
-	public function createItemMemberRemovedCard(BasicUser $recipient, $itemId, $organizationid, BasicUser $createdBy){
+	public function createItemMemberRemovedCard(BasicUser $recipient, $itemId, BasicUser $exMember, $organizationid, BasicUser $createdBy){
 		$content = [
-			"orgId" => $organizationid
+			"orgId" => $organizationid,
+			'userId' => $exMember->getId(),
+			'userName' => $exMember->getFirstname().' '.$exMember->getLastname()
 		];
 		$this->eventStore->beginTransaction();
 		try {

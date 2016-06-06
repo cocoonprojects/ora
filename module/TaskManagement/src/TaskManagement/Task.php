@@ -362,7 +362,9 @@ class Task extends DomainEntity implements TaskInterface
 		$by = is_null($removedBy) ? $member : $removedBy;
 
 		$this->recordThat(TaskMemberRemoved::occur($this->id->toString(), array(
+			'organizationId' => $this->getOrganizationId(),
 			'userId' => $member->getId(),
+			'userName' => $member->getFirstname().' '.$member->getLastname(),
 			'by' => $by->getId(),
 		)));
 	}

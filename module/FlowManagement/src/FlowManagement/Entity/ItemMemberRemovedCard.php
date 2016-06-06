@@ -16,12 +16,13 @@ class ItemMemberRemovedCard extends FlowCard {
 		$type = FlowCardInterface::ITEM_MEMBER_REMOVED_CARD;
 		$content = $this->getContent();
 		$item = $this->getItem();
+		$owner = $item->getOwner()->getMember();
 		$rv["type"] = $type;
 		$rv["createdAt"] = date_format($this->getCreatedAt(), 'c');
 		$rv["id"] = $this->getId();
 		$rv["title"] = "Member removed from '".$item->getSubject()."'";
 		$rv["content"] = [
-			"description" => 'The user '.$item->getOwner()->getFirstname().' '.$item->getOwner()->getLastname().' is no more a member of this item',
+			"description" => 'The user '.$content[$type]['userName'].' is no more a member of this item',
 			"actions" => [
 				"primary" => [
 					"text" => "",
@@ -31,6 +32,8 @@ class ItemMemberRemovedCard extends FlowCard {
 				"secondary" => []
 			],
 		];
+
+		var_dump($item->getMembers());
 		return $rv;
 	}
 }
