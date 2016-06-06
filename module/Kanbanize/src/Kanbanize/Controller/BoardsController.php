@@ -27,6 +27,17 @@ class BoardsController extends OrganizationAwareController{
 
 	protected static $resourceOptions = ['POST', 'GET'];
 	protected static $collectionOptions= [];
+
+	protected static $valid_statuses = [
+		Task::STATUS_IDEA,
+		Task::STATUS_OPEN,
+		Task::STATUS_ONGOING,
+		Task::STATUS_COMPLETED,
+		Task::STATUS_ACCEPTED,
+		Task::STATUS_CLOSED,
+		Task::STATUS_ARCHIVED
+	];
+
 	/**
 	 * @var StreamService
 	 */
@@ -74,16 +85,9 @@ class BoardsController extends OrganizationAwareController{
 			}
 		}
 		$statusValidator = new InArray([
-			'haystack' => [
-					Task::STATUS_IDEA,
-					Task::STATUS_OPEN,
-					Task::STATUS_ONGOING,
-					Task::STATUS_COMPLETED,
-					Task::STATUS_ACCEPTED,
-					Task::STATUS_CLOSED,
-					Task::STATUS_ARCHIVED
-			]
+			'haystack' => static::$valid_statuses
 		]);
+
 		$params = [$statusValidator, &$error];
 		array_walk($data['mapping'], function($status, $column) use($params){
 			$statusValidator = $params[0];
@@ -92,6 +96,12 @@ class BoardsController extends OrganizationAwareController{
 				$error->addSecondaryErrors($column, ["Invalid status: {$status}"]);
 			}
 		});
+
+		//all status should be mapped
+		if(count($data['mapping']) < count(static::$valid_statuses)) {
+			$error->addSecondaryErrors("mapping", ["Kanbanize board should have at least one column for each itm status"]);
+		}
+
 		if($error->hasErrors()){
 			$error->setCode(400);
 			$error->setDescription('Some parameters are not valid');
@@ -127,7 +137,7 @@ class BoardsController extends OrganizationAwareController{
 			return $error;
 		}
 	}
-	
+
 	public function get($id){
 		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
