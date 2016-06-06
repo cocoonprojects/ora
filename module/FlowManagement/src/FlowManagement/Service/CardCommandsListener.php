@@ -87,6 +87,14 @@ class CardCommandsListener extends ReadModelProjector {
 				} 
 				$entity->setContent(FlowCardInterface::ITEM_OWNER_CHANGED_CARD, $content);
 				break;
+			case 'FlowManagement\ItemMemberRemovedCard':
+				$entity = new ItemMemberRemovedCard($id, $recipient);
+				$item = $this->entityManager->find(Task::class, $event->payload()['item']);
+				if(!is_null($item)){
+					$entity->setItem($item);
+				} 
+				$entity->setContent(FlowCardInterface::ITEM_MEMBER_REMOVED_CARD, $content);
+				break;
 			default:
 				$entity = null;
 		}

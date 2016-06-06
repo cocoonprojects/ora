@@ -132,7 +132,7 @@ class EventSourcingFlowService extends AggregateRepository implements FlowServic
 		}
 		return $card;
 	}
-		/**
+	/**
 	 * (non-PHPdoc)
 	 * @see \FlowManagement\Service\FlowService::createItemOwnerChangedCard()
 	 */
@@ -143,6 +143,25 @@ class EventSourcingFlowService extends AggregateRepository implements FlowServic
 		$this->eventStore->beginTransaction();
 		try {
 			$card = ItemOwnerChangedCard::create($recipient, $content, $createdBy, $itemId);
+			$this->addAggregateRoot($card);
+			$this->eventStore->commit();
+		} catch (\Exception $e) {
+			$this->eventStore->rollback();
+			throw $e;
+		}
+		return $card;
+	}
+	/**
+	 * (non-PHPdoc)
+	 * @see \FlowManagement\Service\FlowService::createItemMemberRemovedCard()
+	 */
+	public function createItemMemberRemovedCard(BasicUser $recipient, $itemId, $organizationid, BasicUser $createdBy){
+		$content = [
+			"orgId" => $organizationid
+		];
+		$this->eventStore->beginTransaction();
+		try {
+			$card = ItemMemberRemovedCard::create($recipient, $content, $createdBy, $itemId);
 			$this->addAggregateRoot($card);
 			$this->eventStore->commit();
 		} catch (\Exception $e) {

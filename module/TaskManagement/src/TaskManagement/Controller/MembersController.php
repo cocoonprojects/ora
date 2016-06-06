@@ -8,10 +8,13 @@ use Application\IllegalStateException;
 use Application\DuplicatedDomainEntityException;
 use Application\DomainEntityUnavailableException;
 use TaskManagement\Service\TaskService;
+use Application\Controller\OrganizationAwareController;
+use Application\Service\UserService;
+use People\Service\OrganizationService;
 use TaskManagement\Task;
 
 
-class MembersController extends HATEOASRestfulController
+class MembersController extends OrganizationAwareController
 {
 	protected static $resourceOptions = ['DELETE', 'POST'];
 
@@ -20,9 +23,12 @@ class MembersController extends HATEOASRestfulController
 	 * @var TaskService
 	 */
 	protected $taskService;
+	protected $orgService;
 
-	public function __construct(TaskService $taskService) {
+	public function __construct(OrganizationService $orgService, TaskService $taskService, UserService $userService){
+		parent::__construct($orgService);
 		$this->taskService = $taskService;
+		$this->userService = $userService;
 	}
 	
 	public function invoke($id, $data)
@@ -69,9 +75,18 @@ class MembersController extends HATEOASRestfulController
 			return $this->response;
 		}
 		
+		$organization = $this->organizationService->getOrganization($this->organization);
+		$memberToRemove = $this->identity();
+		if ($this->identity()->isOwnerOf($organization) 
+			&& !empty($this->params('member')) 
+			&& ($member=$this->userService->findUser($this->params('member')))
+			&& preg_match('/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/', $member)!==false) {
+				$memberToRemove = $member;
+		}
+
 		$this->transaction()->begin();
 		try {
-			$task->removeMember($this->identity(), $this->identity());
+			$task->removeMember($memberToRemove, $this->identity());
 			$this->transaction()->commit();
 			$this->response->setStatusCode(200);
 			$view = new TaskJsonModel($this);
