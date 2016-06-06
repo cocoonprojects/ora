@@ -11,6 +11,8 @@ use TaskManagement\TaskCompleted;
 use TaskManagement\TaskOpened;
 use TaskManagement\TaskAccepted;
 use TaskManagement\TaskReopened;
+use TaskManagement\TaskOngoing;
+use TaskManagement\Task;
 use TaskManagement\OwnerAdded;
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
@@ -86,15 +88,16 @@ class ItemCommandsListener implements ListenerAggregateInterface {
 	public function processItemOngoing(Event $event){
 		$streamEvent = $event->getTarget();
 		$itemId = $streamEvent->metadata()['aggregate_id'];
-		$item = $this->taskService->findTask($itemId);		
+		$item = $this->taskService->getTask($itemId);		
 
 		$changedBy = $this->userService->findUser($event->getParam('by'));
-		$transactionManager->beginTransaction($changedBy, $changedBy);
+
+		$this->transactionManager->beginTransaction();
 		try {
-			$item->changeOwner();
-			$transactionManager->commit();
+			$item->changeOwner($changedBy, $changedBy);
+			$this->transactionManager->commit();
 		}catch( \Exception $e ) {
-			$transactionManager->rollback();
+			$this->transactionManager->rollback();
 			throw $e;
 		}
 	}

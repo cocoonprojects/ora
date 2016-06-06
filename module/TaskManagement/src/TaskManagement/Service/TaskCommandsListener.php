@@ -312,16 +312,29 @@ class TaskCommandsListener extends ReadModelProjector {
 
 	protected function onOwnerAdded(StreamEvent $event) {
 		$id = $event->metadata ()['aggregate_id'];
-		$new_owner = $event->payload ()['new_owner'];
-		if (is_null ( $new_owner )) {
+		$new_owner_id = $event->payload ()['new_owner'];
+		$by_id = $event->payload ()['by'];
+		if (is_null ( $new_owner_id )) {
 			return;
 		}
 		$new_task_owner = $this->entityManager->find ( TaskMember::class, [
 				'task' => $id,
-				'user' => $new_owner
+				'user' => $new_owner_id
 		] );
-		$new_task_owner->setRole ( TaskMember::ROLE_OWNER );
-		$this->entityManager->persist ( $new_task_owner );
+		if (!empty($new_task_owner)) {
+			$new_task_owner->setRole ( TaskMember::ROLE_OWNER );
+			$this->entityManager->persist ( $new_task_owner );
+		} else {
+			$entity = $this->entityManager->find ( Task::class, $id );
+			if (is_null ( $entity )) {
+				return;
+			}
+			$newOwner = $this->entityManager->find ( User::class, $new_owner_id );
+			$addedBy = $this->entityManager->find ( User::class, $by_id );
+
+			$entity->addMember ( $newOwner, TaskMember::ROLE_OWNER, $addedBy, $event->occurredOn () )->setMostRecentEditAt ( $event->occurredOn () )->setMostRecentEditBy ( $addedBy );
+			$this->entityManager->persist ( $entity );
+		}
 	}
 
 	protected function onOwnerRemoved(StreamEvent $event) {

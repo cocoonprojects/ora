@@ -65,17 +65,16 @@ class CreateVoteCompletedItemCardTest extends \PHPUnit_Framework_TestCase{
 			$this->transactionManager->rollback();
 			throw $e;
 		}
-		
 		$ownerFlowCards = $this->flowService->findFlowCards($this->owner, null, null, null);
 		$memberFlowCards = $this->flowService->findFlowCards($this->member, null, null, null);
 		$newCompletedItems = $this->taskService->findTasks(Uuid::fromString($this->stream->getOrganizationId()), null, null, ['status' => Task::STATUS_COMPLETED]);
 
 		$newCompletedItemsCount = count($newCompletedItems) - count($previousCompletedItems);
-
+		
 		$this->assertEquals(Task::STATUS_COMPLETED, $task->getStatus());
 		$this->assertNotEmpty($ownerFlowCards);
 		$this->assertNotEmpty($memberFlowCards);
 		$this->assertEquals($newCompletedItemsCount, count($memberFlowCards));
-		$this->assertEquals($newCompletedItemsCount, count($ownerFlowCards));
+		$this->assertEquals($newCompletedItemsCount+1, count($ownerFlowCards));
 	}
 }

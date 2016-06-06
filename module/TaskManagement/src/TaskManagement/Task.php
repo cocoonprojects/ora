@@ -11,6 +11,7 @@ use Application\InvalidArgumentException;
 use People\MissingOrganizationMembershipException;
 use Rhumsaa\Uuid\Uuid;
 use TaskManagement\Entity\ItemIdeaApproval;
+use TaskManagement\Entity\TaskMember;
 
 class Task extends DomainEntity implements TaskInterface
 {
@@ -501,9 +502,7 @@ class Task extends DomainEntity implements TaskInterface
 		if(!$new_owner->isMemberOf($this->getOrganizationId())) {
 			throw new MissingOrganizationMembershipException($this->getOrganizationId(), $new_owner->getId());
 		}
-		if (!array_key_exists($new_owner->getId(), $this->members)) {
-			throw new DomainEntityUnavailableException($this, $new_owner);
-		}
+
 		$ex_owner = $this->getOwner();
 		if(!is_null($ex_owner)){
 			$this->recordThat(OwnerRemoved::occur($this->id->toString(), array(
@@ -786,6 +785,42 @@ class Task extends DomainEntity implements TaskInterface
 		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
+	protected function whenTaskOwnerAdded(TaskMemberAdded $event) {
+		$p = $event->payload();
+		$id = $p['userId'];
+		$this->members[$id]['id'] = $id;
+		$this->members[$id]['role'] = TaskMember::ROLE_OWNER;
+		$this->members[$id]['createdAt'] = $event->occurredOn();
+		$this->mostRecentEditAt = $event->occurredOn();
+	}
+
+	protected function whenTaskOwnerRemoved(TaskMemberRemoved $event) {
+		$p = $event->payload();
+		$id = $p['userId'];
+		$this->members[$id]['id'] = $id;
+		$this->members[$id]['role'] = TaskMember::ROLE_MEMBER;
+		$this->members[$id]['createdAt'] = $event->occurredOn();
+		$this->mostRecentEditAt = $event->occurredOn();
+	}
+
+	protected function whenOwnerAdded(OwnerAdded $event) {
+		$p = $event->payload();
+		$id = $p['new_owner'];
+		$this->members[$id]['id'] = $id;
+		$this->members[$id]['role'] = TaskMember::ROLE_OWNER;
+		$this->members[$id]['createdAt'] = $event->occurredOn();
+		$this->mostRecentEditAt = $event->occurredOn();
+	}
+
+	protected function whenOwnerRemoved(OwnerRemoved $event) {
+		$p = $event->payload();
+		$id = $p['ex_owner'];
+		$this->members[$id]['id'] = $id;
+		$this->members[$id]['role'] = TaskMember::ROLE_MEMBER;
+		$this->members[$id]['createdAt'] = $event->occurredOn();
+		$this->mostRecentEditAt = $event->occurredOn();
+	}
+
 	protected function whenTaskStreamChanged(TaskStreamChanged $event) {
 		$p = $event->payload();
 		$this->streamId = Uuid::fromString($p['streamId']);
@@ -900,20 +935,6 @@ class Task extends DomainEntity implements TaskInterface
 	}
 
 	protected function whenCreditsAssigned(CreditsAssigned $event){
-		$this->mostRecentEditAt = $event->occurredOn();
-	}
-
-	protected function whenOwnerAdded(OwnerAdded $event){
-		$p = $event->payload();
-		$new_owner = $p['new_owner'];
-		$this->members[$new_owner]['role'] = self::ROLE_OWNER;
-		$this->mostRecentEditAt = $event->occurredOn();
-	}
-
-	protected function whenOwnerRemoved(OwnerRemoved $event){
-		$p = $event->payload();
-		$ex_owner = $p['ex_owner'];
-		$this->members[$ex_owner]['role'] = self::ROLE_MEMBER;
 		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
