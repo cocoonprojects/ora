@@ -62,18 +62,20 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$locator = $sm->getServiceLocator();
 					$orgService = $locator->get('People\OrganizationService');
 					$taskService = $locator->get('TaskManagement\TaskService');
-					$userService = $locator->get('Application\UserService');					
+					$userService = $locator->get('Application\UserService');
 					$controller = new OwnerController($orgService, $taskService, $userService);
 					return $controller;
 				},
 				'TaskManagement\Controller\Transitions' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
-					$controller = new TransitionsController($taskService);
-					if(array_key_exists('assignment_of_shares_timebox', $locator->get('Config'))){
-						$assignmentOfSharesTimebox = $locator->get('Config')['assignment_of_shares_timebox'];
-						$controller->setIntervalForAssignShares($assignmentOfSharesTimebox);
-					}
+					$orgService = $locator->get('People\OrganizationService');
+
+					$controller = new TransitionsController(
+						$taskService,
+						$orgService
+					);
+
 					return $controller;
 				},
 				'TaskManagement\Controller\Estimations' => function ($sm) {
@@ -99,11 +101,13 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$locator = $sm->getServiceLocator();
 					$notificationService = $locator->get('TaskManagement\NotifyMailListener');
 					$taskService = $locator->get('TaskManagement\TaskService');
-					$controller = new RemindersController($notificationService, $taskService);
-					if(isset($locator->get('Config')['assignment_of_shares_remind_interval'])){
-						$assignmentOfSharesRemindInterval = $locator->get('Config')['assignment_of_shares_remind_interval'];
-						$controller->setIntervalForRemindAssignmentOfShares($assignmentOfSharesRemindInterval);
-					}
+					$orgService = $locator->get('People\OrganizationService');
+
+					$controller = new RemindersController(
+						$notificationService,
+						$taskService,
+						$orgService);
+
 					return $controller;
 				},
 				'TaskManagement\Controller\MemberStats' => function ($sm) {
@@ -117,15 +121,13 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				'TaskManagement\Controller\VotingResults' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
-					$controller = new VotingResultsController($taskService);
-					if(isset($locator->get('Config')['item_idea_voting_timebox'])){
-						$itemIdeaVotingTimebox = $locator->get('Config')['item_idea_voting_timebox'];
-						$controller->setTimeboxForVoting(TaskInterface::STATUS_IDEA, $itemIdeaVotingTimebox);
-					}
-					if(isset($locator->get('Config')['completed_item_voting_timebox'])){
-						$completedItemVotingTimebox = $locator->get('Config')['completed_item_voting_timebox'];
-						$controller->setTimeboxForVoting(TaskInterface::STATUS_IDEA, $completedItemVotingTimebox);
-					}
+					$orgService = $locator->get('People\OrganizationService');
+
+					$controller = new VotingResultsController(
+						$taskService,
+						$orgService
+					);
+
 					return $controller;
 				},
 				'TaskManagement\Controller\Approvals' => function ($sm) {
@@ -149,23 +151,20 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				'TaskManagement\Controller\Console\Reminders' => function ($sm) {
 					$locator = $sm->getServiceLocator();
 					$taskService = $locator->get('TaskManagement\TaskService');
+					$orgService = $locator->get('People\OrganizationService');
 					$mailService = $locator->get('AcMailer\Service\MailService');
 
-					$controller = new ConsoleRemindersController($taskService, $mailService);
+					$controller = new ConsoleRemindersController(
+						$taskService,
+						$mailService,
+						$orgService
+					);
+
 					$config = $locator->get('Config');
 					if(isset($config['mail_domain'])) {
 						$controller->setHost($config['mail_domain']);
 					}
 
-					if(isset($locator->get('Config')['item_idea_voting_remind_interval'])) {
-						$itemIdeaVotingRemindInterval = $locator->get('Config')['item_idea_voting_remind_interval'];
-						$controller->setIntervalForVotingRemind($itemIdeaVotingRemindInterval);
-					}
-
-					if(isset($locator->get('Config')['item_idea_voting_timebox'])) {
-						$itemIdeaVotingTimeboxInterval = $locator->get('Config')['item_idea_voting_timebox'];
-						$controller->setIntervalForVotingTimebox($itemIdeaVotingTimeboxInterval);
-					}
 					return $controller;
 				},
 				'TaskManagement\Controller\History' => function ($sm) {
@@ -207,7 +206,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 				'TaskManagement\TaskCommandsListener' => function ($locator) {
 					$entityManager = $locator->get('doctrine.entitymanager.orm_default');
 					$kanbanizeService = $locator->get('Kanbanize\KanbanizeService');
-					$orgService = $locator->get('People\OrganizationService');					
+					$orgService = $locator->get('People\OrganizationService');
 					return new TaskCommandsListener($entityManager,$kanbanizeService,$orgService);
 				},
 				'TaskManagement\StreamCommandsListener' => function ($locator) {

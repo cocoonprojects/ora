@@ -9,6 +9,7 @@ use IntegrationTest\Bootstrap;
 use Prooph\EventStore\EventStore;
 use Application\Entity\User;
 use People\Entity\Organization;
+use People\Service\OrganizationService;
 use TaskManagement\Entity\Task as EntityTask;
 use TaskManagement\Entity\Stream;
 use TaskManagement\Entity\TaskMember;
@@ -17,10 +18,8 @@ use TaskManagement\Service\TaskService;
 use Zend\Console\Request as ConsoleRequest;
 use TaskManagement\Service\MailService;
 
-
-
-
-class ConsoleRemindersProcessTest extends \PHPUnit_Framework_TestCase {
+class ConsoleRemindersProcessTest extends \PHPUnit_Framework_TestCase
+{
 
 	private $controller;
 	private $owner;
@@ -28,13 +27,13 @@ class ConsoleRemindersProcessTest extends \PHPUnit_Framework_TestCase {
 	private $task;
 	private $transactionManager;
 	private $taskService;
+	private $orgService;
 	private $mailService;
 
 	protected function setUp()
 	{
 		$serviceManager = Bootstrap::getServiceManager();
 		$this->mailService = $serviceManager->get('AcMailer\Service\MailService');
-
 
 		$this->mailcatcher = new Client('http://127.0.0.1:1080');
 
@@ -64,23 +63,28 @@ class ConsoleRemindersProcessTest extends \PHPUnit_Framework_TestCase {
 		$vote = new Vote(new \DateTime('today'));
 		$vote->setValue(1);
 		$this->task->addApproval($vote, $this->owner, new \DateTime('today'), 'Voto a favore');
-				
-		//Task Service Mock
+
 		$this->taskService = $this->getMockBuilder(TaskService::class)->getMock();
+		$this->orgService = $this->getMockBuilder(OrganizationService::class)->getMock();
 
-		$this->controller = new RemindersController($this->taskService, $this->mailService);
-		$this->request	= new ConsoleRequest();
+		$this->controller = new RemindersController(
+			$this->taskService,
+			$this->mailService,
+			$this->orgService
+		);
 
-		$this->cleanEmailMessages();		
-	}	
+		$this->request = new ConsoleRequest();
 
-	
+		$this->cleanEmailMessages();
+	}
+
+
 	protected function cleanEmailMessages()
 	{
 		$request = $this->mailcatcher->delete('/messages');
 		$response = $request->send();
 	}
-	
+
 	protected function getEmailMessages()
 	{
 		$request = $this->mailcatcher->get('/messages');
@@ -101,6 +105,10 @@ class ConsoleRemindersProcessTest extends \PHPUnit_Framework_TestCase {
 		$this->taskService
 			->method('findIdeasCreatedBetween')
 			->willReturn([$this->task]);
+
+		$this->orgService
+			->method('findOrganizations')
+			->willReturn([$this->organization]);
 
 		$this->controller->sendAction();
 

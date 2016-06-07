@@ -4,28 +4,26 @@ namespace TaskManagement\Controller;
 
 use ZFX\Rest\Controller\HATEOASRestfulController;
 use TaskManagement\Service\TaskService;
+use People\Service\OrganizationService;
 use TaskManagement\TaskInterface;
 
 class VotingResultsController extends HATEOASRestfulController {
-	
+
 	protected static $collectionOptions = ['POST'];
 	protected static $resourceOptions = [];
-	
-	/**
-	 * @var TaskService
-	 */
+
 	protected $taskService;
-	/**
-	 * @var \DateInterval
-	 */
-	protected $timeboxForVoting = [];
-	
-	public function __construct(TaskService $taskService){
+
+	protected $organizationService;
+
+	public function __construct(
+		TaskService $taskService,
+		OrganizationService $organizationService
+	) {
 		$this->taskService = $taskService;
-		$this->timeboxForVoting[TaskInterface::STATUS_IDEA] = self::getDefaultIntervalForItemIdeaVoting();
-		$this->timeboxForVoting[TaskInterface::STATUS_COMPLETED] = self::getDefaultIntervalForCompletedIdeaVoting();
+		$this->organizationService = $organizationService;
 	}
-	
+
 	public function create($data){
 		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
@@ -37,13 +35,27 @@ class VotingResultsController extends HATEOASRestfulController {
 			$type = $data['type'];
 		}
 
+		$org = $this->organizationService
+					->findOrganization($this->params('orgId'));
+
+		if (!$org) {
+			$this->response->setStatusCode(404);
+			return $this->response;
+		}
+
 		switch ($type) {
 			case "idea-items":
 				if(!$this->isAllowed($this->identity(), NULL, 'TaskManagement.Task.close-voting-idea-items')){
 					$this->response->setStatusCode(403);
 					return $this->response;
 				}
-				$itemIdeas = $this->taskService->findItemsBefore($this->timeboxForVoting[TaskInterface::STATUS_IDEA], TaskInterface::STATUS_IDEA);
+
+				$timeboxForVoting = $org->getParams()
+										->get('item_idea_voting_timebox');
+
+				$itemIdeas = $this->taskService
+					->findItemsBefore($timeboxForVoting, TaskInterface::STATUS_IDEA);
+
 				if(sizeof($itemIdeas) > 0){
 					array_walk($itemIdeas, function($idea){
 						$itemId = $idea->getId();
@@ -71,7 +83,13 @@ class VotingResultsController extends HATEOASRestfulController {
 					$this->response->setStatusCode(403);
 					return $this->response;
 				}
-				$itemsCompleted = $this->taskService->findItemsBefore($this->timeboxForVoting[TaskInterface::STATUS_COMPLETED], TaskInterface::STATUS_COMPLETED);
+
+				$timeboxForVoting = $org->getParams()
+										->get('completed_item_voting_timebox');
+
+				$itemsCompleted = $this->taskService
+					->findItemsBefore($timeboxForVoting, TaskInterface::STATUS_COMPLETED);
+
 				$operationResult = [];
 				if(sizeof($itemsCompleted) > 0){
 					array_walk($itemsCompleted, function($completed) use (&$operationResult) {
@@ -95,7 +113,6 @@ class VotingResultsController extends HATEOASRestfulController {
 						}
 					});
 				}
-				// $this->response->setContent(json_encode($operationResult));
 				$this->response->setStatusCode(200);
 				break;
 			default:
@@ -103,27 +120,15 @@ class VotingResultsController extends HATEOASRestfulController {
 		}
 		return $this->response;
 	}
-	
-	public function setTimeboxForVoting($voteType, \DateInterval $interval){
-		$this->timeboxForVoting[$voteType] = $interval;
-	}
-	public function getTimeboxForVoting($voteType){
-		return $this->timeboxForVoting[$voteType];
-	}
+
 	public function getTaskService(){
 		return $this->taskService;
 	}
 	protected function getCollectionOptions(){
 		return self::$collectionOptions;
 	}
-	
+
 	protected function getResourceOptions(){
 		return self::$resourceOptions;
-	}
-	protected static function getDefaultIntervalForItemIdeaVoting(){
-		return new \DateInterval('P7D');
-	}
-	protected static function getDefaultIntervalForCompletedIdeaVoting(){
-		return new \DateInterval('P7D');
 	}
 }

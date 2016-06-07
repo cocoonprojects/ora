@@ -4,40 +4,31 @@ namespace TaskManagement\Controller\Console;
 
 use Zend\Mvc\Controller\AbstractConsoleController;
 use TaskManagement\Service\TaskService;
+use People\Service\OrganizationService;
 use TaskManagement\TaskInterface;
 use AcMailer\Service\MailService;
 
 
 class RemindersController extends AbstractConsoleController {
-	
+
 	protected $taskService;
+	protected $organizationService;
 	protected $host;
-	/**
-	 * @var \DateInterval
-	 */
-	public function __construct(TaskService $taskService, MailService $mailService)
+
+	public function __construct(
+		TaskService $taskService,
+		MailService $mailService,
+		OrganizationService $organizationService)
 	{
 		$this->taskService = $taskService;
+		$this->organizationService = $organizationService;
 		$this->mailService = $mailService;
-		$this->intervalForVotingRemind = new \DateInterval('P5D');
-		$this->intervalForVotingTimebox = new \DateInterval('P7D');
-	}
-
-	public function setIntervalForVotingRemind($intervalForVotingRemind)
-	{
-		$this->intervalForVotingRemind = $intervalForVotingRemind;
-	}
-
-	public function setIntervalForVotingTimebox($intervalForVotingTimebox)
-	{
-		$this->intervalForVotingTimebox = $intervalForVotingTimebox;
 	}
 
 	public function setHost($host) {
 		$this->host = $host;
 		return $this;
 	}
-	
 
 	/**
 	 * @param array $data
@@ -45,31 +36,48 @@ class RemindersController extends AbstractConsoleController {
 	 */
 	public function sendAction()
 	{
-		$tasksToNotify = $this->taskService->findIdeasCreatedBetween($this->intervalForVotingRemind, $this->intervalForVotingTimebox);
+		$orgs = $this->organizationService->findOrganizations();
 
-		$rv = [];
-		foreach ($tasksToNotify as $task) { 
+		foreach($orgs as $org) {
+			$orgId = $org->getId();
+			$intervalForVotingRemind = $org->getParams()
+				->get('item_idea_voting_remind_interval');
 
-			$taskMembersWithNoApproval = $task->findMembersWithNoApproval(); // @TODO  task method to be tested
+			$intervalForVotingTimebox = $org->getParams()
+				->get('item_idea_voting_timebox');
 
-			foreach ($taskMembersWithNoApproval as $tm){
+			$tasksToNotify = $this->taskService
+				->findIdeasCreatedBetween(
+					$intervalForVotingRemind,
+					$intervalForVotingTimebox
+			);
 
-				$member = $tm->getUser();
-				$message = $this->mailService->getMessage();
-				$message->setTo($member->getEmail());
-				$message->setSubject('Vote for approval for "'.$task->getSubject().'" item');
-				
-				$this->mailService->setTemplate( 'mail/reminder-add-approval.phtml', [
-					'task' => $task,
-					'recipient'=> $member,
-					'host' => $this->host
-				]);
-				
-				$this->mailService->send();
-				$rv[$task->getId()] = $member->getEmail();
+			$rv = [];
+			foreach ($tasksToNotify as $task) {
+
+				$taskMembersWithNoApproval = $task->findMembersWithNoApproval();
+
+				foreach ($taskMembersWithNoApproval as $tm){
+
+					$member = $tm->getUser();
+					$message = $this->mailService->getMessage();
+					$message->setTo($member->getEmail());
+					$message->setSubject('Vote for approval for "'.$task->getSubject().'" item');
+
+					$this->mailService->setTemplate('mail/reminder-add-approval.phtml', [
+						'task' => $task,
+						'recipient'=> $member,
+						'host' => $this->host
+					]);
+
+					$this->mailService->send();
+					$rv[$task->getId()] = $member->getEmail();
+				}
 			}
+
 		}
-		return var_export($rv, true);	
+
+		return var_export($rv, true);
 	}
-	
+
 }

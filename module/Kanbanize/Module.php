@@ -17,27 +17,30 @@ use Kanbanize\Service\Kanbanize\Service;
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 {
-	public function getControllerConfig() 
+	public function getControllerConfig()
 	{
 		return array(
 			'invokables' => array(
 			),
 			'factories' => array(
 				'Kanbanize\Controller\Imports' => function($sm){
-					$locator = $sm->getServiceLocator();
-					$config = $locator->get('Config');
-					$organizationService = $locator->get('People\OrganizationService');
-					$client = $locator->get('Kanbanize\KanbanizeAPI');
-					$kanbanizeService = $locator->get('Kanbanize\KanbanizeService');
-					$taskService = $locator->get('TaskManagement\TaskService');
-					$userService = $locator->get('Application\UserService');
-					$streamService = $locator->get('TaskManagement\StreamService');
-					$controller = new ImportsController($organizationService, $client, $kanbanizeService, $taskService, $userService, $streamService);
-					if(array_key_exists('assignment_of_shares_timebox', $locator->get('Config'))){
-						$assignmentOfSharesTimebox = $locator->get('Config')['assignment_of_shares_timebox'];
-						$controller->setIntervalForAssignShares($assignmentOfSharesTimebox);
-					}
-					return $controller;
+
+					throw new Exception("not mantained anymore");
+
+					// $locator = $sm->getServiceLocator();
+					// $config = $locator->get('Config');
+					// $organizationService = $locator->get('People\OrganizationService');
+					// $client = $locator->get('Kanbanize\KanbanizeAPI');
+					// $kanbanizeService = $locator->get('Kanbanize\KanbanizeService');
+					// $taskService = $locator->get('TaskManagement\TaskService');
+					// $userService = $locator->get('Application\UserService');
+					// $streamService = $locator->get('TaskManagement\StreamService');
+					// $controller = new ImportsController($organizationService, $client, $kanbanizeService, $taskService, $userService, $streamService);
+					// if(array_key_exists('assignment_of_shares_timebox', $locator->get('Config'))){
+					// 	$assignmentOfSharesTimebox = $locator->get('Config')['assignment_of_shares_timebox'];
+					// 	$controller->setIntervalForAssignShares($assignmentOfSharesTimebox);
+					// }
+					// return $controller;
 				},
 				'Kanbanize\Controller\Settings' => function($sm){
 					$locator = $sm->getServiceLocator();
@@ -58,7 +61,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 			)
 		);
 	}
-	
+
 	public function getServiceConfig()
 	{
 		return array (

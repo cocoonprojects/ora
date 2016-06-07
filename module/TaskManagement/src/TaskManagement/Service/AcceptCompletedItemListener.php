@@ -14,14 +14,16 @@ use TaskManagement\Entity\Task as ReadModelTask;
 use TaskManagement\Entity\Vote;
 use People\Entity\OrganizationMembership;
 
-class AcceptCompletedItemListener implements ListenerAggregateInterface {
+class AcceptCompletedItemListener implements ListenerAggregateInterface
+{
 	protected $listeners = array ();
+
 	/**
 	 *
 	 * @var OrganizationService
 	 */
 	protected $organizationService;
-	
+
 	/**
 	 *
 	 * @var TaskService
@@ -32,22 +34,29 @@ class AcceptCompletedItemListener implements ListenerAggregateInterface {
 	 * @var UserService
 	 */
 	protected $userService;
-	
+
 	/**
 	 *
 	 * @var EventStore
 	 */
 	private $transactionManager;
-	public function __construct(TaskService $taskService, UserService $userService, OrganizationService $organizationService, EventStore $transactionManager) {
+
+	public function __construct(
+		TaskService $taskService,
+		UserService $userService,
+		OrganizationService $organizationService,
+		EventStore $transactionManager)
+	{
 		$this->taskService = $taskService;
 		$this->organizationService = $organizationService;
 		$this->transactionManager = $transactionManager;
 		$this->userService = $userService;
 	}
+
 	public function attach(EventManagerInterface $events) {
 		$this->listeners [] = $events->getSharedManager ()->attach ( Application::class, AcceptanceCreated::class, array (
 				$this,
-				'processEvent' 
+				'processEvent'
 		) );
 	}
 	public function processEvent(Event $event) {
@@ -58,7 +67,7 @@ class AcceptCompletedItemListener implements ListenerAggregateInterface {
 		$owner = $this->userService->findUser ( $ownerid );
 		$byId = $event->getParam ( 'by' );
 		$organization = $this->organizationService->findOrganization ( $task->getOrganizationId () );
-		$memberhipcount = $this->organizationService->countOrganizationMemberships ( $organization, 
+		$memberhipcount = $this->organizationService->countOrganizationMemberships ( $organization,
 			[ OrganizationMembership::ROLE_ADMIN, OrganizationMembership::ROLE_MEMBER ] );
 		$taskReadModel = $this->taskService->findTask ( $taskId );
 		$acceptances = $taskReadModel->getAcceptances ();
@@ -67,7 +76,8 @@ class AcceptCompletedItemListener implements ListenerAggregateInterface {
 		$reject = 0;
 		$abstain = 0;
 
-		$interval = new \DateInterval('P10D');
+		$interval = $organization->getParams()
+							     ->get('completed_item_interval_close_task');
 
 		foreach ( $acceptances as $acceptance ) {
 			switch ($acceptance->getVote()->getValue()) {
@@ -84,7 +94,7 @@ class AcceptCompletedItemListener implements ListenerAggregateInterface {
 		}
 
 		if ($accept > $memberhipcount / 2) {
-			
+
 			$this->transactionManager->beginTransaction ();
 			try {
 				$task->accept( $owner, $interval );
@@ -107,9 +117,9 @@ class AcceptCompletedItemListener implements ListenerAggregateInterface {
 				throw $e;
 			}
 		} elseif ($memberhipcount == (count ( $acceptances ))) {
-			
+
 			if ($accept > $reject) {
-				
+
 				$this->transactionManager->beginTransaction ();
 				try {
 					$task->accept( $owner, $interval );

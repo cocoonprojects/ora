@@ -2,7 +2,7 @@
 namespace TaskManagement\Controller;
 
 use Application\Entity\User;
-//use People\Entity\Organization;
+use People\Service\OrganizationService;
 use TaskManagement\Stream;
 use TaskManagement\Task;
 use TaskManagement\TaskInterface;
@@ -19,10 +19,12 @@ class VotingResultsControllerTest extends ControllerTest
 	 */
 	private $systemUser;
 
+	protected $organization;
 	protected $task;
 	protected $owner;
 	protected $member;
 	protected $taskServiceStub;
+	protected $orgServiceStub;
 
 	public function setupMore()
 	{
@@ -37,11 +39,11 @@ class VotingResultsControllerTest extends ControllerTest
 		$this->owner = User::create()->setRole(User::ROLE_USER);
 		$this->member = User::create()->setRole(User::ROLE_USER);
 
-		$organization = Organization::create('Dummy organization', $this->owner);
-		$stream = Stream::create($organization, "Dummy stream", $this->owner);
+		$this->organization = Organization::create('Dummy organization', $this->owner);
+		$stream = Stream::create($this->organization, "Dummy stream", $this->owner);
 
-		$this->owner->addMembership($organization);
-		$this->member->addMembership($organization);
+		$this->owner->addMembership($this->organization);
+		$this->member->addMembership($this->organization);
 
 		$this->task = Task::create($stream, 'Cras placerat libero non tempor', $this->owner);
 		$this->task->addMember($this->owner, Task::ROLE_OWNER);
@@ -51,7 +53,11 @@ class VotingResultsControllerTest extends ControllerTest
 
 		//Task Service Mock
 		$this->taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
-		return new VotingResultsController($this->taskServiceStub);
+		$this->orgServiceStub = $this->getMockBuilder(OrganizationService::class)->getMock();
+
+		return new VotingResultsController(
+			$this->taskServiceStub,
+			$this->orgServiceStub);
 	}
 
 	protected function setupRouteMatch()
@@ -70,6 +76,9 @@ class VotingResultsControllerTest extends ControllerTest
 		$this->taskServiceStub
 			->method('getTask')
 			->willReturn($this->task);
+		$this->orgServiceStub
+			 ->method('findOrganization')
+			 ->willReturn($this->organization);
 
 		$this->task->addEstimation(1500, $this->owner);
 		$this->task->addEstimation(3100, $this->member);

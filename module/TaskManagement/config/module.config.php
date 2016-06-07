@@ -92,10 +92,4 @@ return array(
 		'TaskManagement\TransferCreditsListener',
 		'TaskManagement\AssignCreditsListener',
 	],
-	'assignment_of_shares_timebox' => new \DateInterval('P10D'),
-	'assignment_of_shares_remind_interval' => new \DateInterval('P7D'),
-	'default_tasks_limit' => 10,
-	'item_idea_voting_timebox' => new \DateInterval('P7D'),
-	'item_idea_voting_remind_interval' => new \DateInterval('P5D'),
-	'completed_item_voting_timebox' => new \DateInterval('P7D'),
 );

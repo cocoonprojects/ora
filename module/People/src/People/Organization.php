@@ -40,7 +40,7 @@ class Organization extends DomainEntity
 	 * @var array
 	 */
 	private $settings = [];
-		
+
 	public static function create($name, User $createdBy) {
 		$rv = new self();
 		$rv->recordThat(OrganizationCreated::occur(Uuid::uuid4()->toString(), array(
@@ -50,7 +50,7 @@ class Organization extends DomainEntity
 		$rv->addMember($createdBy, self::ROLE_ADMIN);
 		return $rv;
 	}
-	
+
 	public function setName($name, User $updatedBy) {
 		$s = is_null($name) ? null : trim($name);
 		$this->recordThat(OrganizationUpdated::occur($this->id->toString(), array(
@@ -59,7 +59,7 @@ class Organization extends DomainEntity
 		)));
 		return $this;
 	}
-	
+
 	public function setSettings($settingKey, $settingValue, User $updatedBy){
 		if(is_null($settingKey)){
 			throw new InvalidArgumentException('Cannot address setting without a setting key');
@@ -85,7 +85,7 @@ class Organization extends DomainEntity
 	public function getName() {
 		return $this->name;
 	}
-	
+
 	public function changeAccount(Account $account, User $updatedBy) {
 		$payload = array(
 				'accountId' => $account->getId(),
@@ -97,11 +97,11 @@ class Organization extends DomainEntity
 		$this->recordThat(OrganizationAccountChanged::occur($this->id->toString(), $payload));
 		return $this;
 	}
-	
+
 	public function getAccountId() {
 		return $this->accountId;
 	}
-	
+
 	public function addMember(User $user, $role = self::ROLE_CONTRIBUTOR, User $addedBy = null) {
 		if (array_key_exists($user->getId(), $this->members)) {
 			throw new DuplicatedDomainEntityException($this, $user);
@@ -115,7 +115,7 @@ class Organization extends DomainEntity
 
 	public function promoteMember(User $member, $role, User $promotedBy = null) {
 		if (!array_key_exists($member->getId(), $this->members)) {
-			throw new DomainEntityUnavailableException($this, $member); 
+			throw new DomainEntityUnavailableException($this, $member);
 		}
 		$this->recordThat(OrganizationMemberPromoted::occur($this->id->toString(), array(
 			'userId' => $member->getId(),
@@ -127,7 +127,7 @@ class Organization extends DomainEntity
 	public function removeMember(User $member, User $removedBy = null)
 	{
 		if (!array_key_exists($member->getId(), $this->members)) {
-			throw new DomainEntityUnavailableException($this, $member); 
+			throw new DomainEntityUnavailableException($this, $member);
 		}
 		$this->recordThat(OrganizationMemberRemoved::occur($this->id->toString(), array(
 			'userId' => $member->getId(),
@@ -158,7 +158,7 @@ class Organization extends DomainEntity
 			return $profile['role'] == self::ROLE_ADMIN;
 		});
 	}
-	
+
 	protected function whenOrganizationCreated(OrganizationCreated $event)
 	{
 		$this->id = Uuid::fromString($event->aggregateId());
@@ -185,13 +185,13 @@ class Organization extends DomainEntity
 		$p = $event->payload();
 		$this->accountId = Uuid::fromString($p['accountId']);
 	}
-	
+
 	protected function whenOrganizationMemberAdded(OrganizationMemberAdded $event) {
 		$p = $event->payload();
 		$id = $p['userId'];
 		$this->members[$id]['role'] = $p['role'];
 	}
-	
+
 	protected function whenOrganizationMemberPromoted(OrganizationMemberPromoted $event) {
 		$p = $event->payload();
 		$id = $p['userId'];

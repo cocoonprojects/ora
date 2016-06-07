@@ -5,7 +5,7 @@ namespace People\Entity;
 use Zend\Permissions\Acl\Resource\ResourceInterface;
 use Doctrine\ORM\Mapping AS ORM;
 use Application\Entity\EditableEntity;
-
+use People\ValueObject\OrganizationParams;
 /**
  * @ORM\Entity @ORM\Table(name="organizations")
  */
@@ -16,7 +16,7 @@ class Organization extends EditableEntity implements ResourceInterface
 	 * @var string
 	 */
 	private $name;
-	
+
 	/**
 	 * @ORM\Column(type="json_array", nullable=true)
 	 * @var string
@@ -27,7 +27,7 @@ class Organization extends EditableEntity implements ResourceInterface
 	{
 		return $this->name;
 	}
-	
+
 	public function setName($name)
 	{
 		$this->name = $name;
@@ -55,8 +55,12 @@ class Organization extends EditableEntity implements ResourceInterface
 		return null;
 	}
 
+	public function getParams() {
+		return new OrganizationParams();
+	}
+
 	public function getResourceId()
 	{
 		return 'Ora\Organization';
 	}
-} 
+}
