@@ -13,44 +13,38 @@ use Zend\Validator\ValidatorChain;
 
 class OrganizationStatementController extends OrganizationAwareController
 {
-	const DEFAULT_TRANSACTIONS_LIMIT = 10;
 	protected static $collectionOptions = ['GET'];
 	protected static $resourceOptions   = [];
+
 	/**
-	 * 
 	 * @var AccountService
 	 */
 	protected $accountService;
+
 	/**
-	 * 
 	 * @var Acl
 	 */
 	private $acl;
-	/**
-	 *
-	 * @var integer
-	 */
-	protected $transactionsLimit = self::DEFAULT_TRANSACTIONS_LIMIT;
-	
+
 	public function __construct(AccountService $accountService, Acl $acl, OrganizationService $organizationService) {
 		parent::__construct($organizationService);
 		$this->accountService = $accountService;
 		$this->acl = $acl;
 	}
-	
+
 	public function getList()
 	{
 		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
-		
+
 		$validator = new ValidatorChain();
 		$validator->attach(new IsInt())
 			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
-		
+
 		$offset = $validator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
-		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getTransactionsLimit();
+		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->organization->getParams()->get('org_transaction_limit_per_page');
 
 		$account = $this->accountService->findOrganizationAccount($this->organization);
 		if(is_null($account)) {
@@ -94,15 +88,4 @@ class OrganizationStatementController extends OrganizationAwareController
 	protected function getResourceOptions() {
 		return self::$resourceOptions;
 	}
-	
-	public function setTransactionsLimit($size){
-		if(is_int($size)){
-			$this->transactionsLimit = $size;
-		}
-	}
-	
-	public function getTransactionsLimit(){
-		return $this->transactionsLimit;
-	}
-	
 }

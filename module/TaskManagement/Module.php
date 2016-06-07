@@ -42,11 +42,13 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$streamService = $locator->get('TaskManagement\StreamService');
 					$organizationService = $locator->get('People\OrganizationService');
 					$kanbanizeService = $locator->get('Kanbanize\KanbanizeService');
-					$controller = new TasksController($taskService, $streamService, $organizationService,$kanbanizeService);
-					if(array_key_exists('default_tasks_limit', $locator->get('Config'))){
-						$size = $locator->get('Config')['default_tasks_limit'];
-						$controller->setListLimit($size);
-					}
+
+					$controller = new TasksController(
+						$taskService,
+						$streamService,
+						$organizationService,
+						$kanbanizeService
+					);
 
 					return $controller;
 				},

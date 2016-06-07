@@ -18,19 +18,14 @@ class MembersController extends OrganizationAwareController
 	protected static $collectionOptions = ['GET', 'DELETE', 'POST'];
 	protected static $resourceOptions = ['GET', 'DELETE', 'PUT'];
 
-	const DEFAULT_MEMBERS_LIMIT = 20;
-
-	/**
-	 *
-	 * @var integer
-	 */
-	protected $listLimit = self::DEFAULT_MEMBERS_LIMIT;
 	/**
 	 * @var UserService
 	 */
 	protected $userService;
 
-	public function __construct(OrganizationService $organizationService, UserService $userService)
+	public function __construct(
+		OrganizationService $organizationService,
+		UserService $userService)
 	{
 		parent::__construct($organizationService);
 		$this->userService = $userService;
@@ -50,13 +45,13 @@ class MembersController extends OrganizationAwareController
 		$validator = new ValidatorChain();
 		$validator->attach(new IsInt())
 			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
-		
+
 		$offset = $validator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
-		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getListLimit();
-		
+		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->organization->getParams()->get('org_members_limit_per_page');
+
 		$memberships = $this->getOrganizationService()->findOrganizationMemberships($this->organization, $limit, $offset);
 		$totalMemberships = $this->getOrganizationService()->countOrganizationMemberships($this->organization);
-		
+
 		$hal = [
 			'count' => count($memberships),
 			'total' => $totalMemberships,
@@ -80,7 +75,7 @@ class MembersController extends OrganizationAwareController
 		}
 		return new JsonModel($hal);
 	}
-	
+
 	public function create($data)
 	{
 		if(is_null($this->identity())) {
@@ -93,7 +88,7 @@ class MembersController extends OrganizationAwareController
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-		
+
 		$this->transaction()->begin();
 		try {
 			$organization->addMember($this->identity());
@@ -248,22 +243,6 @@ class MembersController extends OrganizationAwareController
 	public function getUserService()
 	{
 		return $this->userService;
-	}
-
-	/**
-	 * @param int $size
-	 */
-	public function setListLimit($size){
-		if(is_int($size)){
-			$this->listLimit = $size;
-		}
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getListLimit(){
-		return $this->listLimit;
 	}
 
 	protected function getCollectionOptions()

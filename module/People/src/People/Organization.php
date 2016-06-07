@@ -72,6 +72,10 @@ class Organization extends DomainEntity
 		return $this;
 	}
 
+	public function getParams() {
+		return new ValueObject\OrganizationParams();
+	}
+
 	public function getSettings($key = null){
 		if(is_null($key)){
 			return $this->settings;

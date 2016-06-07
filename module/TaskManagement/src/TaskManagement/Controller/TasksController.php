@@ -27,9 +27,10 @@ use Kanbanize\Entity\KanbanizeStream as ReadModelKanbanizeStream;
 use Kanbanize\KanbanizeTask as KanbanizeTask;
 use People\Entity\Organization;
 
-class TasksController extends OrganizationAwareController {
-	const DEFAULT_TASKS_LIMIT = 10;
-	CONST KANBANIZE_SETTINGS = 'kanbanize';
+class TasksController extends OrganizationAwareController
+{
+	const KANBANIZE_SETTINGS = 'kanbanize';
+
 	protected static $collectionOptions = [
 			'GET',
 			'POST'
@@ -41,7 +42,6 @@ class TasksController extends OrganizationAwareController {
 	];
 
 	/**
-	 *
 	 * @var TaskService
 	 */
 	private $taskService;
@@ -56,12 +56,12 @@ class TasksController extends OrganizationAwareController {
 	 */
 	private $kanbanizeService;
 
-	/**
-	 *
-	 * @var integer
-	 */
-	protected $listLimit = self::DEFAULT_TASKS_LIMIT;
-	public function __construct(TaskService $taskService, StreamService $streamService, OrganizationService $organizationService, KanbanizeService $kanbanizeService) {
+	public function __construct(
+		TaskService $taskService,
+		StreamService $streamService,
+		OrganizationService $organizationService,
+		KanbanizeService $kanbanizeService)
+	{
 		parent::__construct ( $organizationService );
 		$this->taskService = $taskService;
 		$this->streamService = $streamService;
@@ -122,7 +122,7 @@ class TasksController extends OrganizationAwareController {
 		$offset = $this->getRequest()->getQuery("offset");
 		$offset = $integerValidator->isValid($offset) ? intval($offset) : 0;
 		$limit = $this->getRequest()->getQuery("limit");
-		$limit = $integerValidator->isValid($limit) ? intval($limit) : $this->getListLimit();
+		$limit = $integerValidator->isValid($limit) ? intval($limit) : $this->organization->getParams()->get('tasks_limit_per_page');
 
 		$filters["startOn"] = $this->getDateTimeParam("startOn");
 		$filters["endOn"]   = $this->getDateTimeParam("endOn");
@@ -489,20 +489,15 @@ class TasksController extends OrganizationAwareController {
 		}
 		return $this->response;
 	}
+
 	public function getTaskService() {
 		return $this->taskService;
 	}
-	public function setListLimit($size) {
-		if (is_int ( $size )) {
-			$this->listLimit = $size;
-		}
-	}
-	public function getListLimit() {
-		return $this->listLimit;
-	}
+
 	protected function getCollectionOptions() {
 		return self::$collectionOptions;
 	}
+
 	protected function getResourceOptions() {
 		return self::$resourceOptions;
 	}

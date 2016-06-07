@@ -15,7 +15,11 @@ class OrganizationParams
             'item_idea_voting_remind_interval' => new \DateInterval('P5D'),
             'completed_item_voting_timebox' => new \DateInterval('P7D'),
             'completed_item_interval_close_task' => new \DateInterval('P10D'),
-            'default_tasks_limit' => 10,
+
+            'tasks_limit_per_page' => 10,
+            'personal_transaction_limit_per_page' => 10,
+            'org_transaction_limit_per_page' => 10,
+            'org_members_limit_per_page' => 20,
         ];
     }
 
