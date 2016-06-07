@@ -10,6 +10,7 @@ interface FlowCardInterface{
 	CONST VOTE_COMPLETED_ITEM_REOPENED_CARD = 'VoteCompletedItemReopened';
 	CONST ITEM_OWNER_CHANGED_CARD = 'ItemOwnerChanged';
 	CONST ITEM_MEMBER_REMOVED_CARD = 'ItemMemberRemoved';
+	CONST ORGANIZATION_MEMBER_ROLE_CHANGED_CARD = 'OrganizationMemberRoleChanged';
 	
 	public function getId();
 	

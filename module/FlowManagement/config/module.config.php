@@ -41,5 +41,6 @@ return array(
 		'listeners' => [
 			'FlowManagement\CardCommandsListener',
 			'FlowManagement\ItemCommandsListener',
+			'FlowManagement\OrganizationCommandsListener',
 		],
 );

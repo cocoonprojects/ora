@@ -222,7 +222,9 @@ class MembersController extends OrganizationAwareController
 		$membership = $user->getMembership($this->organization);
 		if (!is_null($membership)) {
 
-			$admins = $this->getOrganizationService()->getOrganization($this->params('orgId'))->getAdmins();
+			$organization = $this->getOrganizationService()->getOrganization($this->params('orgId'));
+
+			$admins = $organization->getAdmins();
 			if ($membership->getRole()==OrganizationMembership::ROLE_ADMIN && count($admins)<2) {
 				$this->response->setStatusCode(403);
 				return $this->response;
@@ -230,7 +232,9 @@ class MembersController extends OrganizationAwareController
 
 			$this->transaction()->begin();
 			try {
-				$membership->setRole($data['role']);
+
+				$organization->changeMemberRole($user, $data['role'], $this->identity());
+
 				$this->transaction()->commit();
 				$this->response->setStatusCode(201);
 			} catch (DuplicatedDomainEntityException $e) {

@@ -12,6 +12,7 @@ use FlowManagement\Entity\VoteCompletedItemVotingClosedCard;
 use FlowManagement\Entity\VoteCompletedItemReopenedCard;
 use FlowManagement\Entity\ItemOwnerChangedCard;
 use FlowManagement\Entity\ItemMemberRemovedCard;
+use FlowManagement\Entity\OrganizationMemberRoleChangedCard;
 use FlowManagement\FlowCardInterface;
 use TaskManagement\Entity\Task;
 use FlowManagement\Entity\FlowCard;
@@ -95,6 +96,10 @@ class CardCommandsListener extends ReadModelProjector {
 					$entity->setItem($item);
 				} 
 				$entity->setContent(FlowCardInterface::ITEM_MEMBER_REMOVED_CARD, $content);
+				break;
+			case 'FlowManagement\OrganizationMemberRoleChangedCard':
+				$entity = new OrganizationMemberRoleChangedCard($id, $recipient);
+				$entity->setContent(FlowCardInterface::ORGANIZATION_MEMBER_ROLE_CHANGED_CARD, $content);
 				break;
 			default:
 				$entity = null;

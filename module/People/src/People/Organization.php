@@ -113,14 +113,17 @@ class Organization extends DomainEntity
 		)));
 	}
 
-	public function promoteMember(User $member, $role, User $promotedBy = null) {
+	public function changeMemberRole(User $member, $role, User $changedBy = null) {
 		if (!array_key_exists($member->getId(), $this->members)) {
 			throw new DomainEntityUnavailableException($this, $member); 
 		}
-		$this->recordThat(OrganizationMemberPromoted::occur($this->id->toString(), array(
+
+		$this->recordThat(OrganizationMemberRoleChanged::occur($this->id->toString(), array(
 			'userId' => $member->getId(),
-			'role' => $role,
-			'by' => $promotedBy == null ? $member->getId() : $promotedBy->getId(),
+			'organizationId' => $this->getId(),
+			'newRole' => $role,
+			'oldRole' => $this->members[$member->getId()]['role'],
+			'by' => $changedBy == null ? $member->getId() : $changedBy->getId(),
 		)));
 	}
 
@@ -192,10 +195,10 @@ class Organization extends DomainEntity
 		$this->members[$id]['role'] = $p['role'];
 	}
 	
-	protected function whenOrganizationMemberPromoted(OrganizationMemberPromoted $event) {
+	protected function whenOrganizationMemberRoleChanged(OrganizationMemberRoleChanged $event) {
 		$p = $event->payload();
 		$id = $p['userId'];
-		$this->members[$id]['role'] = $p['role'];
+		$this->members[$id]['role'] = $p['newRole'];
 	}
 
 	protected function whenOrganizationMemberRemoved(OrganizationMemberRemoved $event) {
