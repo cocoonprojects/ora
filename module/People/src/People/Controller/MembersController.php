@@ -221,6 +221,13 @@ class MembersController extends OrganizationAwareController
 
 		$membership = $user->getMembership($this->organization);
 		if (!is_null($membership)) {
+
+			$admins = $this->getOrganizationService()->getOrganization($this->params('orgId'))->getAdmins();
+			if ($membership->getRole()==OrganizationMembership::ROLE_ADMIN && count($admins)<2) {
+				$this->response->setStatusCode(403);
+				return $this->response;
+			}
+
 			$this->transaction()->begin();
 			try {
 				$membership->setRole($data['role']);
