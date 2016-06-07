@@ -52,7 +52,7 @@ class OrganizationCommandsListener extends ReadModelProjector {
 		$this->entityManager->persist($m);
 	}
 	
-	protected function onOrganizationMemberPromoted(StreamEvent $event) {
+	protected function onOrganizationMemberRoleChanged(StreamEvent $event) {
 		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
 
 		$membership = $this->entityManager
@@ -62,10 +62,10 @@ class OrganizationCommandsListener extends ReadModelProjector {
 						   		'organization' => $event->metadata()['aggregate_id']
 						   ));
 
-		$membership->setRole($event->payload()['role'])
+		$membership->setRole($event->payload()['newRole'])
 		  ->setMostRecentEditAt($event->occurredOn())
 		  ->setMostRecentEditBy($createdBy);
-		$this->entityManager->persist($m);
+		$this->entityManager->persist($membership);
 	}
 	
 	protected function onOrganizationMemberRemoved(StreamEvent $event) {

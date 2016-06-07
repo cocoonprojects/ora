@@ -77,7 +77,7 @@ class OrganizationTest extends \PHPUnit_Framework_TestCase {
 		$organization = Organization::create(null, $this->user);
 		$u = User::create();
 		$organization->addMember($u, Organization::ROLE_CONTRIBUTOR);
-		$organization->promoteMember($u, Organization::ROLE_MEMBER);
+		$organization->changeMemberRole($u, Organization::ROLE_MEMBER);
 
 		$this->assertArrayHasKey($u->getId(), $organization->getMembers());
 		$this->assertEquals(Organization::ROLE_MEMBER, $organization->getMembers()[$u->getId()]['role']);

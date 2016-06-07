@@ -7,6 +7,7 @@ use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use FlowManagement\Service\EventSourcingFlowService;
 use FlowManagement\Service\CardCommandsListener;
 use FlowManagement\Service\ItemCommandsListener;
+use FlowManagement\Service\OrganizationCommandsListener;
 
 
 class Module implements AutoloaderProviderInterface, ConfigProviderInterface{
@@ -45,6 +46,14 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface{
 							$transactionManager = $locator->get('prooph.event_store');
 							$taskService = $locator->get('TaskManagement\TaskService');
 							return new ItemCommandsListener($flowService, $organizationService, $userService, $transactionManager, $taskService);
+						},
+						'FlowManagement\OrganizationCommandsListener' => function ($locator) {
+							$flowService = $locator->get('FlowManagement\FlowService');
+							$organizationService = $locator->get('People\OrganizationService');
+							$userService = $locator->get('Application\UserService');
+							$transactionManager = $locator->get('prooph.event_store');
+							$taskService = $locator->get('TaskManagement\TaskService');
+							return new OrganizationCommandsListener($flowService, $organizationService, $userService, $transactionManager, $taskService);
 						},
 				],
 		];

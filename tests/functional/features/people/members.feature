@@ -47,7 +47,7 @@ Feature: View User Profile page
     And the response should be JSON
     And the "role" property should be "contributor"
 
-  Scenario: Successfully joining an organization as logged user
+  Scenario: Successfully change user role
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to update a "Member"
     And that its "role" is "member"
@@ -55,6 +55,13 @@ Feature: View User Profile page
     Then the response status code should be 201
     And the response should be JSON
     And the "role" property should be "member"
+
+  # depends on previous test
+  Scenario: paul cards again
+    Given that I am authenticated as "mark.rogers@ora.local" 
+    When I request "/flow-management/cards"
+    Then the response should contain 'changed role from'
+    #And echo last response
 
   Scenario: Successfully removing an organization user as organization admin
     Given that I am authenticated as "mark.rogers@ora.local"

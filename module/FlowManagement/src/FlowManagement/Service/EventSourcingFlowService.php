@@ -19,6 +19,7 @@ use FlowManagement\VoteCompletedItemVotingClosedCard;
 use FlowManagement\VoteCompletedItemReopenedCard;
 use FlowManagement\ItemOwnerChangedCard;
 use FlowManagement\ItemMemberRemovedCard;
+use FlowManagement\OrganizationMemberRoleChangedCard;
 use TaskManagement\Entity\Task;
 
 class EventSourcingFlowService extends AggregateRepository implements FlowService{
@@ -165,6 +166,30 @@ class EventSourcingFlowService extends AggregateRepository implements FlowServic
 		$this->eventStore->beginTransaction();
 		try {
 			$card = ItemMemberRemovedCard::create($recipient, $content, $createdBy, $itemId);
+			$this->addAggregateRoot($card);
+			$this->eventStore->commit();
+		} catch (\Exception $e) {
+			$this->eventStore->rollback();
+			throw $e;
+		}
+		return $card;
+	}
+	/**
+	 * (non-PHPdoc)
+	 * @see \FlowManagement\Service\FlowService::createItemMemberRemovedCard()
+	 */
+	public function createOrganizationMemberRoleChangedCard(BasicUser $recipient, BasicUser $member, $organizationid, $oldRole, $newRole, BasicUser $createdBy){
+		$content = [
+			"orgId" => $organizationid,
+			'userId' => $member->getId(),
+			'userName' => $member->getFirstname().' '.$member->getLastname(),
+			'oldRole' => $oldRole,
+			'newRole' => $newRole,
+		];
+
+		$this->eventStore->beginTransaction();
+		try {
+			$card = OrganizationMemberRoleChangedCard::create($recipient, $content, $createdBy);
 			$this->addAggregateRoot($card);
 			$this->eventStore->commit();
 		} catch (\Exception $e) {
