@@ -47,7 +47,6 @@ Feature: View User Profile page
     And the response should be JSON
     And the "role" property should be "contributor"
 
-@wip
   Scenario: Successfully change user role
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to update a "Member"
@@ -57,7 +56,6 @@ Feature: View User Profile page
     And the response should be JSON
     And the "role" property should be "member"
 
-@wip
   # depends on previous test
   Scenario: paul cards again
     Given that I am authenticated as "mark.rogers@ora.local" 
