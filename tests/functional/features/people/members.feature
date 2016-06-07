@@ -55,3 +55,10 @@ Feature: View User Profile page
     Then the response status code should be 201
     And the response should be JSON
     And the "role" property should be "member"
+
+  Scenario: Successfully removing an organization user as organization admin
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to delete a "Member"
+    When I request "/00000000-0000-0000-1000-000000000000/people/members/80000000-0000-0000-0000-000000000000"
+    Then the response status code should be 200
+    And echo last response
