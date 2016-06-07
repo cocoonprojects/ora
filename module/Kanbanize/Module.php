@@ -7,6 +7,7 @@ use Kanbanize\Controller\OrgSettingsController;
 use Kanbanize\Controller\BoardsController;
 use Kanbanize\Controller\ImportsController;
 use Kanbanize\Controller\SettingsController;
+use Kanbanize\Controller\StatsController;
 use Kanbanize\Service\KanbanizeAPI;
 use Kanbanize\Service\KanbanizeServiceImpl;
 use Kanbanize\Service\SyncTaskListener;
@@ -65,6 +66,12 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$kanbanizeService = $locator->get('Kanbanize\KanbanizeService');
 					$controller = new BoardsController($organizationService, $streamService, $client, $kanbanizeService);
 					return $controller;
+				},
+				'Kanbanize\Controller\Stats' => function($sm){
+					$em = $sm->getServiceLocator()
+							 ->get('doctrine.entitymanager.orm_default');
+
+					return new StatsController($em);
 				}
 			)
 		);

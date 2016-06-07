@@ -24,6 +24,16 @@ return array(
 	),
 	'router' => array(
 		'routes' => array(
+			'stats' => array(
+				'type' => 'Segment',
+				'options' => array(
+					'route'    => '/stats',
+					'defaults' => array(
+						'action' => 'stats',
+						'controller' => 'Kanbanize\Controller\Stats',
+					),
+				),
+			),
 			'org-settings' => array(
 				'type' => 'Segment',
 				'options' => array(
