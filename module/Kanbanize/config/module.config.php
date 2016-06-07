@@ -24,6 +24,19 @@ return array(
 	),
 	'router' => array(
 		'routes' => array(
+			'org-settings' => array(
+				'type' => 'Segment',
+				'options' => array(
+					'route'    => '/:orgId/settings',
+					'defaults' => array(
+						'__NAMESPACE__' => 'Kanbanize\Controller',
+						'controller' => 'OrgSettings',
+					),
+					'constraints' => array(
+						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+					),
+				),
+			),
 			'kanbanize-import' => array(
 				'type' => 'Segment',
 				'options' => array(

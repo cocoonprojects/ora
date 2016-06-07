@@ -6,6 +6,7 @@ use Zend\Permissions\Acl\Resource\ResourceInterface;
 use Doctrine\ORM\Mapping AS ORM;
 use Application\Entity\EditableEntity;
 use People\ValueObject\OrganizationParams;
+use People\Organization as OrganizationAggregate;
 /**
  * @ORM\Entity @ORM\Table(name="organizations")
  */
@@ -21,7 +22,7 @@ class Organization extends EditableEntity implements ResourceInterface
 	 * @ORM\Column(type="json_array", nullable=true)
 	 * @var string
 	 */
-	private $settings;
+	private $settings = [];
 
 	public function getName()
 	{
@@ -56,8 +57,16 @@ class Organization extends EditableEntity implements ResourceInterface
 	}
 
 	public function getParams() {
-		return new OrganizationParams();
+
+		$settings = $this->getSettings(OrganizationAggregate::ORG_SETTINGS);
+
+		if ($settings) {
+			return $settings;
+		}
+
+		return OrganizationParams::createWithDefaults();
 	}
+
 
 	public function getResourceId()
 	{

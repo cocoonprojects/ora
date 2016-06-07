@@ -3,6 +3,7 @@ namespace Kanbanize;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
+use Kanbanize\Controller\OrgSettingsController;
 use Kanbanize\Controller\BoardsController;
 use Kanbanize\Controller\ImportsController;
 use Kanbanize\Controller\SettingsController;
@@ -47,6 +48,13 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$organizationService = $locator->get('People\OrganizationService');
 					$client = $locator->get('Kanbanize\KanbanizeAPI');
 					$controller = new SettingsController($organizationService, $client);
+					return $controller;
+				},
+				'Kanbanize\Controller\OrgSettings' => function($sm){
+					$locator = $sm->getServiceLocator();
+					$organizationService = $locator->get('People\OrganizationService');
+					$client = $locator->get('Kanbanize\KanbanizeAPI');
+					$controller = new OrgSettingsController($organizationService, $client);
 					return $controller;
 				},
 				'Kanbanize\Controller\Boards' => function($sm){

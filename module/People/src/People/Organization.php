@@ -16,8 +16,12 @@ class Organization extends DomainEntity
 	CONST ROLE_MEMBER = 'member';
 	CONST ROLE_ADMIN  = 'admin';
 	CONST ROLE_CONTRIBUTOR  = 'contributor';
+
 	CONST KANBANIZE_SETTINGS = 'kanbanize';
-	CONST MIN_KANBANIZE_COLUMN_NUMBER = 6; // based on the count of TaskInterface STATUSes
+
+	CONST ORG_SETTINGS = 'orgsettings';
+
+	CONST MIN_KANBANIZE_COLUMN_NUMBER = 7;
 
 	/**
 	 * @var string
@@ -73,7 +77,23 @@ class Organization extends DomainEntity
 	}
 
 	public function getParams() {
-		return new ValueObject\OrganizationParams();
+
+		$settings = $this->getSettings(self::ORG_SETTINGS);
+
+		if ($settings) {
+			return $settings;
+		}
+
+		return ValueObject\OrganizationParams::createWithDefaults();
+	}
+
+	public function setParams($data, User $updatedBy) {
+
+		$settings = ValueObject\OrganizationParams::fromArray($data);
+
+		$this->setSettings(self::ORG_SETTINGS, $settings, $updatedBy);
+
+		return $this;
 	}
 
 	public function getSettings($key = null){
