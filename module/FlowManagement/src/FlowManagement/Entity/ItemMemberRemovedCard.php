@@ -4,12 +4,12 @@ namespace FlowManagement\Entity;
 
 use Doctrine\ORM\Mapping AS ORM;
 use FlowManagement\FlowCardInterface;
+
 /**
  * @ORM\Entity
- *
  */
 class ItemMemberRemovedCard extends FlowCard {
-	
+
 	public function serialize(){
 		$rv = [];
 				$rv = [];
@@ -33,7 +33,6 @@ class ItemMemberRemovedCard extends FlowCard {
 			],
 		];
 
-		var_dump($item->getMembers());
 		return $rv;
 	}
 }
