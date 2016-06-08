@@ -121,10 +121,12 @@ class BoardsController extends OrganizationAwareController{
 			} else if($stream->getSubject() != $streamName) {
 				$stream->setSubject($streamName, $this->identity());
 			}
+
 			if($stream->getBoardId() != $id) {
 				// use the old project stream if admin links it to another kanbanize board
 				$stream->changeBoardId($id);
 			}
+
 			$organization->setSettings(Organization::KANBANIZE_SETTINGS, $kanbanizeSettings, $this->identity());
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);

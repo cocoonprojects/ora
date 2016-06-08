@@ -196,6 +196,8 @@ class KanbanizeServiceImpl implements KanbanizeService
 	 * @see \Kanbanize\Service\KanbanizeService::findStreamByBoardId()
 	 */
 	public function findStreamByProjectId($projectId, $organization){
+		$test = 'test';
+		try {
 		switch (get_class($organization)){
 			case Organization::class :
 			case WriteModelOrganization::class:
@@ -214,7 +216,11 @@ class KanbanizeServiceImpl implements KanbanizeService
 			->andWhere('s.projectId = :projectId')
 			->setParameter ( ':organization', $organizationId )
 			->setParameter ( ':projectId', $projectId );
-		return $query->getQuery()->getOneOrNullResult();
+		$test = $query->getQuery()->getOneOrNullResult();
+	} catch (\Exception $e) {
+		var_dump('Eccezione: '.$e->getTraceAsString());
+	}
+		return $test;
 	}
 	/**
 	 * (non-PHPdoc)
