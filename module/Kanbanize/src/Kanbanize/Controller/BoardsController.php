@@ -112,14 +112,18 @@ class BoardsController extends OrganizationAwareController{
 		$organization = $this->getOrganizationService()->getOrganization($this->organization->getId());
 		$kanbanizeSettings = $organization->getSettings(Organization::KANBANIZE_SETTINGS);
 		$kanbanizeSettings['boards'][$id]['columnMapping'] = $data['mapping'];
-		$stream = $this->kanbanizeService->findStreamByBoardId($id, $organization);
 		$projectId = $data['projectId'];
+		$stream = $this->kanbanizeService->findStreamByProjectId($projectId, $organization);
 		$this->transaction()->begin();
 		try{
-			if(is_null($stream)){
+			if(is_null($stream)) {
 				$stream = $this->createStream($streamName, $projectId, $id, $organization);
-			}else if($stream->getSubject() != $streamName){
+			} else if($stream->getSubject() != $streamName) {
 				$stream->setSubject($streamName, $this->identity());
+			}
+			if($stream->getBoardId() != $id) {
+				// use the old project stream if admin links it to another kanbanize board
+				$stream->changeBoardId($id);
 			}
 			$organization->setSettings(Organization::KANBANIZE_SETTINGS, $kanbanizeSettings, $this->identity());
 			$this->transaction()->commit();

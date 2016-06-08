@@ -193,6 +193,31 @@ class KanbanizeServiceImpl implements KanbanizeService
 	}
 	/**
 	 * (non-PHPdoc)
+	 * @see \Kanbanize\Service\KanbanizeService::findStreamByBoardId()
+	 */
+	public function findStreamByProjectId($projectId, $organization){
+		switch (get_class($organization)){
+			case Organization::class :
+			case WriteModelOrganization::class:
+				$organizationId = $organization->getId();
+				break;
+			case Uuid::class:
+				$organizationId = $organization->toString();
+				break;
+			default :
+				$organizationId = $organization;
+		}
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select ( 's' )
+			->from(KanbanizeStream::class, 's')
+			->where('s.organization = :organization')
+			->andWhere('s.projectId = :projectId')
+			->setParameter ( ':organization', $organizationId )
+			->setParameter ( ':projectId', $projectId );
+		return $query->getQuery()->getOneOrNullResult();
+	}
+	/**
+	 * (non-PHPdoc)
 	 * @see \Kanbanize\Service\KanbanizeService::findTask()
 	 */
 	public function findTask($taskId, $organization){

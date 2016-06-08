@@ -8,6 +8,7 @@ use People\Organization;
 use Rhumsaa\Uuid\Uuid;
 use TaskManagement\Stream;
 use TaskManagement\StreamCreated;
+use TaskManagement\StreamUpdated;
 
 
 class KanbanizeStream extends Stream {
@@ -40,9 +41,30 @@ class KanbanizeStream extends Stream {
 		return $rv;
 	}
 	
+	public function getBoardId() {
+		return $this->boardId;
+	}
+
+	public function changeBoardId($boardId) {
+		if(!isset($boardId)) {
+			throw InvalidArgumentException('Cannot modify\ a KanbanizeStream without boardId');
+		}
+
+		$rv->recordThat(StreamUpdated::occur(Uuid::uuid4()->toString(), [
+				'boardId' => $boardId
+		]));
+	}
+	
 	protected function whenStreamCreated(StreamCreated $event) {
 		parent::whenStreamCreated($event);
 		$this->boardId = $event->payload()['boardId'];
 		$this->projectId = $event->payload()['projectId'];
+	}
+	
+	protected function whenStreamUpdated(StreamUpdated $event) {
+		parent::whenStreamUpdated($event);
+		if (isset($event->payload()['boardId'])) {
+			$this->boardId = $event->payload()['boardId'];
+		}
 	}
 }
