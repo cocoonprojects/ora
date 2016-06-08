@@ -39,15 +39,18 @@ class StatsController extends AbstractActionController
 					   ->getQuery()
 					   ->getSingleScalarResult();
 
-		$streamsCount = $qb->select('count(stream.id)')
-					   ->from(Stream::class, 'stream')
+		$kanbanCount = $qb->select('count(o.id)')
+					   ->from(Organization::class, 'o')
+					   ->where('o.settings LIKE :api')
+					   ->setParameter('api', '%apiKey%')
 					   ->getQuery()
 					   ->getSingleScalarResult();
+
 		$data = [
 			'orgs' => $orgCount,
 			'tasks' => $taskCount,
 			'users' => $usersCount,
-			'streams' => $streamsCount
+			'kanbanize' => $kanbanCount
 		];
 
 		$view = new ViewModel(['stats' => $data]);

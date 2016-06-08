@@ -29,35 +29,40 @@ class Module {
 		// prepends the module name to the requested controller name. That's useful if you want to use controller short names in routing
 		$moduleRouteListener = new ModuleRouteListener ();
 		$moduleRouteListener->attach ( $eventManager );
-		
+
 		// attach a listener to check for errors
 		$events = $e->getTarget ()->getEventManager ();
-		$events->attach ( MvcEvent::EVENT_RENDER, [ 
+		$events->attach ( MvcEvent::EVENT_RENDER, [
 				$this,
-				'onRenderError' 
+				'onRenderError'
 		], 100 );
-		
-		$request = $e->getRequest ();
-		if (!$request instanceof ConsoleRequest) {
-			$eventManager->attach ( MvcEvent::EVENT_DISPATCH, function ($event) use($serviceManager, $request) {
-				if ($token = $request->getHeaders ( 'ORA-JWT' )) {
-					$adapter = $serviceManager->get ( 'Application\JWTAdapter' );
-					$adapter->setToken ( $token->getFieldValue () );
-					$authService = $serviceManager->get ( 'Zend\Authentication\AuthenticationService' );
-					$result = $authService->authenticate ( $adapter );
-				} elseif ($token = $request->getHeaders ( 'GOOGLE-JWT' )) {
-					$client = $serviceManager->get ( 'Application\Service\GoogleAPIClient' );
-					$adapter = new GoogleJWTAdapter ( $client );
-					$adapter->setToken ( $token->getFieldValue () );
-					
-					$authService = $serviceManager->get ( 'Zend\Authentication\AuthenticationService' );
-					$result = $authService->authenticate ( $adapter );
-				}
-			}, 100 );
+
+		$request = $e->getRequest();
+
+		if ($request instanceof ConsoleRequest ||
+			substr($request->getRequestUri(), -6) == '/stats') {
+
+			return;
 		}
+
+		$eventManager->attach ( MvcEvent::EVENT_DISPATCH, function ($event) use($serviceManager, $request) {
+			if ($token = $request->getHeaders ( 'ORA-JWT' )) {
+				$adapter = $serviceManager->get ( 'Application\JWTAdapter' );
+				$adapter->setToken ( $token->getFieldValue () );
+				$authService = $serviceManager->get ( 'Zend\Authentication\AuthenticationService' );
+				$result = $authService->authenticate ( $adapter );
+			} elseif ($token = $request->getHeaders ( 'GOOGLE-JWT' )) {
+				$client = $serviceManager->get ( 'Application\Service\GoogleAPIClient' );
+				$adapter = new GoogleJWTAdapter ( $client );
+				$adapter->setToken ( $token->getFieldValue () );
+
+				$authService = $serviceManager->get ( 'Zend\Authentication\AuthenticationService' );
+				$result = $authService->authenticate ( $adapter );
+			}
+		}, 100 );
 	}
 	public function getControllerConfig() {
-		return [ 
+		return [
 				'factories' => array (
 						'Application\Controller\Auth' => function ($sm) {
 							$locator = $sm->getServiceLocator ();
@@ -88,8 +93,8 @@ class Module {
 							$orgService = $locator->get ( 'People\OrganizationService' );
 							$controller = new MembershipsController ( $orgService );
 							return $controller;
-						} 
-				) 
+						}
+				)
 		];
 	}
 	public function getControllerPluginConfig() {
@@ -104,14 +109,14 @@ class Module {
 							$serviceLocator = $pluginManager->getServiceLocator ();
 							$acl = $serviceLocator->get ( 'Application\Service\Acl' );
 							return new IsAllowed ( $acl );
-						} 
-				) 
+						}
+				)
 		);
 	}
 	public function getServiceConfig() {
 		return array (
 				'invokables' => array (
-						'Application\DomainEventDispatcher' => DomainEventDispatcher::class 
+						'Application\DomainEventDispatcher' => DomainEventDispatcher::class
 				),
 				'factories' => array (
 						'Zend\Authentication\AuthenticationService' => function () {
@@ -163,8 +168,8 @@ class Module {
 								$rv->setAlgorithm ( $jwt ['algorithm'] );
 							}
 							return $rv;
-						} 
-				) 
+						}
+				)
 		);
 	}
 	public function getConfig() {
@@ -174,51 +179,51 @@ class Module {
 		return array (
 				'Zend\Loader\StandardAutoloader' => array (
 						'namespaces' => array (
-								__NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__ 
-						) 
-				) 
+								__NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__
+						)
+				)
 		);
 	}
 	public function onRenderError($e) {
 		if (! $e->isError ()) {
-			
+
 			return;
 		}
-		
+
 		// Check the accept headers for application/json
 		$request = $e->getRequest ();
 		if (! $request instanceof Request) {
 			return;
 		}
-		
+
 		$headers = $request->getHeaders ();
 		if (! $headers->has ( 'Accept' )) {
 			return;
 		}
-		
+
 		$accept = $headers->get ( 'Accept' );
 		$match = $accept->match ( 'application/json' );
 		if (! $match || $match->getTypeString () == '*/*') {
 			// not application/json
 			return;
 		}
-		
+
 		// make debugging easier if we're using xdebug!
 		ini_set ( 'html_errors', 0 );
-		
+
 		// if we have a JsonModel in the result, then do nothing
 		$currentModel = $e->getResult ();
 		if ($currentModel instanceof JsonModel) {
 			return;
 		}
-		
+
 		// create a new JsonModel - use application/api-problem+json fields.
 		$response = $e->getResponse ();
-		$model = new JsonModel ( [ 
+		$model = new JsonModel ( [
 				"status" => $response->getStatusCode (),
-				"message" => $response->getReasonPhrase () 
+				"message" => $response->getReasonPhrase ()
 		] );
-		
+
 		// set our new view model
 		$model->setTerminal ( true );
 		$e->setResult ( $model );
