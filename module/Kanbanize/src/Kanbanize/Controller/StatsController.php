@@ -21,30 +21,35 @@ class StatsController extends AbstractActionController
 
 	public function statsAction()
 	{
-		$qb = $this->em
-			 	   ->createQueryBuilder();
+		$orgCount = $this->em
+						 ->createQueryBuilder()
+						 ->select('count(organization.id)')
+						 ->from(Organization::class, 'organization')
+						 ->getQuery()
+						 ->getSingleScalarResult();
 
-		$orgCount = $qb->select('count(organization.id)')
-					   ->from(Organization::class, 'organization')
-					   ->getQuery()
-					   ->getSingleScalarResult();
+		$taskCount = $this->em
+						  ->createQueryBuilder()
+						  ->select('count(task.id)')
+					      ->from(Task::class, 'task')
+					      ->getQuery()
+					      ->getSingleScalarResult();
 
-		$taskCount = $qb->select('count(task.id)')
-					   ->from(Task::class, 'task')
-					   ->getQuery()
-					   ->getSingleScalarResult();
+		$usersCount = $this->em
+						   ->createQueryBuilder()
+						   ->select('count(user.id)')
+					   	   ->from(User::class, 'user')
+					       ->getQuery()
+					       ->getSingleScalarResult();
 
-		$usersCount = $qb->select('count(user.id)')
-					   ->from(User::class, 'user')
-					   ->getQuery()
-					   ->getSingleScalarResult();
-
-		$kanbanCount = $qb->select('count(o.id)')
-					   ->from(Organization::class, 'o')
-					   ->where('o.settings LIKE :api')
-					   ->setParameter('api', '%apiKey%')
-					   ->getQuery()
-					   ->getSingleScalarResult();
+		$kanbanCount = $this->em
+						    ->createQueryBuilder()
+						    ->select('count(o.id)')
+					   		->from(Organization::class, 'o')
+					   		->where('o.settings LIKE :api')
+					   		->setParameter('api', '%apiKey%')
+					   		->getQuery()
+					   		->getSingleScalarResult();
 
 		$data = [
 			'orgs' => $orgCount,
