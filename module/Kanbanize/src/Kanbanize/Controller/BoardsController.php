@@ -23,6 +23,7 @@ use Kanbanize\KanbanizeStream;
 use Kanbanize\Service\KanbanizeService;
 
 
+
 class BoardsController extends OrganizationAwareController{
 
 	protected static $resourceOptions = ['POST', 'GET'];
@@ -124,7 +125,8 @@ class BoardsController extends OrganizationAwareController{
 
 			if($stream->getBoardId() != $id) {
 				// use the old project stream if admin links it to another kanbanize board
-				$stream->changeBoardId($id);
+				$aggregateStream = $this->streamService->getStream($stream->getId());
+				$aggregateStream->changeBoardId($id, $this->identity());
 			}
 
 			$organization->setSettings(Organization::KANBANIZE_SETTINGS, $kanbanizeSettings, $this->identity());
@@ -218,7 +220,7 @@ class BoardsController extends OrganizationAwareController{
 				'boardId' => $boardId
 		];
 		$stream = KanbanizeStream::create($organization, $subject, $this->identity(), $options);
-		$this->streamService->addStream($stream);
+		$this->streamService->addKanbanizeStream($stream);
 		return $stream;
 	}
 }

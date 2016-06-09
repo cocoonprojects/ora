@@ -11,6 +11,7 @@ use TaskManagement\StreamCreated;
 use TaskManagement\StreamUpdated;
 
 
+
 class KanbanizeStream extends Stream {
 
 	/**
@@ -44,17 +45,18 @@ class KanbanizeStream extends Stream {
 	public function getBoardId() {
 		return $this->boardId;
 	}
-
-	public function changeBoardId($boardId) {
-		if(!isset($boardId)) {
-			throw InvalidArgumentException('Cannot modify\ a KanbanizeStream without boardId');
-		}
-
-		$rv->recordThat(StreamUpdated::occur(Uuid::uuid4()->toString(), [
-				'boardId' => $boardId
-		]));
-	}
 	
+	public function changeBoardId($boardId, User $by) {
+ 		if(!isset($boardId)) {
+ 			throw InvalidArgumentException('Cannot modify\ a KanbanizeStream without boardId');
+ 		}
+ 
+ 		$this->recordThat(StreamUpdated::occur(Uuid::uuid4()->toString(), [
+ 				'boardId' => $boardId,
+ 				'by' => $by
+ 		]));
+ 	}
+
 	protected function whenStreamCreated(StreamCreated $event) {
 		parent::whenStreamCreated($event);
 		$this->boardId = $event->payload()['boardId'];

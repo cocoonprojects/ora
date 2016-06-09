@@ -14,6 +14,7 @@ use Prooph\EventStore\Stream\SingleStreamStrategy;
 use Rhumsaa\Uuid\Uuid;
 use TaskManagement\Entity\Stream as ReadModelStream;
 use TaskManagement\Stream;
+use Kanbanize\KanbanizeStream;
 
 /**
  * @author Giannotti Fabio
@@ -38,11 +39,31 @@ class EventSourcingStreamService extends AggregateRepository implements StreamSe
 		return $stream;
 	}
 
+	public function addKanbanizeStream(KanbanizeStream $stream)
+	{
+		$this->addAggregateRoot($stream);
+		return $stream;
+	}
+
 	public function createStream(Organization $organization, $subject, User $createdBy)
 	{
 		$this->eventStore->beginTransaction();
 		try {
 			$rv = Stream::create($organization, $subject, $createdBy);
+			$this->addAggregateRoot($rv);
+			$this->eventStore->commit();
+		} catch (\Exception $e) {
+			$this->eventStore->rollback();
+			throw $e;
+		}
+		return $rv;
+	}
+
+	public function createKanbanizeStream(Organization $organization, $subject, User $createdBy)
+	{
+		$this->eventStore->beginTransaction();
+		try {
+			$rv = KanbanizeStream::create($organization, $subject, $createdBy);
 			$this->addAggregateRoot($rv);
 			$this->eventStore->commit();
 		} catch (\Exception $e) {
