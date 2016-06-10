@@ -17,7 +17,7 @@ use TaskManagement\Stream;
 use Kanbanize\Entity\KanbanizeStream;
 
 class ImportControllerTest extends ControllerTest {
-	
+
 	/**
 	 * @var ReadModelOrganization
 	 */
@@ -44,13 +44,15 @@ class ImportControllerTest extends ControllerTest {
 		$this->user->setRole(User::ROLE_USER);
 		$this->organization = new Organization('00000');
 	}
-	
+
 	protected function setupRouteMatch(){
 		return ['controller' => 'import'];
 	}
 
 	public function testImportAsAnonymous()
 	{
+		$this->markTestSkipped('not mantained');
+
 		$this->setupAnonymous();
 		$this->controller->getOrganizationService()
 			->expects($this->once())
@@ -61,7 +63,7 @@ class ImportControllerTest extends ControllerTest {
 		$this->routeMatch->setParam('orgId', $this->organization->getId());
 		$this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-	
+
 		$this->assertEquals(401, $response->getStatusCode());
 	}
 
@@ -77,11 +79,13 @@ class ImportControllerTest extends ControllerTest {
 		$this->routeMatch->setParam('orgId', $this->organization->getId());
 		$this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-	
+
 		$this->assertEquals(403, $response->getStatusCode());
 	}
-	
+
 	public function testImportSuccess(){
+		$this->markTestSkipped('not mantained');
+
 		$this->user->addMembership($this->organization);
 		$this->setupLoggedUser($this->user);
 
@@ -90,7 +94,7 @@ class ImportControllerTest extends ControllerTest {
 			->method('findOrganization')
 			->with($this->organization->getId())
 			->willReturn($this->organization);
-		
+
 		$wm_organization = \People\Organization::create("new", $this->user);
 		$wm_organization->setSettings(\People\Organization::KANBANIZE_SETTINGS, [
 				"apiKey" => "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -111,7 +115,7 @@ class ImportControllerTest extends ControllerTest {
 			->method('getStream')
 			->with("010")
 			->willReturn($stream);
-		
+
 		$this->controller->getKanbanizeService()
 			->expects($this->once())
 			->method('findStreamByBoardId')
@@ -127,7 +131,7 @@ class ImportControllerTest extends ControllerTest {
 			->expects($this->once())
 			->method('findTasks')
 			->willReturn([]);
-		
+
 		$this->request->setMethod('post');
 		$this->routeMatch->setParam('orgId', $this->organization->getId());
 		$result = $this->controller->dispatch($this->request);

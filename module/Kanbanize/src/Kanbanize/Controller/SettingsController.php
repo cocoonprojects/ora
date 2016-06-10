@@ -19,47 +19,67 @@ use Zend\Validator\ValidatorChain;
 use Zend\Validator\StringLength;
 use Zend\Json\Json;
 
-class SettingsController extends OrganizationAwareController{
-
-
+class SettingsController extends OrganizationAwareController
+{
 	protected static $resourceOptions = [];
 	protected static $collectionOptions= ['PUT', 'GET'];
-	/**
-	 * @var KanbanizeAPI
-	 */
+
 	private $client;
-	public function __construct(OrganizationService $orgService, KanbanizeAPI $client){
+
+	public function __construct(
+		OrganizationService $orgService,
+		KanbanizeAPI $client
+	)
+	{
 		parent::__construct($orgService);
 		$this->client = $client;
 	}
 
-	public function getList(){
+	public function getList()
+	{
 		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
+
 		if(!$this->isAllowed($this->identity(), $this->organization, 'Kanbanize.Settings.list')) {
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
-		$organization = $this->getOrganizationService()->getOrganization($this->organization->getId());
+
+		$organization = $this->getOrganizationService()
+			->getOrganization($this->organization->getId());
+
 		$kanbanizeSettings = $organization->getSettings(Organization::KANBANIZE_SETTINGS);
+
 		if(is_null($kanbanizeSettings) || empty($kanbanizeSettings)){
-			return $this->getResponse()->setContent(json_encode(new \stdClass()));
+			return $this->getResponse()
+						->setContent(json_encode(new \stdClass()));
 		}
+
 		try{
-			$this->initApi($kanbanizeSettings['apiKey'], $kanbanizeSettings['accountSubdomain']);
-			$projects = $this->client->getProjectsAndBoards();
+			$this->initApi(
+				$kanbanizeSettings['apiKey'],
+				$kanbanizeSettings['accountSubdomain']
+			);
+
+			$projects = $this->client
+							 ->getProjectsAndBoards();
+
 			if(!is_array($projects)){
-				//TODO: il metodo getProjectsAndBoards, se va a buon fine, restituisce un array; in caso di errore non restituisce un messaggio completo ma solamente il primo carattere
-				//migliorare questo comportamento
+				//TODO: il metodo getProjectsAndBoards, se va a buon fine, restituisce un array. Migliorare questo comportamento
 				$error = new ErrorJsonModel();
 				$error->setCode(400);
 				$error->setDescription("Cannot import projects due to: The request cannot be processed. Please make sure you've specified all input parameters correctly");
-				$this->response->setStatusCode(400);
+
+				$this->response
+					 ->setStatusCode(400);
+
 				return $error;
 			}
+
 			$serializedProjects = $this->serializeProjects($projects, $organization);
+
 			if(isset($serializedProjects['errors'])){
 				$error = new ErrorJsonModel();
 				$error->setCode(400);
@@ -67,12 +87,14 @@ class SettingsController extends OrganizationAwareController{
 				$this->response->setStatusCode(400);
 				return $error;
 			}
+
 			return new JsonModel([
 					'apikey' => $kanbanizeSettings['apiKey'],
 					'subdomain' => $kanbanizeSettings['accountSubdomain'],
 					'projects' => $serializedProjects
 			]);
-		}catch(KanbanizeApiException $e){
+
+		} catch(KanbanizeApiException $e){
 			$error = new ErrorJsonModel();
 			$error->setCode(400);
 			$error->setDescription($e->getMessage());
@@ -86,14 +108,17 @@ class SettingsController extends OrganizationAwareController{
 			$this->response->setStatusCode(401);
 			return $this->response;
 		}
+
 		if(!$this->isAllowed($this->identity(), $this->organization, 'Kanbanize.Settings.create')) {
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
+
 		$error = new ErrorJsonModel();
 		$apiKeyValidator = new ValidatorChain();
 		$apiKeyValidator
 				->attach(new StringLength(['max' => 40]));
+
 		if(!(isset($data['subdomain']))) {
 			$error->addSecondaryErrors('subdomain', ['Value cannot be empty']);
 		}
@@ -102,19 +127,25 @@ class SettingsController extends OrganizationAwareController{
 		}elseif (!$apiKeyValidator->isValid($data['apiKey'])){
 			$error->addSecondaryErrors('apiKey', ['Value lenght cannot be greater than 40 chars']);
 		}
+
 		if($error->hasErrors()) {
 			$error->setCode(400);
 			$error->setDescription('Some parameters are not valid');
 			$this->response->setStatusCode(400);
 			return $error;
 		}
+
 		$filters = new FilterChain();
 		$filters->attach(new StringTrim())
 			->attach(new StripNewlines())
 			->attach(new StripTags());
+
 		$subdomain = $filters->filter($data['subdomain']);
 		$apiKey = $filters->filter($data['apiKey']);
-		$organization = $this->getOrganizationService()->getOrganization($this->organization->getId());
+
+		$organization = $this->getOrganizationService()
+			->getOrganization($this->organization->getId());
+
 		try{
 			$this->initApi($apiKey, $subdomain);
 			$projects = $this->client->getProjectsAndBoards();
@@ -128,16 +159,19 @@ class SettingsController extends OrganizationAwareController{
 				return $error;
 			}
 			$serializedProjects = $this->serializeProjects($projects, $organization);
+
 			if(isset($serializedProjects['errors'])){
 				$error->setCode(400);
 				$error->setDescription($serializedProjects['errors']);
 				$this->response->setStatusCode(400);
 				return $error;
 			}
+
 			$kanbanizeSettings = [
 				'accountSubdomain' => $subdomain,
 				'apiKey' => $apiKey
 			];
+
 			$this->transaction()->begin();
 			$organization->setSettings(Organization::KANBANIZE_SETTINGS, $kanbanizeSettings, $this->identity());
 			$this->transaction()->commit();
@@ -166,20 +200,33 @@ class SettingsController extends OrganizationAwareController{
 		return self::$resourceOptions;
 	}
 
-	protected function serializeProjects($projects, Organization $organization){
+	protected function serializeProjects(&$projects, Organization $organization){
 		try{
-			foreach($projects as $project){
+			$stream = $this->kanbanizeService
+				 ->findStreamByOrganization($organization);
+
+			foreach($projects as &$project){
 				foreach($project['boards'] as &$board){
 					$boardStructure = $this->client->getBoardStructure($board['id']);
+
 					if(is_string($boardStructure)){
-						return ["errors" => [$boardStructure]];
+						$board['errors'] = [$boardStructure];
 					}
 
-					if ($boardStructure['columns']<Organization::MIN_KANBANIZE_COLUMN_NUMBER) {
-						return ["errors" => ["Cannot import board structure due to the wrong columns number: must be at least ".Organization::MIN_KANBANIZE_COLUMN_NUMBER]];
+					if ($boardStructure['columns'] < Organization::MIN_KANBANIZE_COLUMN_NUMBER) {
+						$board['errors'] = ["Cannot import board due to the wrong columns number: must be at least ".Organization::MIN_KANBANIZE_COLUMN_NUMBER];
 					}
 
 					$board['columns'] = $boardStructure['columns'];
+					$board['lanes'] = $boardStructure['lanes'];
+					$board['streamName'] = '';
+					$board['streamId'] = '';
+
+					if($stream->getBoardId() == $board['id']){
+						$board['streamName'] = $stream->getSubject();
+						$board['streamId'] = $stream->getId();
+					}
+
 				}
 			}
 		}catch (KanbanizeApiException $e){

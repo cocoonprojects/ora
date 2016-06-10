@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Kanbanize\Controller;
 
@@ -46,12 +46,13 @@ class ImportsController extends OrganizationAwareController{
 	 */
 	private $streamService;
 
-	public function __construct(OrganizationService $orgService, 
-			KanbanizeAPI $client, 
-			KanbanizeService $kanbanizeService, 
-			TaskService $taskService, 
+	public function __construct(OrganizationService $orgService,
+			KanbanizeAPI $client,
+			KanbanizeService $kanbanizeService,
+			TaskService $taskService,
 			UserService $userService,
 			StreamService $streamService){
+
 		parent::__construct($orgService);
 		$this->client = $client;
 		$this->intervalForAssignShares = new \DateInterval('P7D');
@@ -88,7 +89,7 @@ class ImportsController extends OrganizationAwareController{
 			$importer->setIntervalForAssignShares($this->intervalForAssignShares);
 			foreach(array_keys($kanbanizeSettings['boards']) as $boardId){
 				$kanbanizeStream = $this->kanbanizeService->findStreamByBoardId($boardId, $organization);
-				//TODO: esplorare nuovi metadati per l'event store 
+				//TODO: esplorare nuovi metadati per l'event store
 				//in modo da poter ricercare uno stream anche in base al contenuto del payload (es: $boardId)
 				$stream = $this->streamService->getStream($kanbanizeStream->getId());
 				$importer->importTasks($boardId, $stream);
@@ -136,7 +137,7 @@ class ImportsController extends OrganizationAwareController{
 	public function setIntervalForAssignShares(\DateInterval $interval){
 		$this->intervalForAssignShares = $interval;
 	}
-	
+
 	public function getIntervalForAssignShares(){
 		return $this->intervalForAssignShares;
 	}

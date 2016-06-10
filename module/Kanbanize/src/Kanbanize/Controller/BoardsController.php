@@ -52,7 +52,13 @@ class BoardsController extends OrganizationAwareController{
 	 */
 	private $kanbanizeService;
 
-	public function __construct(OrganizationService $organizationService, StreamService $streamService, KanbanizeAPI $client, KanbanizeService $kanbanizeService){
+	public function __construct(
+		OrganizationService $organizationService,
+		StreamService $streamService,
+		KanbanizeAPI $client,
+		KanbanizeService $kanbanizeService
+	)
+	{
 		parent::__construct($organizationService);
 		$this->streamService = $streamService;
 		$this->client = $client;
@@ -113,9 +119,14 @@ class BoardsController extends OrganizationAwareController{
 		$organization = $this->getOrganizationService()->getOrganization($this->organization->getId());
 		$kanbanizeSettings = $organization->getSettings(Organization::KANBANIZE_SETTINGS);
 		$kanbanizeSettings['boards'][$id]['columnMapping'] = $data['mapping'];
+
 		$projectId = $data['projectId'];
-		$stream = $this->kanbanizeService->findStreamByProjectId($projectId, $organization);
+
+		$stream = $this->kanbanizeService
+			 ->findStreamByProjectId($projectId, $organization);
+
 		$this->transaction()->begin();
+
 		try{
 			if(is_null($stream)) {
 				$stream = $this->createStream($streamName, $projectId, $id, $organization);
@@ -129,14 +140,21 @@ class BoardsController extends OrganizationAwareController{
 				$aggregateStream->changeBoardId($id, $this->identity());
 			}
 
-			$organization->setSettings(Organization::KANBANIZE_SETTINGS, $kanbanizeSettings, $this->identity());
+			$organization->setSettings(
+				Organization::KANBANIZE_SETTINGS,
+				$kanbanizeSettings,
+				$this->identity()
+			);
+
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
+
 			return new JsonModel([
 				'streamName' => $stream->getSubject(),
 				'boardId' => $id,
 				'boardSettings' => $organization->getSettings(Organization::KANBANIZE_SETTINGS)['boards'][$id]
 			]);
+
 		}catch (InvalidArgumentException $ex){
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(422);

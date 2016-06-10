@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Kanbanize;
 
@@ -15,24 +15,24 @@ use Zend\Mvc\Router\RouteMatch;
 use ZFX\Test\Authentication\AdapterMock;
 
 class KanbanizeBoardSettingsTest extends \PHPUnit_Framework_TestCase{
-	
+
 	protected $controller;
 	protected $request;
 	protected $response;
 	protected $routeMatch;
 	protected $event;
-	
+
 	public function setup(){
 		$serviceManager = Bootstrap::getServiceManager();
-	
+
 		$userService = $serviceManager->get('Application\UserService');
 		$this->user = $userService->findUser('60000000-0000-0000-0000-000000000000');
-	
+
 		$orgService = $serviceManager->get('People\OrganizationService');
 		$client = $this->configureKanbanizeClientMock($serviceManager);
 		$kanbanizeService = $serviceManager->get('Kanbanize\KanbanizeService');
 		$streamService = $serviceManager->get('TaskManagement\StreamService');
-		
+
 		$this->controller = new BoardsController($orgService, $streamService, $client, $kanbanizeService);
 		$this->request	= new Request();
 		$this->routeMatch = new RouteMatch(array('controller' => 'boards'));
@@ -41,18 +41,20 @@ class KanbanizeBoardSettingsTest extends \PHPUnit_Framework_TestCase{
 		$this->event->setRouteMatch($this->routeMatch);
 		$this->controller->setEvent($this->event);
 		$this->controller->setServiceLocator($serviceManager);
-	
+
 		$adapter = new AdapterMock();
 		$adapter->setEmail($this->user->getEmail());
 		$authService = $serviceManager->get('Zend\Authentication\AuthenticationService');
 		$authService->authenticate($adapter);
-	
+
 		$pluginManager = $serviceManager->get('ControllerPluginManager');
 		$this->controller->setPluginManager($pluginManager);
 	}
-	
+
 	public function testKanbanizeBoardSettingsSuccess() {
-		
+
+		$this->markTestSkipped('not mantained');
+
 		$this->routeMatch->setParam('orgId', '00000000-0000-0000-1000-000000000000');
 		$this->routeMatch->setParam('id', '1');
 		$this->request->setMethod('post');
@@ -72,9 +74,10 @@ class KanbanizeBoardSettingsTest extends \PHPUnit_Framework_TestCase{
 		$params->set('mapping', $columnMapping);
 		$result = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-		
+
 		$this->assertEquals(201, $response->getStatusCode());
 		$arrayResult = json_decode ( $result->serialize (), true );
+
 		$this->assertEquals( '1', $arrayResult['boardId'] );
 		$this->assertEquals( 'foo stream', $arrayResult['streamName'] );
 		$this->assertEquals( '0', $arrayResult['boardSettings']['columnMapping']['Requested'] );
@@ -86,7 +89,7 @@ class KanbanizeBoardSettingsTest extends \PHPUnit_Framework_TestCase{
 		$this->assertEquals( '50', $arrayResult['boardSettings']['columnMapping']['Closed'] );
 		$this->assertEquals( '50', $arrayResult['boardSettings']['columnMapping']['Archive'] );
 	}
-	
+
 	private function configureKanbanizeClientMock($serviceManager){
 		$clientMock = $serviceManager->get('Kanbanize\KanbanizeAPI');
 		$clientMock->expects(\PHPUnit_Framework_TestCase::once())
