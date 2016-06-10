@@ -7,6 +7,7 @@ use Application\View\ErrorJsonModel;
 use Kanbanize\Service\Importer;
 use Kanbanize\Service\KanbanizeAPI;
 use Kanbanize\Service\KanbanizeApiException;
+use Kanbanize\Service\KanbanizeService;
 use People\Service\OrganizationService;
 use People\Organization;
 use Zend\Filter\FilterChain;
@@ -26,13 +27,17 @@ class SettingsController extends OrganizationAwareController
 
 	private $client;
 
+	private $kanbanizeService;
+
 	public function __construct(
 		OrganizationService $orgService,
-		KanbanizeAPI $client
+		KanbanizeAPI $client,
+		KanbanizeService $kanbanizeService
 	)
 	{
 		parent::__construct($orgService);
 		$this->client = $client;
+		$this->kanbanizeService = $kanbanizeService;
 	}
 
 	public function getList()

@@ -48,7 +48,14 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$locator = $sm->getServiceLocator();
 					$organizationService = $locator->get('People\OrganizationService');
 					$client = $locator->get('Kanbanize\KanbanizeAPI');
-					$controller = new SettingsController($organizationService, $client);
+					$kanbanizeService = $locator->get('Kanbanize\KanbanizeService');
+
+					$controller = new SettingsController(
+						$organizationService,
+						$client,
+						$kanbanizeService
+					);
+
 					return $controller;
 				},
 				'Kanbanize\Controller\OrgSettings' => function($sm){

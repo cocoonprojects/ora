@@ -13,6 +13,8 @@ use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Router\Http\TreeRouteStack as HttpRouter;
 use Zend\Mvc\Router\RouteMatch;
 use ZFX\Test\Authentication\AdapterMock;
+use Kanbanize\Service\KanbanizeService;
+
 
 class KanbanizeSettingsTest extends \PHPUnit_Framework_TestCase{
 
@@ -29,8 +31,9 @@ class KanbanizeSettingsTest extends \PHPUnit_Framework_TestCase{
 		$this->user = $userService->findUser('60000000-0000-0000-0000-000000000000');
 
 		$orgService = $serviceManager->get('People\OrganizationService');
+		$kanbanizeService = $serviceManager->get('Kanbanize\KanbanizeService');
 		$client = $this->configureKanbanizeClientMock($serviceManager);
-		$this->controller = new SettingsController($orgService, $client);
+		$this->controller = new SettingsController($orgService, $client, $kanbanizeService);
 		$this->request	= new Request();
 		$this->routeMatch = new RouteMatch(array('controller' => 'settings'));
 		$this->event = new MvcEvent();
