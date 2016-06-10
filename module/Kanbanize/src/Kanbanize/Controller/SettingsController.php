@@ -21,7 +21,7 @@ use Zend\Json\Json;
 
 class SettingsController extends OrganizationAwareController{
 
-	
+
 	protected static $resourceOptions = [];
 	protected static $collectionOptions= ['PUT', 'GET'];
 	/**
@@ -32,7 +32,7 @@ class SettingsController extends OrganizationAwareController{
 		parent::__construct($orgService);
 		$this->client = $client;
 	}
-	
+
 	public function getList(){
 		if(is_null($this->identity())) {
 			$this->response->setStatusCode(401);
@@ -68,7 +68,8 @@ class SettingsController extends OrganizationAwareController{
 				return $error;
 			}
 			return new JsonModel([
-					'subdomain' => $organization->getSettings(Organization::KANBANIZE_SETTINGS)['accountSubdomain'],
+					'apikey' => $kanbanizeSettings['apiKey'],
+					'subdomain' => $kanbanizeSettings['accountSubdomain'],
 					'projects' => $serializedProjects
 			]);
 		}catch(KanbanizeApiException $e){
@@ -160,11 +161,11 @@ class SettingsController extends OrganizationAwareController{
 	protected function getCollectionOptions() {
 		return self::$collectionOptions;
 	}
-	
+
 	protected function getResourceOptions() {
 		return self::$resourceOptions;
 	}
-	
+
 	protected function serializeProjects($projects, Organization $organization){
 		try{
 			foreach($projects as $project){
@@ -175,7 +176,7 @@ class SettingsController extends OrganizationAwareController{
 					}
 
 					if ($boardStructure['columns']<Organization::MIN_KANBANIZE_COLUMN_NUMBER) {
-						return ["errors" => ["Cannot import board structure due to the wrong columns number: must be at least ".Organization::MIN_KANBANIZE_COLUMN_NUMBER]];						
+						return ["errors" => ["Cannot import board structure due to the wrong columns number: must be at least ".Organization::MIN_KANBANIZE_COLUMN_NUMBER]];
 					}
 
 					$board['columns'] = $boardStructure['columns'];
@@ -186,7 +187,7 @@ class SettingsController extends OrganizationAwareController{
 		}
 		return $projects;
 	}
-	
+
 	private function initApi($apiKey, $subdomain){
 		if(is_null($apiKey)){
 			throw new KanbanizeApiException("Cannot connect to Kanbanize due to missing api key");
@@ -197,7 +198,7 @@ class SettingsController extends OrganizationAwareController{
 		$this->client->setApiKey($apiKey);
 		$this->client->setUrl(sprintf(Importer::API_URL_FORMAT, $subdomain));
 	}
-	
+
 	public function getKanbanizeClient(){
 		return $this->client;
 	}
