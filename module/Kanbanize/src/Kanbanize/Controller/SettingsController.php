@@ -227,7 +227,8 @@ class SettingsController extends OrganizationAwareController
 					$board['streamName'] = '';
 					$board['streamId'] = '';
 
-					if($stream->getBoardId() == $board['id']){
+					if(is_object($stream) &&
+					   $stream->getBoardId() == $board['id']){
 						$board['streamName'] = $stream->getSubject();
 						$board['streamId'] = $stream->getId();
 					}
