@@ -1,14 +1,8 @@
 Feature: Kanbanize Board Settings
 	As an organization admin
-	I want to retrieve Kanbanize board structure 
-	in order to associate to each column one of ORA task status 
+	I want to retrieve Kanbanize board structure
+	in order to associate to each column one of ORA task status
 
-	Scenario: Cannot get board settings as organization not admin
-		Given that I am authenticated as "phil.toledo@ora.local"
-		And that I want to find a "Board Settings"
-		When I request "/00000000-0000-0000-1000-000000000000/kanbanize/settings/boards/1"
-		Then the response status code should be 403
-	
 	Scenario: Cannot create board settings as organization not admin
 		Given that I am authenticated as "phil.toledo@ora.local"
 		And that I want to make a new "Board Settings"
@@ -22,7 +16,7 @@ Feature: Kanbanize Board Settings
 		And that its "mapping[Archive]" is "50"
 		When I request "/00000000-0000-0000-1000-000000000000/kanbanize/settings/boards/1"
 		Then the response status code should be 403
-	
+
 	Scenario: Cannot create board settings with wrong column mapping status
 		Given that I am authenticated as "mark.rogers@ora.local"
 		And that I want to make a new "Board Settings"
@@ -45,7 +39,7 @@ Feature: Kanbanize Board Settings
 		And the "errors[0].message" property should be "Invalid status: 300"
 		And the "errors[1].field" property should be "Archive"
 		And the "errors[1].message" property should be "Invalid status: 500"
-	
+
 	Scenario: Cannot create board settings without a valid projectId, boardId, streamName
 		Given that I am authenticated as "mark.rogers@ora.local"
 		And that I want to make a new "Board Settings"
@@ -66,7 +60,7 @@ Feature: Kanbanize Board Settings
 		And the "errors[0].message" property should be "Missing project id"
 		And the "errors[1].field" property should be "streamName"
 		And the "errors[1].message" property should be "Stream name cannot be empty"
-		
+
 	Scenario: Successfully creating board settings
 		Given that I am authenticated as "mark.rogers@ora.local"
 		And that I want to make a new "Board Settings"

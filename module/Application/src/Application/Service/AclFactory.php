@@ -42,19 +42,19 @@ class AclFactory implements FactoryInterface
 			'TaskManagement.Stream.list',
 			'TaskManagement.Task.stats',
 			'Accounting.Accounts.list',
-			'Kanbanize.Task.import'
+			'Kanbanize.Settings.list',
+			'Kanbanize.BoardSettings.get',
 		], new MemberOfOrganizationAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\Organization', [
+			'Kanbanize.Task.import',
 			'Kanbanize.Settings.create',
-			'Kanbanize.Settings.list',
 			'Kanbanize.BoardSettings.create',
-			'Kanbanize.BoardSettings.get'
 		], new OwnerOfOrganizationAssertion());
-		
+
 		$acl->addResource('Ora\User');
 		$acl->allow(User::ROLE_USER, 'Ora\User', 'People.Member.get', new CommonOrganizationAssertion());
 		$acl->allow(User::ROLE_USER, 'Ora\User', 'People.Member.update', new CommonOrganizationAssertion());
-		
+
 		$acl->addResource('Ora\PersonalAccount');
 		$acl->addResource('Ora\OrganizationAccount');
 		$acl->allow(User::ROLE_USER, 'Ora\PersonalAccount', 'Accounting.Account.get', new MemberOfEntityOrganizationAssertion());
