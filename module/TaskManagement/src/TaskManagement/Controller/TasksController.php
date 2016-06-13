@@ -334,13 +334,18 @@ class TasksController extends OrganizationAwareController
 			return $this->response;
 		} else {
 
-			$this->transaction ()->begin ();
+			$this->transaction()->begin();
+
 			try {
 
-				$options = null;
+				$options = [];
 
 				if (isset($data['decision'])) {
-					$options = ['decision' => $data['decision']];
+					$options['decision'] = $data['decision'];
+				}
+
+				if (isset($data['lane'])) {
+					$options['lane'] = $data['lane'];
 				}
 
 				$task = Task::create ( $stream, $subject, $this->identity (), $options );
@@ -434,8 +439,14 @@ class TasksController extends OrganizationAwareController
 
 		$this->transaction ()->begin ();
 		try {
+
 			$task->setSubject ( $data ['subject'], $this->identity () );
 			$task->setDescription ( $data ['description'], $this->identity () );
+
+			if (isset($data['lane'])) {
+				$task->setLane($data['lane'], $this->identity());
+			}
+
 			$this->transaction ()->commit ();
 			// HTTP STATUS CODE 202: Element Accepted
 			$this->response->setStatusCode ( 202 );

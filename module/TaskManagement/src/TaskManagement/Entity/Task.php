@@ -90,7 +90,7 @@ class Task extends EditableEntity implements TaskInterface
 	 * @ORM\Column(type="string", nullable=true)
 	 * @var string
 	 */
-	protected $lane = '';	
+	protected $lane = '';
 
 	public function __construct($id, Stream $stream, $is_decision = false) {
 		parent::__construct($id);

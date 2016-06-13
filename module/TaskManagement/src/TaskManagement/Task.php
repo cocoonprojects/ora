@@ -85,21 +85,24 @@ class Task extends DomainEntity implements TaskInterface
 		$rv = new self();
 
 		$decision = false;
+
 		if (is_array($options) &&
 			isset($options['decision']) &&
 			$options['decision'] == 'true') {
 			$decision = true;
 		}
+
 		$rv->recordThat(TaskCreated::occur(Uuid::uuid4()->toString(), [
 			'status' => self::STATUS_IDEA,
 			'organizationId' => $stream->getOrganizationId(),
 			'streamId' => $stream->getId(),
 			'by' => $createdBy->getId(),
-			'decision' => $decision
+			'decision' => $decision,
+			'lanename' => is_array($options) && isset($options['lane']) ? $options['lane'] : ''
 		]));
+
 		$rv->setSubject($subject, $createdBy);
 		$rv->is_decision = $decision;
-
 
 		return $rv;
 	}
@@ -150,7 +153,7 @@ class Task extends DomainEntity implements TaskInterface
 	public function setLane($lane, BasicUser $updatedBy)
 	{
 		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
-				'lane' => $lane,
+				'lanename' => $lane,
 				'by' => $updatedBy->getId(),
 		)));
 		return $this;
@@ -158,7 +161,7 @@ class Task extends DomainEntity implements TaskInterface
 
 	public function getLane()
 	{
-		return json_decode($this->lane);
+		return $this->lane;
 	}
 
 	/**
@@ -518,7 +521,7 @@ class Task extends DomainEntity implements TaskInterface
 			'ex_owner' => $ex_owner,
 			'new_owner' => $new_owner->getId(),
 			'by' => $by->getId()
-		)));	
+		)));
 	}
 
 	public function removeOwner(BasicUser $by){
@@ -766,6 +769,9 @@ class Task extends DomainEntity implements TaskInterface
 		}
 		if(array_key_exists('attachments', $pl)) {
 			$this->attachments = $pl['attachments'];
+		}
+		if(array_key_exists('lanename', $pl)) {
+			$this->lane = $pl['lanename'];
 		}
 
 		$this->mostRecentEditAt = $event->occurredOn();

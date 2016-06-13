@@ -39,18 +39,28 @@ class TaskCommandsListener extends ReadModelProjector {
 		$id = $event->metadata ()['aggregate_id'];
 		$type = $event->metadata ()['aggregate_type'];
 		if ($type == WriteModelTask::class) {
-			$stream = $this->entityManager->find ( Stream::class, $event->payload ()['streamId'] );
+
+			$stream = $this->entityManager
+				->find(Stream::class, $event->payload()['streamId']);
+
 			if (is_null ( $stream )) {
 				return;
 			}
-			$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
+
+			$createdBy = $this->entityManager
+			    ->find(User::class, $event->payload()['by']);
+
 			$decision = $event->payload()['decision'];
+
 			$entity = new Task($id, $stream, $decision);
+			$entity->setLane($event->payload()['lanename']);
+
 			$entity->setStatus($event->payload()['status'])
 				->setCreatedAt($event->occurredOn())
 				->setCreatedBy($createdBy)
 				->setMostRecentEditAt($event->occurredOn())
 				->setMostRecentEditBy($createdBy);
+
 			$this->entityManager->persist($entity);
 		}
 		return;
@@ -59,9 +69,11 @@ class TaskCommandsListener extends ReadModelProjector {
 	protected function onTaskUpdated(StreamEvent $event) {
 		$id = $event->metadata ()['aggregate_id'];
 		$entity = $this->entityManager->find ( Task::class, $id );
+
 		if (is_null ( $entity )) {
 			return;
 		}
+
 		$updatedBy = $this->entityManager->find ( User::class, $event->payload ()['by'] );
 		if (isset ( $event->payload ()['subject'] )) {
 			$entity->setSubject ( $event->payload ()['subject'] );
@@ -72,8 +84,13 @@ class TaskCommandsListener extends ReadModelProjector {
 		if(isset($event->payload()['attachments'])) {
 			$entity->setAttachments($event->payload()['attachments']);
 		}
+		if(isset($event->payload()['lanename'])) {
+			$entity->setLane($event->payload()['lanename']);
+		}
+
 		$entity->setMostRecentEditAt ( $event->occurredOn () );
 		$entity->setMostRecentEditBy ( $updatedBy );
+
 		$this->entityManager->persist ( $entity );
 	}
 
