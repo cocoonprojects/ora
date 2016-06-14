@@ -58,9 +58,9 @@ Feature: View User Profile page
 
   # depends on previous test
   Scenario: paul cards again
-    Given that I am authenticated as "mark.rogers@ora.local" 
+    Given that I am authenticated as "mark.rogers@ora.local"
     When I request "/flow-management/cards"
-    Then the response should contain 'changed role from'
+    Then the response should contain 'User Phil Toledo role changed'
     #And echo last response
 
   Scenario: Successfully removing an organization user as organization admin

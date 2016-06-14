@@ -18,12 +18,18 @@ use TaskManagement\Entity\Task;
 use FlowManagement\Entity\FlowCard;
 
 class CardCommandsListener extends ReadModelProjector {
-	
-	public function onFlowCardCreated(StreamEvent $event) {
-		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
-		$recipient = $this->entityManager->find(User::class, $event->payload()['to']);
+
+	public function onFlowCardCreated(StreamEvent $event)
+	{
+		$createdBy = $this->entityManager
+			->find(User::class, $event->payload()['by']);
+
+		$recipient = $this->entityManager
+			->find(User::class, $event->payload()['to']);
+
 		$entity = $this->cardFactory($recipient, $event);
-		if(!is_null($entity)){
+
+		if (!is_null($entity)) {
 			$entity->setCreatedAt($event->occurredOn());
 			$entity->setCreatedBy($createdBy);
 			$entity->setMostRecentEditAt($event->occurredOn());
@@ -32,7 +38,7 @@ class CardCommandsListener extends ReadModelProjector {
 			$this->entityManager->flush($entity);
 		}
 	}
-	
+
 	public function onFlowCardHidden(StreamEvent $event) {
 		$id = $event->metadata()['aggregate_id'];
 		$entity = $this->entityManager->find(FlowCard::class, $id);
@@ -40,7 +46,7 @@ class CardCommandsListener extends ReadModelProjector {
 			$entity->setMostRecentEditAt($event->occurredOn());
 			$entity->hide();
 			$this->entityManager->persist($entity);
-			$this->entityManager->flush($entity);			
+			$this->entityManager->flush($entity);
 		}
 	}
 
@@ -54,7 +60,7 @@ class CardCommandsListener extends ReadModelProjector {
 				$item = $this->entityManager->find(Task::class, $event->payload()['item']);
 				if(!is_null($item)){
 					$entity->setItem($item);
-				} 
+				}
 				$entity->setContent(FlowCardInterface::VOTE_IDEA_CARD, $content);
 				break;
 			case 'FlowManagement\VoteCompletedItemCard':
@@ -62,7 +68,7 @@ class CardCommandsListener extends ReadModelProjector {
 				$item = $this->entityManager->find(Task::class, $event->payload()['item']);
 				if(!is_null($item)){
 					$entity->setItem($item);
-				} 
+				}
 				$entity->setContent(FlowCardInterface::VOTE_COMPLETED_ITEM_CARD, $content);
 				break;
 			case 'FlowManagement\VoteCompletedItemVotingClosedCard':
@@ -70,7 +76,7 @@ class CardCommandsListener extends ReadModelProjector {
 				$item = $this->entityManager->find(Task::class, $event->payload()['item']);
 				if(!is_null($item)){
 					$entity->setItem($item);
-				} 
+				}
 				$entity->setContent(FlowCardInterface::VOTE_COMPLETED_ITEM_VOTING_CLOSED_CARD, $content);
 				break;
 			case 'FlowManagement\VoteCompletedItemReopenedCard':
@@ -78,7 +84,7 @@ class CardCommandsListener extends ReadModelProjector {
 				$item = $this->entityManager->find(Task::class, $event->payload()['item']);
 				if(!is_null($item)){
 					$entity->setItem($item);
-				} 
+				}
 				$entity->setContent(FlowCardInterface::VOTE_COMPLETED_ITEM_REOPENED_CARD, $content);
 				break;
 			case 'FlowManagement\ItemOwnerChangedCard':
@@ -86,7 +92,7 @@ class CardCommandsListener extends ReadModelProjector {
 				$item = $this->entityManager->find(Task::class, $event->payload()['item']);
 				if(!is_null($item)){
 					$entity->setItem($item);
-				} 
+				}
 				$entity->setContent(FlowCardInterface::ITEM_OWNER_CHANGED_CARD, $content);
 				break;
 			case 'FlowManagement\ItemMemberRemovedCard':
@@ -94,7 +100,7 @@ class CardCommandsListener extends ReadModelProjector {
 				$item = $this->entityManager->find(Task::class, $event->payload()['item']);
 				if(!is_null($item)){
 					$entity->setItem($item);
-				} 
+				}
 				$entity->setContent(FlowCardInterface::ITEM_MEMBER_REMOVED_CARD, $content);
 				break;
 			case 'FlowManagement\OrganizationMemberRoleChangedCard':
@@ -104,10 +110,10 @@ class CardCommandsListener extends ReadModelProjector {
 			default:
 				$entity = null;
 		}
-		
+
 		return $entity;
 	}
-	
+
 	protected function getPackage() {
 		return 'FlowManagement';
 	}

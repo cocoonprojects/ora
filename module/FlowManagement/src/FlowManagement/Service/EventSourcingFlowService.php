@@ -40,7 +40,7 @@ class EventSourcingFlowService extends AggregateRepository implements FlowServic
 		$card = $this->getAggregateRoot($cId);
 		return $card;
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see \FlowManagement\Service\FlowService::findFlowCards()
@@ -55,7 +55,7 @@ class EventSourcingFlowService extends AggregateRepository implements FlowServic
 			->orderBy('f.createdAt', 'DESC')
 			->setFirstResult($offset)
 			->setMaxResults($limit)
-			->setParameter(':recipient', $recipient);			
+			->setParameter(':recipient', $recipient);
 		return $query->getQuery()->getResult();
 	}
 	/**
@@ -76,7 +76,7 @@ class EventSourcingFlowService extends AggregateRepository implements FlowServic
 			throw $e;
 		}
 		return $card;
-	}	
+	}
 	/**
 	 * (non-PHPdoc)
 	 * @see \FlowManagement\Service\FlowService::createLazyMajorityVoteCard()
@@ -185,6 +185,7 @@ class EventSourcingFlowService extends AggregateRepository implements FlowServic
 			'userName' => $member->getFirstname().' '.$member->getLastname(),
 			'oldRole' => $oldRole,
 			'newRole' => $newRole,
+			'by' => $createdBy->getFirstname().' '.$createdBy->getLastname()
 		];
 
 		$this->eventStore->beginTransaction();
@@ -209,13 +210,13 @@ class EventSourcingFlowService extends AggregateRepository implements FlowServic
 			->where('f.recipient = :recipient')
 			->andWhere('f.hidden = false')
 			->setParameter(':recipient', $recipient);
-		
+
 		return intval($query->getQuery()->getSingleScalarResult());
 	}
-	
+
 	public function findFlowCardsByItem(Task $item){
 		$builder = $this->entityManager->createQueryBuilder();
-		
+
 		$query = $builder->select('f')
 			->from(ReadModelFlowCard::class, 'f')
 			->innerJoin('f.item', 'i', 'WITH', 'i.id = :itemId')
