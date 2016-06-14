@@ -5,7 +5,6 @@ use Application\Entity\User;
 use Application\Service\ReadModelProjector;
 use Prooph\EventStore\Stream\StreamEvent;
 use TaskManagement\Task as WriteModelTask;
-// use Kanbanize\KanbanizeTask as WriteModelKanbanizeTask;
 use TaskManagement\Entity\Estimation;
 use TaskManagement\Entity\Stream;
 use TaskManagement\Entity\Task;
@@ -30,11 +29,13 @@ class TaskCommandsListener extends ReadModelProjector {
 	 * @var OrganizationService
 	 */
 	private $orgService;
+
 	public function __construct($entityManager, $kanbanizeService, $orgService) {
 		$this->entityManager = $entityManager;
 		$this->kanbanizeService = $kanbanizeService;
 		$this->orgService = $orgService;
 	}
+
 	protected function onTaskCreated(StreamEvent $event) {
 		$id = $event->metadata ()['aggregate_id'];
 		$type = $event->metadata ()['aggregate_type'];
@@ -281,12 +282,14 @@ class TaskCommandsListener extends ReadModelProjector {
 	}
 
 	protected function onTaskOngoing(StreamEvent $event) {
+
 		$id = $event->metadata ()['aggregate_id'];
 		$task = $this->entityManager->find ( Task::class, $id );
 		$task->setStatus ( Task::STATUS_ONGOING );
 		$user = $this->entityManager->find ( User::class, $event->payload ()['by'] );
 		$task->setMostRecentEditBy ( $user );
 		$task->setMostRecentEditAt ( $event->occurredOn () );
+
 		$this->entityManager->persist ( $task );
 		if ($task->getType () == "kanbanizetask") {
 			$this->updateOnKanbanize ( $task );
