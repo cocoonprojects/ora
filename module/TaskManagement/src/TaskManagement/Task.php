@@ -180,9 +180,6 @@ class Task extends DomainEntity implements TaskInterface
 				'prevStatus' => $this->getStatus(),
 				'by' => $executedBy->getId(),
 		)));
-
-		$this->changeOwner($executedBy, $executedBy);
-
 		return $this;
 	}
 
@@ -507,13 +504,11 @@ class Task extends DomainEntity implements TaskInterface
 	 * @throws DomainEntityUnavailableException
 	 */
 	public function changeOwner(BasicUser $new_owner, BasicUser $by){
-
 		if(!$new_owner->isMemberOf($this->getOrganizationId())) {
 			throw new MissingOrganizationMembershipException($this->getOrganizationId(), $new_owner->getId());
 		}
 
 		$ex_owner = $this->getOwner();
-
 		if(!is_null($ex_owner)){
 			$this->recordThat(OwnerRemoved::occur($this->id->toString(), array(
 				'organizationId' => $this->getOrganizationId(),
