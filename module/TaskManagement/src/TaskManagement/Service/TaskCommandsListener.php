@@ -328,45 +328,67 @@ class TaskCommandsListener extends ReadModelProjector {
 	}
 
 	protected function onOwnerAdded(StreamEvent $event) {
-		$id = $event->metadata ()['aggregate_id'];
-		$new_owner_id = $event->payload ()['new_owner'];
-		$by_id = $event->payload ()['by'];
-		if (is_null ( $new_owner_id )) {
+		$id = $event->metadata()['aggregate_id'];
+		$new_owner_id = $event->payload()['new_owner'];
+		$by_id = $event->payload()['by'];
+
+		if (is_null($new_owner_id)) {
 			return;
 		}
-		$new_task_owner = $this->entityManager->find ( TaskMember::class, [
-				'task' => $id,
-				'user' => $new_owner_id
-		] );
-		if (!empty($new_task_owner)) {
-			$new_task_owner->setRole ( TaskMember::ROLE_OWNER );
-			$this->entityManager->persist ( $new_task_owner );
-		} else {
-			$entity = $this->entityManager->find ( Task::class, $id );
-			if (is_null ( $entity )) {
-				return;
-			}
-			$newOwner = $this->entityManager->find ( User::class, $new_owner_id );
-			$addedBy = $this->entityManager->find ( User::class, $by_id );
 
-			$entity->addMember ( $newOwner, TaskMember::ROLE_OWNER, $addedBy, $event->occurredOn () )->setMostRecentEditAt ( $event->occurredOn () )->setMostRecentEditBy ( $addedBy );
-			$this->entityManager->persist ( $entity );
+		$new_task_owner = $this->entityManager
+			->find(TaskMember::class, ['task' => $id, 'user' => $new_owner_id]);
+
+		if (!empty($new_task_owner)) {
+			$new_task_owner->setRole(TaskMember::ROLE_OWNER);
+			$this->entityManager
+				 ->persist($new_task_owner);
+
+			return;
 		}
+
+		$entity = $this->entityManager
+					   ->find (Task::class, $id);
+
+		if (is_null($entity)) {
+			return;
+		}
+
+		$newOwner = $this->entityManager
+						 ->find(User::class, $new_owner_id);
+
+		$addedBy = $this->entityManager
+						->find(User::class, $by_id);
+
+		$entity->addMember($newOwner, TaskMember::ROLE_OWNER, $addedBy, $event->occurredOn())
+			->setMostRecentEditAt($event->occurredOn())
+			->setMostRecentEditBy($addedBy);
+
+		$this->entityManager
+			 ->persist($entity);
 	}
 
 	protected function onOwnerRemoved(StreamEvent $event) {
-		$id = $event->metadata ()['aggregate_id'];
-		$ownerId = $event->payload ()['ex_owner'];
-		$ex_owner = $this->entityManager->find ( User::class, $event->payload ()['ex_owner'] );
-		$ex_task_owner = $this->entityManager->find ( TaskMember::class, [
-				'task' => $id,
-				'user' => $ex_owner
-		] );
-		if (is_null ( $ex_task_owner )) {
+		$id = $event->metadata()['aggregate_id'];
+		$ex_owner_id = $event->payload()['ex_owner'];
+
+		if ($ex_owner_id == $event->payload()['by']) {
 			return;
 		}
-		$ex_task_owner->setRole ( TaskMember::ROLE_MEMBER );
-		$this->entityManager->persist ( $ex_task_owner );
+
+		$ex_owner = $this->entityManager
+			->find(User::class, $ownerId);
+
+		$removedBy = $this->entityManager
+			->find(User::class, $event->payload()['by']);
+
+		$entity = $this->entityManager->find(Task::class, $id);
+		$entity->removeMember($ex_owner)
+			   ->setMostRecentEditAt($event->occurredOn())
+			   ->setMostRecentEditBy($removedBy);
+
+		$this->entityManager
+			 ->persist($entity);
 	}
 
 	protected function getPackage() {

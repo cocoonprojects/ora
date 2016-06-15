@@ -504,8 +504,11 @@ class Task extends DomainEntity implements TaskInterface
 	 * @throws DomainEntityUnavailableException
 	 */
 	public function changeOwner(BasicUser $new_owner, BasicUser $by){
+
 		if(!$new_owner->isMemberOf($this->getOrganizationId())) {
-			throw new MissingOrganizationMembershipException($this->getOrganizationId(), $new_owner->getId());
+			throw new MissingOrganizationMembershipException(
+				$this->getOrganizationId(), $new_owner->getId()
+			);
 		}
 
 		$ex_owner = $this->getOwner();
