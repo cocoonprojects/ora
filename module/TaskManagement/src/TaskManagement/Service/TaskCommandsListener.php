@@ -377,7 +377,11 @@ class TaskCommandsListener extends ReadModelProjector {
 		}
 
 		$ex_owner = $this->entityManager
-			->find(User::class, $ownerId);
+			->find(User::class, $ex_owner_id);
+
+		if (!$ex_owner) {
+			return;
+		}
 
 		$removedBy = $this->entityManager
 			->find(User::class, $event->payload()['by']);
