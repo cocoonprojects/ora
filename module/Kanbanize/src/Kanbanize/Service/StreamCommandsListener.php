@@ -20,7 +20,7 @@ class StreamCommandsListener extends ReadModelProjector{
 
 	public function attach(EventManagerInterface $events){
 		parent::attach($events);
-		
+
 		$this->listeners[] = $events->getSharedManager()->attach(Application::class, StreamCreated::class,
 			function(Event $event) {
 				$streamEvent = $event->getTarget();

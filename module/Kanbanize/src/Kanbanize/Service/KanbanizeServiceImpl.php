@@ -5,6 +5,7 @@ namespace Kanbanize\Service;
 use Application\Entity\User;
 use Doctrine\ORM\EntityManager;
 use Kanbanize\KanbanizeTask;
+use TaskManagement\Entity\Stream as ReadModelStream;
 use Kanbanize\Entity\KanbanizeStream;
 use Kanbanize\Entity\KanbanizeTask as ReadModelKanbanizeTask;
 use People\Organization as WriteModelOrganization;
@@ -240,8 +241,10 @@ class KanbanizeServiceImpl implements KanbanizeService
 		$builder = $this->entityManager->createQueryBuilder();
 
 		$query = $builder->select ( 's' )
-			->from(KanbanizeStream::class, 's')
+			->from(ReadModelStream::class, 's')
 			->where('s.organization = :organization')
+			->orderBy('s.createdAt', 'DESC')
+			->setMaxResults(1)
 			->setParameter(':organization', $organizationId);
 
 		return $query->getQuery()->getOneOrNullResult();

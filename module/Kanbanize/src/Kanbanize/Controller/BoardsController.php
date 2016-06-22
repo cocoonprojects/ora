@@ -123,21 +123,19 @@ class BoardsController extends OrganizationAwareController{
 		$projectId = $data['projectId'];
 
 		$stream = $this->kanbanizeService
-			 ->findStreamByProjectId($projectId, $organization);
+			 ->findStreamByOrganization($organization);
 
 		$this->transaction()->begin();
 
 		try{
-			if(is_null($stream)) {
-				$stream = $this->createStream($streamName, $projectId, $id, $organization);
-			} else if($stream->getSubject() != $streamName) {
+			if($stream->getSubject() != $streamName) {
 				$stream->setSubject($streamName, $this->identity());
 			}
 
 			if($stream->getBoardId() != $id) {
 				// use the old project stream if admin links it to another kanbanize board
 				$aggregateStream = $this->streamService->getStream($stream->getId());
-				$aggregateStream->changeBoardId($id, $this->identity());
+				$aggregateStream->bindToKanbanizeBoard($id, $this->identity());
 			}
 
 			$organization->setSettings(
@@ -155,7 +153,7 @@ class BoardsController extends OrganizationAwareController{
 				'boardSettings' => $organization->getSettings(Organization::KANBANIZE_SETTINGS)['boards'][$id]
 			]);
 
-		}catch (InvalidArgumentException $ex){
+		} catch (InvalidArgumentException $ex) {
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(422);
 			$error->setCode(ErrorJsonModel::$ERROR_INPUT_VALIDATION);
@@ -231,14 +229,5 @@ class BoardsController extends OrganizationAwareController{
 		$client->setApiKey($apiKey);
 		$client->setUrl(sprintf(Importer::API_URL_FORMAT, $subdomain));
 		return $client;
-	}
-	private function createStream($subject, $projectId, $boardId, Organization $organization) {
-		$options = [
-				'projectId' => $projectId,
-				'boardId' => $boardId
-		];
-		$stream = KanbanizeStream::create($organization, $subject, $this->identity(), $options);
-		$this->streamService->addKanbanizeStream($stream);
-		return $stream;
 	}
 }

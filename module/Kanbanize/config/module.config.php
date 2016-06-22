@@ -20,7 +20,7 @@ return array(
 		//'Kanbanize\SyncTaskListener',	// Actions on kanbanize tasks come directly from Kanbanize, not from O.R.A.
 		'Kanbanize\ImportTasksListener',
 		'Kanbanize\TaskCommandsListener',
-		'Kanbanize\StreamCommandsListener',
+		// 'Kanbanize\StreamCommandsListener',
 	),
 	'router' => array(
 		'routes' => array(

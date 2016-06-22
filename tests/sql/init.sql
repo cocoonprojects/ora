@@ -471,12 +471,13 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
   ('6e943d09-7a9a-4a2a-a8b5-201bfeb57b60', 3, 'TaskManagement\\StreamOrganizationChanged',
    'a:3:{s:14:\"organizationId\";s:36:\"00000000-0000-0000-1000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"11111111-1000-0000-0000-000000000000\";}',
    '2014-11-12T19:07:59.000000+0100', 'TaskManagement\\Stream', '11111111-1000-0000-0000-000000000000');
-INSERT INTO streams (id, subject, createdAt, mostRecentEditAt, organization_id, createdBy_id, mostRecentEditBy_id, type)
+INSERT INTO streams (id, subject, createdAt, mostRecentEditAt, organization_id, createdBy_id, mostRecentEditBy_id, type, boardId)
 VALUES ('11111111-1000-0000-0000-000000000000', 'O.R.A.: Kanbanize Stream', '2014-11-06 13:11:05',
         '2014-11-06 13:11:05', '00000000-0000-0000-1000-000000000000', '60000000-0000-0000-0000-000000000000',
-        '60000000-0000-0000-0000-000000000000', 'kanbanizestream');
-INSERT INTO kanbanizestreams (id, boardId, projectId)
-VALUES ('11111111-1000-0000-0000-000000000000', '150', '100');
+        '60000000-0000-0000-0000-000000000000', 'kanbanizestream', 150);
+
+INSERT INTO kanbanizestreams (id, projectId)
+VALUES ('11111111-1000-0000-0000-000000000000', '100');
 
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
   ('bac7de07-0580-421c-94ca-21842f676a30', 1, 'TaskManagement\\StreamCreated',
@@ -488,12 +489,12 @@ INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggr
   ('be943d09-7a9a-4a2a-a8b5-201bfeb57b60', 3, 'TaskManagement\\StreamOrganizationChanged',
    'a:3:{s:14:\"organizationId\";s:36:\"00000000-0000-0000-2000-000000000000\";s:2:\"by\";s:36:\"60000000-0000-0000-0000-000000000000\";s:12:\"aggregate_id\";s:36:\"11111111-2000-0000-0000-000000000000\";}',
    '2014-11-12T19:07:59.000000+0100', 'TaskManagement\\Stream', '11111111-2000-0000-0000-000000000000');
-INSERT INTO streams (id, subject, createdAt, mostRecentEditAt, organization_id, createdBy_id, mostRecentEditBy_id, type)
+INSERT INTO streams (id, subject, createdAt, mostRecentEditAt, organization_id, createdBy_id, mostRecentEditBy_id, type, boardId)
 VALUES ('11111111-2000-0000-0000-000000000000', 'O.R.A.: Kanbanize Stream', '2014-11-06 13:11:05',
         '2014-11-06 13:11:05', '00000000-0000-0000-2000-000000000000', '60000000-0000-0000-0000-000000000000',
-        '60000000-0000-0000-0000-000000000000', 'kanbanizestream');
-INSERT INTO kanbanizestreams (id, boardId, projectId)
-VALUES ('11111111-2000-0000-0000-000000000000', '150', '100');
+        '60000000-0000-0000-0000-000000000000', 'kanbanizestream', 150);
+INSERT INTO kanbanizestreams (id, projectId)
+VALUES ('11111111-2000-0000-0000-000000000000', '100');
 
 # kanbanizeTask 00000000-0000-0000-0000-000000000106, accepted, Mark Rogers (owner)
 INSERT INTO event_stream (eventId, version, eventName, payload, occurredOn, aggregate_type, aggregate_id) VALUES
