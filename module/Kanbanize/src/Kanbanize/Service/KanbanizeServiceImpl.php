@@ -80,7 +80,7 @@ class KanbanizeServiceImpl implements KanbanizeService
 	}
 
 
-	public function createNewTask($projectId, $taskSubject,$taskTitle, $boardId, $options) {
+	public function createNewTask($taskSubject,$taskTitle, $boardId, $options) {
 		$createdAt = new \DateTime ();
 
 		// TODO: Modificare createdBy per inserire User

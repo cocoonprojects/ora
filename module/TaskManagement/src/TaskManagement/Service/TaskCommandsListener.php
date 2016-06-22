@@ -400,13 +400,13 @@ class TaskCommandsListener extends ReadModelProjector {
 	}
 
 	private function updateOnKanbanize($task) {
-		$kanbanizeStream = $task->getStream ();
-		$KanbanizeBoardId = $kanbanizeStream->getBoardId ();
-		$projectId = $kanbanizeStream->getProjectId ();
+		$kanbanizeStream = $task->getStream();
+		$KanbanizeBoardId = $kanbanizeStream->getBoardId();
 
 		// getting organization
 		$org = $this->orgService->findOrganization ( $task->getOrganizationId () );
 		$kanbanizeSettings = $org->getSettings ( $this::KANBANIZE_SETTINGS );
+
 		if (is_null ( $kanbanizeSettings ) || empty ( $kanbanizeSettings )) {
 			return $this->getResponse ()->setContent ( json_encode ( new \stdClass () ) );
 		}

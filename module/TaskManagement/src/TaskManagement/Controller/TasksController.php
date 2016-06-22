@@ -265,13 +265,12 @@ class TasksController extends OrganizationAwareController
 			return $this->response;
 		}
 
-		if ($stream instanceof KanbanizeStream || $stream instanceof ReadModelKanbanizeStream) {
+		if ($stream->isBoundToKanbanizeBoard()) {
 			// KanbanizeTask Creation
 
 			// creation with api on kanbanize board
-			$kanbanizeStream = $this->streamService->findStream ( $data ['streamID'] );
-			$KanbanizeBoardId = $kanbanizeStream->getBoardId ();
-			$projectId = $kanbanizeStream->getProjectId ();
+			$stream = $this->streamService->findStream($data['streamID']);
+			$boardId = $kanbanizeStream->getBoardId();
 
 			// get kanbanizeSettings
 			$kanbanizeSettings = $this->organization->getSettings ( $this::KANBANIZE_SETTINGS );
@@ -291,9 +290,8 @@ class TasksController extends OrganizationAwareController
 					$lane['lane'] = $data['lane'];
 				}
 
-				// Create Task on Kanbanize
 				$kanbanizeTaskID = $this->kanbanizeService
-					->createNewTask($projectId, $description, $subject, $KanbanizeBoardId, $lane);
+					->createNewTask($description, $subject, $boardId, $lane);
 
 				if (is_null ( $kanbanizeTaskID )) {
 					$this->response->setStatusCode ( 417 );
@@ -348,7 +346,7 @@ class TasksController extends OrganizationAwareController
 					$options['lane'] = $data['lane'];
 				}
 
-				$task = Task::create ( $stream, $subject, $this->identity (), $options );
+				$task = Task::create($stream, $subject, $this->identity(), $options);
 				$task->setDescription ( $description, $this->identity () );
 				$task->addMember ( $this->identity (), Task::ROLE_OWNER );
 				$this->taskService->addTask ( $task );
