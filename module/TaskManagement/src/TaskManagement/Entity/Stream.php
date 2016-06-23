@@ -29,7 +29,7 @@ class Stream extends EditableEntity
 	private $organization;
 
 	/**
-	 * @ORM\Column(type="integer", nullable=true)
+	 * @ORM\Column(type="string", nullable=true)
 	 * @var string
 	 */
 	private $boardId;
@@ -54,6 +54,10 @@ class Stream extends EditableEntity
 
 	public function getBoardId() {
 		return $this->boardId;
+	}
+
+	public function setBoardId($boardId) {
+		return $this->boardId = $boardId;
 	}
 
 	public function getType(){

@@ -67,6 +67,10 @@ class Stream extends DomainEntity
 		]));
 	}
 
+	public function getBoardId() {
+		return $this->boardId;
+	}
+
 	public function isBoundToKanbanizeBoard() {
 		return $this->boardId;
 	}

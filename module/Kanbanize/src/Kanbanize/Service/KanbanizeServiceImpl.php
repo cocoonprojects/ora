@@ -63,7 +63,7 @@ class KanbanizeServiceImpl implements KanbanizeService
 		$taskId = $kanbanizeTask->getTaskId();
 		$options = [];
 
-		if ($task->getLaneName()) {
+		if ($kanbanizeTask->getLaneName()) {
 			$options['lane'] = $task->getLaneName();
 		}
 
@@ -91,7 +91,8 @@ class KanbanizeServiceImpl implements KanbanizeService
 			'description' => $taskSubject,
 		]);
 
-		$id = $this->kanbanize->createNewTask ( $boardId, $options );
+		$id = $this->kanbanize->createNewTask ( $boardId, $all_options );
+
 		if (is_null ( $id )) {
 			throw OperationFailedException("Cannot create task on Kanbanize");
 		}

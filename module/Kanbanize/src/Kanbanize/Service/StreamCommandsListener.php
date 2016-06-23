@@ -61,6 +61,7 @@ class StreamCommandsListener extends ReadModelProjector{
 						$this->entityManager->persist($stream);
 						$this->entityManager->flush($stream);
 					}
+
 					if(isset($streamEvent->payload()['boardId'])) {
 						$stream = $this->entityManager->find(Stream::class, $id);
 						if(is_null($stream)) {
@@ -73,6 +74,7 @@ class StreamCommandsListener extends ReadModelProjector{
 						$this->entityManager->persist($stream);
 						$this->entityManager->flush($stream);
 					}
+
 				}
 			}, 200);
 	}

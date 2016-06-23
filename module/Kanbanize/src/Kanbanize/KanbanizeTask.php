@@ -52,7 +52,7 @@ class KanbanizeTask extends Task {
 			'streamId' => $stream->getId(),
 			'by' => $createdBy->getId(),
 			'columnname' => $options["columnname"],
-			'lanename' => $options["lanename"],
+			'lanename' => isset($options["lanename"]) ? $options["lanename"] : null,
 			'subject' => $subject,
 			'description' =>$options["description"]
 		]));

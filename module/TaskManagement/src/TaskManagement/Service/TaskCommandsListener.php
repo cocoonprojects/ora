@@ -413,7 +413,9 @@ class TaskCommandsListener extends ReadModelProjector {
 
 		// Init KanbanizeAPI on kanbanizeService
 		$this->kanbanizeService->initApi ( $kanbanizeSettings ['apiKey'], $kanbanizeSettings ['accountSubdomain'] );
+
 		$mapping = $kanbanizeSettings ['boards'] [$KanbanizeBoardId] ['columnMapping'];
+
 		$key = array_search ( $task->getStatus (), $mapping );
 
 		$this->kanbanizeService->moveTaskonKanbanize ( $task, $key, $KanbanizeBoardId );

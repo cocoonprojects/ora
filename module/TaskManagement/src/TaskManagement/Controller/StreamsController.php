@@ -88,9 +88,10 @@ class StreamsController extends OrganizationAwareController
 
 	protected function serializeOne($stream) {
 		return [
-			'id' => $stream->getId (),
-			'subject' => $stream->getSubject (),
+			'id' => $stream->getId(),
+			'subject' => $stream->getSubject(),
 			'createdAt' => date_format($stream->getCreatedAt(), 'c'),
+			'boardId' => $stream->getBoardId(),
 			'type' => $stream->getType(),
 			'_links' => [
 					'self' => $this->url()->fromRoute('collaboration', [

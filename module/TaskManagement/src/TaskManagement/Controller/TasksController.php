@@ -258,21 +258,15 @@ class TasksController extends OrganizationAwareController
 			$this->response->setStatusCode ( 400 );
 			return $error;
 		}
-		$stream = $this->streamService->getStream ( $data ['streamID'] );
-		if (is_null ( $stream )) {
+		$aggStream = $this->streamService->getStream ( $data ['streamID'] );
+		if (is_null ( $aggStream )) {
 			// Stream Not Found
 			$this->response->setStatusCode ( 404 );
 			return $this->response;
 		}
 
-		if ($stream->isBoundToKanbanizeBoard()) {
-			// KanbanizeTask Creation
+		if ($aggStream->isBoundToKanbanizeBoard()) {
 
-			// creation with api on kanbanize board
-			$stream = $this->streamService->findStream($data['streamID']);
-			$boardId = $kanbanizeStream->getBoardId();
-
-			// get kanbanizeSettings
 			$kanbanizeSettings = $this->organization->getSettings ( $this::KANBANIZE_SETTINGS );
 			if (is_null ( $kanbanizeSettings ) || empty ( $kanbanizeSettings )) {
 				return $this->getResponse ()->setContent ( json_encode ( new \stdClass () ) );
@@ -284,6 +278,7 @@ class TasksController extends OrganizationAwareController
 			$this->transaction ()->begin ();
 			try {
 
+				$boardId = $aggStream->getBoardId();
 				$lane = [];
 
 				if (isset($data['lane'])) {
@@ -308,7 +303,7 @@ class TasksController extends OrganizationAwareController
 					$options['lane'] = $data['lane'];
 				}
 
-				$kanbanizeTask = KanbanizeTask::create ( $stream, $subject, $this->identity (), $options );
+				$kanbanizeTask = KanbanizeTask::create ( $aggStream, $subject, $this->identity (), $options );
 				$kanbanizeTask->setAssignee ( null, $this->identity () );
 				$kanbanizeTask->setDescription ( $description, $this->identity () );
 				$kanbanizeTask->addMember ( $this->identity (), KanbanizeTask::ROLE_OWNER );
@@ -346,7 +341,7 @@ class TasksController extends OrganizationAwareController
 					$options['lane'] = $data['lane'];
 				}
 
-				$task = Task::create($stream, $subject, $this->identity(), $options);
+				$task = Task::create($aggStream, $subject, $this->identity(), $options);
 				$task->setDescription ( $description, $this->identity () );
 				$task->addMember ( $this->identity (), Task::ROLE_OWNER );
 				$this->taskService->addTask ( $task );

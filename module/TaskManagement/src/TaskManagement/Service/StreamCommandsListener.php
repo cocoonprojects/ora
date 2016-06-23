@@ -33,29 +33,29 @@ class StreamCommandsListener extends ReadModelProjector {
 	}
 
 	protected function onStreamUpdated(StreamEvent $event) {
-		if(isset($event->payload()['subject'])) {
-			$id = $event->metadata()['aggregate_id'];
-			$stream = $this->entityManager->find(Stream::class, $id);
-			if(is_null($stream)) {
-				return;
-			}
 
-			$updatedBy = $this->entityManager
-				->find(User::class, $event->payload()['by']);
+		$id = $event->metadata()['aggregate_id'];
+		$stream = $this->entityManager->find(Stream::class, $id);
 
-			if (isset($event->metadata()['subject'])) {
-				$stream->setSubject($event->payload()['subject']);
-			}
-
-			if (isset($event->metadata()['boardId'])) {
-				$stream->setBoardId($event->payload()['boardId']);
-			}
-
-			$stream->setMostRecentEditAt($event->occurredOn());
-			$stream->setMostRecentEditBy($updatedBy);
-
-			$this->entityManager->persist($stream);
+		if(is_null($stream)) {
+			return;
 		}
+
+		$updatedBy = $this->entityManager
+			->find(User::class, $event->payload()['by']);
+
+		if (isset($event->payload()['subject'])) {
+			$stream->setSubject($event->payload()['subject']);
+		}
+
+		if (isset($event->payload()['boardId'])) {
+			$stream->setBoardId($event->payload()['boardId']);
+		}
+
+		$stream->setMostRecentEditAt($event->occurredOn());
+		$stream->setMostRecentEditBy($updatedBy);
+
+		$this->entityManager->persist($stream);
 	}
 
 	protected function onStreamOrganizationChanged(StreamEvent $event) {
