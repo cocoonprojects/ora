@@ -74,23 +74,19 @@ class BoardsController extends OrganizationAwareController{
 			$this->response->setStatusCode(403);
 			return $this->response;
 		}
-		$notEmptyValidator = new NotEmpty();
 		$error = new ErrorJsonModel();
-		if(!isset($data['projectId']) || !$notEmptyValidator->isValid($data['projectId'])){
-			$error->addSecondaryErrors("projectId", ["Missing project id"]);
-		}
-		if(!isset($data['streamName'])){
-			$error->addSecondaryErrors("streamName", ["Stream name cannot be empty"]);
-		} else {
+
+		$streamName = null;
+
+		if(isset($data['streamName'])){
 			$filters = new FilterChain();
 			$filters->attach(new StringTrim())
 				->attach(new StripNewlines())
 				->attach(new StripTags());
+
 			$streamName = $filters->filter($data['streamName']);
-			if(!$notEmptyValidator->isValid($data['streamName'])){
-				$error->addSecondaryErrors("streamName", ["Stream name cannot be empty"]);
-			}
 		}
+
 		$statusValidator = new InArray([
 			'haystack' => static::$valid_statuses
 		]);
@@ -120,22 +116,21 @@ class BoardsController extends OrganizationAwareController{
 		$kanbanizeSettings = $organization->getSettings(Organization::KANBANIZE_SETTINGS);
 		$kanbanizeSettings['boards'][$id]['columnMapping'] = $data['mapping'];
 
-		$projectId = $data['projectId'];
-
 		$stream = $this->kanbanizeService
 			 ->findStreamByOrganization($organization);
 
 		$this->transaction()->begin();
 
 		try{
-			if($stream->getSubject() != $streamName) {
+			if(!$streamName &&
+				$stream->getSubject() != $streamName) {
+
 				$stream->setSubject($streamName, $this->identity());
 			}
 
 			if($stream->getBoardId() != $id) {
-				// use the old project stream if admin links it to another kanbanize board
-				$aggregateStream = $this->streamService->getStream($stream->getId());
-				$aggregateStream->bindToKanbanizeBoard($id, $this->identity());
+				$aggrStream = $this->streamService->getStream($stream->getId());
+				$aggrStream->bindToKanbanizeBoard($id, $this->identity());
 			}
 
 			$organization->setSettings(
