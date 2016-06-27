@@ -110,7 +110,11 @@ class ConsoleRemindersProcessTest extends \PHPUnit_Framework_TestCase
 			->method('findOrganizations')
 			->willReturn([$this->organization]);
 
+		ob_start();
+
 		$this->controller->sendAction();
+
+		$result = ob_clean();
 
 		$emails = $this->getEmailMessages();
 

@@ -20,7 +20,7 @@ use TaskManagement\Entity\ItemIdeaApproval;
 class EventSourcingTaskService extends AggregateRepository implements TaskService
 {
 	/**
-	 * 
+	 *
 	 * @var EntityManager
 	 */
 	private $entityManager;
@@ -28,9 +28,9 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	public function __construct(EventStore $eventStore, EntityManager $entityManager)
 	{
 		parent::__construct($eventStore, new AggregateTranslator(), new SingleStreamStrategy($eventStore), AggregateType::fromAggregateRootClass(Task::class));
-		$this->entityManager = $entityManager;	
+		$this->entityManager = $entityManager;
 	}
-	
+
 	public function addTask(Task $task)
 	{
 		$this->addAggregateRoot($task);
@@ -130,7 +130,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @return int
 	 */
 	public function countOrganizationTasks(Organization $organization, $filters){
-		
+
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('count(t)')
 			->from(ReadModelTask::class, 't')
@@ -180,18 +180,18 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @return ReadModelTask[]
 	 */
 	public function findAcceptedTasksBefore(\DateInterval $interval){
-		
+
 		$referenceDate = new \DateTime('now');
-		
+
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('t')
 			->from(ReadModelTask::class, 't')
-			->where("DATE_ADD(t.acceptedAt,".$interval->format('%d').", 'DAY') <= :referenceDate") 
+			->where("DATE_ADD(t.acceptedAt,".$interval->format('%d').", 'DAY') <= :referenceDate")
 			->andWhere('t.status = :taskStatus')
 			->setParameter('taskStatus', Task::STATUS_ACCEPTED)
 			->setParameter('referenceDate', $referenceDate->format('Y-m-d H:i:s'))
 			->getQuery();
-		
+
 		return $query->getResult();
 	}
 
@@ -202,18 +202,19 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @return ReadModelTask[]
 	 */
 	public function findIdeasCreatedBetween(\DateInterval $after, \DateInterval $before){
-		
+
 		$referenceDate = new \DateTime('now');
-		
+
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('t')
 			->from(ReadModelTask::class, 't')
-			->where("DATE_ADD(t.createdAt,".$before->format('%d').", 'DAY') >= :referenceDate") 
-			->andWhere("DATE_ADD(t.createdAt,".$after->format('%d').", 'DAY') <= :referenceDate") 
+			->where("DATE_ADD(t.createdAt,".$before->format('%d').", 'DAY') >= :referenceDate")
+			->andWhere("DATE_ADD(t.createdAt,".$after->format('%d').", 'DAY') <= :referenceDate")
 			->andWhere('t.status = :taskStatus')
 			->setParameter('taskStatus', Task::STATUS_IDEA)
 			->setParameter('referenceDate', $referenceDate->format('Y-m-d H:i:s'))
-			->getQuery();		
+			->getQuery();
+
 		return $query->getResult();
 	}
 
@@ -261,7 +262,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 */
 	public function findItemsBefore(\DateInterval $interval, $status = null){
 		$referenceDate = new \DateTime('now');
-		
+
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('t')
 			->from(ReadModelTask::class, 't')
@@ -273,16 +274,16 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		}
 		return $query->getQuery()->getResult();
 	}
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see \TaskManagement\Service\TaskService::countVotesForApproveItem()
 	 */
 	public function countVotesForItem($itemStatus, $id){
-		
+
 		$tId = $id instanceof Uuid ? $id->toString() : $id;
 		$builder = $this->entityManager->createQueryBuilder();
-	
+
 		$query = $builder->select ( 'COALESCE(SUM( CASE WHEN a.vote.value = 1 THEN 1 ELSE 0 END ),0) as votesFor' )
 		->addSelect('COALESCE(SUM( CASE WHEN a.vote.value = 0 THEN 1 ELSE 0 END ),0) as votesAgainst')
 		->from(ItemIdeaApproval::class, 'a')
@@ -291,7 +292,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		->setParameter ( ':status', $itemStatus)
 		->setParameter ( ':id', $tId)
 		->getQuery();
-		
+
 		return $query->getResult()[0];
 	}
 

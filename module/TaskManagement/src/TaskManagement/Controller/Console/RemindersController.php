@@ -46,16 +46,28 @@ class RemindersController extends AbstractConsoleController {
 			$intervalForVotingTimebox = $org->getParams()
 				->get('item_idea_voting_timebox');
 
+			$this->write("loading org {$org->getName()} ({$org->getId()})");
+			$this->write("voting remind interval is {$intervalForVotingRemind->format('%d')}");
+			$this->write("voting timebox is {$intervalForVotingTimebox->format('%d')}");
+
 			$tasksToNotify = $this->taskService
 				->findIdeasCreatedBetween(
-					$intervalForVotingRemind,
-					$intervalForVotingTimebox
+					$intervalForVotingTimebox,
+					$intervalForVotingRemind
 			);
 
+			$totTasks = count($tasksToNotify);
+
+			$this->write("found $totTasks tasks");
 			$rv = [];
+
 			foreach ($tasksToNotify as $task) {
 
 				$taskMembersWithNoApproval = $task->findMembersWithNoApproval();
+
+				$totTasksMembers = count($taskMembersWithNoApproval);
+
+				$this->write("task {$task->getId()} has $totTasksMembers to be notified");
 
 				foreach ($taskMembersWithNoApproval as $tm){
 
@@ -71,13 +83,23 @@ class RemindersController extends AbstractConsoleController {
 					]);
 
 					$this->mailService->send();
+
+					$this->write("{$member->getEmail()} notified (task {$task->getId()})");
+
 					$rv[$task->getId()] = $member->getEmail();
 				}
 			}
 
-		}
+			$this->write("");
 
-		return var_export($rv, true);
+		}
+	}
+
+	private function write($msg)
+	{
+		$now = (new \DateTime('now'))->format('Y-m-d H:s');
+
+		echo "[$now] ", $msg, "\n";
 	}
 
 }
