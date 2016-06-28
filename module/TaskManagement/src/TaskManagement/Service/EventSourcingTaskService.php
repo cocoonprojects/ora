@@ -201,7 +201,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @param \DateInterval $before
 	 * @return ReadModelTask[]
 	 */
-	public function findIdeasCreatedBetween(\DateInterval $after, \DateInterval $before){
+	public function findIdeasCreatedBetween(\DateInterval $after, \DateInterval $before, $orgId = null){
 
 		$referenceDate = new \DateTime('now');
 
@@ -212,10 +212,14 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->andWhere("DATE_ADD(t.createdAt,".$after->format('%d').", 'DAY') <= :referenceDate")
 			->andWhere('t.status = :taskStatus')
 			->setParameter('taskStatus', Task::STATUS_IDEA)
-			->setParameter('referenceDate', $referenceDate->format('Y-m-d H:i:s'))
-			->getQuery();
+			->setParameter('referenceDate', $referenceDate->format('Y-m-d H:i:s'));
 
-		return $query->getResult();
+		if(!is_null($orgId)) {
+			$query->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
+				  ->setParameter('organization', $orgId);
+		}
+
+		return $query->getQuery()->getResult();
 	}
 
 	/**
@@ -260,7 +264,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * (non-PHPdoc)
 	 * @see \TaskManagement\Service\TaskService::findItemsBefore()
 	 */
-	public function findItemsBefore(\DateInterval $interval, $status = null){
+	public function findItemsBefore(\DateInterval $interval, $status = null, $orgId = null){
 		$referenceDate = new \DateTime('now');
 
 		$builder = $this->entityManager->createQueryBuilder();
@@ -268,10 +272,17 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 			->from(ReadModelTask::class, 't')
 			->where("DATE_ADD(t.createdAt,".$interval->format('%d').", 'DAY') <= :referenceDate")
 			->setParameter('referenceDate', $referenceDate->format('Y-m-d H:i:s'));
-		if(!is_null($status)){
+
+		if(!is_null($status)) {
 			$query->andWhere('t.status = :taskStatus')
 				->setParameter('taskStatus', $status);
 		}
+
+		if(!is_null($orgId)) {
+			$query->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
+				  ->setParameter('organization', $orgId);
+		}
+
 		return $query->getQuery()->getResult();
 	}
 

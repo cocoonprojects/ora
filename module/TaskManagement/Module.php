@@ -10,6 +10,7 @@ use TaskManagement\Controller\OwnerController;
 use TaskManagement\Controller\MemberStatsController;
 use TaskManagement\Controller\RemindersController;
 use TaskManagement\Controller\Console\RemindersController as ConsoleRemindersController;
+use TaskManagement\Controller\Console\VotingResultsController as ConsoleVotingsController;
 use TaskManagement\Controller\SharesController;
 use TaskManagement\Controller\StreamsController;
 use TaskManagement\Controller\TasksController;
@@ -56,7 +57,7 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$locator = $sm->getServiceLocator();
 					$orgService = $locator->get('People\OrganizationService');
 					$taskService = $locator->get('TaskManagement\TaskService');
-					$userService = $locator->get('Application\UserService');				
+					$userService = $locator->get('Application\UserService');
 					$controller = new MembersController($orgService, $taskService, $userService);
 					return $controller;
 				},
@@ -166,6 +167,20 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					if(isset($config['mail_domain'])) {
 						$controller->setHost($config['mail_domain']);
 					}
+
+					return $controller;
+				},
+				'TaskManagement\Controller\Console\VotingResults' => function ($sm) {
+					$locator = $sm->getServiceLocator();
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$orgService = $locator->get('People\OrganizationService');
+					$userService = $locator->get('Application\UserService');
+
+					$controller = new ConsoleVotingsController(
+						$taskService,
+						$orgService,
+						$userService
+					);
 
 					return $controller;
 				},

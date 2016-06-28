@@ -56,6 +56,15 @@ return array(
 							'action' => 'send'
                         ]
                     ]
+                ],
+                'close_polls' => [
+                    'options' => [
+                        'route'    => 'closepolls [idea-items|completed-items]:type [--verbose|-v]',
+                        'defaults' => [
+							'controller' => 'TaskManagement\Controller\Console\VotingResults',
+							'action' => 'closePolls'
+                        ]
+                    ]
                 ]
             ]
         ]

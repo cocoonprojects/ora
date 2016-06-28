@@ -53,7 +53,8 @@ class RemindersController extends AbstractConsoleController {
 			$tasksToNotify = $this->taskService
 				->findIdeasCreatedBetween(
 					$intervalForVotingTimebox,
-					$intervalForVotingRemind
+					$intervalForVotingRemind,
+					$org->getId()
 			);
 
 			$totTasks = count($tasksToNotify);
