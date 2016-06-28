@@ -55,6 +55,8 @@ class VotingResultsController extends AbstractConsoleController {
 			exit(1);
         }
 
+        $this->write("loaded system user {$systemUser->getName()}");
+
 		$orgs = $this->organizationService->findOrganizations();
 
 		foreach($orgs as $org) {
@@ -94,7 +96,7 @@ class VotingResultsController extends AbstractConsoleController {
 			return;
 		}
 
-		array_walk($itemIdeas, function($idea) {
+		array_walk($itemIdeas, function($idea) use($systemUser){
 			$itemId = $idea->getId();
 			$results = $this->taskService
 							->countVotesForItem(TaskInterface::STATUS_IDEA, $itemId);
@@ -139,7 +141,7 @@ class VotingResultsController extends AbstractConsoleController {
 			return;
 		}
 
-		array_walk($itemsCompleted, function($completed) {
+		array_walk($itemsCompleted, function($completed) use ($systemUser) {
 			$itemId = $completed->getId();
 			$results = $this->taskService
 							->countVotesForItem(TaskInterface::STATUS_COMPLETED, $itemId);

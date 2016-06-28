@@ -5,7 +5,6 @@ use Application\Entity\User;
 use Application\Service\ReadModelProjector;
 use Prooph\EventStore\Stream\StreamEvent;
 use TaskManagement\Task as WriteModelTask;
-// use Kanbanize\KanbanizeTask as WriteModelKanbanizeTask;
 use TaskManagement\Entity\Estimation;
 use TaskManagement\Entity\Stream;
 use TaskManagement\Entity\Task;
