@@ -8,6 +8,7 @@ use Kanbanize\Controller\BoardsController;
 use Kanbanize\Controller\ImportsController;
 use Kanbanize\Controller\SettingsController;
 use Kanbanize\Controller\StatsController;
+use Kanbanize\Controller\Console\KanbanizeToOraSyncController;
 use Kanbanize\Service\KanbanizeAPI;
 use Kanbanize\Service\KanbanizeServiceImpl;
 use Kanbanize\Service\SyncTaskListener;
@@ -43,6 +44,22 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					// 	$controller->setIntervalForAssignShares($assignmentOfSharesTimebox);
 					// }
 					// return $controller;
+				},
+				'Kanbanize\Controller\Console\KanbanizeToOraSync' => function($sm) {
+					$locator = $sm->getServiceLocator();
+					$taskService = $locator->get('TaskManagement\TaskService');
+					$orgService = $locator->get('People\OrganizationService');
+					$userService = $locator->get('Application\UserService');
+					$kanbanizeService = $locator->get('Kanbanize\KanbanizeService');
+
+					$controller = new KanbanizeToOraSyncController(
+						$taskService,
+						$orgService,
+						$userService,
+						$kanbanizeService
+					);
+
+					return $controller;
 				},
 				'Kanbanize\Controller\Settings' => function($sm){
 					$locator = $sm->getServiceLocator();

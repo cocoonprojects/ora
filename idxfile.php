@@ -37,7 +37,7 @@ $deploy = function($go = false) use ($idx)
     $idx->local("rsync $opts $dryrun -e 'ssh' . $user@$host:$path");
 
     if ($go) {
-        $idx->remote("cd $path && composer install --no-dev -o");
+        // $idx->remote("cd $path && composer install --no-dev -o");
     }
 };
 

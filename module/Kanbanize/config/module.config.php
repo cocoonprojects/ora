@@ -22,6 +22,21 @@ return array(
 		'Kanbanize\TaskCommandsListener',
 		// 'Kanbanize\StreamCommandsListener',
 	),
+    'console' => [
+        'router' => [
+            'routes' => [
+                'sync' => [
+                    'options' => [
+                        'route'    => 'sync [--verbose|-v]',
+                        'defaults' => [
+							'controller' => 'Kanbanize\Controller\Console\KanbanizeToOraSync',
+							'action' => 'sync'
+                        ]
+                    ]
+                ],
+            ]
+        ]
+    ],
 	'router' => array(
 		'routes' => array(
 			'stats' => array(

@@ -14,6 +14,7 @@ use Prooph\EventStore\Stream\SingleStreamStrategy;
 use Rhumsaa\Uuid\Uuid;
 use TaskManagement\Task;
 use TaskManagement\Entity\Task as ReadModelTask;
+use Kanbanize\Entity\KanbanizeTask as ReadModelKanbanizeTask;
 use TaskManagement\Entity\TaskMember;
 use TaskManagement\Entity\ItemIdeaApproval;
 
@@ -172,6 +173,12 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 
 	public function findTask($id) {
 		return $this->entityManager->find(ReadModelTask::class, $id);
+	}
+
+	public function findTaskByKanbanizeId($id) {
+		return $this->entityManager
+					->getRepository(ReadModelKanbanizeTask::class)
+					->findOneBy(['taskId' =>  $id]);
 	}
 
 	/**

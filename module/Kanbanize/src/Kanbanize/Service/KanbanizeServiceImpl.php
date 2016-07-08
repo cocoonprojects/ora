@@ -39,6 +39,18 @@ class KanbanizeServiceImpl implements KanbanizeService
 		$this->entityManager = $em;
 	}
 
+	public function getBoardActivities($boardId)
+	{
+		$now = new \DateTimeImmutable('now');
+		$fromDate = $now->sub(new \DateInterval('P1D'))->format('Y-m-d');
+		$toDate = $now->add(new \DateInterval('P1D'))->format('Y-m-d');
+
+		$response = $this->kanbanize
+						 ->getBoardActivities($boardId, $fromDate, $toDate);
+
+		return $response;
+	}
+
 	public function moveTask(KanbanizeTask $task, $status) {
 		$boardId = $task->getKanbanizeBoardId();
 		$taskId = $task->getKanbanizeTaskId();

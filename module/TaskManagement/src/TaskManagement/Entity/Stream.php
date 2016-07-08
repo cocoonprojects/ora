@@ -60,6 +60,10 @@ class Stream extends EditableEntity
 		return $this->boardId = $boardId;
 	}
 
+	public function isBoundToKanbanizeBoard() {
+		return $this->boardId;
+	}
+
 	public function getType(){
 		return 'stream';
 	}
