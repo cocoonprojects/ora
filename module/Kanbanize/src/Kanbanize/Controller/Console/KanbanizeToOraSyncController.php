@@ -132,11 +132,17 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
                 }
 
                 // update kanbanize task based on O.R.A
-                // if ($task->updatedat < $kanbanizeTask['updatedat']) {
+                if ($task->isUpdatedRecentlyThan(new \DateTime($kanbanizeTask['updatedat']))) {
 
-                //     syncTask
+                    $result = $this->kanbanizeService
+                                   ->updateTask(
+                                         $task,
+                                         $kanbanizeTask,
+                                         $stream->getBoardId()
+                    );
 
-                // }
+                    $this->write("  try update it: $result");
+                }
             }
 
             $this->write("");

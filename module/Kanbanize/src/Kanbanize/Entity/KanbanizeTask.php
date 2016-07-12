@@ -93,6 +93,15 @@ class KanbanizeTask extends Task
 		return $this->assignee;
 	}
 
+	public function getAssigneeName() {
+		return $this->getOwner()->getUser()->getDislayedName();
+	}
+
+	public function isUpdatedRecentlyThan(\DateTime $when)
+	{
+		return $this->getMostRecentEditAt()->format('U') > $when->format('U');
+	}
+
 	/**
 	 * @return string
 	 */

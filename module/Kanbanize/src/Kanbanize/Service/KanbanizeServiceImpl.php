@@ -59,6 +59,32 @@ class KanbanizeServiceImpl implements KanbanizeService
 		return $response;
 	}
 
+	public function updateTask(ReadModelKanbanizeTask $task, $kanbanizeTask, $boardid)
+	{
+		$changeData = [];
+
+		if ($task->getAssigneeName() != $kanbanizeTask['assignee']) {
+			$changeData['assignee'] = $task->getAssigneeName();
+		}
+
+		if ($task->getSubject() != $kanbanizeTask['title']) {
+			$changeData['title'] = $task->getSubject();
+		}
+
+		if ($task->getDescription() != $kanbanizeTask['description']) {
+			$changeData['description'] = $task->getDescription();
+		}
+
+		if (empty($changeData)) {
+			return;
+		}
+
+		$response = $this->kanbanize
+						 ->editTask($boardid, $task->getTaskId(), $changeData);
+
+		return $response;
+	}
+
 	public function moveTask(KanbanizeTask $task, $status) {
 		$boardId = $task->getKanbanizeBoardId();
 		$taskId = $task->getKanbanizeTaskId();

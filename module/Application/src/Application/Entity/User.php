@@ -361,6 +361,17 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 		return $this;
 	}
 
+	public function getDislayedName()
+	{
+		$fullname = $this->getFirstname() . ' ' . $this->getLastname();
+
+		if ($fullname != ' ') {
+			return $fullname;
+		}
+
+		return $this->getEmail();
+	}
+
 	public function getResourceId()
 	{
 		return 'Ora\User';
