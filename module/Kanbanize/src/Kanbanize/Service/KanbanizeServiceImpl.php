@@ -51,6 +51,14 @@ class KanbanizeServiceImpl implements KanbanizeService
 		return $response;
 	}
 
+	public function blockTask($boardid, $taskid, $reason)
+	{
+		$response = $this->kanbanize
+			 			 ->blockTask($boardid, $taskid, 'block', $reason);
+
+		return $response;
+	}
+
 	public function moveTask(KanbanizeTask $task, $status) {
 		$boardId = $task->getKanbanizeBoardId();
 		$taskId = $task->getKanbanizeTaskId();
