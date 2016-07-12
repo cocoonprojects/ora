@@ -90,7 +90,7 @@ class KanbanizeServiceImpl implements KanbanizeService
 		$response = $this->kanbanize
 						 ->moveTask($boardId, $taskId, $status, $options);
 
-		error_log(print_r($response, true));
+		// error_log(print_r($response, true));
 
 		if($response != 1) {
 			throw new OperationFailedException('Unable to move the task ' + $taskId + ' in board ' + $boardId + 'to the column ' + $status + ' because of ' + $response);

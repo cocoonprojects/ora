@@ -13,6 +13,10 @@ use TaskManagement\Service\TaskService;
 use TaskManagement\TaskInterface;
 use Kanbanize\Service\KanbanizeService;
 
+/**
+ * assumptions:
+ * - one board is bound to one organization
+ */
 class KanbanizeToOraSyncController extends AbstractConsoleController {
 
     CONST API_URL_FORMAT = "https://%s.kanbanize.com/index.php/api/kanbanize";
@@ -57,11 +61,7 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
             $stream = $this->kanbanizeService
                            ->findStreamByOrganization($org);
 
-            if (!$stream) {
-                continue;
-            }
-
-            if (!$stream->isBoundToKanbanizeBoard()) {
+            if (!$stream || !$stream->isBoundToKanbanizeBoard()) {
                 continue;
             }
 
@@ -72,12 +72,15 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
             $this->write("loading board activities stream {$stream->getId()} board {$stream->getBoardId()}");
 
             $kanbanizeTasks = $this->kanbanizeService
-                                      ->getTasks($stream->getBoardId());
+                                   ->getTasks($stream->getBoardId());
 
             //when something goes wrong a string is returned
             if (is_string($kanbanizeTasks)) {
                 $this->write($kanbanizeTasks);
+                continue;
             }
+
+            $mapping = $kanbanize['boards'][$stream->getBoardId()]['columnMapping'];
 
             foreach($kanbanizeTasks as $kanbanizeTask) {
                 $this->write("task {$kanbanizeTask['taskid']}");
@@ -87,15 +90,45 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
 
                 // first case: task on kanbanize but not on O.R.A
                 // block task
-                if (!$task && !$kanbanizeTask['blocked']) {
+                if (!$task) {
+
+                    if ($kanbanizeTask['blocked']) {
+                        continue;
+                    }
+
                     $result = $this->kanbanizeService
                                     ->blockTask(
                                             $kanbanizeTask['boardparent'],
                                             $kanbanizeTask['taskid'],
                                             'task not on O.R.A'
-                        );
+                    );
 
                     $this->write("  try to block it: $result");
+
+                    continue;
+                }
+
+                // move task to a column matching its status
+                // assumptions:
+                //  - changing column name is forbidden
+                if ($mapping[$kanbanizeTask['columnname']] != $task->getStatus()) {
+
+                    $rightColumn = array_search($task->getStatus(), $mapping);
+
+                    try {
+                        $result = $this->kanbanizeService
+                                       ->moveTaskonKanbanize(
+                                              $task,
+                                              $rightColumn,
+                                              $stream->getBoardId()
+                        );
+
+                    } catch (Exception $e) {
+
+                    } finally {
+                        $this->write("  try move it to '$rightColumn': $result");
+                    }
+
                 }
 
                 // update kanbanize task based on O.R.A
