@@ -156,8 +156,9 @@ class TaskCommandsListener extends ReadModelProjector {
 		$task->setMostRecentEditBy ( $user );
 		$task->setMostRecentEditAt ( $event->occurredOn () );
 		$this->entityManager->persist ( $task );
-		if ($task->getType () == "kanbanizetask") {
-			$this->updateOnKanbanize ( $task );
+
+		if ($task->getType() == "kanbanizetask") {
+			$this->updateOnKanbanize($task);
 		}
 	}
 
@@ -327,9 +328,11 @@ class TaskCommandsListener extends ReadModelProjector {
 	}
 
 	protected function onOwnerAdded(StreamEvent $event) {
+
 		$id = $event->metadata()['aggregate_id'];
 		$new_owner_id = $event->payload()['new_owner'];
 		$by_id = $event->payload()['by'];
+
 
 		if (is_null($new_owner_id)) {
 			return;
@@ -338,18 +341,22 @@ class TaskCommandsListener extends ReadModelProjector {
 		$new_task_owner = $this->entityManager
 			->find(TaskMember::class, ['task' => $id, 'user' => $new_owner_id]);
 
+		$entity = $this->entityManager
+					   ->find(Task::class, $id);
+
+		if (is_null($entity)) {
+			return;
+		}
+
 		if (!empty($new_task_owner)) {
 			$new_task_owner->setRole(TaskMember::ROLE_OWNER);
 			$this->entityManager
 				 ->persist($new_task_owner);
 
-			return;
-		}
+			if ($entity->getType() == "kanbanizetask") {
+				$this->updateAssigneeOnKanbanize($entity);
+			}
 
-		$entity = $this->entityManager
-					   ->find (Task::class, $id);
-
-		if (is_null($entity)) {
 			return;
 		}
 
@@ -365,9 +372,14 @@ class TaskCommandsListener extends ReadModelProjector {
 
 		$this->entityManager
 			 ->persist($entity);
+
+		if ($entity->getType() == "kanbanizetask") {
+			$this->updateAssigneeOnKanbanize($entity);
+		}
 	}
 
 	protected function onOwnerRemoved(StreamEvent $event) {
+
 		$id = $event->metadata()['aggregate_id'];
 		$ex_owner_id = $event->payload()['ex_owner'];
 
@@ -398,16 +410,45 @@ class TaskCommandsListener extends ReadModelProjector {
 		return 'TaskManagement';
 	}
 
+	private function updateAssigneeOnKanbanize($task)
+	{
+		$org = $this->orgService
+					->findOrganization($task->getOrganizationId());
+
+		$settings = $org->getSettings($this::KANBANIZE_SETTINGS);
+
+		if (is_null($settings) || empty($settings)) {
+			return;
+		}
+
+		$this->kanbanizeService
+			 ->initApi($settings['apiKey'], $settings['accountSubdomain']);
+
+		$boardId = $task->getStream()->getBoardId();
+		$taskId = $task->getTaskId();
+
+		$kanbanizeTask = $this->kanbanizeService
+							  ->getTaskDetails($boardId, $taskId);
+
+		echo get_class($this->kanbanizeService);
+		$this->kanbanizeService
+             ->updateTask(
+					$task,
+					$kanbanizeTask,
+					$boardId
+        );
+	}
+
 	private function updateOnKanbanize($task) {
 		$kanbanizeStream = $task->getStream();
 		$KanbanizeBoardId = $kanbanizeStream->getBoardId();
 
 		// getting organization
-		$org = $this->orgService->findOrganization ( $task->getOrganizationId () );
-		$kanbanizeSettings = $org->getSettings ( $this::KANBANIZE_SETTINGS );
+		$org = $this->orgService->findOrganization($task->getOrganizationId());
+		$kanbanizeSettings = $org->getSettings($this::KANBANIZE_SETTINGS);
 
 		if (is_null ( $kanbanizeSettings ) || empty ( $kanbanizeSettings )) {
-			return $this->getResponse ()->setContent ( json_encode ( new \stdClass () ) );
+			return;
 		}
 
 		// Init KanbanizeAPI on kanbanizeService
@@ -415,8 +456,9 @@ class TaskCommandsListener extends ReadModelProjector {
 
 		$mapping = $kanbanizeSettings ['boards'] [$KanbanizeBoardId] ['columnMapping'];
 
-		$key = array_search ( $task->getStatus (), $mapping );
+		$key = array_search($task->getStatus(), $mapping);
 
-		$this->kanbanizeService->moveTaskonKanbanize ( $task, $key, $KanbanizeBoardId );
+		$this->kanbanizeService
+			 ->moveTaskonKanbanize($task, $key, $KanbanizeBoardId);
 	}
 }

@@ -59,6 +59,13 @@ class KanbanizeServiceImpl implements KanbanizeService
 		return $response;
 	}
 
+	public function getTaskDetails($boardId, $taskId)
+	{
+		$response = $this->kanbanize->getTaskDetails($boardId, $taskId);
+
+		return $response;
+	}
+
 	public function updateTask(ReadModelKanbanizeTask $task, $kanbanizeTask, $boardid)
 	{
 		$changeData = [];

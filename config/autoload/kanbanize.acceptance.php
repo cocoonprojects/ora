@@ -7,7 +7,10 @@ return array(
 				'factories' => array(
 						'Kanbanize\KanbanizeAPI' => function ($locator) {
 							$mockGenerator = new \PHPUnit_Framework_MockObject_Generator();
-							return $mockGenerator->getMock(KanbanizeAPI::class, ['getProjectsAndBoards', 'getBoardStructure']);
+							return $mockGenerator->getMock(KanbanizeAPI::class, ['getProjectsAndBoards',
+                                'getBoardStructure',
+                                'getTaskDetails']
+                            );
 						},
 				),
 		),

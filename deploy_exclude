@@ -23,6 +23,3 @@ cache.properties
 deploy_exclude
 idxfile.php
 travis.php.ini
-
-module/TaskManagement/src/TaskManagement/Service/TaskCommandsListener.php
-module/TaskManagement/src/TaskManagement/Controller/Console/VotingResultsController.php
