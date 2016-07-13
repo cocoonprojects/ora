@@ -52,6 +52,8 @@ class Task extends DomainEntity implements TaskInterface
 
 	protected $lane;
 
+	protected $position;
+
 	/**
 	 * @var boolean
 	 */
@@ -146,8 +148,6 @@ class Task extends DomainEntity implements TaskInterface
 	/**
 	 * Set the lane for the given tasks.
 	 *
-	 * Used by Kanban Importer to show Kanbanize Tasks Lane
-	 *
 	 * @param string    $lane  the lane
 	 */
 	public function setLane($lane, BasicUser $updatedBy)
@@ -162,6 +162,25 @@ class Task extends DomainEntity implements TaskInterface
 	public function getLane()
 	{
 		return $this->lane;
+	}
+
+	/**
+	 * Set the position for the given tasks.
+	 *
+	 * @param integer	$position	the position on the kanbanize board
+	 */
+	public function setPosition($position, BasicUser $updatedBy)
+	{
+		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
+				'position' => $position,
+				'by' => $updatedBy->getId(),
+		)));
+		return $this;
+	}
+
+	public function getPosition()
+	{
+		return $this->position;
 	}
 
 	/**
@@ -775,6 +794,9 @@ class Task extends DomainEntity implements TaskInterface
 		}
 		if(array_key_exists('lanename', $pl)) {
 			$this->lane = $pl['lanename'];
+		}
+		if(array_key_exists('position', $pl)) {
+			$this->lane = $pl['position'];
 		}
 
 		$this->mostRecentEditAt = $event->occurredOn();

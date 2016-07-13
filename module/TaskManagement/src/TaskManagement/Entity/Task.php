@@ -92,6 +92,12 @@ class Task extends EditableEntity implements TaskInterface
 	 */
 	protected $lane = '';
 
+	/**
+	 * @ORM\Column(type="integer", nullable=true)
+	 * @var integer
+	 */
+	protected $position = 0;
+
 	public function __construct($id, Stream $stream, $is_decision = false) {
 		parent::__construct($id);
 		$this->stream = $stream;
@@ -122,6 +128,15 @@ class Task extends EditableEntity implements TaskInterface
 
 	public function setLane($lane) {
 		$this->lane = $lane;
+		return $this;
+	}
+
+	public function getPosition() {
+		return $this->position;
+	}
+
+	public function setPosition($position) {
+		$this->position = $position;
 		return $this;
 	}
 

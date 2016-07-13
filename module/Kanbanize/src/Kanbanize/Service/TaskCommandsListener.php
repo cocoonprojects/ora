@@ -111,6 +111,9 @@ class TaskCommandsListener extends ReadModelProjector {
 		if(isset($streamEvent->payload()['lanename'])) {
 			$task->setLaneName($streamEvent->payload()['lanename']);
 		}
+		if(isset($streamEvent->payload()['position'])) {
+			$task->setPosition($streamEvent->payload()['position']);
+		}
 		if(isset($streamEvent->payload()['assignee'])) {
 			$task->setAssignee($streamEvent->payload()['assignee']);
 		}

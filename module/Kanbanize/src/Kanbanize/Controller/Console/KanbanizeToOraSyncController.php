@@ -102,12 +102,14 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
 
                 $this->updateTaskOnKanbanize(
                     $task,
-                    $kanbanizeTask
+                    $kanbanizeTask,
+                    $stream
                 );
 
                 $this->updateTaskPositionFromKanbanize(
                     $task,
-                    $kanbanizeTask
+                    $kanbanizeTask,
+                    $systemUser
                 );
             }
 
@@ -186,25 +188,39 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
         }
     }
 
-    private function updateTaskOnKanbanize($task, $kanbanizeTask)
+    private function updateTaskOnKanbanize($task, $kanbanizeTask, $stream)
     {
         // update kanbanize task based on O.R.A
         if ($task->isUpdatedRecentlyThan(new \DateTime($kanbanizeTask['updatedat']))) {
-                $this->kanbanizeService
-                     ->updateTask(
-                           $task,
-                           $kanbanizeTask,
-                           $stream->getBoardId()
+                $result = $this->kanbanizeService
+                               ->updateTask(
+                                     $task,
+                                     $kanbanizeTask,
+                                     $stream->getBoardId()
             );
 
             $this->write("  try update it: $result");
         }
     }
 
-    private function updateTaskPositionFromKanbanize($task, $kanbanizeTask)
+    private function updateTaskPositionFromKanbanize($task, $kanbanizeTask, $systemUser)
     {
         if ($kanbanizeTask['position'] == $task->getPosition()) {
             return;
+        }
+
+        $this->transaction()->begin();
+
+        try {
+            $taskAggregate = $this->taskService
+                                  ->getTask($task->getId());
+
+            $taskAggregate->setPosition($kanbanizeTask['position'], $systemUser);
+
+            $this->transaction()->commit();
+
+        } catch (Exception $e) {
+            $this->transaction()->rollback();
         }
     }
 }

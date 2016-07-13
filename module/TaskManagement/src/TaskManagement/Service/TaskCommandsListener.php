@@ -86,6 +86,9 @@ class TaskCommandsListener extends ReadModelProjector {
 		if(isset($event->payload()['lanename'])) {
 			$entity->setLane($event->payload()['lanename']);
 		}
+		if(isset($event->payload()['position'])) {
+			$entity->setPosition($event->payload()['position']);
+		}
 
 		$entity->setMostRecentEditAt ( $event->occurredOn () );
 		$entity->setMostRecentEditBy ( $updatedBy );
