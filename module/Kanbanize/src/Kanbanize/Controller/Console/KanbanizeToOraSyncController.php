@@ -88,61 +88,27 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
                 $task = $this->taskService
                              ->findTaskByKanbanizeId($kanbanizeTask['taskid']);
 
-                // first case: task on kanbanize but not on O.R.A
-                // block task
                 if (!$task) {
-
-                    if ($kanbanizeTask['blocked']) {
-                        continue;
-                    }
-
-                    $result = $this->kanbanizeService
-                                    ->blockTask(
-                                            $kanbanizeTask['boardparent'],
-                                            $kanbanizeTask['taskid'],
-                                            'task not on O.R.A'
-                    );
-
-                    $this->write("  try to block it: $result");
-
+                    $this->blockTaskOnKanbanize($kanbanizeTask);
                     continue;
                 }
 
-                // move task to a column matching its status
-                // assumptions:
-                //  - changing column name is forbidden
-                if ($mapping[$kanbanizeTask['columnname']] != $task->getStatus()) {
+                $this->fixColumnOnKanbanize(
+                    $task,
+                    $kanbanizeTask,
+                    $stream->getBoardId(),
+                    $mapping
+                );
 
-                    $rightColumn = array_search($task->getStatus(), $mapping);
+                $this->updateTaskOnKanbanize(
+                    $task,
+                    $kanbanizeTask
+                );
 
-                    try {
-                        $result = $this->kanbanizeService
-                                       ->moveTaskonKanbanize(
-                                              $task,
-                                              $rightColumn,
-                                              $stream->getBoardId()
-                        );
-
-                    } catch (Exception $e) {
-
-                    } finally {
-                        $this->write("  try move it to '$rightColumn': $result");
-                    }
-
-                }
-
-                // update kanbanize task based on O.R.A
-                if ($task->isUpdatedRecentlyThan(new \DateTime($kanbanizeTask['updatedat']))) {
-
-                    $result = $this->kanbanizeService
-                                   ->updateTask(
-                                         $task,
-                                         $kanbanizeTask,
-                                         $stream->getBoardId()
-                    );
-
-                    $this->write("  try update it: $result");
-                }
+                $this->updateTaskPositionFromKanbanize(
+                    $task,
+                    $kanbanizeTask
+                );
             }
 
             $this->write("");
@@ -174,5 +140,71 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
         }
 
         $this->write("loaded system user {$systemUser->getFirstname()}");
+    }
+
+    // first case: task on kanbanize but not on O.R.A
+    // block task
+    private function blockTaskOnKanbanize($kanbanizeTask)
+    {
+        if ($kanbanizeTask['blocked']) {
+            return;
+        }
+
+        $result = $this->kanbanizeService
+                        ->blockTask(
+                                $kanbanizeTask['boardparent'],
+                                $kanbanizeTask['taskid'],
+                                'task not on O.R.A'
+        );
+
+        $this->write("  try to block it: $result");
+    }
+
+    // move task to a column matching its status
+    // assumptions:
+    //  - changing column name is forbidden
+    private function fixColumnOnKanbanize($task, $kanbanizeTask, $boardId, $mapping)
+    {
+        if ($mapping[$kanbanizeTask['columnname']] == $task->getStatus()) {
+            return;
+        }
+
+        $rightColumn = array_search($task->getStatus(), $mapping);
+
+        try {
+            $result = $this->kanbanizeService
+                           ->moveTaskonKanbanize(
+                                  $task,
+                                  $rightColumn,
+                                  $stream->getBoardId()
+            );
+
+        } catch (Exception $e) {
+
+        } finally {
+            $this->write("  try move it to '$rightColumn': $result");
+        }
+    }
+
+    private function updateTaskOnKanbanize($task, $kanbanizeTask)
+    {
+        // update kanbanize task based on O.R.A
+        if ($task->isUpdatedRecentlyThan(new \DateTime($kanbanizeTask['updatedat']))) {
+                $this->kanbanizeService
+                     ->updateTask(
+                           $task,
+                           $kanbanizeTask,
+                           $stream->getBoardId()
+            );
+
+            $this->write("  try update it: $result");
+        }
+    }
+
+    private function updateTaskPositionFromKanbanize($task, $kanbanizeTask)
+    {
+        if ($kanbanizeTask['position'] == $task->getPosition()) {
+            return;
+        }
     }
 }
