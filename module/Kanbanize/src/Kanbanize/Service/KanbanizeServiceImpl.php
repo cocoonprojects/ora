@@ -133,7 +133,7 @@ class KanbanizeServiceImpl implements KanbanizeService
 	}
 
 
-	public function createNewTask($taskSubject, $taskTitle, $boardId, $options) {
+	public function createNewTask($taskSubject, $taskTitle, $boardId, $options, array $mapping = null) {
 		$createdAt = new \DateTime ();
 
 		// TODO: Modificare createdBy per inserire User
@@ -144,7 +144,8 @@ class KanbanizeServiceImpl implements KanbanizeService
 			'description' => $taskSubject,
 		]);
 
-		$id = $this->kanbanize->createNewTask ( $boardId, $all_options );
+		$id = $this->kanbanize
+				   ->createNewTask($boardId, $all_options);
 
 		if (is_null ( $id )) {
 			throw OperationFailedException("Cannot create task on Kanbanize");

@@ -269,24 +269,38 @@ class TasksController extends OrganizationAwareController
 
 			$kanbanizeSettings = $this->organization->getSettings ( $this::KANBANIZE_SETTINGS );
 			if (is_null ( $kanbanizeSettings ) || empty ( $kanbanizeSettings )) {
-				return $this->getResponse ()->setContent ( json_encode ( new \stdClass () ) );
+				return $this->getResponse()
+							->setContent(json_encode(new \stdClass()));
 			}
 
 			// Init KanbanizeAPI on kanbanizeService
-			$this->kanbanizeService->initApi ( $kanbanizeSettings ['apiKey'], $kanbanizeSettings ['accountSubdomain'] );
+			$this->kanbanizeService
+				 ->initApi(
+				 	$kanbanizeSettings['apiKey'],
+				 	$kanbanizeSettings['accountSubdomain']
+		 	);
 
 			$this->transaction ()->begin ();
 			try {
 
 				$boardId = $aggStream->getBoardId();
-				$lane = [];
+				$opt = [];
 
 				if (isset($data['lane'])) {
-					$lane['lane'] = $data['lane'];
+					$opt['lane'] = $data['lane'];
 				}
 
+				$mapping = $kanbanize['boards'][$boardId]['columnMapping'];
+				$column = array_search(KanbanizeTask::STATUS_IDEA, $mapping);
+				$opt['column'] = $column;
+
 				$kanbanizeTaskID = $this->kanbanizeService
-					->createNewTask($description, $subject, $boardId, $lane);
+					->createNewTask(
+						$description,
+						$subject,
+						$boardId,
+						$opt
+				);
 
 				if (is_null ( $kanbanizeTaskID )) {
 					$this->response->setStatusCode ( 417 );
@@ -296,7 +310,7 @@ class TasksController extends OrganizationAwareController
 				$options = [
 						"taskid" => $kanbanizeTaskID,
 						"description" => $description,
-						"columnname" => 'Backlog'
+						"columnname" => $column
 				];
 
 				if (isset($data['lane'])) {
