@@ -290,8 +290,9 @@ class TasksController extends OrganizationAwareController
 					$opt['lane'] = $data['lane'];
 				}
 
-				$mapping = $kanbanize['boards'][$boardId]['columnMapping'];
+				$mapping = $kanbanizeSettings['boards'][$boardId]['columnMapping'];
 				$column = array_search(KanbanizeTask::STATUS_IDEA, $mapping);
+
 				$opt['column'] = $column;
 
 				$kanbanizeTaskID = $this->kanbanizeService
