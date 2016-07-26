@@ -433,7 +433,6 @@ class TaskCommandsListener extends ReadModelProjector {
 		$kanbanizeTask = $this->kanbanizeService
 							  ->getTaskDetails($boardId, $taskId);
 
-		echo get_class($this->kanbanizeService);
 		$this->kanbanizeService
              ->updateTask(
 					$task,
