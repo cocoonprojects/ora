@@ -103,9 +103,9 @@ class KanbanizeTask extends Task
 		return $owner->getUser()->getDislayedName();
 	}
 
-	public function isUpdatedRecentlyThan(\DateTime $when)
+	public function isUpdatedBefore(\DateTime $when)
 	{
-		return $this->getMostRecentEditAt()->format('U') > $when->format('U');
+		return $this->getMostRecentEditAt()->format('U') <= $when->format('U');
 	}
 
 	/**
