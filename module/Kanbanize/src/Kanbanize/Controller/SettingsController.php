@@ -154,12 +154,13 @@ class SettingsController extends OrganizationAwareController
 		try{
 			$this->initApi($apiKey, $subdomain);
 			$projects = $this->client->getProjectsAndBoards();
+
 			if(!is_array($projects)){
 				//TODO: il metodo getProjectsAndBoards, se va a buon fine, restituisce un array; in caso di errore non restituisce un messaggio completo ma solamente il primo carattere
 				//migliorare questo comportamento
 				$error = new ErrorJsonModel();
 				$error->setCode(400);
-				$error->setDescription("Cannot import projects due to: The request cannot be processed. Please make sure you've specified all input parameters correctly");
+				$error->setDescription("Cannot import projects, the request cannot be processed. Please make sure you've specified all input parameters correctly (err: $projects)");
 				$this->response->setStatusCode(400);
 				return $error;
 			}

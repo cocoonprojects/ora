@@ -9,7 +9,7 @@ interface KanbanizeService {
 
 	public function moveTask(KanbanizeTask $kanbanizeTask, $status);
 
-	public function moveTaskonKanbanize(Kanbanize\Entity\KanbanizeTask $kanbanizeTask, $status,$boardId);
+	public function moveTaskonKanbanize(Kanbanize\Entity\KanbanizeTask $kanbanizeTask, $status, $boardId);
 
 	public function createNewTask($taskSubject, $taskTitle, $boardId, $options);
 

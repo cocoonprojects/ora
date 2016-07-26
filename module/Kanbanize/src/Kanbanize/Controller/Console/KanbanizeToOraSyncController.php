@@ -178,7 +178,7 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
                            ->moveTaskonKanbanize(
                                   $task,
                                   $rightColumn,
-                                  $stream->getBoardId()
+                                  $boardId
             );
 
         } catch (Exception $e) {
@@ -205,6 +205,11 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
 
     private function updateTaskPositionFromKanbanize($task, $kanbanizeTask, $systemUser)
     {
+        //position makes sense only for ongoing tasks
+        if ($task->getStatus() != TaskInterface::STATUS_ONGOING) {
+            return;
+        }
+
         if ($kanbanizeTask['position'] == $task->getPosition()) {
             return;
         }

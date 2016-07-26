@@ -111,7 +111,7 @@ class KanbanizeServiceImpl implements KanbanizeService
 		return 1;
 	}
 
-	public function moveTaskonKanbanize(ReadModelKanbanizeTask $kanbanizeTask, $status,$boardId){
+	public function moveTaskonKanbanize(ReadModelKanbanizeTask $kanbanizeTask, $status, $boardId){
 
 		$taskId = $kanbanizeTask->getTaskId();
 		$options = [];

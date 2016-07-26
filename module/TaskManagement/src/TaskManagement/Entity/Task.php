@@ -96,7 +96,7 @@ class Task extends EditableEntity implements TaskInterface
 	 * @ORM\Column(type="integer", nullable=true)
 	 * @var integer
 	 */
-	protected $position = 0;
+	protected $position;
 
 	public function __construct($id, Stream $stream, $is_decision = false) {
 		parent::__construct($id);
