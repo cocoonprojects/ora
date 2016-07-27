@@ -16,21 +16,16 @@ use Zend\View\Model\JsonModel;
 class MembersController extends OrganizationAwareController
 {
 	protected static $collectionOptions = ['GET', 'DELETE', 'POST'];
-	protected static $resourceOptions = ['GET'];
+	protected static $resourceOptions = ['GET', 'DELETE', 'PUT'];
 
-	const DEFAULT_MEMBERS_LIMIT = 20;
-
-	/**
-	 *
-	 * @var integer
-	 */
-	protected $listLimit = self::DEFAULT_MEMBERS_LIMIT;
 	/**
 	 * @var UserService
 	 */
 	protected $userService;
 
-	public function __construct(OrganizationService $organizationService, UserService $userService)
+	public function __construct(
+		OrganizationService $organizationService,
+		UserService $userService)
 	{
 		parent::__construct($organizationService);
 		$this->userService = $userService;
@@ -50,13 +45,13 @@ class MembersController extends OrganizationAwareController
 		$validator = new ValidatorChain();
 		$validator->attach(new IsInt())
 			->attach(new GreaterThan(['min' => 0, 'inclusive' => false]));
-		
+
 		$offset = $validator->isValid($this->getRequest()->getQuery("offset")) ? intval($this->getRequest()->getQuery("offset")) : 0;
-		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->getListLimit();
-		
+		$limit = $validator->isValid($this->getRequest()->getQuery("limit")) ? intval($this->getRequest()->getQuery("limit")) : $this->organization->getParams()->get('org_members_limit_per_page');
+
 		$memberships = $this->getOrganizationService()->findOrganizationMemberships($this->organization, $limit, $offset);
 		$totalMemberships = $this->getOrganizationService()->countOrganizationMemberships($this->organization);
-		
+
 		$hal = [
 			'count' => count($memberships),
 			'total' => $totalMemberships,
@@ -80,7 +75,7 @@ class MembersController extends OrganizationAwareController
 		}
 		return new JsonModel($hal);
 	}
-	
+
 	public function create($data)
 	{
 		if(is_null($this->identity())) {
@@ -93,13 +88,55 @@ class MembersController extends OrganizationAwareController
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-		
+
 		$this->transaction()->begin();
 		try {
 			$organization->addMember($this->identity());
 			$this->transaction()->commit();
 			$this->response->setStatusCode(201);
 		} catch (DuplicatedDomainEntityException $e) {
+			$this->transaction()->rollback();
+			$this->response->setStatusCode(204);
+		}
+		return $this->response;
+	}
+
+	public function delete($id)
+	{
+		if(is_null($this->identity()) || !$this->identity()->isOwnerOf($this->organization) ) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+
+/*
+		$organization = $this->getOrganizationService()->getOrganization($this->params('orgId'));
+		if(is_null($organization)) {
+			$this->response->setStatusCode(404);
+			return $this->response;
+		}
+*/
+
+		$memberToRemove = $this->identity();
+		try {
+			$memberId = $id;
+			if (!empty($memberId) 
+				&& ($member=$this->userService->findUser($memberId))
+				&& preg_match('/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/', $member->getId())!==false
+				) {
+					$memberToRemove = $member;
+			}
+		} catch (DomainEntityUnavailableException $e) {
+			$this->transaction()->rollback();
+			$this->response->setStatusCode(204);	// No content = nothing changed
+		}		
+
+		$organization = $this->getOrganizationService()->getOrganization($this->params('orgId'));
+		$this->transaction()->begin();
+		try {
+			$organization->removeMember($memberToRemove);
+			$this->transaction()->commit();
+			$this->response->setStatusCode(200);
+		} catch (DomainEntityUnavailableException $e) {
 			$this->transaction()->rollback();
 			$this->response->setStatusCode(204);
 		}
@@ -118,7 +155,7 @@ class MembersController extends OrganizationAwareController
 			$this->response->setStatusCode(404);
 			return $this->response;
 		}
-		
+
 		$this->transaction()->begin();
 		try {
 			$organization->removeMember($this->identity());
@@ -159,28 +196,57 @@ class MembersController extends OrganizationAwareController
 		return is_null($membership) ? new JsonModel([new \stdClass()]) : new JsonModel($this->serializeOne($membership));
 	}
 
+	public function update($id, $data)
+	{
+		if(is_null($this->identity())) {
+			$this->response->setStatusCode(401);
+			return $this->response;
+		}
+
+		$user = $this->userService->findUser($id);
+		if(is_null($user)){
+			$this->response->setStatusCode(404);
+			return $this->response;
+		}
+
+		if(!$this->isAllowed($this->identity(), $user, 'People.Member.update')) {
+			$this->response->setStatusCode(403);
+			return $this->response;
+		}
+
+		$membership = $user->getMembership($this->organization);
+		if (!is_null($membership)) {
+
+			$organization = $this->getOrganizationService()->getOrganization($this->params('orgId'));
+
+			$admins = $organization->getAdmins();
+			if ($membership->getRole()==OrganizationMembership::ROLE_ADMIN && count($admins)<2) {
+				$this->response->setStatusCode(403);
+				return $this->response;
+			}
+
+			$this->transaction()->begin();
+			try {
+
+				$organization->changeMemberRole($user, $data['role'], $this->identity());
+
+				$this->transaction()->commit();
+				$this->response->setStatusCode(201);
+			} catch (DuplicatedDomainEntityException $e) {
+				$this->transaction()->rollback();
+				$this->response->setStatusCode(204);
+			}
+		}
+
+		return is_null($membership) ? new JsonModel([new \stdClass()]) : new JsonModel($this->serializeOne($membership));
+	}
+
 	/**
 	 * @return UserService
 	 */
 	public function getUserService()
 	{
 		return $this->userService;
-	}
-
-	/**
-	 * @param int $size
-	 */
-	public function setListLimit($size){
-		if(is_int($size)){
-			$this->listLimit = $size;
-		}
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getListLimit(){
-		return $this->listLimit;
 	}
 
 	protected function getCollectionOptions()

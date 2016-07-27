@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace TaskManagement\Controller;
 
@@ -6,36 +6,28 @@ use TaskManagement\Service\NotificationService;
 use TaskManagement\Service\TaskService;
 use Zend\View\Model\JsonModel;
 use ZFX\Rest\Controller\HATEOASRestfulController;
-
+use People\Service\OrganizationService;
 
 class RemindersController extends HATEOASRestfulController
 {
 
 	protected static $collectionOptions = ['POST'];
 	protected static $resourceOptions = ['POST'];
-	
-	/**
-	 *
-	 * @var NotificationService
-	 */
-	protected $notificationService;
-	/**
-	 *
-	 * @var TaskService
-	 */
-	protected $taskService;
-	/**
-	 *
-	 * @var \DateInterval
-	 */
-	protected $intervalForRemindAssignmentOfShares;
-	
 
- 	public function __construct(NotificationService $notificationService, TaskService $taskService) {
- 		
+	protected $notificationService;
+
+	protected $taskService;
+
+	protected $organizationService;
+
+ 	public function __construct(
+ 		NotificationService $notificationService,
+ 		TaskService $taskService,
+ 		OrganizationService $organizationService) {
+
  		$this->notificationService = $notificationService;
  		$this->taskService = $taskService;
- 		$this->intervalForRemindAssignmentOfShares = self::getDefaultIntervalToRemindAssignmentOfShares();
+ 		$this->organizationService = $organizationService;
  	}
 
 	/**
@@ -62,7 +54,7 @@ class RemindersController extends HATEOASRestfulController
 					$this->response->setStatusCode ( 403 );
 					return $this->response;
 				}
-				
+
 				$receivers = $this->notificationService->remindEstimation($task);
 				$this->response->setStatusCode(201);
 				$view = new JsonModel();
@@ -105,7 +97,19 @@ class RemindersController extends HATEOASRestfulController
 					return $this->response;
 				}
 
-				$tasksToNotify = $this->taskService->findAcceptedTasksBefore($this->getIntervalForRemindAssignmentOfShares());
+				$org = $this->organizationService
+					->findOrganization($this->params('orgId'));
+
+				if (!$org) {
+					$this->response->setStatusCode(404);
+					return $this->response;
+				}
+
+				$interval = $org->getParams()
+								->get('assignment_of_shares_remind_interval');
+
+				$tasksToNotify = $this->taskService
+					->findAcceptedTasksBefore($interval);
 
 				foreach ($tasksToNotify as $task){
 					$this->notificationService->remindAssignmentOfShares($task);
@@ -119,24 +123,11 @@ class RemindersController extends HATEOASRestfulController
 		return $this->response;
 	}
 
-
-	public function setIntervalForRemindAssignmentOfShares(\DateInterval $interval){
-		$this->intervalForRemindAssignmentOfShares = $interval;
-	}
-	
-	public function getIntervalForRemindAssignmentOfShares(){
-		return $this->intervalForRemindAssignmentOfShares;
-	}
-	
 	protected function getCollectionOptions(){
 		return self::$collectionOptions;
 	}
-	
+
 	protected function getResourceOptions(){
 		return self::$resourceOptions;
-	}
-	
-	protected static function getDefaultIntervalToRemindAssignmentOfShares(){
-		return new \DateInterval('P7D');
 	}
 }

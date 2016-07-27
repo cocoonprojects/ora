@@ -20,7 +20,7 @@ class Stream extends EditableEntity
 	 * @var string
 	 */
 	private $subject;
-	
+
 	/**
 	 * @ORM\ManyToOne(targetEntity="People\Entity\Organization")
 	 * @ORM\JoinColumn(name="organization_id", referencedColumnName="id", nullable=false)
@@ -28,22 +28,40 @@ class Stream extends EditableEntity
 	 */
 	private $organization;
 
+	/**
+	 * @ORM\Column(type="string", nullable=true)
+	 * @var string
+	 */
+	private $boardId;
+
 	public function __construct($id, Organization $organization) {
 		parent::__construct($id);
 		$this->organization = $organization;
 	}
-	
+
 	public function getSubject() {
 		return $this->subject;
 	}
-	
+
 	public function setSubject($subject) {
 		$this->subject = $subject;
 		return $this;
 	}
-	
+
 	public function getOrganization() {
 		return $this->organization;
+	}
+
+	public function getBoardId() {
+		return $this->boardId;
+	}
+
+	public function setBoardId($boardId) {
+		return $this->boardId = $boardId;
+	}
+
+	public function isBoundToKanbanizeBoard() {
+		return $this->boardId;
 	}
 
 	public function getType(){

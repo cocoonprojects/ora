@@ -9,31 +9,35 @@ use TaskManagement\Task;
 use TaskManagement\View\TaskJsonModel;
 use Zend\Validator\InArray;
 use ZFX\Rest\Controller\HATEOASRestfulController;
+use People\Service\OrganizationService;
 
 class TransitionsController extends HATEOASRestfulController
 {
 	protected static $resourceOptions = ['POST'];
 	protected static $collectionOptions= ['POST'];
-	
+
 	/**
 	 * @var TaskService
 	 */
 	private $taskService;
 	/**
-	 *@var \DateInterval
+	 * @var TaskService
 	 */
-	protected $intervalForAssignShares;
+	private $organizationService;
 
 	private $validator;
 
-	public function __construct(TaskService $taskService) {
+	public function __construct(
+		TaskService $taskService,
+		OrganizationService $organizationService)
+	{
 		$this->taskService = $taskService;
-		$this->intervalForAssignShares = new \DateInterval('P7D');
+		$this->organizationService = $organizationService;
 		$this->validator = new InArray(
 			['haystack' => array('complete', 'accept', 'execute', 'close')]
 		);
 	}
-	
+
 	public function invoke($id, $data)
 	{
 		if(is_null($this->identity())) {
@@ -45,7 +49,7 @@ class TransitionsController extends HATEOASRestfulController
 			$this->response->setStatusCode ( 400 );
 			return $this->response;
 		}
-		
+
 		$task = $this->taskService->getTask($id);
 		if (is_null($task)) {
 			$this->response->setStatusCode ( 404 );
@@ -85,9 +89,26 @@ class TransitionsController extends HATEOASRestfulController
 					$this->response->setStatusCode ( 204 );
 					return $this->response;
 				}
+
+				$org = $this->organizationService
+					->findOrganization($this->params('orgId'));
+
+				if (!$org) {
+					$this->response->setStatusCode(403);
+					$view = new ErrorJsonModel();
+					$view->setCode(403);
+					$view->setDescription('org not found');
+
+					return $view;
+				}
+
 				$this->transaction()->begin();
 				try {
-					$task->accept($this->identity(), $this->getIntervalForAssignShares());
+					$task->accept(
+						$this->identity(),
+						$org->getParams()->get('assignment_of_shares_timebox')
+					);
+
 					$this->transaction()->commit();
 					$this->response->setStatusCode ( 200 );
 					$view = new TaskJsonModel($this);
@@ -158,7 +179,7 @@ class TransitionsController extends HATEOASRestfulController
 				$view->setCode(400);
 				$view->setDescription('Unknown action value: '.$action);
 		}
-		
+
 		return $view;
 	}
 
@@ -166,20 +187,12 @@ class TransitionsController extends HATEOASRestfulController
 	{
 		return self::$collectionOptions;
 	}
-	
+
 	protected function getResourceOptions()
 	{
 		return self::$resourceOptions;
 	}
-	
-	public function setIntervalForAssignShares($interval){
-		$this->intervalForAssignShares = $interval;
-	}
-	
-	public function getIntervalForAssignShares(){
-		return $this->intervalForAssignShares;
-	}
-	
+
 	public function getTaskService(){
 		return $this->taskService;
 	}

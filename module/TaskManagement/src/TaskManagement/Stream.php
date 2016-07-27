@@ -8,10 +8,10 @@ use Application\Entity\User;
 use People\Organization;
 
 /**
- * 
+ *
  */
 class Stream extends DomainEntity
-{	    
+{
 	/**
 	 * @var string
 	 */
@@ -25,6 +25,11 @@ class Stream extends DomainEntity
 	 */
 	private $createdAt;
 
+	/**
+	 * @var int
+	 */
+	private $boardId;
+
 	public static function create(Organization $organization, $subject, User $createdBy)
 	{
 		$rv = new self();
@@ -35,11 +40,11 @@ class Stream extends DomainEntity
 		$rv->setSubject($subject, $createdBy);
 		return $rv;
 	}
-	
+
 	public function getSubject() {
 		return $this->subject;
 	}
-	
+
 	public function setSubject($subject, User $createdBy) {
 		$this->recordThat(StreamUpdated::occur($this->id->toString(), [
 			'subject' => is_null($subject) ? null : trim($subject),
@@ -54,7 +59,22 @@ class Stream extends DomainEntity
 			'by' => $by->getId()
 		]));
 	}
-	
+
+	public function bindToKanbanizeBoard($boardId, User $by) {
+		$this->recordThat(StreamUpdated::occur($this->id->toString(), [
+			'boardId' => $boardId,
+			'by' => $by->getId()
+		]));
+	}
+
+	public function getBoardId() {
+		return $this->boardId;
+	}
+
+	public function isBoundToKanbanizeBoard() {
+		return $this->boardId;
+	}
+
 	public function getOrganizationId() {
 		return $this->organizationId->toString();
 	}
@@ -72,17 +92,24 @@ class Stream extends DomainEntity
 		$this->organizationId = Uuid::fromString($event->payload()['organizationId']);
 		$this->createdAt = $event->occurredOn();
 	}
-	
+
 	protected function whenStreamUpdated(StreamUpdated $event) {
 		if(isset($event->payload()['subject'])) {
 			$this->subject = $event->payload()['subject'];
 		}
+
+		if (isset($event->payload()['boardId'])) {
+			$this->boardId = $event->payload()['boardId'];
+		}
 	}
-	
+
 	protected function whenStreamOrganizationChanged(StreamOrganizationChanged $event) {
-		$this->organizationId = Uuid::fromString($event->payload()['organizationId']);
+
+		if (isset($event->payload()['organizationId'])) {
+			$this->organizationId = Uuid::fromString($event->payload()['organizationId']);
+		}
 	}
-	
+
 	public function getType(){
 		return 'stream';
 	}

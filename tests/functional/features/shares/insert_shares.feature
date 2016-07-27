@@ -25,7 +25,6 @@ Feature: Insert Shares
     And that its "60000000-0000-0000-0000-000000000000" is "40"
     And that its "20000000-0000-0000-0000-000000000000" is "60"
     When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000001/shares"
-    Then echo last response
     Then the response status code should be 412
 
   Scenario: Cannot assign shares to a subset of members

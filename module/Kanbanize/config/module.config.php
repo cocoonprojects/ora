@@ -20,10 +20,48 @@ return array(
 		//'Kanbanize\SyncTaskListener',	// Actions on kanbanize tasks come directly from Kanbanize, not from O.R.A.
 		'Kanbanize\ImportTasksListener',
 		'Kanbanize\TaskCommandsListener',
-		'Kanbanize\StreamCommandsListener',
+		// 'Kanbanize\StreamCommandsListener',
 	),
+    'console' => [
+        'router' => [
+            'routes' => [
+                'sync' => [
+                    'options' => [
+                        'route'    => 'sync [--verbose|-v]',
+                        'defaults' => [
+							'controller' => 'Kanbanize\Controller\Console\KanbanizeToOraSync',
+							'action' => 'sync'
+                        ]
+                    ]
+                ],
+            ]
+        ]
+    ],
 	'router' => array(
 		'routes' => array(
+			'stats' => array(
+				'type' => 'Segment',
+				'options' => array(
+					'route'    => '/stats',
+					'defaults' => array(
+						'action' => 'stats',
+						'controller' => 'Kanbanize\Controller\Stats',
+					),
+				),
+			),
+			'org-settings' => array(
+				'type' => 'Segment',
+				'options' => array(
+					'route'    => '/:orgId/settings',
+					'defaults' => array(
+						'__NAMESPACE__' => 'Kanbanize\Controller',
+						'controller' => 'OrgSettings',
+					),
+					'constraints' => array(
+						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+					),
+				),
+			),
 			'kanbanize-import' => array(
 				'type' => 'Segment',
 				'options' => array(
@@ -34,6 +72,20 @@ return array(
 					),
 					'constraints' => array(
 						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+					),
+				),
+			),
+			'kanbanize-settings' => array(
+				'type' => 'Segment',
+				'options' => array(
+					'route'		=> '/:orgId/kanbanize/settings[/:controller/:id]',
+					'defaults' => array(
+						'__NAMESPACE__' => 'Kanbanize\Controller',
+						'controller' => 'Settings'
+					),
+					'constraints' => array(
+						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
+						'id' => '[0-9]*'
 					),
 				),
 			)

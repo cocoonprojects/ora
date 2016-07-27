@@ -11,6 +11,7 @@ use People\Organization;
 use Rhumsaa\Uuid\Uuid;
 use Zend\Permissions\Acl\Role\RoleInterface;
 use Zend\Permissions\Acl\Resource\ResourceInterface;
+use FlowManagement\Entity\FlowCard;
 
 /**
  * @ORM\Entity
@@ -24,9 +25,9 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 	CONST ROLE_GUEST = 'guest';
 	CONST ROLE_USER = 'user';
 	CONST ROLE_SYSTEM = 'system';
-	
+
 	CONST SYSTEM_USER = '00000000-0000-0000-0000-000000000000';
-	
+
 	CONST EVENT_CREATED = "User.Created";
 
 	/**
@@ -73,7 +74,7 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 	private $memberships;
 	/**
 	 * @ORM\Column(type="string")
-	 * @var string 
+	 * @var string
 	 */
 	private $role = self::ROLE_USER;
 	/**
@@ -81,11 +82,17 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 	* @var string
 	*/
 	private $kanbanizeUsername;
+	/**
+	 * @ORM\OneToMany(targetEntity="FlowManagement\Entity\FlowCard", mappedBy="recipient", cascade={"persist"})
+	 * @var FlowCard[]
+	 */
+	private $flowcards;
 
 	private function __construct() {
 		$this->memberships = new ArrayCollection();
+		$this->flowcards = new ArrayCollection();
 	}
-	
+
 	public static function create(User $createdBy = null) {
 		$rv = new self();
 		$rv->id = Uuid::uuid4()->toString();
@@ -207,8 +214,8 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 	public function getStatus()
 	{
 		return $this->status;
-	}	
-	
+	}
+
 	public function getOrganizationMemberships()
 	{
 		return $this->memberships->toArray();
@@ -219,7 +226,7 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 	 * @param string $role
 	 * @return $this
 	 */
-	public function addMembership($organization, $role = OrganizationMembership::ROLE_MEMBER) {
+	public function addMembership($organization, $role = OrganizationMembership::ROLE_CONTRIBUTOR) {
 		$org = null;
 		if($organization instanceof Organization) {
 			$org = new ReadModelOrganization($organization->getId());
@@ -249,13 +256,13 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 		$this->picture = $url;
 		return $this;
 	}
-	
+
 	public function getPicture() {
 		return $this->picture;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param string|ReadModelOrganization|Organization $organization
 	 * @return bool
 	 */
@@ -265,6 +272,53 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 			$key = $organization->getId();
 		}
 		return $this->memberships->containsKey($key);
+	}
+
+	public function isContributorOf($organization) {
+		$key = $organization;
+		if($organization instanceof Organization ||
+		   $organization instanceof ReadModelOrganization) {
+			$key = $organization->getId();
+		}
+		$membership = $this->memberships->get($key);
+
+		if(is_null($membership)){
+			return false;
+		}
+
+		return $membership->getRole() == OrganizationMembership::ROLE_CONTRIBUTOR;
+	}
+
+	public function isRoleMemberOf($organization) {
+		$key = $organization;
+		if($organization instanceof Organization ||
+		   $organization instanceof ReadModelOrganization) {
+			$key = $organization->getId();
+		}
+		$membership = $this->memberships->get($key);
+
+		if(is_null($membership)){
+			return false;
+		}
+
+		return $membership->getRole() == OrganizationMembership::ROLE_MEMBER;
+	}
+
+	/**
+	 *
+	 * @param string|ReadModelOrganization|Organization $organization
+	 * @return bool
+	 */
+	public function isOwnerOf($organization) {
+		$key = $organization;
+		if($organization instanceof Organization || $organization instanceof ReadModelOrganization) {
+			$key = $organization->getId();
+		}
+		$membership = $this->memberships->get($key);
+		if(is_null($membership)){
+			return false;
+		}
+		return $membership->getRole() == OrganizationMembership::ROLE_ADMIN;
 	}
 
 	/**
@@ -280,21 +334,42 @@ class User extends BasicUser implements RoleInterface , ResourceInterface
 		$this->role = $role;
 		return $this;
 	}
-	
+
 	public function getRole() {
 		return $this->role;
 	}
-	
+
 	public function getRoleId(){
 		return $this->getRole();
 	}
 
 	public function setKanbanizeUsername($username){
 		$this->kanbanizeUsername = $username;
+		return $this;
 	}
 
 	public function getKanbanizeUsername(){
 		return $this->kanbanizeUsername;
+	}
+
+	public function getFlowCards(){
+		return $this->flowcards;
+	}
+
+	public function addFlowCard(FlowCard $card){
+		$this->flowcards[] = $card;
+		return $this;
+	}
+
+	public function getDislayedName()
+	{
+		$fullname = $this->getFirstname() . ' ' . $this->getLastname();
+
+		if ($fullname != ' ') {
+			return $fullname;
+		}
+
+		return $this->getEmail();
 	}
 
 	public function getResourceId()

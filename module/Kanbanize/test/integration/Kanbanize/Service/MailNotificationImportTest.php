@@ -35,11 +35,15 @@ class MailNotificationImportTest extends \PHPUnit_Framework_TestCase{
 		$this->user = $userService->findUser('60000000-0000-0000-0000-000000000000');
 		
 		$orgService = $serviceManager->get('People\OrganizationService');
-		$importDirector = $serviceManager->get('Kanbanize\ImportDirector');
-		$notificationService = $serviceManager->get('Kanbanize\MailNotificationService');
-		$this->controller = new ImportsController($orgService, $importDirector, $notificationService);
+		$client = $this->configureKanbanizeClientMock($serviceManager);
+		$kanbanizeService = $serviceManager->get('Kanbanize\KanbanizeService');
+		$taskService = $serviceManager->get('TaskManagement\TaskService');
+		$userService = $serviceManager->get('Application\UserService');
+		$streamService = $serviceManager->get('TaskManagement\StreamService');
+		
+		$this->controller = new ImportsController($orgService, $client, $kanbanizeService, $taskService, $userService, $streamService);
 		$this->request	= new Request();
-		$this->routeMatch = new RouteMatch(array('controller' => 'kanbanize-import'));
+		$this->routeMatch = new RouteMatch(array('controller' => 'imports'));
 		$this->event	  = new MvcEvent();
 		$config = $serviceManager->get('Config');
 		$routerConfig = isset($config['router']) ? $config['router'] : array();
@@ -61,11 +65,11 @@ class MailNotificationImportTest extends \PHPUnit_Framework_TestCase{
 	
 	public function testKanbanizeImportNotification() {
 		$this->cleanEmailMessages();
-		$this->routeMatch->setParam('orgId', '00000000-0000-0000-1000-000000000000');
+		$this->routeMatch->setParam('orgId', '00000000-0000-0000-2000-000000000000');
 		$this->request->setMethod('post');
 		$result = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
-		$organization = $this->controller->getOrganizationService()->findOrganization('00000000-0000-0000-1000-000000000000');
+		$organization = $this->controller->getOrganizationService()->findOrganization('00000000-0000-0000-2000-000000000000');
 		$organizationMembershipsCount = $this->controller->getOrganizationService()->countOrganizationMemberships($organization);
 		$emails = $this->getEmailMessages();
 
@@ -73,13 +77,10 @@ class MailNotificationImportTest extends \PHPUnit_Framework_TestCase{
 		$this->assertEquals($organizationMembershipsCount, count($emails));
 		$this->assertContains("A new import from Kanbanize as been completed", $emails[0]->subject);
 		$this->assertEmailHtmlContains('Results summary', $emails[0]);
-		$this->assertEmailHtmlContains('Created streams', $emails[0]);
-		$this->assertEmailHtmlContains('Updated streams', $emails[0]);
 		$this->assertEmailHtmlContains('Created tasks', $emails[0]);
 		$this->assertEmailHtmlContains('Updated tasks', $emails[0]);
 		$this->assertEmailHtmlContains('Deleted tasks', $emails[0]);
 		$this->assertEmailHtmlContains('There were some errors', $emails[0]);
-		
 	}
 	
 	protected function cleanEmailMessages()
@@ -111,5 +112,80 @@ class MailNotificationImportTest extends \PHPUnit_Framework_TestCase{
 		$request = $this->mailcatcher->get("/messages/{$email->id}.html");
 		$response = $request->send();
 		$this->assertContains($needle, (string)$response->getBody(), $description);
+	}
+	private function configureKanbanizeClientMock($serviceManager){
+		$clientMock = $serviceManager->get('Kanbanize\KanbanizeAPI');
+		$clientMock->expects(\PHPUnit_Framework_TestCase::once())
+			->method('getProjectsAndBoards')
+			->willReturn(
+				[
+						[
+								'name' => 'foo project',
+								'boards' => [
+										[
+												"name" => "board 1",
+												"id" => 1
+										]
+								]
+						]
+				]
+		);
+		$clientMock->expects(\PHPUnit_Framework_TestCase::once())
+			->method('getBoardStructure')
+			->willReturn(
+				[
+						"columns" => [
+								[
+										"position" => "0",
+										"lcname" => "Requested",
+										"description" => "",
+										"tasksperrow" => "1"
+								],
+								[
+										"position" => "1",
+										"lcname" => "Approved",
+										"description" => "",
+										"tasksperrow" => "1"
+								],
+								[
+										"position" => "2",
+										"lcname" => "WIP",
+										"description" => "",
+										"tasksperrow" => "1"
+								],
+								[
+										"position" => "3",
+										"lcname" => "Testing",
+										"description" => "",
+										"tasksperrow" => "1"
+								],
+								[
+										"position" => "4",
+										"lcname" => "Production Release",
+										"description" => "",
+										"tasksperrow" => "1"
+								],
+								[
+										"position" => "5",
+										"lcname" => "Accepted",
+										"description" => "",
+										"tasksperrow" => "1"
+								],
+								[
+										"position" => "6",
+										"lcname" => "Closed",
+										"description" => "",
+										"tasksperrow" => "1"
+								],
+								[
+										"position" => "7",
+										"lcname" => "Archive",
+										"description" => "",
+										"tasksperrow" => "0"
+								]
+						]
+				]
+		);
+		return $clientMock;
 	}
 }

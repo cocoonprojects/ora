@@ -1,5 +1,4 @@
 <?php
-
 namespace Kanbanize\Service;
 
 use Application\Entity\User;
@@ -16,24 +15,27 @@ use TaskManagement\TaskUpdated;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\Event;
 use Zend\Mvc\Application;
+use TaskManagement\TaskMemberAdded;
 
-class TaskCommandsListener extends ReadModelProjector{
+class TaskCommandsListener extends ReadModelProjector {
 
 	/**
+	 *
 	 * @var TaskService
 	 */
 	private $taskService;
 	/**
+	 *
 	 * @var OrganizationService
 	 */
 	private $organizationService;
 	/**
+	 *
 	 * @var NotificationService
 	 */
 	private $notificationService;
-
-	public function __construct(EntityManager $entityManager, TaskService $taskService){
-		parent::__construct($entityManager);
+	public function __construct(EntityManager $entityManager, TaskService $taskService) {
+		parent::__construct ( $entityManager );
 		$this->taskService = $taskService;
 	}
 
@@ -54,6 +56,7 @@ class TaskCommandsListener extends ReadModelProjector{
 					$entity->setTaskId($streamEvent->payload()['taskid'])
 						->setSubject($streamEvent->payload()['subject'])
 						->setColumnName($streamEvent->payload()['columnname'])
+						->setLaneName($streamEvent->payload()['lanename'])
 						->setStatus($streamEvent->payload()['status'])
 						->setCreatedAt($streamEvent->occurredOn())
 						->setCreatedBy($createdBy)
@@ -64,7 +67,7 @@ class TaskCommandsListener extends ReadModelProjector{
 				}
 		}, 200);
 
-		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskUpdated::class, 
+		$this->listeners[] = $events->getSharedManager()->attach(Application::class, TaskUpdated::class,
 			function(Event $event) {
 				$streamEvent = $event->getTarget();
 				if($streamEvent->metadata()['aggregate_type'] == KanbanizeTask::class){
@@ -74,38 +77,64 @@ class TaskCommandsListener extends ReadModelProjector{
 					$entity = $this->updateEntity($entity, $by, $streamEvent);
 					$this->entityManager->persist($entity);
 					$this->entityManager->flush($entity);
-				}
-		}, 200);
-	}
-	
-	private function updateEntity(ReadModelKanbanizeTask $task, User $updatedBy, $streamEvent){
+			}
+		}, 200 );
 
-		if(isset($streamEvent->payload()['taskid'])) {
-			$task->setTaskId($streamEvent->payload()['taskid']);
+
+		$this->listeners [] = $events->getSharedManager ()->attach ( Application::class, TaskMemberAdded::class, function (Event $event) {
+			$streamEvent = $event->getTarget ();
+			if ($streamEvent->metadata ()['aggregate_type'] == KanbanizeTask::class) {
+				$id = $streamEvent->metadata ()['aggregate_id'];
+				$entity = $this->taskService->findTask ( $id );
+				$user = $this->entityManager->find(User::class, $streamEvent->payload ()['userId']);
+				$by = $this->entityManager->find ( User::class, $streamEvent->payload ()['by'] );
+				$role = $streamEvent->payload ()['role'];
+				$entity->addMember($user, $role, $by,$streamEvent->occurredOn ());
+				$entity->setMostRecentEditAt ( $streamEvent->occurredOn () );
+				$entity->setMostRecentEditBy ( $by);
+				$this->entityManager->persist ( $entity );
+				$this->entityManager->flush ( $entity );
+			}
+		}, 200 );
+	}
+
+	private function updateEntity(ReadModelKanbanizeTask $task, User $updatedBy, $streamEvent) {
+		if (isset ( $streamEvent->payload ()['taskid'] )) {
+			$task->setTaskId ( $streamEvent->payload ()['taskid'] );
 		}
-		if(isset($streamEvent->payload()['columnname'])) {
-			$task->setColumnName($streamEvent->payload()['columnname']);
+		if (isset ( $streamEvent->payload ()['columnname'] )) {
+			$task->setColumnName ( $streamEvent->payload ()['columnname'] );
+		}
+		if (isset ( $streamEvent->payload ()['assignee'] )) {
+			$task->setAssignee ( $streamEvent->payload ()['assignee'] );
+		}
+		if(isset($streamEvent->payload()['lanename'])) {
+			$task->setLaneName($streamEvent->payload()['lanename']);
+		}
+		if(isset($streamEvent->payload()['position'])) {
+			$task->setPosition($streamEvent->payload()['position']);
 		}
 		if(isset($streamEvent->payload()['assignee'])) {
 			$task->setAssignee($streamEvent->payload()['assignee']);
 		}
-		if(isset($streamEvent->payload()['subject'])) {
-			$task->setSubject($streamEvent->payload()['subject']);
+		if (isset ( $streamEvent->payload ()['subject'] )) {
+			$task->setSubject ( $streamEvent->payload ()['subject'] );
 		}
-		$task->setMostRecentEditAt($streamEvent->occurredOn());
-		$task->setMostRecentEditBy($updatedBy);
+		if (isset ( $streamEvent->payload ()['description'] )) {
+			$task->setDescription( $streamEvent->payload ()['description'] );
+		}
+		$task->setMostRecentEditAt ( $streamEvent->occurredOn () );
+		$task->setMostRecentEditBy ( $updatedBy );
 		return $task;
 	}
-
 	protected function getPackage() {
 		return 'Kanbanize';
 	}
-	
-	public function detach(EventManagerInterface $events){
-		parent::detach($events);
-		foreach ($this->listeners as $index => $listener) {
-			if($events->getSharedManager()->detach(Application::class, $listeners[$index])) {
-				unset($this->listeners[$index]);
+	public function detach(EventManagerInterface $events) {
+		parent::detach ( $events );
+		foreach ( $this->listeners as $index => $listener ) {
+			if ($events->getSharedManager ()->detach ( Application::class, $listeners [$index] )) {
+				unset ( $this->listeners [$index] );
 			}
 		}
 	}

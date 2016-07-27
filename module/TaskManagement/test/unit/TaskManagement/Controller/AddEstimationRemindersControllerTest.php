@@ -3,6 +3,7 @@ namespace TaskManagement\Controller;
 
 use Application\Entity\User;
 use People\Entity\Organization;
+use People\Service\OrganizationService;
 use TaskManagement\Entity\Stream;
 use TaskManagement\Entity\Task;
 use TaskManagement\Service\NotifyMailListener;
@@ -17,6 +18,7 @@ class AddEstimationRemindersControllerTest extends ControllerTest
 	 */
 	private $systemUser;
 
+	protected $org;
 	protected $task;
 	protected $owner;
 	protected $member;
@@ -35,18 +37,29 @@ class AddEstimationRemindersControllerTest extends ControllerTest
 		$this->owner = User::create()->setRole(User::ROLE_USER);
 		$this->member = User::create()->setRole(User::ROLE_USER);
 
-		$this->task = new Task('1', new Stream('1', new Organization('1')));
+		$this->org = new Organization('1');
+		$this->task = new Task('1', new Stream('1', $this->org));
 		$this->task->addMember($this->owner, Task::ROLE_OWNER, $this->owner, new \DateTime())
 			->addMember($this->member, Task::ROLE_MEMBER, $this->member, new \DateTime())
 			->setStatus(Task::STATUS_ONGOING);
 
 		//Task Service Mock
 		$this->taskServiceStub = $this->getMockBuilder(TaskService::class)->getMock();
+		$this->orgServiceStub = $this->getMockBuilder(OrganizationService::class)->getMock();
+		$this->orgServiceStub
+			 ->method('findOrganization')
+			 ->willReturn($this->org);
+
 		$notifyMailListenerStub = $this->getMockBuilder(NotifyMailListener::class)->disableOriginalConstructor()->getMock();
 		$notifyMailListenerStub
 			->method('remindEstimation')
 			->willReturn([]);
-		return new RemindersController($notifyMailListenerStub, $this->taskServiceStub);
+
+		return new RemindersController(
+			$notifyMailListenerStub,
+			$this->taskServiceStub,
+			$this->orgServiceStub
+		);
 	}
 
 	protected function setupRouteMatch()

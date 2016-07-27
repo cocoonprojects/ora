@@ -27,11 +27,8 @@ class OrganizationCommandsListener extends ReadModelProjector {
 		if(isset($event->payload()['name'])) {
 			$entity->setName($event->payload()['name']);
 		}
-		if(isset($event->payload()['kanbanizeColumnMapping'])) {
-			$entity->setSetting('kanbanizeColumnMapping', $event->payload()['kanbanizeColumnMapping']);
-		}
-		if(isset($event->payload()['kanbanizeSubdomain'])) {
-			$entity->setSetting('kanbanizeSubdomain', $event->payload()['kanbanizeSubdomain']);
+		if(isset($event->payload()['settingKey']) && isset($event->payload()['settingValue'])) {
+			$entity->setSettings($event->payload()['settingKey'], $event->payload()['settingValue']);
 		}
 		$updatedBy = $this->entityManager->find(User::class, $event->payload()['by']);
 		$entity->setMostRecentEditAt($event->occurredOn());
@@ -53,6 +50,22 @@ class OrganizationCommandsListener extends ReadModelProjector {
 		  ->setMostRecentEditAt($event->occurredOn())
 		  ->setMostRecentEditBy($createdBy);
 		$this->entityManager->persist($m);
+	}
+	
+	protected function onOrganizationMemberRoleChanged(StreamEvent $event) {
+		$createdBy = $this->entityManager->find(User::class, $event->payload()['by']);
+
+		$membership = $this->entityManager
+			 			   ->getRepository(OrganizationMembership::class)
+						   ->findOneBy(array(
+						   		'member' => $event->payload()['userId'],
+						   		'organization' => $event->metadata()['aggregate_id']
+						   ));
+
+		$membership->setRole($event->payload()['newRole'])
+		  ->setMostRecentEditAt($event->occurredOn())
+		  ->setMostRecentEditBy($createdBy);
+		$this->entityManager->persist($membership);
 	}
 	
 	protected function onOrganizationMemberRemoved(StreamEvent $event) {

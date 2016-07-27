@@ -20,7 +20,7 @@ class StreamCommandsListener extends ReadModelProjector{
 
 	public function attach(EventManagerInterface $events){
 		parent::attach($events);
-		
+
 		$this->listeners[] = $events->getSharedManager()->attach(Application::class, StreamCreated::class,
 			function(Event $event) {
 				$streamEvent = $event->getTarget();
@@ -61,6 +61,20 @@ class StreamCommandsListener extends ReadModelProjector{
 						$this->entityManager->persist($stream);
 						$this->entityManager->flush($stream);
 					}
+
+					if(isset($streamEvent->payload()['boardId'])) {
+						$stream = $this->entityManager->find(Stream::class, $id);
+						if(is_null($stream)) {
+							return;
+						}
+						$updatedBy = $this->entityManager->find(User::class, $streamEvent->payload()['by']);
+						$stream->setBoardId($streamEvent->payload()['boardId']);
+						$stream->setMostRecentEditAt($streamEvent->occurredOn());
+						$stream->setMostRecentEditBy($updatedBy);
+						$this->entityManager->persist($stream);
+						$this->entityManager->flush($stream);
+					}
+
 				}
 			}, 200);
 	}

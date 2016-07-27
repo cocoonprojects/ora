@@ -78,4 +78,6 @@ class BasicUser
 	{
 		return $this->lastname;
 	}
+
+
 }

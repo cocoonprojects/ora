@@ -30,7 +30,11 @@ class KanbanizeTask extends Task {
 	 * @var String
 	 */
 	private $columnname;
-	
+	/**
+	 * @var String
+	 */
+	private $lanename;
+
 	public static function create(Stream $stream, $subject, BasicUser $createdBy, array $options = null) {
 		if(!isset($options['taskid'])) {
 			throw InvalidArgumentException('Cannot create a KanbanizeTask without a taskid option');
@@ -48,11 +52,13 @@ class KanbanizeTask extends Task {
 			'streamId' => $stream->getId(),
 			'by' => $createdBy->getId(),
 			'columnname' => $options["columnname"],
-			'subject' => $subject
+			'lanename' => isset($options["lanename"]) ? $options["lanename"] : null,
+			'subject' => $subject,
+			'description' =>$options["description"]
 		]));
 		return $rv;
 	}
-	
+
 	public function getKanbanizeTaskId() {
 		return $this->taskId;
 	}
@@ -85,6 +91,21 @@ class KanbanizeTask extends Task {
 		return $this->columnname;
 	}
 
+	public function setLaneName($name, BasicUser $updatedBy){
+		if(empty($name)) {
+			throw new InvalidArgumentException("Lane name cannot be empty");
+		};
+		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
+			'lanename' => trim($name),
+			'by' => $updatedBy->getId(),
+		)));
+		return $this;
+	}
+
+	public function getLaneName(){
+		return $this->lanename;
+	}
+
 	/**
 	 * @return string
 	 */
@@ -98,6 +119,11 @@ class KanbanizeTask extends Task {
 
 		$this->taskid = $event->payload()['taskid'];
 		$this->columnname = $event->payload()['columnname'];
+
+		if (isset($event->payload()['lanename'])) {
+			$this->lanename = $event->payload()['lanename'];
+		}
+
 		$this->subject = $event->payload()['subject'];
 	}
 
@@ -107,6 +133,9 @@ class KanbanizeTask extends Task {
 		$pl = $event->payload();
 		if(isset($pl['columnname'])) {
 			$this->columnname = $pl['columnname'];
+		}
+		if(isset($pl['lanename'])) {
+			$this->lanename = $pl['lanename'];
 		}
 		if(isset($pl['assignee'])) {
 			$this->assignee = $pl['assignee'];

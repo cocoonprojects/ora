@@ -10,41 +10,74 @@ use Application\IllegalStateException;
 use Application\InvalidArgumentException;
 use People\MissingOrganizationMembershipException;
 use Rhumsaa\Uuid\Uuid;
+use TaskManagement\Entity\ItemIdeaApproval;
+use TaskManagement\Entity\TaskMember;
 
 class Task extends DomainEntity implements TaskInterface
 {
 	CONST NOT_ESTIMATED = -1;
+
 	/**
 	 * @var string
 	 */
 	protected $subject;
+
+	/**
+	 * @var string
+	 */
+	protected $description;
+
 	/**
 	 * @var int
 	 */
 	protected $status;
+
 	/**
 	 * @var Uuid
 	 */
 	protected $streamId;
+
 	/**
 	 * @var Uuid
 	 */
 	protected $organizationId;
-	/**
-	 */
+
 	protected $members = [];
+
+	protected $organizationMembersApprovals=[];
+
+	protected $organizationMembersAcceptances=[];
+
+	protected $attachments;
+
+	protected $lane;
+
+	protected $position;
+
+	/**
+	 * @var boolean
+	 */
+	protected $is_decision = false;
+
 	/**
 	 * @var \DateTime
 	 */
 	protected $createdAt;
+
 	/**
 	 * @var BasicUser
 	 */
 	protected $createdBy;
+
+	/**
+	 * @var \DateTime
+	 */
+	protected $mostRecentEditAt;
 	/**
 	 * @var \DateTime
 	 */
 	protected $acceptedAt;
+
 	/**
 	 * @var \DateTime
 	 */
@@ -52,17 +85,30 @@ class Task extends DomainEntity implements TaskInterface
 
 	public static function create(Stream $stream, $subject, BasicUser $createdBy, array $options = null) {
 		$rv = new self();
+
+		$decision = false;
+
+		if (is_array($options) &&
+			isset($options['decision']) &&
+			$options['decision'] == 'true') {
+			$decision = true;
+		}
+
 		$rv->recordThat(TaskCreated::occur(Uuid::uuid4()->toString(), [
 			'status' => self::STATUS_IDEA,
 			'organizationId' => $stream->getOrganizationId(),
 			'streamId' => $stream->getId(),
-			'by' => $createdBy->getId()
+			'by' => $createdBy->getId(),
+			'decision' => $decision,
+			'lanename' => is_array($options) && isset($options['lane']) ? $options['lane'] : ''
 		]));
+
 		$rv->setSubject($subject, $createdBy);
+		$rv->is_decision = $decision;
 
 		return $rv;
 	}
-	
+
 	public function delete(BasicUser $deletedBy) {
 		if($this->getStatus() >= self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot delete a task in state '.$this->getStatus().'. Task '.$this->getId().' won\'t be deleted');
@@ -74,15 +120,79 @@ class Task extends DomainEntity implements TaskInterface
 	}
 
 	/**
+	 * Set the attachments for the given tasks.
+	 *
+	 * Attachments are just a json blob coming from Google Drive. They are updated as a whole
+	 *
+	 * @param BasicUser $updatedBy the user performing the action
+	 * @param string    $jsonData  the json blob
+	 */
+	public function setAttachments(BasicUser $updatedBy, $jsonData)
+	{
+		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
+				'attachments' => $jsonData,
+				'by' => $updatedBy->getId(),
+		)));
+		return $this;
+	}
+
+	public function getAttachments()
+	{
+		if (!$this->attachments) {
+			return [];
+		}
+
+		return json_decode($this->attachments);
+	}
+
+	/**
+	 * Set the lane for the given tasks.
+	 *
+	 * @param string    $lane  the lane
+	 */
+	public function setLane($lane, BasicUser $updatedBy)
+	{
+		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
+				'lanename' => $lane,
+				'by' => $updatedBy->getId(),
+		)));
+		return $this;
+	}
+
+	public function getLane()
+	{
+		return $this->lane;
+	}
+
+	/**
+	 * Set the position for the given tasks.
+	 *
+	 * @param integer	$position	the position on the kanbanize board
+	 */
+	public function setPosition($position, BasicUser $updatedBy)
+	{
+		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
+				'position' => $position,
+				'by' => $updatedBy->getId(),
+		)));
+		return $this;
+	}
+
+	public function getPosition()
+	{
+		return $this->position;
+	}
+
+	/**
 	 * @return int
 	 */
 	public function getStatus() {
 		return $this->status;
 	}
-	
+
 	public function execute(BasicUser $executedBy) {
 		//The status IDEA is provisional
-		if(!in_array($this->status, [self::STATUS_IDEA, self::STATUS_OPEN, self::STATUS_COMPLETED])) {
+		if(!in_array($this->status, [self::STATUS_OPEN, self::STATUS_COMPLETED])) {
 			throw new IllegalStateException('Cannot execute a task in '.$this->status.' state');
 		}
 		$this->recordThat(TaskOngoing::occur($this->id->toString(), array(
@@ -91,7 +201,7 @@ class Task extends DomainEntity implements TaskInterface
 		)));
 		return $this;
 	}
-	
+
 	public function complete(BasicUser $completedBy) {
 		if(!in_array($this->status, [self::STATUS_ONGOING, self::STATUS_ACCEPTED])) {
 			throw new IllegalStateException('Cannot complete a task in '.$this->status.' state');
@@ -100,42 +210,77 @@ class Task extends DomainEntity implements TaskInterface
 			throw new IllegalStateException('Cannot complete a task with missing estimations by members');
 		}
 		$this->recordThat(TaskCompleted::occur($this->id->toString(), array(
+			'organizationId' => $this->getOrganizationId(),
 			'prevStatus' => $this->getStatus(),
 			'by' => $completedBy->getId(),
 		)));
 		return $this;
 	}
-	
+
 	public function accept(BasicUser $acceptedBy, \DateInterval $intervalForCloseTask = null) {
 		if($this->status != self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot accept a task in '.$this->status.' state');
 		}
 		$this->recordThat(TaskAccepted::occur($this->id->toString(), array(
+			'organizationId' => $this->getOrganizationId(),
 			'prevStatus' => $this->getStatus(),
 			'by' => $acceptedBy->getId(),
 			'intervalForCloseTask' => $intervalForCloseTask
 		)));
 		return $this;
 	}
-	
+
+	public function reopen(BasicUser $reopenedBy) {
+		if($this->status != self::STATUS_COMPLETED) {
+			throw new IllegalStateException('Cannot reopen a task in '.$this->status.' state');
+		}
+		$this->recordThat(TaskReopened::occur($this->id->toString(), array(
+			'organizationId' => $this->getOrganizationId(),
+			'prevStatus' => $this->getStatus(),
+			'by' => $reopenedBy->getId()
+		)));
+		return $this;
+	}
+
 	public function close(BasicUser $closedBy) {
 		if($this->status != self::STATUS_ACCEPTED) {
 			throw new IllegalStateException('Cannot close a task in '.$this->status.' state');
 		}
-		
+
 		$this->recordThat(TaskClosed::occur($this->id->toString(), array(
 			'by' => $closedBy->getId(),
 		)));
 		return $this;
 	}
 
+	public function open(BasicUser $executedBy) {
+		if(!in_array($this->status, [self::STATUS_IDEA, self::STATUS_ONGOING])) {
+			throw new IllegalStateException('Cannot open a task in '.$this->status.' state');
+		}
+		$this->recordThat(TaskOpened::occur($this->id->toString(), array(
+				'prevStatus' => $this->getStatus(),
+				'by' => $executedBy->getId(),
+		)));
+		return $this;
+	}
+
+	public function archive(BasicUser $executedBy) {
+		if(!in_array($this->status, [self::STATUS_IDEA])) {
+			throw new IllegalStateException('Cannot archive a task in state '.$this->getStatus().'. Task '.$this->getId().' won\'t be archived');
+		}
+		$this->recordThat(TaskArchived::occur($this->id->toString(), array(
+				'prevStatus' => $this->getStatus(),
+				'by' => $executedBy->getId(),
+		)));
+		return $this;
+	}
 	/**
 	 * @return string
 	 */
 	public function getSubject() {
 		return $this->subject;
 	}
-	
+
 	public function setSubject($subject, BasicUser $updatedBy) {
 		$s = is_null($subject) ? null : trim($subject);
 		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
@@ -144,7 +289,23 @@ class Task extends DomainEntity implements TaskInterface
 		)));
 		return $this;
 	}
-	
+
+	/**
+	 * @return string
+	 */
+	public function getDescription() {
+		return $this->description;
+	}
+
+	public function setDescription($description, BasicUser $updatedBy) {
+		$d = is_null($description) ? null : trim($description);
+		$this->recordThat(TaskUpdated::occur($this->id->toString(), array(
+				'description' => $d,
+				'by' => $updatedBy->getId(),
+		)));
+		return $this;
+	}
+
 	public function changeStream(Stream $stream, BasicUser $updatedBy) {
 		if($this->status >= self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot set the task stream in '.$this->status.' state');
@@ -173,9 +334,9 @@ class Task extends DomainEntity implements TaskInterface
 	public function getOrganizationId() {
 		return $this->organizationId->toString();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param User $user
 	 * @param string $role
 	 * @param BasicUser $addedBy
@@ -184,7 +345,7 @@ class Task extends DomainEntity implements TaskInterface
 	 * @throws DuplicatedDomainEntityException
 	 */
 	public function addMember(User $user, $role = self::ROLE_MEMBER, BasicUser $addedBy = null)
-	{ 
+	{
 		if($this->status >= self::STATUS_COMPLETED) {
 			throw new IllegalStateException('Cannot add a member to a task in '.$this->status.' state');
 		}
@@ -194,9 +355,9 @@ class Task extends DomainEntity implements TaskInterface
 		if (array_key_exists($user->getId(), $this->members)) {
 			throw new DuplicatedDomainEntityException($this, $user);
 		}
-		
+
 		$by = is_null($addedBy) ? $user : $addedBy;
-		
+
 		$this->recordThat(TaskMemberAdded::occur($this->id->toString(), array(
 			'userId' => $user->getId(),
 			'role' => $role,
@@ -217,24 +378,26 @@ class Task extends DomainEntity implements TaskInterface
 		// TODO: Integrare controllo per cui è possibile effettuare l'UNJOIN
 		// solo nel caso in cui non sia stata ancora effettuata nessuna stima
 		if (!array_key_exists($member->getId(), $this->members)) {
-			throw new DomainEntityUnavailableException($this, $member); 
+			throw new DomainEntityUnavailableException($this, $member);
 		}
 
 		$by = is_null($removedBy) ? $member : $removedBy;
-		
+
 		$this->recordThat(TaskMemberRemoved::occur($this->id->toString(), array(
+			'organizationId' => $this->getOrganizationId(),
 			'userId' => $member->getId(),
+			'userName' => $member->getFirstname().' '.$member->getLastname(),
 			'by' => $by->getId(),
 		)));
 	}
-	
+
 	public function addEstimation($value, BasicUser $member) {
 		if(!in_array($this->status, [self::STATUS_ONGOING])) {
 			throw new IllegalStateException('Cannot estimate a task in the state '.$this->status.'.');
 		}
 		//check if the estimator is a task member
 		if(!array_key_exists($member->getId(), $this->members)) {
-			throw new DomainEntityUnavailableException($this, $member); 
+			throw new DomainEntityUnavailableException($this, $member);
 		}
 		// TODO: Estimation need an id?
 		$this->recordThat(EstimationAdded::occur($this->id->toString(), array(
@@ -242,8 +405,59 @@ class Task extends DomainEntity implements TaskInterface
 			'value'	 => $value,
 		)));
 	}
+
+	public function addApproval($vote,BasicUser $member,$description){
+		if (! in_array ( $this->status, [
+				self::STATUS_IDEA
+		] )) {
+			throw new IllegalStateException ( 'Cannot add an approval to item in a status different from idea' );
+		}
+		if (array_key_exists ( $member->getId (), $this->organizationMembersApprovals )) {
+			throw new DuplicatedDomainEntityException ( $this, $member );
+		}
+
+		$this->recordThat ( ApprovalCreated::occur ( $this->id->toString (), array (
+				'by' => $member->getId (),
+				'vote' => $vote,
+				'task-id' => $this->getId (),
+				'description' => $description
+		) ) );
+	}
+
+	public function addAcceptance($vote,BasicUser $member,$description){
+		if (! in_array ( $this->status, [
+				self::STATUS_COMPLETED
+		] )) {
+			throw new IllegalStateException ( 'Cannot add an acceptance to item in a status different from closed' );
+		}
+
+		if (array_key_exists ( $member->getId (), $this->organizationMembersAcceptances )) {
+			throw new DuplicatedDomainEntityException ( $this, $member );
+		}
+
+		$this->recordThat ( AcceptanceCreated::occur ( $this->id->toString (), array (
+				'by' => $member->getId (),
+				'vote' => $vote,
+				'task-id' => $this->getId (),
+				'description' => $description
+		) ) );
+	}
+
+	public function removeAcceptances(BasicUser $member){
+		if (! in_array ( $this->status, [
+				self::STATUS_COMPLETED
+		] )) {
+			throw new IllegalStateException ( 'Cannot remove acceptances from item in a status different from closed' );
+		}
+
+		$this->recordThat ( AcceptancesRemoved::occur( $this->id->toString (), array (
+				'by' => $member->getId (),
+				'task-id' => $this->getId (),
+		) ) );
+	}
+
 	/**
-	 * 
+	 *
 	 * @param array $shares Map of memberId and its share for each member
 	 * @param BasicUser $member
 	 * @throws IllegalStateException
@@ -256,13 +470,13 @@ class Task extends DomainEntity implements TaskInterface
 		}
 		//check if the evaluator is a task member
 		if(!array_key_exists($member->getId(), $this->members)) {
-			throw new DomainEntityUnavailableException($this, $member); 
+			throw new DomainEntityUnavailableException($this, $member);
 		}
-		
+
 		$membersShares = array();
 		foreach($shares as $key => $value) {
 			if(array_key_exists($key, $this->members)) {
-				$membersShares[$key] = $value; 
+				$membersShares[$key] = $value;
 			}
 		}
 
@@ -288,7 +502,7 @@ class Task extends DomainEntity implements TaskInterface
 			'by' => $member->getId(),
 		)));
 	}
-	
+
 	public function skipShares(BasicUser $member) {
 		if($this->status != self::STATUS_ACCEPTED) {
 			throw new IllegalStateException('Cannot assign shares in a task in status '.$this->status);
@@ -297,7 +511,7 @@ class Task extends DomainEntity implements TaskInterface
 		if(!array_key_exists($member->getId(), $this->members)) {
 			throw new DomainEntityUnavailableException($this, $member);
 		}
-		
+
 		$this->recordThat(SharesSkipped::occur($this->id->toString(), array(
 			'by' => $member->getId(),
 		)));
@@ -309,20 +523,24 @@ class Task extends DomainEntity implements TaskInterface
 	 * @throws DomainEntityUnavailableException
 	 */
 	public function changeOwner(BasicUser $new_owner, BasicUser $by){
+
 		if(!$new_owner->isMemberOf($this->getOrganizationId())) {
-			throw new MissingOrganizationMembershipException($this->getOrganizationId(), $new_owner->getId());
+			throw new MissingOrganizationMembershipException(
+				$this->getOrganizationId(), $new_owner->getId()
+			);
 		}
-		if (!array_key_exists($new_owner->getId(), $this->members)) {
-			throw new DomainEntityUnavailableException($this, $new_owner);
-		}
+
 		$ex_owner = $this->getOwner();
 		if(!is_null($ex_owner)){
 			$this->recordThat(OwnerRemoved::occur($this->id->toString(), array(
+				'organizationId' => $this->getOrganizationId(),
 				'ex_owner' => $ex_owner,
 				'by' => $by->getId()
 			)));
 		}
 		$this->recordThat(OwnerAdded::occur($this->id->toString(), array(
+			'organizationId' => $this->getOrganizationId(),
+			'ex_owner' => $ex_owner,
 			'new_owner' => $new_owner->getId(),
 			'by' => $by->getId()
 		)));
@@ -344,7 +562,21 @@ class Task extends DomainEntity implements TaskInterface
 	public function getMembers() {
 		return $this->members;
 	}
-	
+
+	/**
+	 * @return array
+	 */
+	public function getApprovals(){
+		return $this->organizationMembersApprovals;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getAcceptances(){
+		return $this->organizationMembersAcceptances;
+	}
+
 	public function getAverageEstimation() {
 		$tot = null;
 		$estimationsCount = 0;
@@ -371,9 +603,9 @@ class Task extends DomainEntity implements TaskInterface
 		}
 		return null;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param id|BasicUser $user
 	 * @return boolean
 	 */
@@ -382,7 +614,7 @@ class Task extends DomainEntity implements TaskInterface
 		return isset($this->members[$key]);
 	}
 	/**
-	 * 
+	 *
 	 * @param string $role
 	 * @param id|BasicUser $user
 	 * @return boolean
@@ -410,7 +642,7 @@ class Task extends DomainEntity implements TaskInterface
 		}
 		return $rv;
 	}
-	
+
 	public function isSharesAssignmentCompleted() {
 		foreach ($this->members as $member) {
 			if(!isset($member['shares'])) {
@@ -419,7 +651,7 @@ class Task extends DomainEntity implements TaskInterface
 		}
 		return true;
 	}
-	
+
 	public function getMemberRole($user){
 		$key = $user instanceof BasicUser ? $user->getId() : $user;
 		if(isset($this->members[$key])){
@@ -427,13 +659,18 @@ class Task extends DomainEntity implements TaskInterface
 		}
 		return null;
 	}
-	
+
 	public function getOwner() {
 		foreach ($this->members as $key => $member){
 			if($member['role'] == self::ROLE_OWNER)
 				return $key;
 		}
 		return null;
+	}
+
+	public function isDecision()
+	{
+		return $this->is_decision;
 	}
 
 	/**
@@ -450,6 +687,14 @@ class Task extends DomainEntity implements TaskInterface
 	public function getCreatedAt()
 	{
 		return $this->createdAt;
+	}
+
+	/**
+	 * @return \DateTime
+	 */
+	public function getMostRecentEditAt()
+	{
+		return $this->mostRecentEditAt;
 	}
 
 	/**
@@ -482,22 +727,24 @@ class Task extends DomainEntity implements TaskInterface
 		$this->status = $p['status'];
 		$this->organizationId = Uuid::fromString($p['organizationId']);
 		$this->streamId = Uuid::fromString($p['streamId']);
-		$this->createdAt = $event->occurredOn();
+		$this->createdAt = $this->mostRecentEditAt = $event->occurredOn();
 		$this->createdBy = BasicUser::createBasicUser($p['by']);
 	}
-	
+
 	protected function whenTaskOngoing(TaskOngoing $event) {
 		$this->status = self::STATUS_ONGOING;
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
-	
+
 	protected function whenTaskCompleted(TaskCompleted $event) {
 		$this->status = self::STATUS_COMPLETED;
 		array_walk($this->members, function(&$value, $key) {
 			unset($value['shares']);
 			unset($value['share']);
 		});
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
-	
+
 	protected function whenTaskAccepted(TaskAccepted $event) {
 		$this->status = self::STATUS_ACCEPTED;
 		$this->acceptedAt = $event->occurredOn();
@@ -506,49 +753,144 @@ class Task extends DomainEntity implements TaskInterface
 			$sharesAssignmentExpiresAt->add($event->payload()['intervalForCloseTask']);
 			$this->sharesAssignmentExpiresAt = $sharesAssignmentExpiresAt;
 		}
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
-	
+
+	protected function whenTaskReopened(TaskReopened $event) {
+		$this->status = self::STATUS_ONGOING;
+		$this->mostRecentEditAt = $event->occurredOn();
+	}
+
 	protected function whenTaskClosed(TaskClosed $event) {
 		$this->status = self::STATUS_CLOSED;
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
-	
+
 	protected function whenTaskDeleted(TaskDeleted $event) {
 		$this->status = self::STATUS_DELETED;
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
-	
+
+	protected function whenTaskOpened(TaskOpened $event) {
+		$this->status = self::STATUS_OPEN;
+		$this->mostRecentEditAt = $event->occurredOn();
+	}
+
+	protected function whenTaskArchived(TaskArchived $event) {
+		$this->status = self::STATUS_ARCHIVED;
+		$this->mostRecentEditAt = $event->occurredOn();
+	}
+
 	protected function whenTaskUpdated(TaskUpdated $event) {
 		$pl = $event->payload();
 		if(array_key_exists('subject', $pl)) {
 			$this->subject = $pl['subject'];
 		}
+		if(array_key_exists('description', $pl)) {
+			$this->description = $pl['description'];
+		}
+		if(array_key_exists('attachments', $pl)) {
+			$this->attachments = $pl['attachments'];
+		}
+		if(array_key_exists('lanename', $pl)) {
+			$this->lane = $pl['lanename'];
+		}
+		if(array_key_exists('position', $pl)) {
+			$this->lane = $pl['position'];
+		}
+
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
-	
+
 	protected function whenTaskMemberAdded(TaskMemberAdded $event) {
 		$p = $event->payload();
 		$id = $p['userId'];
 		$this->members[$id]['id'] = $id;
 		$this->members[$id]['role'] = $p['role'];
 		$this->members[$id]['createdAt'] = $event->occurredOn();
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	protected function whenTaskMemberRemoved(TaskMemberRemoved $event) {
 		$p = $event->payload();
 		$id = $p['userId'];
 		unset($this->members[$id]);
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
-	
+
+	protected function whenTaskOwnerAdded(TaskMemberAdded $event) {
+		$p = $event->payload();
+		$id = $p['userId'];
+		$this->members[$id]['id'] = $id;
+		$this->members[$id]['role'] = TaskMember::ROLE_OWNER;
+		$this->members[$id]['createdAt'] = $event->occurredOn();
+		$this->mostRecentEditAt = $event->occurredOn();
+	}
+
+	protected function whenTaskOwnerRemoved(TaskMemberRemoved $event) {
+		$p = $event->payload();
+		$id = $p['userId'];
+		$this->members[$id]['id'] = $id;
+		$this->members[$id]['role'] = TaskMember::ROLE_MEMBER;
+		$this->members[$id]['createdAt'] = $event->occurredOn();
+		$this->mostRecentEditAt = $event->occurredOn();
+	}
+
+	protected function whenOwnerAdded(OwnerAdded $event) {
+		$p = $event->payload();
+		$id = $p['new_owner'];
+		$this->members[$id]['id'] = $id;
+		$this->members[$id]['role'] = TaskMember::ROLE_OWNER;
+		$this->members[$id]['createdAt'] = $event->occurredOn();
+		$this->mostRecentEditAt = $event->occurredOn();
+	}
+
+	protected function whenOwnerRemoved(OwnerRemoved $event) {
+		$p = $event->payload();
+		$id = $p['ex_owner'];
+		$this->members[$id]['id'] = $id;
+		$this->members[$id]['role'] = TaskMember::ROLE_MEMBER;
+		$this->members[$id]['createdAt'] = $event->occurredOn();
+		$this->mostRecentEditAt = $event->occurredOn();
+	}
+
 	protected function whenTaskStreamChanged(TaskStreamChanged $event) {
 		$p = $event->payload();
 		$this->streamId = Uuid::fromString($p['streamId']);
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
-	
+
 	protected function whenEstimationAdded(EstimationAdded $event) {
 		$p = $event->payload();
 		$id = $p['by'];
 		$this->members[$id]['estimation'] = $p['value'];
 		$this->members[$id]['estimatedAt'] = $event->occurredOn();
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
-	
+
+	protected function whenApprovalCreated(ApprovalCreated $event) {
+		$p = $event->payload ();
+		$id = $p ['by'];
+		$this->organizationMembersApprovals [$id] ['approval'] = $p ['vote'];
+		$this->organizationMembersApprovals [$id] ['approvalGeneratedAt'] = $event->occurredOn ();
+		$this->mostRecentEditAt = $event->occurredOn();
+	}
+
+	protected function whenAcceptanceCreated(AcceptanceCreated $event) {
+		$p = $event->payload ();
+		$id = $p ['by'];
+		$this->organizationMembersAcceptances [$id] ['acceptance'] = $p['vote'];
+		$this->organizationMembersAcceptances [$id] ['acceptanceDescription'] = $p['description'];
+		$this->organizationMembersAcceptances [$id] ['acceptanceGeneratedAt'] = $event->occurredOn();
+		$this->mostRecentEditAt = $event->occurredOn();
+	}
+
+	protected function whenAcceptancesRemoved(AcceptancesRemoved $event) {
+		unset($this->organizationMembersAcceptances);
+		$this->organizationMembersAcceptances = [];
+		$this->mostRecentEditAt = $event->occurredOn();
+	}
+
 	protected function whenSharesAssigned(SharesAssigned $event) {
 		$p = $event->payload();
 		$id = $p['by'];
@@ -562,8 +904,9 @@ class Task extends DomainEntity implements TaskInterface
 				}
 			}
 		}
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
-	
+
 	protected function whenSharesSkipped(SharesSkipped $event) {
 		$p = $event->payload();
 		$id = $p['by'];
@@ -576,8 +919,9 @@ class Task extends DomainEntity implements TaskInterface
 				$this->members[$key]['share'] = $value;
 			}
 		}
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
-	
+
 	protected function getMembersShare() {
 		$rv = array();
 		$evaluators = 0;
@@ -624,18 +968,7 @@ class Task extends DomainEntity implements TaskInterface
 	}
 
 	protected function whenCreditsAssigned(CreditsAssigned $event){
-	}
-
-	protected function whenOwnerAdded(OwnerAdded $event){
-		$p = $event->payload();
-		$new_owner = $p['new_owner'];
-		$this->members[$new_owner]['role'] = self::ROLE_OWNER;
-	}
-
-	protected function whenOwnerRemoved(OwnerRemoved $event){
-		$p = $event->payload();
-		$ex_owner = $p['ex_owner'];
-		$this->members[$ex_owner]['role'] = self::ROLE_MEMBER;
+		$this->mostRecentEditAt = $event->occurredOn();
 	}
 
 	public function isSharesAssignmentExpired(\DateTime $ref){

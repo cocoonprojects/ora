@@ -26,6 +26,12 @@ class KanbanizeTask extends Task
 	 *  @ORM\Column(type="string", nullable=true)
 	 * @var string
 	 */
+	private $laneName;
+
+	/**
+	 *  @ORM\Column(type="string", nullable=true)
+	 * @var string
+	 */
 	private $assignee;
 	/**
 	 * @param string $taskId
@@ -58,6 +64,21 @@ class KanbanizeTask extends Task
 	}
 
 	/**
+	 * @param string $laneName
+	 */
+	public function setLaneName($laneName){
+		$this->laneName = $laneName;
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getLaneName() {
+		return $this->laneName;
+	}
+
+	/**
 	 * @param string $assignee
 	 */
 	public function setAssignee($assignee){
@@ -70,6 +91,21 @@ class KanbanizeTask extends Task
 	 */
 	public function getAssignee() {
 		return $this->assignee;
+	}
+
+	public function getAssigneeName() {
+		$owner = $this->getOwner();
+
+		if (!$owner) {
+			return;
+		}
+
+		return $owner->getUser()->getDislayedName();
+	}
+
+	public function isUpdatedBefore(\DateTime $when)
+	{
+		return $this->getMostRecentEditAt()->format('U') <= $when->format('U');
 	}
 
 	/**

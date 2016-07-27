@@ -3,8 +3,8 @@
 namespace TaskManagement\Service;
 
 use People\Entity\Organization;
+use Rhumsaa\Uuid\Uuid;
 use TaskManagement\Task;
-
 
 /**
  * TODO: Rename in TaskRepository?
@@ -33,7 +33,7 @@ interface TaskService
 	 * @param array $filters
 	 * @return Task[]
 	 */
-	public function findTasks($organization, $offset, $limit, $filters);
+	public function findTasks($organization, $offset, $limit, $filters, $sorting=null);
 
 	/**
 	 * @param string|Uuid $id
@@ -47,6 +47,15 @@ interface TaskService
 	 * @return array
 	 */
 	public function findAcceptedTasksBefore(\DateInterval $interval);
+
+	/**
+	 * Find accepted tasks with accepted date before $before days from now
+	 * and after $after days since now (in the past)
+	 * @param \DateInterval $after
+	 * @param \DateInterval $before
+	 * @return array
+	 */
+	public function findIdeasCreatedBetween(\DateInterval $after, \DateInterval $before);
 
 	/**
 	 * Get the number of tasks of an $organization
@@ -67,4 +76,18 @@ interface TaskService
 	 * @param \DateTime $filters["endOn"]
 	 */
 	public function findMemberStats(Organization $org, $memberId, $filters);
+	
+	/**
+	 * Find items with creation date before $interval days from now
+	 * @param \DateInterval $interval
+	 * @param string $status
+	 */
+	public function findItemsBefore(\DateInterval $interval, $status);
+	
+	/**
+	 * Count votes on item idea to open or archive it
+	 * @param int item status from TaskInterface
+	 * @param string|Uuid $id
+	 */
+	public function countVotesForItem($itemStatus, $id);
 }

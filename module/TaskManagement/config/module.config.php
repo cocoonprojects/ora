@@ -31,7 +31,7 @@ return array(
 			'tasks' => [
 				'type' => 'Segment',
 				'options' => [
-					'route'	   => '/:orgId/task-management/tasks[/:id][/:controller][/:type]',
+					'route'	   => '[/:orgId]/task-management/tasks[/:id][/:controller][/:type]',
 					'constraints' => [
 						'orgId' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
 						'id' => '([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})',
@@ -45,6 +45,30 @@ return array(
 			],
 		],
 	],
+    'console' => [
+        'router' => [
+            'routes' => [
+                'reminder' => [
+                    'options' => [
+                        'route'    => 'reminder [--verbose|-v]',
+                        'defaults' => [
+							'controller' => 'TaskManagement\Controller\Console\Reminders',
+							'action' => 'send'
+                        ]
+                    ]
+                ],
+                'close_polls' => [
+                    'options' => [
+                        'route'    => 'closepolls [idea-items|completed-items]:type [--verbose|-v]',
+                        'defaults' => [
+							'controller' => 'TaskManagement\Controller\Console\VotingResults',
+							'action' => 'closePolls'
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ],
 	'translator' => array(),
 	'view_manager' => array(
 		'strategies' => array(
@@ -72,10 +96,9 @@ return array(
 		'TaskManagement\NotifyMailListener',
 		'TaskManagement\StreamCommandsListener',
 		'TaskManagement\TaskCommandsListener',
+	    'TaskManagement\CloseItemIdeaListener',
+	    'TaskManagement\AcceptCompletedItemListener',
 		'TaskManagement\TransferCreditsListener',
 		'TaskManagement\AssignCreditsListener',
 	],
-	'assignment_of_shares_timebox' => new \DateInterval('P10D'),
-	'assignment_of_shares_remind_interval' => new \DateInterval('P7D'),
-	'default_tasks_limit' => 10
 );

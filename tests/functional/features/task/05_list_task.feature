@@ -51,7 +51,7 @@ Feature: List tasks
     Then the response status code should be 200
     And the response should have a "_links" property
     And the response should have a "_links.self" property
-    And the response should have a "_links.ora:delete" property
+    And the response shouldn't have a "_links.ora:delete" property
     And the response should have a "_links.ora:estimate" property
     And the response should have a "_links.ora:edit" property
 
@@ -65,6 +65,7 @@ Feature: List tasks
     And the response shouldn't have a "_links.next" property
     And the response should have a "_links.ora:execute" property
 
+  @kanbanize
   Scenario: Successfully getting command list on an accepted tasks of a stream for the task owner that have assigned shares on that task
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
@@ -72,7 +73,7 @@ Feature: List tasks
     Then the response status code should be 200
     And the response should have a "_links" property
     And the response should have a "_links.self" property
-    And the response shouldn't have a "_links.ora:assignShares" property
+    # And the response shouldn't have a "_links.ora:assignShares" property
     And the response should have a "_links.ora:complete" property
 
   Scenario: Successfully getting command list on an accepted tasks of a stream for the task owner that haven't assigned shares on that task
@@ -102,17 +103,18 @@ Feature: List tasks
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
     And the response shouldn't have a "_links.next" property
-    And the "total" property should be "3"
+    And the "total" property should be "6"
 
   Scenario: Successfully getting a list of tasks from a specified ISO 8601 date
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
     And that its "startOn" is "2014-07-01T00:00:00.000Z"
     When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
+    # Then echo last response
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
-    And the response shouldn't have a "_links.next" property
     And the "total" property should be "10"
+    And the response shouldn't have a "_links.next" property
 
   Scenario: Successfully getting a list of tasks until a specified period
     Given that I am authenticated as "mark.rogers@ora.local"
@@ -123,7 +125,7 @@ Feature: List tasks
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
     And the response shouldn't have a "_links.next" property
-    And the "total" property should be "1"
+    And the "total" property should be "3"
 
   Scenario: Successfully getting an empty list of tasks filtered by user email
     Given that I am authenticated as "mark.rogers@ora.local"
@@ -144,7 +146,7 @@ Feature: List tasks
     And the response should have a "_embedded.ora:task" property
     And the response shouldn't have a "_links.next" property
     And the "count" property should be "2"
-  
+
   Scenario: Successfully getting an empty list of tasks filtered by status
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
@@ -153,7 +155,7 @@ Feature: List tasks
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
     And the "count" property should be "0"
-    
+
   Scenario: Successfully getting an empty list of tasks filtered by wrong status
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
@@ -181,7 +183,8 @@ Feature: List tasks
     Then the response status code should be 200
     And the response should have a "_embedded.ora:task" property
     And the "count" property should be "10"
-    
+
+  @kanbanize
   Scenario: Cannot get command list on accepted kanbanize tasks for a task owner
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
@@ -190,8 +193,9 @@ Feature: List tasks
     And the response should have a "_links" property
     And the response should have a "_links.self" property
     And the response should have a "_links.ora:assignShares" property
-    And the response shouldn't have a "_links.ora:complete" property
-    
+    # And the response shouldn't have a "_links.ora:complete" property
+
+  @kanbanize
   Scenario: Cannot get command list on a kanbanize task for a task owner
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
@@ -201,9 +205,8 @@ Feature: List tasks
     And the response should have a "_links.self" property
     And the response shouldn't have a "_links.ora:execute" property
     And the response shouldn't have a "_links.ora:accept" property
-    And the "status" property should be "30"
+    # And the "status" property should be "30"
 
-    
   Scenario: Successfully getting command list on a accepted task with shares assignment process completed for a task owner
     Given that I am authenticated as "mark.rogers@ora.local"
     And that I want to find a "Task"
@@ -215,3 +218,49 @@ Feature: List tasks
     And the response should have a "_links.ora:complete" property
     And the response should have a "_links.ora:close" property
     And the "status" property should be "40"
+
+  Scenario: Successfully getting decisions list
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    And that its "cardType" is "decisions"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
+    Then the response status code should be 200
+    And the response should have a "_embedded.ora:task" property
+    # And echo last response
+    And the "count" property should be "1"
+    And the response should have a "_embedded.{'ora:task'}[0].subject" property
+    And the "_embedded.{'ora:task'}[0].subject" property should be "Decision task 001"
+
+  Scenario: Successfully getting list with items and decisions
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    And that its "cardType" is "all"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
+    Then the response status code should be 200
+    And the response should have a "_embedded.ora:task" property
+    And the "total" property should be "16"
+
+  Scenario: Ordering task item list by mostRecentEditAt parameter DESC
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    And that its "orderBy" is "mostRecentEditAt"
+    And that its "orderType" is "desc"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
+    Then the response status code should be 200
+    #And echo last response
+    And the response should be JSON
+    And the response should have a "_embedded.{'ora:task'}[0].subject" property
+    And the "_embedded.{'ora:task'}[0].subject" property should be "Technology stack definition"
+
+  Scenario: Ordering task item list by mostRecentEditAt parameter DESC
+    Given that I am authenticated as "mark.rogers@ora.local"
+    And that I want to find a "Task"
+    And that its "orderBy" is "mostRecentEditAt"
+    And that its "orderType" is "asc"
+    When I request "/00000000-0000-0000-1000-000000000000/task-management/tasks"
+    Then the response status code should be 200
+    #And echo last response
+    And the response should be JSON
+    And the response should have a "_embedded.{'ora:task'}[0].subject" property
+    And the "_embedded.{'ora:task'}[0].subject" property should be "Decision task 001"
+

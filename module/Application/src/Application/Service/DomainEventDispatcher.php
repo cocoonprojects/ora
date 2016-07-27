@@ -1,7 +1,6 @@
 <?php
 namespace Application\Service;
 
-use People\OrganizationMemberAdded;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\EventManager\EventManagerInterface;
 use Prooph\EventStore\PersistenceEvent\PostCommitEvent;

@@ -15,6 +15,14 @@ class Organization extends DomainEntity
 {
 	CONST ROLE_MEMBER = 'member';
 	CONST ROLE_ADMIN  = 'admin';
+	CONST ROLE_CONTRIBUTOR  = 'contributor';
+
+	CONST KANBANIZE_SETTINGS = 'kanbanize';
+
+	CONST ORG_SETTINGS = 'orgsettings';
+
+	CONST MIN_KANBANIZE_COLUMN_NUMBER = 7;
+
 	/**
 	 * @var string
 	 */
@@ -36,7 +44,7 @@ class Organization extends DomainEntity
 	 * @var array
 	 */
 	private $settings = [];
-		
+
 	public static function create($name, User $createdBy) {
 		$rv = new self();
 		$rv->recordThat(OrganizationCreated::occur(Uuid::uuid4()->toString(), array(
@@ -46,7 +54,7 @@ class Organization extends DomainEntity
 		$rv->addMember($createdBy, self::ROLE_ADMIN);
 		return $rv;
 	}
-	
+
 	public function setName($name, User $updatedBy) {
 		$s = is_null($name) ? null : trim($name);
 		$this->recordThat(OrganizationUpdated::occur($this->id->toString(), array(
@@ -55,24 +63,43 @@ class Organization extends DomainEntity
 		)));
 		return $this;
 	}
-	
-	public function setSetting($settingKey, $settingValue, User $updatedBy){
+
+	public function setSettings($settingKey, $settingValue, User $updatedBy){
 		if(is_null($settingKey)){
 			throw new InvalidArgumentException('Cannot address setting without a setting key');
 		}
 		$this->recordThat(OrganizationUpdated::occur($this->id->toString(), array(
-			'key' => trim($settingKey),
-			'value' => $settingValue,
+			'settingKey' => trim($settingKey),
+			'settingValue' => $settingValue,
 			'by' => $updatedBy->getId(),
 		)));
 		return $this;
 	}
 
-	public function getSettings(){
-		return $this->settings;
+	public function getParams() {
+
+		$settings = $this->getSettings(self::ORG_SETTINGS);
+
+		if ($settings) {
+			return $settings;
+		}
+
+		return ValueObject\OrganizationParams::createWithDefaults();
 	}
 
-	public function getSetting($key){
+	public function setParams($data, User $updatedBy) {
+
+		$settings = ValueObject\OrganizationParams::fromArray($data);
+
+		$this->setSettings(self::ORG_SETTINGS, $settings, $updatedBy);
+
+		return $this;
+	}
+
+	public function getSettings($key = null){
+		if(is_null($key)){
+			return $this->settings;
+		}
 		if(array_key_exists($key, $this->settings)){
 			return $this->settings[$key];
 		}
@@ -82,7 +109,7 @@ class Organization extends DomainEntity
 	public function getName() {
 		return $this->name;
 	}
-	
+
 	public function changeAccount(Account $account, User $updatedBy) {
 		$payload = array(
 				'accountId' => $account->getId(),
@@ -94,12 +121,12 @@ class Organization extends DomainEntity
 		$this->recordThat(OrganizationAccountChanged::occur($this->id->toString(), $payload));
 		return $this;
 	}
-	
+
 	public function getAccountId() {
 		return $this->accountId;
 	}
-	
-	public function addMember(User $user, $role = self::ROLE_MEMBER, User $addedBy = null) {
+
+	public function addMember(User $user, $role = self::ROLE_CONTRIBUTOR, User $addedBy = null) {
 		if (array_key_exists($user->getId(), $this->members)) {
 			throw new DuplicatedDomainEntityException($this, $user);
 		}
@@ -110,10 +137,24 @@ class Organization extends DomainEntity
 		)));
 	}
 
+	public function changeMemberRole(User $member, $role, User $changedBy = null) {
+		if (!array_key_exists($member->getId(), $this->members)) {
+			throw new DomainEntityUnavailableException($this, $member);
+		}
+
+		$this->recordThat(OrganizationMemberRoleChanged::occur($this->id->toString(), array(
+			'userId' => $member->getId(),
+			'organizationId' => $this->getId(),
+			'newRole' => $role,
+			'oldRole' => $this->members[$member->getId()]['role'],
+			'by' => $changedBy == null ? $member->getId() : $changedBy->getId(),
+		)));
+	}
+
 	public function removeMember(User $member, User $removedBy = null)
 	{
 		if (!array_key_exists($member->getId(), $this->members)) {
-			throw new DomainEntityUnavailableException($this, $member); 
+			throw new DomainEntityUnavailableException($this, $member);
 		}
 		$this->recordThat(OrganizationMemberRemoved::occur($this->id->toString(), array(
 			'userId' => $member->getId(),
@@ -144,7 +185,7 @@ class Organization extends DomainEntity
 			return $profile['role'] == self::ROLE_ADMIN;
 		});
 	}
-	
+
 	protected function whenOrganizationCreated(OrganizationCreated $event)
 	{
 		$this->id = Uuid::fromString($event->aggregateId());
@@ -156,8 +197,14 @@ class Organization extends DomainEntity
 		if(array_key_exists('name', $pl)) {
 			$this->name = $pl['name'];
 		}
-		if(array_key_exists('key', $pl) && array_key_exists('value', $pl)) {
-			$this->settings[$pl['key']] = $pl['value'];
+		if(array_key_exists('settingKey', $pl) && array_key_exists('settingValue', $pl)) {
+			if(is_array($pl['settingValue'])){
+				foreach ($pl['settingValue'] as $key=>$value){
+					$this->settings[$pl['settingKey']][$key] = $value;
+				}
+			}else{
+				$this->settings[$pl['settingKey']] = $pl['settingValue'];
+			}
 		}
 	}
 
@@ -165,11 +212,17 @@ class Organization extends DomainEntity
 		$p = $event->payload();
 		$this->accountId = Uuid::fromString($p['accountId']);
 	}
-	
+
 	protected function whenOrganizationMemberAdded(OrganizationMemberAdded $event) {
 		$p = $event->payload();
 		$id = $p['userId'];
 		$this->members[$id]['role'] = $p['role'];
+	}
+
+	protected function whenOrganizationMemberRoleChanged(OrganizationMemberRoleChanged $event) {
+		$p = $event->payload();
+		$id = $p['userId'];
+		$this->members[$id]['role'] = $p['newRole'];
 	}
 
 	protected function whenOrganizationMemberRemoved(OrganizationMemberRemoved $event) {

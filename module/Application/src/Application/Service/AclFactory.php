@@ -9,17 +9,21 @@ use People\Assertion\CommonOrganizationAssertion;
 use People\Assertion\MemberOfOrganizationAssertion;
 use TaskManagement\Assertion\AcceptedTaskAndMemberSharesNotAssignedAssertion;
 use TaskManagement\Assertion\MemberOfOngoingTaskAssertion;
+use TaskManagement\Assertion\TaskMemberAndCompletedTaskAssertion;
 use TaskManagement\Assertion\OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion;
 use TaskManagement\Assertion\OwnerOfWorkItemIdeaOrOpenOrCompletedTaskAssertion;
 use TaskManagement\Assertion\TaskOwnerAndAcceptedTaskAndSharesExpiredAssertion;
 use TaskManagement\Assertion\TaskMemberNotOwnerAndNotCompletedTaskAssertion;
 use TaskManagement\Assertion\TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion;
-use TaskManagement\Assertion\TaskOwnerAndNotCompletedTaskAssertion;
+use TaskManagement\Assertion\ItemOwnerAndNotExpiredItemDeletionAssertion;
 use TaskManagement\Assertion\TaskOwnerAndOngoingOrAcceptedTaskAssertion;
 use TaskManagement\Assertion\TaskOwnerAndOngoingTaskAssertion;
+use TaskManagement\Assertion\ItemOwnerAndNotClosedItemAssertion;
+use TaskManagement\Assertion\WorkItemIdeaAndOrganizationMemberNotVotedAssertion;
 use Zend\Permissions\Acl\Acl;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use People\Assertion\OwnerOfOrganizationAssertion;
 
 class AclFactory implements FactoryInterface
 {
@@ -38,12 +42,19 @@ class AclFactory implements FactoryInterface
 			'TaskManagement.Stream.list',
 			'TaskManagement.Task.stats',
 			'Accounting.Accounts.list',
-			'Kanbanize.Task.import'
+			'Kanbanize.Settings.list',
+			'Kanbanize.BoardSettings.get',
 		], new MemberOfOrganizationAssertion());
-		
+		$acl->allow(User::ROLE_USER, 'Ora\Organization', [
+			'Kanbanize.Task.import',
+			'Kanbanize.Settings.create',
+			'Kanbanize.BoardSettings.create',
+		], new OwnerOfOrganizationAssertion());
+
 		$acl->addResource('Ora\User');
 		$acl->allow(User::ROLE_USER, 'Ora\User', 'People.Member.get', new CommonOrganizationAssertion());
-		
+		$acl->allow(User::ROLE_USER, 'Ora\User', 'People.Member.update', new CommonOrganizationAssertion());
+
 		$acl->addResource('Ora\PersonalAccount');
 		$acl->addResource('Ora\OrganizationAccount');
 		$acl->allow(User::ROLE_USER, 'Ora\PersonalAccount', 'Accounting.Account.get', new MemberOfEntityOrganizationAssertion());
@@ -61,22 +72,31 @@ class AclFactory implements FactoryInterface
 		$acl->allow(User::ROLE_USER, ['Ora\Task','Ora\KanbanizeTask'], 'TaskManagement.Task.join', new OrganizationMemberNotTaskMemberAndNotCompletedTaskAssertion());
 		$acl->allow(User::ROLE_USER, ['Ora\Task','Ora\KanbanizeTask'], 'TaskManagement.Task.estimate', new MemberOfOngoingTaskAssertion());
 		$acl->allow(User::ROLE_USER, ['Ora\Task','Ora\KanbanizeTask'], 'TaskManagement.Task.unjoin', new TaskMemberNotOwnerAndNotCompletedTaskAssertion());
-		$acl->allow(User::ROLE_USER, 'Ora\Task', ['TaskManagement.Task.edit', 'TaskManagement.Task.delete'], new TaskOwnerAndNotCompletedTaskAssertion());
-		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.execute', new OwnerOfWorkItemIdeaOrOpenOrCompletedTaskAssertion());
-		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.complete', new TaskOwnerAndOngoingOrAcceptedTaskAssertion());
-		$acl->allow(User::ROLE_USER, 'Ora\Task', 'TaskManagement.Task.accept', new TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion());
+		$acl->allow(User::ROLE_USER, ['Ora\Task','Ora\KanbanizeTask'], 'TaskManagement.Task.approve', new WorkItemIdeaAndOrganizationMemberNotVotedAssertion());
+		$acl->allow(User::ROLE_USER, ['Ora\Task','Ora\KanbanizeTask'], 'TaskManagement.Task.edit', new ItemOwnerAndNotClosedItemAssertion());
+		$acl->allow(User::ROLE_USER, ['Ora\Task','Ora\KanbanizeTask'], 'TaskManagement.Task.delete', new ItemOwnerAndNotExpiredItemDeletionAssertion());
+		$acl->allow(User::ROLE_USER, ['Ora\Task','Ora\KanbanizeTask'], 'TaskManagement.Task.execute', new OwnerOfWorkItemIdeaOrOpenOrCompletedTaskAssertion());
+		$acl->allow(User::ROLE_USER, ['Ora\Task','Ora\KanbanizeTask'], 'TaskManagement.Task.complete', new TaskOwnerAndOngoingOrAcceptedTaskAssertion());
+		$acl->allow(User::ROLE_USER, ['Ora\Task','Ora\KanbanizeTask'], 'TaskManagement.Task.accept', new TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion());
 		$acl->allow(User::ROLE_USER, ['Ora\Task','Ora\KanbanizeTask'], 'TaskManagement.Task.assignShares', new AcceptedTaskAndMemberSharesNotAssignedAssertion());
 		$acl->allow(User::ROLE_USER, ['Ora\Task','Ora\KanbanizeTask'], 'TaskManagement.Reminder.add-estimation', new TaskOwnerAndOngoingTaskAssertion());
-		$acl->deny(User::ROLE_USER, 'Ora\KanbanizeTask', [
-			'TaskManagement.Task.edit',
-			'TaskManagement.Task.delete',
-			'TaskManagement.Task.execute',
-			'TaskManagement.Task.complete',
-			'TaskManagement.Task.accept',
-			'TaskManagement.Task.close'
+// 		$acl->deny(User::ROLE_USER, 'Ora\KanbanizeTask', [
+// 			'TaskManagement.Task.edit',
+// 			'TaskManagement.Task.delete',
+// 			'TaskManagement.Task.execute',
+// 			'TaskManagement.Task.complete',
+// 			'TaskManagement.Task.accept',
+// 			'TaskManagement.Task.close'
+// 		]);
+		$acl->allow(User::ROLE_USER, ['Ora\Task','Ora\KanbanizeTask'],'TaskManagement.Task.close', new TaskOwnerAndAcceptedTaskAndSharesExpiredAssertion());
+		$acl->allow(User::ROLE_SYSTEM, null, [
+				'TaskManagement.Task.closeTasksCollection',
+				'TaskManagement.Reminder.assignment-of-shares',
+				'TaskManagement.Reminder.approve',
+				'TaskManagement.Task.close-voting-idea-items',
+				'TaskManagement.Task.close-voting-completed-items',
+				'TaskManagement.Approval.idea-items',
 		]);
-		$acl->allow(User::ROLE_USER, 'Ora\Task','TaskManagement.Task.close', new TaskOwnerAndAcceptedTaskAndSharesExpiredAssertion());
-		$acl->allow(User::ROLE_SYSTEM, null, array('TaskManagement.Task.closeTasksCollection', 'TaskManagement.Reminder.assignment-of-shares'));
 		return $acl;
 	}
 }

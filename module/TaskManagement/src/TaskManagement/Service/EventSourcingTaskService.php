@@ -12,14 +12,16 @@ use Prooph\EventStore\Aggregate\AggregateType;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Stream\SingleStreamStrategy;
 use Rhumsaa\Uuid\Uuid;
-use TaskManagement\Entity\Task as ReadModelTask;
-use TaskManagement\Entity\TaskMember;
 use TaskManagement\Task;
+use TaskManagement\Entity\Task as ReadModelTask;
+use Kanbanize\Entity\KanbanizeTask as ReadModelKanbanizeTask;
+use TaskManagement\Entity\TaskMember;
+use TaskManagement\Entity\ItemIdeaApproval;
 
 class EventSourcingTaskService extends AggregateRepository implements TaskService
 {
 	/**
-	 * 
+	 *
 	 * @var EntityManager
 	 */
 	private $entityManager;
@@ -27,9 +29,9 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	public function __construct(EventStore $eventStore, EntityManager $entityManager)
 	{
 		parent::__construct($eventStore, new AggregateTranslator(), new SingleStreamStrategy($eventStore), AggregateType::fromAggregateRootClass(Task::class));
-		$this->entityManager = $entityManager;	
+		$this->entityManager = $entityManager;
 	}
-	
+
 	public function addTask(Task $task)
 	{
 		$this->addAggregateRoot($task);
@@ -38,7 +40,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 
 	/**
 	 * Retrieve task entity with specified ID
-	 * @param string|\TaskManagement\Service\Uuid $id
+	 * @param string|Uuid $id
 	 * @return Task
 	 */
 	public function getTask($id)
@@ -56,7 +58,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @param array $filters
 	 * @return \TaskManagement\Task[]
 	 */
-	public function findTasks($organization, $offset, $limit, $filters)
+	public function findTasks($organization, $offset, $limit, $filters, $sorting=null)
 	{
 		switch (get_class($organization)){
 			case Organization::class :
@@ -70,13 +72,29 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 				$organizationId = $organization;
 		}
 		$builder = $this->entityManager->createQueryBuilder();
+
+		$orderBy = 't.mostRecentEditAt';
+		$orderType = 'DESC';
+		if(isset($sorting["orderBy"])) {
+			$orderBy = 't.'.$sorting['orderBy'];
+		}
+		if(isset($sorting["orderType"])) {
+			$orderType = $sorting['orderType'];
+		}
+
 		$query = $builder->select('t')
 			->from(ReadModelTask::class, 't')
 			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
-			->orderBy('t.mostRecentEditAt', 'DESC')
+			->orderBy($orderBy, $orderType)
 			->setFirstResult($offset)
 			->setMaxResults($limit)
 			->setParameter(':organization', $organizationId);
+
+		$type = 0;
+		if(isset($filters["type"]) && $filters["type"]=='decisions') {
+			$query->andWhere('t.is_decision = :type')
+				->setParameter('type', 1);
+		}
 
 		if(isset($filters["startOn"])){
 			$query->andWhere('t.createdAt >= :startOn')
@@ -102,6 +120,7 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		if(array_key_exists('status', $filters)){
 			$query->andWhere('t.status = :status')->setParameter('status', $filters["status"]);
 		}
+
 		return $query->getQuery()->getResult();
 	}
 
@@ -112,12 +131,18 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @return int
 	 */
 	public function countOrganizationTasks(Organization $organization, $filters){
-		
+
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('count(t)')
 			->from(ReadModelTask::class, 't')
 			->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
 			->setParameter(':organization', $organization);
+
+		$type = 0;
+		if(isset($filters["type"]) && $filters["type"]=='decision') {
+			$query->andWhere('t.is_decision = :type')
+				->setParameter('type', 1);
+		}
 
 		if(isset($filters["startOn"])){
 			$query->andWhere('t.createdAt >= :startOn')
@@ -145,9 +170,15 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 		}
 		return intval($query->getQuery()->getSingleScalarResult());
 	}
-	
+
 	public function findTask($id) {
 		return $this->entityManager->find(ReadModelTask::class, $id);
+	}
+
+	public function findTaskByKanbanizeId($id) {
+		return $this->entityManager
+					->getRepository(ReadModelKanbanizeTask::class)
+					->findOneBy(['taskId' =>  $id]);
 	}
 
 	/**
@@ -156,19 +187,46 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 	 * @return ReadModelTask[]
 	 */
 	public function findAcceptedTasksBefore(\DateInterval $interval){
-		
+
 		$referenceDate = new \DateTime('now');
-		
+
 		$builder = $this->entityManager->createQueryBuilder();
 		$query = $builder->select('t')
 			->from(ReadModelTask::class, 't')
-			->where("DATE_ADD(t.acceptedAt,".$interval->format('%d').", 'DAY') <= :referenceDate") 
+			->where("DATE_ADD(t.acceptedAt,".$interval->format('%d').", 'DAY') <= :referenceDate")
 			->andWhere('t.status = :taskStatus')
 			->setParameter('taskStatus', Task::STATUS_ACCEPTED)
 			->setParameter('referenceDate', $referenceDate->format('Y-m-d H:i:s'))
 			->getQuery();
-		
+
 		return $query->getResult();
+	}
+
+	/**
+	 * @see \TaskManagement\Service\TaskService::findIdeasCreatedBetween()
+	 * @param \DateInterval $after
+	 * @param \DateInterval $before
+	 * @return ReadModelTask[]
+	 */
+	public function findIdeasCreatedBetween(\DateInterval $after, \DateInterval $before, $orgId = null){
+
+		$referenceDate = new \DateTime('now');
+
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('t')
+			->from(ReadModelTask::class, 't')
+			->where("DATE_ADD(t.createdAt,".$before->format('%d').", 'DAY') >= :referenceDate")
+			->andWhere("DATE_ADD(t.createdAt,".$after->format('%d').", 'DAY') <= :referenceDate")
+			->andWhere('t.status = :taskStatus')
+			->setParameter('taskStatus', Task::STATUS_IDEA)
+			->setParameter('referenceDate', $referenceDate->format('Y-m-d H:i:s'));
+
+		if(!is_null($orgId)) {
+			$query->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
+				  ->setParameter('organization', $orgId);
+		}
+
+		return $query->getQuery()->getResult();
 	}
 
 	/**
@@ -209,4 +267,68 @@ class EventSourcingTaskService extends AggregateRepository implements TaskServic
 
 		return $query->getQuery()->getResult()[0];
 	}
+	/**
+	 * (non-PHPdoc)
+	 * @see \TaskManagement\Service\TaskService::findItemsBefore()
+	 */
+	public function findItemsBefore(\DateInterval $interval, $status = null, $orgId = null){
+		$referenceDate = new \DateTime('now');
+
+		$builder = $this->entityManager->createQueryBuilder();
+		$query = $builder->select('t')
+			->from(ReadModelTask::class, 't')
+			->where("DATE_ADD(t.createdAt,".$interval->format('%d').", 'DAY') <= :referenceDate")
+			->setParameter('referenceDate', $referenceDate->format('Y-m-d H:i:s'));
+
+		if(!is_null($status)) {
+			$query->andWhere('t.status = :taskStatus')
+				->setParameter('taskStatus', $status);
+		}
+
+		if(!is_null($orgId)) {
+			$query->innerjoin('t.stream', 's', 'WITH', 's.organization = :organization')
+				  ->setParameter('organization', $orgId);
+		}
+
+		return $query->getQuery()->getResult();
+	}
+
+	/**
+	 * (non-PHPdoc)
+	 * @see \TaskManagement\Service\TaskService::countVotesForApproveItem()
+	 */
+	public function countVotesForItem($itemStatus, $id){
+
+		$tId = $id instanceof Uuid ? $id->toString() : $id;
+		$builder = $this->entityManager->createQueryBuilder();
+
+		$query = $builder->select ( 'COALESCE(SUM( CASE WHEN a.vote.value = 1 THEN 1 ELSE 0 END ),0) as votesFor' )
+		->addSelect('COALESCE(SUM( CASE WHEN a.vote.value = 0 THEN 1 ELSE 0 END ),0) as votesAgainst')
+		->from(ItemIdeaApproval::class, 'a')
+		->innerJoin('a.item', 'item', 'WITH', 'item.status = :status')
+		->where('item.id = :id')
+		->setParameter ( ':status', $itemStatus)
+		->setParameter ( ':id', $tId)
+		->getQuery();
+
+		return $query->getResult()[0];
+	}
+
+
+	public function getTaskHistory($aggregateId) {
+		$streamEvents = $this->streamStrategy->read($this->aggregateType, $aggregateId);
+		$events = [];
+		foreach($streamEvents as $k => $v) {
+			$payload = $v->payload();
+			$type = explode('\\', $v->eventName()->toString());
+			$events[] = [
+				'id' => $v->eventId()->toString(),
+				'name' => $type[1],
+				'on' => $v->occurredOn()->format('d/m/Y H:i:s'),
+				'user' => $payload['by']
+			];
+		}
+		return $events;
+	}
+
 }

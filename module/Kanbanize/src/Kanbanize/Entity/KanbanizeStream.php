@@ -13,24 +13,9 @@ class KanbanizeStream extends Stream {
 
 	/**
 	 * @ORM\Column(type="string", nullable=true)
-	 * @var string
-	 */
-	private $boardId;
-
-	/**
-	 * @ORM\Column(type="string", nullable=true)
 	 * @var String
 	 */
 	private $projectId;
-
-	public function setBoardId($id){
-		$this->boardId = $id;
-		return $this;
-	}
-
-	public function getBoardId(){
-		return $this->boardId;
-	}
 
 	public function setProjectId($id){
 		$this->projectId = $id;
