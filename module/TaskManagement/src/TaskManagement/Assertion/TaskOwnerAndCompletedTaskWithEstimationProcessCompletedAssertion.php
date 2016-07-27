@@ -5,13 +5,14 @@ namespace TaskManagement\Assertion;
 use Zend\Permissions\Acl\Acl;
 use Zend\Permissions\Acl\Role\RoleInterface;
 use Zend\Permissions\Acl\Resource\ResourceInterface;
+use Zend\Permissions\Acl\Assertion\AssertionInterface;
 use TaskManagement\Entity\Task;
 
-class TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion extends ItemOwnerAssertion
+class TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion implements AssertionInterface
 {
 	public function assert(Acl $acl, RoleInterface $user = null, ResourceInterface $resource = null, $privilege = null)
 	{
-		return parent::assert($acl, $user, $resource, $privilege)
+		return $resource->hasMember($user)
 			&& $resource->getStatus() == Task::STATUS_COMPLETED
 			&& $resource->getAverageEstimation() != null;
 	}
