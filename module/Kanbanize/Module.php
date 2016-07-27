@@ -51,12 +51,14 @@ class Module implements AutoloaderProviderInterface, ConfigProviderInterface
 					$orgService = $locator->get('People\OrganizationService');
 					$userService = $locator->get('Application\UserService');
 					$kanbanizeService = $locator->get('Kanbanize\KanbanizeService');
+					$notificationService = $locator->get('Kanbanize\MailNotificationService');
 
 					$controller = new KanbanizeToOraSyncController(
 						$taskService,
 						$orgService,
 						$userService,
-						$kanbanizeService
+						$kanbanizeService,
+						$notificationService
 					);
 
 					return $controller;

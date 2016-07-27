@@ -5,6 +5,7 @@ namespace Kanbanize\Service;
 use People\Entity\Organization;
 use People\Service\OrganizationService;
 use AcMailer\Service\MailServiceInterface;
+use People\Entity\OrganizationMembership;
 
 class MailNotificationService implements NotificationService{
 
@@ -33,5 +34,31 @@ class MailNotificationService implements NotificationService{
 			$rv[] = $recipient;
 		}
 		return $rv;
+	}
+
+	public function sendKanbanizeSyncAlert(Organization $org)
+	{
+		$adminsMembers = $this->orgService
+			 		   		  ->findOrganizationMemberships(
+					 		   		$org,
+					 		   		null,
+					 		   		null,
+			 				   		[OrganizationMembership::ROLE_ADMIN]);
+
+		foreach ($adminsMembers as $adminsMember)
+		{
+			$admin = $adminsMember->getMember();
+
+			$message = $this->mailService->getMessage();
+			$message->setTo($admin->getEmail());
+			$message->setSubject("Your connected Kanbanize board is out of sync");
+
+			$this->mailService->setTemplate('mail/board-out-of-sync.phtml', [
+					'recipient'=> $admin,
+					'organization'=> $org
+			]);
+
+			$this->mailService->send();
+		}
 	}
 }

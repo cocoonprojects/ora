@@ -39,6 +39,14 @@ class KanbanizeServiceImpl implements KanbanizeService
 		$this->entityManager = $em;
 	}
 
+	public function getBoardStructure($boardId)
+	{
+		$response = $this->kanbanize
+						 ->getBoardStructure($boardId);
+
+		return $response;
+	}
+
 	public function getBoardActivities($boardId)
 	{
 		$now = new \DateTimeImmutable('now');

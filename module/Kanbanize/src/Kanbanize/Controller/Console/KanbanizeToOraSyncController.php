@@ -12,6 +12,8 @@ use People\Organization;
 use TaskManagement\Service\TaskService;
 use TaskManagement\TaskInterface;
 use Kanbanize\Service\KanbanizeService;
+use AcMailer\Service\MailService;
+use Kanbanize\Service\NotificationService;
 
 /**
  * assumptions:
@@ -29,17 +31,21 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
 
     protected $kanbanizeService;
 
+    protected $mailService;
+
     public function __construct(
         TaskService $taskService,
         OrganizationService $organizationService,
         UserService $userService,
-        KanbanizeService $kanbanizeService
+        KanbanizeService $kanbanizeService,
+        NotificationService $mailService
 
     ) {
         $this->taskService = $taskService;
         $this->organizationService = $organizationService;
         $this->userService = $userService;
         $this->kanbanizeService = $kanbanizeService;
+        $this->mailService = $mailService;
     }
 
     public function syncAction()
@@ -67,7 +73,8 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
 
             $kanbanize = $org->getSettings(Organization::KANBANIZE_SETTINGS);
 
-            $this->kanbanizeService->initApi($kanbanize['apiKey'], $kanbanize['accountSubdomain']);
+            $this->kanbanizeService
+                 ->initApi($kanbanize['apiKey'], $kanbanize['accountSubdomain']);
 
             $this->write("loading board activities stream {$stream->getId()} board {$stream->getBoardId()}");
 
@@ -81,6 +88,13 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
             }
 
             $mapping = $kanbanize['boards'][$stream->getBoardId()]['columnMapping'];
+
+            if ($this->isMappingChanged($stream->getBoardId(), $mapping)) {
+
+                $this->sendAlertEmail($org);
+
+                continue;
+            }
 
             foreach($kanbanizeTasks as $kanbanizeTask) {
                 $this->write("task {$kanbanizeTask['taskid']}");
@@ -144,8 +158,44 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
         $this->write("loaded system user {$systemUser->getFirstname()}");
     }
 
-    // first case: task on kanbanize but not on O.R.A
-    // block task
+    /**
+     * Checks if the columns of the kanban board differ from the current
+     * column -> status mapping
+     */
+    private function isMappingChanged($boardId, $mapping)
+    {
+        $board = $this->kanbanizeService
+                      ->getBoardStructure($boardId);
+
+        if (!is_array($board)) {
+            $this->write("  error retrieving board $boardId");
+
+            return false;
+        }
+
+        $mappedColumns = array_keys($mapping);
+        $kanbanizeColumns = array_column($board['columns'], 'lcname');
+        array_pop($kanbanizeColumns); //removes temp archive column
+
+        if ($mappedColumns == $kanbanizeColumns) {
+            return false;
+        }
+
+        $this->write("  mapping changed");
+
+        return true;
+    }
+
+    private function sendAlertEmail($organization)
+    {
+        $this->mailService
+             ->sendKanbanizeSyncAlert($organization);
+    }
+
+    /**
+     * first case: task on kanbanize but not on O.R.A
+     * block task
+     */
     private function blockTaskOnKanbanize($kanbanizeTask)
     {
         if ($kanbanizeTask['blocked']) {
@@ -162,9 +212,9 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
         $this->write("  try to block it: $result");
     }
 
-    // move task to a column matching its status
-    // assumptions:
-    //  - changing column name is forbidden
+    /**
+     * move task to a column matching its status
+     */
     private function fixColumnOnKanbanize($task, $kanbanizeTask, $boardId, $mapping)
     {
         if ($mapping[$kanbanizeTask['columnname']] == $task->getStatus()) {
@@ -188,19 +238,22 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
         }
     }
 
+    /**
+     * update kanbanize task data based on O.R.A
+     */
     private function updateTaskOnKanbanize($task, $kanbanizeTask, $stream)
     {
-        // update kanbanize task based on O.R.A
-        if ($task->isUpdatedBefore(new \DateTime($kanbanizeTask['updatedat']))) {
-                $result = $this->kanbanizeService
-                               ->updateTask(
-                                     $task,
-                                     $kanbanizeTask,
-                                     $stream->getBoardId()
-            );
-
-            $this->write("  try update it: $result");
+        if (!$task->isUpdatedBefore(new \DateTime($kanbanizeTask['updatedat']))) {
+            return;
         }
+
+        $result = $this->kanbanizeService
+                       ->updateTask(
+                             $task,
+                             $kanbanizeTask,
+                             $stream->getBoardId());
+
+        $this->write("  try update it: $result");
     }
 
     private function updateTaskPositionFromKanbanize($task, $kanbanizeTask, $systemUser)
