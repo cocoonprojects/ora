@@ -59,7 +59,7 @@ return [
 				 *
 				 * Default value is an empty string
 				 */
-				'from_name' => 'O.R.A.',
+				'from_name' => 'Welo',
 
 				/*
 				 * Destination addresses of sent emails.
