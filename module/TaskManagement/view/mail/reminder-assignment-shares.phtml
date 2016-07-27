@@ -1,6 +1,6 @@
 <p>Hi <?= $this->recipient->getFirstname() ?>,<br>
 time to assign shares "<?= $this->task->getSubject()?>" item <b>is running out</b>!</p>
-<p>Don't miss the chance to <a href="<?= $this->host . $this->url('collaboration-home', ['orgId' => $this->task->getOrganizationId(), 'id' => $this->task->getId()]) ?>">tell your taskmates</a> what you think about their contribution.</p>
+<p>Don't miss the chance to tell your taskmates what you think about their contribution.</p>
 <p>Welo</p>
 <hr>
 <p style="font-size: 12px">You are receiving this e-mail because you are member of the "<?= $this->task->getSubject() ?>" item.</p>

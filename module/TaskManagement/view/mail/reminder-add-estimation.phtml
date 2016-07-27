@@ -1,6 +1,6 @@
 <p>Hi <?= $this->recipient->getFirstname() ?>,<br>
 You haven't estimated "<?= $this->task->getSubject()?>" item yet!</p>
-<p>Do it as soon as possible to <a href="<?= $this->host . $this->url('collaboration-home', ['orgId' => $this->task->getOrganizationId(), 'id' => $this->task->getId()])?>">define with your taskmate the value</a> of the item.</p>
+<p>Do it as soon as possible to define with your taskmate the value of the item.</p>
 <p>Welo</p>
 <hr>
 <p style="font-size: 12px">You are receiving this e-mail because you are member of the "<?= $this->task->getSubject() ?>" item.</p>

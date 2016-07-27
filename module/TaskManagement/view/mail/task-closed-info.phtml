@@ -1,6 +1,6 @@
 <p>Hi <?= $this->recipient->getFirstname() ?>,<br>
 the item you contributed to "<?= $this->task->getSubject()?>" has been closed!</p>
-<p>The credits you gained have been transferred into <a href="<?= $this->host . $this->url('collaboration-home', ['orgId' => $this->task->getOrganizationId(), 'id' => $this->task->getId()]) ?>">your account</a>.</p>
+<p>The credits you gained have been transferred into your account.</p>
 <p>Thank you for contributing and keep on doing it!</p>
 <p>Welo</p>
 <hr>
