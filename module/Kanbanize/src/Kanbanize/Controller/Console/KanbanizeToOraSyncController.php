@@ -258,8 +258,8 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
 
     private function updateTaskPositionFromKanbanize($task, $kanbanizeTask, $systemUser)
     {
-        //position makes sense only for ongoing tasks
-        if ($task->getStatus() != TaskInterface::STATUS_ONGOING) {
+        //position makes sense only for open tasks
+        if ($task->getStatus() != TaskInterface::STATUS_OPEN) {
             return;
         }
 
