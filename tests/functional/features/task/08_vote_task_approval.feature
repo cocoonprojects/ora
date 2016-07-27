@@ -25,12 +25,12 @@ Feature: Completed Work Item Voting (https://www.pivotaltracker.com/story/show/1
 # 	When I request "/60000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000020/acceptances"
 # 	Then the response status code should be 409
 
-Scenario: Only organization members are allowed to vote
- 	Given that I am authenticated as "paul.smith@ora.local"
-	And that I want to cast a new "Vote"
-	And that its "value" is "1"
-	When I request "/60000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000020/acceptances"
-	Then the response status code should be 403
+# Scenario: Only organization members are allowed to vote
+#  	Given that I am authenticated as "paul.smith@ora.local"
+# 	And that I want to cast a new "Vote"
+# 	And that its "value" is "1"
+# 	When I request "/60000000-0000-0000-1000-000000000000/task-management/tasks/00000000-0000-0000-0000-000000000020/acceptances"
+# 	Then the response status code should be 403
 
 # Coupled with the "One member cast a positive vote" scenario
 # Scenario: Another one member cast a positive vote to accept the task

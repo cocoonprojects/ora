@@ -138,11 +138,20 @@ class Task extends DomainEntity implements TaskInterface
 
 	public function getAttachments()
 	{
-		if (!$this->attachments) {
+		if (!$this->attachments)
+		{
 			return [];
 		}
 
-		return json_decode($this->attachments);
+		if (is_array($this->attachments))
+		{
+			return $this->attachments;
+		}
+
+		if (is_string($this->attachments))
+		{
+			return json_decode($this->attachments);
+		}
 	}
 
 	/**
