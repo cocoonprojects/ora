@@ -52,7 +52,7 @@ return [
 				 *
 				 * Default value is an empty string
 				 */
-				'from' => 'no-reply@oraproject.org',
+				'from' => 'no-reply@weloproject.org',
 
 				/*
 				 * From name to be displayed instead of from address.
