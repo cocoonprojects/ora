@@ -193,7 +193,7 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
     }
 
     /**
-     * first case: task on kanbanize but not on O.R.A
+     * first case: task on kanbanize but not on Welo
      * block task
      */
     private function blockTaskOnKanbanize($kanbanizeTask)
@@ -206,7 +206,7 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
                         ->blockTask(
                                 $kanbanizeTask['boardparent'],
                                 $kanbanizeTask['taskid'],
-                                'task not on O.R.A'
+                                'task not on Welo'
         );
 
         $this->write("  try to block it: $result");

@@ -148,7 +148,7 @@ class Module {
 							$rv->setClientId ( $googleConfig ['client_id'] );
 							$rv->setClientSecret ( $googleConfig ['client_secret'] );
 							$rv->setRedirectUri ( $googleConfig ['redirect_uri'] );
-							$rv->setApplicationName ( 'O.R.A. Platform' );
+							$rv->setApplicationName ( 'Welo Platform' );
 							return $rv;
 						},
 						'Application\JWTAdapter' => function ($serviceLocator) {
