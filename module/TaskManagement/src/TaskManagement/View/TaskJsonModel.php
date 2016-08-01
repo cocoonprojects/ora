@@ -10,6 +10,7 @@ use Zend\Json\Json;
 use Zend\Mvc\Controller\AbstractController;
 use Zend\View\Model\JsonModel;
 use TaskManagement\Entity\Approval;
+use Kanbanize\Entity\KanbanizeTask;
 
 class TaskJsonModel extends JsonModel {
 	/**
@@ -199,9 +200,13 @@ class TaskJsonModel extends JsonModel {
 						'serializeOneMemberAcceptance'
 				], $acceptanceswithkey ),
 				'attachments' => $task->getAttachments(),
-				'lane' => $task->getLane(),
+				'lane' => null,
 				'position' => $task->getPosition(),
 		];
+
+		if ($task->getType() == 'kanbanizetask') {
+			$rv['lane'] = $task->getLaneName();
+		}
 
 		if ($task->getStatus () >= Task::STATUS_ONGOING) {
 			$rv ['estimation'] = $task->getAverageEstimation ();

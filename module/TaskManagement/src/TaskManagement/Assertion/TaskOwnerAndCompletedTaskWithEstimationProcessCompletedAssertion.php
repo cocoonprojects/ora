@@ -12,7 +12,7 @@ class TaskOwnerAndCompletedTaskWithEstimationProcessCompletedAssertion implement
 {
 	public function assert(Acl $acl, RoleInterface $user = null, ResourceInterface $resource = null, $privilege = null)
 	{
-		return $resource->hasMember($user)
+		return $user->isMemberOf($resource->getOrganizationId())
 			&& $resource->getStatus() == Task::STATUS_COMPLETED
 			&& $resource->getAverageEstimation() != null;
 	}

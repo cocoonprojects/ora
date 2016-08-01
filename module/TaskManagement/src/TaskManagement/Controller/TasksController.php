@@ -314,8 +314,12 @@ class TasksController extends OrganizationAwareController
 						"columnname" => $column
 				];
 
+				if (isset($data['decision'])) {
+					$options['decision'] = $data['decision'];
+				}
+
 				if (isset($data['lane'])) {
-					$options['lane'] = $data['lane'];
+					$options['lanename'] = $data['lane'];
 				}
 
 				$kanbanizeTask = KanbanizeTask::create ( $aggStream, $subject, $this->identity (), $options );
@@ -353,7 +357,7 @@ class TasksController extends OrganizationAwareController
 				}
 
 				if (isset($data['lane'])) {
-					$options['lane'] = $data['lane'];
+					$options['lanename'] = $data['lane'];
 				}
 
 				$task = Task::create($aggStream, $subject, $this->identity(), $options);

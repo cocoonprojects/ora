@@ -17,18 +17,18 @@ use ZFX\Test\Authentication\OAuth2AdapterMock;
 
 class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 {
-	
+
 	protected $controller;
 	protected $request;
 	protected $response;
 	protected $routeMatch;
 	protected $event;
-	
+
 	protected $task;
 	protected $owner;
 	protected $member;
 	protected $organization;
-	
+
 	/**
 	 * @var Client
 	 */
@@ -41,19 +41,19 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 	 * @var \DateInterval
 	 */
 	protected $intervalForCloseTasks;
-	
+
 	protected function setUp()
 	{
 		$serviceManager = Bootstrap::getServiceManager();
-		
+
 		//Clean EmailMessages
 		$this->mailcatcher = new Client('http://127.0.0.1:1080');
 		$this->cleanEmailMessages();
-		
+
 		$userService = $serviceManager->get('Application\UserService');
 		$this->owner = $userService->findUser('60000000-0000-0000-0000-000000000000');
 		$this->member = $userService->findUser('70000000-0000-0000-0000-000000000000');
-		
+
 		$streamService = $serviceManager->get('TaskManagement\StreamService');
 		$stream = $streamService->getStream('00000000-1000-0000-0000-000000000000');
 
@@ -78,7 +78,7 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		$this->controller->setPluginManager($pluginManager);
 
 		$this->intervalForCloseTasks = new \DateInterval('P10D');
-		
+
 		$this->transactionManager = $serviceManager->get('prooph.event_store');
 		$this->transactionManager->beginTransaction();
 		$task = Task::create($stream, 'Cras placerat libero non tempor', $this->owner);
@@ -123,7 +123,7 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		$this->transactionManager->commit();
 
 		$email = $this->getLastEmailMessage();
-		
+
 		$this->assertNotNull($email);
 		$this->assertContains($this->task->getSubject(), $email->subject);
 		$this->assertEmailHtmlContains('shares', $email);
@@ -131,9 +131,9 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals($email->recipients[0], '<mark.rogers@ora.local>');
 		$this->cleanEmailMessages();
 	}
-	
+
 	public function testTaskClosedNotification(){
-		
+
 		$this->transactionManager->beginTransaction();
 		$this->task->addEstimation(1500, $this->owner);
 		$this->task->addEstimation(3100, $this->member);
@@ -141,54 +141,52 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		$this->task->accept($this->owner, $this->intervalForCloseTasks);
 		$this->transactionManager->commit();
 		$this->cleanEmailMessages();
-		
+
 		$this->transactionManager->beginTransaction();
 		$this->task->close($this->owner);
 		$this->transactionManager->commit();
-		
+
 		$email = $this->getLastEmailMessage();
-		
+
 		$this->assertEquals($this->task->getStatus(), Task::STATUS_CLOSED);
 		$this->assertNotNull($email);
 		$this->assertContains($this->task->getSubject(), $email->subject);
-		$this->assertEmailHtmlContains('http://example.com/#/00000000-0000-0000-1000-000000000000/items', $email);
 		$this->assertNotEmpty($email->recipients);
 		$this->assertEquals($email->recipients[0], '<mark.rogers@ora.local>');
-		
+
 		$this->cleanEmailMessages();
-		
+
 	}
 	public function testTaskAcceptedNotification(){
-	
+
 		$this->transactionManager->beginTransaction();
 		$this->task->addEstimation(1500, $this->owner);
 		$this->task->addEstimation(3100, $this->member);
 		$this->task->complete($this->owner);
 		$this->transactionManager->commit();
 		$this->cleanEmailMessages();
-	
+
 		$this->transactionManager->beginTransaction();
 		$this->task->accept($this->owner, $this->intervalForCloseTasks);
 		$this->transactionManager->commit();
-	
+
 		$email = $this->getLastEmailMessage();
-	
+
 		$this->assertEquals($this->task->getStatus(), Task::STATUS_ACCEPTED);
 		$this->assertNotNull($email);
 		$this->assertContains($this->task->getSubject(), $email->subject);
-		$this->assertEmailHtmlContains('http://example.com/#/00000000-0000-0000-1000-000000000000/items', $email);
 		$this->assertNotEmpty($email->recipients);
 		$this->assertEquals($email->recipients[0], '<mark.rogers@ora.local>');
-	
+
 		$this->cleanEmailMessages();
-	
+
 	}
 	protected function cleanEmailMessages()
 	{
 		$request = $this->mailcatcher->delete('/messages');
 		$response = $request->send();
 	}
-	
+
 	protected function getEmailMessages()
 	{
 		$request = $this->mailcatcher->get('/messages');
@@ -196,7 +194,7 @@ class MailNotificationProcessTest extends \PHPUnit_Framework_TestCase
 		$json = json_decode($response->getBody());
 		return $json;
 	}
-	
+
 	public function getLastEmailMessage()
 	{
 		$messages = $this->getEmailMessages();

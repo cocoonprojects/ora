@@ -26,10 +26,12 @@ class KanbanizeTask extends Task {
 	 * @var String
 	 */
 	private $assignee = self::EMPTY_ASSIGNEE;
+
 	/**
 	 * @var String
 	 */
 	private $columnname;
+
 	/**
 	 * @var String
 	 */
@@ -42,6 +44,15 @@ class KanbanizeTask extends Task {
 		if(!isset($options['columnname'])) {
 			throw InvalidArgumentException('Cannot create a KanbanizeTask without a columnname option');
 		}
+
+		$decision = false;
+
+		if (is_array($options) &&
+			isset($options['decision']) &&
+			$options['decision'] == 'true') {
+			$decision = true;
+		}
+
 		$rv = new self();
 		$rv->id = Uuid::uuid4();
 		$rv->status = self::STATUS_IDEA;
@@ -54,7 +65,8 @@ class KanbanizeTask extends Task {
 			'columnname' => $options["columnname"],
 			'lanename' => isset($options["lanename"]) ? $options["lanename"] : null,
 			'subject' => $subject,
-			'description' =>$options["description"]
+			'description' =>$options["description"],
+			'decision' => $decision
 		]));
 		return $rv;
 	}

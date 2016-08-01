@@ -52,7 +52,9 @@ class TaskCommandsListener extends ReadModelProjector {
 						return;
 					}
 					$createdBy = $this->entityManager->find(User::class, $streamEvent->payload()['by']);
-					$entity = new ReadModelKanbanizeTask($id, $stream);
+
+					$entity = new ReadModelKanbanizeTask($id, $stream, $streamEvent->payload()['decision']);
+
 					$entity->setTaskId($streamEvent->payload()['taskid'])
 						->setSubject($streamEvent->payload()['subject'])
 						->setColumnName($streamEvent->payload()['columnname'])
