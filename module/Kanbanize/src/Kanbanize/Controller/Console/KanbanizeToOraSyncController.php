@@ -263,7 +263,10 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
             return;
         }
 
-        if ($kanbanizeTask['position'] == $task->getPosition()) {
+        //adjust range
+        $position = $kanbanizeTask['position'] +1;
+
+        if ($position == $task->getPosition()) {
             return;
         }
 
@@ -273,7 +276,7 @@ class KanbanizeToOraSyncController extends AbstractConsoleController {
             $taskAggregate = $this->taskService
                                   ->getTask($task->getId());
 
-            $taskAggregate->setPosition($kanbanizeTask['position'], $systemUser);
+            $taskAggregate->setPosition($position, $systemUser);
 
             $this->transaction()->commit();
 
