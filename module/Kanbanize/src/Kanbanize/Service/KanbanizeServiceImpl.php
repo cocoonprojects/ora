@@ -125,7 +125,7 @@ class KanbanizeServiceImpl implements KanbanizeService
 		$options = [];
 
 		if ($kanbanizeTask->getLaneName()) {
-			$options['lane'] = $task->getLaneName();
+			$options['lane'] = $kanbanizeTask->getLaneName();
 		}
 
 		$response = $this->kanbanize
