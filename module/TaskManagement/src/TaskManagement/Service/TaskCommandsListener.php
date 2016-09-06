@@ -385,8 +385,9 @@ class TaskCommandsListener extends ReadModelProjector {
 
 		$id = $event->metadata()['aggregate_id'];
 		$ex_owner_id = $event->payload()['ex_owner'];
+		$by = $event->payload()['by'];
 
-		if ($ex_owner_id == $event->payload()['by']) {
+		if ($ex_owner_id == $by) {
 			return;
 		}
 
@@ -398,7 +399,7 @@ class TaskCommandsListener extends ReadModelProjector {
 		}
 
 		$removedBy = $this->entityManager
-			->find(User::class, $event->payload()['by']);
+			->find(User::class, $by);
 
 		$entity = $this->entityManager->find(Task::class, $id);
 		$entity->removeMember($ex_owner)

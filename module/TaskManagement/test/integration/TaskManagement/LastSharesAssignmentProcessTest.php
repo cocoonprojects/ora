@@ -15,18 +15,18 @@ use ZFX\Test\Authentication\OAuth2AdapterMock;
 use Behat\Testwork\Tester\Setup\Teardown;
 
 class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
-{	
+{
 	protected $controller;
 	protected $request;
 	protected $response;
 	protected $routeMatch;
 	protected $event;
-	
+
 	protected $task;
 	protected $owner;
 	protected $member;
 	protected $organization;
-	
+
 	/**
 	 * @var \DateInterval
 	 */
@@ -38,21 +38,21 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 		$userService = $serviceManager->get('Application\UserService');
 		$this->owner = $userService->findUser('60000000-0000-0000-0000-000000000000');
 		$this->member = $userService->findUser('70000000-0000-0000-0000-000000000000');
-		
+
 		$streamService = $serviceManager->get('TaskManagement\StreamService');
 		$stream = $streamService->getStream('00000000-1000-0000-0000-000000000000');
-		
+
 		$taskService = $serviceManager->get('TaskManagement\TaskService');
 		$this->controller = new SharesController($taskService);
 		$this->request	= new Request();
-		
+
 		$this->routeMatch = new RouteMatch(array('controller' => 'shares'));
 		$this->event	  = new MvcEvent();
 		$config = $serviceManager->get('Config');
 		$routerConfig = isset($config['router']) ? $config['router'] : array();
 		$router = $serviceManager->get('HttpRouter');
 		$router->setRequestUri(new Http("http://example.com"));
-		
+
 		$this->event->setRouter($router);
 		$this->event->setRouteMatch($this->routeMatch);
 		$this->controller->setEvent($this->event);
@@ -67,10 +67,10 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 		$this->controller->setPluginManager($pluginManager);
 
 		$this->intervalForCloseTasks = new \DateInterval('P7D');
-		
+
 		$transactionManager = $serviceManager->get('prooph.event_store');
 		$transactionManager->beginTransaction();
-		
+
 		try {
 			$task = Task::create($stream, 'Cras placerat libero non tempor', $this->owner);
 			$task->addMember($this->owner, Task::ROLE_OWNER);
@@ -85,12 +85,12 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 			$this->task = $taskService->addTask($task);
 			$transactionManager->commit();
 		} catch (\Exception $e) {
-			var_dump($e);
+			var_dump($e->getMessage());
 			$transactionManager->rollback();
 			throw $e;
 		}
 	}
-	
+
 	public function testAssignSharesAsLast() {
 		$this->routeMatch->setParam('id', $this->task->getId());
 
@@ -113,7 +113,7 @@ class LastSharesAssignmentProcessTest extends \PHPUnit_Framework_TestCase
 		$this->routeMatch->setParam('id', $this->task->getId());
 
 		$this->request->setMethod('post');
-		
+
 		$result   = $this->controller->dispatch($this->request);
 		$response = $this->controller->getResponse();
 

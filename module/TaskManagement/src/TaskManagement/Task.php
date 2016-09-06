@@ -540,19 +540,21 @@ class Task extends DomainEntity implements TaskInterface
 		}
 
 		$ex_owner = $this->getOwner();
-		if(!is_null($ex_owner)){
-			$this->recordThat(OwnerRemoved::occur($this->id->toString(), array(
-				'organizationId' => $this->getOrganizationId(),
-				'ex_owner' => $ex_owner,
-				'by' => $by->getId()
-			)));
-		}
+
 		$this->recordThat(OwnerAdded::occur($this->id->toString(), array(
 			'organizationId' => $this->getOrganizationId(),
 			'ex_owner' => $ex_owner,
 			'new_owner' => $new_owner->getId(),
 			'by' => $by->getId()
 		)));
+
+		if(!is_null($ex_owner)){
+			$this->recordThat(OwnerRemoved::occur($this->id->toString(), array(
+				'organizationId' => $this->getOrganizationId(),
+				'ex_owner' => $ex_owner,
+				'by' => $new_owner->getId()
+			)));
+		}
 	}
 
 	public function removeOwner(BasicUser $by){
