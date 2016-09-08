@@ -401,12 +401,19 @@ class TaskCommandsListener extends ReadModelProjector {
 		$removedBy = $this->entityManager
 			->find(User::class, $by);
 
+
 		$entity = $this->entityManager->find(Task::class, $id);
-		$entity->removeMember($ex_owner)
-			   ->setMostRecentEditAt($event->occurredOn())
+
+		$member = $entity->getMember($ex_owner);
+		$member->setRole(TaskMember::ROLE_MEMBER);
+
+		$entity->setMostRecentEditAt($event->occurredOn())
 			   ->setMostRecentEditBy($removedBy);
 
 		$this->entityManager
+			 ->persist($member);
+
+	 	$this->entityManager
 			 ->persist($entity);
 	}
 

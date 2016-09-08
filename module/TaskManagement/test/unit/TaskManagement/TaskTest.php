@@ -6,11 +6,11 @@ use Application\Entity\User;
 use People\Organization;
 
 class TaskTest extends \PHPUnit_Framework_TestCase {
-	
+
 	/**
-	 * 
+	 *
 	 * @var User
-	 */	
+	 */
 	protected $owner;
 	/**
 	 * @var User
@@ -25,7 +25,7 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 	 */
 	protected $user3;
 	/**
-	 * 
+	 *
 	 * @var Stream
 	 */
 	protected $stream;
@@ -75,18 +75,18 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals(Task::STATUS_IDEA, $task->getStatus());
 		$this->assertEquals($this->stream->getId(), $task->getStreamId());
 	}
-	
+
 	/**
 	 * @expectedException Application\IllegalStateException
 	 */
 	public function testDeleteOngoingTask() {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->delete($this->owner);
-		
+
 		$this->assertEquals(Task::STATUS_DELETED, $task->getStatus());
 		$task->complete($this->owner);
 	}
-	
+
 	/**
 	 * @expectedException Application\IllegalStateException
 	 */
@@ -96,23 +96,23 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$task->complete($this->owner);
 		$task->delete($this->owner);
 	}
-	
+
 	public function testAddMember() {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner);
-		
+
 		$members = $task->getMembers();
 		$this->assertArrayHasKey($this->owner->getId(), $members);
 		$this->assertEquals(Task::ROLE_MEMBER, $members[$this->owner->getId()]['role']);
 		$this->assertArrayNotHasKey('accountId', $members[$this->owner->getId()]);
 	}
-	
+
 	public function testAddMembers() {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
 		$task->addMember($this->user1);
 		$task->addMember($this->user2);
-		
+
 		$members = $task->getMembers();
 		$this->assertCount(3, $members);
 		$this->assertArrayHasKey($this->owner->getId(), $members);
@@ -125,11 +125,11 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$this->assertArrayNotHasKey('accountId', $members[$this->user1->getId()]);
 		$this->assertArrayNotHasKey('accountId', $members[$this->user2->getId()]);
 	}
-	
+
 	public function testAddAdmin() {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
-		
+
 		$members = $task->getMembers();
 		$this->assertArrayHasKey($this->owner->getId(), $members);
 		$this->assertEquals(Task::ROLE_OWNER, $members[$this->owner->getId()]['role']);
@@ -150,26 +150,26 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$task->addMember($this->owner);
 		$this->assertTrue($task->hasMember($this->owner));
 	}
-	
+
 	public function testHasAs() {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner);
 		$this->assertTrue($task->hasAs(Task::ROLE_MEMBER, $this->owner));
 	}
-	
+
 	public function testAddEstimation() {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->user1, Task::ROLE_OWNER);
 		$task->addMember($this->user2);
-		
+
 		$task->open($this->user1);
 		$task->execute($this->user1);
-		
+
 		$task->addEstimation(20, $this->user1);
 		$task->addEstimation(1000, $this->user2);
-		
+
 		$members = $task->getMembers();
-		
+
 		$this->assertArrayHasKey($this->user1->getId(), $members);
 		$this->assertArrayHasKey($this->user2->getId(), $members);
 		$this->assertEquals(20, $members[$this->user1->getId()]['estimation']);
@@ -235,5 +235,20 @@ class TaskTest extends \PHPUnit_Framework_TestCase {
 		$task = Task::create($this->stream, null, $this->owner);
 		$task->addMember($this->owner, Task::ROLE_OWNER);
 		$task->execute($this->owner);
+	}
+
+	public function testRemoveOwner(){
+		$task = Task::create($this->stream, null, $this->owner);
+		$task->addMember($this->owner, Task::ROLE_OWNER);
+		$task->addMember($this->user1, Task::ROLE_MEMBER);
+		$task->changeOwner($this->user1, $this->owner);
+		$task->open($this->user1);
+		$task->execute($this->user1);
+
+		$members = $task->getMembers();
+
+		$this->assertEquals('member', $members[$this->owner->getId()]['role']);
+		$this->assertEquals('owner', $members[$this->user1->getId()]['role']);
+
 	}
 }
