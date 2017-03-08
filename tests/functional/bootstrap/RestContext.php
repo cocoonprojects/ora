@@ -1,16 +1,21 @@
 <?php
 
+use Behat\Gherkin\Node\TableNode;
 use Behat\MinkExtension\Context\RawMinkContext;
 use Behat\Testwork\Hook\Scope\AfterSuiteScope;
 use Behat\Testwork\Hook\Scope\BeforeSuiteScope;
 use Guzzle\Service\Client;
+use Alteris\BehatZendframeworkExtension\Context\ContextAwareInterface;
 
 /**
  * Rest context.
  */
-class RestContext extends RawMinkContext
+class RestContext extends RawMinkContext implements ContextAwareInterface
 {
-	private $_restObject = null;
+    protected $application;
+    protected $serviceManager;
+
+    private $_restObject = null;
 	private $_restObjectType = null;
 	private $_restObjectMethod = 'get';
 	private $_client = null;
@@ -40,15 +45,14 @@ class RestContext extends RawMinkContext
 			echo 'Setting APPLICATION_ENV=acceptance failed!';
 			die();
 		}
-		
-		echo shell_exec('../vendor/bin/doctrine-module orm:schema-tool:drop --force');
-		echo shell_exec('../vendor/bin/doctrine-module orm:schema-tool:create');
-		echo shell_exec('../vendor/bin/doctrine-module dbal:import ' . __DIR__ . '/../../sql/init.sql');
+        echo shell_exec('../vendor/bin/doctrine-module orm:schema-tool:drop --force');
+        echo shell_exec('../vendor/bin/doctrine-module orm:schema-tool:create');
+//		echo shell_exec('../vendor/bin/doctrine-module dbal:import ' . __DIR__ . '/../../sql/init.sql');
 	}
 	
 	/** @AfterSuite */
 	public static function teardownApplication(AfterSuiteScope $scope){
-		echo shell_exec('../vendor/bin/doctrine-module orm:schema-tool:drop --force');
+//		echo shell_exec('../vendor/bin/doctrine-module orm:schema-tool:drop --force');
 	} 
 	
 	/**
@@ -61,6 +65,15 @@ class RestContext extends RawMinkContext
 		$this->_restObject = new stdClass();
 		$this->_client = new Client();
 		$this->base_url = $base_url;
+
+		/*
+        include __DIR__.'/../../../init_autoloader.php';
+        $this->application = Zend\Mvc\Application::init(include __DIR__.'/../../../config/application.config.php')->run();
+        $this->serviceManager = $this->application->getServiceManager();
+
+        $this->config = include __DIR__.'/../../../config/autoload/global.php';
+        $this->adapter = new Zend\Db\Adapter\Adapter($this->config['db']);
+		*/
 	}
 
 	public function getBaseUrl()
@@ -76,6 +89,21 @@ class RestContext extends RawMinkContext
 			return (isset($this->base_url)) ? $this->base_url : null;
 		}
 	}
+
+    /**
+     * @Given /^there are the following organizations:$/
+     */
+    public function thereAreTheFollowingOrganizations(TableNode $table) {
+        $hash = $table->getHash();
+        foreach ($hash as $row) {
+
+            $userService = $this->serviceManager->get('Application\Service\EventSourcingUserService');
+            $user = $userService->findByEmail($row['email']);
+
+            $orgService = $this->serviceManager->get('People\Service\EventSourcingOrganizationService');
+            $organization = $orgService->createOrganization($row['name'], $this->identity());
+        }
+    }
 
 	/**
 	 * @Given /^that I want to make a new "([^"]*)"$/
@@ -436,4 +464,14 @@ class RestContext extends RawMinkContext
 		}
 		return $this->jsonProperties;
 	}
+
+    /**
+     * @param \Zend\Mvc\ApplicationInterface $application
+     * @return void
+     */
+    public function setApplication(\Zend\Mvc\ApplicationInterface $application)
+    {
+        $this->application = $application;
+        $this->serviceManager = $this->application->getServiceManager();
+    }
 }

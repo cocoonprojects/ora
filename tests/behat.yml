@@ -26,4 +26,5 @@ default:
         Behat\MinkExtension:
             base_url:  http://oraprojecttest
             goutte:    ~
-            selenium2: ~
+        Alteris\BehatZendframeworkExtension\ServiceContainer\Extension:
+            configuration: /var/www/ora/config/application.config.php
