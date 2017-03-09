@@ -97,11 +97,16 @@ class RestContext extends RawMinkContext implements ContextAwareInterface
         $hash = $table->getHash();
         foreach ($hash as $row) {
 
-            $userService = $this->serviceManager->get('Application\Service\EventSourcingUserService');
-            $user = $userService->findByEmail($row['email']);
+            $userService = $this->serviceManager->get('Application\UserService');
+            $user = $userService->create([
+                'email' => $row['email'],
+                'family_name' => 'OrgManager',
+                'given_name' => 'OrgManager',
+                'picture' => ''
+            ], Application\Entity\User::ROLE_USER);
 
-            $orgService = $this->serviceManager->get('People\Service\EventSourcingOrganizationService');
-            $organization = $orgService->createOrganization($row['name'], $this->identity());
+            $orgService = $this->serviceManager->get('People\OrganizationService');
+            $organization = $orgService->createOrganization($row['name'], $user);
         }
     }
 

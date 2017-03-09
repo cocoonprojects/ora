@@ -27,4 +27,4 @@ default:
             base_url:  http://oraprojecttest
             goutte:    ~
         Alteris\BehatZendframeworkExtension\ServiceContainer\Extension:
-            configuration: /var/www/ora/config/application.config.php
+            configuration: /var/www/backend/config/application.config.php
